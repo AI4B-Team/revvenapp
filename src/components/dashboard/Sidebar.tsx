@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -13,6 +13,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', active: true },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F' },
+    { icon: <Bot size={18} />, label: 'Assistant' },
   ];
 
   const navItems = [
