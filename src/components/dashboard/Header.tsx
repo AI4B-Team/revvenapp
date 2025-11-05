@@ -125,11 +125,6 @@ const Header = () => {
                 <span>Invites</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
-                <Globe size={20} />
-                <span>Creator profile</span>
-              </DropdownMenuItem>
-
               <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
                 <div className="flex items-center gap-3">
                   <Languages size={20} />
@@ -148,7 +143,7 @@ const Header = () => {
 
               <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
                 <HelpCircle size={20} />
-                <span>Help center</span>
+                <span>Help</span>
               </DropdownMenuItem>
             </div>
 
