@@ -14,7 +14,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', active: true, link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
-    { icon: <Bot size={18} />, label: 'AI Agents', link: '/ai-agents' },
+    { icon: <Bot size={18} />, label: 'Assistant', link: '/' },
   ];
 
   const navItems = [

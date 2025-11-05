@@ -26,9 +26,9 @@ const Header = () => {
             Monetize
           </button>
           <span className="text-muted">|</span>
-          <button className="text-muted-foreground font-medium hover:text-foreground transition">
+          <a href="/ai-agents" className="text-muted-foreground font-medium hover:text-foreground transition">
             Automate
-          </button>
+          </a>
         </nav>
       </div>
 
