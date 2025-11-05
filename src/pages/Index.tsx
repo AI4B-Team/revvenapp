@@ -96,7 +96,7 @@ const Index = () => {
         <Header />
         
         <main className="flex-1 overflow-auto px-8 py-8">
-          <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create?</h1>
+          <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
           
           <ContentTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
           

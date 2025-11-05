@@ -7,31 +7,31 @@ interface ContentTypeSelectorProps {
 
 const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelectorProps) => {
   const contentTypes = [
-    { icon: <Sparkles size={16} />, label: 'Content', color: 'text-brand-yellow' },
-    { icon: <Image size={16} />, label: 'Image', color: 'text-brand-green' },
-    { icon: <Video size={16} />, label: 'Video', color: 'text-brand-red' },
-    { icon: <Music size={16} />, label: 'Sound', color: 'text-brand-blue' },
-    { icon: <FileText size={16} />, label: 'Document', color: 'text-brand-green' },
-    { icon: <Code size={16} />, label: 'Code', color: 'text-brand-purple' },
+    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
+    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
+    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
+    { icon: <FileText size={18} />, label: 'Text', color: 'text-brand-green' },
+    { icon: <Sparkles size={18} />, label: '3D', color: 'text-brand-purple' },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto mb-8">
+    <div className="max-w-5xl mx-auto mb-8">
       <div className="flex items-center justify-center gap-3">
         {contentTypes.map((type, idx) => (
           <button
             key={idx}
             onClick={() => onTypeChange(type.label)}
-            className={`p-3 rounded-xl transition ${
+            className={`px-5 py-3 rounded-xl transition flex items-center gap-2 ${
               selectedType === type.label
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary hover:bg-secondary/80'
             }`}
           >
             <span className={selectedType === type.label ? '' : type.color}>{type.icon}</span>
+            <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
-        <button className="p-3 bg-secondary hover:bg-secondary/80 rounded-xl transition">
+        <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition">
           <MoreHorizontal size={20} />
         </button>
       </div>
