@@ -19,7 +19,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { icon: <Sparkles size={18} />, label: 'Content', color: 'text-brand-yellow' },
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
-    { icon: <Music size={18} />, label: 'Sound', color: 'text-brand-blue' },
+    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
     { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
     { icon: <Code size={18} />, label: 'Code', color: 'text-brand-purple' },
   ];
@@ -143,18 +143,6 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           )}
         </div>
       </nav>
-
-      {/* Credits Display */}
-      <div className="px-4 mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-brand-green">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 6v6l4 2"/>
-          </svg>
-          <span className="text-brand-green font-semibold">88,000 Credits</span>
-          <HelpCircle size={14} className="text-brand-green" />
-        </div>
-      </div>
 
       {/* Credits Section */}
       <div className="p-4 space-y-3 bg-sidebar">

@@ -7,11 +7,12 @@ interface ContentTypeSelectorProps {
 
 const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelectorProps) => {
   const contentTypes = [
+    { icon: <Sparkles size={18} />, label: 'Content', color: 'text-brand-yellow' },
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
-    { icon: <FileText size={18} />, label: 'Text', color: 'text-brand-green' },
-    { icon: <Sparkles size={18} />, label: '3D', color: 'text-brand-purple' },
+    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
+    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-purple' },
   ];
 
   return (
