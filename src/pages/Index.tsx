@@ -49,6 +49,27 @@ const Index = () => {
     },
   ];
 
+  const videoTools = [
+    { 
+      name: 'Video Downloader', 
+      description: 'Download videos',
+      bgColor: 'bg-tool-blue',
+      emoji: '📥'
+    },
+    { 
+      name: 'Video Resizer', 
+      description: 'Resize video dimensions',
+      bgColor: 'bg-tool-pink',
+      emoji: '📐'
+    },
+    { 
+      name: 'Motion-Sync', 
+      description: 'Sync video motion',
+      bgColor: 'bg-tool-yellow',
+      emoji: '🎬'
+    },
+  ];
+
   const audioTools = [
     { 
       name: 'AI Voice Cloner', 
@@ -109,6 +130,14 @@ const Index = () => {
             <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
               {imageTools.map((tool, idx) => (
+                <ToolCard key={idx} {...tool} />
+              ))}
+            </div>
+
+            {/* Video Tools Section */}
+            <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+              {videoTools.map((tool, idx) => (
                 <ToolCard key={idx} {...tool} />
               ))}
             </div>
