@@ -75,7 +75,6 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      <div className="w-4 h-2.5 border border-current rounded-sm"></div>
                       16:9
                       <ChevronDown size={14} />
                     </button>
