@@ -2,18 +2,18 @@ import { Clock, Wrench, Users } from 'lucide-react';
 
 const ActionButtons = () => {
   return (
-    <div className="max-w-4xl mx-auto mb-8 flex items-center gap-6 pl-2">
-      <button className="flex items-center gap-2 text-foreground hover:text-primary transition">
-        <Wrench size={20} />
-        <span className="font-medium">Tools</span>
+    <div className="max-w-6xl mx-auto mb-8 flex items-center gap-3">
+      <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg flex items-center gap-2 transition">
+        <Wrench size={18} />
+        <span className="font-medium text-sm">Tools</span>
       </button>
-      <button className="flex items-center gap-2 text-foreground hover:text-primary transition">
-        <Clock size={20} />
-        <span className="font-medium">Creations</span>
+      <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg flex items-center gap-2 transition">
+        <Clock size={18} />
+        <span className="font-medium text-sm">Creations</span>
       </button>
-      <button className="flex items-center gap-2 text-foreground hover:text-primary transition">
-        <Users size={20} />
-        <span className="font-medium">Community</span>
+      <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg flex items-center gap-2 transition">
+        <Users size={18} />
+        <span className="font-medium text-sm">Community</span>
       </button>
     </div>
   );
