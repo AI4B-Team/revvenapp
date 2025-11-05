@@ -9,6 +9,7 @@ import ToolCard from '@/components/dashboard/ToolCard';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('Content');
   const [selectedType, setSelectedType] = useState('Image');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const imageTools = [
     { 
@@ -89,14 +90,30 @@ const Index = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setSidebarOpen(false);
+        }}
+        sidebarOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onMenuClick={() => setSidebarOpen(true)} />
         
-        <main className="flex-1 overflow-auto px-8 py-8">
-          <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
+        <main className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-center mb-6 lg:mb-8">What Would You Like To Create Today?</h1>
           
           <ContentTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
           
@@ -105,17 +122,17 @@ const Index = () => {
           <ActionButtons />
           
           {/* Image Tools Section */}
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6">IMAGE TOOLS</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4 mb-10 lg:mb-12">
               {imageTools.map((tool, idx) => (
                 <ToolCard key={idx} {...tool} />
               ))}
             </div>
 
             {/* Audio Tools Section */}
-            <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <h2 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6">AUDIO TOOLS</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4 pb-8">
               {audioTools.map((tool, idx) => (
                 <ToolCard key={idx} {...tool} />
               ))}

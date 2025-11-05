@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, X
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  sidebarOpen: boolean;
+  onClose: () => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, sidebarOpen, onClose }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', active: true },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F' },
@@ -35,7 +37,22 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   ];
 
   return (
-    <div className="w-64 bg-sidebar text-sidebar-text flex flex-col">
+    <aside className={`
+      fixed lg:static inset-y-0 left-0 z-50
+      w-64 bg-sidebar text-sidebar-text
+      transform transition-transform duration-300 ease-in-out
+      ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      flex flex-col
+    `}>
+      {/* Close Button - Mobile Only */}
+      <button 
+        onClick={onClose}
+        className="lg:hidden absolute top-4 right-4 text-sidebar-muted hover:text-sidebar-text z-10"
+        aria-label="Close menu"
+      >
+        <X size={24} />
+      </button>
+
       {/* Logo */}
       <div className="p-6 flex justify-center">
         <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
@@ -184,7 +201,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           </button>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 

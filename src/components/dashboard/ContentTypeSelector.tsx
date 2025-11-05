@@ -16,13 +16,13 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mb-8">
-      <div className="flex items-center justify-center gap-3">
+    <div className="max-w-5xl mx-auto mb-6 lg:mb-8">
+      <div className="flex items-center gap-2 lg:gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {contentTypes.map((type, idx) => (
           <button
             key={idx}
             onClick={() => onTypeChange(type.label)}
-            className={`px-5 py-3 rounded-xl transition flex items-center gap-2 ${
+            className={`px-3 lg:px-5 py-2 lg:py-3 rounded-xl transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
               selectedType === type.label
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary hover:bg-secondary/80'
@@ -32,7 +32,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
             <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
-        <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition">
+        <button className="px-3 lg:px-5 py-2 lg:py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition shrink-0">
           <MoreHorizontal size={20} />
         </button>
       </div>

@@ -6,22 +6,22 @@ import { useState } from 'react';
 const GenerationInput = () => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   return (
-    <div className="max-w-6xl mx-auto mb-8">
-      <div className="bg-background border-2 border-border rounded-xl p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex items-center gap-1">
-            <Image size={20} className="text-muted-foreground" />
-            <Sparkles size={20} className="text-muted-foreground" />
+    <div className="max-w-5xl mx-auto mb-6 lg:mb-8">
+      <div className="bg-background border-2 border-border rounded-xl p-4 lg:p-6">
+        <div className="flex items-center gap-3 mb-4 lg:mb-6">
+          <div className="flex items-center gap-1 shrink-0">
+            <Image size={18} className="text-muted-foreground lg:w-5 lg:h-5" />
+            <Sparkles size={18} className="text-muted-foreground lg:w-5 lg:h-5" />
           </div>
           <input
             type="text"
             placeholder="Describe what you want to see..."
-            className="flex-1 text-foreground placeholder-muted-foreground outline-none bg-transparent text-lg"
+            className="flex-1 text-foreground placeholder-muted-foreground outline-none bg-transparent text-sm lg:text-lg"
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
             <Popover>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
@@ -197,13 +197,13 @@ const GenerationInput = () => {
               </PopoverContent>
             </Popover>
             
-            <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition whitespace-nowrap">
+            <button className="px-3 lg:px-4 py-1.5 hover:bg-secondary rounded-md text-xs lg:text-sm transition whitespace-nowrap">
               Style
             </button>
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className="px-3 lg:px-4 py-1.5 hover:bg-secondary rounded-md text-xs lg:text-sm transition flex items-center gap-2 whitespace-nowrap">
                   Character
                   <ChevronDown size={14} />
                 </button>
@@ -244,7 +244,7 @@ const GenerationInput = () => {
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className="px-3 lg:px-4 py-1.5 hover:bg-secondary rounded-md text-xs lg:text-sm transition flex items-center gap-2 whitespace-nowrap">
                   References
                   <ChevronDown size={14} />
                 </button>
@@ -258,7 +258,7 @@ const GenerationInput = () => {
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className="px-3 lg:px-4 py-1.5 hover:bg-secondary rounded-md text-xs lg:text-sm transition flex items-center gap-2 whitespace-nowrap">
                   1:1
                   <ChevronDown size={14} />
                 </button>
@@ -290,7 +290,7 @@ const GenerationInput = () => {
             </Popover>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+                <button className="px-3 lg:px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-xs lg:text-sm font-medium flex items-center gap-2 whitespace-nowrap">
                   1 Image
                   <ChevronDown size={14} />
                 </button>
@@ -320,12 +320,12 @@ const GenerationInput = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <button className="hidden sm:flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium transition text-sm whitespace-nowrap">
               <Sparkles size={16} />
               AI
             </button>
-            <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap">
+            <button className="flex-1 lg:flex-none px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center justify-center gap-2 transition whitespace-nowrap">
               Generate For Free!
             </button>
           </div>
