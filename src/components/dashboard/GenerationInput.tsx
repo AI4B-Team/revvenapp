@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video, Layers } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
@@ -9,8 +9,6 @@ interface GenerationInputProps {
 
 const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [multiShotEnabled, setMultiShotEnabled] = useState(false);
   
   const isVideoMode = selectedType === 'Video';
   return (
@@ -143,25 +141,6 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                     </div>
                   </PopoverContent>
                 </Popover>
-
-                <button
-                  onClick={() => setAudioEnabled(!audioEnabled)}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition whitespace-nowrap ${
-                    audioEnabled 
-                      ? 'bg-brand-yellow text-primary hover:bg-brand-yellow/90' 
-                      : 'bg-secondary hover:bg-secondary/80'
-                  }`}
-                >
-                  Audio {audioEnabled ? 'ON' : 'OFF'}
-                </button>
-
-                <button
-                  onClick={() => setMultiShotEnabled(!multiShotEnabled)}
-                  className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-                >
-                  <Layers size={14} />
-                  Multi-Shot {multiShotEnabled ? 'ON' : 'OFF'}
-                </button>
               </>
             ) : (
               <>
