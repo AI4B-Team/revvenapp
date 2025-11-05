@@ -100,7 +100,7 @@ const Index = () => {
           
           <ContentTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
           
-          <GenerationInput />
+          <GenerationInput selectedType={selectedType} />
           
           <ActionButtons />
           
