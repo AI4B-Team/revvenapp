@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot
@@ -11,9 +12,9 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const sidebarItems = [
-    { icon: <FileText size={18} />, label: 'Dashboard', active: true },
-    { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F' },
-    { icon: <Bot size={18} />, label: 'Assistant' },
+    { icon: <FileText size={18} />, label: 'Dashboard', active: true, link: '/' },
+    { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
+    { icon: <Bot size={18} />, label: 'AI Agents', link: '/ai-agents' },
   ];
 
   const navItems = [
@@ -80,8 +81,9 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
-          <button
+          <Link
             key={idx}
+            to={item.link || '/'}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
               item.active ? 'bg-sidebar-active' : 'hover:bg-sidebar-hover'
             }`}
@@ -93,7 +95,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
             {item.shortcut && (
               <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
             )}
-          </button>
+          </Link>
         ))}
 
         <div className="pt-6 space-y-1">
