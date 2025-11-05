@@ -72,12 +72,12 @@ const Header = () => {
 
             {/* Action Buttons */}
             <div className="space-y-2 mb-4">
-              <Button className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white h-12">
+              <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-12">
                 Upgrade
               </Button>
               <Button variant="outline" className="w-full bg-transparent border-gray-600 hover:bg-gray-800 text-white h-12">
                 <UserPlus size={18} className="mr-2" />
-                Add members
+                Add Members
               </Button>
             </div>
 
@@ -88,16 +88,16 @@ const Header = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 text-white">
                   <RefreshCw size={20} />
-                  <span>Credit usage</span>
+                  <span>Credit Usage</span>
                 </div>
                 <ChevronRight size={20} className="text-gray-400" />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Spent 0</span>
-                  <span className="text-gray-400">Limit 45,000</span>
+                  <span className="text-gray-400">Spent 10,000</span>
+                  <span className="text-gray-400">Credits Remaining 88,000</span>
                 </div>
-                <Progress value={0} className="h-2 bg-gray-700" />
+                <Progress value={11.36} className="h-2 bg-gray-700" />
               </div>
             </div>
 
@@ -111,7 +111,7 @@ const Header = () => {
                   <span>Subscription</span>
                 </div>
                 <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
-                  Premium+
+                  Pro
                 </Badge>
               </DropdownMenuItem>
 
