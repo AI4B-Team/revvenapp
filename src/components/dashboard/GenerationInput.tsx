@@ -45,10 +45,10 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Auto</span>
+                          <span className="font-semibold text-foreground text-sm">Auto</span>
                           <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">AI picks what's best</p>
+                        <p className="text-xs text-muted-foreground">AI picks what's best</p>
                       </div>
                     </div>
                   </button>
@@ -61,13 +61,13 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Seedream 4 4K</span>
+                          <span className="font-semibold text-foreground text-sm">Seedream 4 4K</span>
                           <Badge className="bg-brand-red text-primary text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
                             <Flame size={10} />
                             TRENDING
                           </Badge>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">The only 4K with image references and strong aesthetics</p>
+                        <p className="text-xs text-muted-foreground">The only 4K with image references and strong aesthetics</p>
                       </div>
                     </div>
                   </button>
@@ -83,12 +83,12 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Seedream</span>
+                          <span className="font-semibold text-foreground text-sm">Seedream</span>
                           <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">Exceptional creativity</p>
+                        <p className="text-xs text-muted-foreground">Exceptional creativity</p>
                       </div>
-                      <ChevronRight size={16} className="text-sidebar-text-muted" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
@@ -103,11 +103,11 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Flux</span>
+                          <span className="font-semibold text-foreground text-sm">Flux</span>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">Most loved by the AI community</p>
+                        <p className="text-xs text-muted-foreground">Most loved by the AI community</p>
                       </div>
-                      <ChevronRight size={16} className="text-sidebar-text-muted" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
@@ -122,11 +122,11 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Mystic</span>
+                          <span className="font-semibold text-foreground text-sm">Mystic</span>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">Freepik AI at 2K resolution</p>
+                        <p className="text-xs text-muted-foreground">Freepik AI at 2K resolution</p>
                       </div>
-                      <ChevronRight size={16} className="text-sidebar-text-muted" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
@@ -146,11 +146,11 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Google</span>
+                          <span className="font-semibold text-foreground text-sm">Google</span>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">Photorealism and prompt adherence</p>
+                        <p className="text-xs text-muted-foreground">Photorealism and prompt adherence</p>
                       </div>
-                      <ChevronRight size={16} className="text-sidebar-text-muted" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
                   
@@ -158,19 +158,19 @@ const GenerationInput = () => {
                   {expandedModel === 'google' && (
                     <div className="ml-11 space-y-1 border-l-2 border-sidebar-hover pl-3">
                       <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-sidebar-text">Google Nano Banana</p>
+                        <p className="text-sm text-foreground">Google Nano Banana</p>
                       </button>
                       <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-sidebar-text">Google Imagen 3</p>
+                        <p className="text-sm text-foreground">Google Imagen 3</p>
                       </button>
                       <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-sidebar-text">Google Imagen 4 Fast</p>
+                        <p className="text-sm text-foreground">Google Imagen 4 Fast</p>
                       </button>
                       <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-sidebar-text">Google Imagen 4</p>
+                        <p className="text-sm text-foreground">Google Imagen 4</p>
                       </button>
                       <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-sidebar-text">Google Imagen 4 Ultra</p>
+                        <p className="text-sm text-foreground">Google Imagen 4 Ultra</p>
                       </button>
                     </div>
                   )}
@@ -186,11 +186,11 @@ const GenerationInput = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sidebar-text text-sm">Ideogram 3</span>
+                          <span className="font-semibold text-foreground text-sm">Ideogram 3</span>
                         </div>
-                        <p className="text-xs text-sidebar-text-muted">Typography and graphic design</p>
+                        <p className="text-xs text-muted-foreground">Typography and graphic design</p>
                       </div>
-                      <ChevronRight size={16} className="text-sidebar-text-muted" />
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
                 </div>
