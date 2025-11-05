@@ -6,8 +6,8 @@ import { useState } from 'react';
 const GenerationInput = () => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   return (
-    <div className="max-w-5xl mx-auto mb-6 lg:mb-8">
-      <div className="bg-background border-2 border-border rounded-xl p-4 lg:p-6">
+    <div className="max-w-4xl mx-auto mb-6 lg:mb-8">
+      <div className="bg-card border-2 border-border rounded-xl p-4 lg:p-6 shadow-md">
         <div className="flex items-center gap-3 mb-4 lg:mb-6">
           <div className="flex items-center gap-1 shrink-0">
             <Image size={18} className="text-muted-foreground lg:w-5 lg:h-5" />
