@@ -11,6 +11,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   
   const isVideoMode = selectedType === 'Video';
+  const isAudioMode = selectedType === 'Audio';
   return (
     <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
@@ -18,6 +19,8 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
           <div className="flex items-center gap-1">
             {isVideoMode ? (
               <Video size={20} className="text-muted-foreground" />
+            ) : isAudioMode ? (
+              <Sparkles size={20} className="text-muted-foreground" />
             ) : (
               <>
                 <Image size={20} className="text-muted-foreground" />
@@ -27,7 +30,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
           </div>
           <input
             type="text"
-            placeholder={isVideoMode ? "Describe the video you want to create..." : "Describe what you want to see..."}
+            placeholder={isVideoMode ? "Describe the video you want to create..." : isAudioMode ? "Describe the audio you want to create..." : "Describe what you want to see..."}
             className="flex-1 text-foreground placeholder-muted-foreground outline-none bg-transparent text-lg"
           />
         </div>
@@ -136,6 +139,145 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                       </button>
                       <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
                         4K
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <button className="text-muted-foreground hover:text-foreground transition">
+                  <MoreHorizontal size={20} />
+                </button>
+              </>
+            ) : isAudioMode ? (
+              <>
+                {/* Audio Mode Controls */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                      Model
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Eleven Turbo v2.5
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Eleven Multilingual v2
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Character
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 bg-background border-border z-50">
+                    <div className="space-y-2">
+                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        <User size={16} />
+                        <span>Aria</span>
+                      </button>
+                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        <User size={16} />
+                        <span>Roger</span>
+                      </button>
+                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        <User size={16} />
+                        <span>Sarah</span>
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Language
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        English
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Spanish
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        French
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Accent
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        American
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        British
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Australian
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Speed
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Normal
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Fast
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Slow
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Tone
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Neutral
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Friendly
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                        Professional
                       </button>
                     </div>
                   </PopoverContent>
