@@ -3,7 +3,7 @@ import { HelpCircle, Bell, User } from 'lucide-react';
 const Header = () => {
   return (
     <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
-      <nav className="flex items-center gap-8">
+      <nav className="flex items-center gap-8 flex-1 justify-center">
         <button className="text-foreground font-medium hover:text-muted-foreground transition">
           Create
         </button>
