@@ -12,6 +12,54 @@ const AIAgentsPage = () => {
   // AI Agent/Template Cards
   const aiAgents = [
     {
+      category: 'Marketing',
+      name: 'Marketing Agent',
+      description: 'Plan and execute comprehensive marketing strategies',
+      image: '📊',
+      color: 'bg-blue-50',
+      accentColor: 'bg-blue-500'
+    },
+    {
+      category: 'Content',
+      name: 'Research Agent',
+      description: 'Conduct in-depth research and analysis on any topic',
+      image: '🔬',
+      color: 'bg-purple-50',
+      accentColor: 'bg-purple-500'
+    },
+    {
+      category: 'Content',
+      name: 'Copy Writer',
+      description: 'Write persuasive copy for any marketing material',
+      image: '✍️',
+      color: 'bg-pink-50',
+      accentColor: 'bg-pink-500'
+    },
+    {
+      category: 'Content',
+      name: 'Content Manager',
+      description: 'Organize and manage all your content creation workflows',
+      image: '📋',
+      color: 'bg-orange-50',
+      accentColor: 'bg-orange-500'
+    },
+    {
+      category: 'Marketing',
+      name: 'Social Media Manager',
+      description: 'Manage and grow your social media presence across platforms',
+      image: '📱',
+      color: 'bg-teal-50',
+      accentColor: 'bg-teal-500'
+    },
+    {
+      category: 'Marketing',
+      name: 'Media Buyer',
+      description: 'Plan and optimize paid media campaigns for maximum ROI',
+      image: '💳',
+      color: 'bg-indigo-50',
+      accentColor: 'bg-indigo-500'
+    },
+    {
       category: 'Content',
       name: 'Blog Writer Agent',
       description: 'Create engaging blog posts with AI-powered writing assistance',
