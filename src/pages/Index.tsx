@@ -1,11 +1,127 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
+import GenerationInput from '@/components/dashboard/GenerationInput';
+import ActionButtons from '@/components/dashboard/ActionButtons';
+import ToolCard from '@/components/dashboard/ToolCard';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('Content');
+  const [selectedType, setSelectedType] = useState('Image');
+
+  const imageTools = [
+    { 
+      name: 'Art Blocks', 
+      description: 'AI create some art works',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎨'
+    },
+    { 
+      name: 'AI Background Remover', 
+      description: 'Remove backgrounds',
+      bgColor: 'bg-tool-yellow',
+      emoji: '✂️'
+    },
+    { 
+      name: 'Image Eraser', 
+      description: 'Erase parts of images',
+      bgColor: 'bg-tool-blue',
+      emoji: '🖼️'
+    },
+    { 
+      name: 'Image Upscaler', 
+      description: 'Enhance image quality',
+      bgColor: 'bg-tool-yellow',
+      emoji: '📸'
+    },
+    { 
+      name: 'Image Enhancer', 
+      description: 'Improve image details',
+      bgColor: 'bg-tool-blue',
+      emoji: '❤️'
+    },
+    { 
+      name: 'Image Colorizer', 
+      description: 'Add color to images',
+      bgColor: 'bg-tool-gray',
+      emoji: '🌹'
+    },
+  ];
+
+  const audioTools = [
+    { 
+      name: 'AI Voice Cloner', 
+      description: 'Clone any voice',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎤'
+    },
+    { 
+      name: 'AI Transcriber', 
+      description: 'Transcribe audio to text',
+      bgColor: 'bg-tool-pink',
+      emoji: '📝'
+    },
+    { 
+      name: 'AI Voice Changer', 
+      description: 'Transform voice style',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎵'
+    },
+    { 
+      name: 'AI Voiceovers', 
+      description: 'Generate voiceovers',
+      bgColor: 'bg-tool-yellow',
+      emoji: '🎬'
+    },
+    { 
+      name: 'AI Audio Dubber', 
+      description: 'Dub audio tracks',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎧'
+    },
+    { 
+      name: 'AI Noise Remover', 
+      description: 'Remove background noise',
+      bgColor: 'bg-tool-yellow',
+      emoji: '🔇'
+    },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="flex h-screen bg-background text-foreground">
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        
+        <main className="flex-1 overflow-auto px-8 py-8">
+          <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create?</h1>
+          
+          <ContentTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
+          
+          <GenerationInput />
+          
+          <ActionButtons />
+          
+          {/* Image Tools Section */}
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+              {imageTools.map((tool, idx) => (
+                <ToolCard key={idx} {...tool} />
+              ))}
+            </div>
+
+            {/* Audio Tools Section */}
+            <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {audioTools.map((tool, idx) => (
+                <ToolCard key={idx} {...tool} />
+              ))}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
