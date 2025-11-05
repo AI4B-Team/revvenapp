@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 const GenerationInput = () => {
   return (
     <div className="max-w-4xl mx-auto mb-8">
-      <div className="bg-background border-2 border-border rounded-xl p-8">
+      <div className="bg-background border-2 border-border rounded-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="flex items-center gap-1">
             <Image size={20} className="text-muted-foreground" />
@@ -109,9 +109,33 @@ const GenerationInput = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium">
-              1 image
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center gap-2">
+                  1 Image
+                  <ChevronDown size={14} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 bg-background border-border z-50">
+                <div className="space-y-1">
+                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    1 Image
+                  </button>
+                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    2 Images
+                  </button>
+                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    3 Images
+                  </button>
+                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    4 Images
+                  </button>
+                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    5 Images
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <button className="text-muted-foreground hover:text-foreground transition">
               <MoreHorizontal size={20} />
             </button>
@@ -133,10 +157,10 @@ const GenerationInput = () => {
       <div className="relative">
         <div className="absolute right-0 mt-2 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-lg max-w-xs">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-brand-purple rounded flex items-center justify-center">
-              <Sparkles size={14} />
+            <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center">
+              <Sparkles size={14} className="text-primary" />
             </div>
-            <span className="font-semibold text-sm">Generate free: 5 images, 1 video</span>
+            <span className="font-semibold text-sm">Generate FREE: 5 Images, 1 Video</span>
             <button className="ml-auto text-muted-foreground hover:text-primary-foreground">×</button>
           </div>
           <p className="text-xs text-primary-foreground/80">

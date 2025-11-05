@@ -2,7 +2,7 @@ import { Clock, Wrench, Users } from 'lucide-react';
 
 const ActionButtons = () => {
   return (
-    <div className="max-w-4xl mx-auto mb-8 flex items-center gap-6">
+    <div className="max-w-4xl mx-auto mb-8 flex items-center gap-6 pl-2">
       <button className="flex items-center gap-2 text-foreground hover:text-primary transition">
         <Wrench size={20} />
         <span className="font-medium">Tools</span>
