@@ -84,24 +84,8 @@ const AIAgentsPage = () => {
       accentColor: 'bg-pink-500'
     },
     {
-      category: 'Image',
-      name: 'Portrait Generator',
-      description: 'Generate stunning portrait images for any purpose',
-      image: '🎨',
-      color: 'bg-orange-50',
-      accentColor: 'bg-orange-500'
-    },
-    {
       category: 'Video',
-      name: 'Explainer Video Agent',
-      description: 'Create educational videos that explain complex topics',
-      image: '🎬',
-      color: 'bg-red-50',
-      accentColor: 'bg-red-500'
-    },
-    {
-      category: 'Video',
-      name: 'Marketing Video Agent',
+      name: 'Video Agent',
       description: 'Generate promotional videos for your business',
       image: '📹',
       color: 'bg-yellow-50',
@@ -125,35 +109,19 @@ const AIAgentsPage = () => {
     },
     {
       category: 'Marketing',
-      name: 'Email Campaign Agent',
+      name: 'Email Marketer',
       description: 'Design and optimize email marketing campaigns',
       image: '✉️',
       color: 'bg-indigo-50',
       accentColor: 'bg-indigo-500'
     },
     {
-      category: 'Marketing',
-      name: 'Ad Copy Generator',
-      description: 'Create compelling ad copy that converts',
-      image: '💰',
-      color: 'bg-violet-50',
-      accentColor: 'bg-violet-500'
-    },
-    {
       category: 'Content',
-      name: 'SEO Content Agent',
+      name: 'SEO Agent',
       description: 'Write SEO-optimized content that ranks',
       image: '🔍',
       color: 'bg-cyan-50',
       accentColor: 'bg-cyan-500'
-    },
-    {
-      category: 'Video',
-      name: 'Short Form Agent',
-      description: 'Create viral short-form videos for TikTok & Reels',
-      image: '📲',
-      color: 'bg-rose-50',
-      accentColor: 'bg-rose-500'
     },
   ];
 

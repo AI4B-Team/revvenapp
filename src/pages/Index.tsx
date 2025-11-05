@@ -68,6 +68,12 @@ const Index = () => {
       bgColor: 'bg-tool-yellow',
       emoji: '🎬'
     },
+    { 
+      name: 'Explainer Video', 
+      description: 'Create educational videos',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎬'
+    },
   ];
 
   const audioTools = [
