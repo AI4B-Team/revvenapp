@@ -39,7 +39,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 {/* Video Mode Controls */}
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
                       <Video size={14} />
                       Veo 3 Fast
                       <ChevronDown size={14} />
@@ -59,7 +59,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                       <Image size={14} />
                       References
                       <ChevronDown size={14} />
@@ -74,7 +74,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                       16:9
                       <ChevronDown size={14} />
                     </button>
@@ -99,7 +99,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                       4 sec
                       <ChevronDown size={14} />
                     </button>
@@ -121,7 +121,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                       1080p
                       <ChevronDown size={14} />
                     </button>
@@ -148,9 +148,9 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
             ) : (
               <>
                 {/* Image Mode Controls */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -323,13 +323,13 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
               </PopoverContent>
             </Popover>
             
-            <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition whitespace-nowrap">
+            <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap">
               Style
             </button>
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   Character
                   <ChevronDown size={14} />
                 </button>
@@ -368,23 +368,24 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
               </PopoverContent>
             </Popover>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                  References
-                  <ChevronDown size={14} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 bg-background border-border z-50">
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
-                </div>
-              </PopoverContent>
-            </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      <Image size={14} />
+                      References
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 bg-background border-border z-50">
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   1:1
                   <ChevronDown size={14} />
                 </button>
@@ -416,7 +417,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
             </Popover>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 text-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
                   1 Image
                   <ChevronDown size={14} />
                 </button>
