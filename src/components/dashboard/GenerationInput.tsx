@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 const GenerationInput = () => {
   return (
-    <div className="max-w-4xl mx-auto mb-8">
+    <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="flex items-center gap-1">
@@ -18,10 +18,10 @@ const GenerationInput = () => {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition flex items-center gap-2">
+                <button className="px-4 py-1.5 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -44,13 +44,13 @@ const GenerationInput = () => {
               </PopoverContent>
             </Popover>
             
-            <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition">
+            <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition whitespace-nowrap">
               Style
             </button>
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2">
+                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   Character
                   <ChevronDown size={14} />
                 </button>
@@ -79,7 +79,7 @@ const GenerationInput = () => {
             
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2">
+                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   1:1
                   <ChevronDown size={14} />
                 </button>
@@ -111,7 +111,7 @@ const GenerationInput = () => {
             </Popover>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center gap-2">
+                <button className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
                   1 Image
                   <ChevronDown size={14} />
                 </button>
@@ -142,11 +142,11 @@ const GenerationInput = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm">
+            <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap">
               <Sparkles size={16} />
               AI
             </button>
-            <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition">
+            <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap">
               Generate For Free!
             </button>
           </div>
