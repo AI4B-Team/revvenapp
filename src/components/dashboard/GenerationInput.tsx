@@ -140,6 +140,10 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                <button className="text-muted-foreground hover:text-foreground transition">
+                  <MoreHorizontal size={20} />
+                </button>
               </>
             ) : (
               <>
