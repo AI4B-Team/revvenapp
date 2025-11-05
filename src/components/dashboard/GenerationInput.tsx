@@ -35,7 +35,7 @@ const GenerationInput = () => {
                   <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-[420px] p-0 bg-sidebar-background border-sidebar-hover z-50" align="start">
+              <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50" align="start">
                 <div className="space-y-1 p-2">
                   {/* Auto */}
                   <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
@@ -221,6 +221,18 @@ const GenerationInput = () => {
                       <User size={16} />
                     </div>
                     <span>Zara Saige</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center">
+                      <User size={16} />
+                    </div>
+                    <span>Xalina Voss</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                    <div className="w-8 h-8 bg-brand-red rounded-full flex items-center justify-center">
+                      <User size={16} />
+                    </div>
+                    <span>Bianca Rosave</span>
                   </button>
                   <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition border-t border-border mt-2 pt-3">
                     <Sparkles size={16} />
