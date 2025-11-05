@@ -18,7 +18,7 @@ const Index = () => {
       emoji: '🎨'
     },
     { 
-      name: 'AI Background Remover', 
+      name: 'Background Remover', 
       description: 'Remove backgrounds',
       bgColor: 'bg-tool-yellow',
       emoji: '✂️'
