@@ -233,6 +233,20 @@ const GenerationInput = () => {
             <Popover>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                  References
+                  <ChevronDown size={14} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 bg-background border-border z-50">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-4 py-1.5 hover:bg-secondary rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   1:1
                   <ChevronDown size={14} />
                 </button>
