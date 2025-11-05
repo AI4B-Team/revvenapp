@@ -1,4 +1,5 @@
 import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,17 +19,17 @@ const Header = () => {
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
-          <button className="text-foreground font-medium hover:text-muted-foreground transition">
+          <Link to="/" className="text-foreground font-medium hover:text-muted-foreground transition">
             Create
-          </button>
+          </Link>
           <span className="text-muted">|</span>
           <button className="text-muted-foreground font-medium hover:text-foreground transition">
             Monetize
           </button>
           <span className="text-muted">|</span>
-          <a href="/ai-agents" className="text-muted-foreground font-medium hover:text-foreground transition">
+          <Link to="/ai-agents" className="text-muted-foreground font-medium hover:text-foreground transition">
             Automate
-          </a>
+          </Link>
         </nav>
       </div>
 
