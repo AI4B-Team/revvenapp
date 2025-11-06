@@ -1,13 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Plus, Copy, Network, Settings, ArrowUp, Search } from 'lucide-react';
+import { Plus, Network, Mic, ArrowUp, Search, Sparkles, ChevronDown } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Assistant = () => {
   const [activeTab, setActiveTab] = useState('Content');
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [promptIndex, setPromptIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
+  const [selectedModel, setSelectedModel] = useState('All-Purpose (GPT-5)');
+
+  const models = [
+    'All-Purpose (GPT-5)',
+    'Real Time Search (Grok 4 Fast)',
+    'Creative (Claude Sonnet 4.5)',
+    'Thinking Model (Gemini 2.5 Pro)'
+  ];
 
   const prompts = [
     'Create a character',
@@ -67,10 +81,10 @@ const Assistant = () => {
             {/* Header Text */}
             <div className="w-full max-w-5xl text-center mb-12">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-                {getGreeting()},
+                Good Afternoon,
               </h1>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal text-muted-foreground">
-                What do you want to create?
+                How Can I Help You Today?
               </h2>
             </div>
 
@@ -105,13 +119,6 @@ const Assistant = () => {
                     </button>
                     
                     <button 
-                      className="p-2.5 hover:bg-accent rounded-lg transition-colors"
-                      title="Copy"
-                    >
-                      <Copy size={20} className="text-muted-foreground" />
-                    </button>
-                    
-                    <button 
                       className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors"
                       title="Workflows"
                     >
@@ -124,10 +131,41 @@ const Assistant = () => {
                   <div className="flex items-center gap-3">
                     <button 
                       className="p-2.5 hover:bg-accent rounded-lg transition-colors"
-                      title="Settings"
+                      title="Voice input"
                     >
-                      <Settings size={20} className="text-muted-foreground" />
+                      <Mic size={20} className="text-muted-foreground" />
                     </button>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button 
+                          className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors border border-border"
+                          title="Select model"
+                        >
+                          <Sparkles size={18} className="text-muted-foreground" />
+                          <span className="text-muted-foreground font-medium hidden sm:inline">Model</span>
+                          <ChevronDown size={16} className="text-muted-foreground" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        {models.map((model) => (
+                          <DropdownMenuItem
+                            key={model}
+                            onClick={() => setSelectedModel(model)}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              {selectedModel === model && (
+                                <span className="text-primary">✓</span>
+                              )}
+                              <span className={selectedModel === model ? 'font-medium' : ''}>
+                                {model}
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     
                     <button 
                       className="w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center transition-colors shadow-lg"
