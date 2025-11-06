@@ -1,4 +1,4 @@
-import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail } from 'lucide-react';
+import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -74,32 +74,13 @@ const Header = () => {
             {/* Action Buttons */}
             <div className="space-y-2 mb-4">
               <Button className="w-full bg-brand-green hover:bg-brand-green/90 text-white h-12">
+                <Zap size={18} className="mr-2" />
                 Upgrade
               </Button>
               <Button variant="outline" className="w-full bg-transparent border-gray-600 hover:bg-gray-800 text-white h-12">
                 <UserPlus size={18} className="mr-2" />
                 Add Members
               </Button>
-            </div>
-
-            <DropdownMenuSeparator className="bg-gray-800 my-4" />
-
-            {/* Credit Usage Section */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-white">
-                  <RefreshCw size={20} />
-                  <span>Credit Usage</span>
-                </div>
-                <ChevronRight size={20} className="text-gray-400" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Spent 10,000</span>
-                  <span className="text-gray-400">Credits Remaining 88,000</span>
-                </div>
-                <Progress value={11.36} className="h-2 bg-gray-700" />
-              </div>
             </div>
 
             <DropdownMenuSeparator className="bg-gray-800 my-4" />
@@ -166,7 +147,7 @@ const Header = () => {
             {/* Logout */}
             <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-brand-red">
               <Power size={20} />
-              <span>Log out</span>
+              <span>Log Out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
