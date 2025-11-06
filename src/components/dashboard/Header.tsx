@@ -150,6 +150,19 @@ const Header = () => {
 
             <DropdownMenuSeparator className="bg-gray-800 my-4" />
 
+            {/* Affiliate Program */}
+            <div className="px-3 py-3">
+              <button 
+                onClick={() => window.location.href = '/affiliate'}
+                className="w-full px-6 py-3 bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 rounded-lg font-medium transition flex items-center justify-center gap-2"
+              >
+                <span>Join Affiliate Program</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+
+            <DropdownMenuSeparator className="bg-gray-800 my-4" />
+
             {/* Logout */}
             <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-brand-red">
               <Power size={20} />
