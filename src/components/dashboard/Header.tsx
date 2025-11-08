@@ -33,7 +33,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             Monetize
           </Link>
           <span className="text-muted">|</span>
-          <Link to="/ai-agents" className="text-muted-foreground font-medium hover:text-foreground transition">
+          <Link to="/automate" className="text-muted-foreground font-medium hover:text-foreground transition">
             Automate
           </Link>
         </nav>
