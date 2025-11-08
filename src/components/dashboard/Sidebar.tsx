@@ -26,12 +26,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const defaultNavItems = [
-    { icon: <Sparkles size={18} />, label: 'Content', color: 'text-brand-yellow' },
-    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
-    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
-    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
-    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
-    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-yellow' },
+    { icon: <Users size={18} />, label: 'Contacts', color: 'text-brand-green', link: '/contacts' },
+    { icon: <DollarSign size={18} />, label: 'Revenue', color: 'text-brand-yellow', link: '/revenue' },
   ];
 
   const imageNavItems = [
@@ -78,7 +74,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     },
   ];
 
-  const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[] }> = 
+  const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[]; link?: string }> = 
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
@@ -335,6 +331,16 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                   </div>
                 )}
               </div>
+            ) : item.link ? (
+              <NavLink
+                key={idx}
+                to={item.link}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+                activeClassName="bg-sidebar-active"
+              >
+                <span className={item.color}>{item.icon}</span>
+                <span className="flex-1 text-left text-sm">{item.label}</span>
+              </NavLink>
             ) : (
               <button
                 key={idx}
