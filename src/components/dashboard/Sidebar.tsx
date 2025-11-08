@@ -17,7 +17,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
 
-  const navItems = [
+  const defaultNavItems = [
     { icon: <Sparkles size={18} />, label: 'Content', color: 'text-brand-yellow' },
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
@@ -25,6 +25,15 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
     { icon: <Code size={18} />, label: 'Code', color: 'text-brand-purple' },
   ];
+
+  const imageNavItems = [
+    { icon: <Sparkles size={18} />, label: 'Create', color: 'text-brand-yellow' },
+    { icon: <Image size={18} />, label: 'Edit', color: 'text-brand-green' },
+    { icon: <Video size={18} />, label: 'Upscale', color: 'text-brand-blue' },
+    { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-purple' },
+  ];
+
+  const navItems = activeTab === 'Image' ? imageNavItems : defaultNavItems;
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
