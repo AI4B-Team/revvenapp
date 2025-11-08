@@ -147,9 +147,16 @@ const NotificationBell = () => {
                     {/* Content */}
                     <div className="p-5 space-y-3">
                       {/* Title */}
-                      <h3 className="text-lg font-bold text-black">
-                        {notification.title}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-black">
+                          {notification.title}
+                        </h3>
+                        {notification.id === 1 && (
+                          <span className="bg-green-600 text-white text-xs font-bold uppercase px-2 py-1 rounded">
+                            NEW
+                          </span>
+                        )}
+                      </div>
                       
                       {/* Description */}
                       <p className="text-sm text-gray-700 leading-relaxed">
