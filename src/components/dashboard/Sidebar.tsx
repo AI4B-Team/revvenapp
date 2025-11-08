@@ -4,7 +4,7 @@ import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
-  Globe, Mail, DollarSign
+  Globe, Mail, DollarSign, LayoutTemplate
 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
 
@@ -13,9 +13,10 @@ interface SidebarProps {
   onTabChange: (tab: string) => void;
   isAssistantPage?: boolean;
   isMonetizePage?: boolean;
+  isAutomatePage?: boolean;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
@@ -40,6 +41,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
+  const automateNavItems = [
+    { 
+      icon: <Bot size={18} />, 
+      label: 'Agents', 
+      color: 'text-brand-blue'
+    },
+    { 
+      icon: <LayoutTemplate size={18} />, 
+      label: 'Templates', 
+      color: 'text-brand-green'
+    },
+  ];
+
   const monetizeNavItems = [
     { 
       icon: <Globe size={18} />, 
@@ -63,6 +77,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[] }> = 
+    isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
     (activeTab === 'Image' ? imageNavItems : defaultNavItems);

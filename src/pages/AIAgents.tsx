@@ -131,7 +131,7 @@ const AIAgentsPage = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAutomatePage />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
