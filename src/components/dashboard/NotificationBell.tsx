@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, X } from 'lucide-react';
+import { Bell, X, Sparkles, Inbox } from 'lucide-react';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -89,22 +89,24 @@ const NotificationBell = () => {
             <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <button
                 onClick={() => setActiveTab('whats-new')}
-                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
+                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
                   activeTab === 'whats-new'
                     ? 'bg-gray-200 text-black'
                     : 'bg-transparent text-gray-600 hover:text-black'
                 }`}
               >
+                <Sparkles size={18} />
                 What's New
               </button>
               <button
                 onClick={() => setActiveTab('inbox')}
-                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
+                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
                   activeTab === 'inbox'
                     ? 'bg-gray-200 text-black'
                     : 'bg-transparent text-gray-600 hover:text-black'
                 }`}
               >
+                <Inbox size={18} />
                 Inbox
               </button>
             </div>
