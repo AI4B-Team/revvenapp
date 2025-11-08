@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
-  UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock
+  UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -29,7 +29,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
   ];
 
   const imageNavItems = [
-    { icon: <Sparkles size={18} />, label: 'Create', color: 'text-brand-yellow' },
+    { icon: <Edit size={18} />, label: 'Create', color: 'text-brand-yellow' },
     { icon: <Image size={18} />, label: 'Edit', color: 'text-brand-green' },
     { icon: <Video size={18} />, label: 'Upscale', color: 'text-brand-blue' },
     { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-yellow' },
