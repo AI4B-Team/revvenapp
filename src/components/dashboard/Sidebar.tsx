@@ -5,7 +5,7 @@ import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
-  Globe, Mail, DollarSign, LayoutTemplate
+  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus
 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
 import SearchDialog from './SearchDialog';
@@ -39,11 +39,13 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const videoNavItems = [
     { icon: <Video size={18} />, label: 'Lip-Sync', color: 'text-brand-blue' },
-    { icon: <Music size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
-    { icon: <Sparkles size={18} />, label: 'Upscale', color: 'text-brand-green' },
+    { icon: <Move size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
+    { icon: <ArrowUpCircle size={18} />, label: 'Upscale', color: 'text-brand-green' },
   ];
 
   const audioNavItems = [
+    { icon: <Mic size={18} />, label: 'Create Voice', color: 'text-brand-green' },
+    { icon: <UserPlus size={18} />, label: 'Clone Voice', color: 'text-brand-yellow' },
     { icon: <Music size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
     { icon: <Music size={18} />, label: 'Music', color: 'text-brand-green' },
     { icon: <Mic size={18} />, label: 'Dubbing', color: 'text-brand-yellow' },
