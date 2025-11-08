@@ -56,6 +56,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const audioNavItems = [
+    { icon: <UserCircle size={18} />, label: 'Voices', color: 'text-brand-blue' },
     { icon: <Mic size={18} />, label: 'Create Voice', color: 'text-brand-green' },
     { icon: <Disc size={18} />, label: 'Clone Voice', color: 'text-brand-red' },
     { icon: <Volume2 size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
@@ -312,11 +313,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
         </div>
 
         <div className="space-y-1">
-          {activeTab === 'Audio' && !isDashboard && (
-            <div className="px-3 py-2 text-xs font-semibold text-sidebar-muted uppercase tracking-wider">
-              Voices
-            </div>
-          )}
           {navItems.map((item, idx) => (
             item.isDropdown ? (
               <div key={idx}>
