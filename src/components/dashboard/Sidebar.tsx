@@ -5,7 +5,7 @@ import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
-  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus
+  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2
 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
 import SearchDialog from './SearchDialog';
@@ -46,7 +46,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const audioNavItems = [
     { icon: <Mic size={18} />, label: 'Create Voice', color: 'text-brand-green' },
     { icon: <UserPlus size={18} />, label: 'Clone Voice', color: 'text-brand-yellow' },
-    { icon: <Music size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
+    { icon: <Volume2 size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
     { icon: <Music size={18} />, label: 'Music', color: 'text-brand-green' },
     { icon: <Mic size={18} />, label: 'Dubbing', color: 'text-brand-yellow' },
   ];
