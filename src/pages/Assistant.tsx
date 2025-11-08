@@ -80,12 +80,9 @@ const Assistant = () => {
             
             {/* Header Text */}
             <div className="w-full max-w-5xl text-center mb-12">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-                Good Afternoon,
-              </h1>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal text-muted-foreground">
+              <h1 className="text-5xl font-bold">
                 How Can I Help You Today?
-              </h2>
+              </h1>
             </div>
 
             {/* Main Prompt Box */}
