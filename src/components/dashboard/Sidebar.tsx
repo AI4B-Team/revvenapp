@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
+  UserCircle, Mic, Users, BookOpen, Target, Calendar
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -123,21 +124,27 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           {isBrandOpen && (
             <div className="ml-6 mt-2 space-y-2">
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <UserCircle size={14} />
                 <span className="text-sm">Identity</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <Mic size={14} />
                 <span className="text-sm">Voice</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <Users size={14} />
                 <span className="text-sm">Characters</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <BookOpen size={14} />
                 <span className="text-sm">Knowledgebase</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <Target size={14} />
                 <span className="text-sm">Campaigns</span>
               </button>
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <Calendar size={14} />
                 <span className="text-sm">Calendar</span>
               </button>
             </div>
