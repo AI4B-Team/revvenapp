@@ -37,6 +37,12 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-yellow' },
   ];
 
+  const videoNavItems = [
+    { icon: <Video size={18} />, label: 'Lip-Sync', color: 'text-brand-blue' },
+    { icon: <Music size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
+    { icon: <Sparkles size={18} />, label: 'Upscale', color: 'text-brand-green' },
+  ];
+
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
   const automateNavItems = [
@@ -78,7 +84,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
-    (activeTab === 'Image' ? imageNavItems : defaultNavItems);
+    (activeTab === 'Image' ? imageNavItems : 
+     activeTab === 'Video' ? videoNavItems : 
+     defaultNavItems);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
