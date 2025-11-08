@@ -71,14 +71,14 @@ const NotificationBell = () => {
           />
           
           {/* Dropdown Panel */}
-          <div className="absolute top-full right-0 mt-2 w-[90vw] sm:w-[500px] lg:w-[600px] max-h-[80vh] bg-[#1a1a1a] rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col border border-border">
+          <div className="absolute top-full right-0 mt-2 w-[90vw] sm:w-[500px] lg:w-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col border border-border">
             
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">Notifications</h2>
+              <h2 className="text-xl font-bold text-black">Notifications</h2>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-gray-600 hover:text-black transition-colors"
                 aria-label="Close"
               >
                 <X size={24} />
@@ -91,18 +91,18 @@ const NotificationBell = () => {
                 onClick={() => setActiveTab('whats-new')}
                 className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
                   activeTab === 'whats-new'
-                    ? 'bg-secondary text-foreground'
-                    : 'bg-transparent text-muted-foreground hover:text-foreground'
+                    ? 'bg-gray-200 text-black'
+                    : 'bg-transparent text-gray-600 hover:text-black'
                 }`}
               >
-                What's new
+                What's New
               </button>
               <button
                 onClick={() => setActiveTab('inbox')}
                 className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors ${
                   activeTab === 'inbox'
-                    ? 'bg-secondary text-foreground'
-                    : 'bg-transparent text-muted-foreground hover:text-foreground'
+                    ? 'bg-gray-200 text-black'
+                    : 'bg-transparent text-gray-600 hover:text-black'
                 }`}
               >
                 Inbox
@@ -114,10 +114,10 @@ const NotificationBell = () => {
               {filteredNotifications.map((notification) => (
                 <div key={notification.id} className="space-y-3">
                   {/* Timestamp */}
-                  <div className="text-sm text-muted-foreground">{notification.timestamp}</div>
+                  <div className="text-sm text-gray-600">{notification.timestamp}</div>
                   
                   {/* Notification Card */}
-                  <div className="bg-secondary rounded-2xl overflow-hidden hover:bg-secondary/80 transition-colors">
+                  <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors">
                     {/* Image (if exists) */}
                     {notification.image && (
                       <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-purple-900">
@@ -145,15 +145,15 @@ const NotificationBell = () => {
                     {/* Content */}
                     <div className="p-5 space-y-3">
                       {/* Title */}
-                      <h3 className="text-lg font-bold text-foreground">
+                      <h3 className="text-lg font-bold text-black">
                         {notification.title}
                       </h3>
                       
                       {/* Description */}
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-sm text-gray-700 leading-relaxed">
                         {notification.description.split('**').map((part, idx) => 
                           idx % 2 === 1 ? (
-                            <span key={idx} className="font-bold text-foreground">{part}</span>
+                            <span key={idx} className="font-bold text-black">{part}</span>
                           ) : (
                             part
                           )
@@ -173,7 +173,7 @@ const NotificationBell = () => {
 
               {/* Empty State */}
               {filteredNotifications.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-12 text-gray-600">
                   <Bell size={48} className="mx-auto mb-4 opacity-50" />
                   <p className="text-lg">No notifications yet</p>
                   <p className="text-sm mt-2">Check back later for updates</p>
