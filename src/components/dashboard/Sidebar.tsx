@@ -42,6 +42,12 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <Users size={18} />, label: 'Clone Voice', color: 'text-brand-yellow' },
   ];
 
+  const audioNavItems = [
+    { icon: <Music size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
+    { icon: <Music size={18} />, label: 'Music', color: 'text-brand-green' },
+    { icon: <Mic size={18} />, label: 'Dubbing', color: 'text-brand-yellow' },
+  ];
+
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
   const automateNavItems = [
@@ -85,6 +91,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     isAssistantPage ? assistantNavItems : 
     (activeTab === 'Image' ? imageNavItems : 
      activeTab === 'Video' ? videoNavItems : 
+     activeTab === 'Audio' ? audioNavItems :
      defaultNavItems);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
