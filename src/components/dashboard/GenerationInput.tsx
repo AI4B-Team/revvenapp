@@ -30,7 +30,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
           </div>
           <input
             type="text"
-            placeholder={isVideoMode ? "Describe the video you want to create..." : isAudioMode ? "Describe the audio you want to create..." : "Describe what you want to see..."}
+            placeholder={isVideoMode ? "Describe the video you want to create..." : isAudioMode ? "Describe the audio you want to create..." : "Describe what you want to create..."}
             className="flex-1 text-foreground placeholder-muted-foreground outline-none bg-transparent text-lg"
           />
         </div>
