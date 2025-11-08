@@ -7,8 +7,8 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('Content');
-  const [selectedType, setSelectedType] = useState('Image');
+  const [activeTab, setActiveTab] = useState('');
+  const [selectedType, setSelectedType] = useState('');
 
   const imageTools = [
     { 
@@ -117,45 +117,55 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={(tab) => {
+        setActiveTab(tab);
+        setSelectedType(tab);
+      }} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onCreateClick={() => setSelectedType(selectedType || 'Content')} />
         
-        <main className="flex-1 overflow-auto px-8 py-8">
-          <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
-          
-          <ContentTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
-          
-          <GenerationInput selectedType={selectedType} />
-          
-          <ActionButtons />
-          
-          {/* Image Tools Section */}
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-              {imageTools.map((tool, idx) => (
-                <ToolCard key={idx} {...tool} />
-              ))}
-            </div>
+        <main className="flex-1 overflow-auto px-8 py-8 bg-white">
+          {(activeTab || selectedType) ? (
+            <>
+              <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
+              
+              <ContentTypeSelector selectedType={selectedType || activeTab} onTypeChange={(type) => {
+                setSelectedType(type);
+                setActiveTab(type);
+              }} />
+              
+              <GenerationInput selectedType={selectedType || activeTab} />
+              
+              <ActionButtons />
+              
+              {/* Image Tools Section */}
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {imageTools.map((tool, idx) => (
+                    <ToolCard key={idx} {...tool} />
+                  ))}
+                </div>
 
-            {/* Video Tools Section */}
-            <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-              {videoTools.map((tool, idx) => (
-                <ToolCard key={idx} {...tool} />
-              ))}
-            </div>
+                {/* Video Tools Section */}
+                <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {videoTools.map((tool, idx) => (
+                    <ToolCard key={idx} {...tool} />
+                  ))}
+                </div>
 
-            {/* Audio Tools Section */}
-            <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {audioTools.map((tool, idx) => (
-                <ToolCard key={idx} {...tool} />
-              ))}
-            </div>
-          </div>
+                {/* Audio Tools Section */}
+                <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {audioTools.map((tool, idx) => (
+                    <ToolCard key={idx} {...tool} />
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : null}
         </main>
       </div>
     </div>

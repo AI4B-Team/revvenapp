@@ -13,16 +13,20 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 
-const Header = () => {
+interface HeaderProps {
+  onCreateClick?: () => void;
+}
+
+const Header = ({ onCreateClick }: HeaderProps) => {
   return (
     <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
       <div className="flex-1" />
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
-          <Link to="/" className="text-foreground font-medium hover:text-muted-foreground transition">
+          <button onClick={onCreateClick} className="text-foreground font-medium hover:text-muted-foreground transition">
             Create
-          </Link>
+          </button>
           <span className="text-muted">|</span>
           <button className="text-muted-foreground font-medium hover:text-foreground transition">
             Monetize

@@ -13,7 +13,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const sidebarItems = [
-    { icon: <FileText size={18} />, label: 'Dashboard', active: true, link: '/' },
+    { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
@@ -99,11 +99,9 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           <Link
             key={idx}
             to={item.link || '/'}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition ${
-              item.active ? 'bg-sidebar-active' : 'hover:bg-sidebar-hover'
-            }`}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
           >
-            <span className={item.active ? 'text-sidebar-text' : 'text-sidebar-muted'}>
+            <span className="text-sidebar-muted">
               {item.icon}
             </span>
             <span className="flex-1 text-left text-sm">{item.label}</span>
