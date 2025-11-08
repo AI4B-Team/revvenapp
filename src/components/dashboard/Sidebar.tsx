@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +36,7 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
   const navItems = activeTab === 'Image' ? imageNavItems : defaultNavItems;
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
 
   const workspaces = [
@@ -107,7 +108,43 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           </Link>
         ))}
 
-        {/* Assets Section */}
+        {/* Brand Section */}
+        <div className="pt-2">
+          <button 
+            onClick={() => setIsBrandOpen(!isBrandOpen)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+              isBrandOpen ? 'bg-sidebar-active' : ''
+            }`}
+          >
+            <Briefcase size={18} className="text-sidebar-muted" />
+            <span className="flex-1 text-left text-sm">Brand</span>
+            <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />
+          </button>
+          {isBrandOpen && (
+            <div className="ml-6 mt-2 space-y-2">
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Identity</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Voice</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Characters</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Knowledgebase</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Campaigns</span>
+              </button>
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+                <span className="text-sm">Calendar</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Library Section */}
         <div className="pt-2">
           <button 
             onClick={() => setIsAssetsOpen(!isAssetsOpen)}
