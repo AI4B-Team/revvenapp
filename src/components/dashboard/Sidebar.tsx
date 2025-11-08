@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
-  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot
+  ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -98,29 +98,17 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           </Link>
         ))}
 
-        <div className="pt-6 space-y-1">
-          {navItems.map((item, idx) => (
-            <button
-              key={idx}
-              onClick={() => onTabChange(item.label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-                activeTab === item.label ? 'bg-sidebar-active' : ''
-              }`}
-            >
-              <span className={item.color}>{item.icon}</span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-            </button>
-          ))}
-        </div>
-
         {/* Assets Section */}
-        <div className="pt-6">
+        <div className="pt-2">
           <button 
             onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sidebar-muted hover:text-sidebar-text transition"
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+              isAssetsOpen ? 'bg-sidebar-active' : ''
+            }`}
           >
-            <ChevronDown size={18} className={`transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
-            <span className="text-sm">Assets</span>
+            <FolderOpen size={18} className="text-sidebar-muted" />
+            <span className="flex-1 text-left text-sm">Assets</span>
+            <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
           </button>
           {isAssetsOpen && (
             <div className="ml-6 mt-2 space-y-2">
@@ -144,6 +132,26 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Separator */}
+        <div className="pt-4 pb-2 px-3">
+          <div className="h-px bg-sidebar-hover"></div>
+        </div>
+
+        <div className="space-y-1">
+          {navItems.map((item, idx) => (
+            <button
+              key={idx}
+              onClick={() => onTabChange(item.label)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+                activeTab === item.label ? 'bg-sidebar-active' : ''
+              }`}
+            >
+              <span className={item.color}>{item.icon}</span>
+              <span className="flex-1 text-left text-sm">{item.label}</span>
+            </button>
+          ))}
         </div>
       </nav>
 
