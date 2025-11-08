@@ -5,7 +5,6 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock
 } from 'lucide-react';
-import SidebarFooter from './SidebarFooter';
 
 interface SidebarProps {
   activeTab: string;
@@ -287,9 +286,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
           </button>
         </div>
       </div>
-
-      {/* Social Footer */}
-      <SidebarFooter />
     </div>
   );
 };
