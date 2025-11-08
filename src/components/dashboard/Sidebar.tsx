@@ -36,11 +36,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
     { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-yellow' },
   ];
 
-  const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [
-    { icon: <MessageSquarePlus size={18} />, label: 'New Chat', color: 'text-brand-green' },
-    { icon: <Search size={18} />, label: 'Search', color: 'text-brand-blue' },
-    { icon: <Clock size={18} />, label: 'Recent', color: 'text-brand-yellow', isDropdown: true },
-  ];
+  const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = isAssistantPage ? assistantNavItems : (activeTab === 'Image' ? imageNavItems : defaultNavItems);
 
