@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
-import {
+import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate
 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
+import SearchDialog from './SearchDialog';
 
 interface SidebarProps {
   activeTab: string;
@@ -88,6 +89,20 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Keyboard shortcut for search (Cmd+F or Ctrl+F)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const recentChats = [
     { id: 1, title: 'Design a logo for...', time: '2 hours ago' },
@@ -103,8 +118,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   return (
-    <div className="w-64 bg-sidebar text-sidebar-text flex flex-col">
-      {/* Logo */}
+    <>
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+      <div className="w-64 bg-sidebar text-sidebar-text flex flex-col">
+        {/* Logo */}
       <div className="p-6 flex justify-center">
         <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
       </div>
@@ -152,21 +169,37 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
-          <NavLink
-            key={idx}
-            to={item.link || '/'}
-            end
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            activeClassName="bg-sidebar-active"
-          >
-            <span className="text-sidebar-muted">
-              {item.icon}
-            </span>
-            <span className="flex-1 text-left text-sm">{item.label}</span>
-            {item.shortcut && (
-              <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
-            )}
-          </NavLink>
+          item.label === 'Search' ? (
+            <button
+              key={idx}
+              onClick={() => setIsSearchOpen(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+            >
+              <span className="text-sidebar-muted">
+                {item.icon}
+              </span>
+              <span className="flex-1 text-left text-sm">{item.label}</span>
+              {item.shortcut && (
+                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
+              )}
+            </button>
+          ) : (
+            <NavLink
+              key={idx}
+              to={item.link || '/'}
+              end
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              activeClassName="bg-sidebar-active"
+            >
+              <span className="text-sidebar-muted">
+                {item.icon}
+              </span>
+              <span className="flex-1 text-left text-sm">{item.label}</span>
+              {item.shortcut && (
+                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
+              )}
+            </NavLink>
+          )
         ))}
 
         {/* Brand Section */}
@@ -338,7 +371,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
