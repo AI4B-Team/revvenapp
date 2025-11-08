@@ -308,7 +308,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                   {/* Auto */}
                   <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-purple rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
                         <Zap size={16} className="text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -346,7 +346,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-blue rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 bg-gradient-to-br from-brand-yellow to-brand-blue rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-xs">SD</span>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -385,7 +385,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-red rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 bg-gradient-to-br from-brand-yellow to-brand-red rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-xs">MY</span>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -479,7 +479,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
               <PopoverContent className="w-64 bg-background border-border z-50">
                 <div className="space-y-2">
                   <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                    <div className="w-8 h-8 bg-brand-purple rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
                       <User size={16} />
                     </div>
                     <span>Vicki Ravelle</span>

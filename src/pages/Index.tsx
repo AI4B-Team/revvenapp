@@ -43,8 +43,8 @@ const Index = () => {
       lastMonth: '0 last month',
       total: '0 total',
       icon: <Users size={24} />,
-      iconColor: 'text-purple-500',
-      iconBg: 'bg-purple-50'
+      iconColor: 'text-yellow-500',
+      iconBg: 'bg-yellow-50'
     },
     {
       title: 'AI Conversations',
@@ -63,29 +63,29 @@ const Index = () => {
       title: 'Chat With AI',
       description: 'Chat with your AI employee to get work done',
       icon: <MessageCircle size={24} />,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100'
+      iconColor: 'text-yellow-600',
+      iconBg: 'bg-yellow-100'
     },
     {
       title: 'AI Social Campaigns',
       description: 'Show up and share daily without burn out',
       icon: <Plus size={24} />,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100'
+      iconColor: 'text-yellow-600',
+      iconBg: 'bg-yellow-100'
     },
     {
       title: 'Schedule A Post',
       description: 'Plan your social media content',
       icon: <Calendar size={24} />,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100'
+      iconColor: 'text-yellow-600',
+      iconBg: 'bg-yellow-100'
     },
     {
       title: 'Brand Settings',
       description: 'Optimize brand goals to keep your agents aligned',
       icon: <Settings size={24} />,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100'
+      iconColor: 'text-yellow-600',
+      iconBg: 'bg-yellow-100'
     }
   ];
 
@@ -359,7 +359,7 @@ const Index = () => {
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-bold text-gray-900">Upcoming Posts</h2>
-                        <button className="text-sm font-semibold text-purple-600 hover:text-purple-700 transition-colors">
+                        <button className="text-sm font-semibold text-yellow-600 hover:text-yellow-700 transition-colors">
                           View all
                         </button>
                       </div>
@@ -387,7 +387,7 @@ const Index = () => {
                                   {post.title}
                                 </p>
                                 <div className="flex items-center gap-2 text-xs">
-                                  <div className="w-5 h-5 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                  <div className="w-5 h-5 bg-gradient-to-br from-yellow-500 to-pink-500 rounded-full flex items-center justify-center">
                                     <Instagram size={12} className="text-white" />
                                   </div>
                                   <span className="text-gray-600">{post.platform}</span>

@@ -12,7 +12,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
     { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
-    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-purple' },
+    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-yellow' },
   ];
 
   return (

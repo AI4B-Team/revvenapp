@@ -25,20 +25,20 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
     { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
-    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-purple' },
+    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-yellow' },
   ];
 
   const imageNavItems = [
     { icon: <Sparkles size={18} />, label: 'Create', color: 'text-brand-yellow' },
     { icon: <Image size={18} />, label: 'Edit', color: 'text-brand-green' },
     { icon: <Video size={18} />, label: 'Upscale', color: 'text-brand-blue' },
-    { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-purple' },
+    { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-yellow' },
   ];
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [
     { icon: <MessageSquarePlus size={18} />, label: 'New Chat', color: 'text-brand-green' },
     { icon: <Search size={18} />, label: 'Search', color: 'text-brand-blue' },
-    { icon: <Clock size={18} />, label: 'Recent', color: 'text-brand-purple', isDropdown: true },
+    { icon: <Clock size={18} />, label: 'Recent', color: 'text-brand-yellow', isDropdown: true },
   ];
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = isAssistantPage ? assistantNavItems : (activeTab === 'Image' ? imageNavItems : defaultNavItems);
@@ -58,7 +58,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
   const workspaces = [
     { name: 'Dolmar Workspace', initial: 'D', bgColor: 'bg-brand-green' },
     { name: 'Brian Workspace', initial: 'B', bgColor: 'bg-brand-blue' },
-    { name: 'Team Workspace', initial: 'T', bgColor: 'bg-brand-purple' },
+    { name: 'Team Workspace', initial: 'T', bgColor: 'bg-brand-yellow' },
   ];
 
   return (
@@ -204,7 +204,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
                 <span className="ml-auto text-xs text-sidebar-muted">48</span>
               </div>
               <div className="flex items-center gap-3 px-3 py-1.5">
-                <div className="w-2 h-2 bg-brand-purple rounded"></div>
+                <div className="w-2 h-2 bg-brand-yellow rounded"></div>
                 <span className="text-sm text-sidebar-muted">Images</span>
                 <span className="ml-auto text-xs text-sidebar-muted">16</span>
               </div>

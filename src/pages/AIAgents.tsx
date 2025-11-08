@@ -24,8 +24,8 @@ const AIAgentsPage = () => {
       name: 'Research Agent',
       description: 'Conduct in-depth research and analysis on any topic',
       image: '🔬',
-      color: 'bg-purple-50',
-      accentColor: 'bg-purple-500'
+      color: 'bg-yellow-50',
+      accentColor: 'bg-yellow-500'
     },
     {
       category: 'Content',
@@ -72,8 +72,8 @@ const AIAgentsPage = () => {
       name: 'Social Media Agent',
       description: 'Generate captivating social media posts for all platforms',
       image: '📱',
-      color: 'bg-purple-50',
-      accentColor: 'bg-purple-500'
+      color: 'bg-yellow-50',
+      accentColor: 'bg-yellow-500'
     },
     {
       category: 'Image',

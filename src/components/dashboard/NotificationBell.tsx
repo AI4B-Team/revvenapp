@@ -120,8 +120,8 @@ const NotificationBell = () => {
                   <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors">
                     {/* Image (if exists) */}
                     {notification.image && (
-                      <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-purple-900">
-                        <img 
+                      <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-yellow-600">
+                        <img
                           src={notification.image} 
                           alt={notification.title}
                           className="w-full h-full object-cover"
