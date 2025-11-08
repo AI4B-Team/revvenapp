@@ -90,12 +90,12 @@ const Assistant = () => {
               <div className="bg-gradient-to-br from-secondary to-secondary/80 border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
                 {/* Input Area with Animated Text */}
-                <div className="mb-6 min-h-[2rem]">
+                <div className="mb-6 h-16 flex items-center">
                   <input
                     type="text"
                     value={currentPrompt}
                     placeholder="What would you like to create?"
-                    className="w-full bg-transparent text-muted-foreground text-xl lg:text-2xl outline-none placeholder-muted h-8"
+                    className="w-full bg-transparent text-muted-foreground text-xl lg:text-2xl outline-none placeholder-muted"
                     readOnly
                   />
                   {/* Typing Cursor */}
