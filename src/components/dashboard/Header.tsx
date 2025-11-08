@@ -1,4 +1,4 @@
-import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap } from 'lucide-react';
+import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -105,6 +105,11 @@ const Header = () => {
               <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
                 <Mail size={20} />
                 <span>Invites</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+                <Plug size={20} />
+                <span>Integrations</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
