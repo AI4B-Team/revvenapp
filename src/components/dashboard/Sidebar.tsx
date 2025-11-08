@@ -14,7 +14,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarProps) => {
   const sidebarItems = [
-    { icon: <FileText size={18} />, label: 'Dashboard', link: '/', isDashboard: true },
+    { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
@@ -111,35 +111,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
-          item.isDashboard ? (
-            <button
-              key={idx}
-              onClick={() => onTabChange('')}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            >
-              <span className="text-sidebar-muted">
-                {item.icon}
-              </span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-              {item.shortcut && (
-                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
-              )}
-            </button>
-          ) : (
-            <Link
-              key={idx}
-              to={item.link || '/'}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            >
-              <span className="text-sidebar-muted">
-                {item.icon}
-              </span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-              {item.shortcut && (
-                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
-              )}
-            </Link>
-          )
+          <Link
+            key={idx}
+            to={item.link || '/'}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+          >
+            <span className="text-sidebar-muted">
+              {item.icon}
+            </span>
+            <span className="flex-1 text-left text-sm">{item.label}</span>
+            {item.shortcut && (
+              <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
+            )}
+          </Link>
         ))}
 
         {/* Brand Section */}
