@@ -107,7 +107,7 @@ const Assistant = () => {
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between">
                   {/* Left Actions */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
                     <button 
                       className="p-2.5 hover:bg-accent rounded-lg transition-colors"
                       title="Add attachment"
