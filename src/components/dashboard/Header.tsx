@@ -1,5 +1,6 @@
 import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,17 +26,17 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
-          <Link to="/create" className="text-foreground font-medium hover:text-muted-foreground transition">
+          <NavLink to="/create" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
             Create
-          </Link>
+          </NavLink>
           <span className="text-muted">|</span>
-          <Link to="/monetize" className="text-muted-foreground font-medium hover:text-foreground transition">
+          <NavLink to="/monetize" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
             Monetize
-          </Link>
+          </NavLink>
           <span className="text-muted">|</span>
-          <Link to="/automate" className="text-muted-foreground font-medium hover:text-foreground transition">
+          <NavLink to="/automate" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
             Automate
-          </Link>
+          </NavLink>
         </nav>
       </div>
 

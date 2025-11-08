@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
+import { NavLink } from '@/components/NavLink';
+import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
@@ -151,10 +152,12 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
-          <Link
+          <NavLink
             key={idx}
             to={item.link || '/'}
+            end
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+            activeClassName="bg-sidebar-active"
           >
             <span className="text-sidebar-muted">
               {item.icon}
@@ -163,7 +166,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             {item.shortcut && (
               <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
             )}
-          </Link>
+          </NavLink>
         ))}
 
         {/* Brand Section */}
