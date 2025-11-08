@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, MessageCircle } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const OnboardingProgress = () => {
   const [showOnboarding, setShowOnboarding] = useState(true);
@@ -43,18 +43,6 @@ const OnboardingProgress = () => {
             {progress}% completed
           </p>
         </div>
-      </div>
-
-      {/* WhatsApp Chat Card */}
-      <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
-        <p className="text-sm text-foreground mb-3">
-          Our Whatsapp chatbot is live!
-        </p>
-        
-        <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-          <MessageCircle size={18} fill="currentColor" />
-          <span>Chat with Ethan</span>
-        </button>
       </div>
     </div>
   );
