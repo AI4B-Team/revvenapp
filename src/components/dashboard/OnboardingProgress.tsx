@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Rocket } from 'lucide-react';
 
 const OnboardingProgress = () => {
   const [showOnboarding, setShowOnboarding] = useState(true);
@@ -15,9 +15,9 @@ const OnboardingProgress = () => {
         {/* Header with close button */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🚀</span>
+            <Rocket size={18} className="text-brand-green" />
             <h3 className="font-semibold text-foreground text-sm">
-              Onboarding setup!
+              Onboarding Setup
             </h3>
           </div>
           <button
@@ -33,7 +33,7 @@ const OnboardingProgress = () => {
         <div className="space-y-2">
           <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
             <div
-              className="bg-primary h-2 rounded-full transition-all duration-500"
+              className="bg-brand-green h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
