@@ -1,4 +1,4 @@
-import { HelpCircle, Bell, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   return (
@@ -40,12 +41,7 @@ const Header = () => {
           <HelpCircle size={14} className="text-brand-green" />
         </div>
 
-        <button className="text-muted-foreground hover:text-foreground transition relative">
-          <Bell size={20} />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-background">
-            2
-          </span>
-        </button>
+        <NotificationBell />
         <button className="text-muted-foreground hover:text-foreground transition">
           <HelpCircle size={20} />
         </button>
