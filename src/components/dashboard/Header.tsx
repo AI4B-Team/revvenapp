@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
+import HelpMenu from './HelpMenu';
 
 interface HeaderProps {
   onCreateClick?: () => void;
@@ -46,9 +47,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         </div>
 
         <NotificationBell />
-        <button className="text-muted-foreground hover:text-foreground transition">
-          <HelpCircle size={20} />
-        </button>
+        <HelpMenu />
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
