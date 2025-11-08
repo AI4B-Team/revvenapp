@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
@@ -19,13 +19,21 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false }: SidebarProps) => {
+  const location = useLocation();
+  const isDashboard = location.pathname === '/';
+  
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
 
-  const defaultNavItems = [
+  const dashboardNavItems = [
+    { icon: <Users size={18} />, label: 'Contacts', color: 'text-brand-green', link: '/contacts' },
+    { icon: <DollarSign size={18} />, label: 'Revenue', color: 'text-brand-yellow', link: '/revenue' },
+  ];
+
+  const createNavItems = [
     { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-yellow' },
@@ -96,10 +104,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
+    isDashboard ? dashboardNavItems :
     (activeTab === 'Image' ? imageNavItems : 
      activeTab === 'Video' ? videoNavItems : 
      activeTab === 'Audio' ? audioNavItems :
-     defaultNavItems);
+     createNavItems);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
