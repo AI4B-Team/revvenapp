@@ -38,9 +38,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const videoNavItems = [
-    { icon: <Video size={18} />, label: 'Lip-Sync', color: 'text-brand-blue' },
-    { icon: <Music size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
-    { icon: <Sparkles size={18} />, label: 'Upscale', color: 'text-brand-green' },
+    { icon: <Mic size={18} />, label: 'Create Voice', color: 'text-brand-blue' },
+    { icon: <Users size={18} />, label: 'Clone Voice', color: 'text-brand-yellow' },
   ];
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
