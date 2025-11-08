@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
-  UserCircle, Mic, Users, BookOpen, Target, Calendar
+  UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  isAssistantPage?: boolean;
 }
 
-const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/', isDashboard: true },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
@@ -34,11 +35,25 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-purple' },
   ];
 
-  const navItems = activeTab === 'Image' ? imageNavItems : defaultNavItems;
+  const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [
+    { icon: <MessageSquarePlus size={18} />, label: 'New Chat', color: 'text-brand-green' },
+    { icon: <Search size={18} />, label: 'Search', color: 'text-brand-blue' },
+    { icon: <Clock size={18} />, label: 'Recent', color: 'text-brand-purple', isDropdown: true },
+  ];
+
+  const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = isAssistantPage ? assistantNavItems : (activeTab === 'Image' ? imageNavItems : defaultNavItems);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
+  const [isRecentOpen, setIsRecentOpen] = useState(false);
+
+  const recentChats = [
+    { id: 1, title: 'Design a logo for...', time: '2 hours ago' },
+    { id: 2, title: 'Create a character...', time: '5 hours ago' },
+    { id: 3, title: 'Write blog content...', time: 'Yesterday' },
+    { id: 4, title: 'Generate a video...', time: '2 days ago' },
+  ];
 
   const workspaces = [
     { name: 'Dolmar Workspace', initial: 'D', bgColor: 'bg-brand-green' },
@@ -212,16 +227,44 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
 
         <div className="space-y-1">
           {navItems.map((item, idx) => (
-            <button
-              key={idx}
-              onClick={() => onTabChange(item.label)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-                activeTab === item.label ? 'bg-sidebar-active' : ''
-              }`}
-            >
-              <span className={item.color}>{item.icon}</span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-            </button>
+            item.isDropdown ? (
+              <div key={idx}>
+                <button
+                  onClick={() => setIsRecentOpen(!isRecentOpen)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+                    isRecentOpen ? 'bg-sidebar-active' : ''
+                  }`}
+                >
+                  <span className={item.color}>{item.icon}</span>
+                  <span className="flex-1 text-left text-sm">{item.label}</span>
+                  <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isRecentOpen ? 'rotate-0' : '-rotate-90'}`} />
+                </button>
+                {isRecentOpen && (
+                  <div className="ml-6 mt-2 space-y-1">
+                    {recentChats.map((chat) => (
+                      <button
+                        key={chat.id}
+                        className="w-full flex flex-col gap-1 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                      >
+                        <span className="text-sm truncate">{chat.title}</span>
+                        <span className="text-xs opacity-70">{chat.time}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                key={idx}
+                onClick={() => onTabChange(item.label)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+                  activeTab === item.label ? 'bg-sidebar-active' : ''
+                }`}
+              >
+                <span className={item.color}>{item.icon}</span>
+                <span className="flex-1 text-left text-sm">{item.label}</span>
+              </button>
+            )
           ))}
         </div>
       </nav>

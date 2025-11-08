@@ -70,7 +70,7 @@ const Assistant = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAssistantPage={true} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
