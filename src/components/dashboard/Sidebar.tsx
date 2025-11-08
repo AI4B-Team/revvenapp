@@ -45,7 +45,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const audioNavItems = [
     { icon: <Mic size={18} />, label: 'Create Voice', color: 'text-brand-green' },
-    { icon: <Disc size={18} />, label: 'Clone Voice', color: 'text-brand-yellow' },
+    { icon: <Disc size={18} />, label: 'Clone Voice', color: 'text-brand-red' },
     { icon: <Volume2 size={18} />, label: 'Sound Effects', color: 'text-brand-blue' },
     { icon: <Music size={18} />, label: 'Music', color: 'text-brand-green' },
     { icon: <Mic size={18} />, label: 'Dubbing', color: 'text-brand-yellow' },
