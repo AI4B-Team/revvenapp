@@ -68,6 +68,10 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         
         {isWorkspaceOpen && (
           <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
+            <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary border-b border-primary/20 mb-2">
+              <Search size={16} />
+              <span className="flex-1 text-left text-sm">Search Projects</span>
+            </button>
             {workspaces.map((workspace, idx) => (
               <button
                 key={idx}
