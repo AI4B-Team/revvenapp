@@ -5,6 +5,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit
 } from 'lucide-react';
+import OnboardingProgress from './OnboardingProgress';
 
 interface SidebarProps {
   activeTab: string;
@@ -252,6 +253,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
           ))}
         </div>
       </nav>
+
+      {/* Onboarding Progress */}
+      <OnboardingProgress />
 
       {/* Credits Section */}
       <div className="p-4 space-y-3 bg-sidebar">
