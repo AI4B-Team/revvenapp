@@ -129,11 +129,6 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 </div>
                 <span className="text-gray-400 text-sm">Dark</span>
               </DropdownMenuItem>
-
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
-                <HelpCircle size={20} />
-                <span>Help</span>
-              </DropdownMenuItem>
             </div>
 
             <DropdownMenuSeparator className="bg-gray-800 my-4" />
