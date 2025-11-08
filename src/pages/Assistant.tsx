@@ -76,7 +76,7 @@ const Assistant = () => {
         <Header />
         
         <main className="flex-1 overflow-auto">
-          <div className="flex flex-col items-center justify-start px-4 sm:px-8 lg:px-16 py-12 lg:py-20">
+          <div className="flex flex-col items-center justify-center min-h-full px-4 sm:px-8 lg:px-16 py-12 lg:py-20">
             
             {/* Header Text */}
             <div className="w-full max-w-5xl text-center mb-12">
