@@ -40,7 +40,7 @@ const OnboardingProgress = () => {
           
           {/* Progress Text */}
           <p className="text-xs text-muted-foreground">
-            {progress}% completed
+            {progress}% Completed
           </p>
         </div>
       </div>
