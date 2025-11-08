@@ -312,6 +312,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
         </div>
 
         <div className="space-y-1">
+          {activeTab === 'Audio' && !isDashboard && (
+            <div className="px-3 py-2 text-xs font-semibold text-sidebar-muted uppercase tracking-wider">
+              Voices
+            </div>
+          )}
           {navItems.map((item, idx) => (
             item.isDropdown ? (
               <div key={idx}>
