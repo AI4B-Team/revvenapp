@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AIAgents from "./pages/AIAgents";
 import Assistant from "./pages/Assistant";
+import Monetize from "./pages/Monetize";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/ai-agents" element={<AIAgents />} />
           <Route path="/assistant" element={<Assistant />} />
+          <Route path="/monetize" element={<Monetize />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

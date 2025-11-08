@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
-  UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit
+  UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
+  Globe, Mail, DollarSign
 } from 'lucide-react';
 import OnboardingProgress from './OnboardingProgress';
 
@@ -11,9 +12,10 @@ interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   isAssistantPage?: boolean;
+  isMonetizePage?: boolean;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false }: SidebarProps) => {
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
@@ -38,12 +40,38 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
-  const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = isAssistantPage ? assistantNavItems : (activeTab === 'Image' ? imageNavItems : defaultNavItems);
+  const monetizeNavItems = [
+    { 
+      icon: <Globe size={18} />, 
+      label: 'Sites', 
+      color: 'text-brand-blue',
+      isDropdown: true,
+      subItems: ['Websites', 'Funnels', 'Stores']
+    },
+    { 
+      icon: <Mail size={18} />, 
+      label: 'Marketing', 
+      color: 'text-brand-green',
+      isDropdown: true,
+      subItems: ['Emails', 'Social']
+    },
+    { 
+      icon: <DollarSign size={18} />, 
+      label: 'Ads', 
+      color: 'text-brand-yellow'
+    },
+  ];
+
+  const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[] }> = 
+    isMonetizePage ? monetizeNavItems : 
+    isAssistantPage ? assistantNavItems : 
+    (activeTab === 'Image' ? imageNavItems : defaultNavItems);
 
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
   const recentChats = [
     { id: 1, title: 'Design a logo for...', time: '2 hours ago' },
@@ -211,26 +239,48 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false }: SidebarPro
             item.isDropdown ? (
               <div key={idx}>
                 <button
-                  onClick={() => setIsRecentOpen(!isRecentOpen)}
+                  onClick={() => {
+                    if (item.subItems) {
+                      setOpenDropdowns(prev => ({
+                        ...prev,
+                        [item.label]: !prev[item.label]
+                      }));
+                    } else {
+                      setIsRecentOpen(!isRecentOpen);
+                    }
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-                    isRecentOpen ? 'bg-sidebar-active' : ''
+                    (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'bg-sidebar-active' : ''
                   }`}
                 >
                   <span className={item.color}>{item.icon}</span>
                   <span className="flex-1 text-left text-sm">{item.label}</span>
-                  <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isRecentOpen ? 'rotate-0' : '-rotate-90'}`} />
+                  <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${
+                    (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
+                  }`} />
                 </button>
-                {isRecentOpen && (
+                {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && (
                   <div className="ml-6 mt-2 space-y-1">
-                    {recentChats.map((chat) => (
-                      <button
-                        key={chat.id}
-                        className="w-full flex flex-col gap-1 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
-                      >
-                        <span className="text-sm truncate">{chat.title}</span>
-                        <span className="text-xs opacity-70">{chat.time}</span>
-                      </button>
-                    ))}
+                    {item.subItems ? (
+                      item.subItems.map((subItem, subIdx) => (
+                        <button
+                          key={subIdx}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                        >
+                          <span className="text-sm">{subItem}</span>
+                        </button>
+                      ))
+                    ) : (
+                      recentChats.map((chat) => (
+                        <button
+                          key={chat.id}
+                          className="w-full flex flex-col gap-1 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                        >
+                          <span className="text-sm truncate">{chat.title}</span>
+                          <span className="text-xs opacity-70">{chat.time}</span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 )}
               </div>

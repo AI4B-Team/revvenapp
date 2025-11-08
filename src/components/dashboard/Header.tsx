@@ -29,9 +29,9 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             Create
           </button>
           <span className="text-muted">|</span>
-          <button className="text-muted-foreground font-medium hover:text-foreground transition">
+          <Link to="/monetize" className="text-muted-foreground font-medium hover:text-foreground transition">
             Monetize
-          </button>
+          </Link>
           <span className="text-muted">|</span>
           <Link to="/ai-agents" className="text-muted-foreground font-medium hover:text-foreground transition">
             Automate
