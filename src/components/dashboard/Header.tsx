@@ -25,9 +25,9 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
-          <button onClick={onCreateClick} className="text-foreground font-medium hover:text-muted-foreground transition">
+          <Link to="/create" className="text-foreground font-medium hover:text-muted-foreground transition">
             Create
-          </button>
+          </Link>
           <span className="text-muted">|</span>
           <Link to="/monetize" className="text-muted-foreground font-medium hover:text-foreground transition">
             Monetize
