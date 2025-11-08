@@ -1,4 +1,4 @@
-import { Sparkles, Image, Video, Music, FileText, Code, MoreHorizontal } from 'lucide-react';
+import { Image, Video, Music, FileText, Code, MoreHorizontal } from 'lucide-react';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -7,12 +7,12 @@ interface ContentTypeSelectorProps {
 
 const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelectorProps) => {
   const contentTypes = [
-    { icon: <Sparkles size={18} />, label: 'Content', color: 'text-brand-yellow' },
-    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-green' },
-    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
-    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-blue' },
-    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-green' },
-    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-yellow' },
+    { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
+    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
+    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-yellow' },
+    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
+    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-red' },
+    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-blue' },
   ];
 
   return (
