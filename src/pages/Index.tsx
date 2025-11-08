@@ -13,9 +13,9 @@ import {
 const Index = () => {
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [timeFilter, setTimeFilter] = useState('All time');
+  const [timeFilter, setTimeFilter] = useState('All Time');
   
-  const timeFilters = ['All time', '7 days', '30 days', '12 months'];
+  const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
 
   // Stats data
   const stats = [
