@@ -129,7 +129,7 @@ const IncomeDashboard = () => {
 
       {/* Latest Orders Section */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
-        <h2 className="text-xl font-bold text-foreground mb-6">Latest Orders</h2>
+        <h2 className="text-xl font-bold text-foreground mb-6">Latest Transactions</h2>
 
         {/* Filter Pills */}
         <div className="flex items-center gap-3 mb-8 flex-wrap">
