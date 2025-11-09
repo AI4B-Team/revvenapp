@@ -5,10 +5,12 @@ import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
 import GenerationInput from '@/components/dashboard/GenerationInput';
 import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
+import CreationsGallery from '@/components/dashboard/CreationsGallery';
 
 const Create = () => {
   const [activeTab, setActiveTab] = useState('Content');
   const [selectedType, setSelectedType] = useState('Content');
+  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
 
   const imageTools = [
     { 
@@ -136,11 +138,25 @@ const Create = () => {
             
             <GenerationInput selectedType={selectedType} />
             
-            <ActionButtons />
+            <ActionButtons activeView={activeView} onViewChange={setActiveView} />
             
-            {/* Image Tools Section */}
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
+            {/* Gallery Views */}
+            {activeView === 'creations' && (
+              <div className="mb-12">
+                <CreationsGallery type="creations" />
+              </div>
+            )}
+            
+            {activeView === 'community' && (
+              <div className="mb-12">
+                <CreationsGallery type="community" />
+              </div>
+            )}
+            
+            {/* Tools View */}
+            {activeView === 'tools' && (
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                 {imageTools.map((tool, idx) => (
                   <ToolCard key={idx} {...tool} />
@@ -162,7 +178,8 @@ const Create = () => {
                   <ToolCard key={idx} {...tool} />
                 ))}
               </div>
-            </div>
+              </div>
+            )}
           </div>
         </main>
       </div>

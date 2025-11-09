@@ -14,6 +14,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [timeFilter, setTimeFilter] = useState('All Time');
+  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   
   const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
 
@@ -234,7 +235,7 @@ const Index = () => {
               
               <GenerationInput selectedType={selectedType || activeTab} />
               
-              <ActionButtons />
+              <ActionButtons activeView={activeView} onViewChange={setActiveView} />
               
               {/* Image Tools Section */}
               <div className="max-w-6xl mx-auto">
