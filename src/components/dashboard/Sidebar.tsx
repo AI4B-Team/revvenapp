@@ -160,7 +160,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
-          {!isCollapsed && <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>}
+          {!isCollapsed && (
+            <Link to="/" className="hover:opacity-80 transition cursor-pointer">
+              <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
+            </Link>
+          )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="absolute right-4 p-2 hover:bg-sidebar-hover rounded-lg transition"
