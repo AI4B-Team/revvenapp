@@ -3,6 +3,12 @@ import {
   Play, Star, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface GalleryProps {
   type: 'creations' | 'community';
@@ -443,44 +449,64 @@ const CreationsGallery = ({ type }: GalleryProps) => {
                   {item.creator.name}
                 </span>
               </div>
-            </div>
 
-            {/* Action Buttons - Bottom */}
-            <div className="p-3 bg-white border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="flex items-center justify-between gap-2">
-                <button 
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Download"
-                >
-                  <Download size={16} />
-                  <span className="hidden sm:inline">Download</span>
-                </button>
-                
-                <button 
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Edit"
-                >
-                  <Edit size={16} />
-                  <span className="hidden sm:inline">Edit</span>
-                </button>
-                
-                <button 
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Recreate"
-                >
-                  <RefreshCw size={16} />
-                  <span className="hidden sm:inline">Recreate</span>
-                </button>
-                
-                <button 
-                  onClick={() => handleShare(item.id)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Share"
-                >
-                  <Share2 size={16} />
-                  <span className="hidden sm:inline">Share</span>
-                </button>
-              </div>
+              {/* Action Icons - Bottom Right */}
+              <TooltipProvider>
+                <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                      >
+                        <Download size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Download</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                      >
+                        <Edit size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                      >
+                        <RefreshCw size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Recreate</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => handleShare(item.id)}
+                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                      >
+                        <Share2 size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Share</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
           </div>
         ))}
