@@ -360,6 +360,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               <Palette size={14} />
               <span className="text-sm">Designs</span>
             </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Code size={14} />
+              <span className="text-sm">Apps</span>
+            </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text mt-2 pt-2 border-t border-sidebar-hover w-full text-left">
               <span className="text-sm">+ New Folder</span>
             </button>
