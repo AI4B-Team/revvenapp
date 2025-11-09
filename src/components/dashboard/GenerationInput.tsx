@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
             ) : (
               <>
                 <Image size={20} className="text-muted-foreground" />
-                <Sparkles size={20} className="text-muted-foreground" />
+                <Dices size={20} className="text-muted-foreground" />
               </>
             )}
           </div>
