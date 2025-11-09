@@ -642,7 +642,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                     Generate For Free!
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs p-4">
+                <TooltipContent side="bottom" className="max-w-xs p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center flex-shrink-0">
                       <Sparkles size={14} className="text-primary" />
