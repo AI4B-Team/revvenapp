@@ -272,20 +272,18 @@ const Index = () => {
                   <div className="absolute right-20 top-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full blur-xl opacity-60"></div>
 
                   {/* Content */}
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div className="max-w-4xl">
-                      <p className="text-base text-gray-600 mb-4 font-medium">
-                        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}
-                      </p>
-                      
-                      <h1 className="text-6xl font-bold text-gray-900 mb-2">
-                        Hello, Brian 👋
-                      </h1>
-                      
-                      <h2 className="text-5xl font-semibold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-                        How Can I Help You Today?
-                      </h2>
-                    </div>
+                  <div className="relative z-10 max-w-4xl">
+                    <p className="text-base text-gray-600 mb-4 font-medium">
+                      {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}
+                    </p>
+                    
+                    <h1 className="text-6xl font-bold text-gray-900 mb-2">
+                      Hello, Brian 👋
+                    </h1>
+                    
+                    <h2 className="text-5xl font-semibold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+                      How Can I Help You Today?
+                    </h2>
                   </div>
                   
                   {/* Time Filter Buttons */}
@@ -304,11 +302,6 @@ const Index = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mb-8 flex justify-end">
-                  <ActionButtons />
                 </div>
 
                 {/* Stats Grid */}
