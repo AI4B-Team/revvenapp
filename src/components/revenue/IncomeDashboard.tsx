@@ -91,7 +91,7 @@ const IncomeDashboard = () => {
           
           {/* Available for Cashout */}
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Available for Cashout</p>
+            <p className="text-sm text-muted-foreground mb-2">Cash Available</p>
             <p className="text-4xl font-bold text-foreground">
               ${availableForCashout.toFixed(2)}
             </p>
@@ -102,7 +102,7 @@ const IncomeDashboard = () => {
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-muted-foreground">Available Soon</p>
               <button className="text-brand-blue hover:opacity-80 text-sm font-medium">
-                View breakdown
+                View Breakdown
               </button>
             </div>
             <p className="text-2xl font-semibold text-muted-foreground">
@@ -146,35 +146,29 @@ const IncomeDashboard = () => {
 
         {/* Empty State */}
         <div className="text-center py-16">
-          {/* Happy Face with Dollar Sign */}
+          {/* Robot Icon */}
           <div className="mb-6 flex justify-center">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-              {/* Main circle */}
-              <circle cx="60" cy="60" r="50" fill="hsl(var(--brand-blue))" opacity="0.9"/>
+              {/* Robot head */}
+              <rect x="35" y="40" width="50" height="45" rx="5" fill="hsl(var(--brand-blue))" opacity="0.9"/>
               
-              {/* Dollar sign above */}
-              <text x="60" y="25" fontSize="24" fill="hsl(var(--brand-blue))" textAnchor="middle" fontWeight="bold">$</text>
+              {/* Antenna */}
+              <line x1="60" y1="30" x2="60" y2="40" stroke="hsl(var(--brand-blue))" strokeWidth="3" opacity="0.9"/>
+              <circle cx="60" cy="27" r="4" fill="hsl(var(--brand-blue))" opacity="0.9"/>
               
-              {/* Left eye */}
-              <circle cx="45" cy="50" r="6" fill="white"/>
+              {/* Eyes */}
+              <circle cx="48" cy="55" r="5" fill="white"/>
+              <circle cx="72" cy="55" r="5" fill="white"/>
               
-              {/* Right eye */}
-              <circle cx="75" cy="50" r="6" fill="white"/>
+              {/* Mouth/display */}
+              <rect x="45" y="68" width="30" height="8" rx="2" fill="white" opacity="0.8"/>
               
-              {/* Smile */}
-              <path 
-                d="M 40 70 Q 60 85 80 70" 
-                stroke="white" 
-                strokeWidth="6" 
-                fill="none" 
-                strokeLinecap="round"
-              />
+              {/* Body */}
+              <rect x="40" y="85" width="40" height="25" rx="4" fill="hsl(var(--brand-blue))" opacity="0.7"/>
               
-              {/* Left accent dot */}
-              <circle cx="35" cy="65" r="4" fill="hsl(var(--brand-blue))" opacity="0.6"/>
-              
-              {/* Right accent dot */}
-              <circle cx="85" cy="65" r="4" fill="hsl(var(--brand-blue))" opacity="0.6"/>
+              {/* Arms */}
+              <rect x="25" y="90" width="12" height="6" rx="3" fill="hsl(var(--brand-blue))" opacity="0.6"/>
+              <rect x="83" y="90" width="12" height="6" rx="3" fill="hsl(var(--brand-blue))" opacity="0.6"/>
             </svg>
           </div>
 
@@ -183,11 +177,9 @@ const IncomeDashboard = () => {
             No Transactions Yet
           </h3>
           <p className="text-muted-foreground">
-            Learn how to increase your sales{' '}
             <a href="#" className="text-brand-blue hover:opacity-80 font-medium">
-              here
+              Learn How To Increase Your Sales Here!
             </a>
-            !
           </p>
         </div>
       </div>
