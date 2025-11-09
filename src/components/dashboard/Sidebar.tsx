@@ -280,7 +280,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             }`}
           >
             <FolderOpen size={18} className="text-sidebar-muted" />
-            <span className="flex-1 text-left text-sm">Library</span>
+            <span className="flex-1 text-left text-sm">Assets</span>
             <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
           </button>
           {isAssetsOpen && (
