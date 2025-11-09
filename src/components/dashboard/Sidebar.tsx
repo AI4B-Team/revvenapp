@@ -21,6 +21,8 @@ interface SidebarProps {
 const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/';
+  const isContactsPage = location.pathname === '/contacts';
+  const isRevenuePage = location.pathname === '/revenue';
   
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
@@ -105,7 +107,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
-    isDashboard ? dashboardNavItems :
+    isDashboard || isContactsPage || isRevenuePage ? dashboardNavItems :
     (activeTab === 'Image' ? imageNavItems : 
      activeTab === 'Video' ? videoNavItems : 
      activeTab === 'Audio' ? audioNavItems :
