@@ -91,7 +91,7 @@ const IncomeDashboard = () => {
           
           {/* Available for Cashout */}
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Cash Available</p>
+            <p className="text-sm text-muted-foreground mb-2">Cashout Available</p>
             <p className="text-4xl font-bold text-foreground">
               ${availableForCashout.toFixed(2)}
             </p>
