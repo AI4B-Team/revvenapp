@@ -8,7 +8,7 @@ const IncomeDashboard = () => {
   const { toast } = useToast();
   const [availableForCashout] = useState(0.00);
   const [availableSoon] = useState(0.00);
-  const [storeUrl] = useState('stan.store/digitalbabesteam');
+  const [storeUrl] = useState('revven.com/ai4bsummit');
 
   // Sample revenue data for chart (all zeros for empty state)
   const revenueData = [
