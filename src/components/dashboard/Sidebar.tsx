@@ -6,7 +6,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -331,23 +331,36 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />}
           </button>
           {isAssetsOpen && !isCollapsed && (
-          <div className="ml-6 mt-2 space-y-2">
-            <div className="flex items-center gap-3 px-3 py-1.5">
-              <div className="w-2 h-2 bg-sidebar-muted rounded"></div>
-              <span className="text-sm text-sidebar-muted">Content</span>
-              <span className="ml-auto text-xs text-sidebar-muted">48</span>
-            </div>
-            <div className="flex items-center gap-3 px-3 py-1.5">
-              <div className="w-2 h-2 bg-brand-yellow rounded"></div>
-              <span className="text-sm text-sidebar-muted">Images</span>
-              <span className="ml-auto text-xs text-sidebar-muted">16</span>
-            </div>
-            <div className="flex items-center gap-3 px-3 py-1.5">
-              <div className="w-2 h-2 bg-brand-blue rounded"></div>
-              <span className="text-sm text-sidebar-muted">Videos</span>
-              <span className="ml-auto text-xs text-sidebar-muted">8</span>
-            </div>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text">
+          <div className="ml-6 mt-2 space-y-1">
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <LayoutGrid size={14} />
+              <span className="text-sm">All</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Star size={14} />
+              <span className="text-sm">Favorites</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <FileText size={14} />
+              <span className="text-sm">Content</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Image size={14} />
+              <span className="text-sm">Images</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Video size={14} />
+              <span className="text-sm">Videos</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Music size={14} />
+              <span className="text-sm">Audio</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <Palette size={14} />
+              <span className="text-sm">Designs</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text mt-2 pt-2 border-t border-sidebar-hover w-full text-left">
               <span className="text-sm">+ New Folder</span>
             </button>
           </div>
