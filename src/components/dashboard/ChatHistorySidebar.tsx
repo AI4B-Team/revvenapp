@@ -41,7 +41,7 @@ const ChatHistorySidebar = () => {
         {/* New Chat Button */}
         <button className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
           <Plus size={20} />
-          <span>New chat</span>
+          <span>New Chat</span>
         </button>
       </div>
 
