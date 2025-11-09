@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Network, Mic, ArrowUp, Search, Sparkles, ChevronDown } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import ChatHistorySidebar from '@/components/dashboard/ChatHistorySidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +72,8 @@ const Assistant = () => {
   return (
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAssistantPage={true} />
+      
+      <ChatHistorySidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
