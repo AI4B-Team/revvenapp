@@ -1,6 +1,7 @@
 import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
 
 interface GenerationInputProps {
@@ -16,18 +17,38 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
     <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex items-center gap-1">
-            {isVideoMode ? (
-              <Video size={20} className="text-muted-foreground" />
-            ) : isAudioMode ? (
-              <Sparkles size={20} className="text-muted-foreground" />
-            ) : (
-              <>
-                <Image size={20} className="text-muted-foreground" />
-                <Dices size={20} className="text-muted-foreground" />
-              </>
-            )}
-          </div>
+          <TooltipProvider>
+            <div className="flex items-center gap-1">
+              {isVideoMode ? (
+                <Video size={20} className="text-muted-foreground" />
+              ) : isAudioMode ? (
+                <Sparkles size={20} className="text-muted-foreground" />
+              ) : (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="hover:text-foreground transition">
+                        <Image size={20} className="text-muted-foreground" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Image-To-Prompt</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="hover:text-foreground transition">
+                        <Dices size={20} className="text-muted-foreground" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Auto Prompt</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+            </div>
+          </TooltipProvider>
           <input
             type="text"
             placeholder={isVideoMode ? "Describe the video you want to create..." : isAudioMode ? "Describe the audio you want to create..." : "Describe what you want to create..."}
@@ -144,9 +165,18 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                   </PopoverContent>
                 </Popover>
 
-                <button className="text-muted-foreground hover:text-foreground transition">
-                  <MoreHorizontal size={20} />
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground transition">
+                        <MoreHorizontal size={20} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Enhance Prompt</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </>
             ) : isAudioMode ? (
               <>
@@ -283,9 +313,18 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                   </PopoverContent>
                 </Popover>
 
-                <button className="text-muted-foreground hover:text-foreground transition">
-                  <MoreHorizontal size={20} />
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground transition">
+                        <MoreHorizontal size={20} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Enhance Prompt</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </>
             ) : (
               <>
