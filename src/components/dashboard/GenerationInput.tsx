@@ -631,10 +631,19 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap">
-              <Sparkles size={16} />
-              AI
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap">
+                    <Sparkles size={16} />
+                    AI
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Enhance Prompt</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
