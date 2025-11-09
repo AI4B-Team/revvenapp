@@ -5,8 +5,14 @@ import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
-  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc
+  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import OnboardingProgress from './OnboardingProgress';
 import SearchDialog from './SearchDialog';
 
@@ -175,15 +181,35 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               <span className="flex-1 text-left text-sm">Search Projects</span>
             </button>
             {workspaces.map((workspace, idx) => (
-              <button
+              <div
                 key={idx}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary"
+                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition text-primary group"
               >
                 <div className={`w-8 h-8 ${workspace.bgColor} rounded flex items-center justify-center text-sm font-bold text-primary`}>
                   {workspace.initial}
                 </div>
                 <span className="flex-1 text-left text-sm">{workspace.name}</span>
-              </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical size={16} className="text-primary" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem>
+                      <Edit size={14} className="mr-2" />
+                      Rename workspace
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Settings size={14} className="mr-2" />
+                      Workspace settings
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ))}
             <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-primary/10 transition bg-primary/5 mt-2 border-t border-primary/20 text-primary">
               <div className="w-8 h-8 bg-brand-yellow rounded flex items-center justify-center text-sm font-bold text-primary">
