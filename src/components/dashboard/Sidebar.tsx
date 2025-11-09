@@ -279,7 +279,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             }`}
             title="Brand"
           >
-            <Briefcase size={18} className="text-sidebar-muted" />
+            <span className="text-sidebar-muted">
+              <Briefcase size={18} />
+            </span>
             {!isCollapsed && <span className="flex-1 text-left text-sm">Brand</span>}
             {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />}
           </button>
@@ -322,7 +324,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             }`}
             title="Assets"
           >
-            <FolderOpen size={18} className="text-sidebar-muted" />
+            <span className="text-sidebar-muted">
+              <FolderOpen size={18} />
+            </span>
             {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
             {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />}
           </button>
