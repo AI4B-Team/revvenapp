@@ -5,7 +5,8 @@ import {
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
-  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical
+  Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
+  PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -119,6 +120,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
      activeTab === 'Audio' ? audioNavItems :
      createNavItems);
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
@@ -155,24 +157,32 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <div className="w-64 bg-sidebar text-sidebar-text flex flex-col">
-        {/* Logo */}
-      <div className="p-6 flex justify-center">
-        <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>
-      </div>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
+        {/* Logo & Collapse Toggle */}
+        <div className="p-6 flex items-center justify-between">
+          {!isCollapsed && <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 hover:bg-sidebar-hover rounded-lg transition ml-auto"
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          </button>
+        </div>
 
       {/* Workspace Selector */}
-      <div className="px-4 mb-6 relative">
-        <button 
-          onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
-          className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
-        >
-          <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center text-sm font-bold text-primary">
-            D
-          </div>
-          <span className="flex-1 text-left text-sm text-primary font-medium">Dolmar Workspace</span>
-          <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
-        </button>
+      {!isCollapsed && (
+        <div className="px-4 mb-6 relative">
+          <button 
+            onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
+            className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
+          >
+            <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center text-sm font-bold text-primary">
+              D
+            </div>
+            <span className="flex-1 text-left text-sm text-primary font-medium">Dolmar Workspace</span>
+            <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
+          </button>
         
         {isWorkspaceOpen && (
           <div className="absolute top-full left-4 right-4 mt-2 bg-brand-green rounded-lg shadow-lg z-50 py-2">
@@ -219,7 +229,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             </button>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
@@ -229,12 +240,13 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               key={idx}
               onClick={() => setIsSearchOpen(true)}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              title={item.label}
             >
               <span className="text-sidebar-muted">
                 {item.icon}
               </span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-              {item.shortcut && (
+              {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+              {!isCollapsed && item.shortcut && (
                 <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
               )}
             </button>
@@ -245,12 +257,13 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               end
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
               activeClassName="bg-sidebar-active"
+              title={item.label}
             >
               <span className="text-sidebar-muted">
                 {item.icon}
               </span>
-              <span className="flex-1 text-left text-sm">{item.label}</span>
-              {item.shortcut && (
+              {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+              {!isCollapsed && item.shortcut && (
                 <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
               )}
             </NavLink>
@@ -258,18 +271,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
         ))}
 
         {/* Brand Section */}
-        <div className="pt-2">
-          <button 
-            onClick={() => setIsBrandOpen(!isBrandOpen)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-              isBrandOpen ? 'bg-sidebar-active' : ''
-            }`}
-          >
-            <Briefcase size={18} className="text-sidebar-muted" />
-            <span className="flex-1 text-left text-sm">Brand</span>
-            <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />
-          </button>
-          {isBrandOpen && (
+        {!isCollapsed && (
+          <div className="pt-2">
+            <button 
+              onClick={() => setIsBrandOpen(!isBrandOpen)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+                isBrandOpen ? 'bg-sidebar-active' : ''
+              }`}
+            >
+              <Briefcase size={18} className="text-sidebar-muted" />
+              <span className="flex-1 text-left text-sm">Brand</span>
+              <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />
+            </button>
+            {isBrandOpen && (
             <div className="ml-6 mt-2 space-y-2">
               <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
                 <UserCircle size={14} />
@@ -296,22 +310,24 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                 <span className="text-sm">Calendar</span>
               </button>
             </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Library Section */}
-        <div className="pt-2">
-          <button 
-            onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-              isAssetsOpen ? 'bg-sidebar-active' : ''
-            }`}
-          >
-            <FolderOpen size={18} className="text-sidebar-muted" />
-            <span className="flex-1 text-left text-sm">Assets</span>
-            <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
-          </button>
-          {isAssetsOpen && (
+        {!isCollapsed && (
+          <div className="pt-2">
+            <button 
+              onClick={() => setIsAssetsOpen(!isAssetsOpen)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+                isAssetsOpen ? 'bg-sidebar-active' : ''
+              }`}
+            >
+              <FolderOpen size={18} className="text-sidebar-muted" />
+              <span className="flex-1 text-left text-sm">Assets</span>
+              <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
+            </button>
+            {isAssetsOpen && (
             <div className="ml-6 mt-2 space-y-2">
               <div className="flex items-center gap-3 px-3 py-1.5">
                 <div className="w-2 h-2 bg-sidebar-muted rounded"></div>
@@ -332,8 +348,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                 <span className="text-sm">+ New Folder</span>
               </button>
             </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Separator */}
         <div className="pt-4 pb-2 px-3">
@@ -358,12 +375,13 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
                     (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'bg-sidebar-active' : ''
                   }`}
+                  title={item.label}
                 >
                   <span className={item.color}>{item.icon}</span>
-                  <span className="flex-1 text-left text-sm">{item.label}</span>
-                  <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${
+                  {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+                  {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${
                     (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
-                  }`} />
+                  }`} />}
                 </button>
                 {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && (
                   <div className="ml-6 mt-2 space-y-1">
@@ -396,9 +414,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                 to={item.link}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
                 activeClassName="bg-sidebar-active"
+                title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
-                <span className="flex-1 text-left text-sm">{item.label}</span>
+                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </NavLink>
             ) : (
               <button
@@ -407,9 +426,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
                   activeTab === item.label ? 'bg-sidebar-active' : ''
                 }`}
+                title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
-                <span className="flex-1 text-left text-sm">{item.label}</span>
+                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </button>
             )
           ))}
@@ -417,25 +437,27 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       </nav>
 
       {/* Onboarding Progress */}
-      <OnboardingProgress />
+      {!isCollapsed && <OnboardingProgress />}
 
       {/* Credits Section */}
-      <div className="p-4 space-y-3 bg-sidebar">
-        <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
-            <HelpCircle size={14} className="text-sidebar-muted" />
+      {!isCollapsed && (
+        <div className="p-4 space-y-3 bg-sidebar">
+          <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
+              <HelpCircle size={14} className="text-sidebar-muted" />
+            </div>
+            <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
+            <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
+              <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
+            </div>
+            <div className="text-sm text-brand-green font-semibold mb-3">88000 Credits Remaining</div>
+            <button className="w-full bg-brand-green hover:opacity-90 text-primary font-semibold py-2 rounded-lg transition">
+              Purchase Extra Credit
+            </button>
           </div>
-          <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
-          <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
-            <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
-          </div>
-          <div className="text-sm text-brand-green font-semibold mb-3">88000 Credits Remaining</div>
-          <button className="w-full bg-brand-green hover:opacity-90 text-primary font-semibold py-2 rounded-lg transition">
-            Purchase Extra Credit
-          </button>
         </div>
-      </div>
+      )}
       </div>
     </>
   );
