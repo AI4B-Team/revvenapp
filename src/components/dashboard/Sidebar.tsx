@@ -271,86 +271,84 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
         ))}
 
         {/* Brand Section */}
-        {!isCollapsed && (
-          <div className="pt-2">
-            <button 
-              onClick={() => setIsBrandOpen(!isBrandOpen)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-                isBrandOpen ? 'bg-sidebar-active' : ''
-              }`}
-            >
-              <Briefcase size={18} className="text-sidebar-muted" />
-              <span className="flex-1 text-left text-sm">Brand</span>
-              <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />
+        <div className="pt-2">
+          <button 
+            onClick={() => setIsBrandOpen(!isBrandOpen)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+              isBrandOpen ? 'bg-sidebar-active' : ''
+            }`}
+            title="Brand"
+          >
+            <Briefcase size={18} className="text-sidebar-muted" />
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Brand</span>}
+            {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />}
+          </button>
+          {isBrandOpen && !isCollapsed && (
+          <div className="ml-6 mt-2 space-y-2">
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <UserCircle size={14} />
+              <span className="text-sm">Identity</span>
             </button>
-            {isBrandOpen && (
-            <div className="ml-6 mt-2 space-y-2">
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <UserCircle size={14} />
-                <span className="text-sm">Identity</span>
-              </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <Mic size={14} />
-                <span className="text-sm">Voice</span>
-              </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <Users size={14} />
-                <span className="text-sm">Characters</span>
-              </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <BookOpen size={14} />
-                <span className="text-sm">Knowledgebase</span>
-              </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <Target size={14} />
-                <span className="text-sm">Campaigns</span>
-              </button>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-                <Calendar size={14} />
-                <span className="text-sm">Calendar</span>
-              </button>
-            </div>
-            )}
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <Mic size={14} />
+              <span className="text-sm">Voice</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <Users size={14} />
+              <span className="text-sm">Characters</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <BookOpen size={14} />
+              <span className="text-sm">Knowledgebase</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <Target size={14} />
+              <span className="text-sm">Campaigns</span>
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <Calendar size={14} />
+              <span className="text-sm">Calendar</span>
+            </button>
           </div>
-        )}
+          )}
+        </div>
 
         {/* Library Section */}
-        {!isCollapsed && (
-          <div className="pt-2">
-            <button 
-              onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-                isAssetsOpen ? 'bg-sidebar-active' : ''
-              }`}
-            >
-              <FolderOpen size={18} className="text-sidebar-muted" />
-              <span className="flex-1 text-left text-sm">Assets</span>
-              <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />
-            </button>
-            {isAssetsOpen && (
-            <div className="ml-6 mt-2 space-y-2">
-              <div className="flex items-center gap-3 px-3 py-1.5">
-                <div className="w-2 h-2 bg-sidebar-muted rounded"></div>
-                <span className="text-sm text-sidebar-muted">Content</span>
-                <span className="ml-auto text-xs text-sidebar-muted">48</span>
-              </div>
-              <div className="flex items-center gap-3 px-3 py-1.5">
-                <div className="w-2 h-2 bg-brand-yellow rounded"></div>
-                <span className="text-sm text-sidebar-muted">Images</span>
-                <span className="ml-auto text-xs text-sidebar-muted">16</span>
-              </div>
-              <div className="flex items-center gap-3 px-3 py-1.5">
-                <div className="w-2 h-2 bg-brand-blue rounded"></div>
-                <span className="text-sm text-sidebar-muted">Videos</span>
-                <span className="ml-auto text-xs text-sidebar-muted">8</span>
-              </div>
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text">
-                <span className="text-sm">+ New Folder</span>
-              </button>
+        <div className="pt-2">
+          <button 
+            onClick={() => setIsAssetsOpen(!isAssetsOpen)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
+              isAssetsOpen ? 'bg-sidebar-active' : ''
+            }`}
+            title="Assets"
+          >
+            <FolderOpen size={18} className="text-sidebar-muted" />
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
+            {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />}
+          </button>
+          {isAssetsOpen && !isCollapsed && (
+          <div className="ml-6 mt-2 space-y-2">
+            <div className="flex items-center gap-3 px-3 py-1.5">
+              <div className="w-2 h-2 bg-sidebar-muted rounded"></div>
+              <span className="text-sm text-sidebar-muted">Content</span>
+              <span className="ml-auto text-xs text-sidebar-muted">48</span>
             </div>
-            )}
+            <div className="flex items-center gap-3 px-3 py-1.5">
+              <div className="w-2 h-2 bg-brand-yellow rounded"></div>
+              <span className="text-sm text-sidebar-muted">Images</span>
+              <span className="ml-auto text-xs text-sidebar-muted">16</span>
+            </div>
+            <div className="flex items-center gap-3 px-3 py-1.5">
+              <div className="w-2 h-2 bg-brand-blue rounded"></div>
+              <span className="text-sm text-sidebar-muted">Videos</span>
+              <span className="ml-auto text-xs text-sidebar-muted">8</span>
+            </div>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text">
+              <span className="text-sm">+ New Folder</span>
+            </button>
           </div>
-        )}
+          )}
+        </div>
 
         {/* Separator */}
         <div className="pt-4 pb-2 px-3">
@@ -383,7 +381,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                     (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
                   }`} />}
                 </button>
-                {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && (
+                {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
                   <div className="ml-6 mt-2 space-y-1">
                     {item.subItems ? (
                       item.subItems.map((subItem, subIdx) => (
