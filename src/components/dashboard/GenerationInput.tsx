@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -654,7 +654,7 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 <TooltipContent side="bottom" className="max-w-xs p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center flex-shrink-0">
-                      <Sparkles size={14} className="text-primary" />
+                      <Gift size={14} className="text-primary" />
                     </div>
                     <div>
                       <p className="font-bold text-sm mb-2">Generate FREE: 5 Images, 1 Video</p>
