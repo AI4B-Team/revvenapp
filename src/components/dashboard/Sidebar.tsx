@@ -48,7 +48,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-yellow' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
     { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-red' },
-    { icon: <Code size={18} />, label: 'Code', color: 'text-brand-blue' },
+    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-blue' },
   ];
 
   const imageNavItems = [
