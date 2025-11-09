@@ -368,12 +368,12 @@ const CreationsGallery = ({ type }: GalleryProps) => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Masonry Grid */}
-      <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+      {/* Grid Layout - 3 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item) => (
           <div
             key={item.id}
-            className="break-inside-avoid relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+            className="relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
           >
             {/* Image/Video */}
             <div className="relative aspect-[4/3] overflow-hidden">
