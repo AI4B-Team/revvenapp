@@ -643,13 +643,14 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs p-4">
-                  <div className="flex items-start gap-2 mb-2">
+                  <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center flex-shrink-0">
                       <Sparkles size={14} className="text-primary" />
                     </div>
                     <div>
-                      <p className="font-semibold text-sm mb-1">Create for FREE today!</p>
-                      <p className="text-xs">
+                      <p className="font-bold text-sm mb-2">Generate FREE: 5 Images, 1 Video</p>
+                      <p className="text-xs leading-relaxed">
+                        Create for FREE today!<br />
                         Design your first AI images at no cost,<br />
                         and instantly transform them into video.
                       </p>
