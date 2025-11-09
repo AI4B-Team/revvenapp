@@ -73,6 +73,8 @@ const Assistant = () => {
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAssistantPage={true} />
       
+      <ChatHistorySidebar />
+      
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
@@ -178,8 +180,6 @@ const Assistant = () => {
           </div>
         </main>
       </div>
-      
-      <ChatHistorySidebar />
     </div>
   );
 };
