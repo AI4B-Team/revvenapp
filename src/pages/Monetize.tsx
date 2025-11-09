@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, FolderPlus, Clock, List, Search } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const Monetize = () => {
   const [view, setView] = useState('list');
@@ -14,6 +15,32 @@ const Monetize = () => {
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
+        
+        {/* Sub-menu */}
+        <div className="border-b border-border bg-card">
+          <Tabs defaultValue="funnels" className="w-full">
+            <TabsList className="w-full justify-start rounded-none border-0 bg-transparent p-0 h-12">
+              <TabsTrigger 
+                value="websites" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
+              >
+                Websites
+              </TabsTrigger>
+              <TabsTrigger 
+                value="funnels" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
+              >
+                Funnels
+              </TabsTrigger>
+              <TabsTrigger 
+                value="stores" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
+              >
+                Stores
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         
         <main className="flex-1 overflow-auto bg-muted/30">
           {/* Header Section */}
@@ -128,7 +155,7 @@ const Monetize = () => {
 
                   {/* Text */}
                   <h3 className="text-xl font-semibold text-foreground mb-3">
-                    Start by creating a funnel
+                    Start Creating A Funnel
                   </h3>
                   <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                     All your funnels and folders will live here. Start by creating your first Funnel
