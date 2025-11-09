@@ -178,9 +178,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             className="w-full flex items-center gap-3 px-3 py-2 bg-brand-green rounded-lg hover:bg-brand-green/90 transition"
           >
             <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center text-sm font-bold text-primary">
-              D
+              B
             </div>
-            <span className="flex-1 text-left text-sm text-primary font-medium">Dolmar Workspace</span>
+            <span className="flex-1 text-left text-sm text-primary font-medium">Brian Workspace</span>
             <ChevronDown size={16} className={`transition-transform text-primary ${isWorkspaceOpen ? 'rotate-180' : ''}`} />
           </button>
         
