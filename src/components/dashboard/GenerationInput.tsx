@@ -635,28 +635,30 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
               <Sparkles size={16} />
               AI
             </button>
-            <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap">
-              Generate For Free!
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap">
+                    Generate For Free!
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs p-4">
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center flex-shrink-0">
+                      <Sparkles size={14} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm mb-1">Create for FREE today!</p>
+                      <p className="text-xs">
+                        Design your first AI images at no cost,<br />
+                        and instantly transform them into video.
+                      </p>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-        </div>
-      </div>
-
-      {/* Free Generation Tooltip */}
-      <div className="relative">
-        <div className="absolute right-0 mt-2 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-lg max-w-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center">
-              <Sparkles size={14} className="text-primary" />
-            </div>
-            <span className="font-semibold text-sm">Generate FREE: 5 Images, 1 Video</span>
-            <button className="ml-auto text-muted-foreground hover:text-primary-foreground">×</button>
-          </div>
-          <p className="text-xs text-primary-foreground/80">
-            <span className="font-semibold">Start creating for free.</span><br />
-            Generate your first AI images for free,<br />
-            then bring them to life with video.
-          </p>
         </div>
       </div>
     </div>
