@@ -21,7 +21,7 @@ const ChatHistorySidebar = () => {
             {/* Replace with your AI character image */}
             <img 
               src="/placeholder.svg" 
-              alt="Luna AI"
+              alt="Cora AI"
               className="w-full h-full object-cover"
             />
           </div>
@@ -34,7 +34,7 @@ const ChatHistorySidebar = () => {
 
         {/* Name and Title */}
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-1">Luna</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Cora</h2>
           <p className="text-sm text-gray-500">AI Assistant</p>
         </div>
 
