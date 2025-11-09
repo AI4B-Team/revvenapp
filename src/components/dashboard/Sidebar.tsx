@@ -159,11 +159,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
-        <div className="p-6 flex items-center justify-between">
+        <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && <h1 className="text-2xl font-bold tracking-wider">REVVEN</h1>}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-sidebar-hover rounded-lg transition ml-auto"
+            className="absolute right-4 p-2 hover:bg-sidebar-hover rounded-lg transition"
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
