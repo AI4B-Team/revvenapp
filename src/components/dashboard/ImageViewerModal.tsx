@@ -49,6 +49,7 @@ const ImageViewerModal = ({
 }: ImageViewerModalProps) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [zoom, setZoom] = useState(100);
 
   const imageData = {
@@ -76,25 +77,33 @@ const ImageViewerModal = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(imageData.prompt);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2000);
+  };
+
   return (
     <>
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
-        {/* Modal Container */}
-        <div className="w-full max-w-6xl h-[85vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden" onClick={(e) => e.stopPropagation()}>
-          
-          {/* Left Side - Image */}
-          <div className="flex-1 relative bg-black flex items-center justify-center">
+        {/* Modal Container with external close button */}
+        <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+          {/* Close Button - Outside top right */}
+          <button
+            onClick={onClose}
+            className="absolute -top-3 -right-3 w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            title="Close"
+          >
+            <X size={20} className="text-white" />
+          </button>
+
+          {/* Modal Content */}
+          <div className="w-full h-[80vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
-            {/* Close Button - Top Right */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center transition-colors z-50"
-              title="Close"
-            >
-              <X size={20} className="text-white" />
-            </button>
+            {/* Left Side - Image */}
+            <div className="flex-1 relative bg-black flex items-center justify-center">
 
             {/* Navigation Arrows */}
             {onPrevious && (
@@ -247,7 +256,20 @@ const ImageViewerModal = ({
 
             {/* Prompt Section */}
             <div className="p-6 border-b border-gray-800">
-              <h3 className="text-white font-semibold mb-3">Prompt</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-semibold">Prompt</h3>
+                <button
+                  onClick={copyPrompt}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title="Copy prompt"
+                >
+                  {copiedPrompt ? (
+                    <Check size={18} className="text-green-500" />
+                  ) : (
+                    <Copy size={18} />
+                  )}
+                </button>
+              </div>
               <p className="text-gray-300 text-sm leading-relaxed">
                 {imageData.prompt}
               </p>
@@ -268,9 +290,9 @@ const ImageViewerModal = ({
             </div>
 
             {/* Reference Image */}
-            <div className="p-6">
+            <div className="p-6 border-b border-gray-800">
               <h3 className="text-white font-semibold mb-3">Reference</h3>
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-800">
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800">
                 <img
                   src={imageData.referenceImage}
                   alt="Reference"
@@ -280,7 +302,7 @@ const ImageViewerModal = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="p-6 space-y-2 mt-auto">
+            <div className="p-6 space-y-2">
               <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
                 <RefreshCw size={18} />
                 <span className="font-medium">Recreate</span>
@@ -347,6 +369,7 @@ const ImageViewerModal = ({
                 <span>Edit Image</span>
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>
