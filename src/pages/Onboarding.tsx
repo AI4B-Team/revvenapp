@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
-  Layout, Users, Sparkles
+  Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
+  Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -14,7 +15,10 @@ const Onboarding = () => {
   const sections = [
     {
       id: 'getting-started',
-      title: 'Getting started',
+      title: 'Getting Started',
+      subtitle: 'Set Up Your Brand DNA',
+      icon: <Sparkles size={24} />,
+      color: 'text-brand-green',
       tasks: [
         {
           id: 'create-community',
@@ -26,8 +30,8 @@ const Onboarding = () => {
         {
           id: 'watch-video',
           icon: <Play size={20} />,
-          title: 'Get to know Tribe Platform',
-          description: 'See what you\'ll be able to do with Tribe',
+          title: 'Get to know REVVEN Platform',
+          description: 'See what you\'ll be able to do with REVVEN',
           actionLabel: 'Play Video',
           actionColor: 'indigo'
         },
@@ -58,14 +62,143 @@ const Onboarding = () => {
       ]
     },
     {
-      id: 'join-movement',
-      title: 'Join the movement',
-      tasks: []
+      id: 'create',
+      title: 'Create',
+      subtitle: 'Launch Your Creative Engine',
+      icon: <Sparkles size={24} />,
+      color: 'text-primary',
+      tasks: [
+        {
+          id: 'create-task-1',
+          icon: <ImageIcon size={20} />,
+          title: 'Generate your first image',
+          description: 'Use AI to create stunning visuals',
+          actionLabel: 'Create Image',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'create-task-2',
+          icon: <Video size={20} />,
+          title: 'Create your first video',
+          description: 'Transform ideas into video content',
+          actionLabel: 'Create Video',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'create-task-3',
+          icon: <FileText size={20} />,
+          title: 'Write AI-powered content',
+          description: 'Generate blog posts and articles',
+          actionLabel: 'Start Writing',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'create-task-4',
+          icon: <Music size={20} />,
+          title: 'Compose audio',
+          description: 'Create music and voiceovers',
+          actionLabel: 'Create Audio',
+          actionColor: 'indigo'
+        }
+      ]
     },
     {
-      id: 'prepare-launch',
-      title: 'Prepare for the launch',
-      tasks: []
+      id: 'monetize',
+      title: 'Monetize',
+      subtitle: 'Activate Your Profit System',
+      icon: <DollarSign size={24} />,
+      color: 'text-brand-green',
+      tasks: [
+        {
+          id: 'monetize-task-1',
+          icon: <Layout size={20} />,
+          title: 'Create your first funnel',
+          description: 'Build sales funnels that convert',
+          actionLabel: 'Create Funnel',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'monetize-task-2',
+          icon: <CreditCard size={20} />,
+          title: 'Set up payment processing',
+          description: 'Connect your payment gateway',
+          actionLabel: 'Connect',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'monetize-task-3',
+          icon: <TrendingUp size={20} />,
+          title: 'Launch affiliate program',
+          description: 'Grow through affiliates',
+          actionLabel: 'Set Up',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'monetize-task-4',
+          icon: <Package size={20} />,
+          title: 'Create digital products',
+          description: 'Package your content for sale',
+          actionLabel: 'Create Product',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'monetize-task-5',
+          icon: <Users size={20} />,
+          title: 'Build membership site',
+          description: 'Create recurring revenue',
+          actionLabel: 'Build Site',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'monetize-task-6',
+          icon: <Mail size={20} />,
+          title: 'Set up email marketing',
+          description: 'Automate your email campaigns',
+          actionLabel: 'Configure',
+          actionColor: 'indigo'
+        }
+      ]
+    },
+    {
+      id: 'automate',
+      title: 'Automate',
+      subtitle: 'Let Your AI Take Over',
+      icon: <Zap size={24} />,
+      color: 'text-purple-500',
+      tasks: [
+        {
+          id: 'automate-task-1',
+          icon: <Zap size={20} />,
+          title: 'Set up content scheduler',
+          description: 'Automate your content posting',
+          actionLabel: 'Configure',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'automate-task-2',
+          icon: <Bot size={20} />,
+          title: 'Create AI workflows',
+          description: 'Build automated processes',
+          actionLabel: 'Create Workflow',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'automate-task-3',
+          icon: <MessageSquare size={20} />,
+          title: 'Deploy AI chatbot',
+          description: 'Let AI handle customer service',
+          actionLabel: 'Deploy',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'automate-task-4',
+          icon: <TrendingUp size={20} />,
+          title: 'Enable smart analytics',
+          description: 'Automatic performance tracking',
+          actionLabel: 'Enable',
+          actionColor: 'indigo'
+        }
+      ]
     }
   ];
 
@@ -90,14 +223,17 @@ const Onboarding = () => {
   };
 
   const getStepsLeft = (section: typeof sections[0]) => {
-    if (!section.tasks.length) return section.id === 'join-movement' ? 4 : 6;
     return section.tasks.filter(task => !completedTasks.has(task.id)).length;
   };
 
-  // Calculate overall progress percentage (matching the sidebar)
-  const totalTasks = 7; // Total tasks as shown in sidebar
-  const completedCount = completedTasks.size;
-  const progressPercentage = Math.round((completedCount / totalTasks) * 100);
+  // Calculate overall progress percentage
+  const allTasks = [
+    'create-community', 'watch-video', 'upload-logo', 'create-space', 'invite-teammates',
+    'create-task-1', 'create-task-2', 'create-task-3', 'create-task-4',
+    'monetize-task-1', 'monetize-task-2', 'monetize-task-3', 'monetize-task-4', 'monetize-task-5', 'monetize-task-6',
+    'automate-task-1', 'automate-task-2', 'automate-task-3', 'automate-task-4'
+  ];
+  const progressPercentage = Math.round((completedTasks.size / allTasks.length) * 100);
 
   return (
     <div className="flex h-screen bg-background">
@@ -108,134 +244,160 @@ const Onboarding = () => {
         
         <main className="flex-1 overflow-y-auto">
           <div className="min-h-full bg-background p-6 lg:p-8">
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               
-              {/* Header */}
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-foreground mb-2">
-                  Congrats on the new community 🔥
-                </h1>
-                <p className="text-muted-foreground">
-                  Complete these simple steps to get your community up and running.
-                </p>
+              {/* Welcome Header */}
+              <h1 className="text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
+                <span>👋</span>
+                <span>Welcome, Brian</span>
+              </h1>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* Overall Progress Bar */}
-                <div className="mt-6 max-w-md mx-auto">
-                  <div className="space-y-2">
-                    <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-brand-green h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${progressPercentage}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {progressPercentage}% Completed
+                {/* Left Column - Onboarding Sections */}
+                <div className="lg:col-span-2 space-y-6">
+                  
+                  {/* Quick Start Card */}
+                  <div className="bg-card rounded-2xl shadow-sm p-8 border border-border">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">Quick Start</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Get started with REVVEN by completing the following steps.
                     </p>
+
+                    {/* Progress Bar */}
+                    <div className="mb-2">
+                      <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
+                        <div
+                          className="bg-brand-green h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${progressPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium">{progressPercentage}% Completed</p>
+                  </div>
+
+                  {/* Sections */}
+                  {sections.map((section) => {
+                    const isExpanded = expandedSections.has(section.id);
+                    const stepsLeft = getStepsLeft(section);
+
+                    return (
+                      <div
+                        key={section.id}
+                        className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border"
+                      >
+                        {/* Section Header */}
+                        <button
+                          onClick={() => toggleSection(section.id)}
+                          className="w-full px-8 py-6 flex items-center justify-between hover:bg-accent transition-colors"
+                        >
+                          <div className="text-left">
+                            <h3 className="text-2xl font-bold text-foreground mb-1">
+                              {section.title}
+                            </h3>
+                            <p className="text-muted-foreground">{section.subtitle}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-4">
+                            <span className="text-sm text-muted-foreground font-medium">
+                              {stepsLeft} {stepsLeft === 1 ? 'step' : 'steps'} left
+                            </span>
+                            {isExpanded ? (
+                              <ChevronUp size={24} className="text-muted-foreground" />
+                            ) : (
+                              <ChevronDown size={24} className="text-muted-foreground" />
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Tasks List */}
+                        {isExpanded && (
+                          <div className="border-t border-border bg-accent/50">
+                            {section.tasks.map((task, index) => {
+                              const isCompleted = completedTasks.has(task.id);
+
+                              return (
+                                <div
+                                  key={task.id}
+                                  className={`px-8 py-6 flex items-start gap-5 bg-card ${
+                                    index !== section.tasks.length - 1 ? 'border-b border-border/50' : ''
+                                  }`}
+                                >
+                                  {/* Icon or Completion Status */}
+                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                                    isCompleted 
+                                      ? 'bg-brand-green' 
+                                      : 'bg-secondary'
+                                  }`}>
+                                    {isCompleted ? (
+                                      <Check size={24} className="text-white" />
+                                    ) : (
+                                      <span className="text-muted-foreground">{task.icon}</span>
+                                    )}
+                                  </div>
+
+                                  {/* Task Content */}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={`text-base font-semibold mb-1 ${
+                                      isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'
+                                    }`}>
+                                      {task.title}
+                                    </h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      {task.description}
+                                    </p>
+                                  </div>
+
+                                  {/* Action Button or Checkmark */}
+                                  {!isCompleted && task.actionLabel ? (
+                                    <button
+                                      onClick={() => completeTask(task.id)}
+                                      className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold rounded-lg transition-colors shrink-0"
+                                    >
+                                      {task.actionLabel}
+                                    </button>
+                                  ) : isCompleted ? (
+                                    <div className="w-10 h-10 bg-brand-green rounded-full flex items-center justify-center shrink-0">
+                                      <Check size={20} className="text-white" />
+                                    </div>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Right Column - Video Tutorial */}
+                <div className="lg:col-span-1">
+                  <div className="bg-card rounded-2xl shadow-sm p-6 border border-border sticky top-6">
+                    <h3 className="text-xl font-bold text-foreground mb-3">
+                      Watch A 3 Minutes Overview
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-6">
+                      Get started with REVVEN by watching this overview video.
+                    </p>
+
+                    {/* Video Thumbnail */}
+                    <div className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer">
+                      <img
+                        src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800"
+                        alt="Tutorial video"
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center transition-all transform group-hover:scale-110">
+                          <Play size={28} className="text-foreground ml-1" fill="currentColor" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Sections */}
-              <div className="space-y-4">
-                {sections.map((section) => {
-                  const isExpanded = expandedSections.has(section.id);
-                  const stepsLeft = getStepsLeft(section);
-
-                  return (
-                    <div
-                      key={section.id}
-                      className="bg-card rounded-xl shadow-sm overflow-hidden border border-border"
-                    >
-                      {/* Section Header */}
-                      <button
-                        onClick={() => toggleSection(section.id)}
-                        className="w-full px-6 py-4 flex items-center justify-between hover:bg-accent transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-semibold text-foreground">
-                            {section.title}
-                          </h3>
-                          {isExpanded && stepsLeft === 0 && (
-                            <div className="w-6 h-6 bg-brand-green rounded flex items-center justify-center">
-                              <Check size={14} className="text-white" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-muted-foreground">
-                            {stepsLeft} {stepsLeft === 1 ? 'step' : 'steps'} left
-                          </span>
-                          {isExpanded ? (
-                            <ChevronUp size={20} className="text-muted-foreground" />
-                          ) : (
-                            <ChevronDown size={20} className="text-muted-foreground" />
-                          )}
-                        </div>
-                      </button>
-
-                      {/* Tasks List */}
-                      {isExpanded && section.tasks.length > 0 && (
-                        <div className="border-t border-border">
-                          {section.tasks.map((task, index) => {
-                            const isCompleted = completedTasks.has(task.id);
-
-                            return (
-                              <div
-                                key={task.id}
-                                className={`px-6 py-4 flex items-start gap-4 ${
-                                  index !== section.tasks.length - 1 ? 'border-b border-border/50' : ''
-                                }`}
-                              >
-                                {/* Icon or Completion Status */}
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                                  isCompleted 
-                                    ? 'bg-brand-green' 
-                                    : 'bg-secondary'
-                                }`}>
-                                  {isCompleted ? (
-                                    <Check size={20} className="text-white" />
-                                  ) : (
-                                    <span className="text-muted-foreground">{task.icon}</span>
-                                  )}
-                                </div>
-
-                                {/* Task Content */}
-                                <div className="flex-1 min-w-0">
-                                  <h4 className={`text-base font-medium mb-1 ${
-                                    isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'
-                                  }`}>
-                                    {task.title}
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    {task.description}
-                                  </p>
-                                </div>
-
-                                {/* Action Button */}
-                                {!isCompleted && task.actionLabel && (
-                                  <button
-                                    onClick={() => completeTask(task.id)}
-                                    className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium rounded-lg transition-colors shrink-0"
-                                  >
-                                    {task.actionLabel}
-                                  </button>
-                                )}
-
-                                {/* Completed Checkmark */}
-                                {isCompleted && (
-                                  <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center shrink-0">
-                                    <Check size={16} className="text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
               </div>
             </div>
           </div>
