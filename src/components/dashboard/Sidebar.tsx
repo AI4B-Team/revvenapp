@@ -75,6 +75,21 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <Mic size={18} />, label: 'Dubbing', color: 'text-brand-yellow' },
   ];
 
+  const designNavItems = [
+    { icon: <Sparkles size={18} />, label: 'Create', color: 'text-brand-green' },
+    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
+  ];
+
+  const contentNavItems = [
+    { icon: <FileText size={18} />, label: 'Create', color: 'text-brand-green' },
+    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
+  ];
+
+  const appsNavItems = [
+    { icon: <Code size={18} />, label: 'Create', color: 'text-brand-green' },
+    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
+  ];
+
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
 
   const automateNavItems = [
@@ -121,6 +136,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     (activeTab === 'Image' ? imageNavItems : 
      activeTab === 'Video' ? videoNavItems : 
      activeTab === 'Audio' ? audioNavItems :
+     activeTab === 'Design' ? designNavItems :
+     activeTab === 'Content' ? contentNavItems :
+     activeTab === 'Apps' ? appsNavItems :
      createNavItems);
 
   const [isCollapsed, setIsCollapsed] = useState(false);

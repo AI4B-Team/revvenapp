@@ -118,6 +118,123 @@ const Create = () => {
     },
   ];
 
+  const designTools = [
+    { 
+      name: 'Logo Designer', 
+      description: 'Create brand logos',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎨'
+    },
+    { 
+      name: 'Banner Creator', 
+      description: 'Design social banners',
+      bgColor: 'bg-tool-yellow',
+      emoji: '🖼️'
+    },
+    { 
+      name: 'Flyer Maker', 
+      description: 'Create marketing flyers',
+      bgColor: 'bg-tool-green',
+      emoji: '📄'
+    },
+    { 
+      name: 'Poster Designer', 
+      description: 'Design custom posters',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎭'
+    },
+    { 
+      name: 'Infographic Builder', 
+      description: 'Create infographics',
+      bgColor: 'bg-tool-pink',
+      emoji: '📊'
+    },
+    { 
+      name: 'Presentation Maker', 
+      description: 'Design presentations',
+      bgColor: 'bg-tool-yellow',
+      emoji: '📺'
+    },
+  ];
+
+  const contentTools = [
+    { 
+      name: 'Blog Writer', 
+      description: 'Generate blog posts',
+      bgColor: 'bg-tool-green',
+      emoji: '✍️'
+    },
+    { 
+      name: 'Social Posts', 
+      description: 'Create social content',
+      bgColor: 'bg-tool-blue',
+      emoji: '📱'
+    },
+    { 
+      name: 'Email Generator', 
+      description: 'Write email campaigns',
+      bgColor: 'bg-tool-yellow',
+      emoji: '📧'
+    },
+    { 
+      name: 'Ad Copy Writer', 
+      description: 'Generate ad copy',
+      bgColor: 'bg-tool-pink',
+      emoji: '💡'
+    },
+    { 
+      name: 'Script Writer', 
+      description: 'Create video scripts',
+      bgColor: 'bg-tool-blue',
+      emoji: '🎬'
+    },
+    { 
+      name: 'SEO Optimizer', 
+      description: 'Optimize for search',
+      bgColor: 'bg-tool-green',
+      emoji: '🔍'
+    },
+  ];
+
+  const appTools = [
+    { 
+      name: 'Website Builder', 
+      description: 'Build custom websites',
+      bgColor: 'bg-tool-blue',
+      emoji: '🌐'
+    },
+    { 
+      name: 'Landing Page', 
+      description: 'Create landing pages',
+      bgColor: 'bg-tool-yellow',
+      emoji: '📄'
+    },
+    { 
+      name: 'Form Builder', 
+      description: 'Design custom forms',
+      bgColor: 'bg-tool-green',
+      emoji: '📋'
+    },
+    { 
+      name: 'Chat Bot', 
+      description: 'Build AI chatbots',
+      bgColor: 'bg-tool-blue',
+      emoji: '🤖'
+    },
+    { 
+      name: 'API Builder', 
+      description: 'Create custom APIs',
+      bgColor: 'bg-tool-pink',
+      emoji: '⚡'
+    },
+    { 
+      name: 'Automation Flow', 
+      description: 'Build workflows',
+      bgColor: 'bg-tool-yellow',
+      emoji: '🔄'
+    },
+  ];
+
   return (
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar activeTab={activeTab} onTabChange={(tab) => {
@@ -162,28 +279,77 @@ const Create = () => {
             {/* Tools View */}
             {activeView === 'tools' && (
               <div className="max-w-6xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                {imageTools.map((tool, idx) => (
-                  <ToolCard key={idx} {...tool} />
-                ))}
-              </div>
+                {/* Image Tools Section */}
+                {(!selectedType || selectedType === 'Image') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {imageTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
 
-              {/* Video Tools Section */}
-              <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                {videoTools.map((tool, idx) => (
-                  <ToolCard key={idx} {...tool} />
-                ))}
-              </div>
+                {/* Video Tools Section */}
+                {(!selectedType || selectedType === 'Video') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {videoTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
 
-              {/* Audio Tools Section */}
-              <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {audioTools.map((tool, idx) => (
-                  <ToolCard key={idx} {...tool} />
-                ))}
-              </div>
+                {/* Audio Tools Section */}
+                {(!selectedType || selectedType === 'Audio') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {audioTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Design Tools Section */}
+                {(!selectedType || selectedType === 'Design') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">DESIGN TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {designTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Content Tools Section */}
+                {(!selectedType || selectedType === 'Content') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">CONTENT TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {contentTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* App Tools Section */}
+                {(!selectedType || selectedType === 'Apps') && (
+                  <>
+                    <h2 className="text-2xl font-bold mb-6">APP TOOLS</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                      {appTools.map((tool, idx) => (
+                        <ToolCard key={idx} {...tool} />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
