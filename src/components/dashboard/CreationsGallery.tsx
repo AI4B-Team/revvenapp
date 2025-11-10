@@ -9,9 +9,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ImageViewerModal from './ImageViewerModal';
 
 interface GalleryProps {
   type: 'creations' | 'community';
+}
+
+interface GalleryItem {
+  id: number;
+  type: 'image' | 'video';
+  thumbnail: string;
+  title: string;
+  creator: {
+    name: string;
+    avatar: string;
+  };
 }
 
 const CreationsGallery = ({ type }: GalleryProps) => {
@@ -20,9 +32,10 @@ const CreationsGallery = ({ type }: GalleryProps) => {
   const [featuredItems, setFeaturedItems] = useState(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
   // Creations gallery items - 20 items
-  const creationsData = [
+  const creationsData: GalleryItem[] = [
     {
       id: 1,
       type: 'video',
@@ -166,7 +179,7 @@ const CreationsGallery = ({ type }: GalleryProps) => {
   ];
 
   // Community gallery items - 20 different images
-  const communityData = [
+  const communityData: GalleryItem[] = [
     {
       id: 21,
       type: 'image',
@@ -366,17 +379,40 @@ const CreationsGallery = ({ type }: GalleryProps) => {
     { name: 'LinkedIn', icon: 'in', color: 'hover:bg-blue-700' }
   ];
 
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImageIndex(null);
+  };
+
+  const handlePrevious = () => {
+    if (selectedImageIndex !== null && selectedImageIndex > 0) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (selectedImageIndex !== null && selectedImageIndex < items.length - 1) {
+      setSelectedImageIndex(selectedImageIndex + 1);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Grid Layout - 3 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <div
             key={item.id}
             className="relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
           >
             {/* Image/Video */}
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div 
+              className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+              onClick={() => handleImageClick(index)}
+            >
               <img
                 src={item.thumbnail}
                 alt={item.title}
@@ -511,6 +547,22 @@ const CreationsGallery = ({ type }: GalleryProps) => {
           </div>
         ))}
       </div>
+
+      {/* Image Viewer Modal */}
+      {selectedImageIndex !== null && (
+        <ImageViewerModal
+          image={items[selectedImageIndex]}
+          onClose={handleCloseModal}
+          onPrevious={selectedImageIndex > 0 ? handlePrevious : undefined}
+          onNext={selectedImageIndex < items.length - 1 ? handleNext : undefined}
+          isLiked={likedItems.has(items[selectedImageIndex].id)}
+          isSaved={savedItems.has(items[selectedImageIndex].id)}
+          isFeatured={featuredItems.has(items[selectedImageIndex].id)}
+          onToggleLike={() => toggleLike(items[selectedImageIndex].id)}
+          onToggleSave={() => toggleSave(items[selectedImageIndex].id)}
+          onToggleFeatured={() => toggleFeatured(items[selectedImageIndex].id)}
+        />
+      )}
 
       {/* Share Modal */}
       {shareModalOpen && (
