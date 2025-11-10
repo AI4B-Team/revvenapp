@@ -295,8 +295,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
     {
       id: 37,
       type: 'image',
-      thumbnail: 'https://images.unsplash.com/photo-1542228262-3a5b95e46ace?w=800&h=600&fit=crop',
-      title: 'Aurora Sky',
+      thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop',
+      title: 'Beach Sunrise',
       creator: { name: 'Charlie Rose', avatar: 'CR' }
     },
     {
