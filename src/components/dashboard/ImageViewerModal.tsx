@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   X, ChevronLeft, ChevronRight, Bookmark, Heart, Download, 
-  RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer
+  RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer, Edit, Play
 } from 'lucide-react';
 import {
   Tooltip,
@@ -189,8 +189,7 @@ const ImageViewerModal = ({
           
             {/* Header Info */}
             <div className="p-6 border-b border-gray-800">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-gray-400 text-sm">{imageData.timestamp}</span>
+              <div className="flex items-center justify-end mb-4">
                 <TooltipProvider>
                   <div className="flex items-center gap-2">
                     <Tooltip>
@@ -311,8 +310,16 @@ const ImageViewerModal = ({
             <div className="p-6 border-b border-gray-800">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Created:</span>
+                  <span className="text-white text-sm font-medium">May 12, 2025</span>
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-sm">Model:</span>
                   <span className="text-white text-sm font-medium">{imageData.model}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Dimensions:</span>
+                  <span className="text-white text-sm font-medium">{imageData.resolution}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-sm">Aspect Ratio:</span>
@@ -335,34 +342,30 @@ const ImageViewerModal = ({
 
             {/* Action Buttons */}
             <div className="p-6 space-y-2 flex-shrink-0">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group">
+                      <div className="flex items-center gap-3">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <path d="M20.4 14.5L16 10 4 20"/>
+                        </svg>
+                        <span className="font-medium">Use</span>
+                      </div>
+                      <ChevronRight size={18} className="text-gray-400 group-hover:text-white transition-colors" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Reuse Prompt & Settings</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
               <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
                 <RefreshCw size={18} />
                 <span className="font-medium">Recreate</span>
-              </button>
-              
-              <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
-                <Maximize size={18} />
-                <span className="font-medium">Upscale</span>
-              </button>
-              
-              <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polygon points="23 7 16 12 23 17 23 7"/>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-                <span className="font-medium">Create Video</span>
-              </button>
-              
-              <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group">
-                <div className="flex items-center gap-3">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M20.4 14.5L16 10 4 20"/>
-                  </svg>
-                  <span className="font-medium">Use Image</span>
-                </div>
-                <ChevronRight size={18} className="text-gray-400 group-hover:text-white transition-colors" />
               </button>
             </div>
 
@@ -379,14 +382,21 @@ const ImageViewerModal = ({
                   className="w-24"
                 />
               </div>
-              <span className="text-gray-400 text-sm">{imageData.resolution}</span>
             </div>
 
-            {/* Edit Image Button */}
-            <div className="p-6 pt-0 flex-shrink-0">
-              <button className="w-full px-4 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
-                <RefreshCw size={18} />
-                <span>Edit Image</span>
+            {/* Bottom Action Buttons */}
+            <div className="p-6 pt-0 flex-shrink-0 flex gap-2">
+              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
+                <Edit size={16} />
+                <span>Edit</span>
+              </button>
+              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
+                <Maximize size={16} />
+                <span>Upscale</span>
+              </button>
+              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
+                <Play size={16} />
+                <span>Animate</span>
               </button>
             </div>
           </div>

@@ -44,7 +44,7 @@ const ActionButtons = ({ activeView, onViewChange, zoomLevel = 4, onZoomChange }
 
       {/* Zoom Control - Only show for creations/community */}
       {showZoomControl && onZoomChange && (
-        <div className="flex items-center gap-3 bg-gray-800 px-4 py-2 rounded-lg">
+        <div className="flex items-center gap-3 px-4 py-2">
           <button
             onClick={() => onZoomChange(Math.min(6, zoomLevel + 1))}
             className="text-gray-400 hover:text-white transition-colors"

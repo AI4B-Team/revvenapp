@@ -397,6 +397,18 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
     }
   };
 
+  const getIconSize = () => {
+    switch(columnsPerRow) {
+      case 3: return { button: 'w-10 h-10', icon: 20, badge: 'px-3 py-1.5', badgeIcon: 16, text: 'text-sm', avatar: 'w-9 h-9', gap: 'gap-2' };
+      case 4: return { button: 'w-9 h-9', icon: 18, badge: 'px-3 py-1.5', badgeIcon: 14, text: 'text-xs', avatar: 'w-8 h-8', gap: 'gap-2' };
+      case 5: return { button: 'w-8 h-8', icon: 16, badge: 'px-2 py-1', badgeIcon: 12, text: 'text-xs', avatar: 'w-7 h-7', gap: 'gap-1.5' };
+      case 6: return { button: 'w-7 h-7', icon: 14, badge: 'px-2 py-1', badgeIcon: 10, text: 'text-xs', avatar: 'w-6 h-6', gap: 'gap-1' };
+      default: return { button: 'w-9 h-9', icon: 18, badge: 'px-3 py-1.5', badgeIcon: 14, text: 'text-xs', avatar: 'w-8 h-8', gap: 'gap-2' };
+    }
+  };
+
+  const sizes = getIconSize();
+
   return (
     <div className="max-w-7xl mx-auto">
       {/* Grid Layout - Dynamic columns based on zoom */}
@@ -418,23 +430,23 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
               />
 
               {/* Media Type Badge - Top Left */}
-              <div className="absolute top-3 left-3 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-lg flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className={`absolute top-3 left-3 ${sizes.badge} bg-black/70 backdrop-blur-sm rounded-lg flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
                 {item.type === 'video' ? (
                   <>
-                    <Play size={14} className="text-white" fill="white" />
-                    <span className="text-white text-xs font-semibold uppercase">Video</span>
+                    <Play size={sizes.badgeIcon} className="text-white" fill="white" />
+                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>Video</span>
                   </>
                 ) : (
                   <>
-                    <ImageIcon size={14} className="text-white" />
-                    <span className="text-white text-xs font-semibold uppercase">Image</span>
+                    <ImageIcon size={sizes.badgeIcon} className="text-white" />
+                    <span className={`text-white ${sizes.text} font-semibold uppercase`}>Image</span>
                   </>
                 )}
               </div>
 
               {/* Top Right Actions - Always visible on hover */}
               <TooltipProvider>
-                <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={`absolute top-3 right-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
                   {/* Save Bookmark */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -443,13 +455,13 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                           e.stopPropagation();
                           toggleSave(item.id);
                         }}
-                        className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
+                        className={`${sizes.button} rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
                           savedItems.has(item.id)
                             ? 'bg-blue-500 text-white'
                             : 'bg-black/70 text-white hover:bg-blue-500'
                         }`}
                       >
-                        <Bookmark size={18} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
+                        <Bookmark size={sizes.icon} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent className="bg-black text-white border-black">
@@ -465,13 +477,13 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                           e.stopPropagation();
                           toggleLike(item.id);
                         }}
-                        className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
+                        className={`${sizes.button} rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
                           likedItems.has(item.id)
                             ? 'bg-red-500 text-white'
                             : 'bg-black/70 text-white hover:bg-red-500'
                         }`}
                       >
-                        <Heart size={18} fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
+                        <Heart size={sizes.icon} fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent className="bg-black text-white border-black">
@@ -487,9 +499,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                           e.stopPropagation();
                           // Delete functionality will be implemented
                         }}
-                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all"
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all`}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent className="bg-black text-white border-black">
@@ -500,24 +512,24 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
               </TooltipProvider>
 
               {/* Creator Info - Bottom Left */}
-              <div className="absolute bottom-3 left-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                <div className={`${sizes.avatar} bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0`}>
                   {item.creator.avatar}
                 </div>
-                <span className="text-white text-sm font-medium bg-black/70 backdrop-blur-sm px-3 py-1 rounded-lg">
+                <span className={`text-white ${sizes.text} font-medium bg-black/70 backdrop-blur-sm ${sizes.badge} rounded-lg`}>
                   {item.creator.name}
                 </span>
               </div>
 
               {/* Action Icons - Bottom Right */}
               <TooltipProvider>
-                <div className="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className={`absolute bottom-3 right-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
-                        <Download size={18} />
+                        <Download size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -528,9 +540,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
-                        <Edit size={18} />
+                        <Edit size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -541,9 +553,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
-                        <RefreshCw size={18} />
+                        <RefreshCw size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -555,9 +567,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => handleShare(item.id)}
-                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all"
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
-                        <Share2 size={18} />
+                        <Share2 size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
