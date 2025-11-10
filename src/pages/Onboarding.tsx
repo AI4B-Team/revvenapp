@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { 
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
   Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
-  Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare
+  Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare,
+  Tag, Mic, BookOpen, Ticket
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -37,7 +38,7 @@ const Onboarding = () => {
         },
         {
           id: 'brand-identity',
-          icon: <span>🏷️</span>,
+          icon: <Tag size={20} />,
           title: 'Create Your Brand Identity',
           description: 'Define your brand name, tagline, and niche. Upload logo, color palette, and brand story',
           actionLabel: 'Set Up Brand',
@@ -45,7 +46,7 @@ const Onboarding = () => {
         },
         {
           id: 'brand-voice',
-          icon: <span>🎙️</span>,
+          icon: <Mic size={20} />,
           title: 'Define Your Brand Voice',
           description: 'Describe your tone (friendly, professional, witty, etc.) and upload examples of your brand copy, ads, or emails',
           actionLabel: 'Define Voice',
@@ -53,7 +54,7 @@ const Onboarding = () => {
         },
         {
           id: 'knowledgebase',
-          icon: <span>📚</span>,
+          icon: <BookOpen size={20} />,
           title: 'Build Your Knowledgebase',
           description: 'Add FAQs, product details, website links, and customer descriptions',
           actionLabel: 'Build Knowledge',
@@ -61,7 +62,7 @@ const Onboarding = () => {
         },
         {
           id: 'workshop',
-          icon: <span>🎟️</span>,
+          icon: <Ticket size={20} />,
           title: 'Register For The Free 3-Day Virtual AI Workshop',
           description: 'Connect with the community, learn automation strategies, and unlock bonus AI templates',
           actionLabel: 'Register Now',
