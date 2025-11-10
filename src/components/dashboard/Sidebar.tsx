@@ -30,6 +30,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const isDashboard = location.pathname === '/';
   const isContactsPage = location.pathname === '/contacts';
   const isRevenuePage = location.pathname === '/revenue';
+  const isOnboardingPage = location.pathname === '/onboarding';
   
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
@@ -112,6 +113,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[]; link?: string }> = 
+    isOnboardingPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
