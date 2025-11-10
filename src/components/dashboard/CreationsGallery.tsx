@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
-  Share2, X, Copy, Check, Image as ImageIcon
+  Share2, X, Copy, Check, Image as ImageIcon, Trash2
 } from 'lucide-react';
 import {
   Tooltip,
@@ -447,6 +447,18 @@ const CreationsGallery = ({ type }: GalleryProps) => {
                   title="Like"
                 >
                   <Heart size={18} fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Delete functionality will be implemented
+                  }}
+                  className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all"
+                  title="Delete"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
 
