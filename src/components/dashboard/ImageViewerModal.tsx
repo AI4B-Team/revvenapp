@@ -92,7 +92,7 @@ const ImageViewerModal = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
         {/* Modal Container with external close button */}
-        <div className="relative w-full max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
           {/* Close Button - Outside top right */}
           <button
             onClick={onClose}
@@ -102,32 +102,32 @@ const ImageViewerModal = ({
             <X size={22} className="text-white" />
           </button>
 
+          {/* Navigation Arrows - Outside modal */}
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              className="absolute -left-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+              title="Previous"
+            >
+              <ChevronLeft size={24} className="text-white" />
+            </button>
+          )}
+
+          {onNext && (
+            <button
+              onClick={onNext}
+              className="absolute -right-16 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+              title="Next"
+            >
+              <ChevronRight size={24} className="text-white" />
+            </button>
+          )}
+
           {/* Modal Content */}
           <div className="w-full h-[90vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
             {/* Left Side - Image */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
-
-            {/* Navigation Arrows */}
-            {onPrevious && (
-              <button
-                onClick={onPrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors z-40"
-                title="Previous"
-              >
-                <ChevronLeft size={20} className="text-white" />
-              </button>
-            )}
-
-            {onNext && (
-              <button
-                onClick={onNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors z-40"
-                title="Next"
-              >
-                <ChevronRight size={20} className="text-white" />
-              </button>
-            )}
 
             {/* Image Container */}
             <div className="relative w-full h-full group p-4 overflow-auto flex items-center justify-center">
