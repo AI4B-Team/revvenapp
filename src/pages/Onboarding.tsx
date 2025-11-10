@@ -8,54 +8,70 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 
 const Onboarding = () => {
-  const [completedTasks, setCompletedTasks] = useState(new Set(['create-community']));
+  const [completedTasks, setCompletedTasks] = useState(new Set(['create-project']));
   const [expandedSections, setExpandedSections] = useState(new Set(['getting-started']));
   const [activeTab, setActiveTab] = useState('Content');
 
   const sections = [
     {
       id: 'getting-started',
-      title: 'Getting Started',
+      title: '1. Getting Started',
       subtitle: 'Set Up Your Brand DNA',
       icon: <Sparkles size={24} />,
       color: 'text-brand-green',
       tasks: [
         {
-          id: 'create-community',
+          id: 'create-project',
           icon: <Sparkles size={20} />,
-          title: 'Create your community',
-          description: 'The best way to get started is to quit talking and begin doing',
+          title: 'Create Your First Project',
+          description: 'Set up your foundation and start your journey with REVVEN',
           completed: true
         },
         {
           id: 'watch-video',
           icon: <Play size={20} />,
-          title: 'Get to know REVVEN Platform',
+          title: 'Get To Know The REVVEN Platform',
           description: 'See what you\'ll be able to do with REVVEN',
           actionLabel: 'Play Video',
           actionColor: 'indigo'
         },
         {
-          id: 'upload-logo',
-          icon: <ImageIcon size={20} />,
-          title: 'Upload your logo',
-          description: 'Select an image and and upload your logo',
-          actionLabel: 'Upload logo',
+          id: 'brand-identity',
+          icon: <span>🏷️</span>,
+          title: 'Create Your Brand Identity',
+          description: 'Define your brand name, tagline, and niche. Upload logo, color palette, and brand story',
+          actionLabel: 'Set Up Brand',
           actionColor: 'indigo'
         },
         {
-          id: 'create-space',
-          icon: <Layout size={20} />,
-          title: 'Create a space',
-          description: 'Create multiple spaces for your usecase',
-          actionLabel: 'Create a space',
+          id: 'brand-voice',
+          icon: <span>🎙️</span>,
+          title: 'Define Your Brand Voice',
+          description: 'Describe your tone (friendly, professional, witty, etc.) and upload examples of your brand copy, ads, or emails',
+          actionLabel: 'Define Voice',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'knowledgebase',
+          icon: <span>📚</span>,
+          title: 'Build Your Knowledgebase',
+          description: 'Add FAQs, product details, website links, and customer descriptions',
+          actionLabel: 'Build Knowledge',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'workshop',
+          icon: <span>🎟️</span>,
+          title: 'Register For The Free 3-Day Virtual AI Workshop',
+          description: 'Connect with the community, learn automation strategies, and unlock bonus AI templates',
+          actionLabel: 'Register Now',
           actionColor: 'indigo'
         },
         {
           id: 'invite-teammates',
           icon: <Users size={20} />,
-          title: 'Invite your teammates',
-          description: 'Invite other admins and moderators',
+          title: 'Invite Your Team Members',
+          description: 'Invite other admins and moderators to collaborate',
           actionLabel: 'Invite',
           actionColor: 'indigo'
         }
@@ -63,7 +79,7 @@ const Onboarding = () => {
     },
     {
       id: 'create',
-      title: 'Create',
+      title: '2. Create',
       subtitle: 'Launch Your Creative Engine',
       icon: <Sparkles size={24} />,
       color: 'text-primary',
@@ -104,7 +120,7 @@ const Onboarding = () => {
     },
     {
       id: 'monetize',
-      title: 'Monetize',
+      title: '3. Monetize',
       subtitle: 'Activate Your Profit System',
       icon: <DollarSign size={24} />,
       color: 'text-brand-green',
@@ -161,7 +177,7 @@ const Onboarding = () => {
     },
     {
       id: 'automate',
-      title: 'Automate',
+      title: '4. Automate',
       subtitle: 'Let Your AI Take Over',
       icon: <Zap size={24} />,
       color: 'text-purple-500',
@@ -228,7 +244,7 @@ const Onboarding = () => {
 
   // Calculate overall progress percentage
   const allTasks = [
-    'create-community', 'watch-video', 'upload-logo', 'create-space', 'invite-teammates',
+    'create-project', 'watch-video', 'brand-identity', 'brand-voice', 'knowledgebase', 'workshop', 'invite-teammates',
     'create-task-1', 'create-task-2', 'create-task-3', 'create-task-4',
     'monetize-task-1', 'monetize-task-2', 'monetize-task-3', 'monetize-task-4', 'monetize-task-5', 'monetize-task-6',
     'automate-task-1', 'automate-task-2', 'automate-task-3', 'automate-task-4'
