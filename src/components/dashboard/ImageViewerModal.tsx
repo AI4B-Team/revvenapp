@@ -130,15 +130,6 @@ const ImageViewerModal = ({
         
         {/* Modal Container with external buttons */}
         <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
-          {/* Close Button - Right side */}
-          <button
-            onClick={onClose}
-            className="absolute right-[-4rem] top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
-            title="Close"
-          >
-            <X size={24} className="text-white" />
-          </button>
-
           {/* Navigation Arrows - Outside modal */}
           {onPrevious && (
             <button
@@ -159,6 +150,15 @@ const ImageViewerModal = ({
               <ChevronRight size={24} className="text-white" />
             </button>
           )}
+
+          {/* Close Button - Right side above arrow */}
+          <button
+            onClick={onClose}
+            className="absolute -right-16 top-8 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            title="Close"
+          >
+            <X size={24} className="text-white" />
+          </button>
 
           {/* Modal Content */}
           <div className="w-full h-[90vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
