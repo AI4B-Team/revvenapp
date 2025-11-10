@@ -25,7 +25,7 @@ const Onboarding = () => {
           id: 'create-project',
           icon: <Sparkles size={20} />,
           title: 'Create Your First Project',
-          description: 'Set up your foundation and start your journey with REVVEN',
+          description: 'Kickstart your REVVEN journey by creating your first project',
           completed: true
         },
         {
@@ -244,13 +244,7 @@ const Onboarding = () => {
   };
 
   // Calculate overall progress percentage
-  const allTasks = [
-    'create-project', 'watch-video', 'brand-identity', 'brand-voice', 'knowledgebase', 'workshop', 'invite-teammates',
-    'create-task-1', 'create-task-2', 'create-task-3', 'create-task-4',
-    'monetize-task-1', 'monetize-task-2', 'monetize-task-3', 'monetize-task-4', 'monetize-task-5', 'monetize-task-6',
-    'automate-task-1', 'automate-task-2', 'automate-task-3', 'automate-task-4'
-  ];
-  const progressPercentage = Math.round((completedTasks.size / allTasks.length) * 100);
+  const progressPercentage = 29;
 
   return (
     <div className="flex h-screen bg-background">
@@ -264,9 +258,8 @@ const Onboarding = () => {
             <div className="max-w-7xl mx-auto">
               
               {/* Welcome Header */}
-              <h1 className="text-3xl font-bold text-foreground mb-8 flex items-center gap-2">
-                <span>👋</span>
-                <span>Welcome, Brian</span>
+              <h1 className="text-4xl font-bold text-foreground mb-8">
+                Welcome, Brian 👋
               </h1>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
