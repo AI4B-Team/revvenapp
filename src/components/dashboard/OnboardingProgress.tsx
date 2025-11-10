@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plane } from 'lucide-react';
+import { X, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const OnboardingProgress = () => {
@@ -17,9 +17,9 @@ const OnboardingProgress = () => {
           {/* Header with close button */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Plane size={18} className="text-brand-green" />
+              <Rocket size={18} className="text-brand-green" />
               <h3 className="font-semibold text-foreground text-sm">
-                Onboarding Setup
+                Getting Started
               </h3>
             </div>
             <button
