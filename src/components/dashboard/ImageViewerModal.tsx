@@ -58,6 +58,13 @@ const ImageViewerModal = ({
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
+  const handleZoomChange = (newZoom: number) => {
+    setZoom(newZoom);
+    if (newZoom === 100) {
+      setDragPosition({ x: 0, y: 0 });
+    }
+  };
+
   const imageData = {
     url: image.url || image.thumbnail,
     prompt: image.prompt || 'A stunning AI-generated creation showcasing beautiful composition and artistic vision.',
@@ -123,10 +130,10 @@ const ImageViewerModal = ({
         
         {/* Modal Container with external buttons */}
         <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
-          {/* Close Button - Outside top right */}
+          {/* Close Button - Right side */}
           <button
             onClick={onClose}
-            className="absolute -top-16 -right-4 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            className="absolute right-[-4rem] top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
             title="Close"
           >
             <X size={24} className="text-white" />
@@ -370,18 +377,16 @@ const ImageViewerModal = ({
             </div>
 
             {/* Bottom Info */}
-            <div className="p-6 border-t border-gray-800 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 text-sm">{zoom}%</span>
-                <input
-                  type="range"
-                  min="100"
-                  max="500"
-                  value={zoom}
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-24"
-                />
-              </div>
+            <div className="p-6 border-t border-gray-800 flex items-center gap-3 flex-shrink-0">
+              <span className="text-gray-400 text-sm whitespace-nowrap">{zoom}%</span>
+              <input
+                type="range"
+                min="100"
+                max="500"
+                value={zoom}
+                onChange={(e) => handleZoomChange(Number(e.target.value))}
+                className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+              />
             </div>
 
             {/* Bottom Action Buttons */}
