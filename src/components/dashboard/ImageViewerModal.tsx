@@ -130,12 +130,12 @@ const ImageViewerModal = ({
             )}
 
             {/* Image Container */}
-            <div className="relative w-full h-full group p-4 overflow-auto">
+            <div className="relative w-full h-full group p-4 overflow-auto flex items-center justify-center">
               <img
                 src={imageData.url}
                 alt={imageData.title}
-                className="rounded-lg"
-                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
+                className="rounded-lg max-w-full max-h-full object-contain"
+                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center' }}
               />
             </div>
           </div>
