@@ -8,8 +8,8 @@ import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 
 const Create = () => {
-  const [activeTab, setActiveTab] = useState('Content');
-  const [selectedType, setSelectedType] = useState('Content');
+  const [activeTab, setActiveTab] = useState('Image');
+  const [selectedType, setSelectedType] = useState('Image');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
 
   const imageTools = [
