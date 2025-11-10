@@ -56,7 +56,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               <User size={18} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-80 bg-[#1a1a1a] border-[#2a2a2a] p-6" align="end">
+          <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
             {/* Header Section */}
             <div className="flex items-start gap-3 mb-4">
               <div className="relative">
@@ -80,42 +80,42 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <Zap size={18} className="mr-2" />
                 Upgrade
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border-gray-600 hover:bg-gray-800 text-white h-12">
+              <Button variant="outline" className="w-full bg-transparent border-sidebar-hover hover:bg-sidebar-hover text-white h-12">
                 <UserPlus size={18} className="mr-2" />
                 Add Members
               </Button>
             </div>
 
-            <DropdownMenuSeparator className="bg-gray-800 my-4" />
+            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Menu Items */}
             <div className="space-y-1">
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <div className="flex items-center gap-3">
                   <CreditCard size={20} />
                   <span>Subscription</span>
                 </div>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
+                <Badge variant="secondary" className="bg-sidebar-active text-gray-300 hover:bg-sidebar-active">
                   Pro
                 </Badge>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <User size={20} />
                 <span>Account</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <Mail size={20} />
                 <span>Invites</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <Plug size={20} />
                 <span>Integrations</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <div className="flex items-center gap-3">
                   <Languages size={20} />
                   <span>Language</span>
@@ -123,7 +123,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <span className="text-gray-400 text-sm">English</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <div className="flex items-center gap-3">
                   <Moon size={20} />
                   <span>Theme</span>
@@ -132,7 +132,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               </DropdownMenuItem>
             </div>
 
-            <DropdownMenuSeparator className="bg-gray-800 my-4" />
+            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Affiliate Program */}
             <div className="px-3 py-3">
@@ -145,10 +145,10 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               </button>
             </div>
 
-            <DropdownMenuSeparator className="bg-gray-800 my-4" />
+            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Logout */}
-            <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-gray-800 cursor-pointer text-brand-red">
+            <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red">
               <Power size={20} />
               <span>Log Out</span>
             </DropdownMenuItem>
