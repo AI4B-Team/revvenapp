@@ -92,18 +92,18 @@ const ImageViewerModal = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
         {/* Modal Container with external close button */}
-        <div className="relative w-full max-w-7xl" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-full max-w-[95vw]" onClick={(e) => e.stopPropagation()}>
           {/* Close Button - Outside top right */}
           <button
             onClick={onClose}
-            className="absolute -top-3 -right-3 w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            className="absolute -top-4 -right-4 w-11 h-11 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
             title="Close"
           >
-            <X size={20} className="text-white" />
+            <X size={22} className="text-white" />
           </button>
 
           {/* Modal Content */}
-          <div className="w-full h-[92vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
+          <div className="w-full h-[90vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
             {/* Left Side - Image */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
@@ -141,7 +141,7 @@ const ImageViewerModal = ({
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-80 bg-gray-900 flex flex-col overflow-y-auto">
+          <div className="w-96 bg-gray-900 flex flex-col overflow-y-auto">
           
             {/* Header Info */}
             <div className="p-6 border-b border-gray-800">
@@ -276,7 +276,7 @@ const ImageViewerModal = ({
             {/* Reference Image */}
             <div className="p-6 border-b border-gray-800">
               <h3 className="text-white font-semibold mb-3">Reference</h3>
-              <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-800">
+              <div className="relative h-24 rounded-lg overflow-hidden bg-gray-800">
                 <img
                   src={imageData.referenceImage}
                   alt="Reference"
@@ -286,7 +286,7 @@ const ImageViewerModal = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="p-6 space-y-2">
+            <div className="p-6 space-y-2 flex-shrink-0">
               <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
                 <RefreshCw size={18} />
                 <span className="font-medium">Recreate</span>
@@ -319,7 +319,7 @@ const ImageViewerModal = ({
             </div>
 
             {/* Bottom Info */}
-            <div className="p-6 border-t border-gray-800 flex items-center justify-between">
+            <div className="p-6 border-t border-gray-800 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-gray-400 text-sm">{zoom}%</span>
                 <input
@@ -335,7 +335,7 @@ const ImageViewerModal = ({
             </div>
 
             {/* Edit Image Button */}
-            <div className="p-6 pt-0">
+            <div className="p-6 pt-0 flex-shrink-0">
               <button className="w-full px-4 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
                 <RefreshCw size={18} />
                 <span>Edit Image</span>
