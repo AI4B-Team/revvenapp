@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Play, Star, Bookmark, Heart, Download, Edit, RefreshCw, 
+  Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon
 } from 'lucide-react';
 import {
@@ -29,7 +29,6 @@ interface GalleryItem {
 const CreationsGallery = ({ type }: GalleryProps) => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [savedItems, setSavedItems] = useState(new Set());
-  const [featuredItems, setFeaturedItems] = useState(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -348,18 +347,6 @@ const CreationsGallery = ({ type }: GalleryProps) => {
     });
   };
 
-  const toggleFeatured = (id: number) => {
-    setFeaturedItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
   const handleShare = (id: number) => {
     setShareModalOpen(id);
     setCopiedLink(false);
@@ -436,19 +423,6 @@ const CreationsGallery = ({ type }: GalleryProps) => {
 
               {/* Top Right Actions - Always visible on hover */}
               <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Featured Star */}
-                <button
-                  onClick={() => toggleFeatured(item.id)}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    featuredItems.has(item.id)
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-yellow-500'
-                  }`}
-                  title="Feature"
-                >
-                  <Star size={18} fill={featuredItems.has(item.id) ? 'currentColor' : 'none'} />
-                </button>
-
                 {/* Save Bookmark */}
                 <button
                   onClick={() => toggleSave(item.id)}
@@ -557,10 +531,8 @@ const CreationsGallery = ({ type }: GalleryProps) => {
           onNext={selectedImageIndex < items.length - 1 ? handleNext : undefined}
           isLiked={likedItems.has(items[selectedImageIndex].id)}
           isSaved={savedItems.has(items[selectedImageIndex].id)}
-          isFeatured={featuredItems.has(items[selectedImageIndex].id)}
           onToggleLike={() => toggleLike(items[selectedImageIndex].id)}
           onToggleSave={() => toggleSave(items[selectedImageIndex].id)}
-          onToggleFeatured={() => toggleFeatured(items[selectedImageIndex].id)}
         />
       )}
 

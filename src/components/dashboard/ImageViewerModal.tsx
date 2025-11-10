@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { 
-  X, ChevronLeft, ChevronRight, Star, Bookmark, Heart, Download, 
-  Edit, RefreshCw, Share2, Copy, Check, Maximize
+  X, ChevronLeft, ChevronRight, Bookmark, Heart, Download, 
+  RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ImageData {
   id: number;
@@ -29,10 +35,8 @@ interface ImageViewerModalProps {
   onNext?: () => void;
   isLiked?: boolean;
   isSaved?: boolean;
-  isFeatured?: boolean;
   onToggleLike?: () => void;
   onToggleSave?: () => void;
-  onToggleFeatured?: () => void;
 }
 
 const ImageViewerModal = ({ 
@@ -42,15 +46,14 @@ const ImageViewerModal = ({
   onNext,
   isLiked = false,
   isSaved = false,
-  isFeatured = false,
   onToggleLike,
-  onToggleSave,
-  onToggleFeatured
+  onToggleSave
 }: ImageViewerModalProps) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [zoom, setZoom] = useState(100);
+  const [promptExpanded, setPromptExpanded] = useState(false);
 
   const imageData = {
     url: image.url || image.thumbnail,
@@ -89,7 +92,7 @@ const ImageViewerModal = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
         {/* Modal Container with external close button */}
-        <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-full max-w-7xl" onClick={(e) => e.stopPropagation()}>
           {/* Close Button - Outside top right */}
           <button
             onClick={onClose}
@@ -100,7 +103,7 @@ const ImageViewerModal = ({
           </button>
 
           {/* Modal Content */}
-          <div className="w-full h-[80vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
+          <div className="w-full h-[92vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
             {/* Left Side - Image */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
@@ -134,88 +137,6 @@ const ImageViewerModal = ({
                 className="w-full h-full object-cover rounded-lg"
                 style={{ zoom: `${zoom}%` }}
               />
-
-              {/* Image Overlay Controls - Top Right */}
-              <div className="absolute top-8 right-8 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Featured Star */}
-                <button
-                  onClick={onToggleFeatured}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    isFeatured
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-yellow-500'
-                  }`}
-                  title="Featured"
-                >
-                  <Star size={18} fill={isFeatured ? 'currentColor' : 'none'} />
-                </button>
-
-                {/* Save Bookmark */}
-                <button
-                  onClick={onToggleSave}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    isSaved
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-blue-500'
-                  }`}
-                  title="Save"
-                >
-                  <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
-                </button>
-
-                {/* Like Heart */}
-                <button
-                  onClick={onToggleLike}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    isLiked
-                      ? 'bg-red-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-red-500'
-                  }`}
-                  title="Like"
-                >
-                  <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                </button>
-              </div>
-
-              {/* Image Overlay Controls - Bottom */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Download */}
-                <button
-                  className="px-3 py-2 bg-black/70 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg flex items-center gap-2 transition-colors"
-                  title="Download"
-                >
-                  <Download size={16} />
-                  <span className="text-xs font-medium">Download</span>
-                </button>
-
-                {/* Edit */}
-                <button
-                  className="px-3 py-2 bg-black/70 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg flex items-center gap-2 transition-colors"
-                  title="Edit"
-                >
-                  <Edit size={16} />
-                  <span className="text-xs font-medium">Edit</span>
-                </button>
-
-                {/* Recreate */}
-                <button
-                  className="px-3 py-2 bg-black/70 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg flex items-center gap-2 transition-colors"
-                  title="Recreate"
-                >
-                  <RefreshCw size={16} />
-                  <span className="text-xs font-medium">Recreate</span>
-                </button>
-
-                {/* Share */}
-                <button
-                  onClick={() => setShareModalOpen(true)}
-                  className="px-3 py-2 bg-black/70 hover:bg-black/80 backdrop-blur-sm text-white rounded-lg flex items-center gap-2 transition-colors"
-                  title="Share"
-                >
-                  <Share2 size={16} />
-                  <span className="text-xs font-medium">Share</span>
-                </button>
-              </div>
             </div>
           </div>
 
@@ -226,31 +147,84 @@ const ImageViewerModal = ({
             <div className="p-6 border-b border-gray-800">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-400 text-sm">{imageData.timestamp}</span>
-                <div className="flex items-center gap-2">
-                  <button className="text-gray-400 hover:text-white transition-colors" title="Info">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="12" y1="16" x2="12" y2="12"/>
-                      <line x1="12" y1="8" x2="12.01" y2="8"/>
-                    </svg>
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors" title="Print">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="6 9 6 2 18 2 18 9"/>
-                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                      <rect x="6" y="14" width="12" height="8"/>
-                    </svg>
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors" title="Download">
-                    <Download size={20} />
-                  </button>
-                  <button className="text-gray-400 hover:text-white transition-colors" title="Delete">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3 6 5 6 21 6"/>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                  </button>
-                </div>
+                <TooltipProvider>
+                  <div className="flex items-center gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-gray-400 hover:text-white transition-colors">
+                          <Globe size={20} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Add To Community</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={onToggleSave}
+                          className={`transition-colors ${isSaved ? 'text-blue-500' : 'text-gray-400 hover:text-white'}`}
+                        >
+                          <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Save</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-gray-400 hover:text-white transition-colors">
+                          <Download size={20} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Download</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-gray-400 hover:text-white transition-colors">
+                          <Printer size={20} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Print</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setShareModalOpen(true)}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          <Share2 size={20} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Share</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="text-gray-400 hover:text-white transition-colors">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          </svg>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
               </div>
             </div>
 
@@ -270,9 +244,19 @@ const ImageViewerModal = ({
                   )}
                 </button>
               </div>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                {imageData.prompt}
-              </p>
+              <div className="text-gray-300 text-sm leading-relaxed">
+                <p className={promptExpanded ? '' : 'line-clamp-3'}>
+                  {imageData.prompt}
+                </p>
+                {!promptExpanded && imageData.prompt.length > 150 && (
+                  <button
+                    onClick={() => setPromptExpanded(true)}
+                    className="text-blue-500 hover:text-blue-400 text-sm font-medium mt-1"
+                  >
+                    See More
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Image Details */}
@@ -292,7 +276,7 @@ const ImageViewerModal = ({
             {/* Reference Image */}
             <div className="p-6 border-b border-gray-800">
               <h3 className="text-white font-semibold mb-3">Reference</h3>
-              <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800">
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-800">
                 <img
                   src={imageData.referenceImage}
                   alt="Reference"
@@ -328,18 +312,6 @@ const ImageViewerModal = ({
                     <circle cx="8.5" cy="8.5" r="1.5"/>
                     <path d="M20.4 14.5L16 10 4 20"/>
                   </svg>
-                  <span className="font-medium">Add To Video Project</span>
-                </div>
-                <ChevronRight size={18} className="text-gray-400 group-hover:text-white transition-colors" />
-              </button>
-              
-              <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group">
-                <div className="flex items-center gap-3">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M20.4 14.5L16 10 4 20"/>
-                  </svg>
                   <span className="font-medium">Use Image</span>
                 </div>
                 <ChevronRight size={18} className="text-gray-400 group-hover:text-white transition-colors" />
@@ -365,7 +337,7 @@ const ImageViewerModal = ({
             {/* Edit Image Button */}
             <div className="p-6 pt-0">
               <button className="w-full px-4 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
-                <Edit size={18} />
+                <RefreshCw size={18} />
                 <span>Edit Image</span>
               </button>
             </div>
