@@ -43,11 +43,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   ];
 
   const createNavItems = [
-    { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-yellow' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
     { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-red' },
+    { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
     { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-blue' },
   ];
 
