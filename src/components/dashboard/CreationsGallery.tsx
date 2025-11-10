@@ -422,45 +422,71 @@ const CreationsGallery = ({ type }: GalleryProps) => {
               </div>
 
               {/* Top Right Actions - Always visible on hover */}
-              <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Save Bookmark */}
-                <button
-                  onClick={() => toggleSave(item.id)}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    savedItems.has(item.id)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-blue-500'
-                  }`}
-                  title="Save"
-                >
-                  <Bookmark size={18} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
-                </button>
+              <TooltipProvider>
+                <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Save Bookmark */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSave(item.id);
+                        }}
+                        className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
+                          savedItems.has(item.id)
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-black/70 text-white hover:bg-blue-500'
+                        }`}
+                      >
+                        <Bookmark size={18} fill={savedItems.has(item.id) ? 'currentColor' : 'none'} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white border-black">
+                      <p>Save</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                {/* Like Heart */}
-                <button
-                  onClick={() => toggleLike(item.id)}
-                  className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
-                    likedItems.has(item.id)
-                      ? 'bg-red-500 text-white'
-                      : 'bg-black/70 text-white hover:bg-red-500'
-                  }`}
-                  title="Like"
-                >
-                  <Heart size={18} fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
-                </button>
+                  {/* Like Heart */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike(item.id);
+                        }}
+                        className={`w-9 h-9 rounded-lg backdrop-blur-sm flex items-center justify-center transition-all ${
+                          likedItems.has(item.id)
+                            ? 'bg-red-500 text-white'
+                            : 'bg-black/70 text-white hover:bg-red-500'
+                        }`}
+                      >
+                        <Heart size={18} fill={likedItems.has(item.id) ? 'currentColor' : 'none'} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white border-black">
+                      <p>Like</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                {/* Delete */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Delete functionality will be implemented
-                  }}
-                  className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all"
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
+                  {/* Delete */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Delete functionality will be implemented
+                        }}
+                        className="w-9 h-9 rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white border-black">
+                      <p>Delete</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
 
               {/* Creator Info - Bottom Left */}
               <div className="absolute bottom-3 left-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
