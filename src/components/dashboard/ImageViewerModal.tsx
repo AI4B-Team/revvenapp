@@ -130,12 +130,12 @@ const ImageViewerModal = ({
             )}
 
             {/* Image Container */}
-            <div className="relative w-full h-full group p-4">
+            <div className="relative w-full h-full group p-4 overflow-auto">
               <img
                 src={imageData.url}
                 alt={imageData.title}
-                className="w-full h-full object-cover rounded-lg"
-                style={{ zoom: `${zoom}%` }}
+                className="rounded-lg"
+                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
               />
             </div>
           </div>
@@ -245,16 +245,20 @@ const ImageViewerModal = ({
                 </button>
               </div>
               <div className="text-gray-300 text-sm leading-relaxed">
-                <p className={promptExpanded ? '' : 'line-clamp-3'}>
-                  {imageData.prompt}
-                </p>
-                {!promptExpanded && imageData.prompt.length > 150 && (
-                  <button
-                    onClick={() => setPromptExpanded(true)}
-                    className="text-blue-500 hover:text-blue-400 text-sm font-medium mt-1"
-                  >
-                    See More
-                  </button>
+                {promptExpanded ? (
+                  <p>{imageData.prompt}</p>
+                ) : (
+                  <p className="line-clamp-3">
+                    {imageData.prompt}{' '}
+                    {imageData.prompt.length > 150 && (
+                      <button
+                        onClick={() => setPromptExpanded(true)}
+                        className="text-blue-500 hover:text-blue-400 font-medium"
+                      >
+                        See More
+                      </button>
+                    )}
+                  </p>
                 )}
               </div>
             </div>
@@ -263,12 +267,12 @@ const ImageViewerModal = ({
             <div className="p-6 border-b border-gray-800">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Aspect Ratio:</span>
-                  <span className="text-white text-sm font-medium">{imageData.aspectRatio}</span>
-                </div>
-                <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-sm">Model:</span>
                   <span className="text-white text-sm font-medium">{imageData.model}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-sm">Aspect Ratio:</span>
+                  <span className="text-white text-sm font-medium">{imageData.aspectRatio}</span>
                 </div>
               </div>
             </div>
@@ -276,7 +280,7 @@ const ImageViewerModal = ({
             {/* Reference Image */}
             <div className="p-6 border-b border-gray-800">
               <h3 className="text-white font-semibold mb-3">Reference</h3>
-              <div className="relative h-24 rounded-lg overflow-hidden bg-gray-800">
+              <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800">
                 <img
                   src={imageData.referenceImage}
                   alt="Reference"
@@ -324,8 +328,8 @@ const ImageViewerModal = ({
                 <span className="text-gray-400 text-sm">{zoom}%</span>
                 <input
                   type="range"
-                  min="50"
-                  max="200"
+                  min="100"
+                  max="500"
                   value={zoom}
                   onChange={(e) => setZoom(Number(e.target.value))}
                   className="w-24"
