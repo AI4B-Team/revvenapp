@@ -13,6 +13,7 @@ import ImageViewerModal from './ImageViewerModal';
 
 interface GalleryProps {
   type: 'creations' | 'community';
+  columnsPerRow?: number;
 }
 
 interface GalleryItem {
@@ -26,7 +27,7 @@ interface GalleryItem {
   };
 }
 
-const CreationsGallery = ({ type }: GalleryProps) => {
+const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [savedItems, setSavedItems] = useState(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | null>(null);
@@ -386,10 +387,20 @@ const CreationsGallery = ({ type }: GalleryProps) => {
     }
   };
 
+  const getGridCols = () => {
+    switch(columnsPerRow) {
+      case 3: return 'lg:grid-cols-3';
+      case 4: return 'lg:grid-cols-4';
+      case 5: return 'lg:grid-cols-5';
+      case 6: return 'lg:grid-cols-6';
+      default: return 'lg:grid-cols-4';
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Grid Layout - 3 columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="max-w-7xl mx-auto">
+      {/* Grid Layout - Dynamic columns based on zoom */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridCols()} gap-8`}>
         {items.map((item, index) => (
           <div
             key={item.id}

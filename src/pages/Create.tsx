@@ -11,6 +11,7 @@ const Create = () => {
   const [activeTab, setActiveTab] = useState('Image');
   const [selectedType, setSelectedType] = useState('Image');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
+  const [zoomLevel, setZoomLevel] = useState(4);
 
   const imageTools = [
     { 
@@ -138,18 +139,23 @@ const Create = () => {
             
             <GenerationInput selectedType={selectedType} />
             
-            <ActionButtons activeView={activeView} onViewChange={setActiveView} />
+            <ActionButtons 
+              activeView={activeView} 
+              onViewChange={setActiveView}
+              zoomLevel={zoomLevel}
+              onZoomChange={setZoomLevel}
+            />
             
             {/* Gallery Views */}
             {activeView === 'creations' && (
               <div className="mb-12">
-                <CreationsGallery type="creations" />
+                <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
               </div>
             )}
             
             {activeView === 'community' && (
               <div className="mb-12">
-                <CreationsGallery type="community" />
+                <CreationsGallery type="community" columnsPerRow={zoomLevel} />
               </div>
             )}
             
