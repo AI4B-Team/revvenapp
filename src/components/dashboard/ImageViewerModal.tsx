@@ -54,6 +54,9 @@ const ImageViewerModal = ({
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [promptExpanded, setPromptExpanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const imageData = {
     url: image.url || image.thumbnail,
@@ -86,20 +89,47 @@ const ImageViewerModal = ({
     setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 100) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - dragPosition.x,
+        y: e.clientY - dragPosition.y
+      });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 100) {
+      setDragPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
   return (
     <>
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
-        {/* Modal Container with external close button */}
+        {/* Modal Container with external buttons */}
         <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
           {/* Close Button - Outside top right */}
           <button
             onClick={onClose}
-            className="absolute -top-4 -right-4 w-11 h-11 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            className="absolute -top-16 -right-4 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
             title="Close"
           >
-            <X size={22} className="text-white" />
+            <X size={24} className="text-white" />
           </button>
 
           {/* Navigation Arrows - Outside modal */}
@@ -130,12 +160,26 @@ const ImageViewerModal = ({
             <div className="flex-1 relative bg-black flex items-center justify-center">
 
             {/* Image Container */}
-            <div className="relative w-full h-full group p-4 overflow-auto flex items-center justify-center">
+            <div 
+              className="relative w-full h-full group p-4 overflow-hidden flex items-center justify-center"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              style={{ 
+                cursor: zoom > 100 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+              }}
+            >
               <img
                 src={imageData.url}
                 alt={imageData.title}
-                className="rounded-lg max-w-full max-h-full object-contain"
-                style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center' }}
+                className="rounded-lg max-w-full max-h-full object-contain select-none"
+                style={{ 
+                  transform: `scale(${zoom / 100}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                  transformOrigin: 'center',
+                  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                }}
+                draggable={false}
               />
             </div>
           </div>
