@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -8,10 +9,19 @@ import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 
 const Create = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   const [zoomLevel, setZoomLevel] = useState(4);
+
+  // Reset states when navigating to /create without parameters
+  useEffect(() => {
+    if (location.pathname === '/create' && !location.search) {
+      setActiveTab('');
+      setSelectedType('');
+    }
+  }, [location]);
 
   const imageTools = [
     { 
