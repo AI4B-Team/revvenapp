@@ -512,7 +512,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
               </TooltipProvider>
 
               {/* Creator Info - Bottom Left - Hidden when images are small */}
-              {columnsPerRow <= 4 && (
+              {columnsPerRow <= 3 && (
                 <div className={`absolute bottom-3 left-3 flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
                   <div className={`${sizes.avatar} bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0`}>
                     {item.creator.avatar}

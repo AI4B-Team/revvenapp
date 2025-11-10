@@ -198,7 +198,7 @@ const ImageViewerModal = ({
             <div className="p-6 border-b border-gray-800">
               <div className="flex items-center justify-end mb-4">
                 <TooltipProvider>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between w-full gap-4">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button className="text-gray-400 hover:text-white transition-colors">
@@ -282,17 +282,23 @@ const ImageViewerModal = ({
             <div className="p-6 border-b border-gray-800">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-white font-semibold">Prompt</h3>
-                <button
-                  onClick={copyPrompt}
-                  className="text-gray-400 hover:text-white transition-colors"
-                  title="Copy prompt"
-                >
-                  {copiedPrompt ? (
-                    <Check size={18} className="text-green-500" />
-                  ) : (
-                    <Copy size={18} />
-                  )}
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={copyPrompt}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      {copiedPrompt ? (
+                        <Check size={18} className="text-green-500" />
+                      ) : (
+                        <Copy size={18} />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy Prompt</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <div className="text-gray-300 text-sm leading-relaxed">
                 {promptExpanded ? (
