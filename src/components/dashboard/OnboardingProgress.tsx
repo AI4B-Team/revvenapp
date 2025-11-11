@@ -13,12 +13,12 @@ const OnboardingProgress = () => {
       
       {/* Onboarding Card */}
       <Link to="/onboarding" className="block">
-        <div className="bg-card rounded-xl p-4 shadow-sm border border-border hover:border-brand-green/50 transition-all cursor-pointer">
+        <div className="bg-white dark:bg-white rounded-xl p-4 shadow-sm border border-border hover:border-brand-green/50 transition-all cursor-pointer">
           {/* Header with close button */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
               <Rocket size={18} className="text-brand-green" />
-              <h3 className="font-semibold text-foreground text-sm">
+              <h3 className="font-semibold text-black text-sm">
                 Getting Started
               </h3>
             </div>
@@ -27,7 +27,7 @@ const OnboardingProgress = () => {
                 e.preventDefault();
                 setShowOnboarding(false);
               }}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-gray-600 hover:text-black transition-colors"
               aria-label="Close"
             >
               <X size={16} />
@@ -44,7 +44,7 @@ const OnboardingProgress = () => {
             </div>
             
             {/* Progress Text */}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-600">
               {progress}% Completed
             </p>
           </div>

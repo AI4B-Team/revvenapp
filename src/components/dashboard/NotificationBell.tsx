@@ -71,14 +71,14 @@ const NotificationBell = () => {
           />
           
           {/* Dropdown Panel */}
-          <div className="absolute top-full right-0 mt-2 w-[90vw] sm:w-[500px] lg:w-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col border border-border">
+          <div className="absolute top-full right-0 mt-2 w-[90vw] sm:w-[500px] lg:w-[600px] max-h-[80vh] bg-popover rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col border border-border">
             
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-xl font-bold text-black">Notifications</h2>
+              <h2 className="text-xl font-bold text-popover-foreground">Notifications</h2>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="text-gray-600 hover:text-black transition-colors"
+                className="text-muted-foreground hover:text-popover-foreground transition-colors"
                 aria-label="Close"
               >
                 <X size={24} />
@@ -91,8 +91,8 @@ const NotificationBell = () => {
                 onClick={() => setActiveTab('whats-new')}
                 className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
                   activeTab === 'whats-new'
-                    ? 'bg-gray-200 text-black'
-                    : 'bg-transparent text-gray-600 hover:text-black'
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'bg-transparent text-muted-foreground hover:text-popover-foreground'
                 }`}
               >
                 <Sparkles size={18} />
@@ -102,8 +102,8 @@ const NotificationBell = () => {
                 onClick={() => setActiveTab('inbox')}
                 className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
                   activeTab === 'inbox'
-                    ? 'bg-gray-200 text-black'
-                    : 'bg-transparent text-gray-600 hover:text-black'
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'bg-transparent text-muted-foreground hover:text-popover-foreground'
                 }`}
               >
                 <Inbox size={18} />
@@ -116,10 +116,10 @@ const NotificationBell = () => {
               {filteredNotifications.map((notification) => (
                 <div key={notification.id} className="space-y-3">
                   {/* Timestamp */}
-                  <div className="text-sm text-gray-600">{notification.timestamp}</div>
+                  <div className="text-sm text-muted-foreground">{notification.timestamp}</div>
                   
                   {/* Notification Card */}
-                  <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors">
+                  <div className="bg-secondary rounded-2xl overflow-hidden hover:bg-secondary/80 transition-colors">
                     {/* Image (if exists) */}
                     {notification.image && (
                       <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-yellow-600">
@@ -153,16 +153,16 @@ const NotificationBell = () => {
                             NEW
                           </span>
                         )}
-                        <h3 className="text-lg font-bold text-black">
+                        <h3 className="text-lg font-bold text-popover-foreground">
                           {notification.title}
                         </h3>
                       </div>
                       
                       {/* Description */}
-                      <p className="text-sm text-gray-700 leading-relaxed">
+                      <p className="text-sm text-popover-foreground/80 leading-relaxed">
                         {notification.description.split('**').map((part, idx) => 
                           idx % 2 === 1 ? (
-                            <span key={idx} className="font-bold text-black">{part}</span>
+                            <span key={idx} className="font-bold text-popover-foreground">{part}</span>
                           ) : (
                             part
                           )
@@ -182,7 +182,7 @@ const NotificationBell = () => {
 
               {/* Empty State */}
               {filteredNotifications.length === 0 && (
-                <div className="text-center py-12 text-gray-600">
+                <div className="text-center py-12 text-muted-foreground">
                   <Bell size={48} className="mx-auto mb-4 opacity-50" />
                   <p className="text-lg">No notifications yet</p>
                   <p className="text-sm mt-2">Check back later for updates</p>
