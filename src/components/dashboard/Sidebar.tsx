@@ -178,7 +178,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300 border-r border-border`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} flex flex-col transition-all duration-300 border-r border-border`} style={{ backgroundColor: 'hsl(var(--sidebar))', color: 'hsl(var(--sidebar-text))' }}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && (

@@ -61,40 +61,40 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --background: 222 20% 15%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 20% 15%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 20% 15%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary-foreground: 222 20% 15%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 222 20% 20%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 222 20% 20%;
+    --muted-foreground: 217 10% 64%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 222 20% 25%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 83%;
+    --border: 222 20% 25%;
+    --input: 222 20% 25%;
+    --ring: 210 40% 98%;
 
-    /* Dark mode sidebar - true black */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-hover: 0 0% 12%;
-    --sidebar-active: 0 0% 15%;
-    --sidebar-text: 0 0% 98%;
-    --sidebar-text-muted: 0 0% 60%;
+    /* Dark mode sidebar - softer dark */
+    --sidebar: 222 20% 15%;
+    --sidebar-hover: 222 20% 20%;
+    --sidebar-active: 222 20% 25%;
+    --sidebar-text: 210 40% 98%;
+    --sidebar-muted: 217 10% 64%;
 
     /* Tool card backgrounds for dark mode */
     --tool-bg-blue: 217 91% 15%;
@@ -102,6 +102,51 @@ All colors MUST be HSL.
     --tool-bg-gray: 0 0% 15%;
     --tool-bg-pink: 330 100% 15%;
     --tool-bg-green: 142 71% 15%;
+  }
+
+  .split {
+    --background: 0 0% 100%;
+    --foreground: 222 20% 15%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 20% 15%;
+    
+    --popover: 222 20% 15%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+    
+    --sidebar: 222 20% 15%;
+    --sidebar-hover: 222 20% 20%;
+    --sidebar-active: 222 20% 25%;
+    --sidebar-text: 210 40% 98%;
+    --sidebar-muted: 217 10% 64%;
+
+    /* Tool card backgrounds for split mode - light colored */
+    --tool-bg-blue: 217 91% 95%;
+    --tool-bg-yellow: 45 100% 96%;
+    --tool-bg-gray: 0 0% 96%;
+    --tool-bg-pink: 330 100% 97%;
+    --tool-bg-green: 142 71% 95%;
+    
+    --radius: 0.75rem;
   }
 }
 

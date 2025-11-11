@@ -79,33 +79,43 @@ const HelpMenu = () => {
           />
 
           {/* Menu Panel */}
-          <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-background rounded-2xl shadow-2xl z-50 border border-border overflow-hidden">
+          <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl z-50 border border-border overflow-hidden" style={{ backgroundColor: 'hsl(var(--sidebar))' }}>
             {helpOptions.map((item, index) => (
               <button
                 key={item.id}
                 onClick={() => handleItemClick(item)}
-                className={`w-full px-5 py-4 flex items-start gap-4 hover:bg-muted/50 transition-colors text-left group ${
-                  index !== helpOptions.length - 1 ? 'border-b border-border' : ''
+                className={`w-full px-5 py-4 flex items-start gap-4 transition-colors text-left group ${
+                  index !== helpOptions.length - 1 ? 'border-b' : ''
                 }`}
+                style={{ 
+                  borderColor: 'hsl(var(--sidebar-hover))',
+                  backgroundColor: 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--sidebar-hover))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 {/* Icon */}
-                <div className="shrink-0 text-muted-foreground group-hover:text-foreground transition-colors mt-0.5">
+                <div className="shrink-0 transition-colors mt-0.5" style={{ color: 'hsl(var(--sidebar-muted))' }}>
                   {item.icon}
                 </div>
 
                 {/* Text Content */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground mb-1 text-base">
+                  <h3 className="font-semibold mb-1 text-base" style={{ color: 'hsl(var(--sidebar-text))' }}>
                     {item.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-sm leading-relaxed" style={{ color: 'hsl(var(--sidebar-muted))' }}>
                     {item.description}
                   </p>
                 </div>
 
                 {/* External Link Arrow */}
                 {item.showArrow && (
-                  <div className="shrink-0 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all mt-1">
+                  <div className="shrink-0 group-hover:translate-x-0.5 transition-all mt-1" style={{ color: 'hsl(var(--sidebar-muted))' }}>
                     <ExternalLink size={16} />
                   </div>
                 )}

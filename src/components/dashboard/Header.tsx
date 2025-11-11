@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug, ChevronDown, Search, Check } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug, ChevronDown, Search, Check, Columns2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -66,11 +66,14 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
       <div className="flex-1 flex items-center justify-end gap-4">
         <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => {
+            const nextTheme = theme === 'dark' ? 'light' : theme === 'light' ? 'split' : 'dark';
+            setTheme(nextTheme);
+          }}
           className="p-2 rounded-lg hover:bg-accent transition-colors"
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          title="Switch theme"
         >
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          {theme === 'dark' ? <Sun size={20} /> : theme === 'split' ? <Moon size={20} /> : <Columns2 size={20} />}
         </button>
 
         <div className="flex items-center gap-2">
@@ -88,7 +91,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               <User size={18} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
+          <DropdownMenuContent className="w-80 border-sidebar-hover p-6" align="end" style={{ backgroundColor: 'hsl(var(--sidebar))', color: 'hsl(var(--sidebar-text))' }}>
             {/* Header Section */}
             <div className="flex items-start gap-3 mb-4">
               <div className="relative">
@@ -164,7 +167,8 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <DropdownMenuContent 
                   side="right" 
                   align="start"
-                  className="w-64 bg-sidebar border-border p-2"
+                  className="w-64 border-border p-2"
+                  style={{ backgroundColor: 'hsl(var(--sidebar))' }}
                 >
                   {/* Search Input */}
                   <div className="px-2 pb-2">
@@ -205,7 +209,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-sidebar-hover hover:bg-sidebar-active cursor-pointer text-sidebar-text transition-colors border border-border mt-2">
                     <div className="flex items-center gap-3">
-                      {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                      {theme === 'dark' ? <Moon size={20} /> : theme === 'split' ? <Columns2 size={20} /> : <Sun size={20} />}
                       <span className="font-medium">Theme</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -217,7 +221,8 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <DropdownMenuContent 
                   side="right" 
                   align="start"
-                  className="w-48 bg-sidebar border-border p-2"
+                  className="w-48 border-border p-2"
+                  style={{ backgroundColor: 'hsl(var(--sidebar))' }}
                 >
                   <DropdownMenuItem 
                     onClick={() => setTheme('light')}
@@ -240,6 +245,18 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                       <span className="font-medium">Dark</span>
                     </div>
                     {theme === 'dark' && (
+                      <Check size={16} className="text-brand-blue" />
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setTheme('split')}
+                    className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-sidebar-hover cursor-pointer text-sidebar-text"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Columns2 size={18} />
+                      <span className="font-medium">Split</span>
+                    </div>
+                    {theme === 'split' && (
                       <Check size={16} className="text-brand-blue" />
                     )}
                   </DropdownMenuItem>
