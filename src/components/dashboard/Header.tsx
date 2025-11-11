@@ -264,7 +264,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <div className="px-3 py-3">
               <button 
                 onClick={() => window.location.href = '/affiliate'}
-                className="w-full px-6 py-3 bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 rounded-lg font-medium transition flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-transparent border-2 border-brand-yellow text-brand-yellow hover:bg-brand-yellow/10 rounded-lg font-medium transition flex items-center justify-center gap-2"
               >
                 <span>Join Affiliate Program</span>
               </button>
