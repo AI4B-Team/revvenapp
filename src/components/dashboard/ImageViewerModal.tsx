@@ -295,7 +295,6 @@ const ImageViewerModal = ({
 
             {/* Scrollable Middle Section */}
             <div className="flex-1 overflow-y-auto min-h-0">
-              {/* Prompt Section */}
               <div className="p-4 border-b border-gray-800">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-white font-semibold text-sm">Prompt</h3>
@@ -317,9 +316,25 @@ const ImageViewerModal = ({
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="text-gray-300 text-xs leading-relaxed">
-                <p className="line-clamp-2">{imageData.prompt}</p>
+              <div className={`text-gray-300 text-sm leading-relaxed ${!promptExpanded && 'line-clamp-3'}`}>
+                {imageData.prompt}
+                {!promptExpanded && (
+                  <span 
+                    onClick={() => setPromptExpanded(true)}
+                    className="ml-1 text-blue-400 hover:text-blue-300 cursor-pointer font-medium"
+                  >
+                    see more
+                  </span>
+                )}
               </div>
+              {promptExpanded && (
+                <button
+                  onClick={() => setPromptExpanded(false)}
+                  className="mt-2 text-blue-400 hover:text-blue-300 font-medium text-sm"
+                >
+                  see less
+                </button>
+              )}
             </div>
 
             {/* Image Details */}
