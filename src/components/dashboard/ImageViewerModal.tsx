@@ -129,7 +129,7 @@ const ImageViewerModal = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
         
         {/* Modal Container with external buttons */}
-        <div className="relative w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
+        <div className="relative w-full max-w-6xl h-[90vh]" onClick={(e) => e.stopPropagation()}>
           {/* Navigation Arrows - Outside modal */}
           {onPrevious && (
             <button
@@ -161,7 +161,7 @@ const ImageViewerModal = ({
           </button>
 
           {/* Modal Content */}
-          <div className="w-full h-[90vh] bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
+          <div className="w-full h-full bg-gray-900 rounded-xl shadow-2xl flex overflow-hidden">
             
             {/* Left Side - Image */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
@@ -192,13 +192,13 @@ const ImageViewerModal = ({
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-96 bg-gray-900 flex flex-col overflow-y-auto">
+          <div className="w-96 bg-gray-900 flex flex-col overflow-hidden">
           
             {/* Header Info */}
-            <div className="p-6 border-b border-gray-800">
-              <div className="flex items-center justify-end mb-4">
+            <div className="p-4 border-b border-gray-800 flex-shrink-0">
+              <div className="flex items-center justify-end">
                 <TooltipProvider>
-                  <div className="flex items-center justify-between w-full gap-4">
+                  <div className="flex items-center justify-between w-full gap-3">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button className="text-gray-400 hover:text-white transition-colors">
@@ -278,10 +278,12 @@ const ImageViewerModal = ({
               </div>
             </div>
 
-            {/* Prompt Section */}
-            <div className="p-6 border-b border-gray-800">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-white font-semibold">Prompt</h3>
+            {/* Scrollable Middle Section */}
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {/* Prompt Section */}
+              <div className="p-4 border-b border-gray-800">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-white font-semibold text-sm">Prompt</h3>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
@@ -300,51 +302,29 @@ const ImageViewerModal = ({
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="text-gray-300 text-sm leading-relaxed">
-                {promptExpanded ? (
-                  <p>{imageData.prompt}</p>
-                ) : (
-                  <p className="line-clamp-3">
-                    {imageData.prompt}{' '}
-                    {imageData.prompt.length > 150 && (
-                      <button
-                        onClick={() => setPromptExpanded(true)}
-                        className="text-blue-500 hover:text-blue-400 font-medium"
-                      >
-                        See More
-                      </button>
-                    )}
-                  </p>
-                )}
+              <div className="text-gray-300 text-xs leading-relaxed">
+                <p className="line-clamp-2">{imageData.prompt}</p>
               </div>
             </div>
 
             {/* Image Details */}
-            <div className="p-6 border-b border-gray-800">
-              <div className="space-y-3">
+            <div className="p-4 border-b border-gray-800">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Created:</span>
-                  <span className="text-white text-sm font-medium">May 12, 2025</span>
+                  <span className="text-gray-400 text-xs">Model:</span>
+                  <span className="text-white text-xs font-medium">{imageData.model}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Model:</span>
-                  <span className="text-white text-sm font-medium">{imageData.model}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Dimensions:</span>
-                  <span className="text-white text-sm font-medium">{imageData.resolution}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-sm">Aspect Ratio:</span>
-                  <span className="text-white text-sm font-medium">{imageData.aspectRatio}</span>
+                  <span className="text-gray-400 text-xs">Resolution:</span>
+                  <span className="text-white text-xs font-medium">{imageData.resolution}</span>
                 </div>
               </div>
             </div>
 
             {/* Reference Image */}
-            <div className="p-6 border-b border-gray-800">
-              <h3 className="text-white font-semibold mb-3">Reference</h3>
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-800">
+            <div className="p-4 border-b border-gray-800">
+              <h3 className="text-white font-semibold mb-2 text-sm">Reference</h3>
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-800">
                 <img
                   src={imageData.referenceImage}
                   alt="Reference"
@@ -354,20 +334,20 @@ const ImageViewerModal = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="p-6 space-y-2 flex-shrink-0">
+            <div className="p-4 space-y-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group">
-                      <div className="flex items-center gap-3">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group text-sm">
+                      <div className="flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="3" width="18" height="18" rx="2"/>
                           <circle cx="8.5" cy="8.5" r="1.5"/>
                           <path d="M20.4 14.5L16 10 4 20"/>
                         </svg>
                         <span className="font-medium">Use</span>
                       </div>
-                      <ChevronRight size={18} className="text-gray-400 group-hover:text-white transition-colors" />
+                      <ChevronRight size={16} className="text-gray-400 group-hover:text-white transition-colors" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -376,39 +356,43 @@ const ImageViewerModal = ({
                 </Tooltip>
               </TooltipProvider>
               
-              <button className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-3 transition-colors">
-                <RefreshCw size={18} />
+              <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-2 transition-colors text-sm">
+                <RefreshCw size={16} />
                 <span className="font-medium">Recreate</span>
               </button>
             </div>
+          </div>
 
-            {/* Bottom Info */}
-            <div className="p-6 border-t border-gray-800 flex items-center gap-3 flex-shrink-0">
-              <span className="text-gray-400 text-sm whitespace-nowrap">{zoom}%</span>
-              <input
-                type="range"
-                min="100"
-                max="500"
-                value={zoom}
-                onChange={(e) => handleZoomChange(Number(e.target.value))}
-                className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
-              />
-            </div>
+            {/* Bottom Fixed Section */}
+            <div className="flex-shrink-0 border-t border-gray-800">
+              {/* Zoom Control */}
+              <div className="p-4 flex items-center gap-3">
+                <span className="text-gray-400 text-xs whitespace-nowrap">{zoom}%</span>
+                <input
+                  type="range"
+                  min="100"
+                  max="500"
+                  value={zoom}
+                  onChange={(e) => handleZoomChange(Number(e.target.value))}
+                  className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+                />
+              </div>
 
-            {/* Bottom Action Buttons */}
-            <div className="p-6 pt-0 flex-shrink-0 flex gap-2">
-              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
-                <Edit size={16} />
-                <span>Edit</span>
-              </button>
-              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
-                <Maximize size={16} />
-                <span>Upscale</span>
-              </button>
-              <button className="flex-1 px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors text-sm">
-                <Play size={16} />
-                <span>Animate</span>
-              </button>
+              {/* Bottom Action Buttons */}
+              <div className="p-4 flex gap-2">
+                <button className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs">
+                  <Edit size={14} />
+                  <span>Edit</span>
+                </button>
+                <button className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs">
+                  <Maximize size={14} />
+                  <span>Upscale</span>
+                </button>
+                <button className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs">
+                  <Play size={14} />
+                  <span>Animate</span>
+                </button>
+              </div>
             </div>
           </div>
           </div>
