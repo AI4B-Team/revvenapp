@@ -1,5 +1,6 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -20,6 +24,25 @@ interface HeaderProps {
 }
 
 const Header = ({ onCreateClick }: HeaderProps) => {
+  const [selectedLanguage, setSelectedLanguage] = React.useState('English');
+  const [selectedTheme, setSelectedTheme] = React.useState('dark');
+
+  const languages = [
+    { name: 'English', flag: '🇺🇸' },
+    { name: 'Spanish', flag: '🇪🇸' },
+    { name: 'French', flag: '🇫🇷' },
+    { name: 'German', flag: '🇩🇪' },
+    { name: 'Portuguese', flag: '🇵🇹' },
+    { name: 'Chinese', flag: '🇨🇳' },
+    { name: 'Japanese', flag: '🇯🇵' },
+  ];
+
+  const themes = [
+    { name: 'light', label: 'Light', icon: Sun },
+    { name: 'dark', label: 'Dark', icon: Moon },
+    { name: 'split', label: 'Split', icon: Circle },
+  ];
+
   return (
     <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
       <div className="flex-1" />
@@ -115,21 +138,70 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <span>Integrations</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <div className="flex items-center gap-3">
-                  <Languages size={20} />
-                  <span>Language</span>
-                </div>
-                <span className="text-gray-400 text-sm">English</span>
-              </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white border border-sidebar-hover">
+                  <div className="flex items-center gap-3">
+                    <Languages size={20} />
+                    <span>Language</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{languages.find(l => l.name === selectedLanguage)?.flag}</span>
+                    <span className="text-gray-400 text-sm">{selectedLanguage}</span>
+                  </div>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="bg-sidebar border-sidebar-hover">
+                  {languages.map((language) => (
+                    <DropdownMenuItem
+                      key={language.name}
+                      onClick={() => setSelectedLanguage(language.name)}
+                      className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{language.flag}</span>
+                        <span>{language.name}</span>
+                      </div>
+                      {selectedLanguage === language.name && (
+                        <div className="w-2 h-2 rounded-full bg-brand-green" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <div className="flex items-center gap-3">
-                  <Moon size={20} />
-                  <span>Theme</span>
-                </div>
-                <span className="text-gray-400 text-sm">Dark</span>
-              </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white border border-sidebar-hover">
+                  <div className="flex items-center gap-3">
+                    <Moon size={20} />
+                    <span>Theme</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedTheme === 'light' && <Sun size={16} className="text-gray-400" />}
+                    {selectedTheme === 'dark' && <Moon size={16} className="text-gray-400" />}
+                    {selectedTheme === 'split' && <Circle size={16} className="text-gray-400" />}
+                    <span className="text-gray-400 text-sm capitalize">{selectedTheme}</span>
+                  </div>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="bg-sidebar border-sidebar-hover">
+                  {themes.map((theme) => {
+                    const Icon = theme.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={theme.name}
+                        onClick={() => setSelectedTheme(theme.name)}
+                        className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon size={16} />
+                          <span>{theme.label}</span>
+                        </div>
+                        {selectedTheme === theme.name && (
+                          <div className="w-2 h-2 rounded-full bg-brand-green" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
             </div>
 
             <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
