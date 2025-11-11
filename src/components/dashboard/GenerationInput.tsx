@@ -16,49 +16,53 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   return (
     <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
-        <div className="flex items-start gap-3 mb-6">
-          <TooltipProvider>
-            <div className="border border-border rounded-lg p-2 flex items-center gap-1">
-              {isVideoMode ? (
-                <Video size={18} className="text-muted-foreground" />
-              ) : isAudioMode ? (
-                <Sparkles size={18} className="text-muted-foreground" />
-              ) : (
-                <>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="hover:text-foreground transition">
-                        <Image size={18} className="text-muted-foreground" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Image-To-Prompt</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="hover:text-foreground transition">
-                        <Dices size={18} className="text-muted-foreground" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Auto Prompt</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              )}
-            </div>
-          </TooltipProvider>
-          <div className="flex-1 flex flex-col">
-            {!isVideoMode && !isAudioMode && (
-              <div className="text-muted-foreground text-sm mb-2">
-                Describe what you want to create...
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex items-start gap-3">
+            <TooltipProvider>
+              <div className="flex items-center gap-1">
+                {isVideoMode ? (
+                  <button className="bg-muted/50 rounded-lg p-2">
+                    <Video size={18} className="text-muted-foreground" />
+                  </button>
+                ) : isAudioMode ? (
+                  <button className="bg-muted/50 rounded-lg p-2">
+                    <Sparkles size={18} className="text-muted-foreground" />
+                  </button>
+                ) : (
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition">
+                          <Image size={18} className="text-muted-foreground" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Image-To-Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition">
+                          <Dices size={18} className="text-muted-foreground" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                )}
               </div>
-            )}
-            <textarea 
-              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
-              rows={3}
-            />
+            </TooltipProvider>
+            <div className="flex-1">
+              <textarea 
+                className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className="text-center text-muted-foreground text-sm">
+            Describe what you want to create...
           </div>
         </div>
 
