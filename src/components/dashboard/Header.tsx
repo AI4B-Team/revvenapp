@@ -136,7 +136,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <Zap size={18} className="mr-2" />
                 Upgrade
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border-2 border-white/30 hover:bg-sidebar-hover text-white h-12">
+              <Button variant="outline" className="w-full bg-transparent border-2 border-white/30 hover:bg-white hover:text-slate-900 text-white h-12 transition-all">
                 <UserPlus size={18} className="mr-2" />
                 Add Members
               </Button>
@@ -151,7 +151,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                   <CreditCard size={20} />
                   <span>Subscription</span>
                 </div>
-                <Badge variant="secondary" className="bg-sidebar-active text-gray-300 hover:bg-sidebar-active">
+                <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
                   Pro
                 </Badge>
               </DropdownMenuItem>
@@ -273,7 +273,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Logout */}
-            <DropdownMenuItem className="flex items-center justify-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red">
+            <DropdownMenuItem className="flex items-center justify-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red border-2 border-brand-red/50">
               <Power size={20} />
               <span>Log Out</span>
             </DropdownMenuItem>
@@ -284,13 +284,14 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 {/* Left Side - Terms & Privacy Links */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <a
                     href="/terms"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Terms
                   </a>
+                  <span className="text-gray-400">|</span>
                   <a
                     href="/privacy"
                     className="text-sm text-gray-400 hover:text-white transition-colors"
