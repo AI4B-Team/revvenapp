@@ -149,7 +149,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { 
       icon: <FileBarChart size={18} />, 
       label: 'Reports', 
-      color: 'text-brand-red',
+      color: 'text-brand-green',
       link: '/monetize'
     },
   ];
