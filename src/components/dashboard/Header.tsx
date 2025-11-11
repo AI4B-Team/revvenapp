@@ -156,12 +156,13 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
-                    <Languages size={20} className="text-white flex-shrink-0" />
-                    <span className="text-white font-medium flex-shrink-0">Language:</span>
+                  <DropdownMenuSubTrigger className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
+                    <Languages size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />
+                    <span className="text-white group-hover:text-slate-900 font-medium flex-shrink-0">Language:</span>
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-medium">{selectedLanguage}</span>
+                      <span className="text-white group-hover:text-slate-900 font-medium">{selectedLanguage}</span>
+                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
@@ -204,14 +205,15 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
-                    {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
-                    {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
+                  <DropdownMenuSubTrigger className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
+                    {selectedTheme === 'light' && <Sun size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
+                    {selectedTheme === 'dark' && <Moon size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
                     {selectedTheme === 'split' && <SplitIcon />}
-                    <span className="text-white font-medium flex-shrink-0">Theme:</span>
+                    <span className="text-white group-hover:text-slate-900 font-medium flex-shrink-0">Theme:</span>
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
-                      <span className="text-white font-medium capitalize">{selectedTheme}</span>
+                      <span className="text-white group-hover:text-slate-900 font-medium capitalize">{selectedTheme}</span>
+                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
