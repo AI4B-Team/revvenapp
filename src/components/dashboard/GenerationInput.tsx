@@ -10,6 +10,7 @@ interface GenerationInputProps {
 
 const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const [promptValue, setPromptValue] = useState('');
   
   const isVideoMode = selectedType === 'Video';
   const isAudioMode = selectedType === 'Audio';
@@ -54,14 +55,18 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 )}
               </div>
             </TooltipProvider>
-            <div className="text-muted-foreground text-base">
-              Describe what you want to create...
-            </div>
+            {promptValue === '' && (
+              <div className="text-muted-foreground text-base">
+                Describe what you want to create...
+              </div>
+            )}
           </div>
           <div className="flex-1">
             <textarea 
               className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
               rows={3}
+              value={promptValue}
+              onChange={(e) => setPromptValue(e.target.value)}
             />
           </div>
         </div>
