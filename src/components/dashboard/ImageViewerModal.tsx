@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, ChevronLeft, ChevronRight, Bookmark, Heart, Download, 
   RefreshCw, Share2, Copy, Check, Maximize, Globe, Printer, Edit, Play
@@ -57,6 +57,21 @@ const ImageViewerModal = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && onPrevious) {
+        e.preventDefault();
+        onPrevious();
+      } else if (e.key === 'ArrowRight' && onNext) {
+        e.preventDefault();
+        onNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onPrevious, onNext]);
 
   const handleZoomChange = (newZoom: number) => {
     setZoom(newZoom);
