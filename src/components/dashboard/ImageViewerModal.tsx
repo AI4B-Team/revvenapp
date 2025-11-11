@@ -311,12 +311,20 @@ const ImageViewerModal = ({
             <div className="p-4 border-b border-gray-800">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-xs">Created:</span>
+                  <span className="text-white text-xs font-medium">May 12, 2025</span>
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-xs">Model:</span>
                   <span className="text-white text-xs font-medium">{imageData.model}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400 text-xs">Resolution:</span>
+                  <span className="text-gray-400 text-xs">Dimensions:</span>
                   <span className="text-white text-xs font-medium">{imageData.resolution}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-400 text-xs">Aspect Ratio:</span>
+                  <span className="text-white text-xs font-medium">{imageData.aspectRatio}</span>
                 </div>
               </div>
             </div>
@@ -333,38 +341,35 @@ const ImageViewerModal = ({
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="p-4 space-y-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-between transition-colors group text-sm">
-                      <div className="flex items-center gap-2">
+          </div>
+
+            {/* Bottom Fixed Section */}
+            <div className="flex-shrink-0 border-t border-gray-800">
+              {/* Action Buttons */}
+              <div className="p-4 space-y-2 border-b border-gray-800">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-center gap-2 transition-colors text-sm">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="3" width="18" height="18" rx="2"/>
                           <circle cx="8.5" cy="8.5" r="1.5"/>
                           <path d="M20.4 14.5L16 10 4 20"/>
                         </svg>
                         <span className="font-medium">Use</span>
-                      </div>
-                      <ChevronRight size={16} className="text-gray-400 group-hover:text-white transition-colors" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Reuse Prompt & Settings</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center gap-2 transition-colors text-sm">
-                <RefreshCw size={16} />
-                <span className="font-medium">Recreate</span>
-              </button>
-            </div>
-          </div>
-
-            {/* Bottom Fixed Section */}
-            <div className="flex-shrink-0 border-t border-gray-800">
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Reuse Prompt & Settings</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <button className="w-full px-3 py-2 bg-gray-800 hover:bg-gray-750 text-white rounded-lg flex items-center justify-center gap-2 transition-colors text-sm">
+                  <RefreshCw size={16} />
+                  <span className="font-medium">Recreate</span>
+                </button>
+              </div>
               {/* Zoom Control */}
               <div className="p-4 flex items-center gap-3">
                 <span className="text-gray-400 text-xs whitespace-nowrap">{zoom}%</span>
