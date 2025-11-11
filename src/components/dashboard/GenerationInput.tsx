@@ -10,7 +10,6 @@ interface GenerationInputProps {
 
 const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
-  const [promptValue, setPromptValue] = useState('');
   
   const isVideoMode = selectedType === 'Video';
   const isAudioMode = selectedType === 'Audio';
@@ -55,18 +54,12 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 )}
               </div>
             </TooltipProvider>
-            {promptValue === '' && (
-              <div className="text-muted-foreground text-base">
-                Describe what you want to create...
-              </div>
-            )}
           </div>
           <div className="flex-1">
             <textarea 
-              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
+              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground"
               rows={3}
-              value={promptValue}
-              onChange={(e) => setPromptValue(e.target.value)}
+              placeholder={!isVideoMode && !isAudioMode ? "Describe what you want to create..." : ""}
             />
           </div>
         </div>
@@ -183,8 +176,8 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="text-muted-foreground hover:text-foreground transition">
-                        <MoreHorizontal size={20} />
+                      <button className="text-muted-foreground hover:text-foreground transition bg-muted/50 rounded-lg p-2">
+                        <MoreVertical size={20} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -331,8 +324,8 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="text-muted-foreground hover:text-foreground transition">
-                        <MoreHorizontal size={20} />
+                      <button className="text-muted-foreground hover:text-foreground transition bg-muted/50 rounded-lg p-2">
+                        <MoreVertical size={20} />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
