@@ -16,8 +16,8 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   return (
     <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
-        <div className="flex flex-col gap-3 mb-6">
-          <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 mb-6">
+          <div className="flex flex-col gap-2">
             <TooltipProvider>
               <div className="flex items-center gap-1">
                 {isVideoMode ? (
@@ -54,15 +54,15 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                 )}
               </div>
             </TooltipProvider>
-            <div className="flex-1">
-              <textarea 
-                className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
-                rows={3}
-              />
+            <div className="text-muted-foreground text-base">
+              Describe what you want to create...
             </div>
           </div>
-          <div className="text-center text-muted-foreground text-sm">
-            Describe what you want to create...
+          <div className="flex-1">
+            <textarea 
+              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
+              rows={3}
+            />
           </div>
         </div>
 
