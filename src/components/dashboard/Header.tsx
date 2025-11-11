@@ -254,7 +254,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Logout */}
-            <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red">
+            <DropdownMenuItem className="flex items-center justify-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red">
               <Power size={20} />
               <span>Log Out</span>
             </DropdownMenuItem>
