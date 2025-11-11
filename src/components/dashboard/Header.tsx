@@ -26,7 +26,7 @@ interface HeaderProps {
 
 const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
-  const [selectedTheme, setSelectedTheme] = React.useState('dark');
+  const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
 
   const languages = [
@@ -156,13 +156,12 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
                     <Languages size={20} className="text-white flex-shrink-0" />
                     <span className="text-white font-medium flex-shrink-0">Language:</span>
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium">{selectedLanguage}</span>
-                      <ChevronRight size={16} className="text-white" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
@@ -205,7 +204,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
                     {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'split' && <SplitIcon />}
@@ -213,7 +212,6 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium capitalize">{selectedTheme}</span>
-                      <ChevronRight size={16} className="text-white" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
