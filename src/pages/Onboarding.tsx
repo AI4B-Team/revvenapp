@@ -301,7 +301,7 @@ const Onboarding = () => {
                         {/* Section Header */}
                         <button
                           onClick={() => toggleSection(section.id)}
-                          className="w-full px-8 py-6 flex items-center justify-between hover:bg-accent transition-colors"
+                          className="w-full px-8 py-6 flex items-center justify-between bg-secondary/30 hover:bg-secondary/50 transition-colors"
                         >
                           <div className="text-left">
                             <h3 className="text-2xl font-bold text-foreground mb-1">
