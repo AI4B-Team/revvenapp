@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug, ChevronDown, Search, Check, Columns2 } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug, ChevronDown, Search, Check, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -73,7 +73,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
           className="p-2 rounded-lg hover:bg-accent transition-colors"
           title="Switch theme"
         >
-          {theme === 'dark' ? <Sun size={20} /> : theme === 'split' ? <Moon size={20} /> : <Columns2 size={20} />}
+          {theme === 'dark' ? <Sun size={20} /> : theme === 'split' ? <Circle size={20} /> : <Moon size={20} />}
         </button>
 
         <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-sidebar-hover hover:bg-sidebar-active cursor-pointer text-sidebar-text transition-colors border border-border mt-2">
                     <div className="flex items-center gap-3">
-                      {theme === 'dark' ? <Moon size={20} /> : theme === 'split' ? <Columns2 size={20} /> : <Sun size={20} />}
+                      {theme === 'dark' ? <Moon size={20} /> : theme === 'split' ? <Circle size={20} /> : <Sun size={20} />}
                       <span className="font-medium">Theme</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -253,7 +253,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-sidebar-hover cursor-pointer text-sidebar-text"
                   >
                     <div className="flex items-center gap-3">
-                      <Columns2 size={18} />
+                      <Circle size={18} />
                       <span className="font-medium">Split</span>
                     </div>
                     {theme === 'split' && (

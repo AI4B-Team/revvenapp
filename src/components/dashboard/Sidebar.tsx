@@ -493,8 +493,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
       {/* Credits Section */}
       {!isCollapsed && (
-        <div className="p-4 space-y-3 bg-sidebar">
-          <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
+        <div className="p-4 space-y-3">
+          <div className="bg-sidebar-active border-2 border-brand-green rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
               <HelpCircle size={14} className="text-sidebar-muted" />
