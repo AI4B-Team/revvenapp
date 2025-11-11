@@ -258,9 +258,11 @@ const Onboarding = () => {
             <div className="max-w-7xl mx-auto">
               
               {/* Welcome Header */}
-              <h1 className="text-4xl font-bold text-foreground mb-8">
-                Welcome, Brian 👋
-              </h1>
+              <div className="bg-secondary/30 rounded-2xl p-6 mb-8">
+                <h1 className="text-4xl font-bold text-foreground">
+                  Welcome, Brian 👋
+                </h1>
+              </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
@@ -385,10 +387,10 @@ const Onboarding = () => {
                 <div className="lg:col-span-1">
                   <div className="bg-card rounded-2xl shadow-sm p-6 border border-border sticky top-6">
                     <h3 className="text-xl font-bold text-foreground mb-3">
-                      Watch A 3 Minutes Overview
+                      Watch This 3 Minute Overview
                     </h3>
                     <p className="text-muted-foreground text-sm mb-6">
-                      Get started with REVVEN by watching this overview video.
+                      Get started with REVVEN by watching this video.
                     </p>
 
                     {/* Video Thumbnail */}
