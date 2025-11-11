@@ -170,8 +170,8 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                   <div className="px-2 pb-2">
                     <div className="relative">
                       <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-muted" />
-                      <Input
-                        placeholder="Search by"
+                  <Input 
+                    placeholder="Search By"
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         className="pl-9 bg-sidebar-hover border-border text-sidebar-text placeholder:text-sidebar-muted"
