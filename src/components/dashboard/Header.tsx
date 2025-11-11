@@ -162,7 +162,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium">{selectedLanguage}</span>
-                      <ChevronRight size={16} className="text-gray-400" />
+                      <ChevronRight size={16} className="text-white" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
@@ -213,7 +213,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium capitalize">{selectedTheme}</span>
-                      <ChevronRight size={16} className="text-gray-400" />
+                      <ChevronRight size={16} className="text-white" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
