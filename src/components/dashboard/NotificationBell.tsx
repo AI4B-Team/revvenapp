@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, X, Sparkles, Inbox } from 'lucide-react';
+import { Bell, Sparkles, Inbox, CheckCheck } from 'lucide-react';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -77,11 +77,12 @@ const NotificationBell = () => {
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h2 className="text-xl font-bold text-black">Notifications</h2>
               <button 
-                onClick={() => setIsOpen(false)}
-                className="text-gray-600 hover:text-black transition-colors"
-                aria-label="Close"
+                onClick={() => setUnreadCount(0)}
+                className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors font-medium text-sm"
+                aria-label="Mark all as read"
               >
-                <X size={24} />
+                <CheckCheck size={18} />
+                Mark All As Read
               </button>
             </div>
 
