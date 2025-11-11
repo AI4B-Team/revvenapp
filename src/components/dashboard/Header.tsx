@@ -213,6 +213,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     <div className="flex-1" />
                     <div className="flex items-center gap-2">
                       <span className="text-white group-hover:text-slate-900 font-medium capitalize">{selectedTheme}</span>
+                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
                     </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
@@ -248,7 +249,6 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 className="w-full px-6 py-3 bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 rounded-lg font-medium transition flex items-center justify-center gap-2"
               >
                 <span>Join Affiliate Program</span>
-                <ChevronRight size={18} />
               </button>
             </div>
 
