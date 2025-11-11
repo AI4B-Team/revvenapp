@@ -287,7 +287,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Footer */}
-            <div className="px-6 py-4">
+            <div className="px-3 py-4">
               <div className="flex items-center justify-between">
                 {/* Left Side - Terms & Privacy Links */}
                 <div className="flex items-center gap-2">
