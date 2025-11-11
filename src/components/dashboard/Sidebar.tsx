@@ -6,7 +6,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -107,7 +107,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const monetizeNavItems = [
     { 
-      icon: <Package size={18} />, 
+      icon: <Download size={18} />, 
       label: 'Products', 
       color: 'text-brand-blue',
       link: '/monetize'
