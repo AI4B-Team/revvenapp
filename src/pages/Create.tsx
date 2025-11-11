@@ -255,9 +255,9 @@ const Create = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-auto bg-white">
-          <div className="px-8 py-8">
-            <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
+        <main className="flex-1 overflow-auto bg-background">
+          <div className="px-8 py-12">
+            <h1 className="text-5xl font-bold text-center mb-12 text-foreground">What Would You Like To Create Today?</h1>
             
             <ContentTypeSelector selectedType={selectedType} onTypeChange={(type) => {
               setSelectedType(type);

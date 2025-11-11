@@ -58,6 +58,49 @@ All colors MUST be HSL.
     --tool-bg-gray: 0 0% 96%;
     --tool-bg-pink: 330 100% 97%;
   }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+
+    --card: 220 13% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 220 13% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 215 20% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 215 20% 15%;
+    --muted-foreground: 220 9% 60%;
+
+    --accent: 215 20% 18%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 215 20% 18%;
+    --input: 215 20% 18%;
+    --ring: 0 0% 83%;
+
+    /* Dark mode sidebar */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-hover: 215 28% 17%;
+    --sidebar-active: 215 28% 20%;
+    --sidebar-text: 0 0% 98%;
+    --sidebar-text-muted: 220 9% 60%;
+
+    /* Tool card backgrounds for dark mode */
+    --tool-bg-blue: 217 91% 15%;
+    --tool-bg-yellow: 45 93% 15%;
+    --tool-bg-gray: 0 0% 15%;
+    --tool-bg-pink: 330 100% 15%;
+  }
 }
 
 @layer base {

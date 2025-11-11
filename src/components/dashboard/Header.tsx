@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,12 +14,15 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
+import { useTheme } from 'next-themes';
 
 interface HeaderProps {
   onCreateClick?: () => void;
 }
 
 const Header = ({ onCreateClick }: HeaderProps) => {
+  const { theme, setTheme } = useTheme();
+
   return (
     <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
       <div className="flex-1" />
@@ -41,6 +44,14 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-4">
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="p-2 rounded-lg hover:bg-accent transition-colors"
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-brand-green" />
           <span className="text-brand-green font-semibold">88,000 Credits</span>
