@@ -223,7 +223,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
+                  <DropdownMenuSubTrigger hideArrow className="group w-full flex items-center gap-4 py-4 px-4 rounded-lg border-2 border-white/30 hover:bg-white cursor-pointer bg-sidebar">
                     {selectedTheme === 'light' && <Sun size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
                     {selectedTheme === 'dark' && <Moon size={24} className="text-white group-hover:text-slate-900 flex-shrink-0" />}
                     {selectedTheme === 'split' && <SplitIcon />}
