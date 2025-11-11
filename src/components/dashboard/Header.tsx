@@ -158,9 +158,9 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar">
                     <Languages size={20} className="text-white flex-shrink-0" />
-                    <span className="text-white font-medium flex-shrink-0">Language</span>
+                    <span className="text-white font-medium flex-shrink-0">Language:</span>
                     <div className="flex-1" />
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="text-white font-medium">{selectedLanguage}</span>
                       <ChevronRight size={16} className="text-gray-400" />
                     </div>
@@ -209,9 +209,9 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'split' && <SplitIcon />}
-                    <span className="text-white font-medium flex-shrink-0">Theme</span>
+                    <span className="text-white font-medium flex-shrink-0">Theme:</span>
                     <div className="flex-1" />
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="text-white font-medium capitalize">{selectedTheme}</span>
                       <ChevronRight size={16} className="text-gray-400" />
                     </div>
