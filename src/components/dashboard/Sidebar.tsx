@@ -178,7 +178,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} flex flex-col transition-all duration-300 border-r border-border`} style={{ backgroundColor: 'hsl(var(--sidebar))', color: 'hsl(var(--sidebar-text))' }}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && (
@@ -233,12 +233,12 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                       <MoreVertical size={16} className="text-primary" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-background border-border">
-                    <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer">
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem>
                       <Edit size={14} className="mr-2" />
                       Rename workspace
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer">
+                    <DropdownMenuItem>
                       <Settings size={14} className="mr-2" />
                       Workspace settings
                     </DropdownMenuItem>
@@ -493,8 +493,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
       {/* Credits Section */}
       {!isCollapsed && (
-        <div className="p-4 space-y-3">
-          <div className="bg-sidebar-active border-2 border-brand-green rounded-lg p-3">
+        <div className="p-4 space-y-3 bg-sidebar">
+          <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
               <HelpCircle size={14} className="text-sidebar-muted" />
