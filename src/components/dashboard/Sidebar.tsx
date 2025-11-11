@@ -360,42 +360,42 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <LayoutGrid size={14} />
               <span className="text-sm flex-1">All</span>
-              <span className="text-xs text-sidebar-muted">147</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">147</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Star size={14} />
               <span className="text-sm flex-1">Favorites</span>
-              <span className="text-xs text-sidebar-muted">23</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">23</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <FileText size={14} />
               <span className="text-sm flex-1">Content</span>
-              <span className="text-xs text-sidebar-muted">42</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">42</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Image size={14} />
               <span className="text-sm flex-1">Images</span>
-              <span className="text-xs text-sidebar-muted">58</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">58</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Video size={14} />
               <span className="text-sm flex-1">Videos</span>
-              <span className="text-xs text-sidebar-muted">17</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">17</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Music size={14} />
               <span className="text-sm flex-1">Audio</span>
-              <span className="text-xs text-sidebar-muted">31</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">31</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Palette size={14} />
               <span className="text-sm flex-1">Designs</span>
-              <span className="text-xs text-sidebar-muted">12</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">12</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <Code size={14} />
               <span className="text-sm flex-1">Apps</span>
-              <span className="text-xs text-sidebar-muted">8</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">8</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text mt-2 pt-2 border-t border-sidebar-hover w-full text-left">
               <span className="text-sm">+ New Folder</span>
