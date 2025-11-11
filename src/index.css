@@ -9,13 +9,13 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    --foreground: 0 0% 3%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 3%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 3%;
 
     --primary: 0 0% 9%;
     --primary-foreground: 0 0% 98%;
@@ -38,12 +38,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Sidebar colors */
-    --sidebar-background: 215 28% 17%;
-    --sidebar-hover: 215 28% 22%;
-    --sidebar-active: 215 28% 20%;
-    --sidebar-text: 0 0% 98%;
-    --sidebar-text-muted: 220 9% 60%;
+    /* Light mode sidebar - white background */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-hover: 220 13% 95%;
+    --sidebar-active: 220 13% 91%;
+    --sidebar-text: 0 0% 9%;
+    --sidebar-text-muted: 220 9% 46%;
 
     /* Brand colors */
     --brand-green: 142 71% 45%;
@@ -57,49 +57,51 @@ All colors MUST be HSL.
     --tool-bg-yellow: 45 100% 96%;
     --tool-bg-gray: 0 0% 96%;
     --tool-bg-pink: 330 100% 97%;
+    --tool-bg-green: 142 71% 95%;
   }
 
   .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    --card: 220 13% 10%;
+    --card: 0 0% 7%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 13% 10%;
+    --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
 
-    --secondary: 215 20% 15%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 215 20% 15%;
-    --muted-foreground: 220 9% 60%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 215 20% 18%;
+    --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 20% 18%;
-    --input: 215 20% 18%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
     --ring: 0 0% 83%;
 
-    /* Dark mode sidebar */
-    --sidebar-background: 222 47% 11%;
-    --sidebar-hover: 215 28% 17%;
-    --sidebar-active: 215 28% 20%;
+    /* Dark mode sidebar - true black */
+    --sidebar-background: 0 0% 7%;
+    --sidebar-hover: 0 0% 12%;
+    --sidebar-active: 0 0% 15%;
     --sidebar-text: 0 0% 98%;
-    --sidebar-text-muted: 220 9% 60%;
+    --sidebar-text-muted: 0 0% 60%;
 
     /* Tool card backgrounds for dark mode */
     --tool-bg-blue: 217 91% 15%;
     --tool-bg-yellow: 45 93% 15%;
     --tool-bg-gray: 0 0% 15%;
     --tool-bg-pink: 330 100% 15%;
+    --tool-bg-green: 142 71% 15%;
   }
 }
 
@@ -110,5 +112,13 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Smooth transitions for theme switching */
+  * {
+    transition-property: background-color, border-color, color;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
   }
 }

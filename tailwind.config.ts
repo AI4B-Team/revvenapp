@@ -66,6 +66,7 @@ export default {
           yellow: "hsl(var(--tool-bg-yellow))",
           gray: "hsl(var(--tool-bg-gray))",
           pink: "hsl(var(--tool-bg-pink))",
+          green: "hsl(var(--tool-bg-green))",
         },
       },
       borderRadius: {

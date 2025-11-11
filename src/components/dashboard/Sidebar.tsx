@@ -178,7 +178,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300 border-r border-border`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && (
@@ -233,12 +233,12 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                       <MoreVertical size={16} className="text-primary" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-48 bg-background border-border">
+                    <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer">
                       <Edit size={14} className="mr-2" />
                       Rename workspace
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer">
                       <Settings size={14} className="mr-2" />
                       Workspace settings
                     </DropdownMenuItem>

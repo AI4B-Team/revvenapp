@@ -80,8 +80,8 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white">dolmarcross</h3>
-                <p className="text-sm text-gray-400">dolmarcross@gmail.com</p>
+                <h3 className="text-xl font-semibold text-sidebar-text">dolmarcross</h3>
+                <p className="text-sm text-sidebar-muted">dolmarcross@gmail.com</p>
               </div>
             </div>
 
@@ -91,59 +91,103 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <Zap size={18} className="mr-2" />
                 Upgrade
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border-sidebar-hover hover:bg-sidebar-hover text-white h-12">
+              <Button variant="outline" className="w-full bg-transparent border-border hover:bg-sidebar-hover text-sidebar-text h-12">
                 <UserPlus size={18} className="mr-2" />
                 Add Members
               </Button>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
+            <DropdownMenuSeparator className="bg-border my-4" />
 
             {/* Menu Items */}
             <div className="space-y-1">
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
                 <div className="flex items-center gap-3">
                   <CreditCard size={20} />
                   <span>Subscription</span>
                 </div>
-                <Badge variant="secondary" className="bg-sidebar-active text-gray-300 hover:bg-sidebar-active">
+                <Badge variant="secondary" className="bg-sidebar-active text-sidebar-text hover:bg-sidebar-active">
                   Pro
                 </Badge>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
                 <User size={20} />
                 <span>Account</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
                 <Mail size={20} />
                 <span>Invites</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
                 <Plug size={20} />
                 <span>Integrations</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <div className="flex items-center gap-3">
-                  <Languages size={20} />
-                  <span>Language</span>
-                </div>
-                <span className="text-gray-400 text-sm">English</span>
-              </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
+                    <div className="flex items-center gap-3">
+                      <Languages size={20} />
+                      <span>Language</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sidebar-muted text-sm">English</span>
+                      <ChevronRight size={16} className="text-sidebar-muted" />
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="right" className="bg-sidebar border-border">
+                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
+                    English
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
+                    Spanish
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
+                    French
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
+                    German
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <div className="flex items-center gap-3">
-                  <Moon size={20} />
-                  <span>Theme</span>
-                </div>
-                <span className="text-gray-400 text-sm">Dark</span>
-              </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
+                    <div className="flex items-center gap-3">
+                      {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                      <span>Theme</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sidebar-muted text-sm capitalize">{theme || 'dark'}</span>
+                      <ChevronRight size={16} className="text-sidebar-muted" />
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="right" className="bg-sidebar border-border">
+                  <DropdownMenuItem 
+                    onClick={() => setTheme('light')}
+                    className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer flex items-center gap-2"
+                  >
+                    <Sun size={16} />
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setTheme('dark')}
+                    className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer flex items-center gap-2"
+                  >
+                    <Moon size={16} />
+                    Dark
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
+            <DropdownMenuSeparator className="bg-border my-4" />
 
             {/* Affiliate Program */}
             <div className="px-3 py-3">
@@ -156,7 +200,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               </button>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
+            <DropdownMenuSeparator className="bg-border my-4" />
 
             {/* Logout */}
             <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-brand-red">
