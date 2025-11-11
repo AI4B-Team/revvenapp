@@ -229,7 +229,10 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                     {selectedTheme === 'split' && <SplitIcon />}
                     <span className="text-white group-hover:text-slate-900 font-medium flex-shrink-0">Theme:</span>
                     <div className="flex-1" />
-                    <span className="text-white group-hover:text-slate-900 font-medium capitalize">{selectedTheme}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white group-hover:text-slate-900 font-medium capitalize">{selectedTheme}</span>
+                      <ChevronRight size={20} className="text-white group-hover:text-slate-900" />
+                    </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
                     {themes.map((theme) => {
