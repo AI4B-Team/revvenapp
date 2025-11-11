@@ -156,11 +156,14 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black">
-                    <Languages size={20} className="text-white flex-shrink-0 group-hover:text-black" />
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
+                    <Languages size={20} className="text-white flex-shrink-0" />
                     <span className="text-white font-medium flex-shrink-0">Language:</span>
                     <div className="flex-1" />
-                    <span className="text-white font-medium hover:text-black">{selectedLanguage}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium">{selectedLanguage}</span>
+                      <ChevronRight size={16} className="text-gray-400" />
+                    </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
                     <div className="px-2 pb-2">
@@ -202,13 +205,16 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black">
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar [&>span]:hover:text-black [&>svg]:hover:text-black">
                     {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'split' && <SplitIcon />}
                     <span className="text-white font-medium flex-shrink-0">Theme:</span>
                     <div className="flex-1" />
-                    <span className="text-white font-medium capitalize hover:text-black">{selectedTheme}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium capitalize">{selectedTheme}</span>
+                      <ChevronRight size={16} className="text-gray-400" />
+                    </div>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
                     {themes.map((theme) => {
