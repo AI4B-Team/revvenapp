@@ -155,6 +155,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
               {/* Language Selector */}
               <div className="px-3 py-2">
+                <p className="text-white text-sm font-medium mb-2 px-1">Language:</p>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar">
                     <Languages size={20} className="text-white flex-shrink-0" />
@@ -204,6 +205,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
               {/* Theme Selector */}
               <div className="px-3 py-2">
+                <p className="text-white text-sm font-medium mb-2 px-1">Theme:</p>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar">
                     {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
