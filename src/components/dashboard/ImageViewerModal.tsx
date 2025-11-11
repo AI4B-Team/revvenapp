@@ -169,7 +169,7 @@ const ImageViewerModal = ({
           {/* Close Button - Right side above arrow */}
           <button
             onClick={onClose}
-            className="absolute -right-16 top-8 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
+            className="absolute -right-16 top-4 w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors z-50 shadow-lg"
             title="Close"
           >
             <X size={24} className="text-white" />
