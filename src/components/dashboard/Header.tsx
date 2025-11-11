@@ -118,7 +118,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <Zap size={18} className="mr-2" />
                 Upgrade
               </Button>
-              <Button variant="outline" className="w-full bg-transparent border-sidebar-hover hover:bg-sidebar-hover text-white h-12">
+              <Button variant="outline" className="w-full bg-transparent border-2 border-white/30 hover:bg-sidebar-hover text-white h-12">
                 <UserPlus size={18} className="mr-2" />
                 Add Members
               </Button>
