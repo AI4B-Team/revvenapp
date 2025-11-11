@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Power, RefreshCw, UserPlus, Mail, Zap, Plug, ChevronDown, Search, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,9 +12,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
 import { useTheme } from 'next-themes';
+import { useState } from 'react';
 
 interface HeaderProps {
   onCreateClick?: () => void;
@@ -22,6 +24,25 @@ interface HeaderProps {
 
 const Header = ({ onCreateClick }: HeaderProps) => {
   const { theme, setTheme } = useTheme();
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [languageSearch, setLanguageSearch] = useState('');
+
+  const languages = [
+    { name: 'English', flag: '🇺🇸', code: 'en' },
+    { name: 'Spanish', flag: '🇪🇸', code: 'es' },
+    { name: 'French', flag: '🇫🇷', code: 'fr' },
+    { name: 'German', flag: '🇩🇪', code: 'de' },
+    { name: 'Italian', flag: '🇮🇹', code: 'it' },
+    { name: 'Portuguese', flag: '🇵🇹', code: 'pt' },
+    { name: 'Japanese', flag: '🇯🇵', code: 'ja' },
+    { name: 'Chinese', flag: '🇨🇳', code: 'zh' },
+    { name: 'Korean', flag: '🇰🇷', code: 'ko' },
+    { name: 'Russian', flag: '🇷🇺', code: 'ru' },
+  ];
+
+  const filteredLanguages = languages.filter(lang =>
+    lang.name.toLowerCase().includes(languageSearch.toLowerCase())
+  );
 
   return (
     <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
@@ -126,62 +147,101 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <span>Integrations</span>
               </DropdownMenuItem>
 
-              <DropdownMenu>
+              {/* Language Selector */}
+              <DropdownMenu onOpenChange={() => setLanguageSearch('')}>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
+                  <button className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-sidebar-hover hover:bg-sidebar-active cursor-pointer text-sidebar-text transition-colors border border-border">
                     <div className="flex items-center gap-3">
                       <Languages size={20} />
-                      <span>Language</span>
+                      <span className="font-medium">Language</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sidebar-muted text-sm">English</span>
-                      <ChevronRight size={16} className="text-sidebar-muted" />
+                      <span className="text-sidebar-text text-sm font-medium">{selectedLanguage}</span>
+                      <ChevronDown size={16} className="text-sidebar-muted" />
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  side="right" 
+                  align="start"
+                  className="w-64 bg-sidebar border-border p-2"
+                >
+                  {/* Search Input */}
+                  <div className="px-2 pb-2">
+                    <div className="relative">
+                      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-muted" />
+                      <Input
+                        placeholder="Search by"
+                        value={languageSearch}
+                        onChange={(e) => setLanguageSearch(e.target.value)}
+                        className="pl-9 bg-sidebar-hover border-border text-sidebar-text placeholder:text-sidebar-muted"
+                      />
                     </div>
                   </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" className="bg-sidebar border-border">
-                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
-                    English
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
-                    Spanish
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
-                    French
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer">
-                    German
-                  </DropdownMenuItem>
+                  
+                  {/* Language List */}
+                  <div className="max-h-64 overflow-y-auto">
+                    {filteredLanguages.map((lang) => (
+                      <DropdownMenuItem
+                        key={lang.code}
+                        onClick={() => setSelectedLanguage(lang.name)}
+                        className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-sidebar-hover cursor-pointer text-sidebar-text"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{lang.flag}</span>
+                          <span className="font-medium">{lang.name}</span>
+                        </div>
+                        {selectedLanguage === lang.name && (
+                          <Check size={16} className="text-brand-blue" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              {/* Theme Selector */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-sidebar-text">
+                  <button className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-sidebar-hover hover:bg-sidebar-active cursor-pointer text-sidebar-text transition-colors border border-border mt-2">
                     <div className="flex items-center gap-3">
                       {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
-                      <span>Theme</span>
+                      <span className="font-medium">Theme</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sidebar-muted text-sm capitalize">{theme || 'dark'}</span>
-                      <ChevronRight size={16} className="text-sidebar-muted" />
+                      <span className="text-sidebar-text text-sm font-medium capitalize">{theme || 'Dark'}</span>
+                      <ChevronDown size={16} className="text-sidebar-muted" />
                     </div>
-                  </div>
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" className="bg-sidebar border-border">
+                <DropdownMenuContent 
+                  side="right" 
+                  align="start"
+                  className="w-48 bg-sidebar border-border p-2"
+                >
                   <DropdownMenuItem 
                     onClick={() => setTheme('light')}
-                    className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer flex items-center gap-2"
+                    className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-sidebar-hover cursor-pointer text-sidebar-text"
                   >
-                    <Sun size={16} />
-                    Light
+                    <div className="flex items-center gap-3">
+                      <Sun size={18} />
+                      <span className="font-medium">Light</span>
+                    </div>
+                    {theme === 'light' && (
+                      <Check size={16} className="text-brand-blue" />
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setTheme('dark')}
-                    className="text-sidebar-text hover:bg-sidebar-hover cursor-pointer flex items-center gap-2"
+                    className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-sidebar-hover cursor-pointer text-sidebar-text"
                   >
-                    <Moon size={16} />
-                    Dark
+                    <div className="flex items-center gap-3">
+                      <Moon size={18} />
+                      <span className="font-medium">Dark</span>
+                    </div>
+                    {theme === 'dark' && (
+                      <Check size={16} className="text-brand-blue" />
+                    )}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
