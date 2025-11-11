@@ -3,22 +3,15 @@ import {
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
   Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
   Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare,
-  Tag, Mic, BookOpen, Ticket, X
+  Tag, Mic, BookOpen, Ticket
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const Onboarding = () => {
   const [completedTasks, setCompletedTasks] = useState(new Set(['create-project']));
   const [expandedSections, setExpandedSections] = useState(new Set(['getting-started']));
   const [activeTab, setActiveTab] = useState('Content');
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   const sections = [
     {
@@ -308,7 +301,7 @@ const Onboarding = () => {
                         {/* Section Header */}
                         <button
                           onClick={() => toggleSection(section.id)}
-                          className="w-full px-8 py-6 flex items-center justify-between bg-secondary/30 hover:bg-secondary transition-colors"
+                          className="w-full px-8 py-6 flex items-center justify-between bg-secondary/30 hover:bg-secondary/50 transition-colors"
                         >
                           <div className="text-left">
                             <h3 className="text-2xl font-bold text-foreground mb-1">
@@ -401,10 +394,7 @@ const Onboarding = () => {
                     </p>
 
                     {/* Video Thumbnail */}
-                    <div 
-                      onClick={() => setIsVideoModalOpen(true)}
-                      className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer"
-                    >
+                    <div className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer">
                       <img
                         src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800"
                         alt="Tutorial video"
@@ -425,21 +415,6 @@ const Onboarding = () => {
           </div>
         </main>
       </div>
-
-      {/* Video Modal */}
-      <Dialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen}>
-        <DialogContent className="max-w-4xl p-0 bg-black border-0">
-          <div className="relative w-full aspect-video">
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="REVVEN Overview"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
