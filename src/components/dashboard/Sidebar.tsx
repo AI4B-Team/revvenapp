@@ -115,7 +115,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { 
       icon: <Globe size={18} />, 
       label: 'Sites', 
-      color: 'text-brand-yellow',
+      color: 'text-brand-red',
       isDropdown: true,
       subItems: [
         { label: 'Websites', icon: <Globe size={14} /> },
@@ -137,7 +137,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { 
       icon: <DollarSign size={18} />, 
       label: 'Revenue', 
-      color: 'text-brand-red',
+      color: 'text-brand-yellow',
       link: '/revenue'
     },
     { 
@@ -149,7 +149,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { 
       icon: <FileBarChart size={18} />, 
       label: 'Reports', 
-      color: 'text-brand-yellow',
+      color: 'text-brand-red',
       link: '/monetize'
     },
   ];
