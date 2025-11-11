@@ -10,13 +10,9 @@ interface GenerationInputProps {
 
 const GenerationInput = ({ selectedType }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
-  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   
   const isVideoMode = selectedType === 'Video';
   const isAudioMode = selectedType === 'Audio';
-  
-  const shortPrompt = "A cinematic shot of a baby raccoon wearing an intricate Italian priest robe, with the Sahara Desert in the background.";
-  const fullPrompt = "A cinematic shot of a baby raccoon wearing an intricate Italian priest robe, with the Sahara Desert in the background. The scene is captured during golden hour with warm, soft lighting casting long shadows across the sand dunes. The raccoon's expressive eyes and detailed fur texture are highlighted, creating a whimsical yet majestic atmosphere. Shot on 35mm film with shallow depth of field, the composition emphasizes the contrast between the tiny creature and the vast, endless desert landscape.";
   return (
     <div className="max-w-6xl mx-auto mb-8">
       <div className="bg-background border-2 border-border rounded-xl p-6">
@@ -54,19 +50,11 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
             </div>
           </TooltipProvider>
           <div className="flex-1">
-            <div 
-              className={`text-foreground text-lg leading-relaxed ${!isPromptExpanded ? 'line-clamp-3' : ''}`}
-            >
-              {isPromptExpanded ? fullPrompt : shortPrompt}{' '}
-              {!isPromptExpanded && (
-                <button 
-                  onClick={() => setIsPromptExpanded(true)}
-                  className="text-blue-500 hover:text-blue-600 font-medium inline-block ml-1"
-                >
-                  see more
-                </button>
-              )}
-            </div>
+            <textarea 
+              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none"
+              placeholder="Describe what you want to create..."
+              rows={3}
+            />
           </div>
         </div>
 
