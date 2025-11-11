@@ -6,7 +6,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -64,6 +64,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <Video size={18} />, label: 'Lip-Sync', color: 'text-brand-blue' },
     { icon: <Move size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
     { icon: <ArrowUpCircle size={18} />, label: 'Upscale', color: 'text-brand-green' },
+    { icon: <Maximize2 size={18} />, label: 'Resize', color: 'text-brand-red' },
   ];
 
   const audioNavItems = [
