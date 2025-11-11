@@ -1,9 +1,10 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ interface HeaderProps {
 const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
   const [selectedTheme, setSelectedTheme] = React.useState('dark');
+  const [languageSearch, setLanguageSearch] = React.useState('');
 
   const languages = [
     { name: 'English', flag: '🇺🇸' },
@@ -33,14 +35,26 @@ const Header = ({ onCreateClick }: HeaderProps) => {
     { name: 'French', flag: '🇫🇷' },
     { name: 'German', flag: '🇩🇪' },
     { name: 'Portuguese', flag: '🇵🇹' },
+    { name: 'Italian', flag: '🇮🇹' },
     { name: 'Chinese', flag: '🇨🇳' },
     { name: 'Japanese', flag: '🇯🇵' },
   ];
 
+  const filteredLanguages = languages.filter(lang =>
+    lang.name.toLowerCase().includes(languageSearch.toLowerCase())
+  );
+
+  const SplitIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.3" />
+      <path d="M12 2 L12 22 M12 2 A10 10 0 0 1 12 22" fill="currentColor" opacity="0.7" />
+    </svg>
+  );
+
   const themes = [
     { name: 'light', label: 'Light', icon: Sun },
     { name: 'dark', label: 'Dark', icon: Moon },
-    { name: 'split', label: 'Split', icon: CircleDashed },
+    { name: 'split', label: 'Split', icon: SplitIcon },
   ];
 
   return (
@@ -141,31 +155,48 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-600 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
-                    <Languages size={20} className="text-white flex-shrink-0" />
-                    <span className="text-white font-medium flex-shrink-0">Language</span>
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar">
+                    <Languages size={20} className="text-foreground flex-shrink-0" />
+                    <span className="text-foreground font-medium flex-shrink-0">Language</span>
                     <div className="flex-1" />
                     <div className="flex items-center gap-3">
-                      <span className="text-white font-medium">{selectedLanguage}</span>
-                      <ChevronRight size={16} className="text-gray-400" />
+                      <span className="text-foreground font-medium">{selectedLanguage}</span>
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-sidebar border-sidebar-hover w-64">
-                    {languages.map((language) => (
-                      <DropdownMenuItem
-                        key={language.name}
-                        onClick={() => setSelectedLanguage(language.name)}
-                        className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{language.flag}</span>
-                          <span className="font-medium">{language.name}</span>
-                        </div>
-                        {selectedLanguage === language.name && (
-                          <div className="w-2 h-2 rounded-full bg-brand-green" />
-                        )}
-                      </DropdownMenuItem>
-                    ))}
+                  <DropdownMenuSubContent className="bg-sidebar border-border/20 w-80 p-2">
+                    <div className="px-2 pb-2">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+                        <Input
+                          type="text"
+                          placeholder="Search By"
+                          value={languageSearch}
+                          onChange={(e) => setLanguageSearch(e.target.value)}
+                          className="pl-10 bg-sidebar-active border-border/20 text-foreground placeholder:text-muted-foreground"
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {filteredLanguages.map((language) => (
+                        <DropdownMenuItem
+                          key={language.name}
+                          onClick={() => {
+                            setSelectedLanguage(language.name);
+                            setLanguageSearch('');
+                          }}
+                          className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-foreground"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{language.flag}</span>
+                            <span className="font-medium">{language.name}</span>
+                          </div>
+                          {selectedLanguage === language.name && (
+                            <Check size={18} className="text-blue-500" />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               </div>
@@ -173,32 +204,32 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-600 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
-                    {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
-                    {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
-                    {selectedTheme === 'split' && <CircleDashed size={20} className="text-white flex-shrink-0" />}
-                    <span className="text-white font-medium flex-shrink-0">Theme</span>
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-border/20 hover:bg-sidebar-hover cursor-pointer bg-sidebar">
+                    {selectedTheme === 'light' && <Sun size={20} className="text-foreground flex-shrink-0" />}
+                    {selectedTheme === 'dark' && <Moon size={20} className="text-foreground flex-shrink-0" />}
+                    {selectedTheme === 'split' && <SplitIcon />}
+                    <span className="text-foreground font-medium flex-shrink-0">Theme</span>
                     <div className="flex-1" />
                     <div className="flex items-center gap-3">
-                      <span className="text-white font-medium capitalize">{selectedTheme}</span>
-                      <ChevronRight size={16} className="text-gray-400" />
+                      <span className="text-foreground font-medium capitalize">{selectedTheme}</span>
+                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="bg-sidebar border-sidebar-hover w-64">
+                  <DropdownMenuSubContent className="bg-sidebar border-border/20 w-64 p-2">
                     {themes.map((theme) => {
                       const Icon = theme.icon;
                       return (
                         <DropdownMenuItem
                           key={theme.name}
                           onClick={() => setSelectedTheme(theme.name)}
-                          className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-white"
+                          className="flex items-center justify-between py-3 px-4 rounded-md hover:bg-sidebar-hover cursor-pointer text-foreground"
                         >
                           <div className="flex items-center gap-3">
                             <Icon size={20} />
                             <span className="font-medium">{theme.label}</span>
                           </div>
                           {selectedTheme === theme.name && (
-                            <div className="w-2 h-2 rounded-full bg-brand-green" />
+                            <Check size={18} className="text-blue-500" />
                           )}
                         </DropdownMenuItem>
                       );
