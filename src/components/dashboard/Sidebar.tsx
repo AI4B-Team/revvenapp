@@ -6,7 +6,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -107,23 +107,50 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const monetizeNavItems = [
     { 
+      icon: <Package size={18} />, 
+      label: 'Products', 
+      color: 'text-brand-blue',
+      link: '/monetize'
+    },
+    { 
       icon: <Globe size={18} />, 
       label: 'Sites', 
       color: 'text-brand-blue',
       isDropdown: true,
-      subItems: ['Websites', 'Funnels', 'Stores']
+      subItems: [
+        { label: 'Websites', icon: <Globe size={14} /> },
+        { label: 'Funnels', icon: <Move size={14} /> },
+        { label: 'Stores', icon: <Package size={14} /> }
+      ]
     },
     { 
       icon: <Mail size={18} />, 
       label: 'Marketing', 
       color: 'text-brand-green',
       isDropdown: true,
-      subItems: ['Emails', 'Social']
+      subItems: [
+        { label: 'Emails', icon: <Send size={14} /> },
+        { label: 'Social', icon: <Share2 size={14} /> },
+        { label: 'Ads', icon: <DollarSign size={14} /> }
+      ]
     },
     { 
       icon: <DollarSign size={18} />, 
-      label: 'Ads', 
-      color: 'text-brand-yellow'
+      label: 'Revenue', 
+      color: 'text-brand-yellow',
+      link: '/revenue'
+    },
+    { 
+      icon: <Users size={18} />, 
+      label: 'Contacts', 
+      color: 'text-brand-blue',
+      link: '/contacts'
+    },
+    { 
+      icon: <FileBarChart size={18} />, 
+      label: 'Reports', 
+      color: 'text-brand-green',
+      link: '/monetize'
     },
   ];
 
@@ -438,12 +465,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                 {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
                   <div className="ml-6 mt-2 space-y-1">
                     {item.subItems ? (
-                      item.subItems.map((subItem, subIdx) => (
+                      item.subItems.map((subItem: any, subIdx: number) => (
                         <button
                           key={subIdx}
                           className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
                         >
-                          <span className="text-sm">{subItem}</span>
+                          {typeof subItem === 'object' && subItem.icon ? (
+                            <>
+                              {subItem.icon}
+                              <span className="text-sm">{subItem.label}</span>
+                            </>
+                          ) : (
+                            <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
+                          )}
                         </button>
                       ))
                     ) : (
