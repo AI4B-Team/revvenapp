@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
@@ -40,7 +40,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const themes = [
     { name: 'light', label: 'Light', icon: Sun },
     { name: 'dark', label: 'Dark', icon: Moon },
-    { name: 'split', label: 'Split', icon: Circle },
+    { name: 'split', label: 'Split', icon: CircleDashed },
   ];
 
   return (
@@ -141,10 +141,11 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-700 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-600 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
                     <Languages size={20} className="text-white flex-shrink-0" />
                     <span className="text-white font-medium flex-shrink-0">Language</span>
-                    <div className="flex-1 flex items-center justify-end gap-3">
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-3">
                       <span className="text-white font-medium">{selectedLanguage}</span>
                       <ChevronRight size={16} className="text-gray-400" />
                     </div>
@@ -172,12 +173,13 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               {/* Theme Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-700 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
+                  <DropdownMenuSubTrigger className="w-full flex items-center gap-4 py-4 px-4 rounded-lg border border-gray-600 hover:bg-sidebar-hover cursor-pointer bg-sidebar-active">
                     {selectedTheme === 'light' && <Sun size={20} className="text-white flex-shrink-0" />}
                     {selectedTheme === 'dark' && <Moon size={20} className="text-white flex-shrink-0" />}
-                    {selectedTheme === 'split' && <Circle size={20} className="text-white flex-shrink-0" />}
+                    {selectedTheme === 'split' && <CircleDashed size={20} className="text-white flex-shrink-0" />}
                     <span className="text-white font-medium flex-shrink-0">Theme</span>
-                    <div className="flex-1 flex items-center justify-end gap-3">
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-3">
                       <span className="text-white font-medium capitalize">{selectedTheme}</span>
                       <ChevronRight size={16} className="text-gray-400" />
                     </div>
