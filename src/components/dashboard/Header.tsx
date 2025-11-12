@@ -99,11 +99,11 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         <div className="flex-1 flex items-center">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-sidebar hover:bg-sidebar-hover rounded-lg transition-colors border border-border"
+            className="flex items-center gap-2 px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border border-border w-96"
           >
-            <Search size={18} className="text-sidebar-muted" />
-            <span className="text-sm text-sidebar-muted">Search</span>
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs text-sidebar-muted bg-sidebar-active rounded border border-border">
+            <Search size={18} className="text-gray-400" />
+            <span className="text-sm text-gray-500">Search</span>
+            <kbd className="ml-auto hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200">
               <Command size={12} />
               <span>F</span>
             </kbd>

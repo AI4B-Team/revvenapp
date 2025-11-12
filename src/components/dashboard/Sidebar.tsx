@@ -35,6 +35,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const isContactsPage = location.pathname === '/contacts';
   const isRevenuePage = location.pathname === '/revenue';
   const isOnboardingPage = location.pathname === '/onboarding';
+  const isCommunityPage = location.pathname === '/community';
+  const isToolsPage = location.pathname === '/tools';
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -46,6 +48,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
+    { icon: <Users size={18} />, label: 'Community', link: '/community' },
+    { icon: <Package size={18} />, label: 'Tools', link: '/tools' },
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
@@ -166,6 +170,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[]; link?: string }> = 
     isOnboardingPage ? [] :
+    isCommunityPage ? [] :
+    isToolsPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
@@ -358,17 +364,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
           )}
         </div>
 
-        {/* Tools Section */}
-        <div className="pt-2">
-          {!isCollapsed && (
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover">
-              <span className="text-sidebar-muted">
-                <Package size={18} />
-              </span>
-              <span className="flex-1 text-left text-sm">Tools</span>
-            </button>
-          )}
-        </div>
 
         {/* Library Section */}
         <div className="pt-2">
