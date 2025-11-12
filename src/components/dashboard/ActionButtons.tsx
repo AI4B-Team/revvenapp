@@ -1,4 +1,10 @@
-import { Clock, Wrench, Users, ZoomIn, ZoomOut } from 'lucide-react';
+import { Clock, Wrench, Users, ZoomIn, ZoomOut, MoreHorizontal, FileText } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ActionButtonsProps {
   activeView: 'tools' | 'creations' | 'community';
@@ -40,6 +46,20 @@ const ActionButtons = ({ activeView, onViewChange, zoomLevel = 4, onZoomChange }
           <Users size={18} />
           <span className="font-medium text-sm">Community</span>
         </button>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="px-3 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition">
+              <MoreHorizontal size={18} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48 bg-popover">
+            <DropdownMenuItem>
+              <FileText size={14} className="mr-2" />
+              Document
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Zoom Control - Only show for creations/community */}
