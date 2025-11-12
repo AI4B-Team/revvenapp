@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -46,10 +46,8 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   };
   
   const sidebarItems = [
-    { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
+    { icon: <Home size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
-    { icon: <Users size={18} />, label: 'Community', link: '/community' },
-    { icon: <Package size={18} />, label: 'Tools', link: '/tools' },
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
@@ -468,21 +466,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
         </div>
 
         {/* Community Link */}
-        {!isCollapsed && (
-          <div className="pt-2">
-            <NavLink
-              to="/community"
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-              activeClassName="bg-sidebar-active"
-              title="Community"
-            >
-              <span className="text-sidebar-muted">
-                <Users size={18} />
-              </span>
-              <span className="flex-1 text-left text-sm">Community</span>
-            </NavLink>
-          </div>
-        )}
+        <div className="pt-2">
+          <NavLink
+            to="/community"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+            activeClassName="bg-sidebar-active"
+            title="Community"
+          >
+            <span className="text-sidebar-muted">
+              <Users size={18} />
+            </span>
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Community</span>}
+          </NavLink>
+        </div>
 
         {/* Separator */}
         <div className="pt-4 pb-2 px-3">
