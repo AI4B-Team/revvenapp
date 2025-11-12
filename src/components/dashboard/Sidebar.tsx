@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { 
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import OnboardingProgress from './OnboardingProgress';
 import SearchDialog from './SearchDialog';
+import { creationsData } from '@/data/creationsData';
 
 interface SidebarProps {
   activeTab: string;
@@ -177,6 +178,24 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Calculate asset counts from creationsData
+  const assetCounts = useMemo(() => {
+    const images = creationsData.filter(item => item.type === 'image').length;
+    const videos = creationsData.filter(item => item.type === 'video').length;
+    const all = creationsData.length;
+    
+    return {
+      all,
+      favorites: 0, // Placeholder for future implementation
+      content: 0, // Placeholder for future implementation
+      images,
+      videos,
+      audio: 0, // Placeholder for future implementation
+      designs: 0, // Placeholder for future implementation
+      apps: 0 // Placeholder for future implementation
+    };
+  }, []);
 
   // Keyboard shortcut for search (Cmd+F or Ctrl+F)
   useEffect(() => {
@@ -387,43 +406,57 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
               <LayoutGrid size={14} />
               <span className="text-sm flex-1">All</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">147</span>
+              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.all}</span>
             </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Star size={14} />
-              <span className="text-sm flex-1">Favorites</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">23</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <FileText size={14} />
-              <span className="text-sm flex-1">Content</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">42</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Image size={14} />
-              <span className="text-sm flex-1">Images</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">58</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Video size={14} />
-              <span className="text-sm flex-1">Videos</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">17</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Music size={14} />
-              <span className="text-sm flex-1">Audio</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">31</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Palette size={14} />
-              <span className="text-sm flex-1">Designs</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">12</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
-              <Code size={14} />
-              <span className="text-sm flex-1">Apps</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">8</span>
-            </button>
+            {assetCounts.favorites > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Star size={14} />
+                <span className="text-sm flex-1">Favorites</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.favorites}</span>
+              </button>
+            )}
+            {assetCounts.content > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <FileText size={14} />
+                <span className="text-sm flex-1">Content</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.content}</span>
+              </button>
+            )}
+            {assetCounts.images > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Image size={14} />
+                <span className="text-sm flex-1">Images</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.images}</span>
+              </button>
+            )}
+            {assetCounts.videos > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Video size={14} />
+                <span className="text-sm flex-1">Videos</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.videos}</span>
+              </button>
+            )}
+            {assetCounts.audio > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Music size={14} />
+                <span className="text-sm flex-1">Audio</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.audio}</span>
+              </button>
+            )}
+            {assetCounts.designs > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Palette size={14} />
+                <span className="text-sm flex-1">Designs</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.designs}</span>
+              </button>
+            )}
+            {assetCounts.apps > 0 && (
+              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+                <Code size={14} />
+                <span className="text-sm flex-1">Apps</span>
+                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.apps}</span>
+              </button>
+            )}
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text mt-2 pt-2 border-t border-sidebar-hover w-full text-left">
               <span className="text-sm">+ New Folder</span>
             </button>
