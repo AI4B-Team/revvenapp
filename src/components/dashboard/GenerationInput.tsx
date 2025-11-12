@@ -6,9 +6,10 @@ import { useState } from 'react';
 
 interface GenerationInputProps {
   selectedType: string;
+  onCharactersClick?: () => void;
 }
 
-const GenerationInput = ({ selectedType }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   
   const isVideoMode = selectedType === 'Video';
@@ -208,30 +209,12 @@ const GenerationInput = ({ selectedType }: GenerationInputProps) => {
                   </PopoverContent>
                 </Popover>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      Character
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 bg-background border-border z-50">
-                    <div className="space-y-2">
-                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        <User size={16} />
-                        <span>Aria</span>
-                      </button>
-                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        <User size={16} />
-                        <span>Roger</span>
-                      </button>
-                      <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        <User size={16} />
-                        <span>Sarah</span>
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <button 
+                  onClick={onCharactersClick}
+                  className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                >
+                  Character
+                </button>
 
                 <Popover>
                   <PopoverTrigger asChild>
