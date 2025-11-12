@@ -636,46 +636,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               Style
             </button>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                  Character
-                  <ChevronDown size={14} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 bg-background border-border z-50">
-                <div className="space-y-2">
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                    <div className="w-8 h-8 bg-brand-yellow rounded-full flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <span>Vicki Ravelle</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                    <div className="w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <span>Zara Saige</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                    <div className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <span>Xalina Voss</span>
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                    <div className="w-8 h-8 bg-brand-red rounded-full flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <span>Bianca Rosave</span>
-                  </button>
-                  <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition border-t border-border mt-2 pt-3">
-                    <Sparkles size={16} />
-                    <span>Create Character</span>
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <button 
+              onClick={onCharactersClick}
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap"
+            >
+              Character
+            </button>
             
                 <Popover>
                   <PopoverTrigger asChild>
