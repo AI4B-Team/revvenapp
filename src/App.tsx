@@ -10,6 +10,7 @@ import Assistant from "./pages/Assistant";
 import Monetize from "./pages/Monetize";
 import Contacts from "./pages/Contacts";
 import Revenue from "./pages/Revenue";
+import Community from "./pages/Community";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/monetize" element={<Monetize />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/revenue" element={<Revenue />} />
+          <Route path="/community" element={<Community />} />
           <Route path="/onboarding" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
