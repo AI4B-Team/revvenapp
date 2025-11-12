@@ -5,6 +5,8 @@ import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
 import GenerationInput from '@/components/dashboard/GenerationInput';
 import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
   Zap, Send, Users, Gem, MessageCircle, Plus, Calendar, 
   Settings, ChevronRight, Instagram
@@ -15,6 +17,8 @@ const Index = () => {
   const [selectedType, setSelectedType] = useState('');
   const [timeFilter, setTimeFilter] = useState('All Time');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   
   const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
 
@@ -215,10 +219,22 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={(tab) => {
-        setActiveTab(tab);
-        setSelectedType(tab);
-      }} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setSelectedType(tab);
+        }}
+        onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
+      />
+
+      {identitySidebarOpen && (
+        <AIPersonaSidebar 
+          isOpen={identitySidebarOpen}
+          onClose={() => setIdentitySidebarOpen(false)}
+        />
+      )}
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onCreateClick={() => setSelectedType(selectedType || 'Content')} />
@@ -233,7 +249,10 @@ const Index = () => {
                 setActiveTab(type);
               }} />
               
-              <GenerationInput selectedType={selectedType || activeTab} />
+              <GenerationInput 
+                selectedType={selectedType || activeTab}
+                onCharactersClick={() => setCharactersModalOpen(true)}
+              />
               
               <ActionButtons activeView={activeView} onViewChange={setActiveView} />
               
@@ -436,6 +455,14 @@ const Index = () => {
           )}
         </main>
       </div>
+
+      <DigitalCharactersModal
+        isOpen={charactersModalOpen}
+        onClose={() => setCharactersModalOpen(false)}
+        onSelectCharacter={(character) => {
+          console.log('Selected character:', character);
+        }}
+      />
     </div>
   );
 };
