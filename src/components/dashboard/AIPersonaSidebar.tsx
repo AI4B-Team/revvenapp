@@ -9,7 +9,6 @@ interface AIPersonaSidebarProps {
 }
 
 const AIPersonaSidebar = ({ isOpen, onClose }: AIPersonaSidebarProps) => {
-  if (!isOpen) return null;
   const [agentName, setAgentName] = useState('Luna');
   const [agentRole, setAgentRole] = useState('');
   const [selectedRoleChip, setSelectedRoleChip] = useState('');
@@ -53,7 +52,7 @@ const AIPersonaSidebar = ({ isOpen, onClose }: AIPersonaSidebarProps) => {
     setGuidelines([...guidelines, 'New guideline...']);
   };
 
-  const handleRemoveGuideline = (index) => {
+  const handleRemoveGuideline = (index: number) => {
     setGuidelines(guidelines.filter((_, i) => i !== index));
   };
 
@@ -65,7 +64,7 @@ const AIPersonaSidebar = ({ isOpen, onClose }: AIPersonaSidebarProps) => {
   };
 
   return (
-    <div className="w-96 bg-background border-l border-border flex flex-col h-screen overflow-y-auto">
+    <div className="w-96 bg-background border-l border-border flex flex-col h-full overflow-y-auto flex-shrink-0">
       
       {/* Header */}
       <div className="p-6 border-b border-border relative">

@@ -260,6 +260,13 @@ const Create = () => {
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
       />
+
+      {identitySidebarOpen && (
+        <AIPersonaSidebar 
+          isOpen={identitySidebarOpen}
+          onClose={() => setIdentitySidebarOpen(false)}
+        />
+      )}
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -377,11 +384,6 @@ const Create = () => {
           </div>
         </main>
       </div>
-
-      <AIPersonaSidebar 
-        isOpen={identitySidebarOpen}
-        onClose={() => setIdentitySidebarOpen(false)}
-      />
 
       <DigitalCharactersModal
         isOpen={charactersModalOpen}
