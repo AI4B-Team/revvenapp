@@ -50,7 +50,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
           
           {/* Header */}
           <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
@@ -65,17 +65,17 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
           {/* Content */}
           <div className="p-8 overflow-y-auto max-h-[calc(90vh-88px)]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               
               {/* New Character Card */}
               <button
                 onClick={handleNewCharacter}
-                className="aspect-[3/4] bg-gray-100 hover:bg-gray-200 rounded-2xl flex flex-col items-center justify-center gap-4 transition-all group border-2 border-dashed border-gray-300 hover:border-gray-400"
+                className="aspect-square bg-gray-100 hover:bg-gray-200 rounded-2xl flex flex-col items-center justify-center gap-3 transition-all group border-2 border-dashed border-gray-300 hover:border-gray-400"
               >
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
-                  <Plus size={32} className="text-gray-600" strokeWidth={2.5} />
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                  <Plus size={24} className="text-gray-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-lg font-semibold text-gray-700">New Character</span>
+                <span className="text-sm font-semibold text-gray-700">New Character</span>
               </button>
 
               {/* Existing Character Cards */}
@@ -83,7 +83,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                 <button
                   key={character.id}
                   onClick={() => handleSelectCharacter(character)}
-                  className="relative aspect-[3/4] rounded-2xl overflow-hidden group hover:ring-4 hover:ring-blue-500 transition-all"
+                  className="relative aspect-square rounded-2xl overflow-hidden group hover:ring-4 hover:ring-blue-500 transition-all"
                 >
                   {/* Character Image */}
                   <img
@@ -96,8 +96,8 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   
                   {/* Character Name */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-white font-semibold text-lg">
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="text-white font-semibold text-sm">
                       {character.name}
                     </h3>
                   </div>
