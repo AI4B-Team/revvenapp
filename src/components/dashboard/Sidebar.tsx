@@ -38,10 +38,7 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
 
-  const dashboardNavItems = [
-    { icon: <Users size={18} />, label: 'Contacts', color: 'text-brand-green', link: '/contacts' },
-    { icon: <DollarSign size={18} />, label: 'Revenue', color: 'text-brand-yellow', link: '/revenue' },
-  ];
+  const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
 
   const createNavItems = [
     { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
