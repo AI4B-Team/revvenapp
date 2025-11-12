@@ -131,7 +131,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       subItems: [
         { label: 'Emails', icon: <Send size={14} /> },
         { label: 'Social', icon: <Share2 size={14} /> },
-        { label: 'Ads', icon: <DollarSign size={14} /> }
+        { label: 'Ads', icon: <DollarSign size={14} /> },
+        { label: 'Campaigns', icon: <Target size={14} /> },
+        { label: 'Calendar', icon: <Calendar size={14} /> }
       ]
     },
     { 
@@ -360,14 +362,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
             >
               <Users size={14} />
               <span className="text-sm">Characters</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-              <Target size={14} />
-              <span className="text-sm">Campaigns</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-              <Calendar size={14} />
-              <span className="text-sm">Calendar</span>
             </button>
           </div>
           )}
