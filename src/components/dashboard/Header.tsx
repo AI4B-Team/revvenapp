@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
+import SearchDialog from './SearchDialog';
 
 interface HeaderProps {
   onCreateClick?: () => void;
@@ -53,6 +54,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -91,8 +93,22 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   ];
 
   return (
-    <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
-      <div className="flex-1" />
+    <>
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+      <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
+        <div className="flex-1 flex items-center">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-sidebar hover:bg-sidebar-hover rounded-lg transition-colors border border-border"
+          >
+            <Search size={18} className="text-sidebar-muted" />
+            <span className="text-sm text-sidebar-muted">Search</span>
+            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs text-sidebar-muted bg-sidebar-active rounded border border-border">
+              <Command size={12} />
+              <span>F</span>
+            </kbd>
+          </button>
+        </div>
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
@@ -368,6 +384,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         </DropdownMenu>
       </div>
     </header>
+    </>
   );
 };
 

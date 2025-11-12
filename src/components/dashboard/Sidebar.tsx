@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import OnboardingProgress from './OnboardingProgress';
-import SearchDialog from './SearchDialog';
 import { creationsData } from '@/data/creationsData';
 
 interface SidebarProps {
@@ -46,7 +45,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
-    { icon: <Search size={18} />, label: 'Search', shortcut: '⌘F', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
 
@@ -186,7 +184,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Calculate asset counts from creationsData
   const assetCounts = useMemo(() => {
@@ -206,19 +203,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
     };
   }, []);
 
-  // Keyboard shortcut for search (Cmd+F or Ctrl+F)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-        e.preventDefault();
-        setIsSearchOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   const recentChats = [
     { id: 1, title: 'Design a logo for...', time: '2 hours ago' },
     { id: 2, title: 'Create a character...', time: '5 hours ago' },
@@ -234,7 +218,6 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
 
   return (
     <>
-      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
@@ -317,39 +300,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       {/* Main Navigation */}
       <nav className="flex-1 px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
-          item.label === 'Search' ? (
-            <button
-              key={idx}
-              onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-              title={item.label}
-            >
-              <span className="text-sidebar-muted">
-                {item.icon}
-              </span>
-              {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
-              {!isCollapsed && item.shortcut && (
-                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
-              )}
-            </button>
-          ) : (
-            <NavLink
-              key={idx}
-              to={item.link || '/'}
-              end
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-              activeClassName="bg-sidebar-active"
-              title={item.label}
-            >
-              <span className="text-sidebar-muted">
-                {item.icon}
-              </span>
-              {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
-              {!isCollapsed && item.shortcut && (
-                <span className="text-xs text-sidebar-muted">{item.shortcut}</span>
-              )}
-            </NavLink>
-          )
+          <NavLink
+            key={idx}
+            to={item.link || '/'}
+            end
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+            activeClassName="bg-sidebar-active"
+            title={item.label}
+          >
+            <span className="text-sidebar-muted">
+              {item.icon}
+            </span>
+            {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+          </NavLink>
         ))}
 
         {/* Brand Section */}
