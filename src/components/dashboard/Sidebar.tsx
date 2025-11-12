@@ -431,6 +431,21 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
           )}
         </div>
 
+        {/* Community Link */}
+        {!isCollapsed && (
+          <div className="pt-2">
+            <button 
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+              title="Community"
+            >
+              <span className="text-sidebar-muted">
+                <Users size={18} />
+              </span>
+              <span className="flex-1 text-left text-sm">Community</span>
+            </button>
+          </div>
+        )}
+
         {/* Separator */}
         <div className="pt-4 pb-2 px-3">
           <div className="h-px bg-sidebar-hover"></div>
