@@ -350,16 +350,16 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               <Mic size={14} />
               <span className="text-sm">Voice</span>
             </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+              <BookOpen size={14} />
+              <span className="text-sm">Knowledge Base</span>
+            </button>
             <button 
               onClick={onCharactersClick}
               className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left"
             >
               <Users size={14} />
               <span className="text-sm">Characters</span>
-            </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
-              <BookOpen size={14} />
-              <span className="text-sm">Knowledgebase</span>
             </button>
             <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
               <Target size={14} />
