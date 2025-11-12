@@ -5,6 +5,7 @@ import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +53,13 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
+
+  // Calculate next month's first day for credit refill
+  const getNextRefillDate = () => {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
 
   const languages = [
     { name: 'English', flag: '🇺🇸' },
@@ -103,11 +111,20 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-4">
-        <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-brand-green" />
-          <span className="text-brand-green font-semibold">88,000 Credits</span>
-          <HelpCircle size={14} className="text-brand-green" />
-        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-brand-green" />
+            <span className="text-brand-green font-semibold">88,000 Credits</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle size={14} className="text-brand-green cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Your monthly credits will be refilled on {getNextRefillDate()}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
 
         <NotificationBell />
         <HelpMenu />

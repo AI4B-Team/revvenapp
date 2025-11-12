@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Search, Sparkles, Image, Video, Music, FileText, Code,
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
@@ -34,6 +35,13 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const isContactsPage = location.pathname === '/contacts';
   const isRevenuePage = location.pathname === '/revenue';
   const isOnboardingPage = location.pathname === '/onboarding';
+
+  // Calculate next month's first day for credit refill
+  const getNextRefillDate = () => {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
   
   const sidebarItems = [
     { icon: <FileText size={18} />, label: 'Dashboard', link: '/' },
@@ -591,10 +599,19 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
       {!isCollapsed && (
         <div className="p-4 space-y-3 bg-sidebar">
           <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
-              <HelpCircle size={14} className="text-sidebar-muted" />
-            </div>
+            <TooltipProvider>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle size={14} className="text-sidebar-muted cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Your monthly credits will be refilled on {getNextRefillDate()}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
             <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
             <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
               <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
