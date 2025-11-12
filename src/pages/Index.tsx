@@ -7,6 +7,8 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import ImageViewerModal from '@/components/dashboard/ImageViewerModal';
+import { creationsData, GalleryItem } from '@/data/creationsData';
 import { 
   Zap, Send, Users, Gem, MessageCircle, Plus, Calendar, 
   Settings, ChevronRight, Instagram
@@ -19,6 +21,8 @@ const Index = () => {
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [assetFilter, setAssetFilter] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   
   const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
 
@@ -217,6 +221,15 @@ const Index = () => {
     },
   ];
 
+  // Filter creations based on asset filter
+  const filteredAssets = assetFilter && assetFilter !== 'all' 
+    ? creationsData.filter(item => {
+        if (assetFilter === 'images') return item.type === 'image';
+        if (assetFilter === 'videos') return item.type === 'video';
+        return false;
+      })
+    : creationsData;
+
   return (
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar 
@@ -224,9 +237,15 @@ const Index = () => {
         onTabChange={(tab) => {
           setActiveTab(tab);
           setSelectedType(tab);
+          setAssetFilter(null); // Clear asset filter when changing tabs
         }}
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
+        onAssetFilterChange={(filter) => {
+          setAssetFilter(filter || 'all');
+          setActiveTab(''); // Clear active tab when viewing assets
+          setSelectedType('');
+        }}
       />
 
       {identitySidebarOpen && (
@@ -240,7 +259,35 @@ const Index = () => {
         <Header onCreateClick={() => setSelectedType(selectedType || 'Content')} />
         
         <main className="flex-1 overflow-auto bg-white">
-          {(activeTab || selectedType) ? (
+          {assetFilter ? (
+            <div className="px-8 py-8">
+              <h1 className="text-4xl font-bold mb-2">
+                {assetFilter === 'all' ? 'All Assets' : assetFilter.charAt(0).toUpperCase() + assetFilter.slice(1)}
+              </h1>
+              <p className="text-muted-foreground mb-8">
+                {filteredAssets.length} {filteredAssets.length === 1 ? 'item' : 'items'}
+              </p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {filteredAssets.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="group cursor-pointer"
+                    onClick={() => setSelectedImage(item)}
+                  >
+                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
+                      <img 
+                        src={item.thumbnail} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (activeTab || selectedType) ? (
             <div className="px-8 py-8">
               <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
               
@@ -463,6 +510,13 @@ const Index = () => {
           console.log('Selected character:', character);
         }}
       />
+
+      {selectedImage && (
+        <ImageViewerModal
+          image={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
     </div>
   );
 };

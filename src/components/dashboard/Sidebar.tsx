@@ -27,9 +27,10 @@ interface SidebarProps {
   isAutomatePage?: boolean;
   onCharactersClick?: () => void;
   onIdentityClick?: () => void;
+  onAssetFilterChange?: (filter: string | null) => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/';
   const isContactsPage = location.pathname === '/contacts';
@@ -423,55 +424,79 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
           </button>
           {isAssetsOpen && !isCollapsed && (
           <div className="ml-6 mt-2 space-y-1">
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+            <button 
+              onClick={() => onAssetFilterChange?.(null)}
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+            >
               <LayoutGrid size={14} />
               <span className="text-sm flex-1">All</span>
               <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.all}</span>
             </button>
             {assetCounts.favorites > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('favorites')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Star size={14} />
                 <span className="text-sm flex-1">Favorites</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.favorites}</span>
               </button>
             )}
             {assetCounts.content > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('content')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <FileText size={14} />
                 <span className="text-sm flex-1">Content</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.content}</span>
               </button>
             )}
             {assetCounts.images > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('images')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Image size={14} />
                 <span className="text-sm flex-1">Images</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.images}</span>
               </button>
             )}
             {assetCounts.videos > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('videos')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Video size={14} />
                 <span className="text-sm flex-1">Videos</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.videos}</span>
               </button>
             )}
             {assetCounts.audio > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('audio')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Music size={14} />
                 <span className="text-sm flex-1">Audio</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.audio}</span>
               </button>
             )}
             {assetCounts.designs > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('designs')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Palette size={14} />
                 <span className="text-sm flex-1">Designs</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.designs}</span>
               </button>
             )}
             {assetCounts.apps > 0 && (
-              <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left">
+              <button 
+                onClick={() => onAssetFilterChange?.('apps')}
+                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
+              >
                 <Code size={14} />
                 <span className="text-sm flex-1">Apps</span>
                 <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.apps}</span>
