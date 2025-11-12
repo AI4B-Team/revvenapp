@@ -265,11 +265,11 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem>
                       <Edit size={14} className="mr-2" />
-                      Rename workspace
+                      Rename
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings size={14} className="mr-2" />
-                      Workspace settings
+                      Settings
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
