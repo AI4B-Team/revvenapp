@@ -7,6 +7,7 @@ import GenerationInput from '@/components/dashboard/GenerationInput';
 import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 
 const Create = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const Create = () => {
   const [selectedType, setSelectedType] = useState('');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   const [zoomLevel, setZoomLevel] = useState(4);
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
 
   // Reset states when navigating to /create without parameters
   useEffect(() => {
@@ -247,10 +249,14 @@ const Create = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={(tab) => {
-        setActiveTab(tab);
-        setSelectedType(tab);
-      }} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setSelectedType(tab);
+        }}
+        onCharactersClick={() => setCharactersModalOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -264,7 +270,10 @@ const Create = () => {
               setActiveTab(type);
             }} />
             
-            <GenerationInput selectedType={selectedType} />
+            <GenerationInput 
+              selectedType={selectedType}
+              onCharactersClick={() => setCharactersModalOpen(true)}
+            />
             
             <ActionButtons 
               activeView={activeView} 
@@ -365,6 +374,14 @@ const Create = () => {
           </div>
         </main>
       </div>
+
+      <DigitalCharactersModal
+        isOpen={charactersModalOpen}
+        onClose={() => setCharactersModalOpen(false)}
+        onSelectCharacter={(character) => {
+          console.log('Selected character:', character);
+        }}
+      />
     </div>
   );
 };

@@ -23,9 +23,10 @@ interface SidebarProps {
   isAssistantPage?: boolean;
   isMonetizePage?: boolean;
   isAutomatePage?: boolean;
+  onCharactersClick?: () => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/';
   const isContactsPage = location.pathname === '/contacts';
@@ -348,7 +349,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
               <Mic size={14} />
               <span className="text-sm">Voice</span>
             </button>
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+            <button 
+              onClick={onCharactersClick}
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left"
+            >
               <Users size={14} />
               <span className="text-sm">Characters</span>
             </button>
