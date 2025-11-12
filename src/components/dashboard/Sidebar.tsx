@@ -24,9 +24,10 @@ interface SidebarProps {
   isMonetizePage?: boolean;
   isAutomatePage?: boolean;
   onCharactersClick?: () => void;
+  onIdentityClick?: () => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/';
   const isContactsPage = location.pathname === '/contacts';
@@ -338,7 +339,10 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
           </button>
           {isBrandOpen && !isCollapsed && (
           <div className="ml-6 mt-2 space-y-2">
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
+            <button 
+              onClick={onIdentityClick}
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left"
+            >
               <UserCircle size={14} />
               <span className="text-sm">Identity</span>
             </button>

@@ -8,6 +8,7 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 
 const Create = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const Create = () => {
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   const [zoomLevel, setZoomLevel] = useState(4);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
 
   // Reset states when navigating to /create without parameters
   useEffect(() => {
@@ -256,6 +258,7 @@ const Create = () => {
           setSelectedType(tab);
         }}
         onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -374,6 +377,11 @@ const Create = () => {
           </div>
         </main>
       </div>
+
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen}
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
 
       <DigitalCharactersModal
         isOpen={charactersModalOpen}
