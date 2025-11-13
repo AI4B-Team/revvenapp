@@ -308,10 +308,10 @@ const Create = () => {
             {/* Tools View */}
             {activeView === 'tools' && (
               <div className="max-w-6xl mx-auto">
-                {/* Image Tools Section */}
+                {/* Image Apps Section */}
                 {(!selectedType || selectedType === 'Image') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">IMAGE APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {imageTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -320,10 +320,10 @@ const Create = () => {
                   </>
                 )}
 
-                {/* Video Tools Section */}
+                {/* Video Apps Section */}
                 {(!selectedType || selectedType === 'Video') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">VIDEO TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">VIDEO APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {videoTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -332,10 +332,10 @@ const Create = () => {
                   </>
                 )}
 
-                {/* Audio Tools Section */}
+                {/* Audio Apps Section */}
                 {(!selectedType || selectedType === 'Audio') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">AUDIO TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">AUDIO APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {audioTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -344,10 +344,10 @@ const Create = () => {
                   </>
                 )}
 
-                {/* Design Tools Section */}
+                {/* Design Apps Section */}
                 {(!selectedType || selectedType === 'Design') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">DESIGN TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">DESIGN APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {designTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -356,10 +356,10 @@ const Create = () => {
                   </>
                 )}
 
-                {/* Content Tools Section */}
+                {/* Content Apps Section */}
                 {(!selectedType || selectedType === 'Content') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">CONTENT TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">CONTENT APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {contentTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -368,10 +368,10 @@ const Create = () => {
                   </>
                 )}
 
-                {/* App Tools Section */}
+                {/* App Apps Section */}
                 {(!selectedType || selectedType === 'Apps') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">APP TOOLS</h2>
+                    <h2 className="text-2xl font-bold mb-6">APP APPS</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                       {appTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />

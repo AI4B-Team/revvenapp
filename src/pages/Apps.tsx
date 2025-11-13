@@ -30,7 +30,7 @@ const Apps = () => {
       description: 'Best-in-class face swapping technology for any video',
       image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&h=400&fit=crop',
       badge: 'NEW',
-      badgeColor: 'bg-yellow-400'
+      badgeColor: 'bg-green-500'
     },
     {
       id: 2,
@@ -38,7 +38,7 @@ const Apps = () => {
       description: 'Industry-leading character swap for any video in seconds',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop',
       badge: 'TOP',
-      badgeColor: 'bg-pink-500'
+      badgeColor: 'bg-yellow-500'
     },
     {
       id: 3,
@@ -46,7 +46,7 @@ const Apps = () => {
       description: 'Create seamless transitions between any shots effortlessly',
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop',
       badge: 'TOP',
-      badgeColor: 'bg-pink-500'
+      badgeColor: 'bg-yellow-500'
     },
     {
       id: 4,
@@ -54,7 +54,7 @@ const Apps = () => {
       description: 'The best instant AI face swap technology for photos',
       image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&h=400&fit=crop',
       badge: 'NEW',
-      badgeColor: 'bg-yellow-400'
+      badgeColor: 'bg-green-500'
     }
   ];
 
@@ -175,43 +175,22 @@ const Apps = () => {
           <div className="px-8 py-12 border-b border-border">
             <div className="max-w-7xl mx-auto">
               <h1 className="text-5xl font-bold mb-4">
-                WELCOME TO <span className="text-primary">REVVEN APPS</span>
+                <span className="text-primary">REVVEN APPS</span>
               </h1>
               <p className="text-muted-foreground text-lg mb-8">
                 One-click AI effects that transform any content into professional ads, viral trends, or artistic masterpieces
               </p>
 
-              {/* Search and Filters */}
-              <div className="flex flex-col md:flex-row gap-4">
-                {/* Search Bar */}
-                <div className="relative flex-1 max-w-md">
-                  <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-
-                {/* Category Filters */}
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
-                        selectedCategory === category.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
-                      }`}
-                    >
-                      {category.icon}
-                      <span>{category.label}</span>
-                    </button>
-                  ))}
-                </div>
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-md">
+                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
               </div>
             </div>
           </div>
@@ -257,7 +236,7 @@ const Apps = () => {
                         {/* Try Now Button */}
                         <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
                           <Play size={16} fill="currentColor" />
-                          <span>Try now</span>
+                          <span>Try Now</span>
                         </button>
                       </div>
                     </div>
@@ -268,7 +247,7 @@ const Apps = () => {
               {/* Top Picks Section */}
               <section>
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold mb-2">Top picks for you</h2>
+                  <h2 className="text-3xl font-bold mb-2">TOP PICKS FOR YOU</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -283,6 +262,115 @@ const Apps = () => {
                       <h3 className="font-bold mb-1">{app.name}</h3>
                       <p className="text-muted-foreground text-sm mb-2">{app.description}</p>
                       <span className="text-xs text-muted-foreground">{app.category}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Tools from Create Page */}
+              <section>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">IMAGE APPS</h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {[
+                    { name: 'Art Blocks', description: 'AI create some art works', bgColor: 'bg-tool-blue', emoji: '🎨' },
+                    { name: 'Background Remover', description: 'Remove backgrounds', bgColor: 'bg-tool-yellow', emoji: '✂️' },
+                    { name: 'Image Eraser', description: 'Erase parts of images', bgColor: 'bg-tool-blue', emoji: '🖼️' },
+                    { name: 'Image Upscaler', description: 'Enhance image quality', bgColor: 'bg-tool-yellow', emoji: '📸' },
+                    { name: 'Image Enhancer', description: 'Improve image details', bgColor: 'bg-tool-blue', emoji: '❤️' },
+                    { name: 'Image Colorizer', description: 'Add color to images', bgColor: 'bg-tool-gray', emoji: '🌹' },
+                  ].map((tool, idx) => (
+                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                      <div className="text-4xl mb-2">{tool.emoji}</div>
+                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <p className="text-xs text-white/80">{tool.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">VIDEO APPS</h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {[
+                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥' },
+                    { name: 'Video Resizer', description: 'Resize video dimensions', bgColor: 'bg-tool-pink', emoji: '📐' },
+                    { name: 'Motion-Sync', description: 'Sync video motion', bgColor: 'bg-tool-yellow', emoji: '🎬' },
+                    { name: 'Explainer Video', description: 'Create educational videos', bgColor: 'bg-tool-blue', emoji: '🎬' },
+                  ].map((tool, idx) => (
+                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                      <div className="text-4xl mb-2">{tool.emoji}</div>
+                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <p className="text-xs text-white/80">{tool.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">AUDIO APPS</h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {[
+                    { name: 'AI Voice Cloner', description: 'Clone any voice', bgColor: 'bg-tool-blue', emoji: '🎤' },
+                    { name: 'AI Transcriber', description: 'Transcribe audio to text', bgColor: 'bg-tool-pink', emoji: '📝' },
+                    { name: 'AI Voice Changer', description: 'Transform voice style', bgColor: 'bg-tool-blue', emoji: '🎵' },
+                    { name: 'AI Voiceovers', description: 'Generate voiceovers', bgColor: 'bg-tool-yellow', emoji: '🎬' },
+                    { name: 'AI Audio Dubber', description: 'Dub audio tracks', bgColor: 'bg-tool-blue', emoji: '🎧' },
+                    { name: 'AI Noise Remover', description: 'Remove background noise', bgColor: 'bg-tool-yellow', emoji: '🔇' },
+                  ].map((tool, idx) => (
+                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                      <div className="text-4xl mb-2">{tool.emoji}</div>
+                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <p className="text-xs text-white/80">{tool.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">DESIGN APPS</h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {[
+                    { name: 'Logo Designer', description: 'Create brand logos', bgColor: 'bg-tool-blue', emoji: '🎨' },
+                    { name: 'Banner Creator', description: 'Design social banners', bgColor: 'bg-tool-yellow', emoji: '🖼️' },
+                    { name: 'Flyer Maker', description: 'Create marketing flyers', bgColor: 'bg-tool-green', emoji: '📄' },
+                    { name: 'Poster Designer', description: 'Design custom posters', bgColor: 'bg-tool-blue', emoji: '🎭' },
+                    { name: 'Infographic Builder', description: 'Create infographics', bgColor: 'bg-tool-pink', emoji: '📊' },
+                    { name: 'Presentation Maker', description: 'Design presentations', bgColor: 'bg-tool-yellow', emoji: '📺' },
+                  ].map((tool, idx) => (
+                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                      <div className="text-4xl mb-2">{tool.emoji}</div>
+                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <p className="text-xs text-white/80">{tool.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">CONTENT APPS</h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                  {[
+                    { name: 'Blog Writer', description: 'Generate blog posts', bgColor: 'bg-tool-green', emoji: '✍️' },
+                    { name: 'Social Posts', description: 'Create social content', bgColor: 'bg-tool-blue', emoji: '📱' },
+                    { name: 'Email Generator', description: 'Write email campaigns', bgColor: 'bg-tool-yellow', emoji: '📧' },
+                    { name: 'Ad Copy Writer', description: 'Generate ad copy', bgColor: 'bg-tool-pink', emoji: '💡' },
+                    { name: 'Script Writer', description: 'Create video scripts', bgColor: 'bg-tool-blue', emoji: '🎬' },
+                    { name: 'SEO Optimizer', description: 'Optimize for search', bgColor: 'bg-tool-green', emoji: '🔍' },
+                  ].map((tool, idx) => (
+                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                      <div className="text-4xl mb-2">{tool.emoji}</div>
+                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
                 </div>
