@@ -30,7 +30,7 @@ const Assets = () => {
           <div className="px-8 py-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-5xl font-bold">ASSETS</h1>
+              <h1 className="text-3xl font-bold">ASSETS</h1>
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
             </div>
 
