@@ -12,19 +12,65 @@ import {
 import ImageViewerModal from './ImageViewerModal';
 import { creationsData, communityData, type GalleryItem } from '@/data/creationsData';
 
+interface FilterState {
+  contentType: string;
+  likes: boolean;
+  edits: boolean;
+  upscales: boolean;
+  startDate: string;
+  endDate: string;
+  searchQuery: string;
+}
+
 interface GalleryProps {
   type: 'creations' | 'community';
   columnsPerRow?: number;
+  filters?: FilterState;
 }
 
-const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
+const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [savedItems, setSavedItems] = useState(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  const items = type === 'creations' ? creationsData : communityData;
+  const allItems = type === 'creations' ? creationsData : communityData;
+
+  // Apply filters
+  const items = allItems.filter(item => {
+    // Content type filter
+    if (filters?.contentType && filters.contentType !== 'All') {
+      if (filters.contentType === 'Image' && item.type !== 'image') return false;
+      if (filters.contentType === 'Video' && item.type !== 'video') return false;
+    }
+
+    // Likes filter
+    if (filters?.likes && !likedItems.has(item.id)) return false;
+
+    // Edits filter
+    if (filters?.edits && !item.isEdited) return false;
+
+    // Upscales filter
+    if (filters?.upscales && !item.isUpscaled) return false;
+
+    // Date range filter
+    if (filters?.startDate && item.createdAt) {
+      if (new Date(item.createdAt) < new Date(filters.startDate)) return false;
+    }
+    if (filters?.endDate && item.createdAt) {
+      if (new Date(item.createdAt) > new Date(filters.endDate)) return false;
+    }
+
+    // Search filter
+    if (filters?.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      return item.title.toLowerCase().includes(query) || 
+             item.creator.name.toLowerCase().includes(query);
+    }
+
+    return true;
+  });
 
   const toggleLike = (id: number) => {
     setLikedItems(prev => {
