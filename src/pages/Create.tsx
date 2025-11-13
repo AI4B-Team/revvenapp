@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -293,6 +294,27 @@ const Create = () => {
               activeView={activeView} 
               onViewChange={setActiveView}
             />
+
+            {/* Apps Toolbar */}
+            {activeView === 'tools' && (
+              <div className="flex items-center gap-3 mb-6">
+                <button className="px-4 py-2 rounded-lg flex items-center gap-2 bg-primary text-primary-foreground transition">
+                  <LayoutGrid size={18} />
+                  <span className="font-medium text-sm">All</span>
+                </button>
+                <button className="px-4 py-2 rounded-lg flex items-center gap-2 bg-secondary hover:bg-secondary/80 transition">
+                  <SlidersHorizontal size={18} />
+                  <span className="font-medium text-sm">Filter</span>
+                </button>
+                <button className="px-4 py-2 rounded-lg flex items-center gap-2 bg-secondary hover:bg-secondary/80 transition">
+                  <Search size={18} />
+                  <span className="font-medium text-sm">Search</span>
+                </button>
+                <div className="ml-auto">
+                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+                </div>
+              </div>
+            )}
             
             {/* Gallery Views */}
             {activeView === 'creations' && (
@@ -323,7 +345,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">IMAGE APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {imageTools.map((tool, idx) => (
@@ -338,7 +362,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">VIDEO APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {videoTools.map((tool, idx) => (
@@ -353,7 +379,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">AUDIO APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {audioTools.map((tool, idx) => (
@@ -368,7 +396,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">DESIGN APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {designTools.map((tool, idx) => (
@@ -383,7 +413,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">CONTENT APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {contentTools.map((tool, idx) => (
@@ -398,7 +430,9 @@ const Create = () => {
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <h2 className="text-2xl font-bold">APP APPS</h2>
-                      <button className="text-sm text-primary hover:underline">See All</button>
+                      <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        See All <ChevronRight size={16} />
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                       {appTools.map((tool, idx) => (
