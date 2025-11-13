@@ -297,7 +297,7 @@ const Create = () => {
             {activeView === 'creations' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Creations</h2>
+                  <h2 className="text-2xl font-bold">CREATIONS</h2>
                   <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
                 </div>
                 <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
@@ -307,7 +307,7 @@ const Create = () => {
             {activeView === 'community' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Community</h2>
+                  <h2 className="text-2xl font-bold">COMMUNITY</h2>
                   <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
                 </div>
                 <CreationsGallery type="community" columnsPerRow={zoomLevel} />
@@ -321,7 +321,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Image') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">Image Apps</h2>
+                      <h2 className="text-2xl font-bold">IMAGE APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
@@ -338,7 +338,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Video') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">Video Apps</h2>
+                      <h2 className="text-2xl font-bold">VIDEO APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
@@ -355,7 +355,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Audio') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">Audio Apps</h2>
+                      <h2 className="text-2xl font-bold">AUDIO APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
@@ -372,7 +372,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Design') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">Design Apps</h2>
+                      <h2 className="text-2xl font-bold">DESIGN APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
@@ -389,7 +389,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Content') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">Content Apps</h2>
+                      <h2 className="text-2xl font-bold">CONTENT APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
@@ -406,7 +406,7 @@ const Create = () => {
                 {(!selectedType || selectedType === 'Apps') && (
                   <>
                     <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold">App Apps</h2>
+                      <h2 className="text-2xl font-bold">APP APPS</h2>
                       <button className="text-sm text-primary hover:underline flex items-center gap-1">
                         See All <ChevronRight size={16} />
                       </button>
