@@ -4,9 +4,13 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 
 const Apps = () => {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
 
   const trendingApps = [
     {
@@ -85,7 +89,10 @@ const Apps = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar />
+      <Sidebar 
+        onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -362,6 +369,15 @@ const Apps = () => {
           </div>
         </main>
       </div>
+
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen} 
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
     </div>
   );
 };
