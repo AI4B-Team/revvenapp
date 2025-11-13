@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { 
-  Search, Play, ChevronRight
+  Play, ChevronRight
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 
 const Apps = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
 
   const trendingApps = [
@@ -41,6 +40,14 @@ const Apps = () => {
       image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&h=400&fit=crop',
       badge: 'NEW',
       badgeColor: 'bg-green-500'
+    },
+    {
+      id: 5,
+      name: 'AI Upscaler',
+      description: 'Enhance video and image quality to 4K resolution instantly',
+      image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop',
+      badge: 'HOT',
+      badgeColor: 'bg-red-500'
     }
   ];
 
@@ -90,21 +97,9 @@ const Apps = () => {
               <h1 className="text-5xl font-bold mb-4">
                 <span className="text-primary">REVVEN APPS</span>
               </h1>
-              <p className="text-muted-foreground text-lg mb-8">
+              <p className="text-muted-foreground text-lg">
                 One-click AI effects that transform any content into professional ads, viral trends, or artistic masterpieces
               </p>
-
-              {/* Search Bar */}
-              <div className="relative flex-1 max-w-md">
-                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-              </div>
             </div>
           </div>
 
@@ -128,7 +123,7 @@ const Apps = () => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                   {trendingApps.map((app) => (
                     <div
                       key={app.id}
