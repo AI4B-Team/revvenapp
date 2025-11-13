@@ -100,6 +100,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const appsNavItems = [
     { icon: <LayoutGrid size={18} />, label: 'All', color: 'text-sidebar-muted' },
+    { icon: <Settings size={18} />, label: 'Filter', color: 'text-sidebar-muted' },
     { icon: <Search size={18} />, label: 'Search', color: 'text-sidebar-muted' },
   ];
 
