@@ -294,6 +294,21 @@ const Create = () => {
               activeView={activeView} 
               onViewChange={setActiveView}
             />
+
+            {/* Apps Toolbar */}
+            {activeView === 'tools' && (
+              <div className="flex items-center justify-end gap-3 mb-6">
+                <button className="px-4 py-2 rounded-lg flex items-center gap-2 bg-primary text-primary-foreground transition">
+                  <LayoutGrid size={18} />
+                  <span className="font-medium text-sm">All</span>
+                </button>
+                <button className="px-4 py-2 rounded-lg flex items-center gap-2 bg-secondary hover:bg-secondary/80 transition">
+                  <Search size={18} />
+                  <span className="font-medium text-sm">Search</span>
+                </button>
+                <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+              </div>
+            )}
             
             {/* Gallery Views */}
             {activeView === 'creations' && (
