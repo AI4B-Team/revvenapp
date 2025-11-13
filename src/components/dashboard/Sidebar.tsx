@@ -238,7 +238,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute right-4 p-2 hover:bg-sidebar-hover rounded-lg transition"
+            className={`p-2 hover:bg-sidebar-hover rounded-lg transition ${isCollapsed ? 'mx-auto' : 'absolute right-4'}`}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}

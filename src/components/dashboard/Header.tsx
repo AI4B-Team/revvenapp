@@ -128,10 +128,10 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
       <div className="flex-1 flex items-center justify-end gap-4">
         <TooltipProvider>
-          <div className="flex items-center gap-2">
-            <Gift size={16} className="text-green-500" />
-            <span className="text-green-500 font-semibold">Refer & Earn</span>
-          </div>
+          <Button className="bg-brand-green hover:bg-brand-green/90 text-white flex items-center gap-2">
+            <Gift size={16} />
+            <span className="font-semibold">Refer & Earn</span>
+          </Button>
         </TooltipProvider>
 
         <NotificationBell />
