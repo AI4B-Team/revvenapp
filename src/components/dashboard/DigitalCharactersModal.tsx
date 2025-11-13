@@ -176,7 +176,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   }`}
                 >
                   <Users size={18} />
-                  <span>All</span>
+                  <span>Characters</span>
                 </button>
 
                 <button
