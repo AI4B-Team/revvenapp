@@ -308,7 +308,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       )}
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {sidebarItems.map((item, idx) => (
           <NavLink
             key={idx}
@@ -504,37 +504,40 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       </nav>
 
-      {/* Onboarding Progress */}
-      {!isCollapsed && <OnboardingProgress />}
+      {/* Bottom Section - Getting Started & Credits */}
+      <div className="mt-auto">
+        {/* Onboarding Progress */}
+        {!isCollapsed && <OnboardingProgress />}
 
-      {/* Credits Section */}
-      {!isCollapsed && (
-        <div className="p-4 space-y-3 bg-sidebar">
-          <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
-            <TooltipProvider>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle size={14} className="text-sidebar-muted cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Your monthly credits will be refilled on {getNextRefillDate()}</p>
-                  </TooltipContent>
-                </Tooltip>
+        {/* Credits Section */}
+        {!isCollapsed && (
+          <div className="p-4 space-y-3 bg-sidebar">
+            <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
+              <TooltipProvider>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-sidebar-text">Usage Credits</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle size={14} className="text-sidebar-muted cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Your monthly credits will be refilled on {getNextRefillDate()}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+              <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
+              <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
+                <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
               </div>
-            </TooltipProvider>
-            <div className="text-xs text-sidebar-muted mb-2">10000 / 98000 Used</div>
-            <div className="w-full bg-sidebar-hover rounded-full h-2 mb-3">
-              <div className="bg-brand-green h-2 rounded-full" style={{ width: '10.2%' }}></div>
+              <div className="text-sm text-brand-green font-semibold mb-3">88000 Credits Remaining</div>
+              <button className="w-full bg-brand-green hover:opacity-90 text-primary font-semibold py-2 rounded-lg transition">
+                Purchase Extra Credit
+              </button>
             </div>
-            <div className="text-sm text-brand-green font-semibold mb-3">88000 Credits Remaining</div>
-            <button className="w-full bg-brand-green hover:opacity-90 text-primary font-semibold py-2 rounded-lg transition">
-              Purchase Extra Credit
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       </div>
     </>
   );
