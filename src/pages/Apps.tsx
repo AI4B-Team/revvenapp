@@ -111,7 +111,7 @@ const Apps = () => {
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">Trending</h2>
+                    <h2 className="text-2xl font-bold mb-2">TRENDING</h2>
                     <p className="text-muted-foreground">The hottest AI effects right now</p>
                   </div>
                   <button 
@@ -164,7 +164,7 @@ const Apps = () => {
               {/* Top Picks Section */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold mb-2">Top Picks For You</h2>
+                  <h2 className="text-2xl font-bold mb-2">TOP PICKS FOR YOU</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, topPicks: !expandedSections.topPicks })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -193,7 +193,7 @@ const Apps = () => {
               {/* Tools from Create Page */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Image Apps</h2>
+                  <h2 className="text-2xl font-bold">IMAGE APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, imageApps: !expandedSections.imageApps })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -227,7 +227,7 @@ const Apps = () => {
 
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Video Apps</h2>
+                  <h2 className="text-2xl font-bold">VIDEO APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, videoApps: !expandedSections.videoApps })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -259,7 +259,7 @@ const Apps = () => {
 
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Audio Apps</h2>
+                  <h2 className="text-2xl font-bold">AUDIO APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, audioApps: !expandedSections.audioApps })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -293,7 +293,7 @@ const Apps = () => {
 
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Design Apps</h2>
+                  <h2 className="text-2xl font-bold">DESIGN APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, designApps: !expandedSections.designApps })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
@@ -327,7 +327,7 @@ const Apps = () => {
 
               <section>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Content Apps</h2>
+                  <h2 className="text-2xl font-bold">CONTENT APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, contentApps: !expandedSections.contentApps })}
                     className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
