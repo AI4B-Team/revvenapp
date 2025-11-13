@@ -342,41 +342,43 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                     </TooltipContent>
                   </Tooltip>
 
-                  {/* Animate Dropdown */}
-                  <DropdownMenu>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <button 
-                            onClick={(e) => e.stopPropagation()}
-                            className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
-                          >
-                            <Video size={sizes.icon} />
-                          </button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Animate</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <DropdownMenuContent 
-                      className="bg-black border-gray-800 z-50"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
-                        <Film className="mr-2 h-4 w-4" />
-                        <span>Video</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
-                        <Mic className="mr-2 h-4 w-4" />
-                        <span>Speak</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>UGC</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {/* Animate Dropdown - Only show for images, not videos */}
+                  {item.type === 'image' && (
+                    <DropdownMenu>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuTrigger asChild>
+                            <button 
+                              onClick={(e) => e.stopPropagation()}
+                              className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
+                            >
+                              <Video size={sizes.icon} />
+                            </button>
+                          </DropdownMenuTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Animate</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <DropdownMenuContent 
+                        className="bg-black border-gray-800 z-50"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                          <Film className="mr-2 h-4 w-4" />
+                          <span>Video</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                          <Mic className="mr-2 h-4 w-4" />
+                          <span>Speak</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>UGC</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               </TooltipProvider>
             </div>
