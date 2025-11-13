@@ -22,9 +22,13 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [showLikedOnly, setShowLikedOnly] = useState(false);
+  const [filters, setFilters] = useState({
+    likes: false,
+    edits: false,
+    upscales: false,
+    startDate: '',
+    endDate: ''
+  });
   
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,73 +110,165 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
         </button>
 
         {filterDropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
-            {/* Date Range Filter */}
-            <div className="mb-4 pb-4 border-b border-gray-200">
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar size={16} className="text-gray-600" />
-                <h3 className="text-sm font-semibold text-gray-900">Date</h3>
-              </div>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 z-40"
+              onClick={() => setFilterDropdownOpen(false)}
+            />
+            
+            {/* Dropdown */}
+            <div className="absolute left-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
               
-              <div className="space-y-2">
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">From</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Filter by</h3>
+              </div>
+
+              {/* Content */}
+              <div className="px-5 py-4">
                 
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">To</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                {/* Checkboxes Section */}
+                <div className="space-y-3 mb-5">
+                  {/* Likes */}
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.likes}
+                        onChange={() => setFilters(prev => ({ ...prev, likes: !prev.likes }))}
+                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                      />
+                      {filters.likes && (
+                        <svg 
+                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="3"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                      Likes
+                    </span>
+                  </label>
+
+                  {/* Edits */}
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.edits}
+                        onChange={() => setFilters(prev => ({ ...prev, edits: !prev.edits }))}
+                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                      />
+                      {filters.edits && (
+                        <svg 
+                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="3"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                      Edits
+                    </span>
+                  </label>
+
+                  {/* Upscales */}
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.upscales}
+                        onChange={() => setFilters(prev => ({ ...prev, upscales: !prev.upscales }))}
+                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                      />
+                      {filters.upscales && (
+                        <svg 
+                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="3"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                      Upscales
+                    </span>
+                  </label>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 mb-5"></div>
+
+                {/* Date Range Section */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Date</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Start Date */}
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1.5">From</label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={filters.startDate}
+                          onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* End Date */}
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1.5">To</label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={filters.endDate}
+                          onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Liked Images Filter */}
-            <div>
-              <button
-                onClick={() => setShowLikedOnly(!showLikedOnly)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  showLikedOnly ? 'bg-red-50 text-red-700' : 'hover:bg-gray-100 text-gray-700'
-                }`}
-              >
-                <Heart 
-                  size={16} 
-                  className={showLikedOnly ? 'fill-red-500 text-red-500' : ''} 
-                />
-                <span className="text-sm font-medium">Liked Images</span>
-              </button>
+              {/* Footer Buttons */}
+              <div className="px-5 py-4 bg-gray-50 border-t border-gray-200 flex items-center gap-3">
+                <button
+                  onClick={() => setFilters({
+                    likes: false,
+                    edits: false,
+                    upscales: false,
+                    startDate: '',
+                    endDate: ''
+                  })}
+                  className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setFilterDropdownOpen(false)}
+                  className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
-
-            {/* Apply/Clear Buttons */}
-            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => {
-                  setStartDate('');
-                  setEndDate('');
-                  setShowLikedOnly(false);
-                }}
-                className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                onClick={() => setFilterDropdownOpen(false)}
-                className="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
+          </>
         )}
       </div>
 
