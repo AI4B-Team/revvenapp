@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Search, Plus, Users, Heart, Flame } from 'lucide-react';
+import { X, Search, Plus, Users, Star } from 'lucide-react';
 
 interface DigitalCharactersModalProps {
   isOpen: boolean;
@@ -13,29 +13,29 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
   const characters = [
     { id: 'new', name: 'New Character', isReference: true },
-    { id: 1, name: '@Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop', verified: true },
-    { id: 2, name: '@Aurora', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop', verified: true },
-    { id: 3, name: '@Zara', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=300&fit=crop', verified: true },
-    { id: 4, name: '@Maya', image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=300&h=300&fit=crop', verified: true },
-    { id: 5, name: '@Felix', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop', verified: true },
-    { id: 6, name: '@Jasper', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop', verified: true },
-    { id: 7, name: '@Aria', image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=300&h=300&fit=crop', verified: true },
-    { id: 8, name: '@Nova', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop', verified: true },
-    { id: 9, name: '@Stella', image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop', verified: true },
-    { id: 10, name: '@Ivy', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', verified: true },
-    { id: 11, name: '@Jade', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=300&fit=crop', verified: true },
-    { id: 12, name: '@Miles', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop', verified: true },
-    { id: 13, name: '@Diego', image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&h=300&fit=crop', verified: true },
-    { id: 14, name: '@River', image: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=300&h=300&fit=crop', verified: true },
-    { id: 15, name: '@Willow', image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=300&h=300&fit=crop', verified: true },
-    { id: 16, name: '@Ruby', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop', verified: true },
-    { id: 17, name: '@Kai', image: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=300&h=300&fit=crop', verified: true },
-    { id: 18, name: '@Violet', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop', verified: true },
-    { id: 19, name: '@Phoenix', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop', verified: true },
-    { id: 20, name: '@Sage', image: 'https://images.unsplash.com/photo-1512310604669-443f26c35f52?w=300&h=300&fit=crop', verified: true },
-    { id: 21, name: '@Atlas', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&h=300&fit=crop', verified: true },
-    { id: 22, name: '@Finn', image: 'https://images.unsplash.com/photo-1542178243-bc20204b769f?w=300&h=300&fit=crop', verified: true },
-    { id: 23, name: '@Skye', image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=300&h=300&fit=crop', verified: true }
+    { id: 1, name: 'Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop' },
+    { id: 2, name: 'Aurora', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop' },
+    { id: 3, name: 'Zara', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=300&fit=crop' },
+    { id: 4, name: 'Maya', image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=300&h=300&fit=crop' },
+    { id: 5, name: 'Felix', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop' },
+    { id: 6, name: 'Jasper', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop' },
+    { id: 7, name: 'Aria', image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=300&h=300&fit=crop' },
+    { id: 8, name: 'Nova', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop' },
+    { id: 9, name: 'Stella', image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop' },
+    { id: 10, name: 'Ivy', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop' },
+    { id: 11, name: 'Jade', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=300&fit=crop' },
+    { id: 12, name: 'Miles', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop' },
+    { id: 13, name: 'Diego', image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&h=300&fit=crop' },
+    { id: 14, name: 'River', image: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=300&h=300&fit=crop' },
+    { id: 15, name: 'Willow', image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=300&h=300&fit=crop' },
+    { id: 16, name: 'Ruby', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop' },
+    { id: 17, name: 'Kai', image: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=300&h=300&fit=crop' },
+    { id: 18, name: 'Violet', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop' },
+    { id: 19, name: 'Phoenix', image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop' },
+    { id: 20, name: 'Sage', image: 'https://images.unsplash.com/photo-1512310604669-443f26c35f52?w=300&h=300&fit=crop' },
+    { id: 21, name: 'Atlas', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&h=300&fit=crop' },
+    { id: 22, name: 'Finn', image: 'https://images.unsplash.com/photo-1542178243-bc20204b769f?w=300&h=300&fit=crop' },
+    { id: 23, name: 'Skye', image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=300&h=300&fit=crop' }
   ];
 
   const filteredCharacters = characters.filter(char =>
@@ -128,7 +128,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   : 'text-gray-400 hover:text-white hover:bg-gray-800'
               }`}
             >
-              <Heart size={18} />
+              <Star size={18} />
               <span>My Characters</span>
             </button>
           </div>
@@ -166,9 +166,6 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                     <span className="text-gray-300 text-sm font-medium truncate">
                       {character.name}
                     </span>
-                    {character.verified && (
-                      <Flame size={14} className="text-orange-500 shrink-0" />
-                    )}
                   </div>
                 </div>
               ))}
