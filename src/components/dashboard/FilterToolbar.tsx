@@ -1,8 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
-  ChevronDown, Filter, Search, ZoomIn, ZoomOut, 
-  Heart, Calendar
+  ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
+  Heart, Calendar, Layers, Image, Video, Headphones, 
+  Palette, FileText, Grid3x3
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface FilterToolbarProps {
   onZoomChange?: (zoom: number) => void;
@@ -22,13 +29,13 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const contentTypes = [
-    'All',
-    'Image',
-    'Video',
-    'Audio',
-    'Design',
-    'Content',
-    'Apps'
+    { name: 'All', icon: Layers },
+    { name: 'Image', icon: Image },
+    { name: 'Video', icon: Video },
+    { name: 'Audio', icon: Headphones },
+    { name: 'Design', icon: Palette },
+    { name: 'Content', icon: FileText },
+    { name: 'Apps', icon: Grid3x3 }
   ];
 
   // Focus search input when expanded
@@ -66,20 +73,24 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
 
         {allDropdownOpen && (
           <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-            {contentTypes.map((type) => (
-              <button
-                key={type}
-                onClick={() => {
-                  setSelectedContentType(type);
-                  setAllDropdownOpen(false);
-                }}
-                className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                  selectedContentType === type ? 'bg-gray-100 font-semibold' : ''
-                }`}
-              >
-                {type}
-              </button>
-            ))}
+            {contentTypes.map((type) => {
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.name}
+                  onClick={() => {
+                    setSelectedContentType(type.name);
+                    setAllDropdownOpen(false);
+                  }}
+                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
+                    selectedContentType === type.name ? 'bg-gray-100 font-semibold' : ''
+                  }`}
+                >
+                  <Icon size={16} />
+                  {type.name}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -91,7 +102,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
           className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
           title="Filter"
         >
-          <Filter size={18} />
+          <Sliders size={18} />
         </button>
 
         {filterDropdownOpen && (
@@ -166,39 +177,48 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
       </div>
 
       {/* Search - Expandable */}
-      <div className="relative">
-        {!searchExpanded ? (
-          <button
-            onClick={() => setSearchExpanded(true)}
-            className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
-          >
-            <Search size={18} />
-          </button>
-        ) : (
-          <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden">
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onBlur={() => {
-                if (!searchQuery) setSearchExpanded(false);
-              }}
-              placeholder="Search..."
-              className="px-3 py-2 w-64 text-sm outline-none"
-            />
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSearchExpanded(false);
-              }}
-              className="px-3 py-2 hover:bg-gray-100 transition-colors"
-            >
-              <Search size={18} className="text-gray-500" />
-            </button>
-          </div>
-        )}
-      </div>
+      <TooltipProvider>
+        <div className="relative">
+          {!searchExpanded ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setSearchExpanded(true)}
+                  className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
+                >
+                  <Search size={18} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Search</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onBlur={() => {
+                  if (!searchQuery) setSearchExpanded(false);
+                }}
+                placeholder="Search..."
+                className="px-3 py-2 w-64 text-sm outline-none"
+              />
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSearchExpanded(false);
+                }}
+                className="px-3 py-2 hover:bg-gray-100 transition-colors"
+              >
+                <Search size={18} className="text-gray-500" />
+              </button>
+            </div>
+          )}
+        </div>
+      </TooltipProvider>
 
       {/* Zoom Slider */}
       <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-2">
