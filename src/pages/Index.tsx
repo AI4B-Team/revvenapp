@@ -304,7 +304,7 @@ const Index = () => {
               <ActionButtons activeView={activeView} onViewChange={setActiveView} />
               
               {/* Image Tools Section */}
-              <div className="max-w-6xl mx-auto">
+              <div className="w-full">
                 <h2 className="text-2xl font-bold mb-6">IMAGE TOOLS</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {imageTools.map((tool, idx) => (
@@ -331,7 +331,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto">
+              <div className="w-full">
                 
                 {/* Header with Greeting */}
                 <div className="relative bg-white px-8 py-12 rounded-2xl overflow-hidden mb-8">

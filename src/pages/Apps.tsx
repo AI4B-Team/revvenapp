@@ -86,7 +86,7 @@ const Apps = () => {
         <main className="flex-1 overflow-auto bg-background">
           {/* Header Section */}
           <div className="px-8 py-12 border-b border-border">
-            <div className="max-w-7xl mx-auto">
+            <div className="w-full">
               <h1 className="text-5xl font-bold mb-4">
                 <span className="text-primary">REVVEN APPS</span>
               </h1>
@@ -110,7 +110,7 @@ const Apps = () => {
 
           {/* Main Content */}
           <div className="px-8 py-12">
-            <div className="max-w-7xl mx-auto space-y-16">
+            <div className="w-full space-y-16">
               
               {/* Trending Section */}
               <section>
