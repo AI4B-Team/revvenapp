@@ -17,7 +17,7 @@ const ActionButtons = ({ activeView, onViewChange, zoomLevel = 4, onZoomChange }
   const showZoomControl = activeView === 'creations' || activeView === 'community';
   
   return (
-    <div className="max-w-6xl mx-auto mb-8 flex items-center justify-between gap-3">
+    <div className="w-full mb-8 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <button 
           onClick={() => onViewChange('tools')}

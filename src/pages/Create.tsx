@@ -307,7 +307,7 @@ const Create = () => {
             
             {/* Tools View */}
             {activeView === 'tools' && (
-              <div className="max-w-6xl mx-auto">
+              <div className="w-full">
                 {/* Image Apps Section */}
                 {(!selectedType || selectedType === 'Image') && (
                   <>
