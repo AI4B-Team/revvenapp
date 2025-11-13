@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Header from '@/components/dashboard/Header';
 import Sidebar from '@/components/dashboard/Sidebar';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 
 const AIAgentsPage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeTab, setActiveTab] = useState('Content');
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
 
   const categories = ['All', 'Content', 'Image', 'Video', 'Audio', 'Marketing'];
 
@@ -131,7 +135,13 @@ const AIAgentsPage = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAutomatePage />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        isAutomatePage
+        onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -199,6 +209,15 @@ const AIAgentsPage = () => {
           </div>
         </main>
       </div>
+
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen} 
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
     </div>
   );
 };

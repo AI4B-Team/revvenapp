@@ -3,17 +3,25 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 
 const Assets = () => {
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
   const [zoom, setZoom] = useState(50);
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar onAssetFilterChange={setAssetFilter} />
+      <Sidebar 
+        onAssetFilterChange={setAssetFilter}
+        onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -30,6 +38,15 @@ const Assets = () => {
           </div>
         </main>
       </div>
+
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen} 
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
     </div>
   );
 };
