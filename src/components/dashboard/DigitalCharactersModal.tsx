@@ -122,7 +122,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div 
-          className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col"
+          className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           
@@ -152,7 +152,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                     className="px-4 py-2 bg-white hover:bg-gray-100 text-black font-semibold rounded-lg transition-colors flex items-center gap-2"
                   >
                     <Plus size={18} />
-                    <span>New Character</span>
+                    <span>Create Character</span>
                   </button>
 
                   {/* Close Button */}
@@ -256,12 +256,12 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               </div>
 
               {/* Title */}
-              <div className="text-center py-8">
+              <div className="text-center py-6">
                 <h1 className="text-3xl font-bold text-white">Create Your Character</h1>
               </div>
 
               {/* Tabs */}
-              <div className="flex items-center justify-center gap-4 px-8 pb-8">
+              <div className="flex items-center justify-center gap-4 px-8 pb-6">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -279,11 +279,11 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto px-8 pb-8">
+              <div className="flex-1 px-8 pb-6 overflow-hidden">
                 
                 {/* UPLOAD TAB */}
                 {createTab === 'upload' && (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto h-full overflow-hidden">
                     
                     {/* Left Column */}
                     <div className="space-y-6">
@@ -292,10 +292,10 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                         <label className="block text-white font-medium mb-2">Name</label>
                         <input
                           type="text"
-                          placeholder="You'll use this name in prompts later, like '@Amy is dancing'"
+                          placeholder="You'll use this name in prompts later, like '@Zara is surfing'"
                           value={characterName}
                           onChange={(e) => setCharacterName(e.target.value)}
-                          className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
                       </div>
 
@@ -340,7 +340,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                           <div>
                             <h3 className="text-white font-bold mb-1">UPLOAD 20+ PHOTOS FOR BEST RESULTS</h3>
                             <p className="text-gray-400 text-sm">
-                              Upload high-quality images of one person. The more images you provide, the better the result - show different angles, clear facial expressions, and consistent identity
+                              Upload high-quality images of a single person. The first image is crucial. Choose one that clearly highlights your character's key features. For the rest, include a mix of angles and facial expressions to help the system capture a consistent, realistic identity.
                             </p>
                           </div>
                         </div>
@@ -356,32 +356,6 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                           ))}
                         </div>
                       </div>
-
-                      {/* Bad Photos */}
-                      <div className="bg-gray-900 rounded-xl p-6">
-                        <div className="flex items-start gap-3 mb-4">
-                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shrink-0">
-                            <X size={16} className="text-white" />
-                          </div>
-                          <div>
-                            <h3 className="text-white font-bold mb-1">AVOID THESE TYPES OF PHOTOS</h3>
-                            <p className="text-gray-400 text-sm">
-                              No duplicates, group shots, pets, nudes, filters, face-covering accessories, or masks
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-5 gap-2">
-                          {badPhotos.map((photo, idx) => (
-                            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden">
-                              <img src={photo} alt="" className="w-full h-full object-cover" />
-                              <div className="absolute bottom-1 right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                <X size={14} className="text-white" />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -391,63 +365,65 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   <div className="max-w-6xl mx-auto">
                     
                     {/* Progress Steps */}
-                    <div className="flex items-center justify-center gap-8 mb-8">
+                    <div className="flex items-center justify-center gap-8 mb-6">
                       <div className="flex items-center gap-2 text-blue-500">
                         <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                           1
                         </div>
-                        <span className="font-medium">Character Details</span>
+                        <span className="font-medium">Details</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-500">
                         <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-white text-xs font-bold">
                           2
                         </div>
-                        <span className="font-medium">Preview Visuals</span>
+                        <span className="font-medium">Preview</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-500">
                         <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center text-white text-xs font-bold">
                           3
                         </div>
-                        <span className="font-medium">All Set!</span>
+                        <span className="font-medium">Create</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       
                       {/* Left Column */}
-                      <div className="space-y-6">
+                      <div className="space-y-4">
                         {/* Name Input */}
                         <div>
                           <label className="block text-white font-medium mb-2">Name</label>
                           <input
                             type="text"
-                            placeholder="You'll use this name in prompts later, like '@Amy'"
+                            placeholder="You'll use this name in prompts later, like '@Zara is surfing'"
                             value={characterName}
                             onChange={(e) => setCharacterName(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                           />
                         </div>
 
                         {/* Description */}
                         <div>
-                          <label className="block text-white font-medium mb-2">Describe your character</label>
-                          <textarea
-                            placeholder="Describe the defining traits of your character that need to stay consistent across all visuals. This includes physical attributes, outfits, accessories, or specific characteristics like 'a tall pirate with a scar'."
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={8}
-                            className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-                          />
-                          
-                          <div className="flex items-center gap-2 mt-3">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                              <Shuffle size={16} />
-                              <span>Random</span>
-                            </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors">
-                              <Wand2 size={16} />
-                              <span>Enhance</span>
-                            </button>
+                          <label className="block text-white font-medium mb-2">Describe Your Character</label>
+                          <div className="relative">
+                            <textarea
+                              placeholder="Describe the defining traits of your character that need to stay consistent across all visuals. This includes physical attributes, outfits, accessories, or specific characteristics like 'a tall pirate with a scar'."
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows={6}
+                              className="w-full px-4 py-3 pb-14 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                            />
+                            
+                            <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+                              <button className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors">
+                                <Shuffle size={14} />
+                                <span>Random</span>
+                              </button>
+                              <button className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors">
+                                <Wand2 size={14} />
+                                <span>Enhance</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -455,33 +431,35 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                       {/* Right Column - Style Selector */}
                       <div>
                         <label className="block text-white font-medium mb-2">Style</label>
-                        <p className="text-gray-400 text-sm mb-4">
+                        <p className="text-gray-400 text-sm mb-3">
                           Type your own style here or choose from
                         </p>
 
-                        <div className="grid grid-cols-3 gap-3">
-                          {styles.map((style) => (
-                            <button
-                              key={style.id}
-                              onClick={() => setSelectedStyle(style.id)}
-                              className={`relative aspect-square rounded-xl overflow-hidden transition-all ${
-                                selectedStyle === style.id
-                                  ? 'ring-2 ring-green-500'
-                                  : 'hover:ring-2 hover:ring-gray-600'
-                              }`}
-                            >
-                              <img 
-                                src={style.image} 
-                                alt={style.label} 
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end">
-                                <span className="text-white text-sm font-medium p-3">
-                                  {style.label}
-                                </span>
-                              </div>
-                            </button>
-                          ))}
+                        <div className="h-[340px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800">
+                          <div className="grid grid-cols-3 gap-3">
+                            {styles.map((style) => (
+                              <button
+                                key={style.id}
+                                onClick={() => setSelectedStyle(style.id)}
+                                className={`relative aspect-square rounded-xl overflow-hidden transition-all ${
+                                  selectedStyle === style.id
+                                    ? 'ring-2 ring-green-500'
+                                    : 'hover:ring-2 hover:ring-gray-600'
+                                }`}
+                              >
+                                <img 
+                                  src={style.image} 
+                                  alt={style.label} 
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end">
+                                  <span className="text-white text-sm font-medium p-3">
+                                    {style.label}
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -504,9 +482,9 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               </div>
 
               {/* Footer */}
-              <div className="px-8 py-6 border-t border-gray-800 flex justify-center">
+              <div className="px-8 py-5 border-t border-gray-800 flex justify-center">
                 <button className="px-8 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors">
-                  Create your character
+                  Create Character
                 </button>
               </div>
             </>
