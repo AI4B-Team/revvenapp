@@ -20,7 +20,7 @@ const Community = () => {
         <main className="flex-1 overflow-auto bg-white">
           <div className="px-8 py-8">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-5xl font-bold">Community Creations</h1>
+              <h1 className="text-5xl font-bold">COMMUNITY</h1>
               
               {/* Zoom Control */}
               <div className="flex items-center gap-3 px-4 py-2">
