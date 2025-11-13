@@ -50,7 +50,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
-    { icon: <AppWindow size={18} />, label: 'Apps', link: '/apps' },
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
@@ -367,6 +366,20 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           )}
         </div>
 
+        {/* Apps Link */}
+        <div className="pt-2">
+          <NavLink
+            to="/apps"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
+            activeClassName="bg-sidebar-active"
+            title="Apps"
+          >
+            <span className="text-sidebar-muted">
+              <AppWindow size={18} />
+            </span>
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Apps</span>}
+          </NavLink>
+        </div>
 
         {/* Library Section */}
         <div className="pt-2">
