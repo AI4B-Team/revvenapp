@@ -98,7 +98,7 @@ const Apps = () => {
                 <span className="text-primary">REVVEN APPS</span>
               </h1>
               <p className="text-muted-foreground text-lg">
-                One-click AI effects that transform any content into professional ads, viral trends, or artistic masterpieces
+                A full suite of intelligent AI Apps to help you create like a pro
               </p>
             </div>
           </div>
