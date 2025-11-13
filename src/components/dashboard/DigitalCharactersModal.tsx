@@ -65,8 +65,16 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Close Button - Outside Modal */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 hover:bg-white/10 rounded-full transition-colors z-10"
+        >
+          <X size={24} />
+        </button>
+
         <div 
-          className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden"
+          className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden relative"
           onClick={(e) => e.stopPropagation()}
         >
           
@@ -94,14 +102,6 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               >
                 <Plus size={18} />
                 <span>New Character</span>
-              </button>
-
-              {/* Close Button */}
-              <button
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <X size={24} />
               </button>
             </div>
           </div>
