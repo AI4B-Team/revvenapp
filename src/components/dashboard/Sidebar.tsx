@@ -307,8 +307,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       )}
 
-      {/* Main Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      {/* Main Navigation - Scrollable Area */}
+      <nav className="flex-1 overflow-y-auto px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
           <NavLink
             key={idx}
@@ -504,12 +504,12 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       </nav>
 
-      {/* Onboarding Progress */}
+      {/* Onboarding Progress - Fixed at bottom */}
       {!isCollapsed && <OnboardingProgress />}
 
-      {/* Credits Section */}
+      {/* Credits Section - Fixed at bottom */}
       {!isCollapsed && (
-        <div className="p-4 space-y-3 bg-sidebar">
+        <div className="p-4 space-y-3 bg-sidebar border-t border-sidebar-hover">
           <div className="bg-sidebar border-2 border-brand-green rounded-lg p-3">
             <TooltipProvider>
               <div className="flex items-center gap-2 mb-2">
