@@ -94,7 +94,7 @@ const Apps = () => {
           {/* Header Section */}
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
-              <h1 className="text-5xl font-bold mb-4">
+              <h1 className="text-3xl font-bold mb-4">
                 <span className="text-primary">APPS</span>
               </h1>
               <p className="text-muted-foreground text-lg">
