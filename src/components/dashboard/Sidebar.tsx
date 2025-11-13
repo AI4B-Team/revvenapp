@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -19,8 +19,8 @@ import OnboardingProgress from './OnboardingProgress';
 import { creationsData } from '@/data/creationsData';
 
 interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
   isAssistantPage?: boolean;
   isMonetizePage?: boolean;
   isAutomatePage?: boolean;
@@ -29,7 +29,7 @@ interface SidebarProps {
   onAssetFilterChange?: (filter: string | null) => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/';
   const isContactsPage = location.pathname === '/contacts';
@@ -48,6 +48,9 @@ const Sidebar = ({ activeTab, onTabChange, isAssistantPage = false, isMonetizePa
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
+    { icon: <Star size={18} />, label: 'Brand', link: '/brand' },
+    { icon: <AppWindow size={18} />, label: 'Apps', link: '/apps' },
+    { icon: <Folder size={18} />, label: 'Assets', link: '/assets' },
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];

@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
@@ -129,8 +129,8 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       <div className="flex-1 flex items-center justify-end gap-4">
         <TooltipProvider>
           <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-brand-green" />
-            <span className="text-brand-green font-semibold">88,000 Credits</span>
+            <Gift size={16} className="text-green-500" />
+            <span className="text-green-500 font-semibold">Earn</span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle size={14} className="text-brand-green cursor-help" />
