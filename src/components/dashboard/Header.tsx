@@ -130,15 +130,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         <TooltipProvider>
           <div className="flex items-center gap-2">
             <Gift size={16} className="text-green-500" />
-            <span className="text-green-500 font-semibold">Earn</span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <HelpCircle size={14} className="text-brand-green cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Your monthly credits will be refilled on {getNextRefillDate()}</p>
-              </TooltipContent>
-            </Tooltip>
+            <span className="text-green-500 font-semibold">Refer & Earn</span>
           </div>
         </TooltipProvider>
 

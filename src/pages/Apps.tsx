@@ -50,40 +50,28 @@ const Apps = () => {
       name: 'Background Remover',
       description: 'Remove backgrounds instantly',
       icon: '✂️',
-      color: 'bg-yellow-500',
-      category: 'Image Tools'
+      color: 'bg-yellow-500'
     },
     {
       id: 2,
-      name: 'AI Voice Cloner',
-      description: 'Clone any voice perfectly',
-      icon: '🎤',
-      color: 'bg-blue-500',
-      category: 'Audio Tools'
-    },
-    {
-      id: 3,
       name: 'Video Resizer',
       description: 'Resize videos for any platform',
       icon: '📐',
-      color: 'bg-pink-500',
-      category: 'Video Tools'
+      color: 'bg-pink-500'
     },
     {
-      id: 4,
+      id: 3,
       name: 'Logo Designer',
       description: 'Create stunning brand logos',
       icon: '🎨',
-      color: 'bg-blue-500',
-      category: 'Design Tools'
+      color: 'bg-blue-500'
     },
     {
-      id: 5,
+      id: 4,
       name: 'Blog Writer',
       description: 'Generate engaging blog posts',
       icon: '✍️',
-      color: 'bg-green-500',
-      category: 'Content Tools'
+      color: 'bg-green-500'
     }
   ];
 
@@ -185,8 +173,7 @@ const Apps = () => {
                         {app.icon}
                       </div>
                       <h3 className="font-bold mb-1 text-black">{app.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-2">{app.description}</p>
-                      <span className="text-xs text-muted-foreground">{app.category}</span>
+                      <p className="text-black text-sm">{app.description}</p>
                     </div>
                   ))}
                 </div>
@@ -221,7 +208,7 @@ const Apps = () => {
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-white/80">{tool.description}</p>
+                      <p className="text-xs text-black">{tool.description}</p>
                     </div>
                   ))}
                 </div>
@@ -253,7 +240,7 @@ const Apps = () => {
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-white/80">{tool.description}</p>
+                      <p className="text-xs text-black">{tool.description}</p>
                     </div>
                   ))}
                 </div>
@@ -287,7 +274,7 @@ const Apps = () => {
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-white/80">{tool.description}</p>
+                      <p className="text-xs text-black">{tool.description}</p>
                     </div>
                   ))}
                 </div>
@@ -321,7 +308,7 @@ const Apps = () => {
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-white/80">{tool.description}</p>
+                      <p className="text-xs text-black">{tool.description}</p>
                     </div>
                   ))}
                 </div>
@@ -355,7 +342,7 @@ const Apps = () => {
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-white/80">{tool.description}</p>
+                      <p className="text-xs text-black">{tool.description}</p>
                     </div>
                   ))}
                 </div>
