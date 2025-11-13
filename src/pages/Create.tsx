@@ -321,7 +321,10 @@ const Create = () => {
                 {/* Image Apps Section */}
                 {(!selectedType || selectedType === 'Image') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">IMAGE APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">IMAGE APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {imageTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -333,7 +336,10 @@ const Create = () => {
                 {/* Video Apps Section */}
                 {(!selectedType || selectedType === 'Video') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">VIDEO APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">VIDEO APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {videoTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -345,7 +351,10 @@ const Create = () => {
                 {/* Audio Apps Section */}
                 {(!selectedType || selectedType === 'Audio') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">AUDIO APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">AUDIO APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {audioTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -357,7 +366,10 @@ const Create = () => {
                 {/* Design Apps Section */}
                 {(!selectedType || selectedType === 'Design') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">DESIGN APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">DESIGN APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {designTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -369,7 +381,10 @@ const Create = () => {
                 {/* Content Apps Section */}
                 {(!selectedType || selectedType === 'Content') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">CONTENT APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">CONTENT APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                       {contentTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
@@ -381,7 +396,10 @@ const Create = () => {
                 {/* App Apps Section */}
                 {(!selectedType || selectedType === 'Apps') && (
                   <>
-                    <h2 className="text-2xl font-bold mb-6">APP APPS</h2>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold">APP APPS</h2>
+                      <button className="text-sm text-primary hover:underline">See All</button>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                       {appTools.map((tool, idx) => (
                         <ToolCard key={idx} {...tool} />
