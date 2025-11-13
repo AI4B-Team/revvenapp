@@ -138,7 +138,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange }: FilterToolb
               
               {/* Header */}
               <div className="px-5 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Filter by</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Filter By</h3>
               </div>
 
               {/* Content */}
