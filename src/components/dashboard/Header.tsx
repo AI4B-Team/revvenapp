@@ -205,9 +205,11 @@ const Header = ({ onCreateClick }: HeaderProps) => {
                 <span>Invites</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <Plug size={20} />
-                <span>Integrations</span>
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+                <Link to="/integrations" className="flex items-center gap-3 w-full">
+                  <Plug size={20} />
+                  <span>Integrations</span>
+                </Link>
               </DropdownMenuItem>
 
               {/* Language Selector */}

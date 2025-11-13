@@ -48,9 +48,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const sidebarItems = [
     { icon: <Home size={18} />, label: 'Dashboard', link: '/' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
-    { icon: <Star size={18} />, label: 'Brand', link: '/brand' },
     { icon: <AppWindow size={18} />, label: 'Apps', link: '/apps' },
-    { icon: <Folder size={18} />, label: 'Assets', link: '/assets' },
   ];
 
   const dashboardNavItems: Array<{ icon: JSX.Element; label: string; color: string; link: string }> = [];
