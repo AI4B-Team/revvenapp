@@ -3,6 +3,8 @@ import { Plus, Network, Mic, ArrowUp, Search, Sparkles, ChevronDown } from 'luci
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ChatHistorySidebar from '@/components/dashboard/ChatHistorySidebar';
+import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +18,8 @@ const Assistant = () => {
   const [promptIndex, setPromptIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
   const [selectedModel, setSelectedModel] = useState('All-Purpose (GPT-5)');
+  const [charactersModalOpen, setCharactersModalOpen] = useState(false);
+  const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
 
   const models = [
     'All-Purpose (GPT-5)',
@@ -71,7 +75,13 @@ const Assistant = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isAssistantPage={true} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        isAssistantPage={true}
+        onCharactersClick={() => setCharactersModalOpen(true)}
+        onIdentityClick={() => setIdentitySidebarOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -179,9 +189,18 @@ const Assistant = () => {
               </div>
             </div>
           </div>
-        </main>
+         </main>
         </div>
       </div>
+
+      <DigitalCharactersModal 
+        isOpen={charactersModalOpen} 
+        onClose={() => setCharactersModalOpen(false)}
+      />
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen} 
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
     </div>
   );
 };
