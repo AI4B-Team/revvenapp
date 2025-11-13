@@ -7,11 +7,8 @@ interface ActionButtonsProps {
 
 const ActionButtons = ({ activeView, onViewChange }: ActionButtonsProps) => {
   return (
-    <div className="w-full">
-      {/* Separator line */}
-      <div className="w-full border-t border-border mb-6" />
-      
-      <div className="flex items-center justify-between gap-3 mb-8">
+    <div className="w-full mt-6 mb-8">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => onViewChange('tools')}
