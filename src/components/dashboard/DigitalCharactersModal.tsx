@@ -258,6 +258,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               {/* Title */}
               <div className="text-center py-6">
                 <h1 className="text-3xl font-bold text-white">Create Your Character</h1>
+                <p className="text-sm text-gray-400 mt-2">Choose How You Want To Start</p>
               </div>
 
               {/* Tabs */}
