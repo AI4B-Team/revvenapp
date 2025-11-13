@@ -73,109 +73,146 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
-                      <Video size={14} />
-                      Veo 3 Fast
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Veo 3 Fast
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Veo 3 Standard
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                            <Video size={14} />
+                            Veo 3 Fast
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Veo 3 Fast
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              Veo 3 Standard
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Model</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      <Image size={14} />
-                      References
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 bg-background border-border z-50">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            <Image size={14} />
+                            References
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>References</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      16:9
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <div className="w-5 h-3 border-2 border-current"></div>
-                        16:9 Landscape
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <div className="w-3 h-5 border-2 border-current"></div>
-                        9:16 Portrait
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-current"></div>
-                        1:1 Square
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            16:9
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                              <div className="w-5 h-3 border-2 border-current"></div>
+                              16:9 Landscape
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                              <div className="w-3 h-5 border-2 border-current"></div>
+                              9:16 Portrait
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-current"></div>
+                              1:1 Square
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Aspect Ratio</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      4 sec
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        4 seconds
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        8 seconds
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        12 seconds
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            4 sec
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              4 seconds
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              8 seconds
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              12 seconds
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Duration</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      1080p
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        1080p
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        720p
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        4K
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            1080p
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              1080p
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              720p
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              4K
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Quality</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <TooltipProvider>
                   <Tooltip>
