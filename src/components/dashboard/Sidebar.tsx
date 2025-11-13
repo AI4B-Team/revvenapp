@@ -38,6 +38,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const isCommunityPage = location.pathname === '/community';
   const isToolsPage = location.pathname === '/tools';
   const isAppsPage = location.pathname === '/apps';
+  const isIntegrationsPage = location.pathname === '/integrations';
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -173,6 +174,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     isCommunityPage ? [] :
     isToolsPage ? [] :
     isAppsPage ? [] :
+    isIntegrationsPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
