@@ -168,8 +168,15 @@ const Apps = () => {
 
               {/* Top Picks Section */}
               <section>
-                <div className="mb-6">
+                <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-3xl font-bold mb-2">TOP PICKS FOR YOU</h2>
+                  <button 
+                    onClick={() => setExpandedSections({ ...expandedSections, topPicks: !expandedSections.topPicks })}
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
+                  >
+                    See All
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
