@@ -8,7 +8,10 @@ interface ActionButtonsProps {
 const ActionButtons = ({ activeView, onViewChange }: ActionButtonsProps) => {
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between gap-3 mb-6">
+      {/* Separator line */}
+      <div className="w-full border-t border-border mb-6" />
+      
+      <div className="flex items-center justify-between gap-3 mb-8">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => onViewChange('tools')}
@@ -39,9 +42,6 @@ const ActionButtons = ({ activeView, onViewChange }: ActionButtonsProps) => {
           </button>
         </div>
       </div>
-      
-      {/* Separator line */}
-      <div className="w-full border-t border-border" />
     </div>
   );
 };

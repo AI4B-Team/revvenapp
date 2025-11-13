@@ -284,17 +284,15 @@ const Create = () => {
               setActiveTab(type);
             }} />
             
-            <div className="mb-8">
-              <GenerationInput 
-                selectedType={selectedType}
-                onCharactersClick={() => setCharactersModalOpen(true)}
-              />
-              
-              <ActionButtons 
-                activeView={activeView} 
-                onViewChange={setActiveView}
-              />
-            </div>
+            <GenerationInput 
+              selectedType={selectedType}
+              onCharactersClick={() => setCharactersModalOpen(true)}
+            />
+            
+            <ActionButtons 
+              activeView={activeView} 
+              onViewChange={setActiveView}
+            />
             
             {/* Gallery Views */}
             {activeView === 'creations' && (
