@@ -7,6 +7,10 @@ export interface GalleryItem {
     name: string;
     avatar: string;
   };
+  likes?: number;
+  isEdited?: boolean;
+  isUpscaled?: boolean;
+  createdAt?: string;
 }
 
 export const creationsData: GalleryItem[] = [

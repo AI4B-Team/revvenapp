@@ -11,12 +11,23 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+export interface FilterState {
+  contentType: string;
+  likes: boolean;
+  edits: boolean;
+  upscales: boolean;
+  startDate: string;
+  endDate: string;
+  searchQuery: string;
+}
+
 interface FilterToolbarProps {
   onZoomChange?: (zoom: number) => void;
   zoom?: number;
+  onFiltersChange?: (filters: FilterState) => void;
 }
 
-const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
+const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange }: FilterToolbarProps) => {
   const [allDropdownOpen, setAllDropdownOpen] = useState(false);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -85,6 +96,11 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
                   onClick={() => {
                     setSelectedContentType(type.name);
                     setAllDropdownOpen(false);
+                    onFiltersChange?.({
+                      contentType: type.name,
+                      ...filters,
+                      searchQuery
+                    });
                   }}
                   className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
                     selectedContentType === type.name ? 'bg-gray-100 font-semibold' : ''
@@ -261,7 +277,14 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
                   Clear
                 </button>
                 <button
-                  onClick={() => setFilterDropdownOpen(false)}
+                  onClick={() => {
+                    setFilterDropdownOpen(false);
+                    onFiltersChange?.({
+                      contentType: selectedContentType,
+                      ...filters,
+                      searchQuery
+                    });
+                  }}
                   className="flex-1 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
                 >
                   Apply
