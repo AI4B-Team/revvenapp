@@ -95,10 +95,10 @@ const Apps = () => {
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
               <h1 className="text-5xl font-bold mb-4">
-                <span className="text-primary">REVVEN APPS</span>
+                <span className="text-primary">APPS</span>
               </h1>
               <p className="text-muted-foreground text-lg">
-                One-click AI effects that transform any content into professional ads, viral trends, or artistic masterpieces
+                A full suite of intelligent AI Apps to help you create like a pro.
               </p>
             </div>
           </div>
