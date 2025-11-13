@@ -12,6 +12,7 @@ import Contacts from "./pages/Contacts";
 import Revenue from "./pages/Revenue";
 import Community from "./pages/Community";
 import Apps from "./pages/Apps";
+import Assets from "./pages/Assets";
 import Integrations from "./pages/Integrations";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/revenue" element={<Revenue />} />
           <Route path="/community" element={<Community />} />
           <Route path="/apps" element={<Apps />} />
+          <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/onboarding" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

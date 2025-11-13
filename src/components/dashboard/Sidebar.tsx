@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Star, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -368,104 +368,17 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
         {/* Library Section */}
         <div className="pt-2">
-          <button 
-            onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-              isAssetsOpen ? 'bg-sidebar-active' : ''
-            }`}
+          <NavLink
+            to="/assets"
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+            activeClassName="bg-sidebar-active"
             title="Assets"
           >
             <span className="text-sidebar-muted">
               <FolderOpen size={18} />
             </span>
             {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
-            {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isAssetsOpen ? 'rotate-0' : '-rotate-90'}`} />}
-          </button>
-          {isAssetsOpen && !isCollapsed && (
-          <div className="ml-6 mt-2 space-y-1">
-            <button 
-              onClick={() => onAssetFilterChange?.(null)}
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-            >
-              <LayoutGrid size={14} />
-              <span className="text-sm flex-1">All</span>
-              <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.all}</span>
-            </button>
-            {assetCounts.favorites > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('favorites')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Star size={14} />
-                <span className="text-sm flex-1">Favorites</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.favorites}</span>
-              </button>
-            )}
-            {assetCounts.content > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('content')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <FileText size={14} />
-                <span className="text-sm flex-1">Content</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.content}</span>
-              </button>
-            )}
-            {assetCounts.images > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('images')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Image size={14} />
-                <span className="text-sm flex-1">Images</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.images}</span>
-              </button>
-            )}
-            {assetCounts.videos > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('videos')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Video size={14} />
-                <span className="text-sm flex-1">Videos</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.videos}</span>
-              </button>
-            )}
-            {assetCounts.audio > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('audio')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Music size={14} />
-                <span className="text-sm flex-1">Audio</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.audio}</span>
-              </button>
-            )}
-            {assetCounts.designs > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('designs')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Palette size={14} />
-                <span className="text-sm flex-1">Designs</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.designs}</span>
-              </button>
-            )}
-            {assetCounts.apps > 0 && (
-              <button 
-                onClick={() => onAssetFilterChange?.('apps')}
-                className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg w-full text-left"
-              >
-                <Code size={14} />
-                <span className="text-sm flex-1">Apps</span>
-                <span className="text-xs text-sidebar-muted bg-sidebar-hover px-2 py-0.5 rounded-full">{assetCounts.apps}</span>
-              </button>
-            )}
-            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text mt-2 pt-2 border-t border-sidebar-hover w-full text-left">
-              <span className="text-sm">+ New Folder</span>
-            </button>
-          </div>
-          )}
+          </NavLink>
         </div>
 
         {/* Community Link */}

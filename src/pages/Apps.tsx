@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Search, Play
+  Search, Play, ChevronRight
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -47,35 +47,43 @@ const Apps = () => {
   const topPicks = [
     {
       id: 1,
-      name: 'Flourish',
-      description: 'Inspire with charts and more',
-      icon: '📊',
-      color: 'bg-blue-500',
-      category: 'Data Visualization'
+      name: 'Background Remover',
+      description: 'Remove backgrounds instantly',
+      icon: '✂️',
+      color: 'bg-yellow-500',
+      category: 'Image Tools'
     },
     {
       id: 2,
-      name: 'Leonardo.AI',
-      description: 'A tool for limitless creativity',
-      icon: '🎨',
-      color: 'bg-purple-600',
-      category: 'AI Generation'
+      name: 'AI Voice Cloner',
+      description: 'Clone any voice perfectly',
+      icon: '🎤',
+      color: 'bg-blue-500',
+      category: 'Audio Tools'
     },
     {
       id: 3,
-      name: 'Instagram',
-      description: 'Design your feed in Canva',
-      icon: '📷',
-      color: 'bg-gradient-to-br from-purple-500 to-pink-500',
-      category: 'Social Media'
+      name: 'Video Resizer',
+      description: 'Resize videos for any platform',
+      icon: '📐',
+      color: 'bg-pink-500',
+      category: 'Video Tools'
     },
     {
       id: 4,
-      name: 'Mailchimp',
-      description: 'Elevated email campaigns',
-      icon: '🐵',
-      color: 'bg-yellow-500',
-      category: 'Marketing'
+      name: 'Logo Designer',
+      description: 'Create stunning brand logos',
+      icon: '🎨',
+      color: 'bg-blue-500',
+      category: 'Design Tools'
+    },
+    {
+      id: 5,
+      name: 'Blog Writer',
+      description: 'Generate engaging blog posts',
+      icon: '✍️',
+      color: 'bg-green-500',
+      category: 'Content Tools'
     }
   ];
 
@@ -190,9 +198,10 @@ const Apps = () => {
                   <h2 className="text-3xl font-bold">IMAGE APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, imageApps: !expandedSections.imageApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
                   >
                     See All
+                    <ChevronRight size={18} />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
@@ -211,7 +220,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
@@ -223,9 +232,10 @@ const Apps = () => {
                   <h2 className="text-3xl font-bold">VIDEO APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, videoApps: !expandedSections.videoApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
                   >
                     See All
+                    <ChevronRight size={18} />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
@@ -242,7 +252,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
@@ -254,9 +264,10 @@ const Apps = () => {
                   <h2 className="text-3xl font-bold">AUDIO APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, audioApps: !expandedSections.audioApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
                   >
                     See All
+                    <ChevronRight size={18} />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
@@ -275,7 +286,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
@@ -287,9 +298,10 @@ const Apps = () => {
                   <h2 className="text-3xl font-bold">DESIGN APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, designApps: !expandedSections.designApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
                   >
                     See All
+                    <ChevronRight size={18} />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
@@ -308,7 +320,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
@@ -320,9 +332,10 @@ const Apps = () => {
                   <h2 className="text-3xl font-bold">CONTENT APPS</h2>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, contentApps: !expandedSections.contentApps })}
-                    className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-1"
                   >
                     See All
+                    <ChevronRight size={18} />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
@@ -341,7 +354,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
                       <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-white">{tool.name}</h3>
+                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-white/80">{tool.description}</p>
                     </div>
                   ))}
