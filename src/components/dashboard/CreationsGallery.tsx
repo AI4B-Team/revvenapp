@@ -112,9 +112,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4 }: GalleryProps) => {
   const sizes = getIconSize();
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       {/* Grid Layout - Dynamic columns based on zoom */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridCols()} gap-8`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${getGridCols()} gap-4`}>
         {items.map((item, index) => (
           <div
             key={item.id}
