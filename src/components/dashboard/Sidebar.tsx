@@ -308,7 +308,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       )}
 
       {/* Main Navigation - Scrollable Area */}
-      <nav className="flex-1 overflow-y-auto px-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto space-y-1 bg-sidebar">
+        <div className="px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
           <NavLink
             key={idx}
@@ -502,10 +503,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             )
           ))}
         </div>
+        </div>
 
         {/* Onboarding Progress */}
         {!isCollapsed && (
-          <div className="mt-4">
+          <div className="px-4 mt-4 bg-sidebar">
             <OnboardingProgress />
           </div>
         )}
