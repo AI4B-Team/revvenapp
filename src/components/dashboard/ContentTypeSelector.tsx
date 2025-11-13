@@ -1,5 +1,5 @@
-import { Image, Video, Music, FileText, Code, Palette, ChevronDown } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Image, Video, Music, FileText, Code, Palette, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -33,25 +33,19 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
             <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition flex items-center gap-2">
-              <FileText size={18} />
-              <span className="text-sm font-medium">Document</span>
-              <ChevronDown size={16} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition flex items-center justify-center">
+              <MoreHorizontal size={18} />
             </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-48 bg-background border-border z-50">
-            <div className="space-y-1">
-              <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                Upload Document
-              </button>
-              <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                Recent Documents
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48 bg-background border-border z-50">
+            <DropdownMenuItem className="cursor-pointer">
+              <FileText size={16} className="mr-2" />
+              <span>Document</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
