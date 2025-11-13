@@ -99,21 +99,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   ];
 
   const appsNavItems = [
-    { icon: <LayoutGrid size={18} />, label: 'All', color: 'text-sidebar-muted' },
-    { icon: <Settings size={18} />, label: 'Filter', color: 'text-sidebar-muted' },
-    { icon: <Search size={18} />, label: 'Search', color: 'text-sidebar-muted' },
-  ];
-
-  const communityNavItems = [
-    { icon: <LayoutGrid size={18} />, label: 'All', color: 'text-sidebar-muted' },
-    { icon: <Settings size={18} />, label: 'Filter', color: 'text-sidebar-muted' },
-    { icon: <Search size={18} />, label: 'Search', color: 'text-sidebar-muted' },
-  ];
-
-  const assetsNavItems = [
-    { icon: <LayoutGrid size={18} />, label: 'All', color: 'text-sidebar-muted' },
-    { icon: <Settings size={18} />, label: 'Filter', color: 'text-sidebar-muted' },
-    { icon: <Search size={18} />, label: 'Search', color: 'text-sidebar-muted' },
+    { icon: <Code size={18} />, label: 'Create', color: 'text-brand-green' },
+    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
   ];
 
   const assistantNavItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean }> = [];
@@ -184,11 +171,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const navItems: Array<{ icon: JSX.Element; label: string; color: string; isDropdown?: boolean; subItems?: string[]; link?: string }> = 
     isOnboardingPage ? [] :
-    isCommunityPage ? communityNavItems :
+    isCommunityPage ? [] :
     isToolsPage ? [] :
-    isAppsPage ? appsNavItems :
+    isAppsPage ? [] :
     isIntegrationsPage ? [] :
-    isAssetsPage ? assetsNavItems :
+    isAssetsPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
@@ -392,7 +379,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <span className="text-sidebar-muted">
               <AppWindow size={18} />
             </span>
-            {!isCollapsed && <span className="flex-1 text-left text-xs">Apps</span>}
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Apps</span>}
           </NavLink>
         </div>
 
@@ -407,7 +394,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <span className="text-sidebar-muted">
               <FolderOpen size={18} />
             </span>
-            {!isCollapsed && <span className="flex-1 text-left text-xs">Assets</span>}
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Assets</span>}
           </NavLink>
         </div>
 
@@ -422,7 +409,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <span className="text-sidebar-muted">
               <Users size={18} />
             </span>
-            {!isCollapsed && <span className="flex-1 text-left text-xs">Community</span>}
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Community</span>}
           </NavLink>
         </div>
 
@@ -451,11 +438,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                   }`}
                   title={item.label}
                 >
-                <span className={item.color}>{item.icon}</span>
-                {!isCollapsed && <span className="flex-1 text-left text-xs">{item.label}</span>}
-                {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${
-                  (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
-                }`} />}
+                  <span className={item.color}>{item.icon}</span>
+                  {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
+                  {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${
+                    (item.subItems ? openDropdowns[item.label] : isRecentOpen) ? 'rotate-0' : '-rotate-90'
+                  }`} />}
                 </button>
                 {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
                   <div className="ml-6 mt-2 space-y-1">
@@ -498,7 +485,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
-                {!isCollapsed && <span className="flex-1 text-left text-xs">{item.label}</span>}
+                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </NavLink>
             ) : (
               <button
@@ -510,7 +497,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
-                {!isCollapsed && <span className="flex-1 text-left text-xs">{item.label}</span>}
+                {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
               </button>
             )
           ))}
