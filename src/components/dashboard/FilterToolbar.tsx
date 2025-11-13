@@ -58,7 +58,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
       <div className="relative dropdown-container">
         <button
           onClick={() => setAllDropdownOpen(!allDropdownOpen)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
         >
           <span className="text-sm font-medium">{selectedContentType}</span>
           <ChevronDown size={16} />
@@ -88,7 +88,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
       <div className="relative dropdown-container">
         <button
           onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-          className="flex items-center justify-center w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors"
+          className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
           title="Filter"
         >
           <Filter size={18} />
@@ -170,7 +170,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
         {!searchExpanded ? (
           <button
             onClick={() => setSearchExpanded(true)}
-            className="flex items-center justify-center w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
           >
             <Search size={18} />
           </button>
@@ -216,7 +216,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50 }: FilterToolbarProps) => {
             max="100"
             value={zoom}
             onChange={(e) => onZoomChange?.(Number(e.target.value))}
-            className="w-32 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-gray-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-sm [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-gray-600 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-sm"
+            className="w-32 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gray-600 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
           />
         </div>
 
