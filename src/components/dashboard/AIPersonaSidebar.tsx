@@ -63,6 +63,8 @@ const AIPersonaSidebar = ({ isOpen, onClose }: AIPersonaSidebarProps) => {
     return 'Open';
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="w-96 bg-background border-l border-border flex flex-col h-full overflow-y-auto flex-shrink-0">
       

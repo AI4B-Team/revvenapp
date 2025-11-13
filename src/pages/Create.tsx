@@ -266,12 +266,10 @@ const Create = () => {
         onIdentityClick={() => setIdentitySidebarOpen(true)}
       />
 
-      {identitySidebarOpen && (
-        <AIPersonaSidebar 
-          isOpen={identitySidebarOpen}
-          onClose={() => setIdentitySidebarOpen(false)}
-        />
-      )}
+      <AIPersonaSidebar 
+        isOpen={identitySidebarOpen}
+        onClose={() => setIdentitySidebarOpen(false)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
