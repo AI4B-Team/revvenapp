@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
-  Share2, X, Copy, Check, Image as ImageIcon, Trash2
+  Share2, X, Copy, Check, Image as ImageIcon, Trash2,
+  Sparkles, Video, Mic, Users
 } from 'lucide-react';
 import {
   Tooltip,
@@ -9,6 +10,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ImageViewerModal from './ImageViewerModal';
 import { creationsData, communityData, type GalleryItem } from '@/data/creationsData';
 
@@ -239,6 +246,24 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                     </TooltipContent>
                   </Tooltip>
 
+                  {/* Download */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Download functionality
+                        }}
+                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
+                      >
+                        <Download size={sizes.icon} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white border-black">
+                      <p>Download</p>
+                    </TooltipContent>
+                  </Tooltip>
+
                   {/* Delete */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -279,19 +304,6 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                       <button 
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
-                        <Download size={sizes.icon} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Download</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
-                      >
                         <Edit size={sizes.icon} />
                       </button>
                     </TooltipTrigger>
@@ -316,7 +328,10 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        onClick={() => handleShare(item.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShare(item.id);
+                        }}
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
                         <Share2 size={sizes.icon} />
@@ -326,6 +341,42 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                       <p>Share</p>
                     </TooltipContent>
                   </Tooltip>
+
+                  {/* Animate Dropdown */}
+                  <DropdownMenu>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            onClick={(e) => e.stopPropagation()}
+                            className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
+                          >
+                            <Sparkles size={sizes.icon} />
+                          </button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Animate</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent 
+                      className="bg-white border-gray-200 z-50"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                        <Video className="mr-2 h-4 w-4" />
+                        <span>Video</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                        <Mic className="mr-2 h-4 w-4" />
+                        <span>Speak</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>UGC</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </TooltipProvider>
             </div>
