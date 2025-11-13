@@ -147,7 +147,7 @@ const Integrations = () => {
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                      Integrations & workflows
+                      INTEGRATIONS
                     </h1>
                     <p className="text-gray-600">
                       Supercharge your workflow and connect the tools you and your team uses every day.
@@ -169,12 +169,12 @@ const Integrations = () => {
 
                 {/* Upgrade Banner */}
                 {showUpgradeBanner && (
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-6 flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 flex items-center justify-between">
                     <div className="flex-1">
                       <h3 className="text-white font-bold text-lg mb-1">
-                        Upgrade to a paid plan for unlimited custom integrations
+                        Upgrade To A Paid Plan For UNLIMITED Custom Integrations
                       </h3>
-                      <p className="text-purple-100 text-sm">
+                      <p className="text-green-100 text-sm">
                         Paid plans offer more integrations, higher usage limits, additional branches, and much more.
                       </p>
                     </div>
@@ -185,7 +185,7 @@ const Integrations = () => {
                       >
                         Dismiss
                       </button>
-                      <button className="px-6 py-2 bg-white text-purple-700 hover:bg-purple-50 rounded-lg transition-colors font-bold">
+                      <button className="px-6 py-2 bg-white text-green-700 hover:bg-green-50 rounded-lg transition-colors font-bold">
                         Upgrade now
                       </button>
                     </div>
@@ -250,7 +250,7 @@ const Integrations = () => {
                       <button
                         onClick={() => toggleIntegration(integration.id)}
                         className={`relative w-11 h-6 rounded-full transition-colors ${
-                          integration.enabled ? 'bg-purple-600' : 'bg-gray-300'
+                          integration.enabled ? 'bg-green-600' : 'bg-gray-300'
                         }`}
                       >
                         <span
@@ -271,7 +271,7 @@ const Integrations = () => {
                     onClick={() => setShowAll(true)}
                     className="px-6 py-3 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold rounded-lg transition-colors"
                   >
-                    Show {filteredIntegrations.length - 9} more
+                    Show More
                   </button>
                 </div>
               )}
