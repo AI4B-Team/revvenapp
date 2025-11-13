@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
-  Sparkles, Video, Mic, Users
+  Wand2, Video, Mic, Users
 } from 'lucide-react';
 import {
   Tooltip,
@@ -351,7 +351,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                             onClick={(e) => e.stopPropagation()}
                             className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-purple-500 flex items-center justify-center transition-all`}
                           >
-                            <Sparkles size={sizes.icon} />
+                            <Wand2 size={sizes.icon} />
                           </button>
                         </DropdownMenuTrigger>
                       </TooltipTrigger>
@@ -360,18 +360,18 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                       </TooltipContent>
                     </Tooltip>
                     <DropdownMenuContent 
-                      className="bg-white border-gray-200 z-50"
+                      className="bg-black border-gray-800 z-50"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
                         <Video className="mr-2 h-4 w-4" />
                         <span>Video</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
                         <Mic className="mr-2 h-4 w-4" />
                         <span>Speak</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
+                      <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
                         <Users className="mr-2 h-4 w-4" />
                         <span>UGC</span>
                       </DropdownMenuItem>
