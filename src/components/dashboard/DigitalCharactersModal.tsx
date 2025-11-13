@@ -150,15 +150,23 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                       </div>
                     ) : (
                       /* Character Portrait */
-                      <img
-                        src={character.image}
-                        alt={character.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <>
+                        <img
+                          src={character.image}
+                          alt={character.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {/* Create Button on Hover */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-lg">
+                            Create
+                          </div>
+                        </div>
+                      </>
                     )}
 
                     {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
 
                   {/* Character Name */}
