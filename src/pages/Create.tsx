@@ -298,7 +298,7 @@ const Create = () => {
             {activeView === 'creations' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Creations</h2>
+                  <h2 className="text-2xl font-bold">CREATIONS</h2>
                   <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
                 </div>
                 <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
@@ -308,7 +308,7 @@ const Create = () => {
             {activeView === 'community' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Community</h2>
+                  <h2 className="text-2xl font-bold">COMMUNITY</h2>
                   <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
                 </div>
                 <CreationsGallery type="community" columnsPerRow={zoomLevel} />

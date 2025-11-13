@@ -1,4 +1,5 @@
-import { Image, Video, Music, FileText, Code, MoreHorizontal, Palette } from 'lucide-react';
+import { Image, Video, Music, FileText, Code, Palette, ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -32,9 +33,25 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
             <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
-        <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition">
-          <MoreHorizontal size={20} />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition flex items-center gap-2">
+              <FileText size={18} />
+              <span className="text-sm font-medium">Document</span>
+              <ChevronDown size={16} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 bg-background border-border z-50">
+            <div className="space-y-1">
+              <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                Upload Document
+              </button>
+              <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                Recent Documents
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
