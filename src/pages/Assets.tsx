@@ -1,13 +1,17 @@
 import { useState, useMemo } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Play, Grid3x3, Grid2x2 } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { creationsData, communityData } from '@/data/creationsData';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import FilterToolbar from '@/components/dashboard/FilterToolbar';
 
 const Assets = () => {
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(4);
+  const [zoom, setZoom] = useState(50);
+  
+  // Map zoom value (0-100) to columns (3-6)
+  const zoomLevel = Math.round(3 + (zoom / 100) * 3);
 
   // Combine creations and community data
   const allAssets = useMemo(() => [...creationsData, ...communityData], []);
@@ -86,45 +90,8 @@ const Assets = () => {
           <div className="px-8 py-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-4xl font-bold mb-2">Assets</h1>
-                <p className="text-muted-foreground">
-                  {assetFilter === 'images' && `${organizedAssets.images.length} images`}
-                  {assetFilter === 'videos' && `${organizedAssets.videos.length} videos`}
-                  {!assetFilter && `${organizedAssets.all.length} total assets`}
-                </p>
-              </div>
-              
-              {/* Zoom Controls */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setZoomLevel(3)}
-                  className={`p-2 rounded-lg transition ${
-                    zoomLevel === 3 ? 'bg-primary text-primary-foreground' : 'bg-card hover:bg-accent'
-                  }`}
-                  title="Large thumbnails"
-                >
-                  <Grid2x2 size={20} />
-                </button>
-                <button
-                  onClick={() => setZoomLevel(4)}
-                  className={`p-2 rounded-lg transition ${
-                    zoomLevel === 4 ? 'bg-primary text-primary-foreground' : 'bg-card hover:bg-accent'
-                  }`}
-                  title="Medium thumbnails"
-                >
-                  <Grid3x3 size={20} />
-                </button>
-                <button
-                  onClick={() => setZoomLevel(6)}
-                  className={`p-2 rounded-lg transition ${
-                    zoomLevel === 6 ? 'bg-primary text-primary-foreground' : 'bg-card hover:bg-accent'
-                  }`}
-                  title="Small thumbnails"
-                >
-                  <Grid3x3 size={16} />
-                </button>
-              </div>
+              <h1 className="text-5xl font-bold">ASSETS</h1>
+              <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
             </div>
 
             {/* Display assets based on filter or show all organized by type */}
@@ -134,9 +101,8 @@ const Assets = () => {
               </div>
             ) : (
               <div className="space-y-12">
-                {/* All Creations */}
+                {/* All Assets */}
                 <section>
-                  <h2 className="text-2xl font-bold mb-6">All Creations</h2>
                   {renderGallery(organizedAssets.all)}
                 </section>
 

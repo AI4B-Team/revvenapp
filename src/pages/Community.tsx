@@ -2,10 +2,13 @@ import { useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
-import { ZoomIn, ZoomOut } from 'lucide-react';
+import FilterToolbar from '@/components/dashboard/FilterToolbar';
 
 const Community = () => {
-  const [zoomLevel, setZoomLevel] = useState(4);
+  const [zoom, setZoom] = useState(50);
+  
+  // Map zoom value (0-100) to columns (3-6)
+  const zoomLevel = Math.round(3 + (zoom / 100) * 3);
 
   return (
     <div className="flex h-screen bg-background text-foreground">
@@ -21,32 +24,7 @@ const Community = () => {
           <div className="px-8 py-8">
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-5xl font-bold">COMMUNITY</h1>
-              
-              {/* Zoom Control */}
-              <div className="flex items-center gap-3 px-4 py-2">
-                <button
-                  onClick={() => setZoomLevel(Math.min(6, zoomLevel + 1))}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  title="Zoom out (show more images)"
-                >
-                  <ZoomOut size={20} />
-                </button>
-                <input
-                  type="range"
-                  min="3"
-                  max="6"
-                  value={zoomLevel}
-                  onChange={(e) => setZoomLevel(Number(e.target.value))}
-                  className="w-32 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gray-600 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
-                />
-                <button
-                  onClick={() => setZoomLevel(Math.max(3, zoomLevel - 1))}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  title="Zoom in (show fewer images)"
-                >
-                  <ZoomIn size={20} />
-                </button>
-              </div>
+              <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
             </div>
             
             <CreationsGallery type="community" columnsPerRow={zoomLevel} />

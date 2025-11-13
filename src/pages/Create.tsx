@@ -9,15 +9,19 @@ import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import FilterToolbar from '@/components/dashboard/FilterToolbar';
 
 const Create = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
-  const [zoomLevel, setZoomLevel] = useState(4);
+  const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  
+  // Map zoom value (0-100) to columns (3-6)
+  const zoomLevel = Math.round(3 + (zoom / 100) * 3);
 
   // Reset states when navigating to /create without parameters
   useEffect(() => {
@@ -288,19 +292,25 @@ const Create = () => {
             <ActionButtons 
               activeView={activeView} 
               onViewChange={setActiveView}
-              zoomLevel={zoomLevel}
-              onZoomChange={setZoomLevel}
             />
             
             {/* Gallery Views */}
             {activeView === 'creations' && (
               <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Creations</h2>
+                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+                </div>
                 <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
               </div>
             )}
             
             {activeView === 'community' && (
               <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Community</h2>
+                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+                </div>
                 <CreationsGallery type="community" columnsPerRow={zoomLevel} />
               </div>
             )}
