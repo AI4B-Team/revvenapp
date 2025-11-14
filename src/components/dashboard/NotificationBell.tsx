@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Bell, Sparkles, Inbox, CheckCheck } from 'lucide-react';
+import { Bell, Sparkles, Inbox, CheckCheck, MoreVertical, BellOff, Settings, FolderOpen, Check } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('whats-new'); // 'whats-new' or 'inbox'
   const [unreadCount, setUnreadCount] = useState(2); // Number of unread notifications
+  const [allCaughtUp, setAllCaughtUp] = useState(false);
 
   // Sample notifications data
   const notifications = [
@@ -75,9 +77,34 @@ const NotificationBell = () => {
             
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h2 className="text-xl font-bold text-black">Notifications</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-black">Notifications</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      className="text-gray-600 hover:text-black transition-colors p-1"
+                      aria-label="Notification options"
+                    >
+                      <MoreVertical size={18} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem>
+                      <BellOff className="mr-2 h-4 w-4" />
+                      <span>Do Not Disturb</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <button 
-                onClick={() => setUnreadCount(0)}
+                onClick={() => {
+                  setUnreadCount(0);
+                  setAllCaughtUp(true);
+                }}
                 className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors font-medium text-sm"
                 aria-label="Mark all as read"
               >
@@ -114,81 +141,100 @@ const NotificationBell = () => {
 
             {/* Notifications List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {filteredNotifications.map((notification) => (
-                <div key={notification.id} className="space-y-3">
-                  {/* Timestamp */}
-                  <div className="text-sm text-gray-600">{notification.timestamp}</div>
-                  
-                  {/* Notification Card */}
-                  <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors">
-                    {/* Image (if exists) */}
-                    {notification.image && (
-                      <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-yellow-600">
-                        <img
-                          src={notification.image} 
-                          alt={notification.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Fallback if image fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                        {/* Overlay Badge (like "Spaces") */}
-                        {notification.id === 1 && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="bg-black/70 backdrop-blur-sm px-8 py-3 rounded-full">
-                              <span className="text-white text-2xl font-semibold">Spaces</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
+              {allCaughtUp ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                    <Check size={48} className="text-green-600" />
+                  </div>
+                  <p className="text-2xl font-semibold text-black mb-2">
+                    You're All Caught Up!
+                  </p>
+                  <p className="text-gray-600">
+                    All notifications have been marked as read.
+                  </p>
+                </div>
+              ) : filteredNotifications.length > 0 ? (
+                filteredNotifications.map((notification) => (
+                  <div key={notification.id} className="space-y-3">
+                    {/* Timestamp */}
+                    <div className="text-sm text-gray-600">{notification.timestamp}</div>
                     
-                    {/* Content */}
-                    <div className="p-5 space-y-3">
-                      {/* Title */}
-                      <div className="flex items-center gap-2">
-                        {notification.id === 1 && (
-                          <span className="bg-green-600 text-white text-xs font-bold uppercase px-2 py-1 rounded">
-                            NEW
-                          </span>
-                        )}
-                        <h3 className="text-lg font-bold text-black">
-                          {notification.title}
-                        </h3>
-                      </div>
-                      
-                      {/* Description */}
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {notification.description.split('**').map((part, idx) => 
-                          idx % 2 === 1 ? (
-                            <span key={idx} className="font-bold text-black">{part}</span>
-                          ) : (
-                            part
-                          )
-                        )}
-                      </p>
-                      
-                      {/* CTA Link */}
-                      {notification.ctaText && (
-                        <button className={`${notification.ctaColor} hover:underline font-semibold text-sm`}>
-                          {notification.ctaText}
-                        </button>
+                    {/* Notification Card */}
+                    <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors">
+                      {/* Image (if exists) */}
+                      {notification.image && (
+                        <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-yellow-600">
+                          <img
+                            src={notification.image} 
+                            alt={notification.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                          {/* Overlay Badge (like "Spaces") */}
+                          {notification.id === 1 && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="bg-black/70 backdrop-blur-sm px-8 py-3 rounded-full">
+                                <span className="text-white text-2xl font-semibold">Spaces</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
+                      
+                      {/* Content */}
+                      <div className="p-5 space-y-3">
+                        {/* Title */}
+                        <div className="flex items-center gap-2">
+                          {notification.id === 1 && (
+                            <span className="bg-green-600 text-white text-xs font-bold uppercase px-2 py-1 rounded">
+                              NEW
+                            </span>
+                          )}
+                          <h3 className="text-lg font-bold text-black">
+                            {notification.title}
+                          </h3>
+                        </div>
+                        
+                        {/* Description */}
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {notification.description.split('**').map((part, idx) => 
+                            idx % 2 === 1 ? (
+                              <span key={idx} className="font-bold text-black">{part}</span>
+                            ) : (
+                              part
+                            )
+                          )}
+                        </p>
+                        
+                        {/* CTA Link */}
+                        {notification.ctaText && (
+                          <button className={`${notification.ctaColor} hover:underline font-semibold text-sm`}>
+                            {notification.ctaText}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-
-              {/* Empty State */}
-              {filteredNotifications.length === 0 && (
+                ))
+              ) : (
                 <div className="text-center py-12 text-gray-600">
                   <Bell size={48} className="mx-auto mb-4 opacity-50" />
                   <p className="text-lg">No notifications yet</p>
                   <p className="text-sm mt-2">Check back later for updates</p>
                 </div>
               )}
+            </div>
+            
+            {/* Archive Button at Bottom */}
+            <div className="px-4 py-3 border-t border-border">
+              <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black font-medium transition-colors">
+                <FolderOpen size={18} />
+                Archive
+              </button>
             </div>
           </div>
         </>
