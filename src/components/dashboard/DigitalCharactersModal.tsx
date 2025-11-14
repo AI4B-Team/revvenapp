@@ -93,7 +93,15 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
     { id: 'digital-art', label: 'Digital Art', image: 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=150' },
     { id: 'anime', label: 'Anime', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150' },
     { id: '3d', label: '3D', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=150' },
-    { id: 'fantasy', label: 'Fantasy', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150' }
+    { id: 'fantasy', label: 'Fantasy', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150' },
+    { id: 'cinematic', label: 'Cinematic', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=150' },
+    { id: 'cartoon', label: 'Cartoon', image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=150' },
+    { id: 'watercolor', label: 'Watercolor', image: 'https://images.unsplash.com/photo-1578926078760-58e9e4e55a5e?w=150' },
+    { id: 'oil-painting', label: 'Oil Painting', image: 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=150' },
+    { id: 'comic-book', label: 'Comic Book', image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150' },
+    { id: 'sketch', label: 'Sketch', image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=150' },
+    { id: 'cyberpunk', label: 'Cyberpunk', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150' },
+    { id: 'vintage', label: 'Vintage', image: 'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=150' }
   ];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -304,7 +312,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                           placeholder="You'll use this name in prompts later, like '@Zara is surfing'"
                           value={characterName}
                           onChange={(e) => setCharacterName(e.target.value)}
-                          className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
                         />
                       </div>
 
@@ -407,7 +415,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                             placeholder="You'll use this name in prompts later, like '@Zara is surfing'"
                             value={characterName}
                             onChange={(e) => setCharacterName(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
                           />
                         </div>
 
@@ -420,7 +428,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
                               rows={6}
-                              className="w-full px-4 py-3 pb-14 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                              className="w-full px-4 py-3 pb-14 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500 resize-none"
                             />
                             
                             <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
