@@ -19,7 +19,7 @@ interface CharactersPageProps {
     defaultCharacter: string;
   };
   onUpdate: (data: any) => void;
-  onComplete: () => void;
+  onNext: () => void;
   onBack: () => void;
   canGoBack?: boolean;
 }
@@ -27,7 +27,7 @@ interface CharactersPageProps {
 const CharactersPage: React.FC<CharactersPageProps> = ({
   formData,
   onUpdate,
-  onComplete,
+  onNext,
   onBack,
   canGoBack = true,
 }) => {
@@ -188,7 +188,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
     setErrors({});
   };
 
-  const handleComplete = () => {
+  const handleNext = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.defaultCharacter) {
@@ -201,7 +201,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
     }
 
     setErrors({});
-    onComplete();
+    onNext();
   };
 
   return (
@@ -384,12 +384,12 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
         
         <div className="ml-auto flex items-center gap-3">
           <button
-            onClick={handleComplete}
+            onClick={handleNext}
             disabled={!formData.defaultCharacter}
-            className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <Check size={18} />
-            Complete Brand Setup
+            Review
           </button>
         </div>
       </div>
