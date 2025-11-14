@@ -88,20 +88,34 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   ];
 
   const styles = [
-    { id: 'custom', label: 'Custom', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150' },
-    { id: 'photorealistic', label: 'Photorealistic', image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=150' },
-    { id: 'digital-art', label: 'Digital Art', image: 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=150' },
-    { id: 'anime', label: 'Anime', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150' },
-    { id: '3d', label: '3D', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=150' },
-    { id: 'fantasy', label: 'Fantasy', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150' },
+    { id: 'realistic', label: 'Realistic', image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=150' },
     { id: 'cinematic', label: 'Cinematic', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=150' },
-    { id: 'cartoon', label: 'Cartoon', image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=150' },
-    { id: 'watercolor', label: 'Watercolor', image: 'https://images.unsplash.com/photo-1578926078760-58e9e4e55a5e?w=150' },
-    { id: 'oil-painting', label: 'Oil Painting', image: 'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=150' },
+    { id: 'anime', label: 'Anime', image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150' },
+    { id: '3d-cartoon', label: '3D Cartoon', image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=150' },
     { id: 'comic-book', label: 'Comic Book', image: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150' },
-    { id: 'sketch', label: 'Sketch', image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=150' },
+    { id: 'pop-art', label: 'Pop Art', image: 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=150' },
+    { id: 'fantasy-art', label: 'Fantasy Art', image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150' },
+    { id: 'vector-portrait', label: 'Vector Portrait', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150' },
+    { id: 'neon-punk', label: 'Neon Punk', image: 'https://images.unsplash.com/photo-1534294668821-28a3054f4256?w=150' },
     { id: 'cyberpunk', label: 'Cyberpunk', image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150' },
-    { id: 'vintage', label: 'Vintage', image: 'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=150' }
+    { id: 'studio-ghibli', label: 'Studio Ghibli', image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=150' },
+    { id: 'pixar-studio', label: 'Pixar Studio', image: 'https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=150' },
+    { id: 'vector-cartoon', label: 'Vector Cartoon', image: 'https://images.unsplash.com/photo-1604076984203-587c92ab2e58?w=150' },
+    { id: 'pencil-art', label: 'Pencil Art', image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=150' },
+    { id: 'charcoal-art', label: 'Charcoal Art', image: 'https://images.unsplash.com/photo-1515405295579-ba7b45403062?w=150' },
+    { id: 'graffiti', label: 'Graffiti', image: 'https://images.unsplash.com/photo-1556139943-4bdca53adf1e?w=150' },
+    { id: 'simps', label: 'Simps', image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150' },
+    { id: 'ink-sketch', label: 'Ink Sketch', image: 'https://images.unsplash.com/photo-1516641051054-9df6a1aad654?w=150' },
+    { id: 'isometric', label: 'Isometric', image: 'https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=150' },
+    { id: 'line-art', label: 'Line Art', image: 'https://images.unsplash.com/photo-1494698421193-39d593c66fd7?w=150' },
+    { id: 'colored-line-art', label: 'Colored Line Art', image: 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=150' },
+    { id: 'origami', label: 'Origami', image: 'https://images.unsplash.com/photo-1583521214690-73421a1829a9?w=150' },
+    { id: 'clay', label: 'Clay', image: 'https://images.unsplash.com/photo-1624821661129-e49ed0e1f3f7?w=150' },
+    { id: 'low-poly', label: 'Low Poly', image: 'https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=150' },
+    { id: 'crayons', label: 'Crayons', image: 'https://images.unsplash.com/photo-1578926078760-58e9e4e55a5e?w=150' },
+    { id: 'film-noir', label: 'Film Noir', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=150' },
+    { id: 'vintage', label: 'Vintage', image: 'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=150' },
+    { id: 'black-and-white', label: 'Black And White', image: 'https://images.unsplash.com/photo-1521566652839-697aa473761a?w=150' }
   ];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
