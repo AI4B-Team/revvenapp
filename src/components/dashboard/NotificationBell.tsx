@@ -223,7 +223,7 @@ const NotificationBell = () => {
                   ) : (
                     <div className="text-center py-12 text-gray-600">
                       <FolderOpen size={48} className="mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">No archived notifications</p>
+                      <p className="text-lg">No Archived Notifications</p>
                       <p className="text-sm mt-2">Notifications you mark as read will appear here</p>
                     </div>
                   )}
@@ -321,7 +321,7 @@ const NotificationBell = () => {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black font-medium transition-colors"
               >
                 <FolderOpen size={18} />
-                {viewingArchived ? 'Back to Notifications' : `Archived ${archivedNotifications.length > 0 ? `(${archivedNotifications.length})` : ''}`}
+                {viewingArchived ? 'Back To Notifications' : `Archived ${archivedNotifications.length > 0 ? `(${archivedNotifications.length})` : ''}`}
               </button>
             </div>
           </div>
