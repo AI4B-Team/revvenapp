@@ -233,7 +233,7 @@ const NotificationBell = () => {
             <div className="px-4 py-3 border-t border-border">
               <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black font-medium transition-colors">
                 <FolderOpen size={18} />
-                Archive
+                Archived
               </button>
             </div>
           </div>
