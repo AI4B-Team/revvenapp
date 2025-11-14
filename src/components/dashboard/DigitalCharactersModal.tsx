@@ -39,7 +39,8 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
     { id: 20, name: 'Sage', image: 'https://images.unsplash.com/photo-1512310604669-443f26c35f52?w=300&h=300&fit=crop' },
     { id: 21, name: 'Atlas', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&h=300&fit=crop' },
     { id: 22, name: 'Finn', image: 'https://images.unsplash.com/photo-1542178243-bc20204b769f?w=300&h=300&fit=crop' },
-    { id: 23, name: 'Skye', image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=300&h=300&fit=crop' }
+    { id: 23, name: 'Skye', image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=300&h=300&fit=crop' },
+    { id: 24, name: 'Echo', image: 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=300&h=300&fit=crop' }
   ];
 
   const filteredCharacters = characters.filter(char =>
@@ -212,7 +213,8 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                     </div>
                   )}
 
-                  {filteredCharacters.map((character) => (
+                  {/* Show character images only if NOT on My Characters tab */}
+                  {selectedTab !== 'my-characters' && filteredCharacters.map((character) => (
                     <div key={character.id} className="flex flex-col">
                       <button
                         onClick={() => handleCharacterSelect(character)}
