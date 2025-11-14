@@ -7,6 +7,8 @@ const NotificationBell = () => {
   const [activeTab, setActiveTab] = useState('whats-new'); // 'whats-new' or 'inbox'
   const [unreadCount, setUnreadCount] = useState(2); // Number of unread notifications
   const [allCaughtUp, setAllCaughtUp] = useState(false);
+  const [viewingArchived, setViewingArchived] = useState(false);
+  const [archivedNotifications, setArchivedNotifications] = useState<typeof notifications>([]);
 
   // Sample notifications data
   const notifications = [
@@ -44,6 +46,16 @@ const NotificationBell = () => {
   const filteredNotifications = notifications.filter(n => 
     activeTab === 'whats-new' ? n.type === 'whats-new' : n.type === 'inbox'
   );
+
+  const filteredArchivedNotifications = archivedNotifications.filter(n => 
+    activeTab === 'whats-new' ? n.type === 'whats-new' : n.type === 'inbox'
+  );
+
+  const handleMarkAllAsRead = () => {
+    setUnreadCount(0);
+    setAllCaughtUp(true);
+    setArchivedNotifications(prev => [...prev, ...notifications]);
+  };
 
   return (
     <div className="relative">
@@ -101,10 +113,7 @@ const NotificationBell = () => {
                 </DropdownMenu>
               </div>
               <button 
-                onClick={() => {
-                  setUnreadCount(0);
-                  setAllCaughtUp(true);
-                }}
+                onClick={handleMarkAllAsRead}
                 className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors font-medium text-sm"
                 aria-label="Mark all as read"
               >
@@ -114,34 +123,112 @@ const NotificationBell = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-              <button
-                onClick={() => setActiveTab('whats-new')}
-                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
-                  activeTab === 'whats-new'
-                    ? 'bg-gray-200 text-black'
-                    : 'bg-transparent text-gray-600 hover:text-black'
-                }`}
-              >
-                <Sparkles size={18} />
-                What's New
-              </button>
-              <button
-                onClick={() => setActiveTab('inbox')}
-                className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
-                  activeTab === 'inbox'
-                    ? 'bg-gray-200 text-black'
-                    : 'bg-transparent text-gray-600 hover:text-black'
-                }`}
-              >
-                <Inbox size={18} />
-                Inbox
-              </button>
-            </div>
+            {!viewingArchived && (
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+                <button
+                  onClick={() => setActiveTab('whats-new')}
+                  className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                    activeTab === 'whats-new'
+                      ? 'bg-gray-200 text-black'
+                      : 'bg-transparent text-gray-600 hover:text-black'
+                  }`}
+                >
+                  <Sparkles size={18} />
+                  What's New
+                </button>
+                <button
+                  onClick={() => setActiveTab('inbox')}
+                  className={`flex-1 px-6 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                    activeTab === 'inbox'
+                      ? 'bg-gray-200 text-black'
+                      : 'bg-transparent text-gray-600 hover:text-black'
+                  }`}
+                >
+                  <Inbox size={18} />
+                  Inbox
+                </button>
+              </div>
+            )}
 
             {/* Notifications List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {allCaughtUp ? (
+              {viewingArchived ? (
+                // Archived Notifications View
+                <>
+                  {filteredArchivedNotifications.length > 0 ? (
+                    filteredArchivedNotifications.map((notification) => (
+                      <div key={notification.id} className="space-y-3">
+                        {/* Timestamp */}
+                        <div className="text-sm text-gray-600">{notification.timestamp}</div>
+                        
+                        {/* Notification Card */}
+                        <div className="bg-gray-100 rounded-2xl overflow-hidden hover:bg-gray-200 transition-colors opacity-70">
+                          {/* Image (if exists) */}
+                          {notification.image && (
+                            <div className="relative w-full h-48 bg-gradient-to-br from-blue-900 to-yellow-600">
+                              <img
+                                src={notification.image} 
+                                alt={notification.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                              {notification.id === 1 && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="bg-black/70 backdrop-blur-sm px-8 py-3 rounded-full">
+                                    <span className="text-white text-2xl font-semibold">Spaces</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Content */}
+                          <div className="p-5 space-y-3">
+                            {/* Title */}
+                            <div className="flex items-center gap-2">
+                              {notification.id === 1 && (
+                                <span className="bg-green-600 text-white text-xs font-bold uppercase px-2 py-1 rounded">
+                                  NEW
+                                </span>
+                              )}
+                              <h3 className="text-lg font-bold text-black">
+                                {notification.title}
+                              </h3>
+                            </div>
+                            
+                            {/* Description */}
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                              {notification.description.split('**').map((part, idx) => 
+                                idx % 2 === 1 ? (
+                                  <span key={idx} className="font-bold text-black">{part}</span>
+                                ) : (
+                                  part
+                                )
+                              )}
+                            </p>
+                            
+                            {/* CTA Link */}
+                            {notification.ctaText && (
+                              <button className={`${notification.ctaColor} hover:underline font-semibold text-sm`}>
+                                {notification.ctaText}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-12 text-gray-600">
+                      <FolderOpen size={48} className="mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">No archived notifications</p>
+                      <p className="text-sm mt-2">Notifications you mark as read will appear here</p>
+                    </div>
+                  )}
+                </>
+              ) : allCaughtUp ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-4">
                     <Check size={48} className="text-green-600" />
@@ -169,12 +256,10 @@ const NotificationBell = () => {
                             alt={notification.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              // Fallback if image fails to load
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                             }}
                           />
-                          {/* Overlay Badge (like "Spaces") */}
                           {notification.id === 1 && (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <div className="bg-black/70 backdrop-blur-sm px-8 py-3 rounded-full">
@@ -231,9 +316,12 @@ const NotificationBell = () => {
             
             {/* Archive Button at Bottom */}
             <div className="px-4 py-3 border-t border-border">
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black font-medium transition-colors">
+              <button 
+                onClick={() => setViewingArchived(!viewingArchived)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-black font-medium transition-colors"
+              >
                 <FolderOpen size={18} />
-                Archived
+                {viewingArchived ? 'Back to Notifications' : `Archived ${archivedNotifications.length > 0 ? `(${archivedNotifications.length})` : ''}`}
               </button>
             </div>
           </div>
