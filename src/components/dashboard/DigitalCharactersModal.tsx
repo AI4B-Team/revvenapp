@@ -448,11 +448,8 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                       {/* Right Column - Style Selector */}
                       <div>
                         <label className="block text-white font-medium mb-2">Style</label>
-                        <p className="text-gray-400 text-sm mb-3">
-                          Type your own style here or choose from
-                        </p>
 
-                        <div className="h-[340px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800">
+                        <div className="h-[340px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-800 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-200">
                           <div className="grid grid-cols-3 gap-3">
                             {styles.map((style) => (
                               <button
