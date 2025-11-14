@@ -13,12 +13,12 @@ const OnboardingProgress = () => {
       
       {/* Onboarding Card */}
       <Link to="/onboarding" className="block">
-        <div className="bg-sidebar rounded-xl p-4 shadow-sm border-2 border-brand-green hover:border-brand-green/70 transition-all cursor-pointer">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border hover:border-brand-green/50 transition-all cursor-pointer">
           {/* Header with close button */}
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
               <Rocket size={18} className="text-brand-green" />
-              <h3 className="font-semibold text-sidebar-text text-sm">
+              <h3 className="font-semibold text-foreground text-sm">
                 Getting Started
               </h3>
             </div>
@@ -27,7 +27,7 @@ const OnboardingProgress = () => {
                 e.preventDefault();
                 setShowOnboarding(false);
               }}
-              className="text-sidebar-muted hover:text-sidebar-text transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Close"
             >
               <X size={16} />
@@ -36,7 +36,7 @@ const OnboardingProgress = () => {
 
           {/* Progress Bar */}
           <div className="space-y-2">
-            <div className="w-full bg-sidebar-hover rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
               <div
                 className="bg-brand-green h-2 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
@@ -44,7 +44,7 @@ const OnboardingProgress = () => {
             </div>
             
             {/* Progress Text */}
-            <p className="text-xs text-sidebar-muted">
+            <p className="text-xs text-muted-foreground">
               {progress}% Completed
             </p>
           </div>
