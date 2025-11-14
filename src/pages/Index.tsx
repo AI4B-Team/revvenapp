@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [timeFilter, setTimeFilter] = useState('All Time');
@@ -416,6 +418,11 @@ const Index = () => {
                         {quickActions.map((action, idx) => (
                           <button
                             key={idx}
+                            onClick={() => {
+                              if (action.title === 'Brand Settings') {
+                                navigate('/brand-wizard');
+                              }
+                            }}
                             className="flex items-start gap-4 p-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 text-left group border border-transparent hover:border-gray-200"
                           >
                             <div className={`${action.iconBg} ${action.iconColor} p-3 rounded-xl shrink-0 group-hover:scale-110 transition-transform`}>
