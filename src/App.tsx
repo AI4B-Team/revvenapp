@@ -16,6 +16,7 @@ import Assets from "./pages/Assets";
 import Integrations from "./pages/Integrations";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
+import BrandWizard from "./components/wizard/BrandWizard";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/brand-wizard" element={<BrandWizard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
