@@ -4,6 +4,8 @@ import VoicePage from './VoicePage';
 import KnowledgeBasePage from './KnowledgeBasePage';
 import IntelligencePage from './IntelligencePage';
 import CharactersPage from './CharactersPage';
+import ReviewPage from './ReviewPage';
+import CompletionPage from './CompletionPage';
 
 interface BrandWizardData {
   // Identity
@@ -63,6 +65,8 @@ const BrandWizard: React.FC = () => {
     'Knowledge Base',
     'Intelligence',
     'Characters',
+    'Review',
+    'Complete',
   ];
 
   const handleUpdate = (updates: Partial<BrandWizardData>) => {
@@ -81,13 +85,17 @@ const BrandWizard: React.FC = () => {
     }
   };
 
-  const handleComplete = () => {
+  const handleEdit = (step: number) => {
+    setCurrentStep(step);
+  };
+
+  const handleFinalComplete = () => {
     console.log('Brand Setup Complete!', formData);
     // Here you would typically:
     // 1. Save the data to your backend
     // 2. Redirect to the main dashboard
     // 3. Show a success message
-    alert('Brand setup complete! Redirecting to dashboard...');
+    setCurrentStep(currentStep + 1);
   };
 
   const renderStep = () => {
@@ -133,11 +141,22 @@ const BrandWizard: React.FC = () => {
           <CharactersPage
             formData={formData}
             onUpdate={handleUpdate}
-            onComplete={handleComplete}
+            onNext={handleNext}
             onBack={handleBack}
             canGoBack={true}
           />
         );
+      case 5:
+        return (
+          <ReviewPage
+            formData={formData}
+            onEdit={handleEdit}
+            onComplete={handleFinalComplete}
+            onBack={handleBack}
+          />
+        );
+      case 6:
+        return <CompletionPage />;
       default:
         return null;
     }
