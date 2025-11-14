@@ -17,7 +17,6 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [selectedStyle, setSelectedStyle] = useState('custom');
 
   const characters = [
-    { id: 'new', name: 'New Character', isReference: true },
     { id: 1, name: 'Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop' },
     { id: 2, name: 'Aurora', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop' },
     { id: 3, name: 'Zara', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=300&fit=crop' },
@@ -196,33 +195,40 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                   
+                  {/* New Character Box - Only in My Characters tab */}
+                  {selectedTab === 'my-characters' && (
+                    <div className="flex flex-col">
+                      <button
+                        onClick={handleNewCharacter}
+                        className="group relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
+                      >
+                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-gray-200 transition-colors">
+                          <Plus size={48} strokeWidth={1.5} />
+                        </div>
+                      </button>
+                      <div className="mt-2 text-center text-sm text-white font-medium">
+                        New Character
+                      </div>
+                    </div>
+                  )}
+
                   {filteredCharacters.map((character) => (
                     <div key={character.id} className="flex flex-col">
                       <button
                         onClick={() => handleCharacterSelect(character)}
                         className="group relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
                       >
-                        {character.isReference ? (
-                          /* New Character Card */
-                          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-gray-200 transition-colors">
-                            <Plus size={48} strokeWidth={1.5} />
+                        <img
+                          src={character.image}
+                          alt={character.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {/* Create Button on Hover */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
+                            <span className="text-white font-semibold">Create</span>
                           </div>
-                        ) : (
-                          /* Character Portrait */
-                          <>
-                            <img
-                              src={character.image}
-                              alt={character.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            {/* Create Button on Hover */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
-                                <span className="text-white font-semibold">Create</span>
-                              </div>
-                            </div>
-                          </>
-                        )}
+                        </div>
                       </button>
                       
                       {/* Character Name */}
