@@ -73,7 +73,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Review Your Brand Setup
           </h1>
           <p className="text-muted-foreground text-lg">
