@@ -30,7 +30,6 @@ interface BrandWizardData {
   
   // Intelligence
   competitors: any[];
-  emailCompetitors: any[];
   trackedContent: any[];
   
   // Characters
@@ -55,7 +54,6 @@ const BrandWizard: React.FC = () => {
     dontsList: [],
     dataSources: [],
     competitors: [],
-    emailCompetitors: [],
     trackedContent: [],
     selectedCharacters: [],
     defaultCharacter: '',

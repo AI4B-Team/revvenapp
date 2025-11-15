@@ -420,7 +420,7 @@ const Index = () => {
                             key={idx}
                             onClick={() => {
                               if (action.title === 'Brand Settings') {
-                                navigate('/brand/identity');
+                                navigate('/brand-wizard');
                               }
                             }}
                             className="flex items-start gap-4 p-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 text-left group border border-transparent hover:border-gray-200"

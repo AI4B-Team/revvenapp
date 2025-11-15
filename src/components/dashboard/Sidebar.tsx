@@ -40,7 +40,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const isAppsPage = location.pathname === '/apps';
   const isIntegrationsPage = location.pathname === '/integrations';
   const isAssetsPage = location.pathname === '/assets';
-  const isBrandPage = location.pathname.startsWith('/brand');
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -191,17 +190,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
-  const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
-
-  // Auto-expand brand section when on brand page
-  useEffect(() => {
-    if (isBrandPage) {
-      setIsBrandOpen(true);
-    }
-  }, [isBrandPage]);
 
   // Calculate asset counts from creationsData
   const assetCounts = useMemo(() => {
@@ -236,7 +228,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   return (
     <>
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col min-h-screen transition-all duration-300`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && (
@@ -338,7 +330,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
           <button 
             onClick={() => setIsBrandOpen(!isBrandOpen)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
-              isBrandPage ? 'bg-sidebar-active' : ''
+              isBrandOpen ? 'bg-sidebar-active' : ''
             }`}
             title="Brand"
           >
@@ -349,47 +341,29 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />}
           </button>
           {isBrandOpen && !isCollapsed && (
-          <div className="ml-6 mt-2 space-y-2 bg-sidebar">
-            <NavLink
-              to="/brand/identity"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
+          <div className="ml-6 mt-2 space-y-2">
+            <button 
+              onClick={onIdentityClick}
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left"
             >
               <UserCircle size={14} />
               <span className="text-sm">Identity</span>
-            </NavLink>
-            <NavLink
-              to="/brand/voice"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
               <Mic size={14} />
               <span className="text-sm">Voice</span>
-            </NavLink>
-            <NavLink
-              to="/brand/knowledge-base"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
+            </button>
+            <button className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left">
               <BookOpen size={14} />
               <span className="text-sm">Knowledge Base</span>
-            </NavLink>
-            <NavLink
-              to="/brand/intelligence"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
-            >
-              <Target size={14} />
-              <span className="text-sm">Intelligence</span>
-            </NavLink>
-            <NavLink
-              to="/brand/characters"
-              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
-              activeClassName="bg-sidebar-active text-sidebar-text"
+            </button>
+            <button 
+              onClick={onCharactersClick}
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left"
             >
               <Users size={14} />
               <span className="text-sm">Characters</span>
-            </NavLink>
+            </button>
           </div>
           )}
         </div>

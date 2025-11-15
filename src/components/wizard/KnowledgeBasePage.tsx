@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Book, Plus, FileText, Globe, Type, X, Check, Loader, Trash2, ExternalLink, MessageCircle, ChevronRight } from 'lucide-react';
+import { Book, Plus, FileText, Globe, Type, X, Check, Loader, Trash2, ExternalLink } from 'lucide-react';
 
 interface DataSource {
   id: string;
   name: string;
-  type: 'file' | 'website' | 'text' | 'discovery';
+  type: 'file' | 'website' | 'text';
   content?: string;
   url?: string;
   status: 'training' | 'trained' | 'failed';
@@ -28,64 +28,15 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalStep, setModalStep] = useState<'select' | 'details'>('select');
-  const [selectedType, setSelectedType] = useState<'file' | 'website' | 'text' | 'discovery' | null>(null);
+  const [selectedType, setSelectedType] = useState<'file' | 'website' | 'text' | null>(null);
   const [sourceName, setSourceName] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [includedLinks, setIncludedLinks] = useState<string[]>([]);
   const [newLink, setNewLink] = useState('');
   const [textContent, setTextContent] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  
-  // Discovery questionnaire state
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [discoveryAnswers, setDiscoveryAnswers] = useState<Record<number, string>>({});
-
-  const discoveryQuestions = [
-    {
-      id: 0,
-      question: "What problem does your business solve?",
-      placeholder: "e.g., We help busy professionals save time by automating their social media content...",
-    },
-    {
-      id: 1,
-      question: "Who is your ideal customer?",
-      placeholder: "e.g., Small business owners, ages 30-50, looking to grow their online presence...",
-    },
-    {
-      id: 2,
-      question: "What makes your brand unique or different from competitors?",
-      placeholder: "e.g., We're the only platform that combines AI avatars with automated posting...",
-    },
-    {
-      id: 3,
-      question: "What are your main products or services?",
-      placeholder: "e.g., AI content creation, social media management, brand strategy...",
-    },
-    {
-      id: 4,
-      question: "What values does your brand stand for?",
-      placeholder: "e.g., Innovation, authenticity, efficiency, customer success...",
-    },
-    {
-      id: 5,
-      question: "What transformation do you provide to your customers?",
-      placeholder: "e.g., From spending hours on content to having it done automatically...",
-    },
-    {
-      id: 6,
-      question: "What industry or niche do you operate in?",
-      placeholder: "e.g., SaaS, Digital Marketing, E-commerce, Coaching...",
-    },
-  ];
 
   const dataSourceTypes = [
-    {
-      type: 'discovery' as const,
-      icon: <MessageCircle size={32} className="text-blue-600" />,
-      label: 'Discovery',
-      description: 'Answer questions about your brand',
-      color: 'bg-blue-50 border-blue-200'
-    },
     {
       type: 'file' as const,
       icon: <FileText size={32} className="text-purple-600" />,
@@ -109,58 +60,9 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
     },
   ];
 
-  const handleSelectType = (type: 'file' | 'website' | 'text' | 'discovery') => {
+  const handleSelectType = (type: 'file' | 'website' | 'text') => {
     setSelectedType(type);
-    if (type === 'discovery') {
-      setCurrentQuestionIndex(0);
-      setDiscoveryAnswers({});
-    }
     setModalStep('details');
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < discoveryQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
-  const handleDiscoveryAnswer = (questionId: number, answer: string) => {
-    setDiscoveryAnswers(prev => ({ ...prev, [questionId]: answer }));
-  };
-
-  const handleCompleteDiscovery = () => {
-    // Compile all answers into a single text content
-    const compiledContent = discoveryQuestions
-      .map(q => {
-        const answer = discoveryAnswers[q.id] || '';
-        return `${q.question}\n${answer}\n`;
-      })
-      .join('\n');
-
-    const newSource: DataSource = {
-      id: Date.now().toString(),
-      name: 'Brand Discovery Questionnaire',
-      type: 'text',
-      content: compiledContent,
-      status: 'training',
-      createdAt: new Date(),
-    };
-
-    const currentSources = formData.dataSources || [];
-    onUpdate({ dataSources: [...currentSources, newSource] });
-
-    setTimeout(() => {
-      const updatedSources = [...currentSources, { ...newSource, status: 'trained' }];
-      onUpdate({ dataSources: updatedSources });
-    }, 2000);
-
-    resetModal();
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -620,119 +522,10 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
                   </div>
                 </div>
               )}
-
-              {modalStep === 'details' && selectedType === 'discovery' && (
-                <div className="space-y-6">
-                  <button
-                    onClick={() => {
-                      setModalStep('select');
-                      setCurrentQuestionIndex(0);
-                      setDiscoveryAnswers({});
-                    }}
-                    className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
-                  >
-                    ← Back
-                  </button>
-
-                  {/* Progress Bar */}
-                  <div>
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                      <span>Question {currentQuestionIndex + 1} of {discoveryQuestions.length}</span>
-                      <span>{Math.round(((currentQuestionIndex + 1) / discoveryQuestions.length) * 100)}% Complete</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${((currentQuestionIndex + 1) / discoveryQuestions.length) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* Question */}
-                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0 text-white font-bold">
-                        {currentQuestionIndex + 1}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {discoveryQuestions[currentQuestionIndex].question}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Answer */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Your Answer
-                    </label>
-                    <textarea
-                      value={discoveryAnswers[currentQuestionIndex] || ''}
-                      onChange={(e) => handleDiscoveryAnswer(currentQuestionIndex, e.target.value)}
-                      placeholder={discoveryQuestions[currentQuestionIndex].placeholder}
-                      rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      autoFocus
-                    />
-                  </div>
-
-                  {/* Navigation Buttons */}
-                  <div className="flex items-center justify-between pt-4">
-                    <button
-                      onClick={handlePrevQuestion}
-                      disabled={currentQuestionIndex === 0}
-                      className="px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    
-                    {currentQuestionIndex < discoveryQuestions.length - 1 ? (
-                      <button
-                        onClick={handleNextQuestion}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
-                      >
-                        Next Question
-                        <ChevronRight size={16} />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleCompleteDiscovery}
-                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
-                      >
-                        <Check size={16} />
-                        Complete Discovery
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Answered Questions Indicator */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm text-gray-600 mb-2">Progress Overview:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {discoveryQuestions.map((q, idx) => (
-                        <button
-                          key={q.id}
-                          onClick={() => setCurrentQuestionIndex(idx)}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                            discoveryAnswers[idx]?.trim()
-                              ? 'bg-green-100 text-green-700 border-2 border-green-500'
-                              : idx === currentQuestionIndex
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
-                        >
-                          {idx + 1}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}
-            {modalStep === 'details' && selectedType && selectedType !== 'discovery' && (
+            {modalStep === 'details' && (
               <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
                 <button
                   onClick={handleAddSource}

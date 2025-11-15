@@ -16,14 +16,7 @@ import Assets from "./pages/Assets";
 import Integrations from "./pages/Integrations";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
-import BrandLayout from "./pages/brand/BrandLayout";
-import Identity from "./pages/brand/Identity";
-import Voice from "./pages/brand/Voice";
-import KnowledgeBase from "./pages/brand/KnowledgeBase";
-import Intelligence from "./pages/brand/Intelligence";
-import Characters from "./pages/brand/Characters";
-import Review from "./pages/brand/Review";
-import Complete from "./pages/brand/Complete";
+import BrandWizard from "./components/wizard/BrandWizard";
 
 const queryClient = new QueryClient();
 
@@ -47,16 +40,7 @@ const App = () => (
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/brand" element={<BrandLayout />}>
-            <Route index element={<Identity />} />
-            <Route path="identity" element={<Identity />} />
-            <Route path="voice" element={<Voice />} />
-            <Route path="knowledge-base" element={<KnowledgeBase />} />
-            <Route path="intelligence" element={<Intelligence />} />
-            <Route path="characters" element={<Characters />} />
-            <Route path="review" element={<Review />} />
-            <Route path="complete" element={<Complete />} />
-          </Route>
+          <Route path="/brand-wizard" element={<BrandWizard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
