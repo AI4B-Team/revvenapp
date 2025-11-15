@@ -59,7 +59,7 @@ export default function Settings() {
               value="my-details"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
             >
-              My details
+              Details
             </TabsTrigger>
             <TabsTrigger
               value="profile"
@@ -74,15 +74,6 @@ export default function Settings() {
               Password
             </TabsTrigger>
             <TabsTrigger
-              value="team"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
-            >
-              Team
-              <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-700 hover:bg-gray-100">
-                48
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
               value="plan"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
             >
@@ -92,7 +83,7 @@ export default function Settings() {
               value="billing"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
             >
-              Billing
+              Subscription
             </TabsTrigger>
             <TabsTrigger
               value="email"
@@ -117,6 +108,12 @@ export default function Settings() {
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
             >
               API
+            </TabsTrigger>
+            <TabsTrigger
+              value="white-label"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
+            >
+              White Label
             </TabsTrigger>
           </TabsList>
 
