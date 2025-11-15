@@ -182,7 +182,7 @@ const Onboarding = () => {
   const progressPercentage = 29;
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="flex-1 flex flex-col overflow-hidden">

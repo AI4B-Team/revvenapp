@@ -132,7 +132,7 @@ const Integrations = () => {
   const displayedIntegrations = showAll ? filteredIntegrations : filteredIntegrations.slice(0, 9);
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">

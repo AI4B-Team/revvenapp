@@ -134,7 +134,7 @@ const AIAgentsPage = () => {
     : aiAgents.filter(agent => agent.category === activeCategory);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex min-h-screen w-full overflow-hidden">
       <Sidebar 
         activeTab={activeTab} 
         onTabChange={setActiveTab} 
