@@ -212,7 +212,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
               <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
                 <Link to="/settings" className="flex items-center gap-3 w-full">
                   <Settings size={20} />
-                  <span>Settings</span>
+                  <span>Account</span>
                 </Link>
               </DropdownMenuItem>
 
