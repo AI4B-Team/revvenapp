@@ -118,10 +118,16 @@ const VoicePage: React.FC<VoicePageProps> = ({
           <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
             <Mic size={20} className="text-white" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Brand Voice</h1>
             <p className="text-sm text-gray-600">Define how your brand communicates</p>
           </div>
+          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Tutorial
+          </button>
         </div>
 
         {/* Progress Bar */}

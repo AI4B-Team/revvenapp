@@ -260,10 +260,16 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
           <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
             <Book size={20} className="text-white" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Knowledge Base</h1>
             <p className="text-sm text-gray-600">Add data sources to train your AI agents</p>
           </div>
+          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Tutorial
+          </button>
         </div>
 
         {/* Progress Bar */}
@@ -273,7 +279,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
             <span>60% Complete</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-600 h-2 rounded-full transition-all duration-300" style={{ width: '60%' }}></div>
+            <div className="bg-yellow-500 h-2 rounded-full transition-all duration-300" style={{ width: '60%' }}></div>
           </div>
         </div>
       </div>
