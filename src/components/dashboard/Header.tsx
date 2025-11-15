@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
@@ -208,19 +208,23 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
             {/* Menu Items */}
             <div className="space-y-1">
-              <DropdownMenuItem className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <div className="flex items-center gap-3">
-                  <CreditCard size={20} />
-                  <span>Subscription</span>
-                </div>
-                <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
-                  Pro
-                </Badge>
+              <DropdownMenuItem asChild className="flex items-center justify-between py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+                <Link to="/settings" className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <CreditCard size={20} />
+                    <span>Subscription</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-gray-700 text-gray-300 hover:bg-gray-700">
+                    Pro
+                  </Badge>
+                </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
-                <User size={20} />
-                <span>Account</span>
+              <DropdownMenuItem asChild className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
+                <Link to="/settings" className="flex items-center gap-3 w-full">
+                  <Settings size={20} />
+                  <span>Settings</span>
+                </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem className="flex items-center gap-3 py-3 px-3 rounded-md hover:bg-sidebar-hover cursor-pointer text-white">
