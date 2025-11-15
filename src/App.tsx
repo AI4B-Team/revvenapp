@@ -15,6 +15,7 @@ import Apps from "./pages/Apps";
 import Assets from "./pages/Assets";
 import Integrations from "./pages/Integrations";
 import Onboarding from "./pages/Onboarding";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import BrandLayout from "./pages/brand/BrandLayout";
 import Identity from "./pages/brand/Identity";
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/brand" element={<BrandLayout />}>
             <Route index element={<Identity />} />
             <Route path="identity" element={<Identity />} />
