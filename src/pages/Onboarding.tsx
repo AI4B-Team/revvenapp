@@ -97,7 +97,7 @@ const Onboarding = () => {
           icon: <FileText size={20} />,
           title: 'Write AI-Powered Content',
           description: 'Create a digital product with AI-powered content generation',
-          actionLabel: 'Start Writing',
+          actionLabel: 'Create Content',
           actionColor: 'indigo'
         }
       ]
@@ -111,50 +111,18 @@ const Onboarding = () => {
       tasks: [
         {
           id: 'monetize-task-1',
-          icon: <Layout size={20} />,
-          title: 'Create your first funnel',
-          description: 'Build sales funnels that convert',
-          actionLabel: 'Create Funnel',
+          icon: <Package size={20} />,
+          title: 'Select A Product To Sell',
+          description: 'Choose from ready-to-sell digital products or create your own',
+          actionLabel: 'Select Product',
           actionColor: 'indigo'
         },
         {
           id: 'monetize-task-2',
-          icon: <CreditCard size={20} />,
-          title: 'Set up payment processing',
-          description: 'Connect your payment gateway',
-          actionLabel: 'Connect',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'monetize-task-3',
-          icon: <TrendingUp size={20} />,
-          title: 'Launch affiliate program',
-          description: 'Grow through affiliates',
-          actionLabel: 'Set Up',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'monetize-task-4',
-          icon: <Package size={20} />,
-          title: 'Create digital products',
-          description: 'Package your content for sale',
-          actionLabel: 'Create Product',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'monetize-task-5',
-          icon: <Users size={20} />,
-          title: 'Build membership site',
-          description: 'Create recurring revenue',
-          actionLabel: 'Build Site',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'monetize-task-6',
-          icon: <Mail size={20} />,
-          title: 'Set up email marketing',
-          description: 'Automate your email campaigns',
-          actionLabel: 'Configure',
+          icon: <Layout size={20} />,
+          title: 'Create Your First Funnel',
+          description: 'Set up your sales funnel or use a pre-built template',
+          actionLabel: 'Create Funnel',
           actionColor: 'indigo'
         }
       ]
@@ -168,34 +136,18 @@ const Onboarding = () => {
       tasks: [
         {
           id: 'automate-task-1',
-          icon: <Zap size={20} />,
-          title: 'Set up content scheduler',
-          description: 'Automate your content posting',
-          actionLabel: 'Configure',
+          icon: <Bot size={20} />,
+          title: 'Deploy Content AI Agent',
+          description: 'Automate content creation and manage your content calendar for all social platforms',
+          actionLabel: 'Deploy Agent',
           actionColor: 'indigo'
         },
         {
           id: 'automate-task-2',
-          icon: <Bot size={20} />,
-          title: 'Create AI workflows',
-          description: 'Build automated processes',
-          actionLabel: 'Create Workflow',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'automate-task-3',
           icon: <MessageSquare size={20} />,
-          title: 'Deploy AI chatbot',
-          description: 'Let AI handle customer service',
-          actionLabel: 'Deploy',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'automate-task-4',
-          icon: <TrendingUp size={20} />,
-          title: 'Enable smart analytics',
-          description: 'Automatic performance tracking',
-          actionLabel: 'Enable',
+          title: 'Deploy Social AI Agent',
+          description: 'Automate posting and handle replies to comments, DMs, and stories',
+          actionLabel: 'Deploy Agent',
           actionColor: 'indigo'
         }
       ]
