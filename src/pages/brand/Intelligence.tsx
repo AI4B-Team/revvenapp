@@ -43,8 +43,6 @@ const Intelligence = () => {
 
   return (
     <IntelligencePage
-      formData={formData}
-      onUpdate={handleUpdate}
       onNext={handleNext}
       onBack={handleBack}
     />

@@ -37,8 +37,6 @@ const KnowledgeBase = () => {
 
   return (
     <KnowledgeBasePage
-      formData={formData}
-      onUpdate={handleUpdate}
       onNext={handleNext}
       onBack={handleBack}
     />

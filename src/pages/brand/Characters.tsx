@@ -40,11 +40,8 @@ const Characters = () => {
 
   return (
     <CharactersPage
-      formData={formData}
-      onUpdate={handleUpdate}
       onNext={handleNext}
       onBack={handleBack}
-      canGoBack={true}
     />
   );
 };
