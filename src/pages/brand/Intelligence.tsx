@@ -4,6 +4,7 @@ import IntelligencePage from '@/components/wizard/IntelligencePage';
 
 interface IntelligenceData {
   competitors: any[];
+  emailCompetitors: any[];
   trackedContent: any[];
 }
 
@@ -13,9 +14,11 @@ const Intelligence = () => {
     const saved = localStorage.getItem('brandData');
     return saved ? JSON.parse(saved).intelligence || {
       competitors: [],
+      emailCompetitors: [],
       trackedContent: [],
     } : {
       competitors: [],
+      emailCompetitors: [],
       trackedContent: [],
     };
   });
