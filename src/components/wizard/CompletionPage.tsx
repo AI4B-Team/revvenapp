@@ -89,7 +89,7 @@ const CompletionPage: React.FC = () => {
           <p className="text-2xl text-foreground mb-2">
             Your Brand Profile Is Complete
           </p>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg mx-auto whitespace-nowrap">
             You're All Set To Start Creating Amazing Content With Your Personalized Brand Profile
           </p>
         </div>
