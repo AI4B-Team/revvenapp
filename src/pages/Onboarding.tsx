@@ -44,35 +44,11 @@ const Onboarding = () => {
           actionColor: 'indigo'
         },
         {
-          id: 'brand-identity',
+          id: 'brand-profile',
           icon: <Tag size={20} />,
-          title: 'Create Your Brand Identity',
-          description: 'Define your brand name, tagline, and niche. Upload logo, color palette, and brand story',
-          actionLabel: 'Set Up Brand',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'brand-voice',
-          icon: <Mic size={20} />,
-          title: 'Define Your Brand Voice',
-          description: 'Describe your tone (friendly, professional, witty, etc.) and upload examples of your brand copy, ads, or emails',
-          actionLabel: 'Define Voice',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'knowledgebase',
-          icon: <BookOpen size={20} />,
-          title: 'Build Your Knowledgebase',
-          description: 'Add FAQs, product details, website links, and customer descriptions',
-          actionLabel: 'Build Knowledge',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'workshop',
-          icon: <Ticket size={20} />,
-          title: 'Register For The Free 3-Day Virtual AI Workshop',
-          description: 'Connect with the community, learn automation strategies, and unlock bonus AI templates',
-          actionLabel: 'Register Now',
+          title: 'Create Your Brand Profile',
+          description: 'Build your complete brand profile by creating your identity, defining your voice, adding knowledge, conducting competitor analysis, and selecting your AI character to be the spokesperson for your brand',
+          actionLabel: 'Build Profile',
           actionColor: 'indigo'
         },
         {
@@ -81,6 +57,14 @@ const Onboarding = () => {
           title: 'Invite Your Team Members',
           description: 'Invite other admins and moderators to collaborate',
           actionLabel: 'Invite',
+          actionColor: 'indigo'
+        },
+        {
+          id: 'workshop',
+          icon: <Ticket size={20} />,
+          title: 'Register For The FREE 3-Day Virtual AI Workshop',
+          description: 'Connect with the community, learn automation strategies, and unlock bonus AI templates',
+          actionLabel: 'Register Now',
           actionColor: 'indigo'
         }
       ]
@@ -95,7 +79,7 @@ const Onboarding = () => {
         {
           id: 'create-task-1',
           icon: <ImageIcon size={20} />,
-          title: 'Generate your first image',
+          title: 'Generate Your First Image',
           description: 'Use AI to create stunning visuals',
           actionLabel: 'Create Image',
           actionColor: 'indigo'
@@ -103,7 +87,7 @@ const Onboarding = () => {
         {
           id: 'create-task-2',
           icon: <Video size={20} />,
-          title: 'Create your first video',
+          title: 'Create Your First Video',
           description: 'Transform ideas into video content',
           actionLabel: 'Create Video',
           actionColor: 'indigo'
@@ -111,17 +95,9 @@ const Onboarding = () => {
         {
           id: 'create-task-3',
           icon: <FileText size={20} />,
-          title: 'Write AI-powered content',
-          description: 'Generate blog posts and articles',
+          title: 'Write AI-Powered Content',
+          description: 'Create a digital product with AI-powered content generation',
           actionLabel: 'Start Writing',
-          actionColor: 'indigo'
-        },
-        {
-          id: 'create-task-4',
-          icon: <Music size={20} />,
-          title: 'Compose audio',
-          description: 'Create music and voiceovers',
-          actionLabel: 'Create Audio',
           actionColor: 'indigo'
         }
       ]
