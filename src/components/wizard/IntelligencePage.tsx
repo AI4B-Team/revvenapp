@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, Plus, X, Check, Search, Trash2, RefreshCw, Mail, Globe, BarChart3, Users, User } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface Creator {
   id: string;
@@ -160,6 +161,15 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
             <h1 className="text-3xl font-bold text-foreground">Competitive Intelligence</h1>
           </div>
           <p className="text-muted-foreground">Track your competitors' strategies across social, web, email, and advertising.</p>
+          
+          {/* Progress Bar */}
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-muted-foreground">Step 4 of 6</span>
+              <span className="text-sm text-muted-foreground">67% Complete</span>
+            </div>
+            <Progress value={67} className="h-2" />
+          </div>
         </div>
 
       {/* Tabs */}
@@ -245,7 +255,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
               Add Competitor
             </button>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">Track competitor websites, domain authority, traffic, and content strategies.</p>
+          <p className="text-sm text-muted-foreground mb-4">Monitor competitor websites, sales pages, and landing pages to analyze their messaging and conversion strategies.</p>
           <div className="text-center py-8 text-muted-foreground">
             Website competitor tracking coming soon
           </div>
