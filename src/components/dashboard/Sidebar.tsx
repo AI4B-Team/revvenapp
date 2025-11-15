@@ -7,7 +7,7 @@ import {
   ChevronDown, HelpCircle, Bell, Settings, MoreHorizontal, Bot, FolderOpen, Briefcase,
   UserCircle, Mic, Users, BookOpen, Target, Calendar, MessageSquarePlus, Clock, Edit,
   Globe, Mail, DollarSign, LayoutTemplate, Move, ArrowUpCircle, UserPlus, Volume2, Disc, MoreVertical,
-  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight
+  PanelLeftClose, PanelLeftOpen, LayoutGrid, Palette, Film, Package, FileBarChart, Send, Share2, Download, Maximize2, Home, AppWindow, Folder, ChevronRight, Check
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -389,6 +389,14 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             >
               <Users size={14} />
               <span className="text-sm">Characters</span>
+            </NavLink>
+            <NavLink
+              to="/brand/review"
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
+              activeClassName="bg-sidebar-active text-sidebar-text"
+            >
+              <Check size={14} />
+              <span className="text-sm">Review</span>
             </NavLink>
           </div>
           )}
