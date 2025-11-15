@@ -20,7 +20,7 @@ const Characters = () => {
     };
   });
 
-  const handleUpdate = (updates: any) => {
+  const handleUpdate = (updates: Partial<CharactersData>) => {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     
@@ -30,7 +30,7 @@ const Characters = () => {
     localStorage.setItem('brandData', JSON.stringify(allData));
   };
 
-  const handleComplete = () => {
+  const handleNext = () => {
     navigate('/brand/review');
   };
 
@@ -42,8 +42,9 @@ const Characters = () => {
     <CharactersPage
       formData={formData}
       onUpdate={handleUpdate}
-      onComplete={handleComplete}
+      onNext={handleNext}
       onBack={handleBack}
+      canGoBack={true}
     />
   );
 };

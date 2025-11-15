@@ -143,7 +143,7 @@ const BrandWizard: React.FC = () => {
           <CharactersPage
             formData={formData}
             onUpdate={handleUpdate}
-            onComplete={handleNext}
+            onNext={handleNext}
             onBack={handleBack}
             canGoBack={true}
           />

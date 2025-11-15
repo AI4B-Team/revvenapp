@@ -23,7 +23,7 @@ const Intelligence = () => {
     };
   });
 
-  const handleUpdate = (updates: any) => {
+  const handleUpdate = (updates: Partial<IntelligenceData>) => {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     

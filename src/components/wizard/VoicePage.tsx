@@ -113,13 +113,13 @@ const VoicePage: React.FC<VoicePageProps> = ({
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
-      <div className="flex-shrink-0 px-8 py-6 border-b border-gray-200">
+      <div className="px-8 py-6 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
             <Mic size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Brand Voice</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Brand Voice</h1>
             <p className="text-sm text-gray-600">Define how your brand communicates</p>
           </div>
         </div>
@@ -136,285 +136,237 @@ const VoicePage: React.FC<VoicePageProps> = ({
         </div>
       </div>
 
-      {/* Content - Scrollable 2 Column Layout */}
+      {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            {/* LEFT COLUMN - Inputs */}
-            <div className="space-y-6">
-              
-              {/* Tone of Voice */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Tone Of Voice <span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-600 mb-4">
-                  Select all that apply to describe your brand's communication style
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {toneOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => toggleTone(option.value)}
-                      className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                        (formData.toneOfVoice || []).includes(option.value)
-                          ? 'border-purple-600 bg-purple-50'
-                          : 'border-gray-200 hover:border-purple-300'
-                      }`}
-                    >
-                      <div className="text-2xl mb-1">{option.icon}</div>
-                      <div className="text-sm font-medium text-gray-900">{option.label}</div>
-                    </button>
-                  ))}
-                </div>
-                {errors.toneOfVoice && (
-                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <AlertCircle size={14} />
-                    {errors.toneOfVoice}
-                  </p>
-                )}
-              </div>
-
-              {/* Writing Style */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Writing Style <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {writingStyleOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => onUpdate({ writingStyle: option.value })}
-                      className={`p-4 rounded-lg border-2 text-left transition-all ${
-                        formData.writingStyle === option.value
-                          ? 'border-purple-600 bg-purple-50'
-                          : 'border-gray-200 hover:border-purple-300'
-                      }`}
-                    >
-                      <div className="font-medium text-gray-900 mb-1">{option.label}</div>
-                      <div className="text-sm text-gray-600">{option.description}</div>
-                    </button>
-                  ))}
-                </div>
-                {errors.writingStyle && (
-                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <AlertCircle size={14} />
-                    {errors.writingStyle}
-                  </p>
-                )}
-              </div>
-
-              {/* Brand Personality */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 uppercase tracking-wide mb-2">
-                  Brand Personality
-                </label>
-                <p className="text-sm text-gray-600 mb-4">
-                  Choose traits that best describe your brand (select 3-5)
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {personalityTraits.map((trait) => (
-                    <button
-                      key={trait}
-                      onClick={() => togglePersonality(trait)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        (formData.brandPersonality || []).includes(trait)
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {trait}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Communication Guidelines */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 uppercase tracking-wide mb-2 flex items-center gap-2">
-                  <MessageSquare size={16} />
-                  Communication Guidelines
-                </label>
-                <textarea
-                  value={formData.communicationGuidelines || ''}
-                  onChange={(e) => onUpdate({ communicationGuidelines: e.target.value })}
-                  placeholder="Add any specific guidelines for how your brand should communicate (e.g., 'Always use inclusive language', 'Avoid industry jargon', 'Keep it simple and clear')"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-sm"
-                />
-              </div>
-
-              {/* Do's and Don'ts */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                {/* Do's */}
-                <div className="bg-green-50 p-4 rounded-xl border border-green-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Check size={16} className="text-green-600" />
-                    Do's
-                  </h3>
-                  <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
-                    {(formData.dosList || []).map((item, index) => (
-                      <div key={index} className="flex items-start gap-2 bg-white p-2 rounded-lg">
-                        <Check size={14} className="text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 flex-1">{item}</span>
-                        <button
-                          onClick={() => removeDo(index)}
-                          className="text-gray-400 hover:text-red-600 text-sm"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customDo}
-                      onChange={(e) => setCustomDo(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addDo()}
-                      placeholder="Add a do..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <button
-                      onClick={addDo}
-                      className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-medium"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-
-                {/* Don'ts */}
-                <div className="bg-red-50 p-4 rounded-xl border border-red-200">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <AlertCircle size={16} className="text-red-600" />
-                    Don'ts
-                  </h3>
-                  <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
-                    {(formData.dontsList || []).map((item, index) => (
-                      <div key={index} className="flex items-start gap-2 bg-white p-2 rounded-lg">
-                        <AlertCircle size={14} className="text-red-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 flex-1">{item}</span>
-                        <button
-                          onClick={() => removeDont(index)}
-                          className="text-gray-400 hover:text-red-600 text-sm"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={customDont}
-                      onChange={(e) => setCustomDont(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addDont()}
-                      placeholder="Add a don't..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-500"
-                    />
-                    <button
-                      onClick={addDont}
-                      className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-medium"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
-
+        <div className="max-w-4xl mx-auto space-y-8">
+          
+          {/* Tone of Voice */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Tone of Voice <span className="text-red-500">*</span>
+            </label>
+            <p className="text-sm text-gray-600 mb-4">
+              Select all that apply to describe your brand's communication style
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {toneOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => toggleTone(option.value)}
+                  className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                    (formData.toneOfVoice || []).includes(option.value)
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{option.icon}</div>
+                  <div className="text-sm font-medium text-gray-900">{option.label}</div>
+                </button>
+              ))}
             </div>
-
-            {/* RIGHT COLUMN - Voice Summary (Sticky) */}
-            <div>
-              <div className="lg:sticky lg:top-0">
-                <div className="bg-purple-50 rounded-xl border border-purple-200 p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Sparkles size={16} className="text-purple-600" />
-                    Voice Summary
-                  </h3>
-                  <div className="bg-white p-6 rounded-lg shadow-sm">
-                    {(formData.toneOfVoice && formData.toneOfVoice.length > 0) || formData.writingStyle || (formData.brandPersonality && formData.brandPersonality.length > 0) ? (
-                      <div className="space-y-4">
-                        {formData.toneOfVoice && formData.toneOfVoice.length > 0 && (
-                          <div>
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Tone</p>
-                            <div className="flex flex-wrap gap-2">
-                              {formData.toneOfVoice.map((tone) => (
-                                <span key={tone} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                                  {toneOptions.find(opt => opt.value === tone)?.label || tone}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {formData.writingStyle && (
-                          <div className="border-t border-gray-200 pt-4">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Style</p>
-                            <p className="text-sm text-gray-900 font-medium">
-                              {writingStyleOptions.find(opt => opt.value === formData.writingStyle)?.label}
-                            </p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {writingStyleOptions.find(opt => opt.value === formData.writingStyle)?.description}
-                            </p>
-                          </div>
-                        )}
-                        
-                        {formData.brandPersonality && formData.brandPersonality.length > 0 && (
-                          <div className="border-t border-gray-200 pt-4">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Personality</p>
-                            <div className="flex flex-wrap gap-2">
-                              {formData.brandPersonality.map((trait) => (
-                                <span key={trait} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                                  {trait}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {((formData.dosList && formData.dosList.length > 0) || (formData.dontsList && formData.dontsList.length > 0)) && (
-                          <div className="border-t border-gray-200 pt-4">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Do's & Don'ts</p>
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                              {formData.dosList && formData.dosList.length > 0 && (
-                                <div>
-                                  <p className="font-medium text-green-700 mb-1">✓ Do's</p>
-                                  <p className="text-gray-600">{formData.dosList.length} items</p>
-                                </div>
-                              )}
-                              {formData.dontsList && formData.dontsList.length > 0 && (
-                                <div>
-                                  <p className="font-medium text-red-700 mb-1">✗ Don'ts</p>
-                                  <p className="text-gray-600">{formData.dontsList.length} items</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500 italic text-center py-8">
-                        Your brand voice summary will appear here as you make selections
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            {errors.toneOfVoice && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle size={14} />
+                {errors.toneOfVoice}
+              </p>
+            )}
           </div>
+
+          {/* Writing Style */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Writing Style <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {writingStyleOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => onUpdate({ writingStyle: option.value })}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    formData.writingStyle === option.value
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className="font-medium text-gray-900 mb-1">{option.label}</div>
+                  <div className="text-sm text-gray-600">{option.description}</div>
+                </button>
+              ))}
+            </div>
+            {errors.writingStyle && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle size={14} />
+                {errors.writingStyle}
+              </p>
+            )}
+          </div>
+
+          {/* Brand Personality */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Brand Personality
+            </label>
+            <p className="text-sm text-gray-600 mb-4">
+              Choose traits that best describe your brand (select 3-5)
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {personalityTraits.map((trait) => (
+                <button
+                  key={trait}
+                  onClick={() => togglePersonality(trait)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    (formData.brandPersonality || []).includes(trait)
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {trait}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Communication Guidelines */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <MessageSquare size={18} />
+              Communication Guidelines
+            </label>
+            <textarea
+              value={formData.communicationGuidelines || ''}
+              onChange={(e) => onUpdate({ communicationGuidelines: e.target.value })}
+              placeholder="Add any specific guidelines for how your brand should communicate (e.g., 'Always use inclusive language', 'Avoid industry jargon', 'Keep it simple and clear')"
+              rows={4}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            />
+          </div>
+
+          {/* Do's and Don'ts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Do's */}
+            <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Check size={18} className="text-green-600" />
+                Do's
+              </h3>
+              <div className="space-y-2 mb-3">
+                {(formData.dosList || []).map((item, index) => (
+                  <div key={index} className="flex items-start gap-2 bg-white p-2 rounded-lg">
+                    <Check size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 flex-1">{item}</span>
+                    <button
+                      onClick={() => removeDo(index)}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customDo}
+                  onChange={(e) => setCustomDo(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addDo()}
+                  placeholder="Add a do..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  onClick={addDo}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Don'ts */}
+            <div className="bg-red-50 p-6 rounded-xl border border-red-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <AlertCircle size={18} className="text-red-600" />
+                Don'ts
+              </h3>
+              <div className="space-y-2 mb-3">
+                {(formData.dontsList || []).map((item, index) => (
+                  <div key={index} className="flex items-start gap-2 bg-white p-2 rounded-lg">
+                    <AlertCircle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 flex-1">{item}</span>
+                    <button
+                      onClick={() => removeDont(index)}
+                      className="text-gray-400 hover:text-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customDont}
+                  onChange={(e) => setCustomDont(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addDont()}
+                  placeholder="Add a don't..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                <button
+                  onClick={addDont}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Voice Preview */}
+          <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Sparkles size={18} className="text-purple-600" />
+              Voice Summary
+            </h3>
+            <div className="bg-white p-4 rounded-lg">
+              {(formData.toneOfVoice && formData.toneOfVoice.length > 0) || formData.writingStyle || (formData.brandPersonality && formData.brandPersonality.length > 0) ? (
+                <div className="space-y-3 text-sm">
+                  {formData.toneOfVoice && formData.toneOfVoice.length > 0 && (
+                    <p>
+                      <strong className="text-gray-900">Tone:</strong>{' '}
+                      <span className="text-gray-700">{formData.toneOfVoice.join(', ')}</span>
+                    </p>
+                  )}
+                  {formData.writingStyle && (
+                    <p>
+                      <strong className="text-gray-900">Style:</strong>{' '}
+                      <span className="text-gray-700">
+                        {writingStyleOptions.find(opt => opt.value === formData.writingStyle)?.label}
+                      </span>
+                    </p>
+                  )}
+                  {formData.brandPersonality && formData.brandPersonality.length > 0 && (
+                    <p>
+                      <strong className="text-gray-900">Personality:</strong>{' '}
+                      <span className="text-gray-700">{formData.brandPersonality.join(', ')}</span>
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  Your brand voice summary will appear here as you make selections above
+                </p>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* Footer - Fixed/Sticky */}
-      <div className="flex-shrink-0 px-8 py-4 border-t border-gray-200 bg-white flex items-center justify-between">
+      {/* Footer */}
+      <div className="px-8 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+          className="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
         >
           Back
         </button>
