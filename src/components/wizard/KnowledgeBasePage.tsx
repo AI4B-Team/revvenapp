@@ -80,11 +80,11 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
 
   const dataSourceTypes = [
     {
-      type: 'discovery' as const,
-      icon: <MessageCircle size={32} className="text-blue-600" />,
-      label: 'Discovery',
-      description: 'Answer questions about your brand',
-      color: 'bg-blue-50 border-blue-200'
+      type: 'website' as const,
+      icon: <Globe size={32} className="text-green-600" />,
+      label: 'Website',
+      description: 'Crawl and extract content from URLs',
+      color: 'bg-green-50 border-green-200'
     },
     {
       type: 'file' as const,
@@ -94,18 +94,18 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
       color: 'bg-purple-50 border-purple-200'
     },
     {
-      type: 'website' as const,
-      icon: <Globe size={32} className="text-green-600" />,
-      label: 'Website',
-      description: 'Crawl and extract content from URLs',
-      color: 'bg-green-50 border-green-200'
-    },
-    {
       type: 'text' as const,
       icon: <Type size={32} className="text-orange-600" />,
       label: 'Text',
       description: 'Add custom text or information',
       color: 'bg-orange-50 border-orange-200'
+    },
+    {
+      type: 'discovery' as const,
+      icon: <MessageCircle size={32} className="text-blue-600" />,
+      label: 'Discovery',
+      description: 'Answer questions about your brand',
+      color: 'bg-blue-50 border-blue-200'
     },
   ];
 
@@ -391,7 +391,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
       {/* Add Data Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -417,7 +417,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
                   <p className="text-sm text-gray-600 mb-4">
                     Select a data source that you want to add to your knowledge-base
                   </p>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     {dataSourceTypes.map((type) => (
                       <button
                         key={type.type}
