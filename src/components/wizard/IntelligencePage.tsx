@@ -140,10 +140,10 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
   };
 
   const tabs = [
-    { id: 'social' as const, label: 'Social Media', icon: Users },
+    { id: 'social' as const, label: 'Social', icon: Users },
     { id: 'website' as const, label: 'Website', icon: Globe },
-    { id: 'email' as const, label: 'Email Marketing', icon: Mail },
-    { id: 'ads' as const, label: 'Advertising', icon: BarChart3 },
+    { id: 'email' as const, label: 'Email', icon: Mail },
+    { id: 'ads' as const, label: 'Ads', icon: BarChart3 },
   ];
 
   return (
