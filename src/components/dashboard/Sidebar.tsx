@@ -177,6 +177,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     isAppsPage ? [] :
     isIntegrationsPage ? [] :
     isAssetsPage ? [] :
+    isBrandPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
     isAssistantPage ? assistantNavItems : 
