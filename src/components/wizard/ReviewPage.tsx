@@ -19,6 +19,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
     {
       title: 'Brand Identity',
       icon: Palette,
+      iconColor: 'text-blue-600',
       step: 0,
       items: [
         { label: 'Brand Name', value: formData.brandName },
@@ -30,6 +31,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
     {
       title: 'Brand Voice',
       icon: MessageSquare,
+      iconColor: 'text-purple-600',
       step: 1,
       items: [
         { label: 'Tone of Voice', value: formData.toneOfVoice?.join(', ') || 'Not set' },
@@ -40,6 +42,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
     {
       title: 'Knowledge Base',
       icon: Database,
+      iconColor: 'text-green-600',
       step: 2,
       items: [
         { label: 'Data Sources', value: `${formData.dataSources?.length || 0} sources added` },
@@ -48,6 +51,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
     {
       title: 'Intelligence',
       icon: Brain,
+      iconColor: 'text-yellow-600',
       step: 3,
       items: [
         { label: 'Competitors', value: `${formData.competitors?.length || 0} tracked` },
@@ -57,6 +61,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
     {
       title: 'Characters',
       icon: Users,
+      iconColor: 'text-indigo-600',
       step: 4,
       items: [
         { label: 'Selected Characters', value: `${formData.selectedCharacters?.length || 0} characters` },
@@ -110,7 +115,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-primary" />
+                      <Icon className={`w-5 h-5 ${section.iconColor}`} />
                     </div>
                     <h3 className="text-xl font-semibold">{section.title}</h3>
                   </div>

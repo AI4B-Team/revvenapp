@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { TrendingUp, Plus, X, Check, Search, Trash2, RefreshCw, Mail, Globe, BarChart3, Users, User } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 
 interface Creator {
   id: string;
@@ -48,23 +47,18 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Creator[]>([]);
   
-  // Competitor form (unified for all tabs)
   const [competitorForm, setCompetitorForm] = useState({
     name: '',
     industry: '',
     website: '',
     notes: '',
-    // Website specific
     domain: '',
     traffic: '',
-    // Email specific
     monitoringEmail: '',
-    // Ads specific
     platforms: [] as string[],
     budget: '',
   });
 
-  // Mock search results for social media
   const mockSearchResults: Creator[] = [
     { id: '1', username: 'hormozi', platform: 'instagram', followers: '4.0M', posts: 3161, selected: false },
     { id: '2', username: 'sebastienjefferies', platform: 'instagram', followers: '713.9K', posts: 966, selected: false },
@@ -100,6 +94,11 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
     onUpdate({ competitors: currentCompetitors.filter(c => c.id !== id) });
   };
 
+  const generateMonitoringEmail = () => {
+    const randomString = Math.random().toString(36).substring(7);
+    return `monitor-${randomString}@tracking.yourdomain.com`;
+  };
+
   const handleAddCompetitor = () => {
     if (activeTab === 'social') {
       handleAddSelectedCreators();
@@ -125,524 +124,319 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
       const currentEmailCompetitors = formData.emailCompetitors || [];
       onUpdate({ emailCompetitors: [...currentEmailCompetitors, newCompetitor] });
     }
-    
+
     setShowModal(false);
-    setCompetitorForm({ name: '', industry: '', website: '', notes: '', domain: '', traffic: '', monitoringEmail: '', platforms: [], budget: '' });
+    setCompetitorForm({
+      name: '',
+      industry: '',
+      website: '',
+      notes: '',
+      domain: '',
+      traffic: '',
+      monitoringEmail: '',
+      platforms: [],
+      budget: '',
+    });
   };
 
-  const removeEmailCompetitor = (id: string) => {
-    const currentEmailCompetitors = formData.emailCompetitors || [];
-    onUpdate({ emailCompetitors: currentEmailCompetitors.filter(c => c.id !== id) });
-  };
-
-  const generateMonitoringEmail = () => {
-    const randomString = Math.random().toString(36).substring(7);
-    return `track-${randomString}@intel.yourdomain.com`;
-  };
-
-  const getPlatformColor = (platform: string) => {
-    switch (platform) {
-      case 'instagram': return 'bg-pink-100 text-pink-800';
-      case 'tiktok': return 'bg-gray-900 text-white';
-      case 'youtube': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+  const tabs = [
+    { id: 'social' as const, label: 'Social Media', icon: Users },
+    { id: 'website' as const, label: 'Website', icon: Globe },
+    { id: 'email' as const, label: 'Email Marketing', icon: Mail },
+    { id: 'ads' as const, label: 'Advertising', icon: BarChart3 },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">Competitive Intelligence</h1>
+    <div className="flex flex-col h-screen bg-white">
+      {/* Header */}
+      <div className="flex-shrink-0 px-8 py-6 border-b border-gray-200">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+            <TrendingUp size={20} className="text-white" />
           </div>
-          <p className="text-muted-foreground">Track your competitors' strategies across social, web, email, and advertising.</p>
-          
-          {/* Progress Bar */}
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-muted-foreground">Step 4 of 6</span>
-              <span className="text-sm text-muted-foreground">67% Complete</span>
-            </div>
-            <Progress value={67} className="h-2" />
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-gray-900">Competitive Intelligence</h1>
+            <p className="text-sm text-gray-600">Track Your Competitors' Strategies Across Social, Web, Email, And Advertising</p>
           </div>
+          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Tutorial
+          </button>
         </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-border">
-        {['social', 'website', 'email', 'ads'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab as typeof activeTab)}
-            className={`px-4 py-2 font-medium transition-colors relative ${
-              activeTab === tab
-                ? 'text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            {activeTab === tab && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
-        ))}
+        {/* Progress Bar */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+            <span>Step 4 of 5</span>
+            <span>80% Complete</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-yellow-500 h-2 rounded-full transition-all duration-300" style={{ width: '80%' }}></div>
+          </div>
+        </div>
       </div>
 
-      {/* Content based on active tab */}
-      {activeTab === 'social' && (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Social Competitors</h3>
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Competitor
-            </button>
+      {/* Content - Scrollable with Tabs */}
+      <div className="flex-1 overflow-y-auto px-8 py-6 pb-24">
+        <div className="max-w-7xl mx-auto">
+          {/* Tabs */}
+          <div className="border-b border-gray-200 mb-6">
+            <div className="flex gap-6">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-yellow-500 text-yellow-600'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="font-medium">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {formData.competitors && formData.competitors.length > 0 ? (
-            <div className="space-y-3">
-              {formData.competitors.map((creator) => (
-                <div key={creator.id} className="bg-card border border-border rounded-lg p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium text-foreground">@{creator.username}</h3>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPlatformColor(creator.platform)}`}>
-                          {creator.platform}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{creator.followers} followers • {creator.posts} posts</p>
-                    </div>
-                    <button onClick={() => removeCompetitor(creator.id)} className="p-2 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+          {/* Tab Content */}
+          {activeTab === 'social' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Social Media Competitors</h3>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                >
+                  <Plus size={18} />
+                  Add Competitor
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">Track competitor creators and influencers across Instagram, TikTok, and YouTube.</p>
+              <div className="text-center py-8 text-gray-500">
+                Social media competitor tracking coming soon
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-12 bg-muted/20 rounded-xl border-2 border-dashed border-border">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No social competitors tracked yet</h3>
-              <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                <Plus className="w-4 h-4" />
-                Add Your First Competitor
-              </button>
+          )}
+
+          {activeTab === 'website' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Website Tracking</h3>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                >
+                  <Plus size={18} />
+                  Add Competitor
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">Monitor Competitor Websites, Sales Pages, And Landing Pages To Analyze Their Messaging And Conversion Strategies.</p>
+              <div className="text-center py-8 text-gray-500">
+                Website competitor tracking coming soon
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'email' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Email Marketing Intelligence</h3>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                >
+                  <Plus size={18} />
+                  Add Competitor
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">Track competitor email campaigns, frequency, and messaging strategies.</p>
+              <div className="text-center py-8 text-gray-500">
+                Email marketing tracking coming soon
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ads' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Advertising Intelligence</h3>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                >
+                  <Plus size={18} />
+                  Add Competitor
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">Monitor competitor ad campaigns across platforms.</p>
+              <div className="text-center py-8 text-gray-500">
+                Advertising intelligence coming soon
+              </div>
             </div>
           )}
         </div>
-      )}
+      </div>
 
-      {activeTab === 'website' && (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Website Competitors</h3>
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Competitor
-            </button>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">Monitor competitor websites, sales pages, and landing pages to analyze their messaging and conversion strategies.</p>
-          <div className="text-center py-8 text-muted-foreground">
-            Website competitor tracking coming soon
-          </div>
+      {/* Bottom Navigation - Fixed */}
+      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 px-8 py-4 bg-white z-10">
+        <div className="max-w-7xl mx-auto flex justify-between">
+          <button
+            onClick={onBack}
+            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+          >
+            Back
+          </button>
+          <button
+            onClick={onNext}
+            className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+          >
+            Continue
+          </button>
         </div>
-      )}
+      </div>
 
-      {activeTab === 'email' && (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Email Competitors</h3>
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Competitor
-            </button>
-          </div>
-
-          {formData.emailCompetitors && formData.emailCompetitors.length > 0 ? (
-            <div className="space-y-3">
-              {formData.emailCompetitors.map((competitor) => (
-                <div key={competitor.id} className="bg-card border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">{competitor.name}</h3>
-                      <p className="text-sm text-muted-foreground">{competitor.industry}</p>
-                    </div>
-                    <button onClick={() => removeEmailCompetitor(competitor.id)} className="p-2 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Globe className="w-4 h-4" />
-                      <a href={competitor.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                        {competitor.website}
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="w-4 h-4" />
-                      <span>{competitor.monitoringEmail}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <BarChart3 className="w-4 h-4" />
-                      <span>{competitor.emailsCollected} emails collected</span>
-                    </div>
-                  </div>
-                  {competitor.notes && (
-                    <p className="text-sm text-muted-foreground mt-3 pt-3 border-t border-border">
-                      {competitor.notes}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-muted/20 rounded-xl border-2 border-dashed border-border">
-              <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No email competitors tracked yet</h3>
-              <button onClick={() => setShowModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                <Plus className="w-4 h-4" />
-                Add Your First Competitor
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'ads' && (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-foreground">Advertising Competitors</h3>
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add Competitor
-            </button>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">Monitor competitor ad campaigns, platforms, messaging, and estimated budgets.</p>
-          <div className="text-center py-8 text-muted-foreground">
-            Ad competitor tracking coming soon
-          </div>
-        </div>
-      )}
-
-      {/* Modal */}
+      {/* Add Competitor Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-foreground">
-                Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Competitor
-              </h3>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setSearchResults([]);
-                  setSearchQuery('');
-                  setCompetitorForm({ name: '', industry: '', website: '', notes: '', domain: '', traffic: '', monitoringEmail: '', platforms: [], budget: '' });
-                }}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {activeTab === 'social' ? (
-              <>
-                {/* Platform Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-foreground mb-3">Platform</label>
-                  <div className="flex gap-2">
-                    {(['instagram', 'tiktok', 'youtube'] as const).map((platform) => (
-                      <button
-                        key={platform}
-                        onClick={() => setSearchPlatform(platform)}
-                        className={`px-4 py-2 rounded-lg border transition-colors ${
-                          searchPlatform === platform
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background text-foreground border-border hover:border-primary/50'
-                        }`}
-                      >
-                        {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                      </button>
-                    ))}
-                  </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Add Competitor</h2>
+                  <p className="text-sm text-gray-600 mt-1">Search and select competitors to track</p>
                 </div>
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                  <X size={24} />
+                </button>
+              </div>
 
-                {/* Search */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-foreground mb-2">Search by Username or Profile URL</label>
+              {activeTab === 'social' ? (
+                <div className="space-y-6">
                   <div className="flex gap-2">
+                    <select
+                      value={searchPlatform}
+                      onChange={(e) => setSearchPlatform(e.target.value as any)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    >
+                      <option value="instagram">Instagram</option>
+                      <option value="tiktok">TikTok</option>
+                      <option value="youtube">YouTube</option>
+                    </select>
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search username or profile..."
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
                       onKeyPress={(e) => e.key === 'Enter' && handleSocialSearch()}
-                      placeholder="Enter username or paste profile URL..."
-                      className="flex-1 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
                     />
                     <button
                       onClick={handleSocialSearch}
-                      disabled={isSearching}
-                      className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+                      className="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
                     >
-                      {isSearching ? (
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Search className="w-4 h-4" />
-                      )}
+                      <Search size={18} />
                       Search
                     </button>
                   </div>
-                </div>
 
-                {/* Results */}
-                {searchResults.length > 0 && (
-                  <div className="space-y-3 mb-6">
-                    <label className="block text-sm font-medium text-foreground">Search Results - Click to confirm</label>
-                    {searchResults.map((creator) => (
-                      <div
-                        key={creator.id}
-                        onClick={() => toggleCreatorSelection(creator.id)}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                          creator.selected
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                              {creator.profileImage ? (
-                                <img src={creator.profileImage} alt={creator.username} className="w-full h-full rounded-full object-cover" />
-                              ) : (
-                                <User className="w-6 h-6 text-muted-foreground" />
-                              )}
-                            </div>
+                  {isSearching && (
+                    <div className="text-center py-8">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-yellow-500"></div>
+                      <p className="mt-2 text-gray-600">Searching...</p>
+                    </div>
+                  )}
+
+                  {searchResults.length > 0 && (
+                    <div className="space-y-2">
+                      {searchResults.map((creator) => (
+                        <div
+                          key={creator.id}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            creator.selected ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'
+                          }`}
+                          onClick={() => toggleCreatorSelection(creator.id)}
+                        >
+                          <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium text-foreground">@{creator.username}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {creator.followers} followers • {creator.posts} posts
-                              </p>
+                              <h4 className="font-semibold text-gray-900">@{creator.username}</h4>
+                              <p className="text-sm text-gray-600">{creator.followers} followers · {creator.posts} posts</p>
                             </div>
+                            {creator.selected && (
+                              <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <Check size={16} className="text-white" />
+                              </div>
+                            )}
                           </div>
-                          {creator.selected && (
-                            <Check className="w-5 h-5 text-primary" />
-                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setSearchResults([]);
-                      setSearchQuery('');
-                    }}
-                    className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors text-foreground"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddSelectedCreators}
-                    disabled={!searchResults.some(c => c.selected)}
-                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Add Selected ({searchResults.filter(c => c.selected).length})
-                  </button>
+                  {searchResults.length > 0 && (
+                    <button
+                      onClick={handleAddSelectedCreators}
+                      className="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium"
+                    >
+                      Add Selected ({searchResults.filter(c => c.selected).length})
+                    </button>
+                  )}
                 </div>
-              </>
-            ) : (
-              <>
-                {/* Generic Competitor Form for Website, Email, and Ads */}
+              ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Company Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Competitor Name</label>
                     <input
                       type="text"
                       value={competitorForm.name}
                       onChange={(e) => setCompetitorForm({ ...competitorForm, name: e.target.value })}
-                      placeholder="Competitor name"
-                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      placeholder="Enter competitor name"
                     />
                   </div>
 
-                  {activeTab === 'website' && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Domain *</label>
-                        <input
-                          type="url"
-                          value={competitorForm.domain}
-                          onChange={(e) => setCompetitorForm({ ...competitorForm, domain: e.target.value })}
-                          placeholder="https://competitor.com"
-                          className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Estimated Monthly Traffic</label>
-                        <input
-                          type="text"
-                          value={competitorForm.traffic}
-                          onChange={(e) => setCompetitorForm({ ...competitorForm, traffic: e.target.value })}
-                          placeholder="e.g., 100K"
-                          className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {activeTab === 'email' && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Website</label>
-                        <input
-                          type="url"
-                          value={competitorForm.website}
-                          onChange={(e) => setCompetitorForm({ ...competitorForm, website: e.target.value })}
-                          placeholder="https://competitor.com"
-                          className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Monitoring Email</label>
-                        <input
-                          type="email"
-                          value={competitorForm.monitoringEmail}
-                          onChange={(e) => setCompetitorForm({ ...competitorForm, monitoringEmail: e.target.value })}
-                          placeholder="Auto-generated if left blank"
-                          className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          We'll generate a unique email to subscribe to their list
-                        </p>
-                      </div>
-                    </>
-                  )}
-
-                  {activeTab === 'ads' && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Advertising Platforms</label>
-                        <div className="flex flex-wrap gap-2">
-                          {['Google Ads', 'Meta', 'LinkedIn', 'TikTok', 'YouTube'].map((platform) => (
-                            <button
-                              key={platform}
-                              onClick={() => {
-                                const platforms = competitorForm.platforms.includes(platform)
-                                  ? competitorForm.platforms.filter(p => p !== platform)
-                                  : [...competitorForm.platforms, platform];
-                                setCompetitorForm({ ...competitorForm, platforms });
-                              }}
-                              className={`px-3 py-1 rounded-lg border text-sm transition-colors ${
-                                competitorForm.platforms.includes(platform)
-                                  ? 'bg-primary text-primary-foreground border-primary'
-                                  : 'bg-background text-foreground border-border hover:border-primary/50'
-                              }`}
-                            >
-                              {platform}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Estimated Monthly Budget</label>
-                        <input
-                          type="text"
-                          value={competitorForm.budget}
-                          onChange={(e) => setCompetitorForm({ ...competitorForm, budget: e.target.value })}
-                          placeholder="e.g., $10K-50K"
-                          className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
-                        />
-                      </div>
-                    </>
-                  )}
-
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Industry</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
                     <input
                       type="text"
-                      value={competitorForm.industry}
-                      onChange={(e) => setCompetitorForm({ ...competitorForm, industry: e.target.value })}
-                      placeholder="e.g., SaaS, E-commerce"
-                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                      value={competitorForm.website}
+                      onChange={(e) => setCompetitorForm({ ...competitorForm, website: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      placeholder="https://competitor.com"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
-                    <textarea
-                      value={competitorForm.notes}
-                      onChange={(e) => setCompetitorForm({ ...competitorForm, notes: e.target.value })}
-                      placeholder="Why are you tracking them?"
-                      rows={3}
-                      className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground resize-none"
-                    />
-                  </div>
-                </div>
+                  {activeTab === 'email' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Monitoring Email (Optional)</label>
+                      <input
+                        type="text"
+                        value={competitorForm.monitoringEmail}
+                        onChange={(e) => setCompetitorForm({ ...competitorForm, monitoringEmail: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        placeholder="Will be auto-generated if not provided"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Use this email to sign up for their mailing list</p>
+                    </div>
+                  )}
 
-                <div className="flex justify-end gap-3 mt-6">
-                  <button
-                    onClick={() => {
-                      setShowModal(false);
-                      setCompetitorForm({ name: '', industry: '', website: '', notes: '', domain: '', traffic: '', monitoringEmail: '', platforms: [], budget: '' });
-                    }}
-                    className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors text-foreground"
-                  >
-                    Cancel
-                  </button>
                   <button
                     onClick={handleAddCompetitor}
-                    disabled={!competitorForm.name.trim()}
-                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium"
                   >
                     Add Competitor
                   </button>
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
-
-      {/* Navigation */}
-      <div className="flex justify-between items-center mt-12 pt-6 border-t border-border">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors text-foreground"
-        >
-          Back
-        </button>
-        <button
-          onClick={onNext}
-          className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          Continue
-        </button>
-      </div>
-    </div>
     </div>
   );
 };

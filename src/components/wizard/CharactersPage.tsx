@@ -129,21 +129,29 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
     const isCurrentlySelected = currentSelected.includes(characterId);
     
     if (isCurrentlySelected) {
-      // Deselect the character
-      const newSelected = currentSelected.filter(id => id !== characterId);
-      const newDefaultCharacter = formData.defaultCharacter === characterId ? '' : formData.defaultCharacter;
-      
-      onUpdate({
-        selectedCharacters: newSelected,
-        defaultCharacter: newDefaultCharacter,
-      });
+      // If clicking the current default, deselect it
+      if (formData.defaultCharacter === characterId) {
+        const newSelected = currentSelected.filter(id => id !== characterId);
+        const newDefault = newSelected.length > 0 ? newSelected[0] : '';
+        onUpdate({
+          selectedCharacters: newSelected,
+          defaultCharacter: newDefault,
+        });
+      }
+      // If not default, just deselect
+      else {
+        const newSelected = currentSelected.filter(id => id !== characterId);
+        onUpdate({
+          selectedCharacters: newSelected,
+          defaultCharacter: formData.defaultCharacter,
+        });
+      }
     } else {
-      // Select the character
+      // Select the character (don't auto-set as default)
       const newSelected = [...currentSelected, characterId];
-      
       onUpdate({
         selectedCharacters: newSelected,
-        defaultCharacter: formData.defaultCharacter || characterId, // Set as default if no default exists
+        defaultCharacter: formData.defaultCharacter || characterId, // Only set default if none exists
       });
     }
   };
@@ -319,13 +327,6 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
                       </div>
                     )}
 
-                    {/* Default Badge */}
-                    {isDefault && (
-                      <div className="absolute top-3 left-3 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                        DEFAULT
-                      </div>
-                    )}
-
                     {/* Avatar */}
                     <div className="text-center mb-4">
                       <div className="text-6xl mb-3">{character.avatar}</div>
@@ -346,16 +347,21 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Set As Default Button */}
-                  {isSelected && !isDefault && (
+                  {/* Set as Default Button - Show for all selected characters */}
+                  {isSelected && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setDefaultCharacter(character.id);
                       }}
-                      className="w-full mt-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                      className={`w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isDefault
+                          ? 'bg-green-100 text-green-700 cursor-default'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                      }`}
+                      disabled={isDefault}
                     >
-                      Set As Default
+                      {isDefault ? 'Default Character' : 'Set As Default'}
                     </button>
                   )}
                 </div>
