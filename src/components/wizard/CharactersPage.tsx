@@ -126,15 +126,30 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
 
   const toggleCharacterSelection = (characterId: string) => {
     const currentSelected = formData.selectedCharacters || [];
-    const newSelected = currentSelected.includes(characterId)
-      ? currentSelected.filter(id => id !== characterId)
-      : [...currentSelected, characterId];
+    const isCurrentlySelected = currentSelected.includes(characterId);
+    const isCurrentDefault = formData.defaultCharacter === characterId;
     
-    onUpdate({ selectedCharacters: newSelected });
-
-    // If deselecting the default character, clear it
-    if (!newSelected.includes(formData.defaultCharacter)) {
-      onUpdate({ defaultCharacter: '' });
+    if (isCurrentlySelected && isCurrentDefault) {
+      // If clicking the default character, just toggle its selection off
+      const newSelected = currentSelected.filter(id => id !== characterId);
+      onUpdate({ 
+        selectedCharacters: newSelected,
+        defaultCharacter: newSelected.length > 0 ? newSelected[0] : '' // Set first remaining as default
+      });
+    } else if (isCurrentlySelected) {
+      // If clicking a selected (but not default) character, make it the new default
+      onUpdate({ defaultCharacter: characterId });
+    } else {
+      // If clicking an unselected character, select it and make it default if no default exists
+      const newSelected = [...currentSelected, characterId];
+      const updates: any = { selectedCharacters: newSelected };
+      
+      // If no default character yet, make this one the default
+      if (!formData.defaultCharacter) {
+        updates.defaultCharacter = characterId;
+      }
+      
+      onUpdate(updates);
     }
   };
 
@@ -256,11 +271,23 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
               <Sparkles size={24} className="text-indigo-600 flex-shrink-0 mt-1" />
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Choose Your Brand's Voice & Face</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Select one or more AI characters to represent your brand across social media. 
-                  Your <strong>default spokesperson</strong> will be used for automatic content creation. 
-                  You can assign different characters to specific campaigns later.
+                <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                  Select one or more AI characters to represent your brand across social media.
                 </p>
+                <div className="space-y-2 text-sm">
+                  <p className="flex items-start gap-2">
+                    <span className="text-indigo-600 font-bold">1.</span>
+                    <span><strong>Click any character</strong> to select it. Your first selection automatically becomes your default spokesperson.</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-indigo-600 font-bold">2.</span>
+                    <span><strong>Click a selected character</strong> to make it your default spokesperson.</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-indigo-600 font-bold">3.</span>
+                    <span><strong>Click the default character</strong> to deselect it (a new default will be chosen automatically).</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -329,17 +356,21 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Set as Default Button */}
+                  {/* Action Hints */}
+                  {!isSelected && (
+                    <div className="text-center text-xs text-gray-500 italic">
+                      Click to select
+                    </div>
+                  )}
                   {isSelected && !isDefault && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAsDefault(character.id);
-                      }}
-                      className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition-colors text-sm font-medium"
-                    >
-                      Set as Default
-                    </button>
+                    <div className="text-center text-xs text-indigo-600 font-medium">
+                      Click again to make default
+                    </div>
+                  )}
+                  {isDefault && (
+                    <div className="text-center text-xs text-green-600 font-medium">
+                      This is your default character
+                    </div>
                   )}
                 </div>
               );
