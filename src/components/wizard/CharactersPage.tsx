@@ -43,8 +43,16 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Available pre-made characters
-  const availableCharacters: Character[] = [
+  // Load custom characters from localStorage
+  const getCustomCharacters = (): Character[] => {
+    const saved = localStorage.getItem('customCharacters');
+    return saved ? JSON.parse(saved) : [];
+  };
+
+  const [customCharacters, setCustomCharacters] = useState<Character[]>(getCustomCharacters());
+
+  // Pre-made characters
+  const premadeCharacters: Character[] = [
     {
       id: 'char1',
       name: 'Alex',
@@ -113,6 +121,9 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
     },
   ];
 
+  // Combine pre-made and custom characters
+  const availableCharacters = [...premadeCharacters, ...customCharacters];
+
   const toggleCharacterSelection = (characterId: string) => {
     const currentSelected = formData.selectedCharacters || [];
     const newSelected = currentSelected.includes(characterId)
@@ -167,6 +178,11 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
       gender: customCharacter.gender,
       ageRange: customCharacter.ageRange,
     };
+
+    // Save custom character to localStorage
+    const updatedCustomCharacters = [...customCharacters, newCharacter];
+    setCustomCharacters(updatedCustomCharacters);
+    localStorage.setItem('customCharacters', JSON.stringify(updatedCustomCharacters));
 
     // Add to selected characters and set as default
     onUpdate({
