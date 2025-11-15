@@ -127,43 +127,32 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
   const toggleCharacterSelection = (characterId: string) => {
     const currentSelected = formData.selectedCharacters || [];
     const isCurrentlySelected = currentSelected.includes(characterId);
-    const isCurrentDefault = formData.defaultCharacter === characterId;
     
-    if (isCurrentlySelected && isCurrentDefault) {
-      // If clicking the default character, just toggle its selection off
+    if (isCurrentlySelected) {
+      // Deselect the character
       const newSelected = currentSelected.filter(id => id !== characterId);
-      onUpdate({ 
+      const newDefaultCharacter = formData.defaultCharacter === characterId ? '' : formData.defaultCharacter;
+      
+      onUpdate({
         selectedCharacters: newSelected,
-        defaultCharacter: newSelected.length > 0 ? newSelected[0] : '' // Set first remaining as default
+        defaultCharacter: newDefaultCharacter,
       });
-    } else if (isCurrentlySelected) {
-      // If clicking a selected (but not default) character, make it the new default
-      onUpdate({ defaultCharacter: characterId });
     } else {
-      // If clicking an unselected character, select it and make it default if no default exists
+      // Select the character
       const newSelected = [...currentSelected, characterId];
-      const updates: any = { selectedCharacters: newSelected };
       
-      // If no default character yet, make this one the default
-      if (!formData.defaultCharacter) {
-        updates.defaultCharacter = characterId;
-      }
-      
-      onUpdate(updates);
+      onUpdate({
+        selectedCharacters: newSelected,
+        defaultCharacter: formData.defaultCharacter || characterId, // Set as default if no default exists
+      });
     }
   };
 
-  const setAsDefault = (characterId: string) => {
-    // First ensure the character is selected
-    const currentSelected = formData.selectedCharacters || [];
-    if (!currentSelected.includes(characterId)) {
-      onUpdate({ 
-        selectedCharacters: [...currentSelected, characterId],
-        defaultCharacter: characterId 
-      });
-    } else {
-      onUpdate({ defaultCharacter: characterId });
-    }
+  const setDefaultCharacter = (characterId: string) => {
+    onUpdate({
+      selectedCharacters: formData.selectedCharacters,
+      defaultCharacter: characterId,
+    });
   };
 
   const handleCreateCharacter = () => {
@@ -316,61 +305,58 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
               return (
                 <div
                   key={character.id}
-                  className={`relative bg-white border-2 rounded-xl p-6 transition-all cursor-pointer ${
+                  className={`relative bg-white border-2 rounded-xl p-6 transition-all ${
                     isSelected
                       ? 'border-indigo-500 shadow-lg'
                       : 'border-gray-200 hover:border-indigo-300 hover:shadow-md'
                   }`}
-                  onClick={() => toggleCharacterSelection(character.id)}
                 >
-                  {/* Selection Indicator */}
-                  {isSelected && (
-                    <div className="absolute top-3 right-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
-                      <Check size={16} className="text-white" />
-                    </div>
-                  )}
+                  <div onClick={() => toggleCharacterSelection(character.id)} className="cursor-pointer">
+                    {/* Selection Indicator */}
+                    {isSelected && (
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <Check size={16} className="text-white" />
+                      </div>
+                    )}
 
-                  {/* Default Badge */}
-                  {isDefault && (
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                      DEFAULT
-                    </div>
-                  )}
+                    {/* Default Badge */}
+                    {isDefault && (
+                      <div className="absolute top-3 left-3 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                        DEFAULT
+                      </div>
+                    )}
 
-                  {/* Avatar */}
-                  <div className="text-center mb-4">
-                    <div className="text-6xl mb-3">{character.avatar}</div>
-                    <h3 className="text-lg font-bold text-gray-900">{character.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{character.description}</p>
+                    {/* Avatar */}
+                    <div className="text-center mb-4">
+                      <div className="text-6xl mb-3">{character.avatar}</div>
+                      <h3 className="text-lg font-bold text-gray-900">{character.name}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{character.description}</p>
+                    </div>
+
+                    {/* Character Details */}
+                    <div className="space-y-2 text-xs text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Voice:</span>
+                        <span>{character.voice}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Personality:</span>
+                        <span>{character.personality}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Character Details */}
-                  <div className="space-y-2 text-xs text-gray-600 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Voice:</span>
-                      <span>{character.voice}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">Personality:</span>
-                      <span>{character.personality}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Hints */}
-                  {!isSelected && (
-                    <div className="text-center text-xs text-gray-500 italic">
-                      Click to select
-                    </div>
-                  )}
+                  {/* Set As Default Button */}
                   {isSelected && !isDefault && (
-                    <div className="text-center text-xs text-indigo-600 font-medium">
-                      Click again to make default
-                    </div>
-                  )}
-                  {isDefault && (
-                    <div className="text-center text-xs text-green-600 font-medium">
-                      This is your default character
-                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDefaultCharacter(character.id);
+                      }}
+                      className="w-full mt-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Set As Default
+                    </button>
                   )}
                 </div>
               );
