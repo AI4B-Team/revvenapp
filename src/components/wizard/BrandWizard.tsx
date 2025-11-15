@@ -123,6 +123,8 @@ const BrandWizard: React.FC = () => {
       case 2:
         return (
           <KnowledgeBasePage
+            formData={formData}
+            onUpdate={handleUpdate}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -130,6 +132,8 @@ const BrandWizard: React.FC = () => {
       case 3:
         return (
           <IntelligencePage
+            formData={formData}
+            onUpdate={handleUpdate}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -137,8 +141,11 @@ const BrandWizard: React.FC = () => {
       case 4:
         return (
           <CharactersPage
-            onNext={handleNext}
+            formData={formData}
+            onUpdate={handleUpdate}
+            onComplete={handleNext}
             onBack={handleBack}
+            canGoBack={true}
           />
         );
       case 5:

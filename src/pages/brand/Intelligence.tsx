@@ -23,7 +23,7 @@ const Intelligence = () => {
     };
   });
 
-  const handleUpdate = (updates: Partial<IntelligenceData>) => {
+  const handleUpdate = (updates: any) => {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     
@@ -43,6 +43,8 @@ const Intelligence = () => {
 
   return (
     <IntelligencePage
+      formData={formData}
+      onUpdate={handleUpdate}
       onNext={handleNext}
       onBack={handleBack}
     />
