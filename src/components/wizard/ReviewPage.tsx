@@ -74,10 +74,10 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
             <CheckCircle className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Review Your Brand Setup
+            Review Your Brand Profile
           </h1>
           <p className="text-muted-foreground text-lg">
-            Take a moment to review your brand configuration before completing the setup
+            Take A Moment To Review Your Brand Profile Before Completing The Setup
           </p>
         </div>
 
