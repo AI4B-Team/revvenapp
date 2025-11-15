@@ -164,7 +164,7 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-900">
-                            Upload your brand logo
+                            Upload Your Brand logo
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
                             PNG, JPG or SVG (Max 5MB)

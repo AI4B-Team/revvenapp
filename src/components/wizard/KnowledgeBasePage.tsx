@@ -359,7 +359,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
               <Book size={48} className="text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No data sources yet</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Data Sources Yet</h3>
               <p className="text-sm text-gray-600 mb-4">
                 Add your first data source to start building your knowledge base
               </p>
