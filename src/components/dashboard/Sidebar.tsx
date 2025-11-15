@@ -349,7 +349,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isBrandOpen ? 'rotate-0' : '-rotate-90'}`} />}
           </button>
           {isBrandOpen && !isCollapsed && (
-          <div className="ml-6 mt-2 space-y-2">
+          <div className="ml-6 mt-2 space-y-2 bg-sidebar">
             <NavLink
               to="/brand/identity"
               className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text w-full text-left rounded"
