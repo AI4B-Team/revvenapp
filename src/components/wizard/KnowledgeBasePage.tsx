@@ -148,13 +148,13 @@ export default function KnowledgeBasePage({ onNext, onBack }: KnowledgeBasePageP
               Add Data Source
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl">
-            <DialogHeader>
+          <DialogContent className="max-w-5xl flex flex-col items-center">
+            <DialogHeader className="w-full">
               <DialogTitle className="text-2xl font-bold text-center uppercase">
                 Add Data Source
               </DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-4 gap-4 p-6">
+            <div className="grid grid-cols-4 gap-4 p-6 w-full max-w-4xl mx-auto">
               {/* Website */}
               <Card
                 className="p-6 cursor-pointer hover:border-primary transition-colors bg-card border-border"
@@ -320,7 +320,7 @@ export default function KnowledgeBasePage({ onNext, onBack }: KnowledgeBasePageP
         {/* Website Links List */}
         {websiteLinks.length > 0 && (
           <div className="space-y-2">
-            <Label className="text-foreground">Website Links</Label>
+            <Label className="text-foreground">Added Website Links</Label>
             {websiteLinks.map((link) => (
               <div
                 key={link.id}
@@ -351,7 +351,7 @@ export default function KnowledgeBasePage({ onNext, onBack }: KnowledgeBasePageP
         {/* Text Entries List */}
         {textEntries.length > 0 && (
           <div className="space-y-2">
-            <Label className="text-foreground">Text Entries</Label>
+            <Label className="text-foreground">Added Text Entries</Label>
             {textEntries.map((entry) => (
               <div
                 key={entry.id}
