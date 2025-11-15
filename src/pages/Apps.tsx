@@ -88,7 +88,7 @@ const Apps = () => {
 
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
