@@ -128,10 +128,41 @@ const Header = ({ onCreateClick }: HeaderProps) => {
 
       <div className="flex-1 flex items-center justify-end gap-4">
         <TooltipProvider>
-          <Button className="bg-brand-green hover:bg-brand-green/90 text-white flex items-center gap-2">
-            <Gift size={16} />
-            <span className="font-semibold">Refer & Earn</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-2">
+                <Crown size={16} />
+                <span className="font-semibold">Upgrade</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Upgrade your plan</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2">
+                <UserPlus size={16} />
+                <span className="font-semibold">Invite</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Invite team members</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2">
+                <Gift size={16} />
+                <span className="font-semibold">Earn</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Refer & earn rewards</p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
 
         <NotificationBell />
