@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, Plus, X, Check, Search, Trash2, RefreshCw, Mail, Globe, BarChart3, Users, User } from 'lucide-react';
+import TutorialModal from './TutorialModal';
 
 interface Creator {
   id: string;
@@ -46,6 +47,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Creator[]>([]);
+  const [showTutorial, setShowTutorial] = useState(false);
   
   const [competitorForm, setCompetitorForm] = useState({
     name: '',
@@ -158,7 +160,10 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
             <h1 className="text-2xl font-bold text-gray-900">Competitive Intelligence</h1>
             <p className="text-sm text-gray-600">Track Your Competitors' Strategies Across Social, Web, Email, And Advertising</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setShowTutorial(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -437,6 +442,13 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
           </div>
         </div>
       )}
+
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        videoUrl="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="Competitive Intelligence Tutorial"
+      />
     </div>
   );
 };

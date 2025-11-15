@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Book, Plus, FileText, Globe, Type, X, Check, Loader, Trash2, ExternalLink, MessageCircle, ChevronRight } from 'lucide-react';
+import TutorialModal from './TutorialModal';
 
 interface DataSource {
   id: string;
@@ -35,6 +36,7 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
   const [newLink, setNewLink] = useState('');
   const [textContent, setTextContent] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
   
   // Discovery questionnaire state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -264,7 +266,10 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
             <h1 className="text-2xl font-bold text-gray-900">Knowledge Base</h1>
             <p className="text-sm text-gray-600">Add data sources to train your AI agents</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setShowTutorial(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -754,6 +759,13 @@ const KnowledgeBasePage: React.FC<KnowledgeBasePageProps> = ({
           </div>
         </div>
       )}
+
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        videoUrl="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="Knowledge Base Tutorial"
+      />
     </div>
   );
 };
