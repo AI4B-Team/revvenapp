@@ -123,7 +123,8 @@ const CompletionPage: React.FC = () => {
                   </p>
                   <Button
                     onClick={step.action}
-                    className="w-full gap-2"
+                    variant="outline"
+                    className="w-full gap-2 bg-gray-100 hover:bg-gray-200 border-gray-300"
                     size="sm"
                   >
                     Get Started
@@ -140,9 +141,9 @@ const CompletionPage: React.FC = () => {
           <Button
             onClick={() => navigate('/')}
             size="lg"
-            className="gap-2 shadow-lg"
+            className="gap-2 shadow-lg bg-green-600 hover:bg-green-700 text-white"
           >
-            Go to Dashboard
+            Go To Dashboard
             <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
