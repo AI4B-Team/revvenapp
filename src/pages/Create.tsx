@@ -11,6 +11,7 @@ import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
+import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 
 const Create = () => {
   const location = useLocation();
@@ -20,6 +21,8 @@ const Create = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingImage, setEditingImage] = useState<string | null>(null);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -29,6 +32,8 @@ const Create = () => {
     if (location.pathname === '/create' && !location.search) {
       setActiveTab('');
       setSelectedType('');
+      setIsEditMode(false);
+      setEditingImage(null);
     }
   }, [location]);
 
@@ -38,6 +43,16 @@ const Create = () => {
       description: 'AI create some art works',
       bgColor: 'bg-tool-blue',
       emoji: '🎨'
+    },
+    { 
+      name: 'Edit', 
+      description: 'Edit images with AI',
+      bgColor: 'bg-tool-green',
+      emoji: '✏️',
+      onClick: () => {
+        setIsEditMode(true);
+        setEditingImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1024&h=1024&fit=crop');
+      }
     },
     { 
       name: 'Background Remover', 
@@ -274,7 +289,22 @@ const Create = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-auto bg-white">
+        {/* Show Image Editing Canvas when in edit mode */}
+        {isEditMode ? (
+          <ImageEditingCanvas
+            image={editingImage}
+            onClose={() => {
+              setIsEditMode(false);
+              setEditingImage(null);
+            }}
+            onSave={() => {
+              console.log('Saving image...');
+              setIsEditMode(false);
+              setEditingImage(null);
+            }}
+          />
+        ) : (
+          <main className="flex-1 overflow-auto bg-white">
           <div className="px-8 py-8">
             <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
             
@@ -422,6 +452,7 @@ const Create = () => {
             )}
           </div>
         </main>
+        )}
       </div>
 
       <DigitalCharactersModal
