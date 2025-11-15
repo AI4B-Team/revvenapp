@@ -30,6 +30,7 @@ interface BrandWizardData {
   
   // Intelligence
   competitors: any[];
+  emailCompetitors: any[];
   trackedContent: any[];
   
   // Characters
@@ -54,6 +55,7 @@ const BrandWizard: React.FC = () => {
     dontsList: [],
     dataSources: [],
     competitors: [],
+    emailCompetitors: [],
     trackedContent: [],
     selectedCharacters: [],
     defaultCharacter: '',
@@ -121,8 +123,6 @@ const BrandWizard: React.FC = () => {
       case 2:
         return (
           <KnowledgeBasePage
-            formData={formData}
-            onUpdate={handleUpdate}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -130,8 +130,6 @@ const BrandWizard: React.FC = () => {
       case 3:
         return (
           <IntelligencePage
-            formData={formData}
-            onUpdate={handleUpdate}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -139,11 +137,8 @@ const BrandWizard: React.FC = () => {
       case 4:
         return (
           <CharactersPage
-            formData={formData}
-            onUpdate={handleUpdate}
             onNext={handleNext}
             onBack={handleBack}
-            canGoBack={true}
           />
         );
       case 5:

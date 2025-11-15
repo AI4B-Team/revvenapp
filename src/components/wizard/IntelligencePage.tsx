@@ -1,444 +1,433 @@
 import React, { useState } from 'react';
-import { TrendingUp, Plus, X, Check, Search, Play, Eye, Heart, MessageCircle, Trash2, RefreshCw } from 'lucide-react';
-
-interface Creator {
-  id: string;
-  username: string;
-  platform: 'instagram' | 'tiktok' | 'youtube';
-  followers: string;
-  posts: number;
-  profileImage?: string;
-  selected: boolean;
-}
-
-interface ContentItem {
-  id: string;
-  creatorUsername: string;
-  thumbnail: string;
-  views: string;
-  likes: string;
-  comments: string;
-  caption: string;
-  date: string;
-}
+import { Users, Mail, Globe, Plus, Trash2, TrendingUp, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface IntelligencePageProps {
-  formData: {
-    competitors: Creator[];
-    trackedContent: ContentItem[];
-  };
-  onUpdate: (data: any) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-const IntelligencePage: React.FC<IntelligencePageProps> = ({
-  formData,
-  onUpdate,
-  onNext,
-  onBack,
-}) => {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [searchPlatform, setSearchPlatform] = useState<'instagram' | 'tiktok' | 'youtube'>('instagram');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<Creator[]>([]);
+interface SocialCreator {
+  id: string;
+  handle: string;
+  platform: string;
+  followers?: string;
+}
 
-  // Mock search results
-  const mockSearchResults: Creator[] = [
-    {
-      id: '1',
-      username: 'hormozi',
-      platform: 'instagram',
-      followers: '4.0M',
-      posts: 3161,
-      selected: false,
-    },
-    {
-      id: '2',
-      username: 'sebastienjefferies',
-      platform: 'instagram',
-      followers: '713.9K',
-      posts: 966,
-      selected: false,
-    },
-    {
-      id: '3',
-      username: 'myrasayed_',
-      platform: 'instagram',
-      followers: '23.3K',
-      posts: 41,
-      selected: false,
-    },
-  ];
+interface EmailCompetitor {
+  id: string;
+  name: string;
+  email: string;
+  website?: string;
+}
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
-    // Simulate API call
-    setTimeout(() => {
-      setSearchResults(mockSearchResults);
-      setIsSearching(false);
-    }, 1000);
-  };
+export default function IntelligencePage({ onNext, onBack }: IntelligencePageProps) {
+  const [socialCreators, setSocialCreators] = useState<SocialCreator[]>([]);
+  const [emailCompetitors, setEmailCompetitors] = useState<EmailCompetitor[]>([]);
+  const [newCreatorHandle, setNewCreatorHandle] = useState('');
+  const [newCreatorPlatform, setNewCreatorPlatform] = useState('Instagram');
+  const [newCompetitorName, setNewCompetitorName] = useState('');
+  const [newCompetitorWebsite, setNewCompetitorWebsite] = useState('');
 
-  const toggleCreatorSelection = (id: string) => {
-    setSearchResults(searchResults.map(creator =>
-      creator.id === id ? { ...creator, selected: !creator.selected } : creator
-    ));
-  };
-
-  const handleAddSelectedCreators = () => {
-    const selectedCreators = searchResults.filter(c => c.selected);
-    const currentCompetitors = formData.competitors || [];
-    onUpdate({ competitors: [...currentCompetitors, ...selectedCreators] });
-    setShowAddModal(false);
-    setSearchResults([]);
-    setSearchQuery('');
-  };
-
-  const removeCompetitor = (id: string) => {
-    const currentCompetitors = formData.competitors || [];
-    onUpdate({ competitors: currentCompetitors.filter(c => c.id !== id) });
-  };
-
-  const getReels = () => {
-    // Simulate fetching content
-    console.log('Fetching reels from tracked creators...');
-  };
-
-  const getPlatformColor = (platform: string) => {
-    switch (platform) {
-      case 'instagram':
-        return 'bg-pink-100 text-pink-700';
-      case 'tiktok':
-        return 'bg-black text-white';
-      case 'youtube':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+  const handleAddCreator = () => {
+    if (newCreatorHandle.trim()) {
+      const newCreator: SocialCreator = {
+        id: Math.random().toString(36).substr(2, 9),
+        handle: newCreatorHandle,
+        platform: newCreatorPlatform,
+      };
+      setSocialCreators([...socialCreators, newCreator]);
+      setNewCreatorHandle('');
     }
   };
 
+  const handleRemoveCreator = (id: string) => {
+    setSocialCreators(socialCreators.filter(creator => creator.id !== id));
+  };
+
+  const handleAddCompetitor = () => {
+    if (newCompetitorName.trim() && newCompetitorWebsite.trim()) {
+      const domain = new URL(newCompetitorWebsite.startsWith('http') 
+        ? newCompetitorWebsite 
+        : `https://${newCompetitorWebsite}`).hostname;
+      
+      const monitoringEmail = `${domain.replace(/\./g, '-')}@revven.email`;
+      
+      const newCompetitor: EmailCompetitor = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: newCompetitorName,
+        email: monitoringEmail,
+        website: newCompetitorWebsite,
+      };
+      setEmailCompetitors([...emailCompetitors, newCompetitor]);
+      setNewCompetitorName('');
+      setNewCompetitorWebsite('');
+    }
+  };
+
+  const handleRemoveCompetitor = (id: string) => {
+    setEmailCompetitors(emailCompetitors.filter(comp => comp.id !== id));
+  };
+
+  const getPlatformColor = (platform: string) => {
+    const colors: Record<string, string> = {
+      Instagram: 'bg-pink-500',
+      Twitter: 'bg-blue-400',
+      LinkedIn: 'bg-blue-600',
+      TikTok: 'bg-black',
+      YouTube: 'bg-red-500',
+    };
+    return colors[platform] || 'bg-gray-500';
+  };
+
+  const totalIntelligenceSources = socialCreators.length + emailCompetitors.length;
+
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <div className="px-8 py-6 border-b border-gray-200">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-            <TrendingUp size={20} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Intelligence</h1>
-            <p className="text-sm text-gray-600">Track competitors and analyze viral content</p>
-          </div>
+    <div className="grid grid-cols-2 gap-8 h-full">
+      {/* Left Column - Input Forms */}
+      <div className="space-y-6 overflow-y-auto pr-4">
+        <div>
+          <h2 className="text-3xl font-bold text-white mb-2">Intelligence</h2>
+          <p className="text-gray-400">
+            Track competitors and industry leaders
+          </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-            <span>Step 4 of 5</span>
-            <span>80% Complete</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-orange-600 h-2 rounded-full transition-all duration-300" style={{ width: '80%' }}></div>
-          </div>
-        </div>
-      </div>
+        <Tabs defaultValue="social" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-800">
+            <TabsTrigger value="social">Social Creators</TabsTrigger>
+            <TabsTrigger value="email">Email & Web</TabsTrigger>
+          </TabsList>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="max-w-6xl mx-auto">
-          
-          {/* Tracked Creators Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  Tracked Creators 
-                  {formData.competitors && formData.competitors.length > 0 && (
-                    <span className="text-sm font-normal text-gray-600">
-                      ({formData.competitors.length}/50)
-                    </span>
-                  )}
-                </h2>
-                <p className="text-sm text-gray-600">Monitor your top competitors and industry leaders</p>
-              </div>
-              <div className="flex gap-2">
-                {formData.competitors && formData.competitors.length > 0 && (
-                  <button
-                    onClick={getReels}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    <RefreshCw size={16} />
-                    Get Reels
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
-                >
-                  <Plus size={18} />
-                  Add Creator
-                </button>
-              </div>
-            </div>
-
-            {formData.competitors && formData.competitors.length > 0 ? (
+          <TabsContent value="social" className="space-y-4">
+            <Card className="p-4 bg-slate-800 border-slate-700">
+              <Label className="text-white mb-3 block">
+                Add Social Media Creator
+              </Label>
               <div className="space-y-3">
-                {formData.competitors.map((creator) => (
-                  <div key={creator.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4">
-                      {/* Profile Image */}
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold">
-                        {creator.username.charAt(0).toUpperCase()}
-                      </div>
+                <div>
+                  <Label htmlFor="platform" className="text-gray-300 text-sm">
+                    Platform
+                  </Label>
+                  <select
+                    id="platform"
+                    value={newCreatorPlatform}
+                    onChange={(e) => setNewCreatorPlatform(e.target.value)}
+                    className="w-full mt-1 bg-slate-900 border border-slate-600 text-white rounded-md px-3 py-2"
+                  >
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">Twitter</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="YouTube">YouTube</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="handle" className="text-gray-300 text-sm">
+                    Username/Handle
+                  </Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="handle"
+                      placeholder="@username"
+                      value={newCreatorHandle}
+                      onChange={(e) => setNewCreatorHandle(e.target.value)}
+                      className="bg-slate-900 border-slate-600 text-white"
+                    />
+                    <Button onClick={handleAddCreator} size="icon">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
 
-                      {/* Creator Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-gray-900">@{creator.username}</h3>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPlatformColor(creator.platform)}`}>
-                            {creator.platform}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-0.5">
-                          {creator.followers} followers • {creator.posts} posts
+            {socialCreators.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-white">Tracked Creators</Label>
+                {socialCreators.map((creator) => (
+                  <div
+                    key={creator.id}
+                    className="flex items-center justify-between p-3 bg-slate-800 rounded-lg border border-slate-700"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${getPlatformColor(creator.platform)}`} />
+                      <div>
+                        <p className="text-white text-sm font-medium">
+                          {creator.handle}
                         </p>
+                        <p className="text-gray-400 text-xs">{creator.platform}</p>
                       </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveCreator(creator.id)}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
 
-                      {/* Actions */}
-                      <button
-                        onClick={() => removeCompetitor(creator.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+            {socialCreators.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">
+                  Add social media creators to track their content strategies
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="email" className="space-y-4">
+            <Card className="p-4 bg-slate-800 border-slate-700">
+              <Label className="text-white mb-3 block">
+                Add Email/Website Competitor
+              </Label>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="competitor-name" className="text-gray-300 text-sm">
+                    Company Name
+                  </Label>
+                  <Input
+                    id="competitor-name"
+                    placeholder="Competitor Inc."
+                    value={newCompetitorName}
+                    onChange={(e) => setNewCompetitorName(e.target.value)}
+                    className="mt-1 bg-slate-900 border-slate-600 text-white"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="competitor-website" className="text-gray-300 text-sm">
+                    Website URL
+                  </Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="competitor-website"
+                      placeholder="competitor.com"
+                      value={newCompetitorWebsite}
+                      onChange={(e) => setNewCompetitorWebsite(e.target.value)}
+                      className="bg-slate-900 border-slate-600 text-white"
+                    />
+                    <Button onClick={handleAddCompetitor} size="icon">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {emailCompetitors.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-white">Tracked Competitors</Label>
+                {emailCompetitors.map((competitor) => (
+                  <div
+                    key={competitor.id}
+                    className="p-4 bg-slate-800 rounded-lg border border-slate-700"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Globe className="h-5 w-5 text-green-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {competitor.name}
+                          </p>
+                          <p className="text-gray-400 text-xs">{competitor.website}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveCompetitor(competitor.id)}
+                        className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
                       >
-                        <Trash2 size={18} />
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="bg-slate-900/50 rounded p-3 border border-slate-700">
+                      <div className="flex items-start gap-2 mb-2">
+                        <Mail className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-400 mb-1">
+                            Auto-generated monitoring email:
+                          </p>
+                          <code className="text-xs text-blue-300 break-all">
+                            {competitor.email}
+                          </code>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Subscribe to their newsletter using this email to track campaigns
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                <Search size={48} className="text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No creators tracked yet</h3>
-                <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
-                  Start tracking your competitors and industry leaders to analyze their top-performing content
+            )}
+
+            {emailCompetitors.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <Mail className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">
+                  Add competitors to track their email and web strategies
                 </p>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
-                >
-                  <Plus size={18} />
-                  Add Your First Creator
-                </button>
               </div>
             )}
-          </div>
+          </TabsContent>
+        </Tabs>
 
-          {/* Intelligence Info */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-200">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <TrendingUp size={18} className="text-orange-600" />
-              How Intelligence Works
-            </h3>
-            <div className="space-y-2 text-sm text-gray-700">
-              <p className="flex items-start gap-2">
-                <span className="text-orange-600 font-bold">1.</span>
-                Track your top competitors and industry leaders by adding their social profiles
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-orange-600 font-bold">2.</span>
-                Our AI agents continuously monitor and analyze their most viral content
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-orange-600 font-bold">3.</span>
-                We transcribe videos and extract winning patterns, hooks, and strategies
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-orange-600 font-bold">4.</span>
-                Your AI copywriting agent transforms these insights into original scripts in your brand voice
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-orange-600 font-bold">5.</span>
-                Generate data-driven content that's proven to perform, customized for your brand
-              </p>
-            </div>
-          </div>
-
+        <div className="flex justify-between pt-6">
+          <Button variant="outline" onClick={onBack}>
+            Back
+          </Button>
+          <Button onClick={onNext}>
+            Continue to Characters
+          </Button>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-8 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          Back
-        </button>
-        
-        <button
-          onClick={onNext}
-          className="px-8 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
-        >
-          Continue
-          <Check size={18} />
-        </button>
-      </div>
+      {/* Right Column - Live Preview */}
+      <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700 overflow-y-auto">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Target className="h-5 w-5 text-purple-400" />
+          Intelligence Overview
+        </h3>
 
-      {/* Add Creator Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Add Creator to Track</h2>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setSearchResults([]);
-                  setSearchQuery('');
-                }}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-              >
-                <X size={20} />
-              </button>
+        <div className="space-y-6">
+          {/* Total Sources Count */}
+          <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-purple-400 mb-2">
+                {totalIntelligenceSources}
+              </div>
+              <div className="text-sm text-gray-400">
+                Intelligence Sources
+              </div>
             </div>
+          </div>
 
-            {/* Modal Content */}
-            <div className="p-6">
-              
-              {/* Platform Selection */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Platform
-                </label>
-                <div className="flex gap-2">
-                  {['instagram', 'tiktok', 'youtube'].map((platform) => (
-                    <button
-                      key={platform}
-                      onClick={() => setSearchPlatform(platform as any)}
-                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchPlatform === platform
-                          ? 'bg-orange-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                    </button>
-                  ))}
-                </div>
+          {/* Distribution */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 text-center">
+              <Users className="h-6 w-6 mx-auto mb-2 text-blue-400" />
+              <div className="text-2xl font-bold text-white mb-1">
+                {socialCreators.length}
               </div>
-
-              {/* Search */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter {searchPlatform} username
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Enter username..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  <button
-                    onClick={handleSearch}
-                    disabled={isSearching || !searchQuery.trim()}
-                    className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {isSearching ? (
-                      <>
-                        <RefreshCw size={16} className="animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search size={16} />
-                        Search
-                      </>
-                    )}
-                  </button>
-                </div>
+              <div className="text-xs text-gray-400">Social Creators</div>
+            </div>
+            <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 text-center">
+              <Mail className="h-6 w-6 mx-auto mb-2 text-green-400" />
+              <div className="text-2xl font-bold text-white mb-1">
+                {emailCompetitors.length}
               </div>
+              <div className="text-xs text-gray-400">Email/Web Competitors</div>
+            </div>
+          </div>
 
-              {/* Search Results */}
-              {searchResults.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-900">
-                      Search Results ({searchResults.filter(c => c.selected).length} of {searchResults.length} selected)
-                    </h3>
-                    <button
-                      onClick={() => setSearchResults(searchResults.map(c => ({ ...c, selected: false })))}
-                      className="text-xs text-gray-500 hover:text-gray-700"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {searchResults.map((creator) => (
-                      <div
-                        key={creator.id}
-                        onClick={() => toggleCreatorSelection(creator.id)}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          creator.selected
-                            ? 'border-orange-500 bg-orange-50'
-                            : 'border-gray-200 hover:border-orange-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          {/* Checkbox */}
-                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            creator.selected
-                              ? 'bg-orange-600 border-orange-600'
-                              : 'border-gray-300'
-                          }`}>
-                            {creator.selected && <Check size={14} className="text-white" />}
-                          </div>
-
-                          {/* Profile */}
-                          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold">
-                            {creator.username.charAt(0).toUpperCase()}
-                          </div>
-
-                          {/* Info */}
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">@{creator.username}</h4>
-                            <p className="text-sm text-gray-600">
-                              {creator.followers} followers • {creator.posts} posts
-                            </p>
-                          </div>
-                        </div>
+          {/* Social Platforms Breakdown */}
+          {socialCreators.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Platform Distribution
+              </h4>
+              <div className="space-y-2">
+                {Array.from(new Set(socialCreators.map(c => c.platform))).map(platform => {
+                  const count = socialCreators.filter(c => c.platform === platform).length;
+                  return (
+                    <div key={platform} className="flex items-center justify-between bg-slate-900/50 rounded p-3 border border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${getPlatformColor(platform)}`} />
+                        <span className="text-sm text-white">{platform}</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            {searchResults.some(c => c.selected) && (
-              <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-                <button
-                  onClick={handleAddSelectedCreators}
-                  className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center gap-2"
-                >
-                  <Plus size={16} />
-                  Add {searchResults.filter(c => c.selected).length} Creator{searchResults.filter(c => c.selected).length !== 1 ? 's' : ''}
-                </button>
+                      <Badge variant="secondary" className="bg-slate-800">
+                        {count}
+                      </Badge>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Tracked Creators List */}
+          {socialCreators.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3">
+                Social Creators ({socialCreators.length})
+              </h4>
+              <div className="space-y-2">
+                {socialCreators.map((creator) => (
+                  <div
+                    key={creator.id}
+                    className="bg-slate-900/50 rounded p-3 border border-slate-700 flex items-center gap-3"
+                  >
+                    <div className={`w-2 h-2 rounded-full ${getPlatformColor(creator.platform)} flex-shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-white font-medium truncate">
+                        {creator.handle}
+                      </div>
+                      <div className="text-xs text-gray-400">{creator.platform}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Competitor Tracking */}
+          {emailCompetitors.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3">
+                Competitors ({emailCompetitors.length})
+              </h4>
+              <div className="space-y-2">
+                {emailCompetitors.map((competitor) => (
+                  <div
+                    key={competitor.id}
+                    className="bg-slate-900/50 rounded p-3 border border-slate-700"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4 w-4 text-green-400 flex-shrink-0" />
+                      <div className="text-sm text-white font-medium truncate">
+                        {competitor.name}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-400 truncate">
+                      {competitor.website}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-700">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                        <code className="text-xs text-blue-300 truncate">
+                          {competitor.email}
+                        </code>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {totalIntelligenceSources === 0 && (
+            <div className="text-center py-8 text-gray-400">
+              <Target className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">
+                Add intelligence sources to track competitor strategies
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
-};
-
-export default IntelligencePage;
+}

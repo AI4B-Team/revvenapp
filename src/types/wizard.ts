@@ -23,6 +23,7 @@ export interface BrandWizardData {
   
   // Intelligence Page
   competitors: Creator[];
+  emailCompetitors: EmailCompetitor[];
   trackedContent: ContentItem[];
   
   // Characters Page
@@ -34,7 +35,7 @@ export interface BrandWizardData {
 export interface DataSource {
   id: string;
   name: string;
-  type: 'file' | 'website' | 'text';
+  type: 'file' | 'website' | 'text' | 'discovery';
   content?: string;
   url?: string;
   file?: File;
@@ -114,7 +115,7 @@ export interface WritingStyleOption {
 }
 
 export interface DataSourceType {
-  type: 'file' | 'website' | 'text';
+  type: 'file' | 'website' | 'text' | 'discovery';
   icon: React.ReactNode;
   label: string;
   description: string;
@@ -154,7 +155,20 @@ export interface KnowledgeBaseFormData {
 
 export interface IntelligenceFormData {
   competitors: Creator[];
+  emailCompetitors: EmailCompetitor[];
   trackedContent: ContentItem[];
+}
+
+export interface EmailCompetitor {
+  id: string;
+  name: string;
+  industry: string;
+  website: string;
+  monitoringEmail: string;
+  notes?: string;
+  emailsCollected: number;
+  lastEmailDate?: string;
+  createdAt: Date;
 }
 
 export interface CharactersFormData {
