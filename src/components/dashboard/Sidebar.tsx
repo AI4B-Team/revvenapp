@@ -373,7 +373,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               activeClassName="bg-sidebar-active text-sidebar-text"
             >
               <BookOpen size={14} />
-              <span className="text-sm">Knowledge Base</span>
+              <span className="text-sm">Knowledge</span>
             </NavLink>
             <NavLink
               to="/brand/intelligence"
