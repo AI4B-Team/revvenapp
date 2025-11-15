@@ -140,17 +140,6 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
-                <UserPlus size={14} />
-                <span className="font-semibold">Invite</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Invite team members</p>
-            </TooltipContent>
-          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
