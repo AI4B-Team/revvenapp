@@ -236,7 +236,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   return (
     <>
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col transition-all duration-300`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col min-h-screen transition-all duration-300`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center">
           {!isCollapsed && (
