@@ -278,24 +278,10 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
             <div className="flex items-start gap-3">
               <Sparkles size={24} className="text-indigo-600 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Choose Your Brand's Voice & Face</h3>
-                <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                  Select one or more AI characters to represent your brand across social media.
+                <h3 className="font-semibold text-gray-900 mb-2">Choose Your Brand's Spokesperson</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  Select one or more AI characters to represent your brand across social media. Your first selection automatically becomes your default spokesperson.
                 </p>
-                <div className="space-y-2 text-sm">
-                  <p className="flex items-start gap-2">
-                    <span className="text-indigo-600 font-bold">1.</span>
-                    <span><strong>Click any character</strong> to select it. Your first selection automatically becomes your default spokesperson.</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-indigo-600 font-bold">2.</span>
-                    <span><strong>Click a selected character</strong> to make it your default spokesperson.</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-indigo-600 font-bold">3.</span>
-                    <span><strong>Click the default character</strong> to deselect it (a new default will be chosen automatically).</span>
-                  </p>
-                </div>
               </div>
             </div>
           </div>
