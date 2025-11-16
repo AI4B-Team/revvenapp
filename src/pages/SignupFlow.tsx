@@ -104,7 +104,7 @@ export default function SignupFlow() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen max-h-screen overflow-hidden">
       {currentStep === 1 ? (
         <>
           {/* Left Side - Green Gradient */}
@@ -189,7 +189,7 @@ export default function SignupFlow() {
           </div>
 
           {/* Right Side - Signup Form */}
-          <div className="flex-1 flex items-center justify-center bg-white p-8">
+          <div className="flex-1 flex items-center justify-center bg-white p-8 overflow-y-auto">
             <div className="w-full max-w-md">
               <div className="text-center">
                 <div className="mb-8">
@@ -205,7 +205,7 @@ export default function SignupFlow() {
                   <p className="text-lg text-gray-600 mb-2">
                     Build Your Business While You Sleep
                   </p>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-gray-600 whitespace-nowrap">
                     Meet The AI Team That Automates Your Content, Marketing & Sales 24/7.
                   </p>
                 </div>
