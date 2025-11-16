@@ -25,6 +25,10 @@ import Intelligence from "./pages/brand/Intelligence";
 import Characters from "./pages/brand/Characters";
 import Review from "./pages/brand/Review";
 import Complete from "./pages/brand/Complete";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import SignupFlow from "./pages/SignupFlow";
+import OnboardingDashboard from "./pages/OnboardingDashboard";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +51,11 @@ const App = () => (
           <Route path="/apps" element={<Apps />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup/flow" element={<SignupFlow />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding-dashboard" element={<OnboardingDashboard />} />
           <Route path="/account" element={<Settings />} />
           <Route path="/brand" element={<BrandLayout />}>
             <Route index element={<Identity />} />
