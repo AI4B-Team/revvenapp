@@ -65,6 +65,8 @@ const SignupProgress = ({ currentStep }: { currentStep: number }) => {
 // Main signup flow component
 export default function SignupFlow() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [workspaceName, setWorkspaceName] = useState('');
   const [role, setRole] = useState('');
@@ -121,10 +123,10 @@ export default function SignupFlow() {
                   Your AI Revenue Engine
                 </h1>
                 <p className="text-lg text-gray-600 mb-2">
-                  Build Your Business While You Sleep.
+                  Build Your Business While You Sleep
                 </p>
                 <p className="text-lg text-gray-600">
-                  Meet The AI Team That Automates Your Content, Marketing, & Sales 24/7.
+                  Meet The AI Team That Automates Your Content, Marketing & Sales 24/7.
                 </p>
               </div>
 
@@ -132,7 +134,7 @@ export default function SignupFlow() {
                 <Button
                   onClick={handleGoogleSignup}
                   variant="outline"
-                  className="w-full h-14 border-gray-300 hover:bg-gray-50"
+                  className="w-full h-14 border-2 border-gray-400 hover:bg-gray-50 hover:border-gray-500"
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path
@@ -152,7 +154,7 @@ export default function SignupFlow() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Continue with Google
+                  Continue With Google
                 </Button>
 
                 <div className="relative my-6">
@@ -164,13 +166,29 @@ export default function SignupFlow() {
                   </div>
                 </div>
 
-                <form onSubmit={handleEmailSignup}>
+                <form onSubmit={handleEmailSignup} className="space-y-4">
+                  <Input
+                    type="text"
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-14 border-2 border-gray-400 focus:border-green-600"
+                    required
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-14 border-2 border-gray-400 focus:border-green-600"
+                    required
+                  />
                   <Input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter Your Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-14 mb-4"
+                    className="h-14 border-2 border-gray-400 focus:border-green-600"
                     required
                   />
                   <Button type="submit" className="w-full h-14 bg-green-600 hover:bg-green-700">
