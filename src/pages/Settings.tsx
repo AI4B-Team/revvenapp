@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,9 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 
 export default function Settings() {
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabParam || 'profile');
   const [username, setUsername] = useState('olivia');
   const [website, setWebsite] = useState('www.untitledui.com');
   const [bio, setBio] = useState("I'm a Product Designer based in Melbourne, Australia. I specialise in UX/UI design, brand strategy, and Webflow development.");
@@ -18,6 +22,12 @@ export default function Settings() {
   const [showJobTitle, setShowJobTitle] = useState(false);
   const [alternativeEmail, setAlternativeEmail] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop');
+
+  useEffect(() => {
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,7 +63,7 @@ export default function Settings() {
         </div>
 
         {/* Settings Tabs */}
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-transparent border-b border-gray-200 w-full justify-start rounded-none h-auto p-0 space-x-6">
             <TabsTrigger
               value="my-details"
