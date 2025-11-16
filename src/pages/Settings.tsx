@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
+import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
@@ -410,6 +411,10 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">API</h2>
               <p className="text-gray-500">Content for API tab...</p>
             </div>
+          </TabsContent>
+
+          <TabsContent value="white-label" className="mt-8">
+            <WhiteLabelTab />
           </TabsContent>
         </Tabs>
           </div>
