@@ -104,11 +104,11 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-12">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">R</span>
+            <div className="flex items-center gap-2 justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">R</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">REVVEN</span>
+              <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
             </div>
           </div>
 
