@@ -118,11 +118,13 @@ export default function SignupFlow() {
                   <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
                 </div>
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                  Welcome to REVVEN — Your AI Revenue Engine
+                  Your AI Revenue Engine
                 </h1>
+                <p className="text-lg text-gray-600 mb-2">
+                  Build Your Business While You Sleep.
+                </p>
                 <p className="text-lg text-gray-600">
-                  Build your business while you sleep. Meet the AI team that runs your content,
-                  marketing, and sales 24/7.
+                  Meet The AI Team That Automates Your Content, Marketing, & Sales 24/7.
                 </p>
               </div>
 
@@ -172,12 +174,12 @@ export default function SignupFlow() {
                     required
                   />
                   <Button type="submit" className="w-full h-14 bg-green-600 hover:bg-green-700">
-                    Get Started Free
+                    Get Started FREE
                   </Button>
                 </form>
 
                 <p className="text-sm text-gray-500 mt-6">
-                  No credit card required. Start with our free plan.
+                  No Credit Card Required. Start With Our Free Plan.
                 </p>
               </div>
             </div>
