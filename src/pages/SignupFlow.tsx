@@ -205,7 +205,7 @@ export default function SignupFlow() {
                   <p className="text-lg text-gray-600 mb-2">
                     Build Your Business While You Sleep
                   </p>
-                  <p className="text-lg text-gray-600 whitespace-nowrap">
+                  <p className="text-lg text-gray-600 whitespace-nowrap text-center mx-auto max-w-xl">
                     Meet The AI Team That Automates Your Content, Marketing & Sales 24/7.
                   </p>
                 </div>
