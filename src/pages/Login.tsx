@@ -20,20 +20,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left Side - Green Gradient */}
       <div className="flex-1 bg-gradient-to-br from-green-600 via-emerald-500 to-green-700 p-12 flex flex-col justify-center relative overflow-hidden">
-        {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-2 text-white">
-          <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-xs">R</span>
-          </div>
-          <span className="font-semibold">REVVEN</span>
-        </div>
-
         {/* Main Content */}
         <div className="max-w-xl">
           <h2 className="text-5xl font-bold text-white mb-4 leading-tight">
             Let REVVEN Run Your Business While You Sleep
           </h2>
-          <h3 className="text-2xl font-semibold text-green-100 mb-6">
+          <h3 className="text-2xl font-semibold text-green-100 mb-6 whitespace-nowrap">
             Your 24/7 AI Engine For Content, Connection & Growth
           </h3>
           <p className="text-green-50 text-lg mb-12 leading-relaxed">
@@ -122,8 +114,8 @@ export default function LoginPage() {
 
           {/* Welcome Text */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Please enter your details</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h1>
+            <p className="text-gray-600">Please Enter Your Details</p>
           </div>
 
           {/* Login Form */}
@@ -132,10 +124,10 @@ export default function LoginPage() {
             <div>
               <Input
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Enter Your Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-white border-gray-300"
+                className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
                 required
               />
             </div>
@@ -147,7 +139,7 @@ export default function LoginPage() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 bg-white border-gray-300"
+                className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
                 required
               />
             </div>
@@ -164,7 +156,7 @@ export default function LoginPage() {
               type="submit"
               className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium"
             >
-              Sign in
+              Sign In
             </Button>
 
             {/* Divider */}
@@ -182,7 +174,7 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               onClick={handleGoogleSignIn}
-              className="w-full h-12 border-gray-300 hover:bg-gray-50"
+              className="w-full h-12 border-2 border-gray-400 hover:bg-gray-50 hover:border-gray-500"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                 <path
@@ -202,14 +194,14 @@ export default function LoginPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign in with Google
+              Sign In With Google
             </Button>
 
             {/* Create Account Link */}
             <div className="text-center text-sm text-gray-600 mt-6">
-              Don't have an account?{' '}
+              Don't Have An Account?{' '}
               <a href="#" className="text-green-600 hover:text-green-700 font-medium">
-                Create your account
+                Create Your Account
               </a>
             </div>
           </form>
