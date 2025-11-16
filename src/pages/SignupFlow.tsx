@@ -69,6 +69,7 @@ export default function SignupFlow() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [workspaceName, setWorkspaceName] = useState('');
   const [role, setRole] = useState('');
   const [industry, setIndustry] = useState('');
@@ -270,6 +271,31 @@ export default function SignupFlow() {
                       className="h-14 border-2 border-gray-400 focus:border-green-600"
                       required
                     />
+                    
+                    {/* Invite Code Section */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-900">
+                          Exclusive Invite Code
+                        </label>
+                        <span className="text-sm text-red-600">*Required</span>
+                      </div>
+                      <Input
+                        type="text"
+                        placeholder="Enter Your Invite Code"
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value)}
+                        className="h-14 border-2 border-gray-400 focus:border-green-600 uppercase"
+                        required
+                      />
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Access Is By Invitation Only</span>
+                        <a href="#" className="text-green-600 hover:text-green-700 font-medium">
+                          No Code? Join Waitlist
+                        </a>
+                      </div>
+                    </div>
+                    
                     <Button type="submit" className="w-full h-14 bg-green-600 hover:bg-green-700">
                       Get Started FREE
                     </Button>
