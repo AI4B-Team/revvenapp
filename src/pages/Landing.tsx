@@ -146,7 +146,8 @@ export default function RevvenLandingPage() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            While You Sleep, We Grow Your{' '}
+            While You Sleep, Your AI Team<br />
+            Grows & Automates Your{' '}
             <span className={`${valuePros[activeValueProp].color} transition-colors duration-500`}>
               {valuePros[activeValueProp].text}
             </span>
