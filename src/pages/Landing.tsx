@@ -7,8 +7,10 @@ export default function RevvenLandingPage() {
   const [activeValueProp, setActiveValueProp] = useState(0);
 
   const valuePros = [
+    { text: "Business", color: "text-purple-400" },
     { text: "Audience", color: "text-green-400" },
     { text: "Leads", color: "text-emerald-400" },
+    { text: "Sales", color: "text-lime-400" },
     { text: "Revenue", color: "text-green-500" },
     { text: "Authority", color: "text-teal-400" },
     { text: "Growth", color: "text-cyan-400" },
