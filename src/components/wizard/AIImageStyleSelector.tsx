@@ -121,12 +121,12 @@ const AIImageStyleSelector: React.FC<AIImageStyleSelectorProps> = ({ onStyleSele
         >
           {showAllStyles ? (
             <>
-              Show less styles
+              Show Less Styles
               <ChevronUp size={20} />
             </>
           ) : (
             <>
-              Show more styles
+              Show More Styles
               <ChevronDown size={20} />
             </>
           )}
