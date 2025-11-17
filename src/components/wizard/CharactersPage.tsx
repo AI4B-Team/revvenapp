@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Users, Plus, X, Check, Upload, Sparkles, User, Wand2 } from 'lucide-react';
 import TutorialModal from './TutorialModal';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Character {
   id: string;
@@ -8,6 +15,7 @@ interface Character {
   avatar: string;
   description: string;
   voice?: string;
+  selectedVoice?: string;
   personality?: string;
   ethnicity?: string;
   gender?: string;
@@ -18,6 +26,7 @@ interface CharactersPageProps {
   formData: {
     selectedCharacters: string[];
     defaultCharacter: string;
+    characterVoices?: Record<string, string>;
   };
   onUpdate: (data: any) => void;
   onNext: () => void;
@@ -52,6 +61,30 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
   };
 
   const [customCharacters, setCustomCharacters] = useState<Character[]>(getCustomCharacters());
+
+  // Available voice options (Eleven Labs voices)
+  const voiceOptions = [
+    { id: 'aria', name: 'Aria' },
+    { id: 'roger', name: 'Roger' },
+    { id: 'sarah', name: 'Sarah' },
+    { id: 'laura', name: 'Laura' },
+    { id: 'charlie', name: 'Charlie' },
+    { id: 'george', name: 'George' },
+    { id: 'callum', name: 'Callum' },
+    { id: 'river', name: 'River' },
+    { id: 'liam', name: 'Liam' },
+    { id: 'charlotte', name: 'Charlotte' },
+    { id: 'alice', name: 'Alice' },
+    { id: 'matilda', name: 'Matilda' },
+    { id: 'will', name: 'Will' },
+    { id: 'jessica', name: 'Jessica' },
+    { id: 'eric', name: 'Eric' },
+    { id: 'chris', name: 'Chris' },
+    { id: 'brian', name: 'Brian' },
+    { id: 'daniel', name: 'Daniel' },
+    { id: 'lily', name: 'Lily' },
+    { id: 'bill', name: 'Bill' },
+  ];
 
   // Pre-made characters
   const premadeCharacters: Character[] = [
@@ -162,6 +195,19 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
     onUpdate({
       selectedCharacters: formData.selectedCharacters,
       defaultCharacter: characterId,
+      characterVoices: formData.characterVoices,
+    });
+  };
+
+  const handleVoiceChange = (characterId: string, voiceId: string) => {
+    const updatedVoices = {
+      ...(formData.characterVoices || {}),
+      [characterId]: voiceId,
+    };
+    onUpdate({
+      selectedCharacters: formData.selectedCharacters,
+      defaultCharacter: formData.defaultCharacter,
+      characterVoices: updatedVoices,
     });
   };
 
@@ -334,7 +380,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
                     {/* Character Details */}
                     <div className="space-y-2 text-xs text-gray-600">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">Voice:</span>
+                        <span className="font-medium">Voice Style:</span>
                         <span>{character.voice}</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -343,6 +389,30 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
                       </div>
                     </div>
                   </div>
+
+                  {/* Voice Selection */}
+                  {isSelected && (
+                    <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Select Voice
+                      </label>
+                      <Select
+                        value={formData.characterVoices?.[character.id] || ''}
+                        onValueChange={(value) => handleVoiceChange(character.id, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Choose a voice" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {voiceOptions.map((voice) => (
+                            <SelectItem key={voice.id} value={voice.id}>
+                              {voice.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   {/* Set as Default Button - Show for all selected characters */}
                   {isSelected && (
