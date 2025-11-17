@@ -5,8 +5,10 @@ import Header from '@/components/dashboard/Header';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import TemplateSelector from '@/components/monetize/TemplateSelector';
 
 const Monetize = () => {
+  const [activeTab, setActiveTab] = useState('funnels');
   const [view, setView] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [funnels, setFunnels] = useState([]);
@@ -28,7 +30,7 @@ const Monetize = () => {
         
         {/* Sub-menu */}
         <div className="border-b border-border bg-card">
-          <Tabs defaultValue="funnels" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full justify-start rounded-none border-0 bg-transparent p-0 h-12">
               <TabsTrigger 
                 value="websites" 
@@ -49,10 +51,13 @@ const Monetize = () => {
                 Stores
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-        </div>
-        
-        <main className="flex-1 overflow-auto bg-muted/30">
+
+            <TabsContent value="websites" className="mt-0">
+              <TemplateSelector />
+            </TabsContent>
+
+            <TabsContent value="funnels" className="mt-0">
+              <main className="bg-muted/30">
           {/* Header Section */}
           <div className="bg-card border-b border-border">
             <div className="px-8 py-8">
@@ -181,9 +186,21 @@ const Monetize = () => {
             )}
           </div>
         </main>
+            </TabsContent>
+
+            <TabsContent value="stores" className="mt-0">
+              <main className="flex-1 bg-muted/30 p-8">
+                <div className="text-center py-20">
+                  <h2 className="text-2xl font-bold text-foreground mb-4">Online Stores</h2>
+                  <p className="text-muted-foreground">Coming soon...</p>
+                </div>
+              </main>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
-      <DigitalCharactersModal 
+      <DigitalCharactersModal
         isOpen={charactersModalOpen} 
         onClose={() => setCharactersModalOpen(false)}
       />
