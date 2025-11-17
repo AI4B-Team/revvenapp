@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -61,6 +62,17 @@ export default function LoginPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate invite code
+    if (!inviteCode.trim()) {
+      toast({
+        title: "Invite Code Required",
+        description: "Please enter your exclusive invite code to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -70,6 +82,7 @@ export default function LoginPage() {
         emailRedirectTo: `${window.location.origin}/onboarding-dashboard`,
         data: {
           full_name: fullName,
+          invite_code: inviteCode,
         }
       }
     });
@@ -209,7 +222,7 @@ export default function LoginPage() {
               {isSignUp ? 'Create Account' : 'Welcome'}
             </h1>
             <p className="text-gray-600">
-              {isSignUp ? 'Sign up to get started' : 'Please Enter Your Details'}
+              {isSignUp ? 'Start Automating Your Business In Under 10 Minutes' : 'Please Enter Your Details'}
             </p>
           </div>
 
@@ -226,6 +239,33 @@ export default function LoginPage() {
                   className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
                   required
                 />
+              </div>
+            )}
+
+            {/* Invite Code Input - Only for Sign Up */}
+            {isSignUp && (
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                  Exclusive Invite Code
+                  <span className="text-cyan-500">✨ Required</span>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ENTER YOUR INVITE CODE"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                  className="h-12 bg-gray-900 text-white placeholder:text-gray-400 border-2 border-gray-700 focus:border-cyan-500"
+                  required
+                />
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-600">Access Is By Invitation Only</p>
+                  <a 
+                    href="#waitlist" 
+                    className="text-xs text-cyan-500 hover:text-cyan-600 font-medium"
+                  >
+                    No Code? Join Waitlist
+                  </a>
+                </div>
               </div>
             )}
 
