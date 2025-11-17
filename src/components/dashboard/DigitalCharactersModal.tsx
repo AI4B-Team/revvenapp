@@ -220,19 +220,30 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   
                   {/* New Character Box - Only in My Characters tab */}
                   {selectedTab === 'my-characters' && (
-                    <div className="flex flex-col">
-                      <button
-                        onClick={handleNewCharacter}
-                        className="group relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
-                      >
-                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 group-hover:text-gray-200 transition-colors">
-                          <Plus size={48} strokeWidth={1.5} />
+                    <button
+                      onClick={handleNewCharacter}
+                      className="group relative aspect-square rounded-xl overflow-hidden bg-gray-700/40 hover:bg-gray-700/60 transition-all border-2 border-dashed border-brand-green"
+                      style={{
+                        backgroundImage: 'url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    >
+                      {/* Dark overlay */}
+                      <div className="absolute inset-0 bg-black/60" />
+                      
+                      {/* Content */}
+                      <div className="relative w-full h-full flex flex-col items-center justify-center">
+                        <Plus size={64} strokeWidth={2} className="text-brand-green mb-4" />
+                        
+                        {/* Button at bottom */}
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="bg-brand-green text-black px-4 py-2 rounded-lg font-semibold text-sm">
+                            Create your Character
+                          </div>
                         </div>
-                      </button>
-                      <div className="mt-2 text-center text-sm text-white font-medium">
-                        New Character
                       </div>
-                    </div>
+                    </button>
                   )}
 
                   {/* Show character images only if NOT on My Characters tab */}
