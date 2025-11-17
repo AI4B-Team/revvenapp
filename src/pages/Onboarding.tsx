@@ -276,17 +276,17 @@ const Onboarding = () => {
 
                         {/* Tasks List */}
                         {isExpanded && (
-                          <div className="border-t border-border bg-accent/50">
-                            {section.tasks.map((task, index) => {
+                          <div className="p-4 space-y-4 bg-accent/50">
+                            {section.tasks.map((task) => {
                               const isCompleted = completedTasks.has(task.id);
 
                               return (
                                 <div
                                   key={task.id}
-                                  className={`px-8 py-6 flex items-start gap-5 transition-all duration-200 ${
+                                  className={`px-8 py-6 flex items-start gap-5 rounded-2xl transition-all duration-200 ${
                                     task.id === 'watch-video' && !isCompleted 
-                                      ? 'border-2 border-green-600 rounded-2xl bg-card mx-4 my-2' 
-                                      : `bg-card ${index !== section.tasks.length - 1 ? 'border-b border-border/50' : ''} hover:border hover:border-green-600/40 hover:rounded-2xl`
+                                      ? 'border-2 border-green-600 bg-card' 
+                                      : 'bg-card border border-border hover:border-green-600/40'
                                   }`}
                                 >
                                   {/* Icon or Completion Status */}
