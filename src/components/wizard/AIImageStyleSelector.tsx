@@ -68,7 +68,7 @@ const AIImageStyleSelector: React.FC<AIImageStyleSelectorProps> = ({ onStyleSele
 
       {/* Style Grid */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
           {visibleStyles.map((style) => (
             <button
               key={style.id}
