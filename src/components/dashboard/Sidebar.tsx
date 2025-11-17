@@ -239,7 +239,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   return (
     <>
-      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0`}>
+      <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar text-sidebar-text flex flex-col h-screen transition-all duration-300 fixed left-0 top-0 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800`}>
         {/* Logo & Collapse Toggle */}
         <div className="p-6 relative flex items-center justify-center flex-shrink-0">
           {!isCollapsed && (
@@ -318,8 +318,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       )}
 
-      {/* Main Navigation - Scrollable */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white scrollbar-track-gray-800 min-h-0">
+      {/* Main Navigation */}
+      <nav className="px-4 space-y-1">
         {sidebarItems.map((item, idx) => (
           <NavLink
             key={idx}
@@ -533,8 +533,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         </div>
       </nav>
 
-      {/* Bottom Section - Fixed at bottom */}
-      <div className="flex-shrink-0">
+      {/* Bottom Section */}
+      <div className="mt-auto">
         {/* Onboarding Progress */}
         {!isCollapsed && <OnboardingProgress />}
 
