@@ -15,6 +15,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [characterName, setCharacterName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('custom');
+  const [myCharacters, setMyCharacters] = useState<Array<{ id: number; name: string; image: string }>>([]);
 
   const characters = [
     { id: 1, name: 'Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop' },
@@ -62,6 +63,27 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
   const handleBackToList = () => {
     setView('list');
+  };
+
+  const handleCreateCharacter = () => {
+    // Create new character with the provided name
+    const newCharacter = {
+      id: Date.now(), // Using timestamp as unique ID
+      name: characterName || 'Unnamed Character',
+      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop' // Default image
+    };
+    
+    // Add to myCharacters array
+    setMyCharacters(prev => [...prev, newCharacter]);
+    
+    // Reset form
+    setCharacterName('');
+    setDescription('');
+    setSelectedStyle('custom');
+    
+    // Go back to list view and switch to My Characters tab
+    setView('list');
+    setSelectedTab('my-characters');
   };
 
   const tabs = [
@@ -243,6 +265,25 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                       </div>
                     </div>
                   )}
+
+                  {/* Show user's created characters in My Characters tab */}
+                  {selectedTab === 'my-characters' && myCharacters.map((character) => (
+                    <div key={character.id} className="flex flex-col">
+                      <button
+                        onClick={() => handleCharacterSelect(character)}
+                        className="group relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
+                      >
+                        <img
+                          src={character.image}
+                          alt={character.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </button>
+                      <div className="mt-2 text-center text-sm text-white font-medium truncate">
+                        {character.name}
+                      </div>
+                    </div>
+                  ))}
 
                   {/* Show character images only if NOT on My Characters tab */}
                   {selectedTab !== 'my-characters' && filteredCharacters.map((character) => (
@@ -520,7 +561,10 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
               {/* Footer */}
               <div className="px-8 py-5 border-t border-gray-800 flex justify-center">
-                <button className="px-8 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors">
+                <button 
+                  onClick={handleCreateCharacter}
+                  className="px-8 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors"
+                >
                   Create Character
                 </button>
               </div>
