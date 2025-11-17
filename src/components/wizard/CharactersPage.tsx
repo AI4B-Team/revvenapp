@@ -335,7 +335,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
           {/* Create Custom Character Button */}
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Available Characters</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Available Characters</h2>
               <p className="text-sm text-gray-600">Select characters or create your own</p>
             </div>
             <button
