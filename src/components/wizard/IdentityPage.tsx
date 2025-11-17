@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, Palette, Type, Image as ImageIcon, Check, AlertCircle } from 'lucide-react';
 import TutorialModal from './TutorialModal';
+import AIImageStyleSelector from './AIImageStyleSelector';
 
 interface IdentityPageProps {
   formData: {
@@ -11,6 +12,11 @@ interface IdentityPageProps {
     accentColor: string;
     primaryFont: string;
     secondaryFont: string;
+    imageStyle?: {
+      id: string;
+      name: string;
+      color: string;
+    };
   };
   onUpdate: (data: any) => void;
   onNext: () => void;
@@ -311,6 +317,12 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* AI Image Style */}
+              <AIImageStyleSelector
+                selectedStyle={formData.imageStyle}
+                onStyleSelect={(style) => onUpdate({ imageStyle: style })}
+              />
 
             </div>
 
