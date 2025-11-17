@@ -21,12 +21,10 @@ export default function OnboardingDashboard() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Your AI Team Is Ready To Work—But They Need To Know Your Brand First
+                  Your AI Team Is Ready To Work — But They Need To Learn Your Brand First
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and
-                  Damoi. Once they know your voice, colors, and style, they'll start creating
-                  content, building campaigns, and automating your business 24/7.
+                  Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
                 </p>
               </div>
             </div>
@@ -218,7 +216,7 @@ export default function OnboardingDashboard() {
               </div>
 
               <Button className="w-full bg-green-600 hover:bg-green-700">
-                Watch Overview
+                Play Overview
               </Button>
             </Card>
           </div>
