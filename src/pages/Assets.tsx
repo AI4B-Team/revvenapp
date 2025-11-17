@@ -23,7 +23,7 @@ const Assets = () => {
         onIdentityClick={() => setIdentitySidebarOpen(true)}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden ml-64">
         <Header />
         
         <main className="flex-1 overflow-auto bg-white">
