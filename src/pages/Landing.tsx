@@ -121,7 +121,6 @@ export default function RevvenLandingPage() {
             </div>
 
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a>
             </nav>
 
             <div className="flex items-center gap-3">
@@ -153,7 +152,7 @@ export default function RevvenLandingPage() {
             </span>
           </h1>
 
-          <p className="text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
+          <p className="text-2xl text-gray-400 mb-8 max-w-5xl mx-auto whitespace-nowrap">
             The One AI Revenue Engine That Fully Automates Your Content, Marketing & Sales 24/7
           </p>
 
