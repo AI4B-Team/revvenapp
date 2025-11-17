@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { Plus, FolderPlus, Clock, List, Search } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import TemplateSelector from '@/components/monetize/TemplateSelector';
 
 const Monetize = () => {
-  const [activeTab, setActiveTab] = useState('funnels');
   const [view, setView] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [funnels, setFunnels] = useState([]);
@@ -28,36 +25,7 @@ const Monetize = () => {
       <div className="flex-1 flex flex-col overflow-hidden ml-64">
         <Header />
         
-        {/* Sub-menu */}
-        <div className="border-b border-border bg-card">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-0 bg-transparent p-0 h-12">
-              <TabsTrigger 
-                value="websites" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
-              >
-                Websites
-              </TabsTrigger>
-              <TabsTrigger 
-                value="funnels" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
-              >
-                Funnels
-              </TabsTrigger>
-              <TabsTrigger 
-                value="stores" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6"
-              >
-                Stores
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="websites" className="mt-0">
-              <TemplateSelector />
-            </TabsContent>
-
-            <TabsContent value="funnels" className="mt-0">
-              <main className="bg-muted/30">
+        <main className="bg-muted/30">
           {/* Header Section */}
           <div className="bg-card border-b border-border">
             <div className="px-8 py-8">
@@ -186,18 +154,6 @@ const Monetize = () => {
             )}
           </div>
         </main>
-            </TabsContent>
-
-            <TabsContent value="stores" className="mt-0">
-              <main className="flex-1 bg-muted/30 p-8">
-                <div className="text-center py-20">
-                  <h2 className="text-2xl font-bold text-foreground mb-4">Online Stores</h2>
-                  <p className="text-muted-foreground">Coming soon...</p>
-                </div>
-              </main>
-            </TabsContent>
-          </Tabs>
-        </div>
       </div>
 
       <DigitalCharactersModal

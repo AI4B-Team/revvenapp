@@ -1,27 +1,28 @@
 import { useState } from 'react';
+import { SlidersHorizontal, Search, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 
 const TemplateSelector = () => {
-  const [activeTab, setActiveTab] = useState('website');
-  const [activeCategory, setActiveCategory] = useState('all');
-
-  const tabs = [
-    { id: 'website', label: 'Website' },
-    { id: 'online-store', label: 'Online Store' },
-    { id: 'funnels', label: 'Funnels' }
-  ];
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [zoom, setZoom] = useState(100);
 
   const categories = [
     'All',
-    'Academy / Community',
     'Art',
     'Business',
+    'Education',
     'Fashion',
     'Membership',
     'Personal',
     'Photography',
     'Real Estate',
     'Restaurant',
-    'School',
     'Services'
   ];
 
@@ -57,58 +58,81 @@ const TemplateSelector = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 p-8">
+    <div className="min-h-screen bg-background p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-6">
-          Start By Selecting A Template
-        </h1>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              Websites
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Start By Selecting A Template
+            </p>
+          </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 border-b border-border">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 font-medium transition-colors relative ${
-                activeTab === tab.id
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
-            >
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-              )}
+          {/* Filter Controls */}
+          <div className="flex items-center gap-3">
+            {/* Category Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
+                <span className="text-sm font-medium">{activeCategory}</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {categories.map((category) => (
+                  <DropdownMenuItem
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={activeCategory === category ? 'bg-muted' : ''}
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Filter Button */}
+            <button className="p-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
+              <SlidersHorizontal className="w-5 h-5" />
             </button>
-          ))}
+
+            {/* Search Button */}
+            <button className="p-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg">
+              <button 
+                onClick={() => setZoom(Math.max(50, zoom - 10))}
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <Slider
+                value={[zoom]}
+                onValueChange={(value) => setZoom(value[0])}
+                min={50}
+                max={150}
+                step={10}
+                className="w-24"
+              />
+              <button 
+                onClick={() => setZoom(Math.min(150, zoom + 10))}
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex gap-8">
-        {/* Sidebar Categories */}
-        <div className="w-64 flex-shrink-0">
-          <div className="bg-card rounded-lg shadow-sm p-2 border border-border">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category.toLowerCase())}
-                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
-                  activeCategory === category.toLowerCase()
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Template Grid */}
-        <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Template Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {templates.map((template) => (
               <div
                 key={template.id}
@@ -167,8 +191,6 @@ const TemplateSelector = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
       </div>
     </div>
   );
