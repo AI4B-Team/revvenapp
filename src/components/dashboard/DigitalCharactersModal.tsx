@@ -220,30 +220,28 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                   
                   {/* New Character Box - Only in My Characters tab */}
                   {selectedTab === 'my-characters' && (
-                    <button
-                      onClick={handleNewCharacter}
-                      className="group relative aspect-square rounded-xl overflow-hidden bg-gray-700/40 hover:bg-gray-700/60 transition-all border-2 border-dashed border-brand-green"
-                      style={{
-                        backgroundImage: 'url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop)',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                    >
-                      {/* Dark overlay */}
-                      <div className="absolute inset-0 bg-black/60" />
-                      
-                      {/* Content */}
-                      <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        <Plus size={64} strokeWidth={2} className="text-brand-green mb-4" />
+                    <div className="flex flex-col">
+                      <button
+                        onClick={handleNewCharacter}
+                        className="group relative aspect-square rounded-xl overflow-hidden bg-gray-700/40 hover:bg-gray-700/60 transition-all border-2 border-dashed border-brand-green"
+                        style={{
+                          backgroundImage: 'url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop)',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}
+                      >
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-black/60" />
                         
-                        {/* Button at bottom */}
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="bg-brand-green text-black px-4 py-2 rounded-lg font-semibold text-sm">
-                            Create your Character
-                          </div>
+                        {/* Content */}
+                        <div className="relative w-full h-full flex items-center justify-center">
+                          <Plus size={64} strokeWidth={2} className="text-brand-green" />
                         </div>
+                      </button>
+                      <div className="mt-2 text-center text-sm text-white font-medium">
+                        New Character
                       </div>
-                    </button>
+                    </div>
                   )}
 
                   {/* Show character images only if NOT on My Characters tab */}
