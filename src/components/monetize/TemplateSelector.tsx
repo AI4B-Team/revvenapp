@@ -107,16 +107,16 @@ const TemplateSelector = () => {
               </button>
 
               {/* Expandable Search */}
-              <div className="relative flex items-center">
-                {!searchExpanded ? (
-                  <button
-                    onClick={() => setSearchExpanded(true)}
-                    className="flex items-center justify-center w-11 h-11 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                ) : (
-                  <div className="flex items-center gap-3 bg-background border border-border rounded-full px-5 py-2.5 animate-in slide-in-from-right shadow-sm">
+              <div className="relative">
+                <button
+                  onClick={() => setSearchExpanded(!searchExpanded)}
+                  className="flex items-center justify-center w-11 h-11 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                
+                {searchExpanded && (
+                  <div className="absolute right-0 top-0 flex items-center gap-3 bg-background border border-border rounded-full px-5 py-2.5 shadow-lg animate-in slide-in-from-right z-50">
                     <input
                       ref={searchInputRef}
                       type="text"
