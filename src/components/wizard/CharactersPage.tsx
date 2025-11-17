@@ -198,7 +198,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">Characters</h1>
-            <p className="text-sm text-gray-600">Select your AI avatars and spokesperson</p>
+            <p className="text-sm text-gray-600">Select your AI character and voice</p>
           </div>
           <button 
             onClick={() => setShowTutorial(true)}
