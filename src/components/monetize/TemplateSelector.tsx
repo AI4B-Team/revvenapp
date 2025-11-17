@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { SlidersHorizontal, Search, ZoomIn, ZoomOut } from 'lucide-react';
+import { SlidersHorizontal, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Slider } from "@/components/ui/slider";
+import SearchDialog from '@/components/dashboard/SearchDialog';
 
 const TemplateSelector = () => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [zoom, setZoom] = useState(100);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const categories = [
     'All',
@@ -27,24 +27,18 @@ const TemplateSelector = () => {
   ];
 
   const templates = [
-    {
-      id: 'nova',
-      name: 'Nova',
-      category: 'business',
-      description: 'Catchy Headline About Your Services',
-    },
-    {
-      id: 'cascade',
-      name: 'Cascade',
-      category: 'academy',
-      description: 'Headline Of Your Academy',
-    },
-    {
-      id: 'minerva',
-      name: 'Minerva',
-      category: 'services',
-      description: 'Catchy Headline About Your Services',
-    }
+    { id: 'nova', name: 'Nova', category: 'Business', description: 'Catchy Headline About Your Services' },
+    { id: 'cascade', name: 'Cascade', category: 'Education', description: 'Headline Of Your Academy' },
+    { id: 'minerva', name: 'Minerva', category: 'Services', description: 'Catchy Headline About Your Services' },
+    { id: 'aurora', name: 'Aurora', category: 'Fashion', description: 'Elevate Your Style Brand' },
+    { id: 'zenith', name: 'Zenith', category: 'Photography', description: 'Showcase Your Portfolio' },
+    { id: 'harmony', name: 'Harmony', category: 'Personal', description: 'Tell Your Story' },
+    { id: 'summit', name: 'Summit', category: 'Real Estate', description: 'Find Your Dream Property' },
+    { id: 'palette', name: 'Palette', category: 'Art', description: 'Display Your Creative Work' },
+    { id: 'velvet', name: 'Velvet', category: 'Membership', description: 'Exclusive Member Benefits' },
+    { id: 'savory', name: 'Savory', category: 'Restaurant', description: 'Delicious Dining Experience' },
+    { id: 'bloom', name: 'Bloom', category: 'Services', description: 'Professional Service Solutions' },
+    { id: 'echo', name: 'Echo', category: 'Business', description: 'Transform Your Business' }
   ];
 
   const handleSelect = (templateId: string) => {
@@ -58,81 +52,62 @@ const TemplateSelector = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Websites
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Start By Selecting A Template
-            </p>
-          </div>
+    <>
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+      <div className="min-h-screen bg-background p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                Websites
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Start By Selecting A Template
+              </p>
+            </div>
 
-          {/* Filter Controls */}
-          <div className="flex items-center gap-3">
-            {/* Category Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
-                <span className="text-sm font-medium">{activeCategory}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {categories.map((category) => (
-                  <DropdownMenuItem
-                    key={category}
-                    onClick={() => setActiveCategory(category)}
-                    className={activeCategory === category ? 'bg-muted' : ''}
-                  >
-                    {category}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Filter Controls */}
+            <div className="flex items-center gap-3">
+              {/* Category Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2.5 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors min-w-[100px]">
+                  <span className="text-sm font-medium">{activeCategory}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
+                  {categories.map((category) => (
+                    <DropdownMenuItem
+                      key={category}
+                      onClick={() => setActiveCategory(category)}
+                      className={activeCategory === category ? 'bg-muted' : ''}
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            {/* Filter Button */}
-            <button className="p-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
-              <SlidersHorizontal className="w-5 h-5" />
-            </button>
-
-            {/* Search Button */}
-            <button className="p-2 bg-card border border-border rounded-lg hover:bg-muted transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
-
-            {/* Zoom Controls */}
-            <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg">
-              <button 
-                onClick={() => setZoom(Math.max(50, zoom - 10))}
-                className="p-1 hover:bg-muted rounded transition-colors"
-              >
-                <ZoomOut className="w-4 h-4" />
+              {/* Filter Button */}
+              <button className="p-2.5 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors">
+                <SlidersHorizontal className="w-5 h-5" />
               </button>
-              <Slider
-                value={[zoom]}
-                onValueChange={(value) => setZoom(value[0])}
-                min={50}
-                max={150}
-                step={10}
-                className="w-24"
-              />
+
+              {/* Search Button */}
               <button 
-                onClick={() => setZoom(Math.min(150, zoom + 10))}
-                className="p-1 hover:bg-muted rounded transition-colors"
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2.5 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors"
               >
-                <ZoomIn className="w-4 h-4" />
+                <Search className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Template Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Template Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {templates.map((template) => (
               <div
                 key={template.id}
@@ -191,8 +166,9 @@ const TemplateSelector = () => {
                 </div>
               </div>
             ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
