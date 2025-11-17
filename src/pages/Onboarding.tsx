@@ -283,9 +283,9 @@ const Onboarding = () => {
                               return (
                                 <div
                                   key={task.id}
-                                  className={`px-8 py-6 flex items-start gap-5 bg-card ${
+                                  className={`px-8 py-6 flex items-start gap-5 bg-card transition-all duration-200 ${
                                     index !== section.tasks.length - 1 ? 'border-b border-border/50' : ''
-                                  } ${task.id === 'watch-video' && !isCompleted ? 'border-2 border-green-600' : ''}`}
+                                  } ${task.id === 'watch-video' && !isCompleted ? 'border-2 border-green-600 rounded-2xl mx-4 my-2' : 'hover:border hover:border-green-600/40 hover:rounded-2xl'}`}
                                 >
                                   {/* Icon or Completion Status */}
                                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
