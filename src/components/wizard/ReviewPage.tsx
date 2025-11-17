@@ -26,6 +26,7 @@ const ReviewPage: React.FC<ReviewPageProps> = ({
         { label: 'Primary Color', value: formData.primaryColor, isColor: true },
         { label: 'Secondary Color', value: formData.secondaryColor, isColor: true },
         { label: 'Primary Font', value: formData.primaryFont },
+        { label: 'Image Style', value: formData.imageStyle?.name || 'Not set' },
       ]
     },
     {
