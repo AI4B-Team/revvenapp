@@ -383,6 +383,18 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
                           ></div>
                         </div>
                       </div>
+
+                      {/* Image Style */}
+                      {formData.imageStyle && (
+                        <div className="border-t border-gray-200 pt-4">
+                          <p className="text-xs font-semibold text-gray-600 mb-2">Image Style</p>
+                          <div className="text-center">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-100 text-sm font-medium text-gray-900">
+                              {formData.imageStyle.name}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
