@@ -199,6 +199,23 @@ const Onboarding = () => {
                 </h1>
               </div>
 
+              {/* AI Team Banner */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+                      Your AI Team Is Ready To Work — But They Need To Learn Your Brand First
+                    </h2>
+                    <p className="text-gray-700 dark:text-muted-foreground leading-relaxed">
+                      Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Left Column - Onboarding Sections */}
@@ -268,7 +285,7 @@ const Onboarding = () => {
                                   key={task.id}
                                   className={`px-8 py-6 flex items-start gap-5 bg-card ${
                                     index !== section.tasks.length - 1 ? 'border-b border-border/50' : ''
-                                  }`}
+                                  } ${task.id === 'watch-video' && !isCompleted ? 'border-2 border-green-600' : ''}`}
                                 >
                                   {/* Icon or Completion Status */}
                                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
@@ -331,7 +348,7 @@ const Onboarding = () => {
                     {/* Video Thumbnail */}
                     <div 
                       onClick={() => setIsVideoModalOpen(true)}
-                      className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer"
+                      className="relative aspect-video rounded-xl overflow-hidden bg-secondary group cursor-pointer mb-4"
                     >
                       <img
                         src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=800"
@@ -346,6 +363,13 @@ const Onboarding = () => {
                         </div>
                       </div>
                     </div>
+
+                    <button
+                      onClick={() => setIsVideoModalOpen(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold transition-colors"
+                    >
+                      Play Overview
+                    </button>
                   </div>
                 </div>
               </div>
