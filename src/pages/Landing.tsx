@@ -74,22 +74,10 @@ export default function RevvenLandingPage() {
 
   const aiTeam = [
     {
-      name: "Ethan",
-      role: "AI CMO (Chief Marketing Officer)",
-      description: "Sets strategy, assigns work, ensures your marketing aligns with your business goals",
-      color: "from-purple-500 to-violet-600"
-    },
-    {
-      name: "Dolmar",
-      role: "Content Creation Director",
-      description: "Creates social posts, videos, carousels, and digital products in your brand voice",
-      color: "from-green-500 to-emerald-600"
-    },
-    {
-      name: "Keisha",
-      role: "Design & Visual Lead",
-      description: "Designs branded visuals, product mockups, and attention-grabbing graphics",
-      color: "from-pink-500 to-rose-600"
+      name: "Brian",
+      role: "Automation Engineer",
+      description: "Builds workflows, integrations, and systems that run your business on autopilot",
+      color: "from-indigo-500 to-purple-600"
     },
     {
       name: "Francis",
@@ -104,10 +92,16 @@ export default function RevvenLandingPage() {
       color: "from-orange-500 to-amber-600"
     },
     {
-      name: "Brian",
-      role: "Automation Engineer",
-      description: "Builds workflows, integrations, and systems that run your business on autopilot",
-      color: "from-indigo-500 to-purple-600"
+      name: "Dolmar",
+      role: "Content Creation Director",
+      description: "Creates social posts, videos, carousels, and digital products in your brand voice",
+      color: "from-green-500 to-emerald-600"
+    },
+    {
+      name: "Keisha",
+      role: "Design & Visual Lead",
+      description: "Designs branded visuals, product mockups, and attention-grabbing graphics",
+      color: "from-pink-500 to-rose-600"
     }
   ];
 
@@ -149,12 +143,12 @@ export default function RevvenLandingPage() {
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-block px-4 py-2 bg-green-600/20 border border-green-500/30 rounded-full mb-6">
-            <span className="text-green-400 font-medium">Agentic AI for Business Growth</span>
+            <span className="text-green-400 font-medium">CREATE ANYTHING -- AUTOMATE EVERYTHING!</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            AI agents that show up daily<br />
-            to grow your{' '}
+            AI Agents That Show Up Daily<br />
+            To Grow Your{' '}
             <span className={`${valuePros[activeValueProp].color} transition-colors duration-500`}>
               {valuePros[activeValueProp].text}
             </span>
@@ -202,8 +196,8 @@ export default function RevvenLandingPage() {
               </div>
               
               <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Publish to all your socials.<br />
-                <span className="text-green-400">With a single click.</span>
+                Publish To All Your Socials.<br />
+                <span className="text-green-400">With A Single Click.</span>
               </h2>
 
               <p className="text-gray-400 text-lg mb-8">
@@ -216,7 +210,7 @@ export default function RevvenLandingPage() {
                     <ArrowRight className="w-6 h-6 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Cross post - with a single click</h3>
+                    <h3 className="text-xl font-semibold mb-2">Cross Post - With A Single Click</h3>
                     <p className="text-gray-400">Choose which social channels you want to post to - create once, publish everywhere.</p>
                   </div>
                 </div>
@@ -226,7 +220,7 @@ export default function RevvenLandingPage() {
                     <Sparkles className="w-6 h-6 text-pink-500" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Adjust to the platform</h3>
+                    <h3 className="text-xl font-semibold mb-2">Adjust To The Platform</h3>
                     <p className="text-gray-400">Adjust your posts to fit each channel in just the right format 🔥</p>
                   </div>
                 </div>
@@ -326,7 +320,7 @@ export default function RevvenLandingPage() {
             {/* Right - Description */}
             <div>
               <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Our AI Writing Assistant is here to help you!
+                Our AI Writing Assistant Is Here To Help You!
               </h2>
 
               <p className="text-gray-400 text-lg mb-8">
@@ -339,7 +333,7 @@ export default function RevvenLandingPage() {
                     <MessageSquare className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Built-in AI agent</h3>
+                    <h3 className="font-semibold mb-1">Built-In AI Agent</h3>
                     <p className="text-sm text-gray-400">Chat naturally with your AI writing partner</p>
                   </div>
                 </div>
@@ -349,7 +343,7 @@ export default function RevvenLandingPage() {
                     <Sparkles className="w-5 h-5 text-pink-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Trained for writing</h3>
+                    <h3 className="font-semibold mb-1">Trained For Writing</h3>
                     <p className="text-sm text-gray-400">Optimized for social content creation</p>
                   </div>
                 </div>
@@ -359,7 +353,7 @@ export default function RevvenLandingPage() {
                     <Brain className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Fine-tuned AI model</h3>
+                    <h3 className="font-semibold mb-1">Fine-Tuned AI Model</h3>
                     <p className="text-sm text-gray-400">Learns your brand voice over time</p>
                   </div>
                 </div>
@@ -369,7 +363,7 @@ export default function RevvenLandingPage() {
                     <Zap className="w-5 h-5 text-purple-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Based on GPT-5</h3>
+                    <h3 className="font-semibold mb-1">Based On GPT-5</h3>
                     <p className="text-sm text-gray-400">Powered by the latest AI technology</p>
                   </div>
                 </div>
@@ -415,7 +409,7 @@ export default function RevvenLandingPage() {
             </div>
 
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-2">Hey! What are we creating today? ✨</h3>
+              <h3 className="text-2xl font-bold mb-2">Hey! What Are We Creating Today? ✨</h3>
               <p className="text-gray-400">Select one channel for 30-days of platform-specific content, or select multiple channels for a coordinated campaign</p>
             </div>
 
@@ -576,7 +570,7 @@ export default function RevvenLandingPage() {
               </div>
 
               <h3 className="text-4xl font-bold mb-6">
-                Content Creation AI builds months of content & lead magnets
+                Content Creation AI Builds Months Of Content & Lead Magnets
               </h3>
 
               <p className="text-gray-400 text-lg mb-6">
@@ -653,7 +647,7 @@ export default function RevvenLandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-800/30 to-transparent" id="team">
         <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold mb-4">
-            Meet Your Agentic Marketing Team
+            Meet Your AI Team
           </h2>
           <p className="text-xl text-gray-400">
             That work 24/7... Without the Payroll
@@ -728,7 +722,7 @@ export default function RevvenLandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Personalized Content at Scale
+            Personalized Content At Scale
           </h2>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Generic AI content gets ignored. That's why REVVEN trains your AI team on your brand's memory, tone, and personality from day one.
@@ -860,7 +854,7 @@ export default function RevvenLandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Use as a Copilot or Go Fully Autonomous
+            Use As A Copilot Or Go Fully Autonomous
           </h2>
         </div>
 
@@ -904,7 +898,7 @@ export default function RevvenLandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Trusted by 15,000+ creators, marketers, agencies and brands
+            Trusted By 15,000+ Creators, Marketers, Agencies And Brands
           </h2>
           <p className="text-gray-400 mb-8">Join the revolution in AI-powered business automation</p>
           
