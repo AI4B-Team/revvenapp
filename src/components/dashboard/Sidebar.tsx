@@ -31,7 +31,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange }: SidebarProps) => {
   const location = useLocation();
-  const isDashboard = location.pathname === '/';
+  const isDashboard = location.pathname === '/dashboard';
   const isContactsPage = location.pathname === '/contacts';
   const isRevenuePage = location.pathname === '/revenue';
   const isOnboardingPage = location.pathname === '/onboarding';
@@ -51,7 +51,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   };
   
   const sidebarItems = [
-    { icon: <Home size={18} />, label: 'Dashboard', link: '/' },
+    { icon: <Home size={18} />, label: 'Dashboard', link: '/dashboard' },
     { icon: <Bot size={18} />, label: 'Assistant', link: '/assistant' },
   ];
 
