@@ -213,7 +213,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
           {activeTab === 'social' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-gray-900">Social Media Competitors</h3>
+                <h3 className="text-2xl font-bold text-gray-900">SOCIAL MEDIA COMPETITORS</h3>
                 <button
                   onClick={() => setShowModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
@@ -232,7 +232,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
           {activeTab === 'website' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-gray-900">Website Tracking</h3>
+                <h3 className="text-2xl font-bold text-gray-900">WEBSITE TRACKING</h3>
                 <button
                   onClick={() => setShowModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
@@ -251,7 +251,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
           {activeTab === 'email' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-gray-900">Email Marketing Intelligence</h3>
+                <h3 className="text-2xl font-bold text-gray-900">EMAIL INTELLIGENCE</h3>
                 <button
                   onClick={() => setShowModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
@@ -270,7 +270,7 @@ const IntelligencePage: React.FC<IntelligencePageProps> = ({
           {activeTab === 'ads' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-gray-900">Advertising Intelligence</h3>
+                <h3 className="text-2xl font-bold text-gray-900">AD INTELLIGENCE</h3>
                 <button
                   onClick={() => setShowModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"

@@ -157,8 +157,8 @@ const VoicePage: React.FC<VoicePageProps> = ({
               
               {/* Tone of Voice */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Tone Of Voice <span className="text-red-500">*</span>
+                <label className="block text-2xl font-bold text-gray-900 mb-2">
+                  TONE OF VOICE <span className="text-red-500">*</span>
                 </label>
                 <p className="text-sm text-gray-600 mb-4">
                   Select all that apply to describe your brand's communication style
@@ -189,8 +189,8 @@ const VoicePage: React.FC<VoicePageProps> = ({
 
               {/* Writing Style */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Writing Style <span className="text-red-500">*</span>
+                <label className="block text-2xl font-bold text-gray-900 mb-2">
+                  WRITING STYLE <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 gap-3">
                   {writingStyleOptions.map((option) => (
@@ -218,8 +218,8 @@ const VoicePage: React.FC<VoicePageProps> = ({
 
               {/* Brand Personality */}
               <div>
-                <label className="block text-xs font-semibold text-gray-900 uppercase tracking-wide mb-2">
-                  Brand Personality
+                <label className="block text-2xl font-bold text-gray-900 mb-2">
+                  BRAND PERSONALITY
                 </label>
                 <p className="text-sm text-gray-600 mb-4">
                   Choose traits that best describe your brand (select 3-5)
@@ -243,9 +243,9 @@ const VoicePage: React.FC<VoicePageProps> = ({
 
               {/* Communication Guidelines */}
               <div>
-                <label className="block text-xs font-semibold text-gray-900 uppercase tracking-wide mb-2 flex items-center gap-2">
+                <label className="block text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
                   <MessageSquare size={16} />
-                  Communication Guidelines
+                  COMMUNICATION GUIDELINES
                 </label>
                 <textarea
                   value={formData.communicationGuidelines || ''}
@@ -342,9 +342,9 @@ const VoicePage: React.FC<VoicePageProps> = ({
             <div>
               <div className="lg:sticky lg:top-0">
                 <div className="bg-purple-50 rounded-xl border border-purple-200 p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Sparkles size={16} className="text-purple-600" />
-                    Voice Summary
+                    VOICE SUMMARY
                   </h3>
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     {(formData.toneOfVoice && formData.toneOfVoice.length > 0) || formData.writingStyle || (formData.brandPersonality && formData.brandPersonality.length > 0) ? (
