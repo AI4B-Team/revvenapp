@@ -37,7 +37,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const isOnboardingPage = location.pathname === '/onboarding';
   const isCommunityPage = location.pathname === '/community';
   const isToolsPage = location.pathname === '/tools';
-  const isAppsPage = location.pathname === '/apps';
   const isIntegrationsPage = location.pathname === '/integrations';
   const isAssetsPage = location.pathname === '/assets';
   const isBrandPage = location.pathname.startsWith('/brand');
@@ -63,7 +62,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
     { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-red' },
     { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
-    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-blue' },
   ];
 
   const imageNavItems = [
@@ -97,11 +95,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const contentNavItems = [
     { icon: <FileText size={18} />, label: 'Create', color: 'text-brand-green' },
-    { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
-  ];
-
-  const appsNavItems = [
-    { icon: <Code size={18} />, label: 'Create', color: 'text-brand-green' },
     { icon: <Edit size={18} />, label: 'Edit', color: 'text-brand-blue' },
   ];
 
@@ -175,21 +168,19 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     isOnboardingPage ? [] :
     isCommunityPage ? [] :
     isToolsPage ? [] :
-    isAppsPage ? [] :
     isIntegrationsPage ? [] :
     isAssetsPage ? [] :
     isBrandPage ? [] :
     isSettingsPage ? [] :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
-    isAssistantPage ? assistantNavItems : 
+    isAssistantPage ? assistantNavItems :
     isDashboard || isContactsPage || isRevenuePage ? dashboardNavItems :
     (activeTab === 'Image' ? imageNavItems : 
      activeTab === 'Video' ? videoNavItems : 
      activeTab === 'Audio' ? audioNavItems :
      activeTab === 'Design' ? designNavItems :
      activeTab === 'Content' ? contentNavItems :
-     activeTab === 'Apps' ? appsNavItems :
      createNavItems);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -220,7 +211,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       videos,
       audio: 0, // Placeholder for future implementation
       designs: 0, // Placeholder for future implementation
-      apps: 0 // Placeholder for future implementation
     };
   }, []);
 
@@ -395,21 +385,6 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             </NavLink>
           </div>
           )}
-        </div>
-
-        {/* Apps Link */}
-        <div className="pt-2">
-          <NavLink
-            to="/apps"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover"
-            activeClassName="bg-sidebar-active"
-            title="Apps"
-          >
-            <span className="text-sidebar-muted">
-              <AppWindow size={18} />
-            </span>
-            {!isCollapsed && <span className="flex-1 text-left text-sm">Apps</span>}
-          </NavLink>
         </div>
 
         {/* Library Section */}
