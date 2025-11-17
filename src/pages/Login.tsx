@@ -1,19 +1,110 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { Session } from '@supabase/supabase-js';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSignIn = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        if (session) {
+          navigate('/onboarding-dashboard');
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        navigate('/onboarding-dashboard');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Sign in:', { email, password });
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error signing in",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleGoogleSignIn = () => {
-    console.log('Google sign in');
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/onboarding-dashboard`,
+        data: {
+          full_name: fullName,
+        }
+      }
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error signing up",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success!",
+        description: "Your account has been created. You can now sign in.",
+      });
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/onboarding-dashboard`,
+      }
+    });
+
+    if (error) {
+      toast({
+        title: "Error with Google sign in",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -114,12 +205,30 @@ export default function LoginPage() {
 
           {/* Welcome Text */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h1>
-            <p className="text-gray-600">Please Enter Your Details</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {isSignUp ? 'Create Account' : 'Welcome'}
+            </h1>
+            <p className="text-gray-600">
+              {isSignUp ? 'Sign up to get started' : 'Please Enter Your Details'}
+            </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSignIn} className="space-y-4">
+          {/* Login/Signup Form */}
+          <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
+            {/* Full Name Input - Only for Sign Up */}
+            {isSignUp && (
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
+                  required
+                />
+              </div>
+            )}
+
             {/* Email Input */}
             <div>
               <Input
@@ -141,22 +250,26 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-12 bg-white border-2 border-gray-400 focus:border-green-600"
                 required
+                minLength={6}
               />
             </div>
 
-            {/* Forgot Password */}
-            <div className="flex justify-end">
-              <a href="#" className="text-sm text-green-600 hover:text-green-700">
-                Forgot Password?
-              </a>
-            </div>
+            {/* Forgot Password - Only for Sign In */}
+            {!isSignUp && (
+              <div className="flex justify-end">
+                <a href="#" className="text-sm text-green-600 hover:text-green-700">
+                  Forgot Password?
+                </a>
+              </div>
+            )}
 
-            {/* Sign In Button */}
+            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             </Button>
 
             {/* Divider */}
@@ -197,12 +310,16 @@ export default function LoginPage() {
               Sign In With Google
             </Button>
 
-            {/* Create Account Link */}
+            {/* Toggle Sign In/Sign Up */}
             <div className="text-center text-sm text-gray-600 mt-6">
-              Don't Have An Account?{' '}
-              <a href="#" className="text-green-600 hover:text-green-700 font-medium">
-                Create Your Account
-              </a>
+              {isSignUp ? 'Already Have An Account?' : "Don't Have An Account?"}{' '}
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-green-600 hover:text-green-700 font-medium"
+              >
+                {isSignUp ? 'Sign In' : 'Create Your Account'}
+              </button>
             </div>
           </form>
         </div>
