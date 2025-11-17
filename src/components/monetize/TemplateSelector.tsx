@@ -151,30 +151,10 @@ const TemplateSelector = () => {
               >
                 {/* Template Preview */}
                 <div className="relative bg-gradient-to-br from-sidebar to-sidebar-hover h-64 overflow-hidden">
-                  {/* Mockup Hero Section */}
-                  <div className="absolute inset-0 p-6 flex flex-col justify-center items-center text-sidebar-text">
-                    <div className="absolute top-4 right-4 text-xs text-sidebar-text-muted">
-                      Company
-                    </div>
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-brand-yellow rounded-full opacity-20 blur-3xl" />
-                    <h3 className="text-2xl font-bold text-center mb-4 relative z-10">
-                      {template.description}
-                    </h3>
-                    <button className="bg-brand-yellow text-primary px-6 py-2 rounded-lg font-semibold relative z-10 hover:opacity-90 transition-opacity">
-                      Get Started
+                  <div className="absolute top-4 right-4">
+                    <button className="bg-brand-yellow text-primary px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                      Template
                     </button>
-                  </div>
-                  
-                  {/* Thumbnail Images Section */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-sidebar/80 p-4">
-                    <div className="flex gap-2 justify-center">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="w-20 h-16 bg-sidebar-hover rounded border border-border"
-                        />
-                      ))}
-                    </div>
                   </div>
                 </div>
 
