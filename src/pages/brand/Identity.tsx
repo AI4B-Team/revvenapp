@@ -10,6 +10,11 @@ interface BrandData {
   accentColor: string;
   primaryFont: string;
   secondaryFont: string;
+  imageStyle?: {
+    id: string;
+    name: string;
+    color: string;
+  };
 }
 
 const Identity = () => {
