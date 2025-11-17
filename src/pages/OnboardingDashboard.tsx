@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Check, Play, Users, BookOpen, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function OnboardingDashboard() {
+  const navigate = useNavigate();
   const userName = 'Brian'; // This would come from your auth context
 
   return (
@@ -11,9 +13,18 @@ export default function OnboardingDashboard() {
       <div className="max-w-6xl mx-auto">
         {/* Welcome Header with AI Team Message */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Welcome, {userName} 👋
-          </h1>
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-4xl font-bold text-gray-900">
+              Welcome, {userName} 👋
+            </h1>
+            <Button 
+              variant="outline" 
+              className="text-gray-700 hover:text-green-600"
+              onClick={() => navigate('/dashboard')}
+            >
+              Skip to Dashboard
+            </Button>
+          </div>
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
