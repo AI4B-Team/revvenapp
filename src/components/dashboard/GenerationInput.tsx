@@ -393,41 +393,6 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     </div>
                   </PopoverContent>
                 </Popover>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      Create
-                      <ChevronDown size={14} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Flame size={20} className="text-green-600 dark:text-green-400" />
-                        </div>
-                        <span className="font-medium text-base">Start with a template</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <span className="font-medium text-base">Build with AI</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <FileText size={20} className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <span className="font-medium text-base">Start with a file</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
                 
                 <Popover>
                   <PopoverTrigger asChild>
@@ -465,6 +430,41 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     </div>
                   </PopoverContent>
                 </Popover>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Create
+                      <ChevronDown size={14} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-72 bg-background border-border z-50 p-2">
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Flame size={20} className="text-green-600 dark:text-green-400" />
+                        </div>
+                        <span className="font-medium text-base">Start With A Template</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Sparkles size={20} className="text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <span className="font-medium text-base">Build With AI</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="p-3 cursor-pointer hover:bg-muted rounded-lg">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <FileText size={20} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="font-medium text-base">Start With A File</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : isContentMode ? (
               <>
