@@ -23,7 +23,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
             <TooltipProvider>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
                   <button className="bg-muted/50 rounded-lg p-2">
                     <Video size={18} className="text-muted-foreground" />
