@@ -286,7 +286,7 @@ const Create = () => {
         onClose={() => setIdentitySidebarOpen(false)}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden ml-64">
         <Header />
         
         {/* Show Image Editing Canvas when in edit mode */}

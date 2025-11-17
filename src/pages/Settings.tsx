@@ -47,7 +47,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-64">
         <Header />
         <div className="flex-1 bg-gray-50 overflow-auto">
           <div className="max-w-6xl mx-auto p-8">
