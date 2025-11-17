@@ -1,16 +1,24 @@
-import { useState } from 'react';
-import { SlidersHorizontal, Search } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { SlidersHorizontal, Search, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import SearchDialog from '@/components/dashboard/SearchDialog';
 
 const TemplateSelector = () => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus search input when expanded
+  useEffect(() => {
+    if (searchExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchExpanded]);
 
   const categories = [
     'All',
@@ -51,16 +59,19 @@ const TemplateSelector = () => {
     // Add your preview logic here - open preview modal or new window
   };
 
+  const filteredTemplates = activeCategory === 'All' 
+    ? templates 
+    : templates.filter(t => t.category === activeCategory);
+
   return (
     <>
-      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <div className="min-h-screen bg-background p-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-2">
-                Websites
+                WEBSITES
               </h1>
               <p className="text-muted-foreground text-lg">
                 Start By Selecting A Template
@@ -95,13 +106,38 @@ const TemplateSelector = () => {
                 <SlidersHorizontal className="w-5 h-5" />
               </button>
 
-              {/* Search Button */}
-              <button 
-                onClick={() => setIsSearchOpen(true)}
-                className="p-2.5 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors"
-              >
-                <Search className="w-5 h-5" />
-              </button>
+              {/* Expandable Search */}
+              <div className="relative flex items-center">
+                {!searchExpanded ? (
+                  <button
+                    onClick={() => setSearchExpanded(true)}
+                    className="flex items-center justify-center w-11 h-11 bg-background border-2 border-border rounded-xl hover:bg-muted transition-colors"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 bg-background border-2 border-border rounded-xl px-4 py-2 animate-in slide-in-from-right">
+                    <Search className="w-5 h-5 text-muted-foreground" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search templates..."
+                      className="bg-transparent outline-none text-sm w-64 text-foreground placeholder:text-muted-foreground"
+                    />
+                    <button
+                      onClick={() => {
+                        setSearchExpanded(false);
+                        setSearchQuery('');
+                      }}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
