@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Users, Plus, X, Check, Upload, Sparkles, User, Wand2 } from 'lucide-react';
+import { Users, Plus, X, Check, Upload, Sparkles, User, Wand2, Mic } from 'lucide-react';
 import TutorialModal from './TutorialModal';
+import CharacterSelectorModal from './CharacterSelectorModal';
+import VoiceSelectorModal from './VoiceSelectorModal';
 import {
   Select,
   SelectContent,
@@ -41,16 +43,10 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
   onBack,
   canGoBack = true,
 }) => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [customCharacter, setCustomCharacter] = useState({
-    name: '',
-    description: '',
-    voiceStyle: '',
-    personality: '',
-    ethnicity: '',
-    gender: '',
-    ageRange: '',
-  });
+  const [showCharacterModal, setShowCharacterModal] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+  const [selectedVoice, setSelectedVoice] = useState<any>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showTutorial, setShowTutorial] = useState(false);
 
@@ -157,118 +153,30 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
   ];
 
   // Combine pre-made and custom characters
-  const availableCharacters = [...premadeCharacters, ...customCharacters];
-
-  const toggleCharacterSelection = (characterId: string) => {
-    const currentSelected = formData.selectedCharacters || [];
-    const isCurrentlySelected = currentSelected.includes(characterId);
-    
-    if (isCurrentlySelected) {
-      // If clicking the current default, deselect it
-      if (formData.defaultCharacter === characterId) {
-        const newSelected = currentSelected.filter(id => id !== characterId);
-        const newDefault = newSelected.length > 0 ? newSelected[0] : '';
-        onUpdate({
-          selectedCharacters: newSelected,
-          defaultCharacter: newDefault,
-        });
-      }
-      // If not default, just deselect
-      else {
-        const newSelected = currentSelected.filter(id => id !== characterId);
-        onUpdate({
-          selectedCharacters: newSelected,
-          defaultCharacter: formData.defaultCharacter,
-        });
-      }
-    } else {
-      // Select the character (don't auto-set as default)
-      const newSelected = [...currentSelected, characterId];
-      onUpdate({
-        selectedCharacters: newSelected,
-        defaultCharacter: formData.defaultCharacter || characterId, // Only set default if none exists
-      });
-    }
-  };
-
-  const setDefaultCharacter = (characterId: string) => {
+  const handleCharacterSelect = (character: any) => {
+    setSelectedCharacter(character);
     onUpdate({
-      selectedCharacters: formData.selectedCharacters,
-      defaultCharacter: characterId,
-      characterVoices: formData.characterVoices,
+      selectedCharacters: [character.id],
+      defaultCharacter: character.id,
     });
   };
 
-  const handleVoiceChange = (characterId: string, voiceId: string) => {
-    const updatedVoices = {
-      ...(formData.characterVoices || {}),
-      [characterId]: voiceId,
-    };
+  const handleVoiceSelect = (voice: any) => {
+    setSelectedVoice(voice);
     onUpdate({
-      selectedCharacters: formData.selectedCharacters,
-      defaultCharacter: formData.defaultCharacter,
-      characterVoices: updatedVoices,
+      characterVoices: { [formData.defaultCharacter]: voice.id },
     });
-  };
-
-  const handleCreateCharacter = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!customCharacter.name.trim()) {
-      newErrors.name = 'Character name is required';
-    }
-    if (!customCharacter.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // Create a new custom character
-    const newCharacter: Character = {
-      id: `custom_${Date.now()}`,
-      name: customCharacter.name,
-      avatar: '✨',
-      description: customCharacter.description,
-      voice: customCharacter.voiceStyle,
-      personality: customCharacter.personality,
-      ethnicity: customCharacter.ethnicity,
-      gender: customCharacter.gender,
-      ageRange: customCharacter.ageRange,
-    };
-
-    // Save custom character to localStorage
-    const updatedCustomCharacters = [...customCharacters, newCharacter];
-    setCustomCharacters(updatedCustomCharacters);
-    localStorage.setItem('customCharacters', JSON.stringify(updatedCustomCharacters));
-
-    // Add to selected characters and set as default
-    onUpdate({
-      selectedCharacters: [...(formData.selectedCharacters || []), newCharacter.id],
-      defaultCharacter: newCharacter.id,
-    });
-
-    // Reset modal
-    setShowCreateModal(false);
-    setCustomCharacter({
-      name: '',
-      description: '',
-      voiceStyle: '',
-      personality: '',
-      ethnicity: '',
-      gender: '',
-      ageRange: '',
-    });
-    setErrors({});
   };
 
   const handleNext = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.defaultCharacter) {
-      newErrors.defaultCharacter = 'Please select a default spokesperson';
+    if (!selectedCharacter) {
+      newErrors.character = 'Please add a spokesperson';
+    }
+
+    if (!selectedVoice) {
+      newErrors.voice = 'Please add a voice';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -326,153 +234,67 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Choose Your Brand's Spokesperson</h3>
                 <p className="text-sm text-gray-700 leading-relaxed">
-                  Select one or more AI characters to represent your brand across social media. Your first selection automatically becomes your default spokesperson.
+                  Select an AI character to represent your brand across social media. Your selection automatically becomes your default spokesperson.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Create Custom Character Button */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">CHOOSE SPOKESPERSON</h2>
-              <p className="text-sm text-gray-600">Select characters or create your own</p>
-            </div>
+          {/* Choose Spokesperson Section */}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">CHOOSE SPOKESPERSON</h2>
+            
             <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              onClick={() => setShowCharacterModal(true)}
+              className="group relative w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-cyan-500 hover:bg-gray-50 transition-all flex flex-col items-center justify-center"
             >
-              <Plus size={18} />
-              Create Custom Character
+              {selectedCharacter ? (
+                <div className="text-center">
+                  <div className="text-6xl mb-2">{selectedCharacter.avatar}</div>
+                  <p className="text-sm font-medium text-gray-900">{selectedCharacter.name}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-cyan-50 transition-colors">
+                    <Plus size={32} className="text-gray-400 group-hover:text-cyan-500 transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-600">Add Character</p>
+                </>
+              )}
             </button>
+
+            {errors.character && (
+              <div className="mt-2 text-sm text-red-600">{errors.character}</div>
+            )}
           </div>
 
-          {/* Character Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {availableCharacters.map((character) => {
-              const isSelected = (formData.selectedCharacters || []).includes(character.id);
-              const isDefault = formData.defaultCharacter === character.id;
-
-              return (
-                <div
-                  key={character.id}
-                  className={`relative bg-white border-2 rounded-xl p-6 transition-all ${
-                    isSelected
-                      ? 'border-indigo-500 shadow-lg'
-                      : 'border-gray-200 hover:border-indigo-300 hover:shadow-md'
-                  }`}
-                >
-                  <div onClick={() => toggleCharacterSelection(character.id)} className="cursor-pointer">
-                    {/* Selection Indicator */}
-                    {isSelected && (
-                      <div className="absolute top-3 right-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
-                        <Check size={16} className="text-white" />
-                      </div>
-                    )}
-
-                    {/* Avatar */}
-                    <div className="text-center mb-4">
-                      <div className="text-6xl mb-3">{character.avatar}</div>
-                      <h3 className="text-lg font-bold text-gray-900">{character.name}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{character.description}</p>
-                    </div>
-
-                    {/* Character Details */}
-                    <div className="space-y-2 text-xs text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Voice Style:</span>
-                        <span>{character.voice}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Personality:</span>
-                        <span>{character.personality}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Voice Selection */}
-                  {isSelected && (
-                    <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                      <label className="block text-xs font-medium text-gray-700 mb-2">
-                        Select Voice
-                      </label>
-                      <Select
-                        value={formData.characterVoices?.[character.id] || ''}
-                        onValueChange={(value) => handleVoiceChange(character.id, value)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Choose a voice" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {voiceOptions.map((voice) => (
-                            <SelectItem key={voice.id} value={voice.id}>
-                              {voice.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Set as Default Button - Show for all selected characters */}
-                  {isSelected && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDefaultCharacter(character.id);
-                      }}
-                      className={`w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isDefault
-                          ? 'bg-green-100 text-green-700 cursor-default'
-                          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                      }`}
-                      disabled={isDefault}
-                    >
-                      {isDefault ? 'Default Character' : 'Set As Default'}
-                    </button>
-                  )}
+          {/* Choose Voice Section */}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">CHOOSE VOICE</h2>
+            
+            <button
+              onClick={() => setShowVoiceModal(true)}
+              className="group relative w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-cyan-500 hover:bg-gray-50 transition-all flex flex-col items-center justify-center"
+            >
+              {selectedVoice ? (
+                <div className="text-center">
+                  <div className="text-6xl mb-2">{selectedVoice.avatar}</div>
+                  <p className="text-sm font-medium text-gray-900">{selectedVoice.name}</p>
                 </div>
-              );
-            })}
+              ) : (
+                <>
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-cyan-50 transition-colors">
+                    <Plus size={32} className="text-gray-400 group-hover:text-cyan-500 transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-600">Add Voice</p>
+                </>
+              )}
+            </button>
+
+            {errors.voice && (
+              <div className="mt-2 text-sm text-red-600">{errors.voice}</div>
+            )}
           </div>
-
-          {/* Error Message */}
-          {errors.defaultCharacter && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-700 flex items-center gap-2">
-                <X size={16} />
-                {errors.defaultCharacter}
-              </p>
-            </div>
-          )}
-
-          {/* Summary */}
-          {formData.selectedCharacters.length > 0 && (
-            <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center shrink-0">
-                  <Users size={20} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-2">Your Character Selection</h3>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <p>
-                      <strong>Default Spokesperson:</strong>{' '}
-                      {formData.defaultCharacter
-                        ? availableCharacters.find(c => c.id === formData.defaultCharacter)?.name
-                        : 'Not selected'}
-                    </p>
-                    <p>
-                      <strong>Total Characters:</strong> {formData.selectedCharacters.length}
-                    </p>
-                    <p className="text-gray-600">
-                      Your default character will be used for automatic content creation. You can assign specific characters to different campaigns later.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
         </div>
       </div>
@@ -491,7 +313,7 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
         <div className="ml-auto flex items-center gap-3">
           <button
             onClick={handleNext}
-            disabled={!formData.defaultCharacter}
+            disabled={!selectedCharacter || !selectedVoice}
             className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <Check size={18} />
@@ -500,175 +322,19 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
         </div>
       </div>
 
-      {/* Create Custom Character Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <Wand2 size={20} className="text-indigo-600" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900">Create Custom Character</h2>
-              </div>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setErrors({});
-                }}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-              >
-                <X size={20} />
-              </button>
-            </div>
+      {/* Character Selector Modal */}
+      <CharacterSelectorModal
+        isOpen={showCharacterModal}
+        onClose={() => setShowCharacterModal(false)}
+        onSelect={handleCharacterSelect}
+      />
 
-            {/* Modal Content */}
-            <div className="p-6 space-y-4">
-              
-              {/* Character Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Character Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={customCharacter.name}
-                  onChange={(e) => setCustomCharacter({ ...customCharacter, name: e.target.value })}
-                  placeholder="e.g., Sarah, Michael, Alex"
-                  className={`w-full px-4 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-                />
-                {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={customCharacter.description}
-                  onChange={(e) => setCustomCharacter({ ...customCharacter, description: e.target.value })}
-                  placeholder="e.g., Energetic fitness coach who motivates and inspires"
-                  rows={3}
-                  className={`w-full px-4 py-2 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none`}
-                />
-                {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
-              </div>
-
-              {/* Voice Style */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Voice Style
-                </label>
-                <input
-                  type="text"
-                  value={customCharacter.voiceStyle}
-                  onChange={(e) => setCustomCharacter({ ...customCharacter, voiceStyle: e.target.value })}
-                  placeholder="e.g., Warm and friendly, Professional and clear"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              {/* Personality */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Personality Traits
-                </label>
-                <input
-                  type="text"
-                  value={customCharacter.personality}
-                  onChange={(e) => setCustomCharacter({ ...customCharacter, personality: e.target.value })}
-                  placeholder="e.g., Energetic, inspiring, positive"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              {/* Demographics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                
-                {/* Gender */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Gender
-                  </label>
-                  <select
-                    value={customCharacter.gender}
-                    onChange={(e) => setCustomCharacter({ ...customCharacter, gender: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Non-binary">Non-binary</option>
-                  </select>
-                </div>
-
-                {/* Age Range */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Age Range
-                  </label>
-                  <select
-                    value={customCharacter.ageRange}
-                    onChange={(e) => setCustomCharacter({ ...customCharacter, ageRange: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Select...</option>
-                    <option value="18-25">18-25</option>
-                    <option value="25-35">25-35</option>
-                    <option value="35-45">35-45</option>
-                    <option value="45-55">45-55</option>
-                    <option value="55+">55+</option>
-                  </select>
-                </div>
-
-                {/* Ethnicity */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ethnicity
-                  </label>
-                  <select
-                    value={customCharacter.ethnicity}
-                    onChange={(e) => setCustomCharacter({ ...customCharacter, ethnicity: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Caucasian">Caucasian</option>
-                    <option value="African American">African American</option>
-                    <option value="Asian">Asian</option>
-                    <option value="Hispanic">Hispanic</option>
-                    <option value="Middle Eastern">Middle Eastern</option>
-                    <option value="Mixed">Mixed</option>
-                  </select>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setErrors({});
-                }}
-                className="px-6 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateCharacter}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2"
-              >
-                <Plus size={16} />
-                Create Character
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Voice Selector Modal */}
+      <VoiceSelectorModal
+        isOpen={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onSelect={handleVoiceSelect}
+      />
 
       <TutorialModal
         isOpen={showTutorial}
