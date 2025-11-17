@@ -116,14 +116,13 @@ const TemplateSelector = () => {
                     <Search className="w-5 h-5" />
                   </button>
                 ) : (
-                  <div className="flex items-center gap-2 bg-background border-2 border-border rounded-xl px-4 py-2 animate-in slide-in-from-right">
-                    <Search className="w-5 h-5 text-muted-foreground" />
+                  <div className="flex items-center gap-3 bg-background border border-border rounded-full px-5 py-2.5 animate-in slide-in-from-right shadow-sm">
                     <input
                       ref={searchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search templates..."
+                      placeholder="Search..."
                       className="bg-transparent outline-none text-sm w-64 text-foreground placeholder:text-muted-foreground"
                     />
                     <button
@@ -133,7 +132,7 @@ const TemplateSelector = () => {
                       }}
                       className="text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <X className="w-4 h-4" />
+                      <Search className="w-5 h-5" />
                     </button>
                   </div>
                 )}
