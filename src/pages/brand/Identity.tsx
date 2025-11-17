@@ -13,7 +13,7 @@ interface BrandData {
   imageStyle?: {
     id: string;
     name: string;
-    color: string;
+    preview: string;
   };
 }
 

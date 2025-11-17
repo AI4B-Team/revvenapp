@@ -15,7 +15,7 @@ interface IdentityPageProps {
     imageStyle?: {
       id: string;
       name: string;
-      color: string;
+      preview: string;
     };
   };
   onUpdate: (data: any) => void;
