@@ -451,21 +451,48 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 {(item.subItems ? openDropdowns[item.label] : isRecentOpen) && !isCollapsed && (
                   <div className="ml-6 mt-2 space-y-1">
                     {item.subItems ? (
-                      item.subItems.map((subItem: any, subIdx: number) => (
-                        <button
-                          key={subIdx}
-                          className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
-                        >
-                          {typeof subItem === 'object' && subItem.icon ? (
-                            <>
-                              {subItem.icon}
-                              <span className="text-sm">{subItem.label}</span>
-                            </>
-                          ) : (
-                            <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
-                          )}
-                        </button>
-                      ))
+                      item.subItems.map((subItem: any, subIdx: number) => {
+                        const getSubItemLink = () => {
+                          if (subItem.label === 'Websites') return '/websites';
+                          if (subItem.label === 'Funnels') return '/monetize';
+                          if (subItem.label === 'Stores') return '/monetize';
+                          return null;
+                        };
+                        
+                        const link = getSubItemLink();
+                        
+                        return link ? (
+                          <NavLink
+                            key={subIdx}
+                            to={link}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                            activeClassName="bg-sidebar-active text-sidebar-text"
+                          >
+                            {typeof subItem === 'object' && subItem.icon ? (
+                              <>
+                                {subItem.icon}
+                                <span className="text-sm">{subItem.label}</span>
+                              </>
+                            ) : (
+                              <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
+                            )}
+                          </NavLink>
+                        ) : (
+                          <button
+                            key={subIdx}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover rounded-lg text-left"
+                          >
+                            {typeof subItem === 'object' && subItem.icon ? (
+                              <>
+                                {subItem.icon}
+                                <span className="text-sm">{subItem.label}</span>
+                              </>
+                            ) : (
+                              <span className="text-sm">{typeof subItem === 'string' ? subItem : subItem.label}</span>
+                            )}
+                          </button>
+                        );
+                      })
                     ) : (
                       recentChats.map((chat) => (
                         <button
