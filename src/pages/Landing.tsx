@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Check, Play, ArrowRight, Zap, Users, TrendingUp, Clock, Sparkles, Brain, Calendar, BarChart3, MessageSquare, Camera, FileText, Video, Image as ImageIcon } from 'lucide-react';
 
 export default function RevvenLandingPage() {
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeValueProp, setActiveValueProp] = useState(0);
 
@@ -126,10 +128,17 @@ export default function RevvenLandingPage() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" className="text-white hover:text-green-500">
+              <Button 
+                variant="ghost" 
+                className="text-white hover:text-green-500"
+                onClick={() => navigate('/login')}
+              >
                 Login
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => navigate('/login')}
+              >
                 Start Free Trial
               </Button>
             </div>
