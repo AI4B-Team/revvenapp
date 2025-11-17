@@ -193,7 +193,7 @@ const Onboarding = () => {
             <div className="max-w-7xl mx-auto">
               
               {/* Welcome Header */}
-              <div className="bg-secondary/30 rounded-2xl p-6 mb-8">
+              <div className="bg-secondary/30 rounded-2xl p-6 mb-4">
                 <h1 className="text-4xl font-bold text-foreground">
                   Welcome, Brian 👋
                 </h1>
