@@ -5,6 +5,7 @@ import CharactersPage from '@/components/wizard/CharactersPage';
 interface CharactersData {
   selectedCharacters: string[];
   defaultCharacter: string;
+  characterVoices?: Record<string, string>;
 }
 
 const Characters = () => {
@@ -14,9 +15,11 @@ const Characters = () => {
     return saved ? JSON.parse(saved).characters || {
       selectedCharacters: [],
       defaultCharacter: '',
+      characterVoices: {},
     } : {
       selectedCharacters: [],
       defaultCharacter: '',
+      characterVoices: {},
     };
   });
 
