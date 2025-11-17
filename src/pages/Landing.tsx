@@ -7,10 +7,12 @@ export default function RevvenLandingPage() {
   const [activeValueProp, setActiveValueProp] = useState(0);
 
   const valuePros = [
-    { text: "leads", color: "text-green-400" },
-    { text: "revenue", color: "text-emerald-400" },
-    { text: "content", color: "text-green-500" },
-    { text: "audience", color: "text-teal-400" }
+    { text: "Audience", color: "text-green-400" },
+    { text: "Leads", color: "text-emerald-400" },
+    { text: "Revenue", color: "text-green-500" },
+    { text: "Authority", color: "text-teal-400" },
+    { text: "Growth", color: "text-cyan-400" },
+    { text: "Freedom", color: "text-blue-400" }
   ];
 
   useEffect(() => {
@@ -119,9 +121,6 @@ export default function RevvenLandingPage() {
             </div>
 
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors">How It Works</a>
-              <a href="#team" className="text-gray-400 hover:text-white transition-colors">AI Team</a>
               <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a>
             </nav>
 
@@ -147,15 +146,14 @@ export default function RevvenLandingPage() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            AI Agents That Show Up Daily<br />
-            To Grow Your{' '}
+            While You Sleep, We Grow Your{' '}
             <span className={`${valuePros[activeValueProp].color} transition-colors duration-500`}>
               {valuePros[activeValueProp].text}
             </span>
           </h1>
 
           <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
-            Your fully Automated Agentic AI team that <span className="text-white font-semibold">CREATE, DISTRIBUTE & AMPLIFY 100+</span> pieces of content weekly so you stay visible, trusted, & SELL without hiring, burnout, complex tools or manual effort
+            The One AI Revenue Engine That Fully Automates Your Content, Marketing & Sales 24/7
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -163,8 +161,7 @@ export default function RevvenLandingPage() {
               Start Automating Now
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-800 px-8 py-6 text-lg">
-              <Play className="mr-2 w-5 h-5" />
+            <Button variant="outline" className="border-green-600 text-black bg-white hover:bg-gray-100 px-8 py-6 text-lg">
               Watch Demo
             </Button>
           </div>
@@ -440,46 +437,12 @@ export default function RevvenLandingPage() {
         </div>
       </section>
 
-      {/* Meet The World's First Agentic AI */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-bold mb-4">
-            Meet The World's First Agentic AI<br />
-            For Expert Growth
-          </h2>
-
-          <p className="text-xl text-gray-400 mb-12">
-            Watch How REVVEN Will Explode Your Visibility, Leads & Sales
-          </p>
-
-          {/* Video Player Mockup */}
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 aspect-video max-w-4xl mx-auto mb-12">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Button className="w-20 h-20 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center">
-                <Play className="w-8 h-8 ml-1" />
-              </Button>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-600 rounded-full" />
-                  <div className="text-left">
-                    <p className="text-sm font-semibold">Who do you want to serve?</p>
-                    <p className="text-xs text-gray-400">Setup your growth engine</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 3 Simple Steps */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-900/10 to-transparent" id="how-it-works">
         <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Your Growth Engine, Fully Automated<br />
-            in 3 Simple Steps...
+            Your Fully Automated Revenue Engine
           </h2>
         </div>
 
