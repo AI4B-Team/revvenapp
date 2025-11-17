@@ -125,8 +125,8 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
               
               {/* Brand Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Brand Name <span className="text-red-500">*</span>
+                <label className="block text-2xl font-bold text-gray-900 mb-2">
+                  BRAND NAME <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -145,8 +145,8 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
 
               {/* Logo Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Brand Logo
+                <label className="block text-2xl font-bold text-gray-900 mb-2">
+                  BRAND LOGO
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
                   {logoPreview || (typeof formData.logo === 'string' && formData.logo) ? (
@@ -198,7 +198,7 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
 
               {/* Brand Colors */}
               <div>
-                <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide mb-4">Brand Colors</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">BRAND COLORS</h3>
                 <div className="space-y-4">
                   
                   {/* Primary Color */}
@@ -274,9 +274,9 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
 
               {/* Typography */}
               <div>
-                <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <Type size={16} />
-                  Typography
+                  TYPOGRAPHY
                 </h3>
                 <div className="space-y-4">
                   
@@ -330,7 +330,7 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
             <div>
               <div className="lg:sticky lg:top-0">
                 <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Brand Preview</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">BRAND PREVIEW</h3>
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="space-y-6">
                       {/* Logo and Name */}
@@ -387,7 +387,7 @@ const IdentityPage: React.FC<IdentityPageProps> = ({
                       {/* Image Style */}
                       {formData.imageStyle && (
                         <div className="border-t border-gray-200 pt-4">
-                          <p className="text-xs font-semibold text-gray-600 mb-2">Image Style</p>
+                          <p className="text-2xl font-bold text-gray-900 mb-2">IMAGE STYLE</p>
                           <div className="text-center">
                             <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-100 text-sm font-medium text-gray-900">
                               {formData.imageStyle.name}
