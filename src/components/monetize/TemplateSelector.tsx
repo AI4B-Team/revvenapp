@@ -152,7 +152,7 @@ const TemplateSelector = () => {
                 {/* Template Preview */}
                 <div className="relative bg-gradient-to-br from-sidebar to-sidebar-hover h-64 overflow-hidden">
                   <div className="absolute top-4 right-4">
-                    <button className="bg-brand-yellow text-primary px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                    <button className="bg-brand-yellow text-primary px-3 py-1 rounded-md text-xs font-semibold hover:opacity-90 transition-opacity">
                       Template
                     </button>
                   </div>
