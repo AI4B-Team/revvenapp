@@ -84,17 +84,17 @@ export default function RevvenLandingPage() {
 
   const aiTeam = [
     {
-      name: "Brian",
-      role: "The Architect",
-      description: "Builds the automated workflows that scales your business.",
-      color: "from-indigo-500 to-purple-600",
-      image: null
-    },
-    {
       name: "Francis",
       role: "The Strategist",
       description: "Crafts offers, builds marketing funnels, and designs campaigns that attract real buyers.",
       color: "from-blue-500 to-cyan-600",
+      image: null
+    },
+    {
+      name: "Brian",
+      role: "The Architect",
+      description: "Builds the automated workflows that scales your business.",
+      color: "from-indigo-500 to-purple-600",
       image: null
     },
     {
