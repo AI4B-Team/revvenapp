@@ -116,7 +116,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             Create
           </NavLink>
           <span className="text-muted">|</span>
-          <NavLink to="/monetize" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
+          <NavLink to="/products" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
             Monetize
           </NavLink>
           <span className="text-muted">|</span>
