@@ -645,14 +645,17 @@ export default function RevvenLandingPage() {
       {/* Meet Your Agentic Marketing Team */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-800/30 to-transparent" id="team">
         <div className="max-w-7xl mx-auto text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold mb-4">
-            Meet Your AI Team
-          </h2>
-          <p className="text-xl text-gray-400">
-            That work 24/7... Without the Payroll
+          <p className="text-sm md:text-base text-green-400 font-semibold mb-4 tracking-wider uppercase">
+            YOUR UNFAIR ADVANTAGE HAS ARRIVED
           </p>
-          <p className="text-lg text-gray-400 mt-4 max-w-3xl mx-auto">
-            Every role you'd need to grow your brand daily - now handled by AI agents that work together like a seasoned team.
+          <h2 className="text-4xl md:text-6xl font-bold mb-4">
+            An AI Dream Team That Never Stops. Never Quits.
+          </h2>
+          <p className="text-xl md:text-2xl text-gray-300 font-semibold mb-6">
+            Working 24/7. Zero Salaries. Zero Drama. Infinite Scale.
+          </p>
+          <p className="text-lg text-gray-400 max-w-4xl mx-auto leading-relaxed">
+            This is what top-tier entrepreneurs dream about: a complete team of specialists executing flawlessly around the clock. Content creation, strategy, automation, growth, all handled by AI agents that work together 24 hours a day, 7 days a week, handling every role you need to dominate your market.
           </p>
         </div>
 
