@@ -7,11 +7,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const TemplateSelector = () => {
+interface TemplateSelectorProps {
+  pageType?: 'websites' | 'funnels' | 'store' | 'products';
+}
+
+const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const pageConfig = {
+    websites: { title: 'WEBSITES', subtitle: 'Start By Selecting A Template' },
+    funnels: { title: 'FUNNELS', subtitle: 'Start By Selecting A Template' },
+    store: { title: 'STORE', subtitle: 'Start By Selecting A Template' },
+    products: { title: 'PRODUCTS', subtitle: 'Start By Selecting A Template' },
+  };
 
   // Focus search input when expanded
   useEffect(() => {
@@ -71,10 +82,10 @@ const TemplateSelector = () => {
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-2">
-                WEBSITES
+                {pageConfig[pageType].title}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Start By Selecting A Template
+                {pageConfig[pageType].subtitle}
               </p>
             </div>
 

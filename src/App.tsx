@@ -16,6 +16,9 @@ import Apps from "./pages/Apps";
 import Assets from "./pages/Assets";
 import Integrations from "./pages/Integrations";
 import Websites from "./pages/Websites";
+import Funnels from "./pages/Funnels";
+import Store from "./pages/Store";
+import Products from "./pages/Products";
 import Onboarding from "./pages/Onboarding";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -50,6 +53,9 @@ const App = () => (
           <Route path="/assistant" element={<Assistant />} />
           <Route path="/monetize" element={<Monetize />} />
           <Route path="/websites" element={<Websites />} />
+          <Route path="/funnels" element={<Funnels />} />
+          <Route path="/store" element={<Store />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/revenue" element={<Revenue />} />
           <Route path="/community" element={<Community />} />
