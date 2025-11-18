@@ -85,29 +85,29 @@ export default function RevvenLandingPage() {
   const aiTeam = [
     {
       name: "Brian",
-      role: "Automation Engineer",
-      description: "Builds workflows, integrations, and systems that run your business on autopilot",
+      role: "The Architect",
+      description: "Builds the automated workflows that scales your business.",
       color: "from-indigo-500 to-purple-600",
       image: null
     },
     {
       name: "Francis",
-      role: "Marketing Strategist",
-      description: "Builds funnels, creates SEO content, and drives qualified leads to your business",
+      role: "The Strategist",
+      description: "Crafts offers, builds marketing funnels, and designs campaigns that attract real buyers.",
       color: "from-blue-500 to-cyan-600",
       image: null
     },
     {
       name: "Rich",
-      role: "Sales & Conversion Specialist",
-      description: "Writes sales copy, creates landing pages, and converts leads into customers",
+      role: "The Closer",
+      description: "Writes sales scripts and follow-up sequences that turn interest into revenue.",
       color: "from-orange-500 to-amber-600",
       image: null
     },
     {
       name: "Dolmar",
-      role: "Content Creation Director",
-      description: "Creates social posts, videos, carousels, and digital products in your brand voice",
+      role: "The Visionary",
+      description: "Generates branded visuals, videos, and your AI characters that posts in your voice",
       color: "from-green-500 to-emerald-600",
       image: null
     },
