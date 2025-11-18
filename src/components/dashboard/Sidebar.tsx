@@ -188,7 +188,12 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
-  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+  
+  // Initialize dropdown state based on current page
+  const isSitesPage = location.pathname === '/websites' || location.pathname === '/funnels' || location.pathname === '/store';
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
+    'Sites': isSitesPage
+  });
 
   // Auto-expand brand section when on brand page
   useEffect(() => {
@@ -196,6 +201,16 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       setIsBrandOpen(true);
     }
   }, [isBrandPage]);
+
+  // Keep Sites dropdown open when on any sites sub-page
+  useEffect(() => {
+    if (isSitesPage) {
+      setOpenDropdowns(prev => ({
+        ...prev,
+        'Sites': true
+      }));
+    }
+  }, [isSitesPage]);
 
   // Calculate asset counts from creationsData
   const assetCounts = useMemo(() => {
