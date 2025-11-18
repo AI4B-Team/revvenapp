@@ -111,6 +111,12 @@ const Create = () => {
       bgColor: 'bg-tool-blue',
       emoji: '🎬'
     },
+    { 
+      name: 'AI Influencer', 
+      description: 'Create AI-powered influencer content',
+      bgColor: 'bg-tool-green',
+      emoji: '🤖'
+    },
   ];
 
   const audioTools = [
