@@ -118,7 +118,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       icon: <Download size={18} />, 
       label: 'Products', 
       color: 'text-brand-blue',
-      link: '/monetize'
+      link: '/products'
     },
     { 
       icon: <Globe size={18} />, 
@@ -454,8 +454,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                       item.subItems.map((subItem: any, subIdx: number) => {
                         const getSubItemLink = () => {
                           if (subItem.label === 'Websites') return '/websites';
-                          if (subItem.label === 'Funnels') return '/monetize';
-                          if (subItem.label === 'Stores') return '/monetize';
+                          if (subItem.label === 'Funnels') return '/funnels';
+                          if (subItem.label === 'Stores') return '/store';
                           return null;
                         };
                         
