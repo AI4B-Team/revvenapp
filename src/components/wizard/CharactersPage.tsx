@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Plus, X, Check, Upload, Sparkles, User, Wand2, Mic } from 'lucide-react';
 import TutorialModal from './TutorialModal';
-import CharacterSelectorModal from './CharacterSelectorModal';
+import DigitalCharactersModal from '../dashboard/DigitalCharactersModal';
 import VoiceSelectorModal from './VoiceSelectorModal';
 import {
   Select,
@@ -323,10 +323,10 @@ const CharactersPage: React.FC<CharactersPageProps> = ({
       </div>
 
       {/* Character Selector Modal */}
-      <CharacterSelectorModal
+      <DigitalCharactersModal
         isOpen={showCharacterModal}
         onClose={() => setShowCharacterModal(false)}
-        onSelect={handleCharacterSelect}
+        onSelectCharacter={handleCharacterSelect}
       />
 
       {/* Voice Selector Modal */}
