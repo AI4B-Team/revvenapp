@@ -101,87 +101,90 @@ const Assistant = () => {
 
             {/* Main Prompt Box */}
             <div className="w-full max-w-5xl">
-              <div className="bg-background border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
+              <div className="bg-gradient-to-br from-secondary to-secondary/80 border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
-                {/* Single Line with Input and All Buttons */}
-                <div className="flex items-center gap-3">
+                {/* Input Area with Animated Text */}
+                <div className="mb-6 h-16 flex items-center">
+                  <input
+                    type="text"
+                    value={currentPrompt}
+                    placeholder="What would you like to create?"
+                    className="w-full bg-transparent text-muted-foreground text-xl lg:text-2xl outline-none placeholder-muted"
+                    readOnly
+                  />
+                  {/* Typing Cursor */}
+                  {isTyping && (
+                    <span className="inline-block w-0.5 h-6 lg:h-7 bg-muted-foreground ml-1 animate-pulse" />
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between">
                   {/* Left Actions */}
-                  <button 
-                    className="p-2.5 hover:bg-accent rounded-lg transition-colors flex-shrink-0"
-                    title="Add attachment"
-                  >
-                    <Plus size={20} className="text-muted-foreground" />
-                  </button>
-                  
-                  <button 
-                    className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors flex-shrink-0"
-                    title="Workflows"
-                  >
-                    <Network size={20} className="text-muted-foreground" />
-                    <span className="text-muted-foreground font-medium hidden sm:inline">Workflows</span>
-                  </button>
-                  
-                  {/* Input Area with Animated Text */}
-                  <div className="flex-1 flex items-center min-w-0">
-                    <input
-                      type="text"
-                      value={currentPrompt}
-                      placeholder="What would you like to create?"
-                      className="w-full bg-transparent text-foreground text-lg lg:text-xl outline-none placeholder:text-muted-foreground"
-                      readOnly
-                    />
-                    {/* Typing Cursor */}
-                    {isTyping && (
-                      <span className="inline-block w-0.5 h-6 bg-muted-foreground ml-1 animate-pulse flex-shrink-0" />
-                    )}
+                  <div className="flex items-center gap-1">
+                    <button 
+                      className="p-2.5 hover:bg-accent rounded-lg transition-colors"
+                      title="Add attachment"
+                    >
+                      <Plus size={20} className="text-muted-foreground" />
+                    </button>
+                    
+                    <button 
+                      className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors"
+                      title="Workflows"
+                    >
+                      <Network size={20} className="text-muted-foreground" />
+                      <span className="text-muted-foreground font-medium hidden sm:inline">Workflows</span>
+                    </button>
                   </div>
 
                   {/* Right Actions */}
-                  <button 
-                    className="p-2.5 hover:bg-accent rounded-lg transition-colors flex-shrink-0"
-                    title="Voice input"
-                  >
-                    <Mic size={20} className="text-muted-foreground" />
-                  </button>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button 
-                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors border border-border flex-shrink-0"
-                        title="Select model"
-                      >
-                        <Sparkles size={18} className="text-muted-foreground" />
-                        <span className="text-muted-foreground font-medium hidden sm:inline">Model</span>
-                        <ChevronDown size={16} className="text-muted-foreground" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64">
-                      {models.map((model) => (
-                        <DropdownMenuItem
-                          key={model}
-                          onClick={() => setSelectedModel(model)}
-                          className="cursor-pointer"
+                  <div className="flex items-center gap-3">
+                    <button 
+                      className="p-2.5 hover:bg-accent rounded-lg transition-colors"
+                      title="Voice input"
+                    >
+                      <Mic size={20} className="text-muted-foreground" />
+                    </button>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button 
+                          className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent rounded-lg transition-colors border border-border"
+                          title="Select model"
                         >
-                          <div className="flex items-center gap-2">
-                            {selectedModel === model && (
-                              <span className="text-primary">✓</span>
-                            )}
-                            <span className={selectedModel === model ? 'font-medium' : ''}>
-                              {model}
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  {/* Green Arrow Button */}
-                  <button 
-                    className="w-12 h-12 bg-[hsl(var(--brand-green))] hover:bg-[hsl(var(--brand-green))]/90 rounded-full flex items-center justify-center transition-colors shadow-lg flex-shrink-0"
-                    title="Submit"
-                  >
-                    <ArrowUp size={22} className="text-white" />
-                  </button>
+                          <Sparkles size={18} className="text-muted-foreground" />
+                          <span className="text-muted-foreground font-medium hidden sm:inline">Model</span>
+                          <ChevronDown size={16} className="text-muted-foreground" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        {models.map((model) => (
+                          <DropdownMenuItem
+                            key={model}
+                            onClick={() => setSelectedModel(model)}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              {selectedModel === model && (
+                                <span className="text-primary">✓</span>
+                              )}
+                              <span className={selectedModel === model ? 'font-medium' : ''}>
+                                {model}
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    <button 
+                      className="w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center transition-colors shadow-lg"
+                      title="Submit"
+                    >
+                      <ArrowUp size={22} className="text-primary-foreground" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
