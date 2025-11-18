@@ -15,6 +15,7 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [productType, setProductType] = useState<'all' | 'software' | 'product'>('all');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const pageConfig = {
@@ -46,18 +47,18 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
   ];
 
   const templates = [
-    { id: 'nova', name: 'Nova', category: 'Business', description: 'Catchy Headline About Your Services' },
-    { id: 'cascade', name: 'Cascade', category: 'Education', description: 'Headline Of Your Academy' },
-    { id: 'minerva', name: 'Minerva', category: 'Services', description: 'Catchy Headline About Your Services' },
-    { id: 'aurora', name: 'Aurora', category: 'Fashion', description: 'Elevate Your Style Brand' },
-    { id: 'zenith', name: 'Zenith', category: 'Photography', description: 'Showcase Your Portfolio' },
-    { id: 'harmony', name: 'Harmony', category: 'Personal', description: 'Tell Your Story' },
-    { id: 'summit', name: 'Summit', category: 'Real Estate', description: 'Find Your Dream Property' },
-    { id: 'palette', name: 'Palette', category: 'Art', description: 'Display Your Creative Work' },
-    { id: 'velvet', name: 'Velvet', category: 'Membership', description: 'Exclusive Member Benefits' },
-    { id: 'savory', name: 'Savory', category: 'Restaurant', description: 'Delicious Dining Experience' },
-    { id: 'bloom', name: 'Bloom', category: 'Services', description: 'Professional Service Solutions' },
-    { id: 'echo', name: 'Echo', category: 'Business', description: 'Transform Your Business' }
+    { id: 'nova', name: 'Nova', category: 'Business', description: 'Catchy Headline About Your Services', type: 'software' },
+    { id: 'cascade', name: 'Cascade', category: 'Education', description: 'Headline Of Your Academy', type: 'product' },
+    { id: 'minerva', name: 'Minerva', category: 'Services', description: 'Catchy Headline About Your Services', type: 'software' },
+    { id: 'aurora', name: 'Aurora', category: 'Fashion', description: 'Elevate Your Style Brand', type: 'product' },
+    { id: 'zenith', name: 'Zenith', category: 'Photography', description: 'Showcase Your Portfolio', type: 'software' },
+    { id: 'harmony', name: 'Harmony', category: 'Personal', description: 'Tell Your Story', type: 'product' },
+    { id: 'summit', name: 'Summit', category: 'Real Estate', description: 'Find Your Dream Property', type: 'software' },
+    { id: 'palette', name: 'Palette', category: 'Art', description: 'Display Your Creative Work', type: 'product' },
+    { id: 'velvet', name: 'Velvet', category: 'Membership', description: 'Exclusive Member Benefits', type: 'software' },
+    { id: 'savory', name: 'Savory', category: 'Restaurant', description: 'Delicious Dining Experience', type: 'product' },
+    { id: 'bloom', name: 'Bloom', category: 'Services', description: 'Professional Service Solutions', type: 'software' },
+    { id: 'echo', name: 'Echo', category: 'Business', description: 'Transform Your Business', type: 'product' }
   ];
 
   const handleSelect = (templateId: string) => {
@@ -70,9 +71,13 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
     // Add your preview logic here - open preview modal or new window
   };
 
-  const filteredTemplates = activeCategory === 'All' 
-    ? templates 
-    : templates.filter(t => t.category === activeCategory);
+  const filteredTemplates = templates.filter(t => {
+    const matchesCategory = activeCategory === 'All' || t.category === activeCategory;
+    const matchesType = pageType === 'products' 
+      ? (productType === 'all' || t.type === productType)
+      : true;
+    return matchesCategory && matchesType;
+  });
 
   return (
     <>
@@ -87,6 +92,42 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
               <p className="text-muted-foreground text-lg">
                 {pageConfig[pageType].subtitle}
               </p>
+              
+              {/* Product Type Toggle - Only for Products Page */}
+              {pageType === 'products' && (
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setProductType('all')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      productType === 'all'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setProductType('software')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      productType === 'software'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Software
+                  </button>
+                  <button
+                    onClick={() => setProductType('product')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      productType === 'product'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Product
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Filter Controls */}
@@ -154,7 +195,7 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
 
         {/* Template Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {templates.map((template) => (
+            {filteredTemplates.map((template) => (
               <div
                 key={template.id}
                 className="bg-card rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow border border-border"
@@ -162,8 +203,8 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
                 {/* Template Preview */}
                 <div className="relative bg-gradient-to-br from-sidebar to-sidebar-hover h-64 overflow-hidden">
                   <div className="absolute top-4 right-4">
-                    <button className="bg-brand-yellow text-primary px-3 py-1 rounded-md text-xs font-semibold hover:opacity-90 transition-opacity">
-                      Template
+                    <button className="bg-brand-yellow text-primary px-3 py-1 rounded-md text-xs font-semibold hover:opacity-90 transition-opacity capitalize">
+                      {pageType === 'products' ? template.type : 'Template'}
                     </button>
                   </div>
                 </div>
