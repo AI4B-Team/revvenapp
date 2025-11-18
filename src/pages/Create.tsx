@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -15,6 +15,7 @@ import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 
 const Create = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
@@ -115,7 +116,8 @@ const Create = () => {
       name: 'AI Influencer', 
       description: 'Create AI-powered influencer content',
       bgColor: 'bg-tool-green',
-      emoji: '🤖'
+      emoji: '🤖',
+      onClick: () => navigate('/ai-influencer')
     },
   ];
 
