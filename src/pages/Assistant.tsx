@@ -101,21 +101,31 @@ const Assistant = () => {
 
             {/* Main Prompt Box */}
             <div className="w-full max-w-5xl">
-              <div className="bg-gradient-to-br from-secondary to-secondary/80 border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
+              <div className="bg-background border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
-                {/* Input Area with Animated Text */}
-                <div className="mb-6 h-16 flex items-center">
-                  <input
-                    type="text"
-                    value={currentPrompt}
-                    placeholder="What would you like to create?"
-                    className="w-full bg-transparent text-muted-foreground text-xl lg:text-2xl outline-none placeholder-muted"
-                    readOnly
-                  />
-                  {/* Typing Cursor */}
-                  {isTyping && (
-                    <span className="inline-block w-0.5 h-6 lg:h-7 bg-muted-foreground ml-1 animate-pulse" />
-                  )}
+                {/* Input Area with Animated Text and Submit Button */}
+                <div className="mb-6 flex items-center gap-4 p-4 border border-border rounded-2xl bg-background">
+                  <div className="flex-1 flex items-center">
+                    <input
+                      type="text"
+                      value={currentPrompt}
+                      placeholder="What would you like to create?"
+                      className="w-full bg-transparent text-foreground text-xl lg:text-2xl outline-none placeholder:text-muted-foreground"
+                      readOnly
+                    />
+                    {/* Typing Cursor */}
+                    {isTyping && (
+                      <span className="inline-block w-0.5 h-6 lg:h-7 bg-muted-foreground ml-1 animate-pulse" />
+                    )}
+                  </div>
+                  
+                  {/* Green Arrow Button Inside Input */}
+                  <button 
+                    className="w-12 h-12 bg-[hsl(var(--brand-green))] hover:bg-[hsl(var(--brand-green))]/90 rounded-full flex items-center justify-center transition-colors shadow-lg flex-shrink-0"
+                    title="Submit"
+                  >
+                    <ArrowUp size={22} className="text-white" />
+                  </button>
                 </div>
 
                 {/* Action Buttons */}
@@ -177,13 +187,6 @@ const Assistant = () => {
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    
-                    <button 
-                      className="w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center transition-colors shadow-lg"
-                      title="Submit"
-                    >
-                      <ArrowUp size={22} className="text-primary-foreground" />
-                    </button>
                   </div>
                 </div>
               </div>
