@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { 
-  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
+  ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import keishaImage from '@/assets/keisha.png';
 
 const AIAgentsPage = () => {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
@@ -13,46 +14,54 @@ const AIAgentsPage = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Content');
 
-  const trendingAutomations = [
+  const topAgents = [
     {
       id: 1,
-      name: 'Content Automation',
-      description: 'Automatically generate and publish content across all platforms',
-      image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=600&h=400&fit=crop',
-      badge: 'NEW',
-      badgeColor: 'bg-green-500'
+      name: 'Brian',
+      role: 'The Architect',
+      description: 'Builds the automated workflows that scales your business.',
+      gradient: 'from-purple-400 to-purple-600',
+      icon: 'Users'
     },
     {
       id: 2,
-      name: 'Social Media Manager',
-      description: 'Auto-schedule, post, and respond to all social interactions',
-      image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=400&fit=crop',
-      badge: 'TOP',
-      badgeColor: 'bg-yellow-500'
+      name: 'Francis',
+      role: 'The Strategist',
+      description: 'Crafts offers, builds marketing funnels, and designs campaigns that attract real buyers.',
+      gradient: 'from-cyan-400 to-blue-500',
+      icon: 'Users'
     },
     {
       id: 3,
-      name: 'Email Campaign Bot',
-      description: 'Create, personalize, and send email campaigns automatically',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop',
-      badge: 'TOP',
-      badgeColor: 'bg-yellow-500'
+      name: 'Rich',
+      role: 'The Closer',
+      description: 'Writes sales scripts and follow-up sequences that turn interest into revenue.',
+      gradient: 'from-orange-400 to-orange-600',
+      icon: 'Users'
     },
     {
       id: 4,
-      name: 'SEO Optimizer',
-      description: 'Automatically optimize content and track rankings 24/7',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
-      badge: 'NEW',
-      badgeColor: 'bg-green-500'
+      name: 'Dolmar',
+      role: 'The Visionary',
+      description: 'Generates branded visuals, videos, and your AI characters that posts in your voice',
+      gradient: 'from-green-400 to-green-600',
+      icon: 'Users'
     },
     {
       id: 5,
-      name: 'Sales Lead Bot',
-      description: 'Automatically qualify and follow-up with leads instantly',
-      image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&h=400&fit=crop',
-      badge: 'HOT',
-      badgeColor: 'bg-red-500'
+      name: 'Keisha',
+      role: 'The Creator',
+      description: 'Creates digital products, content, and writes sales copy in minutes.',
+      image: true,
+      icon: 'Users'
+    },
+    {
+      id: 6,
+      name: 'Damoi',
+      role: 'The Operator',
+      description: 'Manages projects and executes systems with precision and consistency',
+      gradient: 'from-teal-400 to-cyan-500',
+      icon: 'Users'
     }
   ];
 
@@ -152,12 +161,12 @@ const AIAgentsPage = () => {
           <div className="px-8 py-12">
             <div className="w-full space-y-16">
               
-              {/* Trending Section */}
+              {/* Top Agents Section */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">TRENDING AUTOMATIONS</h2>
-                    <p className="text-muted-foreground">Popular automation workflows used by top performers</p>
+                    <h2 className="text-2xl font-bold mb-2">TOP AGENTS</h2>
+                    <p className="text-muted-foreground">Your AI-powered team ready to transform your business</p>
                   </div>
                   <button 
                     onClick={() => setExpandedSections({ ...expandedSections, trending: !expandedSections.trending })}
@@ -168,37 +177,43 @@ const AIAgentsPage = () => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                  {trendingAutomations.map((automation) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                  {topAgents.map((agent) => (
                     <div
-                      key={automation.id}
-                      className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
+                      key={agent.id}
+                      className="group relative bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all cursor-pointer border border-border"
                     >
-                      {/* Image */}
-                      <div className="relative aspect-[4/3]">
-                        <img
-                          src={automation.image}
-                          alt={automation.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        
-                        {/* Badge */}
-                        {automation.badge && (
-                          <div className={`absolute top-4 left-4 ${automation.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
-                            {automation.badge}
+                      {/* Agent Avatar */}
+                      <div className={`relative aspect-square ${agent.image ? '' : `bg-gradient-to-br ${agent.gradient}`}`}>
+                        {agent.image ? (
+                          <img
+                            src={keishaImage}
+                            alt={agent.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                              </svg>
+                            </div>
                           </div>
                         )}
                       </div>
 
-                       {/* Content */}
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg mb-2 text-black">{automation.name}</h3>
-                        <p className="text-muted-foreground text-sm mb-4">{automation.description}</p>
+                      {/* Content */}
+                      <div className="p-4 bg-white">
+                        <h3 className="font-bold text-lg mb-1 text-gray-900">{agent.name}</h3>
+                        <p className="text-green-600 font-semibold text-sm mb-2">{agent.role}</p>
+                        <p className="text-gray-600 text-xs mb-4 line-clamp-3">{agent.description}</p>
                         
-                        {/* Try Now Button */}
-                        <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                          <Play size={16} fill="currentColor" />
-                          <span>Activate</span>
+                        {/* Activate Button */}
+                        <button className="w-full py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors">
+                          Activate
                         </button>
                       </div>
                     </div>
