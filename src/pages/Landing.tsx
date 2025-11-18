@@ -236,7 +236,7 @@ export default function RevvenLandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Platform-Perfect Every Time 🔥 →</h3>
-                    <p className="text-gray-400">Your content automatically adapts to each platform&apos;s format, dimensions, and best practices. Instagram Reels? Done. LinkedIn carousel? Done. X threads? Done.</p>
+                    <p className="text-gray-400">Your content automatically adapts to each platform&apos;s format, dimensions, and best practices. Instagram Reels? Done. LinkedIn carousel? Done. X&nbsp;threads? Done.</p>
                   </div>
                 </div>
               </div>
