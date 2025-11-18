@@ -49,8 +49,14 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
 
   const handleSelectVoice = (voice: Voice) => {
     setSelectedVoice(voice.id);
-    onSelect(voice);
-    onClose();
+  };
+
+  const handleConfirmSelection = () => {
+    const voice = voices.find(v => v.id === selectedVoice);
+    if (voice) {
+      onSelect(voice);
+      onClose();
+    }
   };
 
   return (
@@ -86,7 +92,11 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
               <button
                 key={voice.id}
                 onClick={() => handleSelectVoice(voice)}
-                className="flex items-center gap-3 p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors border border-gray-800 hover:border-cyan-500"
+                className={`flex items-center gap-3 p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors border ${
+                  selectedVoice === voice.id 
+                    ? 'border-green-500 ring-2 ring-green-500/50' 
+                    : 'border-gray-800 hover:border-cyan-500'
+                }`}
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center text-2xl">
                   {voice.avatar}
@@ -110,16 +120,17 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-800 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-800 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+            className="px-6 py-3 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
           >
             Cancel
           </button>
           <button
-            onClick={onClose}
-            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            onClick={handleConfirmSelection}
+            disabled={!selectedVoice}
+            className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             Select
           </button>
