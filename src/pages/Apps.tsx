@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Play, ChevronRight
+  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -102,9 +102,41 @@ const Apps = () => {
           {/* Header Section */}
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
-              <h1 className="text-3xl font-bold mb-4">
-                <span className="text-primary">APPS</span>
-              </h1>
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-3xl font-bold">
+                  <span className="text-primary">APPS</span>
+                </h1>
+                
+                {/* Filter Controls */}
+                <div className="flex items-center gap-3">
+                  {/* All Dropdown */}
+                  <button className="px-4 py-2 border border-border rounded-lg flex items-center gap-2 hover:bg-muted transition">
+                    <span className="text-sm text-foreground">All</span>
+                    <ChevronDown size={16} className="text-muted-foreground" />
+                  </button>
+
+                  {/* Controls Dropdown */}
+                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
+                    <SlidersHorizontal size={18} className="text-muted-foreground" />
+                  </button>
+
+                  {/* Search Dropdown */}
+                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
+                    <Search size={18} className="text-muted-foreground" />
+                  </button>
+
+                  {/* Zoom In */}
+                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
+                    <ZoomIn size={18} className="text-muted-foreground" />
+                  </button>
+
+                  {/* Zoom Out */}
+                  <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
+                    <ZoomOut size={18} className="text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+              
               <p className="text-muted-foreground text-lg">
                 A full suite of intelligent AI Apps to help you create like a pro.
               </p>

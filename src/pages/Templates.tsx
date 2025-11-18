@@ -107,7 +107,7 @@ const Templates = () => {
             <div className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">
-                  <span className="text-primary">AUTOMATE</span>
+                  <span className="text-primary">TEMPLATES</span>
                 </h1>
                 
                 {/* Filter Controls */}
