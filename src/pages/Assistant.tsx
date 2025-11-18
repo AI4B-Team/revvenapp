@@ -101,7 +101,7 @@ const Assistant = () => {
 
             {/* Main Prompt Box */}
             <div className="w-full max-w-5xl">
-              <div className="bg-gradient-to-br from-secondary to-secondary/80 border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
+              <div className="bg-background border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
                 {/* Input Area with Animated Text */}
                 <div className="mb-6 h-16 flex items-center">
@@ -179,10 +179,10 @@ const Assistant = () => {
                     </DropdownMenu>
                     
                     <button 
-                      className="w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center transition-colors shadow-lg"
+                      className="w-12 h-12 bg-brand-green hover:bg-brand-green/90 rounded-full flex items-center justify-center transition-colors shadow-lg"
                       title="Submit"
                     >
-                      <ArrowUp size={22} className="text-primary-foreground" />
+                      <ArrowUp size={22} className="text-white" />
                     </button>
                   </div>
                 </div>
