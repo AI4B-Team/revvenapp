@@ -102,14 +102,22 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const automateNavItems = [
     { 
+      icon: <AppWindow size={18} />, 
+      label: 'Apps', 
+      color: 'text-brand-yellow',
+      link: '/apps'
+    },
+    { 
       icon: <Bot size={18} />, 
       label: 'Agents', 
-      color: 'text-brand-blue'
+      color: 'text-brand-blue',
+      link: '/automate'
     },
     { 
       icon: <LayoutTemplate size={18} />, 
       label: 'Templates', 
-      color: 'text-brand-green'
+      color: 'text-brand-green',
+      link: '/templates'
     },
   ];
 
