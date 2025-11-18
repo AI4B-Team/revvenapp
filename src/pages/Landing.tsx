@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Check, Play, ArrowRight, Zap, Users, TrendingUp, Clock, Sparkles, Brain, Calendar, BarChart3, MessageSquare, Camera, FileText, Video, Image as ImageIcon } from 'lucide-react';
 import vickiRed from '@/assets/vicki-red.png';
-import vickiPink from '@/assets/vicki-pink.png';
 import xalinaVoss from '@/assets/xalina-voss.png';
+import xalinaProfile from '@/assets/xalina-profile.png';
 
 export default function RevvenLandingPage() {
   const navigate = useNavigate();
@@ -251,7 +251,7 @@ export default function RevvenLandingPage() {
                 {/* Mockup of social post interface */}
                 <div className="bg-white rounded-2xl p-4 mb-4">
                   <div className="flex items-center gap-3 mb-4">
-                    <img src={vickiPink} alt="Xalina Voss" className="w-10 h-10 rounded-full object-cover" />
+                    <img src={xalinaProfile} alt="Xalina Voss" className="w-10 h-10 rounded-full object-cover" />
                     <div>
                       <p className="text-gray-900 font-semibold text-sm">Xalina Voss</p>
                       <p className="text-gray-500 text-xs">Just now</p>
