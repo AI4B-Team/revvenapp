@@ -27,7 +27,7 @@ const AIAgentsPage = () => {
       id: 2,
       name: 'Francis',
       role: 'The Strategist',
-      description: 'Crafts offers, builds marketing funnels, and designs campaigns that attract real buyers.',
+      description: 'Crafts offers, builds marketing funnels, and campaigns that attract real buyers.',
       gradient: 'from-cyan-400 to-blue-500',
       icon: 'Users'
     },
@@ -35,7 +35,7 @@ const AIAgentsPage = () => {
       id: 3,
       name: 'Rich',
       role: 'The Closer',
-      description: 'Writes sales scripts and follow-up sequences that turn interest into revenue.',
+      description: 'Writes sales scripts and follow-up sequences that generate revenue.',
       gradient: 'from-orange-400 to-orange-600',
       icon: 'Users'
     },
@@ -43,7 +43,7 @@ const AIAgentsPage = () => {
       id: 4,
       name: 'Dolmar',
       role: 'The Visionary',
-      description: 'Generates branded visuals, videos, and your AI characters that posts in your voice',
+      description: 'Generates branded visuals, videos, and AI characters that posts in your voice.',
       gradient: 'from-green-400 to-green-600',
       icon: 'Users'
     },
@@ -59,7 +59,7 @@ const AIAgentsPage = () => {
       id: 6,
       name: 'Damoi',
       role: 'The Operator',
-      description: 'Manages projects and executes systems with precision and consistency',
+      description: 'Manages projects and executes systems with precision and consistency.',
       gradient: 'from-teal-400 to-cyan-500',
       icon: 'Users'
     }
