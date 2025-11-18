@@ -120,39 +120,22 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             Monetize
           </NavLink>
           <span className="text-muted">|</span>
-          <NavLink to="/automate" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
+          <NavLink to="/apps" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
             Automate
           </NavLink>
         </nav>
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
-                <Crown size={14} />
-                <span className="font-semibold">Upgrade</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Upgrade your plan</p>
-            </TooltipContent>
-          </Tooltip>
+        <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
+          <Crown size={14} />
+          <span className="font-semibold">Upgrade</span>
+        </Button>
 
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
-                <Gift size={14} />
-                <span className="font-semibold">Earn</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Refer & earn rewards</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
+          <Gift size={14} />
+          <span className="font-semibold">Earn</span>
+        </Button>
 
         <NotificationBell />
         <HelpMenu />
