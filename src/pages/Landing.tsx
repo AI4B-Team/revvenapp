@@ -648,12 +648,20 @@ export default function RevvenLandingPage() {
           <h2 className="text-4xl md:text-6xl font-bold mb-4">
             Meet Your AI Team
           </h2>
-          <p className="text-xl text-gray-400">
-            That work 24/7... Without the Payroll
-          </p>
-          <p className="text-lg text-gray-400 mt-4 max-w-3xl mx-auto">
-            Every role you'd need to grow your brand daily - now handled by AI agents that work together like a seasoned team.
-          </p>
+          <div className="mt-8 space-y-4">
+            <p className="text-xl md:text-2xl font-bold text-green-400 uppercase tracking-wide">
+              YOUR UNFAIR ADVANTAGE HAS ARRIVED
+            </p>
+            <h3 className="text-3xl md:text-4xl font-bold">
+              An AI Dream Team That Never Stops. Never Quits.
+            </h3>
+            <p className="text-2xl md:text-3xl font-semibold text-gray-300">
+              Working 24/7. Zero Salaries. Zero Drama. Infinite Scale.
+            </p>
+            <p className="text-lg text-gray-400 max-w-4xl mx-auto leading-relaxed">
+              This is what top-tier entrepreneurs dream about: a complete team of specialists executing flawlessly around the clock. Content creation, strategy, automation, growth, all handled by AI agents that work together 24 hours a day, 7 days a week, handling every role you need to dominate your market.
+            </p>
+          </div>
         </div>
 
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
