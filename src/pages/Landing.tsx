@@ -196,11 +196,13 @@ export default function RevvenLandingPage() {
       {/* Modern Content Experience Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-7xl mx-auto">
+          <h2 className="text-5xl md:text-7xl font-bold text-center mb-16">
+            Your Fully Automated Revenue Engine
+          </h2>
+          
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left - Features */}
             <div>
-              <p className="text-gray-400 text-sm mb-4 font-medium">Your Fully Automated Revenue Engine</p>
-              
               <div className="inline-block px-4 py-2 bg-green-600/20 border border-green-500/30 rounded-full mb-6">
                 <span className="text-green-400 font-medium text-sm">MULTIPLY YOUR REACH</span>
               </div>
