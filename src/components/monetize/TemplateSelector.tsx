@@ -21,7 +21,7 @@ const TemplateSelector = ({ pageType = 'websites' }: TemplateSelectorProps) => {
     websites: { title: 'WEBSITES', subtitle: 'Start By Selecting A Template' },
     funnels: { title: 'FUNNELS', subtitle: 'Start By Selecting A Template' },
     store: { title: 'STORE', subtitle: 'Start By Selecting A Template' },
-    products: { title: 'PRODUCTS', subtitle: 'Start By Selecting A Template' },
+    products: { title: 'PRODUCTS', subtitle: 'Ready-To-Sell Products' },
   };
 
   // Focus search input when expanded
