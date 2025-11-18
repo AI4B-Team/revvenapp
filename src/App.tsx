@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Create from "./pages/Create";
 import AIAgents from "./pages/AIAgents";
 import Assistant from "./pages/Assistant";
+import Templates from "./pages/Templates";
 import Monetize from "./pages/Monetize";
 import Contacts from "./pages/Contacts";
 import Revenue from "./pages/Revenue";
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/create" element={<Create />} />
           <Route path="/automate" element={<AIAgents />} />
           <Route path="/ai-agents" element={<AIAgents />} />
+          <Route path="/templates" element={<Templates />} />
           <Route path="/assistant" element={<Assistant />} />
           <Route path="/monetize" element={<Monetize />} />
           <Route path="/websites" element={<Websites />} />

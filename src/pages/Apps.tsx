@@ -90,6 +90,7 @@ const Apps = () => {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
+        isAutomatePage
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
       />
