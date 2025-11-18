@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Play, ChevronRight
+  Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -105,9 +105,43 @@ const AIAgentsPage = () => {
           {/* Header Section */}
           <div className="px-8 py-12 border-b border-border">
             <div className="w-full">
-              <h1 className="text-3xl font-bold mb-4">
-                <span className="text-primary">AUTOMATE</span>
-              </h1>
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-3xl font-bold">
+                  <span className="text-primary">AUTOMATE</span>
+                </h1>
+                
+                {/* Filter Controls */}
+                <div className="flex items-center gap-3">
+                  {/* All Dropdown */}
+                  <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg flex items-center gap-2 transition">
+                    <span className="text-sm font-medium">All</span>
+                    <ChevronDown size={16} />
+                  </button>
+                  
+                  {/* Filter Button */}
+                  <button className="p-2 bg-secondary hover:bg-secondary/80 rounded-lg transition">
+                    <SlidersHorizontal size={18} />
+                  </button>
+                  
+                  {/* Search Button */}
+                  <button className="p-2 bg-secondary hover:bg-secondary/80 rounded-lg transition">
+                    <Search size={18} />
+                  </button>
+                  
+                  {/* Zoom Slider */}
+                  <div className="flex items-center gap-3 px-4 py-2 bg-secondary rounded-lg">
+                    <ZoomOut size={16} className="text-muted-foreground" />
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="100" 
+                      defaultValue="50"
+                      className="w-32 h-1 bg-border rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary"
+                    />
+                    <ZoomIn size={16} className="text-muted-foreground" />
+                  </div>
+                </div>
+              </div>
               <p className="text-muted-foreground text-lg">
                 Let AI agents work for you 24/7. Automate your workflows and scale your business effortlessly.
               </p>
