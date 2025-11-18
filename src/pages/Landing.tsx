@@ -5,6 +5,7 @@ import { ChevronDown, Check, Play, ArrowRight, Zap, Users, TrendingUp, Clock, Sp
 import vickiRed from '@/assets/vicki-red.png';
 import xalinaVoss from '@/assets/xalina-voss.png';
 import xalinaProfile from '@/assets/xalina-profile.png';
+import keisha from '@/assets/keisha.png';
 
 export default function RevvenLandingPage() {
   const navigate = useNavigate();
@@ -86,31 +87,43 @@ export default function RevvenLandingPage() {
       name: "Brian",
       role: "Automation Engineer",
       description: "Builds workflows, integrations, and systems that run your business on autopilot",
-      color: "from-indigo-500 to-purple-600"
+      color: "from-indigo-500 to-purple-600",
+      image: null
     },
     {
       name: "Francis",
       role: "Marketing Strategist",
       description: "Builds funnels, creates SEO content, and drives qualified leads to your business",
-      color: "from-blue-500 to-cyan-600"
+      color: "from-blue-500 to-cyan-600",
+      image: null
     },
     {
       name: "Rich",
       role: "Sales & Conversion Specialist",
       description: "Writes sales copy, creates landing pages, and converts leads into customers",
-      color: "from-orange-500 to-amber-600"
+      color: "from-orange-500 to-amber-600",
+      image: null
     },
     {
       name: "Dolmar",
       role: "Content Creation Director",
       description: "Creates social posts, videos, carousels, and digital products in your brand voice",
-      color: "from-green-500 to-emerald-600"
+      color: "from-green-500 to-emerald-600",
+      image: null
     },
     {
       name: "Keisha",
-      role: "Design & Visual Lead",
-      description: "Designs branded visuals, product mockups, and attention-grabbing graphics",
-      color: "from-pink-500 to-rose-600"
+      role: "The Creator",
+      description: "Creates digital products, content, and writes sales copy in minutes.",
+      color: "from-pink-500 to-rose-600",
+      image: keisha
+    },
+    {
+      name: "Damoi",
+      role: "The Operator",
+      description: "Manages projects and executes systems with precision and consistency",
+      color: "from-teal-500 to-cyan-600",
+      image: null
     }
   ];
 
@@ -647,11 +660,14 @@ export default function RevvenLandingPage() {
           {aiTeam.map((member, index) => (
             <div key={index} className="group">
               <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 border border-gray-700 hover:border-green-500 transition-all duration-300 hover:scale-105">
-                <div className={`w-full aspect-square bg-gradient-to-br ${member.color} rounded-2xl mb-6 flex items-center justify-center`}>
-                  {/* Placeholder for agent avatar - you can replace with actual images */}
-                  <div className="w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm flex items-center justify-center">
-                    <Users className="w-12 h-12 text-white" />
-                  </div>
+                <div className={`w-full aspect-square bg-gradient-to-br ${member.color} rounded-2xl mb-6 flex items-center justify-center overflow-hidden`}>
+                  {member.image ? (
+                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-24 h-24 bg-white/20 rounded-full backdrop-blur-sm flex items-center justify-center">
+                      <Users className="w-12 h-12 text-white" />
+                    </div>
+                  )}
                 </div>
                 
                 <h3 className="text-2xl font-bold mb-2">{member.name}</h3>
