@@ -69,11 +69,11 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
               <SelectTrigger className="w-full bg-gray-900 border-gray-800 text-white">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-800">
-                <SelectItem value="english">English</SelectItem>
-                <SelectItem value="spanish">Spanish</SelectItem>
-                <SelectItem value="french">French</SelectItem>
-                <SelectItem value="german">German</SelectItem>
+              <SelectContent className="bg-gray-900 border-gray-800 text-white">
+                <SelectItem value="english" className="text-white hover:bg-gray-800">English</SelectItem>
+                <SelectItem value="spanish" className="text-white hover:bg-gray-800">Spanish</SelectItem>
+                <SelectItem value="french" className="text-white hover:bg-gray-800">French</SelectItem>
+                <SelectItem value="german" className="text-white hover:bg-gray-800">German</SelectItem>
               </SelectContent>
             </Select>
           </div>
