@@ -20,7 +20,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   
   return (
     <div className="max-w-6xl mx-auto mb-4">
-      <div className="bg-background border-2 border-border rounded-xl p-6">
+      <div className="bg-background border-2 border-border rounded-xl p-6 shadow-2xl">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
             <TooltipProvider>
