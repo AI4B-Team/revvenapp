@@ -152,7 +152,7 @@ export default function RevvenLandingPage() {
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-block px-4 py-2 bg-green-600/20 border border-green-500/30 rounded-full mb-6">
-            <span className="text-green-400 font-medium">CREATE ANYTHING -- AUTOMATE EVERYTHING!</span>
+            <span className="text-green-400 font-medium">CREATE ANYTHING — AUTOMATE EVERYTHING!</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
