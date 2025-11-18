@@ -61,9 +61,9 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden bg-black border-0 p-0">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-black border-0 p-0 flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-800">
+        <div className="p-6 border-b border-gray-800 flex-shrink-0">
           <DialogTitle className="text-xl font-semibold text-white mb-4">
             Choose Voice
           </DialogTitle>
@@ -86,7 +86,7 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
         </div>
 
         {/* Voice Grid */}
-        <div className="p-6 overflow-y-auto max-h-[calc(80vh-250px)]">
+        <div className="p-6 overflow-y-auto flex-1">
           <div className="grid grid-cols-2 gap-3">
             {voices.map((voice) => (
               <button
@@ -120,7 +120,7 @@ const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-800 flex justify-end gap-3">
+        <div className="p-6 border-t border-gray-800 flex justify-end gap-3 flex-shrink-0">
           <button
             onClick={onClose}
             className="px-6 py-3 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-800"
