@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { User, Video } from "lucide-react";
 
 const AIInfluencer = () => {
@@ -49,24 +50,22 @@ const AIInfluencer = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Character Name</label>
-                    <Input placeholder="Enter character name..." />
+                    <Label htmlFor="influencer-name">Name of the influencer</Label>
+                    <Input id="influencer-name" placeholder="Enter influencer name..." />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Personality Description</label>
+                    <Label htmlFor="influencer-bio">Bio of the influencer</Label>
                     <Textarea 
-                      placeholder="Describe your character's personality, speaking style, and traits..."
+                      id="influencer-bio"
+                      placeholder="Enter the influencer's bio..."
                       className="min-h-[120px]"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Visual Description</label>
-                    <Textarea 
-                      placeholder="Describe your character's appearance, style, and visual characteristics..."
-                      className="min-h-[120px]"
-                    />
+                    <Label htmlFor="reference-image">Reference image</Label>
+                    <Input id="reference-image" type="file" accept="image/*" />
                   </div>
 
                   <Button className="w-full">Generate Character</Button>
