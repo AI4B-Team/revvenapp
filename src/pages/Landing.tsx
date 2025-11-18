@@ -196,7 +196,7 @@ export default function RevvenLandingPage() {
       {/* Modern Content Experience Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-5xl md:text-7xl font-bold text-center mb-16">
+          <h2 className="text-4xl md:text-6xl font-bold text-center mb-16">
             Your Fully Automated Revenue Engine
           </h2>
           
