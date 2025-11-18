@@ -859,51 +859,6 @@ export default function RevvenLandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Copilot vs Fully Autonomous */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Use As A Copilot Or Go Fully Autonomous
-          </h2>
-        </div>
-
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 mb-12">
-          {/* Copilot Mode */}
-          <div className="bg-gradient-to-br from-purple-600/20 to-purple-700/20 border border-purple-500/30 rounded-3xl p-8 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-              <Users className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="text-3xl font-bold mb-4">Copilot Mode</h3>
-            <p className="text-gray-300 mb-6">
-              Vibe mode where AI drafts everything, you review and approve before publishing.
-            </p>
-          </div>
-
-          {/* Fully Autonomous Mode */}
-          <div className="bg-gradient-to-br from-purple-600/20 to-purple-700/20 border border-purple-500/30 rounded-3xl p-8 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-              <Zap className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="text-3xl font-bold mb-4">Fully Autonomous Mode</h3>
-            <p className="text-gray-300 mb-6">
-              AI plans, creates, and publishes daily with no manual input. You set the rules, it follows them.
-            </p>
-          </div>
-        </div>
-
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xl text-gray-400 mb-8">
-            Whichever mode you choose, the result is the same:<br />
-            <span className="text-white font-semibold">your brand shows up every day without the grind.</span>
-          </p>
-          <Button className="bg-green-600 hover:bg-green-700 px-8 py-6 text-lg">
-            Start Automating Now
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </div>
-      </section>
-
       {/* Social Proof / Trust Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-4xl mx-auto text-center">
