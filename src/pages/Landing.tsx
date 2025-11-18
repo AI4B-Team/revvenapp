@@ -199,17 +199,22 @@ export default function RevvenLandingPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left - Features */}
             <div>
+              <p className="text-gray-400 text-sm mb-4 font-medium">Your Fully Automated Revenue Engine</p>
+              
               <div className="inline-block px-4 py-2 bg-green-600/20 border border-green-500/30 rounded-full mb-6">
-                <span className="text-green-400 font-medium text-sm">MODERN CONTENT EXPERIENCE</span>
+                <span className="text-green-400 font-medium text-sm">MULTIPLY YOUR REACH</span>
               </div>
               
               <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Publish To All Your Socials.<br />
-                <span className="text-green-400">With A Single Click.</span>
+                Publish To All Your Socials <span className="text-green-400">With One Click</span>
               </h2>
 
-              <p className="text-gray-400 text-lg mb-8">
-                You deserve a modern content experience in 2025. REVVEN is the platform that helps you create content at scale.
+              <p className="text-gray-400 text-lg mb-4">
+                While You Create Once, We Multiply Your Reach Everywhere.
+              </p>
+
+              <p className="text-gray-400 text-base mb-8">
+                Stop wasting hours reformatting the same content for different platforms. REVVEN&apos;s intelligent cross-posting engine takes your creation and automatically optimizes it for every social channel, so you can focus on what matters: building your empire.
               </p>
 
               <div className="space-y-6">
@@ -218,8 +223,8 @@ export default function RevvenLandingPage() {
                     <ArrowRight className="w-6 h-6 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Cross Post - With A Single Click</h3>
-                    <p className="text-gray-400">Choose which social channels you want to post to - create once, publish everywhere.</p>
+                    <h3 className="text-xl font-semibold mb-2">Smart Cross-Posting That Actually Works →</h3>
+                    <p className="text-gray-400">Select your channels, hit publish, and watch your content flood every platform simultaneously. No copy-paste. No reformatting. No manual posting. No time wasted.</p>
                   </div>
                 </div>
 
@@ -228,8 +233,8 @@ export default function RevvenLandingPage() {
                     <Sparkles className="w-6 h-6 text-pink-500" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Adjust To The Platform</h3>
-                    <p className="text-gray-400">Adjust your posts to fit each channel in just the right format 🔥</p>
+                    <h3 className="text-xl font-semibold mb-2">Platform-Perfect Every Time 🔥 →</h3>
+                    <p className="text-gray-400">Your content automatically adapts to each platform&apos;s format, dimensions, and best practices. Instagram Reels? Done. LinkedIn carousel? Done. X threads? Done.</p>
                   </div>
                 </div>
               </div>
