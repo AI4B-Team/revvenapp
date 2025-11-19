@@ -1,5 +1,5 @@
 import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as React from 'react';
 import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,6 +21,8 @@ import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
 import SearchDialog from './SearchDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   onCreateClick?: () => void;
@@ -55,12 +57,32 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
     const today = new Date();
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
     return nextMonth.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  };
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out.",
+      });
+      navigate('/login');
+    }
   };
 
   const languages = [
@@ -313,7 +335,10 @@ const Header = ({ onCreateClick }: HeaderProps) => {
             <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Logout */}
-            <DropdownMenuItem className="flex items-center justify-center gap-3 py-3 px-3 rounded-md cursor-pointer bg-brand-red text-white hover:bg-brand-red/90">
+            <DropdownMenuItem 
+              onClick={handleSignOut}
+              className="flex items-center justify-center gap-3 py-3 px-3 rounded-md cursor-pointer bg-brand-red text-white hover:bg-brand-red/90"
+            >
               <Power size={20} />
               <span>Log Out</span>
             </DropdownMenuItem>
