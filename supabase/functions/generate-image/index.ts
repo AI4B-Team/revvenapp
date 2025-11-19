@@ -51,7 +51,7 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'seedream'
   },
   'seedream': {
-    model: 'bytedance/seedream-v3-text-to-image',
+    model: 'bytedance/seedream',
     name: 'Seedream 3.0',
     endpoint: '/api/v1/jobs/createTask',
     apiType: 'seedream'
@@ -189,7 +189,7 @@ serve(async (req) => {
         enableFallback: false
       };
     } else if (modelConfig.apiType === 'seedream') {
-      // Seedream API format (text-to-image)
+      // Seedream 3.0 API format - matches official documentation
       requestBody = {
         model: modelConfig.model,
         callBackUrl: callbackUrl,
@@ -199,10 +199,9 @@ serve(async (req) => {
                      aspectRatio === "16:9" ? "landscape_16_9" : 
                      aspectRatio === "9:16" ? "portrait_16_9" : 
                      aspectRatio === "4:3" ? "landscape_4_3" : 
-                     aspectRatio === "3:2" ? "landscape_3_2" : 
-                     aspectRatio === "21:9" ? "landscape_21_9" : "square_hd",
-          image_resolution: "2K",
-          max_images: 1
+                     aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+          guidance_scale: 2.5,
+          enable_safety_checker: true
         }
       };
     } else if (modelConfig.apiType === 'qwen') {
