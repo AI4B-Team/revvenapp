@@ -32,9 +32,15 @@ serve(async (req) => {
     if (code === 200) {
       // Success case - download and upload to Cloudinary
       // Different KIE.AI models return the result URL in different places
-      //  - Flux/GPT4o: data.info.resultImageUrl or data.response.resultImageUrl
+      //  - Flux: data.info.resultImageUrl or data.response.resultImageUrl
+      //  - GPT-4o: data.info.result_urls[0] (array format)
       //  - Seedream: data.resultJson = '{"resultUrls":["https://..."]}'
       let imageUrl = data.info?.resultImageUrl || data.response?.resultImageUrl;
+
+      // GPT-4o format: result_urls array
+      if (!imageUrl && data.info?.result_urls && Array.isArray(data.info.result_urls)) {
+        imageUrl = data.info.result_urls[0];
+      }
 
       // Fallback for Seedream-style payloads
       if (!imageUrl && data.resultJson) {
