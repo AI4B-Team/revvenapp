@@ -420,6 +420,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   onClick={onCharactersClick}
                   className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                 >
+                  <User size={14} />
                   Character
                 </button>
 
@@ -1105,8 +1106,9 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             
             <button 
               onClick={onCharactersClick}
-              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap"
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
             >
+              <User size={14} />
               Character
             </button>
             
@@ -1285,6 +1287,15 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     5 Images
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setNumberOfImages(6);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    6 Images
                   </button>
                 </div>
               </PopoverContent>
