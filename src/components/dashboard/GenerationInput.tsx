@@ -18,7 +18,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useState('nano-banana');
   const [isEnhancing, setIsEnhancing] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState('auto');
+  const [selectedStyle, setSelectedStyle] = useState('Auto');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
   const [numberOfImages, setNumberOfImages] = useState(1);
   const { toast } = useToast();
@@ -836,7 +836,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               <PopoverContent className="w-56 bg-background border-border z-50">
                 <div className="space-y-1">
                   <button 
-                    onClick={() => setSelectedStyle('auto')}
+                    onClick={() => setSelectedStyle('Auto')}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Auto
