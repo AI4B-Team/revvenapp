@@ -86,6 +86,7 @@ serve(async (req) => {
     
     // Handle both OpenAI and OpenRouter response formats
     let enhancedPrompt = data.choices?.[0]?.message?.content?.trim();
+    const message = data.choices?.[0]?.message || {};
     
     console.log("Extracted content:", enhancedPrompt ? enhancedPrompt.substring(0, 100) : "null");
     
@@ -93,6 +94,27 @@ serve(async (req) => {
     if (!enhancedPrompt && data.choices?.[0]?.text) {
       enhancedPrompt = data.choices[0].text.trim();
       console.log("Found text field instead:", enhancedPrompt.substring(0, 100));
+    }
+
+    // New: reasoning-based models often put natural language in reasoning / reasoning_details
+    if (!enhancedPrompt && message.reasoning) {
+      try {
+        const reasoningText = typeof message.reasoning === 'string'
+          ? message.reasoning
+          : JSON.stringify(message.reasoning);
+        enhancedPrompt = reasoningText.trim().substring(0, 400);
+        console.log("Using reasoning field as enhanced prompt:", enhancedPrompt.substring(0, 100));
+      } catch (_e) {
+        // ignore
+      }
+    }
+
+    if (!enhancedPrompt && Array.isArray(message.reasoning_details) && message.reasoning_details.length > 0) {
+      const summaryDetail = message.reasoning_details.find((d: any) => d.type === 'reasoning.summary') || message.reasoning_details[0];
+      if (summaryDetail?.summary) {
+        enhancedPrompt = String(summaryDetail.summary).trim().substring(0, 400);
+        console.log("Using reasoning summary as enhanced prompt:", enhancedPrompt.substring(0, 100));
+      }
     }
 
     // Check for errors in response
