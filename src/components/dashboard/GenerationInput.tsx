@@ -27,6 +27,38 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
   const { toast } = useToast();
   
+  // Define supported aspect ratios for each model
+  const modelAspectRatios: Record<string, string[]> = {
+    'auto': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'flux-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'flux-max': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'gpt-4o-image': ['1:1', '3:2', '2:3'], // Native support only
+    'qwen': ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    'seedream-4': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
+    'seedream': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
+    'grok': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'nano-banana': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'imagen-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'ideogram': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9']
+  };
+  
+  // Get available aspect ratios for the selected model
+  const availableAspectRatios = modelAspectRatios[selectedModel] || modelAspectRatios['auto'];
+  
+  // Auto-adjust aspect ratio when model changes if current ratio is not supported
+  const handleModelChange = (newModel: string) => {
+    setSelectedModel(newModel);
+    const newAvailableRatios = modelAspectRatios[newModel] || modelAspectRatios['auto'];
+    if (!newAvailableRatios.includes(selectedAspectRatio)) {
+      // Default to 1:1 if current ratio not supported
+      setSelectedAspectRatio('1:1');
+      toast({
+        title: "Aspect ratio adjusted",
+        description: `${selectedAspectRatio} is not supported by this model. Switched to 1:1.`,
+      });
+    }
+  };
+  
   const isVideoMode = selectedType === 'Video';
   const isAudioMode = selectedType === 'Audio';
   const isDesignMode = selectedType === 'Design';
@@ -720,7 +752,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Auto */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('auto');
+                      handleModelChange('auto');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -742,7 +774,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Flux Pro */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('flux-pro');
+                      handleModelChange('flux-pro');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -767,7 +799,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Flux Max */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('flux-max');
+                      handleModelChange('flux-max');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -789,7 +821,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* GPT-4o Image */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('gpt-4o-image');
+                      handleModelChange('gpt-4o-image');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -816,7 +848,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Seedream 4.0 */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('seedream-4');
+                      handleModelChange('seedream-4');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -838,7 +870,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Seedream 3.0 */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('seedream');
+                      handleModelChange('seedream');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -859,7 +891,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Qwen Image */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('qwen');
+                      handleModelChange('qwen');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -880,7 +912,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Nano Banana */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('nano-banana');
+                      handleModelChange('nano-banana');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -906,7 +938,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Ideogram V3 */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('ideogram');
+                      handleModelChange('ideogram');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -927,7 +959,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Grok Imagine */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('grok');
+                      handleModelChange('grok');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -948,7 +980,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   {/* Imagen 4 Ultra */}
                   <button 
                     onClick={() => {
-                      setSelectedModel('imagen-ultra');
+                      handleModelChange('imagen-ultra');
                       setIsModelDropdownOpen(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
@@ -1083,58 +1115,104 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 bg-background border-border z-50">
+              <PopoverContent className="w-56 bg-background border-border z-50">
                 <div className="space-y-1">
-                  <button 
-                    onClick={() => {
-                      setSelectedAspectRatio('1:1');
-                      setIsAspectRatioDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                  >
-                    <div className="w-4 h-4 border-2 border-current"></div>
-                    1:1 Square
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedAspectRatio('16:9');
-                      setIsAspectRatioDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                  >
-                    <div className="w-5 h-3 border-2 border-current"></div>
-                    16:9 Landscape
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedAspectRatio('9:16');
-                      setIsAspectRatioDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                  >
-                    <div className="w-3 h-5 border-2 border-current"></div>
-                    9:16 Portrait
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedAspectRatio('4:3');
-                      setIsAspectRatioDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                  >
-                    <div className="w-5 h-4 border-2 border-current"></div>
-                    4:3 Standard
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedAspectRatio('21:9');
-                      setIsAspectRatioDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                  >
-                    <div className="w-6 h-3 border-2 border-current"></div>
-                    21:9 Ultrawide
-                  </button>
+                  {availableAspectRatios.includes('1:1') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('1:1');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-4 h-4 border-2 border-current"></div>
+                      <span className="flex-1">1:1 Square</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('16:9') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('16:9');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-5 h-3 border-2 border-current"></div>
+                      <span className="flex-1">16:9 Landscape</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('9:16') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('9:16');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-3 h-5 border-2 border-current"></div>
+                      <span className="flex-1">9:16 Portrait</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('4:3') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('4:3');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-5 h-4 border-2 border-current"></div>
+                      <span className="flex-1">4:3 Standard</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('3:4') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('3:4');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-4 h-5 border-2 border-current"></div>
+                      <span className="flex-1">3:4 Portrait</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('3:2') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('3:2');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-5 h-3.5 border-2 border-current"></div>
+                      <span className="flex-1">3:2 Classic</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('2:3') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('2:3');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-3.5 h-5 border-2 border-current"></div>
+                      <span className="flex-1">2:3 Portrait</span>
+                    </button>
+                  )}
+                  {availableAspectRatios.includes('21:9') && (
+                    <button 
+                      onClick={() => {
+                        setSelectedAspectRatio('21:9');
+                        setIsAspectRatioDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                    >
+                      <div className="w-6 h-3 border-2 border-current"></div>
+                      <span className="flex-1">21:9 Ultrawide</span>
+                    </button>
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
