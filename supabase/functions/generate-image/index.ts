@@ -15,11 +15,10 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'flux'
   },
   'grok': {
-    model: 'grok-imagine',
+    model: 'grok-imagine/text-to-image',
     name: 'Grok Imagine',
-    endpoint: '/v1/models/grok/grok-imagine/predictions',
-    apiType: 'replicate',
-    owner: 'grok'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'imagen'
   },
   'gpt-4o-image': {
     model: 'gpt-image-1',
