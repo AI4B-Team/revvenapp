@@ -690,6 +690,9 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                       {selectedModel === 'ideogram' && (
                         <Image size={14} className="text-blue-500" />
                       )}
+                      {selectedModel === 'grok' && (
+                        <img src="/lovable-uploads/model-logos/grok.png" alt="Grok" className="w-4 h-4" />
+                      )}
                       {selectedModel === 'imagen-ultra' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -810,27 +813,6 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     </div>
                   </button>
 
-                  {/* Grok Imagine */}
-                  <button 
-                    onClick={() => {
-                      setSelectedModel('grok');
-                      setIsModelDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Sparkles size={16} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Grok Imagine</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">xAI's multimodal image generation</p>
-                      </div>
-                    </div>
-                  </button>
-
                   {/* Seedream 4.0 */}
                   <button 
                     onClick={() => {
@@ -938,6 +920,27 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                           <span className="font-semibold text-foreground text-sm">Ideogram V3</span>
                         </div>
                         <p className="text-xs text-muted-foreground">Advanced text rendering and editing</p>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Grok Imagine */}
+                  <button 
+                    onClick={() => {
+                      setSelectedModel('grok');
+                      setIsModelDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <img src="/lovable-uploads/model-logos/grok.png" alt="Grok" className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Grok Imagine</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">X.AI's powerful text-to-image model</p>
                       </div>
                     </div>
                   </button>
