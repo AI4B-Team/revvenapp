@@ -279,6 +279,29 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                 alt={item.title}
                 className="w-full h-full object-cover"
               />
+              
+              {/* Loading Overlay for pending/processing images */}
+              {(item.status === 'pending' || item.status === 'processing') && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-semibold text-lg mb-1">Generating Image</p>
+                    <p className="text-white/70 text-sm">This may take a few moments...</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Error Overlay */}
+              {item.status === 'error' && (
+                <div className="absolute inset-0 bg-red-500/20 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
+                  <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+                    <X size={24} className="text-white" />
+                  </div>
+                  <p className="text-red-600 font-semibold text-sm">Generation Failed</p>
+                </div>
+              )}
 
               {/* Media Type Badge - Top Left */}
               <div className={`absolute top-3 left-3 ${sizes.badge} bg-black/70 backdrop-blur-sm rounded-lg flex items-center ${sizes.gap} opacity-0 group-hover:opacity-100 transition-opacity`}>
