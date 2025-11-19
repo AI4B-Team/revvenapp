@@ -20,6 +20,7 @@ const Assistant = () => {
   const [selectedModel, setSelectedModel] = useState('All-Purpose (GPT-5)');
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const models = [
     'All-Purpose (GPT-5)',
@@ -81,9 +82,10 @@ const Assistant = () => {
         isAssistantPage={true}
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
+        onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         <div className="flex flex-1 overflow-hidden">

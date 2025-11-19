@@ -11,6 +11,7 @@ const Monetize = () => {
   const [funnels, setFunnels] = useState([]);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -20,9 +21,10 @@ const Monetize = () => {
         isMonetizePage
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
+        onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         <main className="bg-muted/30">

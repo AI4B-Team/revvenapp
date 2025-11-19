@@ -63,6 +63,7 @@ interface AIVideo {
 const AIInfluencer = () => {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<"character" | "video" | "manage">("character");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   // Character form state
   const [characterName, setCharacterName] = useState("");
@@ -532,8 +533,8 @@ const AIInfluencer = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/[0.03]">
-      <Sidebar />
-      <div className="flex-1 ml-64">
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="p-8 pt-24">
           <div className="max-w-7xl mx-auto space-y-8">
