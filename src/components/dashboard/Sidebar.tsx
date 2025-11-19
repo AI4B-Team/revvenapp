@@ -144,14 +144,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
       icon: <Mail size={18} />, 
       label: 'Marketing', 
       color: 'text-brand-green',
-      isDropdown: true,
-      subItems: [
-        { label: 'Emails', icon: <Send size={14} /> },
-        { label: 'Social', icon: <Share2 size={14} /> },
-        { label: 'Ads', icon: <DollarSign size={14} /> },
-        { label: 'Campaigns', icon: <Target size={14} /> },
-        { label: 'Calendar', icon: <Calendar size={14} /> }
-      ]
+      link: '/marketing'
     },
     { 
       icon: <DollarSign size={18} />, 
