@@ -44,7 +44,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
 
-  // Fetch generated images from Supabase
+  // Fetch generated images from Supabase with real-time subscriptions
   useEffect(() => {
     const fetchGeneratedImages = async () => {
       const { data: session } = await supabase.auth.getSession();
@@ -83,9 +83,26 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
 
     fetchGeneratedImages();
 
-    // Poll every 8 seconds for updates
-    const interval = setInterval(fetchGeneratedImages, 8000);
-    return () => clearInterval(interval);
+    // Real-time subscription for instant updates
+    const channel = supabase
+      .channel('generated_images_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'generated_images'
+        },
+        (payload) => {
+          console.log('Generated images update:', payload);
+          fetchGeneratedImages(); // Refetch to get latest data
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const allItems = type === 'creations' ? [...generatedItems, ...creationsData] : communityData;
