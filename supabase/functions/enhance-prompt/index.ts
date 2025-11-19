@@ -27,7 +27,7 @@ serve(async (req) => {
     console.log("Calling OpenRouter API with model: openai/gpt-5");
 
     const requestBody = {
-      model: "openai/gpt-5",
+      model: "openai/gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -38,7 +38,7 @@ serve(async (req) => {
           content: `Enhance this image generation prompt: "${prompt}"`
         }
       ],
-      max_completion_tokens: 200,
+      max_completion_tokens: 400,
       temperature: 0.8
     };
 
