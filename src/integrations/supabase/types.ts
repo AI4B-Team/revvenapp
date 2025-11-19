@@ -114,30 +114,39 @@ export type Database = {
           aspect_ratio: string | null
           cloudinary_public_id: string | null
           created_at: string | null
+          error_message: string | null
           id: string
           image_url: string
+          kie_task_id: string | null
           model: string | null
           prompt: string
+          status: string | null
           user_id: string
         }
         Insert: {
           aspect_ratio?: string | null
           cloudinary_public_id?: string | null
           created_at?: string | null
+          error_message?: string | null
           id?: string
           image_url: string
+          kie_task_id?: string | null
           model?: string | null
           prompt: string
+          status?: string | null
           user_id: string
         }
         Update: {
           aspect_ratio?: string | null
           cloudinary_public_id?: string | null
           created_at?: string | null
+          error_message?: string | null
           id?: string
           image_url?: string
+          kie_task_id?: string | null
           model?: string | null
           prompt?: string
+          status?: string | null
           user_id?: string
         }
         Relationships: []
