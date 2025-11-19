@@ -57,11 +57,10 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'seedream'
   },
   'qwen': {
-    model: 'qwen-image',
+    model: 'qwen/text-to-image',
     name: 'Qwen Image',
-    endpoint: '/v1/models/qwen/qwen-image/predictions',
-    apiType: 'replicate',
-    owner: 'qwen'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'qwen'
   },
   'nano-banana': {
     model: 'google/nano-banana',
@@ -195,6 +194,21 @@ serve(async (req) => {
                      aspectRatio === "21:9" ? "landscape_21_9" : "square_hd",
           image_resolution: "2K",
           max_images: 1
+        }
+      };
+    } else if (modelConfig.apiType === 'qwen') {
+      // Qwen API format
+      requestBody = {
+        model: modelConfig.model,
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          image_size: aspectRatio === "1:1" ? "square_hd" : 
+                     aspectRatio === "16:9" ? "landscape_16_9" : 
+                     aspectRatio === "9:16" ? "portrait_16_9" : 
+                     aspectRatio === "4:3" ? "landscape_4_3" : 
+                     aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+          output_format: "png"
         }
       };
     } else if (modelConfig.apiType === 'imagen') {
