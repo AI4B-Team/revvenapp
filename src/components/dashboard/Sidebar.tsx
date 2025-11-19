@@ -27,9 +27,10 @@ interface SidebarProps {
   onCharactersClick?: () => void;
   onIdentityClick?: () => void;
   onAssetFilterChange?: (filter: string | null) => void;
+  onCollapseChange?: (isCollapsed: boolean) => void;
 }
 
-const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange }: SidebarProps) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
   const isContactsPage = location.pathname === '/contacts';
@@ -196,6 +197,11 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
+  
+  // Notify parent component when collapse state changes
+  useEffect(() => {
+    onCollapseChange?.(isCollapsed);
+  }, [isCollapsed, onCollapseChange]);
   
   // Initialize dropdown state based on current page
   const isSitesPage = location.pathname === '/websites' || location.pathname === '/funnels' || location.pathname === '/store';
