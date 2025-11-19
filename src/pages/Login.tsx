@@ -60,6 +60,24 @@ export default function LoginPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out.",
+      });
+      setSession(null);
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -215,6 +233,20 @@ export default function LoginPage() {
               <span className="text-2xl font-semibold text-gray-900">REVVEN</span>
             </div>
           </div>
+
+          {/* Logout Button - Shows when user is logged in */}
+          {session && (
+            <div className="mb-8 flex flex-col items-center gap-4">
+              <p className="text-gray-600">You are already logged in</p>
+              <Button
+                onClick={handleSignOut}
+                variant="destructive"
+                className="w-full max-w-xs"
+              >
+                Log Out
+              </Button>
+            </div>
+          )}
 
           {/* Welcome Text */}
           <div className="mb-8">
