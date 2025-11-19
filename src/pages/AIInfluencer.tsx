@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X, Trash2, Users } from "lucide-react";
+import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X, Trash2, Users, Download, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { VideoGenerationCountdown } from "@/components/VideoGenerationCountdown";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,21 @@ interface AICharacter {
   bio: string;
   image_url: string;
   created_at: string;
+}
+
+interface AIVideo {
+  id: string;
+  character_id: string;
+  character_name: string;
+  character_bio: string;
+  character_image_url: string;
+  video_topic: string;
+  video_script: string | null;
+  video_style: string;
+  video_url: string | null;
+  status: string;
+  created_at: string;
+  completed_at: string | null;
 }
 
 const AIInfluencer = () => {
@@ -49,6 +65,16 @@ const AIInfluencer = () => {
   
   // Video creation state
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
+  const [videoTopic, setVideoTopic] = useState("");
+  const [videoScript, setVideoScript] = useState("");
+  const [videoStyle, setVideoStyle] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+
+  // Video history state
+  const [generatedVideos, setGeneratedVideos] = useState<AIVideo[]>([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
 
   // Fetch characters
   const fetchCharacters = async () => {
@@ -80,9 +106,171 @@ const AIInfluencer = () => {
     }
   };
 
+  // Fetch generated videos
+  const fetchGeneratedVideos = async () => {
+    setIsLoadingVideos(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('ai_videos')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGeneratedVideos(data || []);
+      
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+      toast.error('Failed to load video history');
+    } finally {
+      setIsLoadingVideos(false);
+    }
+  };
+
+  // Poll for video completion
+  const startPollingForVideo = (videoId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase
+          .from('ai_videos')
+          .select('*')
+          .eq('id', videoId)
+          .single();
+        
+        if (error) throw error;
+        
+        if (data.status === 'completed' && data.video_url) {
+          clearInterval(pollInterval);
+          setShowCountdown(false);
+          setIsGenerating(false);
+          
+          toast.success("Your video is ready!", {
+            duration: 5000,
+          });
+          
+          await fetchGeneratedVideos();
+          setActiveSection("manage");
+          
+          setVideoTopic("");
+          setVideoScript("");
+          setVideoStyle("");
+          setSelectedCharacterId("");
+          
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval);
+          setShowCountdown(false);
+          setIsGenerating(false);
+          toast.error("Video generation failed. Please try again.");
+        }
+        
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 5000);
+    
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      if (showCountdown) {
+        setShowCountdown(false);
+        setIsGenerating(false);
+        toast.error("Video generation timed out. Please check your history later.");
+      }
+    }, 360000);
+  };
+
+  // Handle video generation
+  const handleGenerateVideo = async () => {
+    if (!selectedCharacterId) {
+      toast.error("Please select a character");
+      return;
+    }
+    
+    if (!videoTopic.trim()) {
+      toast.error("Please enter a video topic");
+      return;
+    }
+    
+    if (!videoStyle.trim()) {
+      toast.error("Please enter a video style");
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+      
+      const selectedCharacter = characters.find(c => c.id === selectedCharacterId);
+      if (!selectedCharacter) throw new Error("Character not found");
+      
+      const { data: videoRecord, error: dbError } = await supabase
+        .from('ai_videos')
+        .insert({
+          user_id: user.id,
+          character_id: selectedCharacter.id,
+          character_name: selectedCharacter.name,
+          character_bio: selectedCharacter.bio,
+          character_image_url: selectedCharacter.image_url,
+          video_topic: videoTopic,
+          video_script: videoScript || null,
+          video_style: videoStyle,
+          status: 'processing'
+        })
+        .select()
+        .single();
+      
+      if (dbError) throw dbError;
+      
+      setCurrentVideoId(videoRecord.id);
+      
+      const webhookPayload = {
+        video_id: videoRecord.id,
+        character: {
+          name: selectedCharacter.name,
+          bio: selectedCharacter.bio,
+          image_url: selectedCharacter.image_url
+        },
+        video: {
+          topic: videoTopic,
+          script: videoScript || "Auto-generate script based on topic",
+          style: videoStyle
+        }
+      };
+      
+      const webhookResponse = await fetch(
+        'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload)
+        }
+      );
+      
+      if (!webhookResponse.ok) {
+        throw new Error(`Webhook failed: ${webhookResponse.statusText}`);
+      }
+      
+      toast.success("Video generation started!");
+      setShowCountdown(true);
+      startPollingForVideo(videoRecord.id);
+      
+    } catch (error) {
+      console.error('Error generating video:', error);
+      toast.error(error instanceof Error ? error.message : "Failed to start video generation");
+      setIsGenerating(false);
+    }
+  };
+
   useEffect(() => {
     const initPage = async () => {
       await fetchCharacters();
+      await fetchGeneratedVideos();
       setIsPageLoading(false);
     };
     initPage();
@@ -96,6 +284,18 @@ const AIInfluencer = () => {
           <p className="text-muted-foreground">Loading AI Influencer Studio...</p>
         </div>
       </div>
+    );
+  }
+
+  if (showCountdown) {
+    return (
+      <VideoGenerationCountdown
+        totalSeconds={300}
+        onComplete={() => {
+          setShowCountdown(false);
+          toast.info("Still processing... We'll notify you when it's ready.");
+        }}
+      />
     );
   }
 
@@ -458,10 +658,129 @@ const AIInfluencer = () => {
               </Card>
             )}
 
-            {/* My Characters Section */}
+            {/* My Characters and Video History Section */}
             {activeSection === "manage" && (
-              <div className="animate-fade-in">
-                <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 mb-8">
+              <div className="animate-fade-in space-y-8">
+                {/* Video History */}
+                <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden bg-gradient-to-br from-card via-card to-primary/5">
+                  <CardHeader className="border-b border-border/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
+                          <Film className="w-6 h-6 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-3xl font-bold">Video History</CardTitle>
+                          <CardDescription className="text-base mt-1">
+                            {generatedVideos.length} video{generatedVideos.length !== 1 ? 's' : ''} generated
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => setActiveSection("video")}
+                        className="gap-2"
+                      >
+                        <Video className="w-4 h-4" />
+                        Create Video
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-8">
+                    {isLoadingVideos ? (
+                      <div className="flex items-center justify-center py-16">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      </div>
+                    ) : generatedVideos.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="p-4 rounded-full bg-muted mb-4">
+                          <Film className="w-12 h-12 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2">No videos yet</h3>
+                        <p className="text-muted-foreground mb-6">Generate your first AI video to get started</p>
+                        <Button
+                          onClick={() => setActiveSection("video")}
+                          className="gap-2"
+                        >
+                          <Video className="w-4 h-4" />
+                          Create Video
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {generatedVideos.map((video) => (
+                          <Card key={video.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
+                            <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                              {video.status === 'completed' && video.video_url ? (
+                                <video
+                                  src={video.video_url}
+                                  className="w-full h-full object-cover"
+                                  controls
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  {video.status === 'processing' ? (
+                                    <div className="text-center">
+                                      <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-2" />
+                                      <p className="text-sm text-muted-foreground">Processing...</p>
+                                    </div>
+                                  ) : video.status === 'failed' ? (
+                                    <div className="text-center">
+                                      <X className="w-12 h-12 text-destructive mx-auto mb-2" />
+                                      <p className="text-sm text-destructive">Generation Failed</p>
+                                    </div>
+                                  ) : (
+                                    <Clock className="w-12 h-12 text-muted-foreground" />
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex-shrink-0">
+                                  <img 
+                                    src={video.character_image_url} 
+                                    alt={video.character_name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-foreground truncate">{video.character_name}</h3>
+                                  <p className="text-sm text-muted-foreground truncate">{video.video_topic}</p>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Film className="w-3 h-3" />
+                                  <span>{video.video_style}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{new Date(video.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                              {video.status === 'completed' && video.video_url && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full mt-3 gap-2"
+                                  onClick={() => window.open(video.video_url!, '_blank')}
+                                >
+                                  <Download className="w-3 h-3" />
+                                  Download
+                                </Button>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* My Characters */}
+                <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden bg-gradient-to-br from-card via-card to-primary/5">
                   <CardHeader className="border-b border-border/50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -609,6 +928,8 @@ const AIInfluencer = () => {
                     </Label>
                     <Input 
                       id="video-topic"
+                      value={videoTopic}
+                      onChange={(e) => setVideoTopic(e.target.value)}
                       placeholder="e.g., Morning workout routine, Product review, Travel vlog" 
                       className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.02] border-2 hover:border-primary/50"
                     />
@@ -621,6 +942,8 @@ const AIInfluencer = () => {
                     </Label>
                     <Textarea 
                       id="video-script"
+                      value={videoScript}
+                      onChange={(e) => setVideoScript(e.target.value)}
                       placeholder="Enter your script here or describe what you want the AI to generate..."
                       className="min-h-[200px] text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.01] border-2 hover:border-primary/50"
                     />
@@ -637,15 +960,30 @@ const AIInfluencer = () => {
                     </Label>
                     <Input 
                       id="video-style"
+                      value={videoStyle}
+                      onChange={(e) => setVideoStyle(e.target.value)}
                       placeholder="e.g., Talking head, Vlog style, Tutorial, Review" 
                       className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.02] border-2 hover:border-primary/50"
                     />
                   </div>
 
-                  <Button className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-300 gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-[1.02] group">
-                    <Film className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-                    Generate Video
-                    <Zap className="w-5 h-5" />
+                  <Button 
+                    onClick={handleGenerateVideo}
+                    disabled={isGenerating || !selectedCharacterId || !videoTopic || !videoStyle}
+                    className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-300 gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        Starting Generation...
+                      </>
+                    ) : (
+                      <>
+                        <Film className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                        Generate Video
+                        <Zap className="w-5 h-5" />
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
