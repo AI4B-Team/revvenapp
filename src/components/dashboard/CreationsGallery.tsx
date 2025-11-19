@@ -19,6 +19,7 @@ import {
 import ImageViewerModal from './ImageViewerModal';
 import { creationsData, communityData, type GalleryItem } from '@/data/creationsData';
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface FilterState {
   contentType: string;
@@ -43,6 +44,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
+  const { toast } = useToast();
 
   // Fetch generated images from Supabase with real-time subscriptions
   useEffect(() => {
@@ -211,6 +213,122 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const handleDownload = async (item: GalleryItem) => {
+    if (!item.url) {
+      toast({
+        title: "Download failed",
+        description: "Image URL not available",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(item.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${item.title || 'image'}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Downloaded",
+        description: "Image downloaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: "Unable to download image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (item: GalleryItem) => {
+    try {
+      const { error } = await supabase
+        .from('generated_images')
+        .delete()
+        .eq('id', String(item.id));
+
+      if (error) throw error;
+
+      setGeneratedItems(prev => prev.filter(i => i.id !== item.id));
+      
+      toast({
+        title: "Deleted",
+        description: "Image deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: "Unable to delete image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRecreate = async (item: GalleryItem) => {
+    if (!item.prompt) {
+      toast({
+        title: "Cannot recreate",
+        description: "No prompt available for this image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Recreating...",
+      description: "Starting new generation with the same prompt",
+    });
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) throw new Error("Not authenticated");
+
+      const response = await supabase.functions.invoke('generate-image', {
+        body: {
+          prompt: item.prompt,
+          aspectRatio: item.aspectRatio || '1:1',
+          model: item.model?.toLowerCase().includes('flux') ? 'flux-pro' : 
+                 item.model?.toLowerCase().includes('seedream') ? 'seedream-4' : 'auto'
+        }
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Generation started",
+        description: "Your new image is being created",
+      });
+    } catch (error) {
+      toast({
+        title: "Generation failed",
+        description: "Unable to start new generation",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (item: GalleryItem) => {
+    toast({
+      title: "Edit feature",
+      description: "Image editing will be available soon",
+    });
+  };
+
+  const handleAnimate = (item: GalleryItem, type: 'video' | 'speak' | 'ugc') => {
+    toast({
+      title: `${type.charAt(0).toUpperCase() + type.slice(1)} animation`,
+      description: `${type} animation feature coming soon`,
+    });
+  };
+
   const socialPlatforms = [
     { name: 'Twitter', icon: '𝕏', color: 'hover:bg-gray-900' },
     { name: 'Facebook', icon: 'f', color: 'hover:bg-blue-600' },
@@ -371,7 +489,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Download functionality
+                          handleDownload(item);
                         }}
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
@@ -389,7 +507,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Delete functionality will be implemented
+                          handleDelete(item);
                         }}
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-red-500 flex items-center justify-center transition-all`}
                       >
@@ -421,6 +539,10 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(item);
+                        }}
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
                         <Edit size={sizes.icon} />
@@ -434,6 +556,10 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRecreate(item);
+                        }}
                         className={`${sizes.button} rounded-lg bg-black/70 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 flex items-center justify-center transition-all`}
                       >
                         <RefreshCw size={sizes.icon} />
@@ -483,15 +609,24 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
                         className="bg-black border-gray-800 z-50"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                        <DropdownMenuItem 
+                          onClick={() => handleAnimate(item, 'video')}
+                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                        >
                           <Film className="mr-2 h-4 w-4" />
                           <span>Video</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                        <DropdownMenuItem 
+                          onClick={() => handleAnimate(item, 'speak')}
+                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                        >
                           <Mic className="mr-2 h-4 w-4" />
                           <span>Speak</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white">
+                        <DropdownMenuItem 
+                          onClick={() => handleAnimate(item, 'ugc')}
+                          className="cursor-pointer hover:bg-gray-800 text-white focus:bg-gray-800 focus:text-white"
+                        >
                           <Users className="mr-2 h-4 w-4" />
                           <span>UGC</span>
                         </DropdownMenuItem>
