@@ -68,6 +68,12 @@ serve(async (req) => {
       }
     );
 
+    // Admin client using service role key for backend-only updates (bypasses RLS)
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     
     if (userError || !user) {
@@ -164,11 +170,15 @@ serve(async (req) => {
     const taskId = kieData.data.taskId;
     console.log("KIE.AI taskId:", taskId);
 
-    // Update database with taskId so callback can find it
-    await supabaseClient
+    // Update database with taskId so callback can find it (use admin client to bypass RLS)
+    const { error: taskUpdateError } = await adminClient
       .from("generated_images")
       .update({ kie_task_id: taskId })
       .eq("id", dbData.id);
+
+    if (taskUpdateError) {
+      console.error("Failed to update kie_task_id:", taskUpdateError);
+    }
 
     console.log("Image generation started, callback will update when ready");
 
