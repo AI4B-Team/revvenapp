@@ -168,16 +168,25 @@ serve(async (req) => {
         callBackUrl: callbackUrl,
       };
     } else if (modelConfig.apiType === 'gpt4o') {
-      // GPT-4o Image API format (uses 'size' instead of 'aspectRatio')
+      // GPT-4o Image API format - size must be "1:1", "3:2", or "2:3"
+      const sizeMapping: Record<string, string> = {
+        "1:1": "1:1",
+        "3:2": "3:2",
+        "2:3": "2:3",
+        "16:9": "3:2",  // fallback to closest supported ratio
+        "9:16": "2:3",  // fallback to closest supported ratio
+        "4:3": "3:2",   // fallback to closest supported ratio
+        "3:4": "2:3"    // fallback to closest supported ratio
+      };
+      
       requestBody = {
         prompt: prompt,
-        size: aspectRatio,
+        size: sizeMapping[aspectRatio] || "1:1",
         callBackUrl: callbackUrl,
         isEnhance: false,
         uploadCn: false,
         nVariants: 1,
-        enableFallback: true,
-        fallbackModel: "FLUX_MAX"
+        enableFallback: false
       };
     } else if (modelConfig.apiType === 'seedream') {
       // Seedream API format (text-to-image)
