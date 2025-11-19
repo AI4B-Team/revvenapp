@@ -309,64 +309,94 @@ const AIInfluencer = () => {
       toast.success("Video generation started!");
       setShowCountdown(true);
       
-      // Call n8n webhook and get binary video response
-      const webhookResponse = await fetch(
-        'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookPayload)
+      // Create AbortController with 10 minute timeout for video generation
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), 600000); // 10 minutes
+      
+      try {
+        // Call n8n webhook and get binary video response
+        const webhookResponse = await fetch(
+          'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(webhookPayload),
+            signal: abortController.signal
+          }
+        );
+        
+        clearTimeout(timeoutId);
+        
+        if (!webhookResponse.ok) {
+          throw new Error(`Webhook failed: ${webhookResponse.statusText}`);
         }
-      );
-      
-      if (!webhookResponse.ok) {
-        throw new Error(`Webhook failed: ${webhookResponse.statusText}`);
-      }
-      
-      // Get the video binary data
-      const videoBlob = await webhookResponse.blob();
-      console.log('Received video binary, size:', videoBlob.size);
-      
-      // Upload video to Cloudinary
-      const formData = new FormData();
-      formData.append('file', videoBlob, `video_${videoRecord.id}.mp4`);
-      formData.append('upload_preset', 'revven');
-      
-      console.log('Uploading video to Cloudinary...');
-      const cloudinaryResponse = await fetch(
-        'https://api.cloudinary.com/v1_1/dszt275xv/video/upload',
-        {
-          method: 'POST',
-          body: formData
+        
+        // Get the video binary data
+        const videoBlob = await webhookResponse.blob();
+        console.log('Received video binary, size:', videoBlob.size);
+        
+        // Upload video to Cloudinary
+        const formData = new FormData();
+        formData.append('file', videoBlob, `video_${videoRecord.id}.mp4`);
+        formData.append('upload_preset', 'revven');
+        
+        console.log('Uploading video to Cloudinary...');
+        const cloudinaryResponse = await fetch(
+          'https://api.cloudinary.com/v1_1/dszt275xv/video/upload',
+          {
+            method: 'POST',
+            body: formData
+          }
+        );
+        
+        if (!cloudinaryResponse.ok) {
+          throw new Error('Failed to upload video to Cloudinary');
         }
-      );
-      
-      if (!cloudinaryResponse.ok) {
-        throw new Error('Failed to upload video to Cloudinary');
+        
+        const cloudinaryData = await cloudinaryResponse.json();
+        console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
+        
+        // Update database with video URL
+        const { error: updateError } = await supabase
+          .from('ai_videos')
+          .update({
+            video_url: cloudinaryData.secure_url,
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', videoRecord.id);
+        
+        if (updateError) throw updateError;
+        
+        console.log('Video generation completed successfully');
+        
+      } catch (webhookError) {
+        clearTimeout(timeoutId);
+        
+        // Check if it's a timeout error
+        if (webhookError instanceof Error && webhookError.name === 'AbortError') {
+          throw new Error('Video generation timed out. Please try again with a shorter video or different settings.');
+        }
+        
+        // Check if it's a network error
+        if (webhookError instanceof TypeError && webhookError.message === 'Failed to fetch') {
+          throw new Error('Network error: Unable to connect to video generation service. Please check your internet connection and try again.');
+        }
+        
+        throw webhookError;
       }
-      
-      const cloudinaryData = await cloudinaryResponse.json();
-      console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
-      
-      // Update database with video URL
-      const { error: updateError } = await supabase
-        .from('ai_videos')
-        .update({
-          video_url: cloudinaryData.secure_url,
-          status: 'completed',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', videoRecord.id);
-      
-      if (updateError) throw updateError;
-      
-      console.log('Video generation completed successfully');
       
     } catch (error) {
       console.error('Error generating video:', error);
-      toast.error(error instanceof Error ? error.message : "Failed to generate video");
+      
+      // Show specific error message
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to generate video. Please try again.";
+      
+      toast.error(errorMessage);
       setIsGenerating(false);
       setShowCountdown(false);
       
