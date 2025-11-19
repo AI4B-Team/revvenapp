@@ -77,12 +77,6 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     endpoint: '/v1/models/ideogram/ideogram-v3/predictions',
     apiType: 'replicate',
     owner: 'ideogram'
-  },
-  'imagen': {
-    model: 'google/imagen-4',
-    name: 'Imagen 4',
-    endpoint: '/api/v1/jobs/createTask',
-    apiType: 'imagen'
   }
 };
 
