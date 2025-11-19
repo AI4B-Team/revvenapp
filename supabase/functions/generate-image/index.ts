@@ -6,70 +6,160 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Model mapping: UI model name -> KIE.AI configuration
+const MODEL_CONFIGS: Record<string, { model: string; name: string }> = {
+  'nano-banana': {
+    model: 'flux-kontext-pro',
+    name: 'Nano Banana (Flux Pro)'
+  },
+  'seedream': {
+    model: 'flux-kontext-pro',
+    name: 'Seedream (Flux Pro)'
+  },
+  'seedream-4k': {
+    model: 'flux-kontext-max',
+    name: 'Seedream 4K (Flux Max)'
+  },
+  'grok': {
+    model: 'flux-kontext-max',
+    name: 'Grok (Flux Max)'
+  },
+  'flux': {
+    model: 'flux-kontext-pro',
+    name: 'Flux Pro'
+  },
+  'mystic': {
+    model: 'flux-kontext-pro',
+    name: 'Mystic (Flux Pro)'
+  },
+  'ideogram': {
+    model: 'flux-kontext-pro',
+    name: 'Ideogram 3 (Flux Pro)'
+  },
+  'auto': {
+    model: 'flux-kontext-pro',
+    name: 'Auto (Flux Pro)'
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { prompt, aspectRatio = "1:1" } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "nano-banana" } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Generating image with prompt:", prompt);
+    console.log("Generating image with KIE.AI:", { prompt, model, aspectRatio });
 
-    // Get Lovable AI API key from environment
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+    // Get KIE.AI API key
+    const KIE_AI_API_KEY = Deno.env.get("KIE_AI_API_KEY");
+    if (!KIE_AI_API_KEY) {
+      throw new Error("KIE_AI_API_KEY not configured");
     }
 
-    // Call Lovable AI Gateway for image generation
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Get model configuration
+    const modelConfig = MODEL_CONFIGS[model] || MODEL_CONFIGS['nano-banana'];
+    console.log("Using KIE.AI model:", modelConfig);
+
+    // Step 1: Call KIE.AI to start generation
+    const kieResponse = await fetch("https://api.kie.ai/api/v1/flux/kontext/generate", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        modalities: ["image", "text"]
-      }),
+        prompt: prompt,
+        aspectRatio: aspectRatio,
+        model: modelConfig.model,
+        outputFormat: "png",
+        enableTranslation: true,
+        promptUpsampling: false
+      })
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error("Lovable AI error:", aiResponse.status, errorText);
+    if (!kieResponse.ok) {
+      const errorText = await kieResponse.text();
+      console.error("KIE.AI error:", kieResponse.status, errorText);
       
-      if (aiResponse.status === 429) {
+      if (kieResponse.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       }
-      if (aiResponse.status === 402) {
+      if (kieResponse.status === 402) {
         throw new Error("Credits exhausted. Please add credits to continue.");
       }
       
-      throw new Error(`AI generation failed: ${aiResponse.status}`);
+      throw new Error(`KIE.AI API error: ${kieResponse.status}`);
     }
 
-    const aiData = await aiResponse.json();
-    console.log("AI response received");
-
-    // Extract base64 image from response
-    const imageBase64 = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const kieData = await kieResponse.json();
     
-    if (!imageBase64) {
-      throw new Error("No image generated");
+    if (kieData.code !== 200) {
+      console.error("KIE.AI failed:", kieData.msg);
+      throw new Error(kieData.msg || "KIE.AI generation failed");
     }
 
-    // Upload to Cloudinary
+    const taskId = kieData.data.taskId;
+    console.log("KIE.AI taskId:", taskId);
+
+    // Step 2: Poll for completion (every 2s, max 15 attempts = 30s)
+    let imageUrl = null;
+    let attempts = 0;
+    const maxAttempts = 15;
+
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
+      attempts++;
+      
+      console.log(`Polling attempt ${attempts}/${maxAttempts}`);
+      
+      const statusResponse = await fetch(
+        `https://api.kie.ai/api/v1/flux/kontext/task/${taskId}`,
+        {
+          headers: {
+            "Authorization": `Bearer ${KIE_AI_API_KEY}`,
+          }
+        }
+      );
+      
+      if (!statusResponse.ok) {
+        console.error("Status check failed:", statusResponse.status);
+        continue;
+      }
+
+      const statusData = await statusResponse.json();
+      console.log("Status response:", statusData);
+      
+      if (statusData.code === 200 && statusData.data.successFlag === 1) {
+        imageUrl = statusData.data.response.resultImageUrl;
+        console.log("Image ready:", imageUrl);
+        break;
+      } else if (statusData.data.errorCode) {
+        throw new Error(statusData.data.errorMessage || "Generation failed");
+      }
+    }
+
+    if (!imageUrl) {
+      throw new Error("Image generation timeout after 30 seconds");
+    }
+
+    // Step 3: Download image from KIE.AI
+    console.log("Downloading image from KIE.AI...");
+    const imageResponse = await fetch(imageUrl);
+    if (!imageResponse.ok) {
+      throw new Error("Failed to download image from KIE.AI");
+    }
+
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const base64Image = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+    const dataUrl = `data:image/png;base64,${base64Image}`;
+
+    // Step 4: Upload to Cloudinary
     const cloudinaryApiKey = Deno.env.get("CLOUDINARY_API_KEY") || "357119741731559";
     const cloudinaryUploadPreset = "revven";
     const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dszt275xv/upload";
@@ -81,20 +171,22 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        file: imageBase64,
+        file: dataUrl,
         upload_preset: cloudinaryUploadPreset,
         folder: "generated_images",
       }),
     });
 
     if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error("Cloudinary error:", errorText);
       throw new Error("Failed to upload to Cloudinary");
     }
 
     const uploadData = await uploadResponse.json();
     console.log("Cloudinary upload successful");
 
-    // Get user from authorization header
+    // Step 5: Get user from authorization header
     const authHeader = req.headers.get("authorization");
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -112,13 +204,13 @@ serve(async (req) => {
       throw new Error("Unauthorized");
     }
 
-    // Save to database
+    // Step 6: Save to database
     const { data: dbData, error: dbError } = await supabaseClient
       .from("generated_images")
       .insert({
         user_id: user.id,
         prompt: prompt,
-        model: "google/gemini-2.5-flash-image-preview",
+        model: modelConfig.name,
         image_url: uploadData.secure_url,
         cloudinary_public_id: uploadData.public_id,
         aspect_ratio: aspectRatio,

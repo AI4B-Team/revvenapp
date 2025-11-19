@@ -16,6 +16,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('nano-banana');
   const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
@@ -41,7 +42,8 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
           prompt: prompt.trim(),
-          aspectRatio: "1:1"
+          aspectRatio: "1:1",
+          model: selectedModel
         }
       });
 
@@ -593,14 +595,24 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                       </svg>
-                      Nano Banana
+                      {selectedModel === 'auto' && 'Auto'}
+                      {selectedModel === 'nano-banana' && 'Nano Banana'}
+                      {selectedModel === 'seedream' && 'Seedream'}
+                      {selectedModel === 'seedream-4k' && 'Seedream 4K'}
+                      {selectedModel === 'flux' && 'Flux'}
+                      {selectedModel === 'mystic' && 'Mystic'}
+                      {selectedModel === 'grok' && 'Grok'}
+                      {selectedModel === 'ideogram' && 'Ideogram 3'}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50" align="start">
                 <div className="space-y-1 p-2">
                   {/* Auto */}
-                  <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
+                  <button 
+                    onClick={() => setSelectedModel('auto')}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
                         <Zap size={16} className="text-white" />
@@ -616,7 +628,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   </button>
 
                   {/* Seedream 4 4K */}
-                  <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
+                  <button 
+                    onClick={() => setSelectedModel('seedream-4k')}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-gradient-to-br from-brand-red to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-xs">S4</span>
@@ -636,7 +651,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Seedream */}
                   <button 
-                    onClick={() => setExpandedModel(expandedModel === 'seedream' ? null : 'seedream')}
+                    onClick={() => setSelectedModel('seedream')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -650,13 +665,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         </div>
                         <p className="text-xs text-muted-foreground">Exceptional creativity</p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
                   {/* Flux */}
                   <button 
-                    onClick={() => setExpandedModel(expandedModel === 'flux' ? null : 'flux')}
+                    onClick={() => setSelectedModel('flux')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -669,13 +683,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         </div>
                         <p className="text-xs text-muted-foreground">Most loved by the AI community</p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
                   {/* Mystic */}
                   <button 
-                    onClick={() => setExpandedModel(expandedModel === 'mystic' ? null : 'mystic')}
+                    onClick={() => setSelectedModel('mystic')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -688,13 +701,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         </div>
                         <p className="text-xs text-muted-foreground">Freepik AI at 2K resolution</p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
 
                   {/* Google */}
                   <button 
-                    onClick={() => setExpandedModel(expandedModel === 'google' ? null : 'google')}
+                    onClick={() => setSelectedModel('nano-banana')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -712,34 +724,33 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         </div>
                         <p className="text-xs text-muted-foreground">Photorealism and prompt adherence</p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
-                  
-                  {/* Google Sub-options */}
-                  {expandedModel === 'google' && (
-                    <div className="ml-11 space-y-1 border-l-2 border-sidebar-hover pl-3">
-                      <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-foreground">Google Nano Banana</p>
-                      </button>
-                      <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-foreground">Google Imagen 3</p>
-                      </button>
-                      <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-foreground">Google Imagen 4 Fast</p>
-                      </button>
-                      <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-foreground">Google Imagen 4</p>
-                      </button>
-                      <button className="w-full text-left px-3 py-2 hover:bg-sidebar-hover rounded-md transition">
-                        <p className="text-sm text-foreground">Google Imagen 4 Ultra</p>
-                      </button>
+
+                  {/* Grok */}
+                  <button 
+                    onClick={() => setSelectedModel('grok')}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src="/src/assets/model-logos/grok.png" 
+                        alt="Grok" 
+                        className="w-8 h-8 rounded-lg object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Grok</span>
+                          <Badge className="bg-brand-purple text-primary text-[10px] px-1.5 py-0 h-4">PREMIUM</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Maximum quality and detail</p>
+                      </div>
                     </div>
-                  )}
+                  </button>
 
                   {/* Ideogram 3 */}
                   <button 
-                    onClick={() => setExpandedModel(expandedModel === 'ideogram' ? null : 'ideogram')}
+                    onClick={() => setSelectedModel('ideogram')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -752,7 +763,6 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         </div>
                         <p className="text-xs text-muted-foreground">Typography and graphic design</p>
                       </div>
-                      <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
                   </button>
                 </div>
