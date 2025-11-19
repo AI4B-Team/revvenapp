@@ -147,57 +147,67 @@ const AIInfluencer = () => {
     }
   };
 
-  // Poll for video completion
-  const startPollingForVideo = (videoId: string) => {
-    const pollInterval = setInterval(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('ai_videos')
-          .select('*')
-          .eq('id', videoId)
-          .single();
-        
-        if (error) throw error;
-        
-        if (data.status === 'completed' && data.video_url) {
-          clearInterval(pollInterval);
-          setShowCountdown(false);
-          setIsGenerating(false);
+  // Set up real-time subscription for video updates
+  useEffect(() => {
+    if (!currentVideoId) return;
+
+    const channel = supabase
+      .channel('video-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ai_videos',
+          filter: `id=eq.${currentVideoId}`
+        },
+        (payload) => {
+          console.log('Real-time video update:', payload);
+          const updatedVideo = payload.new as AIVideo;
           
-          toast.success("Your video is ready!", {
-            duration: 5000,
-          });
-          
-          await fetchGeneratedVideos();
-          setActiveSection("manage");
-          
-        setVideoTopic("");
-        setVideoScript("");
-        setVideoStyle("");
-        setVideoGenerationModel("");
-        setSelectedCharacterId("");
-          
-        } else if (data.status === 'failed') {
-          clearInterval(pollInterval);
-          setShowCountdown(false);
-          setIsGenerating(false);
-          toast.error("Video generation failed. Please try again.");
+          if (updatedVideo.status === 'completed' && updatedVideo.video_url) {
+            setShowCountdown(false);
+            setIsGenerating(false);
+            
+            toast.success("Your video is ready!", {
+              duration: 5000,
+            });
+            
+            // Update videos list
+            setGeneratedVideos(prev => {
+              const index = prev.findIndex(v => v.id === updatedVideo.id);
+              if (index >= 0) {
+                const newVideos = [...prev];
+                newVideos[index] = updatedVideo;
+                return newVideos;
+              }
+              return [updatedVideo, ...prev];
+            });
+            
+            setActiveSection("manage");
+            
+            // Reset form
+            setVideoTopic("");
+            setVideoScript("");
+            setVideoStyle("");
+            setVideoGenerationModel("");
+            setSelectedCharacterId("");
+            setCurrentVideoId(null);
+            
+          } else if (updatedVideo.status === 'failed') {
+            setShowCountdown(false);
+            setIsGenerating(false);
+            toast.error("Video generation failed. Please try again.");
+            setCurrentVideoId(null);
+          }
         }
-        
-      } catch (error) {
-        console.error('Polling error:', error);
-      }
-    }, 5000);
-    
-    setTimeout(() => {
-      clearInterval(pollInterval);
-      if (showCountdown) {
-        setShowCountdown(false);
-        setIsGenerating(false);
-        toast.error("Video generation timed out. Please check your history later.");
-      }
-    }, 360000);
-  };
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentVideoId]);
 
   // Handle video generation
   const handleGenerateVideo = async () => {
@@ -290,7 +300,6 @@ const AIInfluencer = () => {
       
       toast.success("Video generation started!");
       setShowCountdown(true);
-      startPollingForVideo(videoRecord.id);
       
     } catch (error) {
       console.error('Error generating video:', error);
