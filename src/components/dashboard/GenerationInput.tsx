@@ -159,7 +159,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   };
   
   return (
-    <div className="max-w-6xl mx-auto mb-12">
+    <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
       <div className="bg-background border-2 border-border rounded-xl p-6 shadow-2xl">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
@@ -221,7 +221,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-nowrap">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
