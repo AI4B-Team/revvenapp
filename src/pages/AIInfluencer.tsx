@@ -251,8 +251,13 @@ const AIInfluencer = () => {
       
       setCurrentVideoId(videoRecord.id);
       
+      // Get Supabase URL for callback
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback`;
+      
       const webhookPayload = {
         video_id: videoRecord.id,
+        callback_url: callbackUrl,
         character: {
           name: selectedCharacter.name,
           bio: selectedCharacter.bio,
@@ -265,6 +270,8 @@ const AIInfluencer = () => {
         model: videoGenerationModel
       }
       };
+      
+      console.log('Sending webhook with callback URL:', callbackUrl);
       
       const webhookResponse = await fetch(
         'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
