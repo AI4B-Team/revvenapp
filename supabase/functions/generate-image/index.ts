@@ -64,11 +64,10 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     owner: 'qwen'
   },
   'nano-banana': {
-    model: 'nano-banana',
+    model: 'google/nano-banana',
     name: 'Nano Banana (Gemini 2.5)',
-    endpoint: '/v1/models/google/nano-banana/predictions',
-    apiType: 'replicate',
-    owner: 'google'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'imagen'
   },
   'ideogram': {
     model: 'ideogram-v3',
