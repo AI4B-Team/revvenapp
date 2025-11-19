@@ -41,7 +41,7 @@ export const VideoGenerationCountdown = ({ totalSeconds, onComplete }: Countdown
           
           <h2 className="text-3xl font-bold text-foreground">Generating Your Video</h2>
           <p className="text-muted-foreground text-lg">
-            Our AI is creating your amazing content. This usually takes up to 5 minutes.
+            Our AI is creating your amazing content. This usually takes up to 10 minutes.
           </p>
         </div>
         
