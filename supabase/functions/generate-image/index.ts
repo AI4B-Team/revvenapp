@@ -83,13 +83,13 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "auto" } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1 } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Generating image with KIE.AI:", { prompt, model, aspectRatio });
+    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages });
 
     // Get user from authorization header
     const authHeader = req.headers.get("authorization");
@@ -125,188 +125,205 @@ serve(async (req) => {
     const modelConfig = MODEL_CONFIGS[model] || MODEL_CONFIGS['auto'];
     console.log("Using KIE.AI model:", modelConfig);
 
-    // Create database record first with pending status
-    const { data: dbData, error: dbError } = await supabaseClient
-      .from("generated_images")
-      .insert({
-        user_id: user.id,
-        prompt: prompt,
-        model: modelConfig.name,
-        aspect_ratio: aspectRatio,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (dbError) {
-      console.error("Database error:", dbError);
-      throw new Error("Failed to save to database");
-    }
-
-    console.log("Database record created with ID:", dbData.id);
-
-    // Build callback URL
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const callbackUrl = `${supabaseUrl}/functions/v1/image-webhook-callback`;
-    console.log("Callback URL:", callbackUrl);
-
-    // Call KIE.AI to start generation with callback
-    console.log(`Calling KIE.AI API: ${modelConfig.endpoint} with model: ${modelConfig.model}`);
+    // Generate multiple images
+    const generatedImages = [];
     
-    // Prepare request body based on API type
-    let requestBody: any;
-    
-    if (modelConfig.apiType === 'flux') {
-      // Flux Kontext API format
-      requestBody = {
-        prompt: prompt,
-        aspectRatio: aspectRatio,
-        model: modelConfig.model,
-        outputFormat: "png",
-        enableTranslation: true,
-        promptUpsampling: false,
-        callBackUrl: callbackUrl,
-      };
-    } else if (modelConfig.apiType === 'gpt4o') {
-      // GPT-4o Image API format - size must be "1:1", "3:2", or "2:3"
-      const sizeMapping: Record<string, string> = {
-        "1:1": "1:1",
-        "3:2": "3:2",
-        "2:3": "2:3",
-        "16:9": "3:2",  // fallback to closest supported ratio
-        "9:16": "2:3",  // fallback to closest supported ratio
-        "4:3": "3:2",   // fallback to closest supported ratio
-        "3:4": "2:3"    // fallback to closest supported ratio
-      };
+    for (let i = 0; i < numberOfImages; i++) {
+      console.log(`Generating image ${i + 1} of ${numberOfImages}`);
       
-      requestBody = {
-        prompt: prompt,
-        size: sizeMapping[aspectRatio] || "1:1",
-        callBackUrl: callbackUrl,
-        isEnhance: false,
-        uploadCn: false,
-        nVariants: 1,
-        enableFallback: false
-      };
-    } else if (modelConfig.apiType === 'seedream') {
-      // Seedream 3.0 API format - matches official documentation
-      requestBody = {
-        model: modelConfig.model,
-        callBackUrl: callbackUrl,
-        input: {
+      // Create database record first with pending status
+      const { data: dbData, error: dbError } = await supabaseClient
+        .from("generated_images")
+        .insert({
+          user_id: user.id,
           prompt: prompt,
-          image_size: aspectRatio === "1:1" ? "square_hd" : 
-                     aspectRatio === "16:9" ? "landscape_16_9" : 
-                     aspectRatio === "9:16" ? "portrait_16_9" : 
-                     aspectRatio === "4:3" ? "landscape_4_3" : 
-                     aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
-          guidance_scale: 2.5,
-          enable_safety_checker: true
-        }
-      };
-    } else if (modelConfig.apiType === 'qwen') {
-      // Qwen API format
-      requestBody = {
-        model: modelConfig.model,
-        callBackUrl: callbackUrl,
-        input: {
-          prompt: prompt,
-          image_size: aspectRatio === "1:1" ? "square_hd" : 
-                     aspectRatio === "16:9" ? "landscape_16_9" : 
-                     aspectRatio === "9:16" ? "portrait_16_9" : 
-                     aspectRatio === "4:3" ? "landscape_4_3" : 
-                     aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
-          output_format: "png"
-        }
-      };
-    } else if (modelConfig.apiType === 'imagen') {
-      // Google Imagen 4 Ultra API format
-      requestBody = {
-        model: modelConfig.model,
-        callBackUrl: callbackUrl,
-        input: {
-          prompt: prompt,
-          aspect_ratio: aspectRatio || "1:1",
-          negative_prompt: "",
-          seed: ""
-        }
-      };
-    } else if (modelConfig.apiType === 'replicate') {
-      // Replicate-style API format
-      requestBody = {
-        input: {
-          prompt: prompt,
+          model: modelConfig.name,
           aspect_ratio: aspectRatio,
-          output_format: "png"
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error("Failed to save to database");
+      }
+
+      console.log("Database record created with ID:", dbData.id);
+
+      // Build callback URL
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const callbackUrl = `${supabaseUrl}/functions/v1/image-webhook-callback`;
+      console.log("Callback URL:", callbackUrl);
+
+      // Call KIE.AI to start generation with callback
+      console.log(`Calling KIE.AI API: ${modelConfig.endpoint} with model: ${modelConfig.model}`);
+      
+      // Prepare request body based on API type
+      let requestBody: any;
+      
+      if (modelConfig.apiType === 'flux') {
+        // Flux Kontext API format
+        requestBody = {
+          prompt: prompt,
+          aspectRatio: aspectRatio,
+          model: modelConfig.model,
+          outputFormat: "png",
+          enableTranslation: true,
+          promptUpsampling: false,
+          callBackUrl: callbackUrl,
+        };
+      } else if (modelConfig.apiType === 'gpt4o') {
+        // GPT-4o Image API format - size must be "1:1", "3:2", or "2:3"
+        const sizeMapping: Record<string, string> = {
+          "1:1": "1:1",
+          "3:2": "3:2",
+          "2:3": "2:3",
+          "16:9": "3:2",  // fallback to closest supported ratio
+          "9:16": "2:3",  // fallback to closest supported ratio
+          "4:3": "3:2",   // fallback to closest supported ratio
+          "3:4": "2:3"    // fallback to closest supported ratio
+        };
+        
+        requestBody = {
+          prompt: prompt,
+          size: sizeMapping[aspectRatio] || "1:1",
+          callBackUrl: callbackUrl,
+          isEnhance: false,
+          uploadCn: false,
+          nVariants: 1,
+          enableFallback: false
+        };
+      } else if (modelConfig.apiType === 'seedream') {
+        // Seedream 3.0 API format - matches official documentation
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            image_size: aspectRatio === "1:1" ? "square_hd" : 
+                       aspectRatio === "16:9" ? "landscape_16_9" : 
+                       aspectRatio === "9:16" ? "portrait_16_9" : 
+                       aspectRatio === "4:3" ? "landscape_4_3" : 
+                       aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+            guidance_scale: 2.5,
+            enable_safety_checker: true
+          }
+        };
+      } else if (modelConfig.apiType === 'qwen') {
+        // Qwen API format
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            image_size: aspectRatio === "1:1" ? "square_hd" : 
+                       aspectRatio === "16:9" ? "landscape_16_9" : 
+                       aspectRatio === "9:16" ? "portrait_16_9" : 
+                       aspectRatio === "4:3" ? "landscape_4_3" : 
+                       aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+            output_format: "png"
+          }
+        };
+      } else if (modelConfig.apiType === 'imagen') {
+        // Google Imagen 4 Ultra API format
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            aspect_ratio: aspectRatio || "1:1",
+            negative_prompt: "",
+            seed: ""
+          }
+        };
+      } else if (modelConfig.apiType === 'replicate') {
+        // Replicate-based models
+        requestBody = {
+          input: {
+            prompt: prompt,
+            aspect_ratio: aspectRatio || "1:1",
+            output_format: "png",
+            output_quality: 100,
+            disable_safety_checker: false
+          },
+          webhook: callbackUrl,
+          webhook_events_filter: ["completed"]
+        };
+      }
+
+      // Add DB record ID to callback payload so webhook can identify which record to update
+      requestBody.metadata = { db_id: dbData.id };
+
+      console.log("Request body:", JSON.stringify(requestBody, null, 2));
+
+      const kieResponse = await fetch(`https://api.kie.ai${modelConfig.endpoint}`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${KIE_AI_API_KEY}`,
+          "Content-Type": "application/json",
         },
-        webhook: callbackUrl,
-        webhook_events_filter: ["completed"]
-      };
-    }
-    
-    const kieResponse = await fetch(`https://api.kie.ai${modelConfig.endpoint}`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody)
-    });
+        body: JSON.stringify(requestBody)
+      });
 
-    if (!kieResponse.ok) {
-      const errorText = await kieResponse.text();
-      console.error("KIE.AI error:", kieResponse.status, errorText);
-      
-      // Update database with error
-      await supabaseClient
-        .from("generated_images")
-        .update({ status: "error", error_message: `KIE.AI API error: ${kieResponse.status}` })
-        .eq("id", dbData.id);
-      
-      if (kieResponse.status === 429) {
-        throw new Error("Rate limit exceeded. Please try again later.");
+      if (!kieResponse.ok) {
+        const errorText = await kieResponse.text();
+        console.error("KIE.AI error:", kieResponse.status, errorText);
+        
+        // Update database with error
+        await supabaseClient
+          .from("generated_images")
+          .update({ status: "error", error_message: `KIE.AI API error: ${kieResponse.status}` })
+          .eq("id", dbData.id);
+        
+        if (kieResponse.status === 429) {
+          throw new Error("Rate limit exceeded. Please try again later.");
+        }
+        if (kieResponse.status === 402) {
+          throw new Error("Credits exhausted. Please add credits to continue.");
+        }
+        
+        throw new Error(`KIE.AI API error: ${kieResponse.status}`);
       }
-      if (kieResponse.status === 402) {
-        throw new Error("Credits exhausted. Please add credits to continue.");
+
+      const kieData = await kieResponse.json();
+      
+      if (kieData.code !== 200) {
+        console.error("KIE.AI failed:", kieData.msg);
+        
+        // Update database with error
+        await supabaseClient
+          .from("generated_images")
+          .update({ status: "error", error_message: kieData.msg })
+          .eq("id", dbData.id);
+        
+        throw new Error(kieData.msg || "KIE.AI generation failed");
       }
-      
-      throw new Error(`KIE.AI API error: ${kieResponse.status}`);
-    }
 
-    const kieData = await kieResponse.json();
-    
-    if (kieData.code !== 200) {
-      console.error("KIE.AI failed:", kieData.msg);
-      
-      // Update database with error
-      await supabaseClient
+      const taskId = kieData.data.taskId;
+      console.log("KIE.AI taskId:", taskId);
+
+      // Update database with taskId so callback can find it (use admin client to bypass RLS)
+      const { error: taskUpdateError } = await adminClient
         .from("generated_images")
-        .update({ status: "error", error_message: kieData.msg })
+        .update({ kie_task_id: taskId })
         .eq("id", dbData.id);
-      
-      throw new Error(kieData.msg || "KIE.AI generation failed");
+
+      if (taskUpdateError) {
+        console.error("Failed to update kie_task_id:", taskUpdateError);
+      }
+
+      generatedImages.push(dbData);
     }
 
-    const taskId = kieData.data.taskId;
-    console.log("KIE.AI taskId:", taskId);
+    console.log(`All ${numberOfImages} image generations started, callbacks will update when ready`);
 
-    // Update database with taskId so callback can find it (use admin client to bypass RLS)
-    const { error: taskUpdateError } = await adminClient
-      .from("generated_images")
-      .update({ kie_task_id: taskId })
-      .eq("id", dbData.id);
-
-    if (taskUpdateError) {
-      console.error("Failed to update kie_task_id:", taskUpdateError);
-    }
-
-    console.log("Image generation started, callback will update when ready");
-
-    // Return immediately - callback will complete the process
+    // Return immediately - callbacks will complete the process
     return new Response(
       JSON.stringify({
         success: true,
-        image: dbData,
+        images: generatedImages,
+        count: numberOfImages
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -84,15 +84,16 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
         body: { 
           prompt: prompt.trim(),
           aspectRatio: selectedAspectRatio,
-          model: selectedModel
+          model: selectedModel,
+          numberOfImages: numberOfImages
         }
       });
 
       if (error) throw error;
 
       toast({
-        title: "Image generated!",
-        description: "Your image has been created successfully",
+        title: `${numberOfImages} ${numberOfImages === 1 ? 'image' : 'images'} generating!`,
+        description: "Your images are being created and will appear in the gallery shortly",
       });
 
       console.log("Generated image:", data.image);
