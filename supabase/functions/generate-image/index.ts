@@ -6,13 +6,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Model mapping: Only actual KIE.AI models
-const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: string; apiType: 'flux' | 'gpt4o' }> = {
+// Model mapping: All real KIE.AI models
+const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: string; apiType: string; owner?: string }> = {
   'auto': {
     model: 'flux-kontext-pro',
     name: 'Auto (Flux Pro)',
     endpoint: '/api/v1/flux/kontext/generate',
     apiType: 'flux'
+  },
+  'grok': {
+    model: 'grok-imagine',
+    name: 'Grok Imagine',
+    endpoint: '/v1/models/grok/grok-imagine/predictions',
+    apiType: 'replicate',
+    owner: 'grok'
+  },
+  'gpt-4o-image': {
+    model: 'gpt-image-1',
+    name: 'GPT-4o Image',
+    endpoint: '/api/v1/gpt4o-image/generate',
+    apiType: 'gpt4o'
   },
   'flux-pro': {
     model: 'flux-kontext-pro',
@@ -26,11 +39,47 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     endpoint: '/api/v1/flux/kontext/generate',
     apiType: 'flux'
   },
-  'gpt-4o-image': {
-    model: 'gpt-image-1',
-    name: 'GPT-4o Image',
-    endpoint: '/api/v1/gpt4o-image/generate',
-    apiType: 'gpt4o'
+  'seedream-4': {
+    model: 'seedream-v4-edit',
+    name: 'Seedream 4.0',
+    endpoint: '/v1/models/bytedance/seedream-v4-edit/predictions',
+    apiType: 'replicate',
+    owner: 'bytedance'
+  },
+  'seedream': {
+    model: 'seedream-v3',
+    name: 'Seedream 3.0',
+    endpoint: '/v1/models/bytedance/seedream/predictions',
+    apiType: 'replicate',
+    owner: 'bytedance'
+  },
+  'qwen': {
+    model: 'qwen-image',
+    name: 'Qwen Image',
+    endpoint: '/v1/models/qwen/qwen-image/predictions',
+    apiType: 'replicate',
+    owner: 'qwen'
+  },
+  'nano-banana': {
+    model: 'nano-banana',
+    name: 'Nano Banana (Gemini 2.5)',
+    endpoint: '/v1/models/google/nano-banana/predictions',
+    apiType: 'replicate',
+    owner: 'google'
+  },
+  'ideogram': {
+    model: 'ideogram-v3',
+    name: 'Ideogram V3',
+    endpoint: '/v1/models/ideogram/ideogram-v3/predictions',
+    apiType: 'replicate',
+    owner: 'ideogram'
+  },
+  'imagen': {
+    model: 'imagen-4',
+    name: 'Imagen 4',
+    endpoint: '/v1/models/google/imagen-4/predictions',
+    apiType: 'replicate',
+    owner: 'google'
   }
 };
 
@@ -135,6 +184,17 @@ serve(async (req) => {
         nVariants: 1,
         enableFallback: true,
         fallbackModel: "FLUX_MAX"
+      };
+    } else if (modelConfig.apiType === 'replicate') {
+      // Replicate-style API format
+      requestBody = {
+        input: {
+          prompt: prompt,
+          aspect_ratio: aspectRatio,
+          output_format: "png"
+        },
+        webhook: callbackUrl,
+        webhook_events_filter: ["completed"]
       };
     }
     
