@@ -12,6 +12,10 @@ export interface GalleryItem {
   isUpscaled?: boolean;
   createdAt?: string;
   status?: 'pending' | 'processing' | 'completed' | 'error';
+  url?: string;
+  prompt?: string;
+  aspectRatio?: string;
+  model?: string;
 }
 
 export const creationsData: GalleryItem[] = [
