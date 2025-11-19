@@ -36,7 +36,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
     'gpt-4o-image': ['1:1', '3:2', '2:3'], // Native support only
     'qwen': ['1:1', '16:9', '9:16', '4:3', '3:4'],
     'seedream-4': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
-    'seedream': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
+    'seedream': ['1:1', '16:9', '9:16', '4:3', '3:4'], // Seedream 3.0: square, square_hd, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9
     'grok': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'nano-banana': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'imagen-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
