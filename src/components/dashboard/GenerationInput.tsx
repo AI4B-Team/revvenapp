@@ -708,7 +708,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
-              <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50" align="start">
+              <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
                   {/* Auto */}
                   <button 
