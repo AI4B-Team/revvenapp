@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
+import InvitesTab from '@/components/settings/InvitesTab';
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
@@ -125,6 +126,12 @@ export default function Settings() {
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
             >
               White Label
+            </TabsTrigger>
+            <TabsTrigger
+              value="invites"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent bg-transparent px-1 pb-3"
+            >
+              Invites
             </TabsTrigger>
           </TabsList>
 
@@ -416,8 +423,12 @@ export default function Settings() {
           <TabsContent value="white-label" className="mt-8">
             <WhiteLabelTab />
           </TabsContent>
+
+          <TabsContent value="invites" className="mt-8">
+            <InvitesTab />
+          </TabsContent>
         </Tabs>
-          </div>
+      </div>
         </div>
       </div>
     </div>
