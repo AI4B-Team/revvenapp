@@ -438,6 +438,10 @@ const AIInfluencer = () => {
           setShowCountdown(false);
           toast.info("Still processing... We'll notify you when it's ready.");
         }}
+        onSkip={() => {
+          setShowCountdown(false);
+          toast.success("Video is processing in the background. It will appear in your history when ready.");
+        }}
       />
     );
   }
@@ -1223,13 +1227,6 @@ const AIInfluencer = () => {
           </div>
         </main>
       </div>
-
-      {showCountdown && (
-        <VideoGenerationCountdown 
-          totalSeconds={600} 
-          onComplete={() => setShowCountdown(false)} 
-        />
-      )}
 
       {/* Video Completed Dialog */}
       <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
