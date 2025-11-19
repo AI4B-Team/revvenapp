@@ -24,6 +24,26 @@ serve(async (req) => {
       throw new Error("OPENROUTER_API_KEY not configured");
     }
 
+    console.log("Calling OpenRouter API with model: openai/gpt-5");
+
+    const requestBody = {
+      model: "openai/gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a creative AI prompt enhancer. Your job is to take simple prompts and make them more detailed, vivid, and effective for image generation. Add specific details about style, lighting, composition, colors, mood, and artistic techniques while keeping the core concept intact. Keep it concise but highly descriptive. Return ONLY the enhanced prompt without any explanation or extra text."
+        },
+        {
+          role: "user",
+          content: `Enhance this image generation prompt: "${prompt}"`
+        }
+      ],
+      max_completion_tokens: 200,
+      temperature: 0.8
+    };
+
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -32,21 +52,7 @@ serve(async (req) => {
         "HTTP-Referer": "https://revven.app",
         "X-Title": "Revven AI"
       },
-      body: JSON.stringify({
-        model: "openai/gpt-5",
-        messages: [
-          {
-            role: "system",
-            content: "You are a creative AI prompt enhancer. Your job is to take simple prompts and make them more detailed, vivid, and effective for image generation. Add specific details about style, lighting, composition, colors, mood, and artistic techniques while keeping the core concept intact. Keep it concise but highly descriptive. Return ONLY the enhanced prompt without any explanation or extra text."
-          },
-          {
-            role: "user",
-            content: `Enhance this image generation prompt: "${prompt}"`
-          }
-        ],
-        max_completion_tokens: 200,
-        temperature: 0.8
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -64,10 +70,19 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const enhancedPrompt = data.choices?.[0]?.message?.content?.trim();
+    console.log("OpenRouter response:", JSON.stringify(data, null, 2));
+    
+    // Handle both OpenAI and OpenRouter response formats
+    let enhancedPrompt = data.choices?.[0]?.message?.content?.trim();
+    
+    // Some models might return text directly
+    if (!enhancedPrompt && data.choices?.[0]?.text) {
+      enhancedPrompt = data.choices[0].text.trim();
+    }
     
     if (!enhancedPrompt) {
-      throw new Error("No enhanced prompt generated");
+      console.error("Unexpected response structure:", data);
+      throw new Error("No enhanced prompt generated. Response: " + JSON.stringify(data).substring(0, 200));
     }
 
     console.log("Enhanced prompt:", enhancedPrompt);
