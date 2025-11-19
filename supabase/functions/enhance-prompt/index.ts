@@ -55,9 +55,15 @@ serve(async (req) => {
       body: JSON.stringify(requestBody)
     });
 
+    console.log("OpenRouter response status:", response.status);
+
+    // Read response as text first to ensure we can log it
+    const responseText = await response.text();
+    console.log("OpenRouter raw response (first 500 chars):", responseText.substring(0, 500));
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("OpenRouter error:", response.status, errorText);
+      console.error("OpenRouter error - Status:", response.status);
+      console.error("OpenRouter error - Body:", responseText);
       
       if (response.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
@@ -66,23 +72,38 @@ serve(async (req) => {
         throw new Error("Credits exhausted. Please add credits to continue.");
       }
       
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      throw new Error(`OpenRouter API error: ${response.status} - ${responseText.substring(0, 200)}`);
     }
 
-    const data = await response.json();
-    console.log("OpenRouter response:", JSON.stringify(data, null, 2));
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log("Parsed response successfully. Choices count:", data.choices?.length);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      throw new Error(`Failed to parse OpenRouter response: ${responseText.substring(0, 200)}`);
+    }
     
     // Handle both OpenAI and OpenRouter response formats
     let enhancedPrompt = data.choices?.[0]?.message?.content?.trim();
     
+    console.log("Extracted content:", enhancedPrompt ? enhancedPrompt.substring(0, 100) : "null");
+    
     // Some models might return text directly
     if (!enhancedPrompt && data.choices?.[0]?.text) {
       enhancedPrompt = data.choices[0].text.trim();
+      console.log("Found text field instead:", enhancedPrompt.substring(0, 100));
+    }
+
+    // Check for errors in response
+    if (data.error) {
+      console.error("OpenRouter error in response:", data.error);
+      throw new Error(`OpenRouter error: ${data.error.message || JSON.stringify(data.error)}`);
     }
     
     if (!enhancedPrompt) {
-      console.error("Unexpected response structure:", data);
-      throw new Error("No enhanced prompt generated. Response: " + JSON.stringify(data).substring(0, 200));
+      console.error("No content found. Full response structure:", JSON.stringify(data, null, 2));
+      throw new Error("No enhanced prompt generated. Check logs for full response.");
     }
 
     console.log("Enhanced prompt:", enhancedPrompt);
