@@ -12,6 +12,13 @@ import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X,
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { VideoGenerationCountdown } from "@/components/VideoGenerationCountdown";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import seedanceLogo from "@/assets/model-logos/seedance.png";
 import vo3Logo from "@/assets/model-logos/vo3.png";
 import soraLogo from "@/assets/model-logos/sora.png";
@@ -83,6 +90,9 @@ const AIInfluencer = () => {
   // Video history state
   const [generatedVideos, setGeneratedVideos] = useState<AIVideo[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+  const [completedVideo, setCompletedVideo] = useState<AIVideo | null>(null);
+  const [showCompletedDialog, setShowCompletedDialog] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState<string | null>(null);
 
   const VIDEO_MODELS = [
     { name: "Seedance 1.0", logo: seedanceLogo },
@@ -147,6 +157,25 @@ const AIInfluencer = () => {
     }
   };
 
+  // Handle video deletion
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_videos')
+        .delete()
+        .eq('id', videoId);
+      
+      if (error) throw error;
+      
+      setGeneratedVideos(prev => prev.filter(v => v.id !== videoId));
+      toast.success("Video deleted successfully");
+      setVideoToDelete(null);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      toast.error("Failed to delete video");
+    }
+  };
+
   // Set up real-time subscription for video updates
   useEffect(() => {
     if (!currentVideoId) return;
@@ -169,10 +198,6 @@ const AIInfluencer = () => {
             setShowCountdown(false);
             setIsGenerating(false);
             
-            toast.success("Your video is ready!", {
-              duration: 5000,
-            });
-            
             // Update videos list
             setGeneratedVideos(prev => {
               const index = prev.findIndex(v => v.id === updatedVideo.id);
@@ -183,6 +208,10 @@ const AIInfluencer = () => {
               }
               return [updatedVideo, ...prev];
             });
+            
+            // Show completed dialog
+            setCompletedVideo(updatedVideo);
+            setShowCompletedDialog(true);
             
             setActiveSection("manage");
             
@@ -844,17 +873,27 @@ const AIInfluencer = () => {
                                   <span>{new Date(video.created_at).toLocaleDateString()}</span>
                                 </div>
                               </div>
-                              {video.status === 'completed' && video.video_url && (
+                              <div className="flex gap-2 mt-3">
+                                {video.status === 'completed' && video.video_url && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 gap-2"
+                                    onClick={() => window.open(video.video_url!, '_blank')}
+                                  >
+                                    <Download className="w-3 h-3" />
+                                    Download
+                                  </Button>
+                                )}
                                 <Button
-                                  variant="outline"
+                                  variant="destructive"
                                   size="sm"
-                                  className="w-full mt-3 gap-2"
-                                  onClick={() => window.open(video.video_url!, '_blank')}
+                                  className="gap-2"
+                                  onClick={() => setVideoToDelete(video.id)}
                                 >
-                                  <Download className="w-3 h-3" />
-                                  Download
+                                  <Trash2 className="w-3 h-3" />
                                 </Button>
-                              )}
+                              </div>
                             </CardContent>
                           </Card>
                         ))}
@@ -1122,6 +1161,87 @@ const AIInfluencer = () => {
           </div>
         </main>
       </div>
+
+      {showCountdown && (
+        <VideoGenerationCountdown 
+          totalSeconds={300} 
+          onComplete={() => setShowCountdown(false)} 
+        />
+      )}
+
+      {/* Video Completed Dialog */}
+      <Dialog open={showCompletedDialog} onOpenChange={setShowCompletedDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              Video Generation Completed!
+            </DialogTitle>
+            <DialogDescription>
+              Your AI-generated video is ready to view and download
+            </DialogDescription>
+          </DialogHeader>
+          {completedVideo && (
+            <div className="space-y-4">
+              <div className="relative aspect-video overflow-hidden rounded-lg bg-black">
+                <video
+                  src={completedVideo.video_url!}
+                  className="w-full h-full object-contain"
+                  controls
+                  autoPlay
+                />
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                <img
+                  src={completedVideo.character_image_url}
+                  alt={completedVideo.character_name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <h4 className="font-semibold">{completedVideo.character_name}</h4>
+                  <p className="text-sm text-muted-foreground">{completedVideo.video_topic}</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 gap-2"
+                  onClick={() => window.open(completedVideo.video_url!, '_blank')}
+                >
+                  <Download className="w-4 h-4" />
+                  Download Video
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCompletedDialog(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Video Confirmation */}
+      <AlertDialog open={!!videoToDelete} onOpenChange={() => setVideoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Video?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this video? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => videoToDelete && handleDeleteVideo(videoToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
