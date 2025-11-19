@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_characters: {
+        Row: {
+          bio: string
+          cloudinary_public_id: string | null
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio: string
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
