@@ -1,5 +1,5 @@
 export interface GalleryItem {
-  id: number;
+  id: number | string;
   type: 'image' | 'video';
   thumbnail: string;
   title: string;
