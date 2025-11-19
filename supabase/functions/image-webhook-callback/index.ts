@@ -17,7 +17,7 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Callback payload:", JSON.stringify(payload, null, 2));
 
-    // KIE.AI callback format: { code, msg, data: { taskId, response: { resultImageUrl }, successFlag, errorCode, errorMessage } }
+    // KIE.AI callback format (current): { code, msg, data: { taskId, info: { resultImageUrl } } }
     const { code, msg, data } = payload;
     
     if (!data?.taskId) {
@@ -29,9 +29,14 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    if (code === 200 && data.successFlag === 1) {
+    // Treat any 200 code as success, newer API doesn't send successFlag
+    if (code === 200) {
       // Success case - download and upload to Cloudinary
-      const imageUrl = data.response.resultImageUrl;
+      const imageUrl = data.info?.resultImageUrl || data.response?.resultImageUrl;
+      if (!imageUrl) {
+        throw new Error("Missing resultImageUrl in callback payload");
+      }
+
       console.log("Image ready, downloading from:", imageUrl);
 
       const imageResponse = await fetch(imageUrl);
