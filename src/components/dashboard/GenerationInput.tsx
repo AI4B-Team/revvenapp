@@ -18,6 +18,9 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useState('nano-banana');
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState('auto');
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
+  const [numberOfImages, setNumberOfImages] = useState(1);
   const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
@@ -43,7 +46,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
           prompt: prompt.trim(),
-          aspectRatio: "1:1",
+          aspectRatio: selectedAspectRatio,
           model: selectedModel
         }
       });
@@ -72,7 +75,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
     }
   };
 
-  const handleEnhancePrompt = async () => {
+  const handleEnhancePrompt = async (fast = false) => {
     if (!prompt.trim()) {
       toast({
         title: "Prompt required",
@@ -89,7 +92,8 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
       
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
-          prompt: prompt.trim()
+          prompt: prompt.trim(),
+          fast: fast
         }
       });
 
@@ -99,7 +103,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
         setPrompt(data.enhancedPrompt);
         toast({
           title: "Prompt enhanced!",
-          description: "Your prompt has been improved with AI",
+          description: fast ? "Quick enhancement complete" : "Your prompt has been improved with AI",
         });
         console.log("Enhanced prompt:", data.enhancedPrompt);
       }
@@ -146,7 +150,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
-                          onClick={handleEnhancePrompt}
+                          onClick={() => handleEnhancePrompt(false)}
                           disabled={isEnhancing || !prompt.trim()}
                           className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -822,9 +826,66 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               </PopoverContent>
             </Popover>
             
-            <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap">
-              Style
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2">
+                  {selectedStyle}
+                  <ChevronDown size={14} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 bg-background border-border z-50">
+                <div className="space-y-1">
+                  <button 
+                    onClick={() => setSelectedStyle('auto')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Auto
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Photorealistic')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Photorealistic
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Artistic')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Artistic
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Anime')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Anime
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('3D Render')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    3D Render
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Cartoon')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Cartoon
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Oil Painting')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Oil Painting
+                  </button>
+                  <button 
+                    onClick={() => setSelectedStyle('Watercolor')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
+                    Watercolor
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
             
             <button 
               onClick={onCharactersClick}
@@ -851,29 +912,44 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             <Popover>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                  1:1
+                  {selectedAspectRatio}
                   <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 bg-background border-border z-50">
                 <div className="space-y-1">
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedAspectRatio('1:1')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                  >
                     <div className="w-4 h-4 border-2 border-current"></div>
                     1:1 Square
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedAspectRatio('16:9')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                  >
                     <div className="w-5 h-3 border-2 border-current"></div>
                     16:9 Landscape
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedAspectRatio('9:16')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                  >
                     <div className="w-3 h-5 border-2 border-current"></div>
                     9:16 Portrait
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedAspectRatio('4:3')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                  >
                     <div className="w-5 h-4 border-2 border-current"></div>
                     4:3 Standard
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                  <button 
+                    onClick={() => setSelectedAspectRatio('21:9')}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                  >
                     <div className="w-6 h-3 border-2 border-current"></div>
                     21:9 Ultrawide
                   </button>
@@ -883,25 +959,40 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             <Popover>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 text-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
-                  1 Image
+                  {numberOfImages} {numberOfImages === 1 ? 'Image' : 'Images'}
                   <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 bg-background border-border z-50">
                 <div className="space-y-1">
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                  <button 
+                    onClick={() => setNumberOfImages(1)}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
                     1 Image
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                  <button 
+                    onClick={() => setNumberOfImages(2)}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
                     2 Images
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                  <button 
+                    onClick={() => setNumberOfImages(3)}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
                     3 Images
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                  <button 
+                    onClick={() => setNumberOfImages(4)}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
                     4 Images
                   </button>
-                  <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                  <button 
+                    onClick={() => setNumberOfImages(5)}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                  >
                     5 Images
                   </button>
                 </div>
@@ -918,13 +1009,55 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap">
-                    <Sparkles size={16} />
-                    AI
-                  </button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button 
+                        disabled={isEnhancing || !prompt.trim()}
+                        className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isEnhancing ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Sparkles size={16} />
+                        )}
+                        AI
+                        <ChevronDown size={14} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 bg-background border-border z-50">
+                      <div className="space-y-1">
+                        <button 
+                          onClick={() => handleEnhancePrompt(true)}
+                          disabled={isEnhancing || !prompt.trim()}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Zap size={14} className="text-brand-yellow" />
+                            <div>
+                              <div className="font-medium">Fast Enhance</div>
+                              <div className="text-xs text-muted-foreground">Quick improvement</div>
+                            </div>
+                          </div>
+                        </button>
+                        <button 
+                          onClick={() => handleEnhancePrompt(false)}
+                          disabled={isEnhancing || !prompt.trim()}
+                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Sparkles size={14} className="text-brand-purple" />
+                            <div>
+                              <div className="font-medium">Deep Enhance</div>
+                              <div className="text-xs text-muted-foreground">Detailed refinement</div>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Enhance Prompt</p>
+                  <p>Enhance Prompt with AI</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
