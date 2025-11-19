@@ -39,6 +39,12 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     endpoint: '/api/v1/flux/kontext/generate',
     apiType: 'flux'
   },
+  'imagen-ultra': {
+    model: 'google/imagen4-ultra',
+    name: 'Imagen 4 Ultra',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'imagen'
+  },
   'seedream-4': {
     model: 'bytedance/seedream-v4-text-to-image',
     name: 'Seedream 4.0',
@@ -198,6 +204,18 @@ serve(async (req) => {
                      aspectRatio === "21:9" ? "landscape_21_9" : "square_hd",
           image_resolution: "2K",
           max_images: 1
+        }
+      };
+    } else if (modelConfig.apiType === 'imagen') {
+      // Google Imagen 4 Ultra API format
+      requestBody = {
+        model: modelConfig.model,
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          aspect_ratio: aspectRatio || "1:1",
+          negative_prompt: "",
+          seed: ""
         }
       };
     } else if (modelConfig.apiType === 'replicate') {
