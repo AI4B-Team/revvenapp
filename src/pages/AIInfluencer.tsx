@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, Loader2, CheckCircle2, X, Trash2, Users } from "lucide-react";
+import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X, Trash2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -29,6 +30,7 @@ interface AICharacter {
 }
 
 const AIInfluencer = () => {
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<"character" | "video" | "manage">("character");
   
   // Character form state
@@ -75,8 +77,23 @@ const AIInfluencer = () => {
   };
 
   useEffect(() => {
-    fetchCharacters();
+    const initPage = async () => {
+      await fetchCharacters();
+      setIsPageLoading(false);
+    };
+    initPage();
   }, []);
+
+  if (isPageLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading AI Influencer Studio...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
