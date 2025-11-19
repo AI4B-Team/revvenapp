@@ -12,6 +12,7 @@ import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModa
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
+import { supabase } from '@/integrations/supabase/client';
 
 const Create = () => {
   const location = useLocation();
@@ -24,6 +25,7 @@ const Create = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -37,6 +39,45 @@ const Create = () => {
       setEditingImage(null);
     }
   }, [location]);
+
+  // Fetch and subscribe to generated images
+  useEffect(() => {
+    const fetchGeneratedImages = async () => {
+      const { data } = await supabase
+        .from('generated_images')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (data) {
+        setGeneratedImages(data);
+      }
+    };
+
+    fetchGeneratedImages();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('generated_images_channel')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'generated_images'
+        },
+        (payload) => {
+          console.log('Generated image update:', payload);
+          if (payload.eventType === 'INSERT') {
+            setGeneratedImages(prev => [payload.new, ...prev]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const imageTools = [
     { 
