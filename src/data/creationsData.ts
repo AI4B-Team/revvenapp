@@ -11,6 +11,7 @@ export interface GalleryItem {
   isEdited?: boolean;
   isUpscaled?: boolean;
   createdAt?: string;
+  status?: 'pending' | 'processing' | 'completed' | 'error';
 }
 
 export const creationsData: GalleryItem[] = [
