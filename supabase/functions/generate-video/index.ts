@@ -41,7 +41,7 @@ serve(async (req) => {
     // Call n8n webhook to START video generation (should return immediately)
     // n8n will generate the video and POST it back to our callback webhook
     const webhookResponse = await fetch(
-      "https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6",
+      "https://realcreator.app.n8n.cloud/webhook/36a23325-e14a-46bb-be52-c37e66ae88d6",
       {
         method: "POST",
         headers: {
