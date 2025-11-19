@@ -31,9 +31,15 @@ serve(async (req) => {
       throw new Error("video_id is required");
     }
 
-    console.log("Starting n8n webhook call for video:", video_id);
+    console.log("Starting async n8n webhook call for video:", video_id);
 
-    // Call n8n webhook from the backend (no browser CORS here)
+    // Get the callback URL for n8n to call when video is ready
+    const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback`;
+    
+    console.log("Callback URL for n8n:", callbackUrl);
+
+    // Call n8n webhook to START video generation (should return immediately)
+    // n8n will generate the video and POST it back to our callback webhook
     const webhookResponse = await fetch(
       "https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6",
       {
@@ -41,7 +47,12 @@ serve(async (req) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ video_id, character, video }),
+        body: JSON.stringify({ 
+          video_id, 
+          character, 
+          video,
+          callback_url: callbackUrl
+        }),
       }
     );
 
@@ -50,59 +61,16 @@ serve(async (req) => {
       throw new Error(`Webhook failed: ${webhookResponse.status} ${webhookResponse.statusText}`);
     }
 
-    console.log("n8n webhook succeeded, reading video binary...");
-
-    const videoArrayBuffer = await webhookResponse.arrayBuffer();
-    const videoBlob = new Blob([videoArrayBuffer], { type: "video/mp4" });
-
-    // Upload video to Cloudinary using unsigned preset
-    const formData = new FormData();
-    formData.append("file", videoBlob, `video_${video_id}.mp4`);
-    formData.append("upload_preset", "revven");
-
-    console.log("Uploading video to Cloudinary...");
-
-    const cloudinaryResponse = await fetch(
-      "https://api.cloudinary.com/v1_1/dszt275xv/video/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!cloudinaryResponse.ok) {
-      console.error("Cloudinary upload failed:", cloudinaryResponse.status, cloudinaryResponse.statusText);
-      throw new Error("Failed to upload video to Cloudinary");
-    }
-
-    const cloudinaryData = await cloudinaryResponse.json();
-    console.log("Video uploaded to Cloudinary:", cloudinaryData.secure_url);
-
-    // Update database with video URL and status
-    const { error: updateError } = await supabase
-      .from("ai_videos")
-      .update({
-        video_url: cloudinaryData.secure_url,
-        status: "completed",
-        completed_at: new Date().toISOString(),
-        webhook_response: {
-          source: "generate-video-edge-function",
-          cloudinary_public_id: cloudinaryData.public_id ?? null,
-        },
-      })
-      .eq("id", video_id);
-
-    if (updateError) {
-      console.error("Database update error:", updateError);
-      throw updateError;
-    }
-
-    console.log("Video status updated successfully for:", video_id);
+    console.log("n8n webhook accepted video generation request successfully");
+    
+    // n8n should have returned immediately after queuing the job
+    // The actual video will be sent to our callback webhook when ready
 
     return new Response(
       JSON.stringify({
         success: true,
-        video_url: cloudinaryData.secure_url,
+        message: "Video generation started. You will be notified when it completes.",
+        video_id: video_id,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
