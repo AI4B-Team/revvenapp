@@ -11,27 +11,31 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, fast = false } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Enhancing prompt:", prompt);
+    console.log("Enhancing prompt:", prompt, "Fast mode:", fast);
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
       throw new Error("OPENROUTER_API_KEY not configured");
     }
 
-    console.log("Calling OpenRouter API with model: openai/gpt-5");
+    console.log("Calling OpenRouter API with model: openai/gpt-5-mini");
+
+    const systemPrompt = fast
+      ? "You are a quick AI prompt enhancer. Take the user's prompt and add a few key details about style and mood. Keep it brief and clear. Return ONLY the enhanced prompt."
+      : "You are a creative AI prompt enhancer. Your job is to take simple prompts and make them more detailed, vivid, and effective for image generation. Add specific details about style, lighting, composition, colors, mood, and artistic techniques while keeping the core concept intact. Keep it concise but highly descriptive. Return ONLY the enhanced prompt without any explanation or extra text.";
 
     const requestBody = {
       model: "openai/gpt-5-mini",
       messages: [
         {
           role: "system",
-          content: "You are a creative AI prompt enhancer. Your job is to take simple prompts and make them more detailed, vivid, and effective for image generation. Add specific details about style, lighting, composition, colors, mood, and artistic techniques while keeping the core concept intact. Keep it concise but highly descriptive. Return ONLY the enhanced prompt without any explanation or extra text."
+          content: systemPrompt
         },
         {
           role: "user",
