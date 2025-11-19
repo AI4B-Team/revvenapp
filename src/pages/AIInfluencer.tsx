@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X, Trash2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -45,6 +46,9 @@ const AIInfluencer = () => {
   const [isLoadingCharacters, setIsLoadingCharacters] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [characterToDelete, setCharacterToDelete] = useState<string | null>(null);
+  
+  // Video creation state
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
 
   // Fetch characters
   const fetchCharacters = async () => {
@@ -562,11 +566,40 @@ const AIInfluencer = () => {
                       <User className="w-4 h-4 text-primary group-hover:animate-pulse" />
                       Select Character
                     </Label>
-                    <Input 
-                      id="select-character"
-                      placeholder="Choose your AI character..." 
-                      className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.02] border-2 hover:border-primary/50"
-                    />
+                    {characters.length > 0 ? (
+                      <Select value={selectedCharacterId} onValueChange={setSelectedCharacterId}>
+                        <SelectTrigger className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50 bg-background">
+                          <SelectValue placeholder="Choose your AI character..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-border shadow-xl z-[100]">
+                          {characters.map((character) => (
+                            <SelectItem 
+                              key={character.id} 
+                              value={character.id}
+                              className="cursor-pointer hover:bg-accent focus:bg-accent"
+                            >
+                              <div className="flex items-center gap-3 py-1">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex-shrink-0">
+                                  <img 
+                                    src={character.image_url} 
+                                    alt={character.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-semibold">{character.name}</span>
+                                  <span className="text-xs text-muted-foreground line-clamp-1">{character.bio}</span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="h-12 flex items-center justify-center border-2 border-dashed border-border rounded-md bg-muted/20">
+                        <p className="text-sm text-muted-foreground">No characters available. Create one first!</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3 group">
