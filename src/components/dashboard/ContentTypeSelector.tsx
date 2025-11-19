@@ -1,6 +1,5 @@
 import { Image, Video, Music, FileText, Code, Palette, MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -9,40 +8,36 @@ interface ContentTypeSelectorProps {
 
 const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelectorProps) => {
   const contentTypes = [
-    { icon: Image, label: 'Image' },
-    { icon: Video, label: 'Video' },
-    { icon: Music, label: 'Audio' },
-    { icon: Palette, label: 'Design' },
-    { icon: FileText, label: 'Content' },
-    { icon: Code, label: 'Apps' },
+    { icon: <Image size={18} />, label: 'Image', color: 'text-brand-blue' },
+    { icon: <Video size={18} />, label: 'Video', color: 'text-brand-yellow' },
+    { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
+    { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-red' },
+    { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-green' },
+    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-blue' },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto mb-6">
-      <div className="flex items-center justify-center gap-2">
-        {contentTypes.map((type) => (
-          <Button
-            key={type.label}
+    <div className="max-w-5xl mx-auto mb-8">
+      <div className="flex items-center justify-center gap-3">
+        {contentTypes.map((type, idx) => (
+          <button
+            key={idx}
             onClick={() => onTypeChange(type.label)}
-            variant="ghost"
-            className={`px-6 py-3 rounded-xl transition-colors ${
+            className={`px-5 py-3 rounded-xl transition flex items-center gap-2 ${
               selectedType === type.label
-                ? 'bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20'
-                : 'bg-card text-muted-foreground hover:bg-muted'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary hover:bg-secondary/80'
             }`}
           >
-            <type.icon className="w-4 h-4 mr-2" />
-            {type.label}
-          </Button>
+            <span className={selectedType === type.label ? '' : type.color}>{type.icon}</span>
+            <span className="text-sm font-medium">{type.label}</span>
+          </button>
         ))}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="px-6 py-3 rounded-xl bg-card text-muted-foreground hover:bg-muted"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
+            <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition flex items-center justify-center">
+              <MoreHorizontal size={18} />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-background border-border z-50">
             <DropdownMenuItem className="cursor-pointer">
