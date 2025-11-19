@@ -79,11 +79,10 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     owner: 'ideogram'
   },
   'imagen': {
-    model: 'imagen-4',
+    model: 'google/imagen-4',
     name: 'Imagen 4',
-    endpoint: '/v1/models/google/imagen-4/predictions',
-    apiType: 'replicate',
-    owner: 'google'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'imagen'
   }
 };
 
