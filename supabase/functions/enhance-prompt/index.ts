@@ -71,6 +71,15 @@ serve(async (req) => {
       throw new Error(`AI gateway error: ${response.status} - ${responseText.substring(0, 200)}`);
     }
 
+    let data: any;
+    try {
+      data = JSON.parse(responseText);
+      console.log("Parsed response successfully. Choices count:", data.choices?.length);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      throw new Error(`Failed to parse AI response: ${responseText.substring(0, 200)}`);
+    }
+
     // Standard OpenAI-compatible format from Lovable AI
     let enhancedPrompt: string | null = data.choices?.[0]?.message?.content?.trim() || null;
     console.log("Extracted content:", enhancedPrompt ? enhancedPrompt.substring(0, 100) : "null");
