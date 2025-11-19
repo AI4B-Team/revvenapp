@@ -58,6 +58,7 @@ export type Database = {
           id: string
           status: string
           user_id: string
+          video_generation_model: string
           video_script: string | null
           video_style: string
           video_topic: string
@@ -74,6 +75,7 @@ export type Database = {
           id?: string
           status?: string
           user_id: string
+          video_generation_model?: string
           video_script?: string | null
           video_style: string
           video_topic: string
@@ -90,6 +92,7 @@ export type Database = {
           id?: string
           status?: string
           user_id?: string
+          video_generation_model?: string
           video_script?: string | null
           video_style?: string
           video_topic?: string
