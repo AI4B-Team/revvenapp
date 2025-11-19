@@ -1,4 +1,5 @@
 import { Clock, AppWindow, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ActionButtonsProps {
   activeView: 'tools' | 'creations' | 'community';
@@ -7,37 +8,44 @@ interface ActionButtonsProps {
 
 const ActionButtons = ({ activeView, onViewChange }: ActionButtonsProps) => {
   return (
-    <div className="w-full mt-8 mb-8">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => onViewChange('tools')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'tools' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <AppWindow size={18} />
-            <span className="font-medium text-sm">Apps</span>
-          </button>
-          <button 
-            onClick={() => onViewChange('creations')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'creations' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <Clock size={18} />
-            <span className="font-medium text-sm">Creations</span>
-          </button>
-          <button 
-            onClick={() => onViewChange('community')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'community' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <Users size={18} />
-            <span className="font-medium text-sm">Community</span>
-          </button>
-        </div>
+    <div className="w-full mt-12 mb-8">
+      <div className="flex gap-4">
+        <Button 
+          onClick={() => onViewChange('tools')}
+          variant="ghost"
+          className={`px-6 py-3 rounded-lg transition-colors ${
+            activeView === 'tools' 
+              ? 'bg-foreground text-background hover:bg-foreground/90' 
+              : 'bg-card text-muted-foreground hover:bg-muted'
+          }`}
+        >
+          <AppWindow className="w-4 h-4 mr-2" />
+          Apps
+        </Button>
+        <Button 
+          onClick={() => onViewChange('creations')}
+          variant="ghost"
+          className={`px-6 py-3 rounded-lg transition-colors ${
+            activeView === 'creations'
+              ? 'bg-foreground text-background hover:bg-foreground/90'
+              : 'bg-card text-muted-foreground hover:bg-muted'
+          }`}
+        >
+          <Clock className="w-4 h-4 mr-2" />
+          Creations
+        </Button>
+        <Button 
+          onClick={() => onViewChange('community')}
+          variant="ghost"
+          className={`px-6 py-3 rounded-lg transition-colors ${
+            activeView === 'community'
+              ? 'bg-foreground text-background hover:bg-foreground/90'
+              : 'bg-card text-muted-foreground hover:bg-muted'
+          }`}
+        >
+          <Users className="w-4 h-4 mr-2" />
+          Community
+        </Button>
       </div>
     </div>
   );

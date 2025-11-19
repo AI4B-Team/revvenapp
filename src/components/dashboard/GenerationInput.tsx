@@ -159,26 +159,26 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   };
   
   return (
-    <div className="max-w-6xl mx-auto mb-4">
-      <div className="bg-background border-2 border-border rounded-xl p-6 shadow-2xl">
-        <div className="flex items-start gap-3 mb-6">
+    <div className="max-w-6xl mx-auto mb-12">
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+        <div className="flex items-start gap-4 mb-6">
           <div className="flex flex-col gap-2">
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
-                  <button className="bg-muted/50 rounded-lg p-2">
-                    <Video size={18} className="text-muted-foreground" />
+                  <button className="bg-muted rounded-lg p-2.5">
+                    <Video size={20} className="text-muted-foreground" />
                   </button>
                 ) : isAudioMode ? (
-                  <button className="bg-muted/50 rounded-lg p-2">
-                    <Sparkles size={18} className="text-muted-foreground" />
+                  <button className="bg-muted rounded-lg p-2.5">
+                    <Sparkles size={20} className="text-muted-foreground" />
                   </button>
                 ) : (
                   <>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition">
-                          <Image size={18} className="text-muted-foreground" />
+                        <button className="bg-muted hover:bg-muted/80 rounded-lg p-2.5 transition">
+                          <Image size={20} className="text-muted-foreground" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -190,12 +190,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                         <button 
                           onClick={() => handleEnhancePrompt(false)}
                           disabled={isEnhancing || !prompt.trim()}
-                          className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isEnhancing ? (
-                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                            <Loader2 size={20} className="text-muted-foreground animate-spin" />
                           ) : (
-                            <Dices size={18} className="text-muted-foreground" />
+                            <Dices size={20} className="text-muted-foreground" />
                           )}
                         </button>
                       </TooltipTrigger>
@@ -213,8 +213,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
-              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50"
-              rows={3}
+              className="w-full text-foreground text-base leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 min-h-[100px]"
               placeholder="Describe what you want to create..."
             />
           </div>

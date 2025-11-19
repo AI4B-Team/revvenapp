@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
+import { Image, Video, Music, Palette, FileText, Code, MoreHorizontal, Clock, Users, Sparkles, Upload, LayoutGrid, SlidersHorizontal, ChevronRight } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -12,6 +12,7 @@ import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModa
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -374,9 +375,9 @@ const Create = () => {
             }}
           />
         ) : (
-          <main className="flex-1 overflow-auto bg-white">
-          <div className="px-8 py-8">
-            <h1 className="text-5xl font-bold text-center mb-8">What Would You Like To Create Today?</h1>
+          <main className="flex-1 overflow-auto bg-gray-50">
+          <div className="max-w-7xl mx-auto px-8 py-8">
+            <h1 className="text-4xl font-bold text-center text-foreground mb-8">What Would You Like To Create Today?</h1>
             
             <ContentTypeSelector selectedType={selectedType} onTypeChange={(type) => {
               setSelectedType(type);
