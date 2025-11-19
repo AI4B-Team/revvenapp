@@ -7,38 +7,54 @@ const corsHeaders = {
 };
 
 // Model mapping: UI model name -> KIE.AI configuration
-const MODEL_CONFIGS: Record<string, { model: string; name: string }> = {
+const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: string; apiType: 'flux' | 'gpt4o' }> = {
   'nano-banana': {
-    model: 'flux-kontext-pro',
-    name: 'Nano Banana (Flux Pro)'
+    model: 'gpt-image-1',
+    name: 'Nano Banana (GPT-4o)',
+    endpoint: '/api/v1/gpt4o-image/generate',
+    apiType: 'gpt4o'
   },
   'seedream': {
     model: 'flux-kontext-pro',
-    name: 'Seedream (Flux Pro)'
+    name: 'Seedream (Flux Pro)',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   },
   'seedream-4k': {
     model: 'flux-kontext-max',
-    name: 'Seedream 4K (Flux Max)'
+    name: 'Seedream 4K (Flux Max)',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   },
   'grok': {
-    model: 'flux-kontext-max',
-    name: 'Grok (Flux Max)'
+    model: 'gpt-image-1',
+    name: 'Grok (GPT-4o)',
+    endpoint: '/api/v1/gpt4o-image/generate',
+    apiType: 'gpt4o'
   },
   'flux': {
     model: 'flux-kontext-pro',
-    name: 'Flux Pro'
+    name: 'Flux Pro',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   },
   'mystic': {
-    model: 'flux-kontext-pro',
-    name: 'Mystic (Flux Pro)'
+    model: 'flux-kontext-max',
+    name: 'Mystic (Flux Max)',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   },
   'ideogram': {
-    model: 'flux-kontext-pro',
-    name: 'Ideogram 3 (Flux Pro)'
+    model: 'flux-kontext-max',
+    name: 'Ideogram 3 (Flux Max)',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   },
   'auto': {
     model: 'flux-kontext-pro',
-    name: 'Auto (Flux Pro)'
+    name: 'Auto (Flux Pro)',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
   }
 };
 
@@ -116,21 +132,43 @@ serve(async (req) => {
     console.log("Callback URL:", callbackUrl);
 
     // Call KIE.AI to start generation with callback
-    const kieResponse = await fetch("https://api.kie.ai/api/v1/flux/kontext/generate", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    console.log(`Calling KIE.AI API: ${modelConfig.endpoint} with model: ${modelConfig.model}`);
+    
+    // Prepare request body based on API type
+    let requestBody: any;
+    
+    if (modelConfig.apiType === 'flux') {
+      // Flux Kontext API format
+      requestBody = {
         prompt: prompt,
         aspectRatio: aspectRatio,
         model: modelConfig.model,
         outputFormat: "png",
         enableTranslation: true,
         promptUpsampling: false,
-        callBackUrl: callbackUrl
-      })
+        callBackUrl: callbackUrl,
+      };
+    } else if (modelConfig.apiType === 'gpt4o') {
+      // GPT-4o Image API format (uses 'size' instead of 'aspectRatio')
+      requestBody = {
+        prompt: prompt,
+        size: aspectRatio,
+        callBackUrl: callbackUrl,
+        isEnhance: false,
+        uploadCn: false,
+        nVariants: 1,
+        enableFallback: true,
+        fallbackModel: "FLUX_MAX"
+      };
+    }
+    
+    const kieResponse = await fetch(`https://api.kie.ai${modelConfig.endpoint}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody)
     });
 
     if (!kieResponse.ok) {
