@@ -40,6 +40,7 @@ interface AIVideo {
   video_topic: string;
   video_script: string | null;
   video_style: string;
+  video_generation_model: string;
   video_url: string | null;
   status: string;
   created_at: string;
@@ -68,6 +69,7 @@ const AIInfluencer = () => {
   const [videoTopic, setVideoTopic] = useState("");
   const [videoScript, setVideoScript] = useState("");
   const [videoStyle, setVideoStyle] = useState("");
+  const [videoGenerationModel, setVideoGenerationModel] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
@@ -75,6 +77,15 @@ const AIInfluencer = () => {
   // Video history state
   const [generatedVideos, setGeneratedVideos] = useState<AIVideo[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+
+  const VIDEO_MODELS = [
+    "Seedance 1.0",
+    "Vo3.1",
+    "Sora 2",
+    "Kling 2.5 T",
+    "Hailuo",
+    "grok-imagine"
+  ] as const;
 
   // Fetch characters
   const fetchCharacters = async () => {
@@ -154,10 +165,11 @@ const AIInfluencer = () => {
           await fetchGeneratedVideos();
           setActiveSection("manage");
           
-          setVideoTopic("");
-          setVideoScript("");
-          setVideoStyle("");
-          setSelectedCharacterId("");
+        setVideoTopic("");
+        setVideoScript("");
+        setVideoStyle("");
+        setVideoGenerationModel("");
+        setSelectedCharacterId("");
           
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
@@ -197,6 +209,11 @@ const AIInfluencer = () => {
       toast.error("Please enter a video style");
       return;
     }
+
+    if (!videoGenerationModel) {
+      toast.error("Please select a video generation model");
+      return;
+    }
     
     setIsGenerating(true);
     
@@ -215,10 +232,11 @@ const AIInfluencer = () => {
           character_name: selectedCharacter.name,
           character_bio: selectedCharacter.bio,
           character_image_url: selectedCharacter.image_url,
-          video_topic: videoTopic,
-          video_script: videoScript || null,
-          video_style: videoStyle,
-          status: 'processing'
+        video_topic: videoTopic,
+        video_script: videoScript || null,
+        video_style: videoStyle,
+        video_generation_model: videoGenerationModel,
+        status: 'processing'
         })
         .select()
         .single();
@@ -234,11 +252,12 @@ const AIInfluencer = () => {
           bio: selectedCharacter.bio,
           image_url: selectedCharacter.image_url
         },
-        video: {
-          topic: videoTopic,
-          script: videoScript || "Auto-generate script based on topic",
-          style: videoStyle
-        }
+      video: {
+        topic: videoTopic,
+        script: videoScript || "Auto-generate script based on topic",
+        style: videoStyle,
+        model: videoGenerationModel
+      }
       };
       
       const webhookResponse = await fetch(
@@ -967,9 +986,38 @@ const AIInfluencer = () => {
                     />
                   </div>
 
+                  <div className="space-y-3 group">
+                    <Label htmlFor="video-model" className="text-sm font-bold flex items-center gap-2 text-foreground">
+                      <Zap className="w-4 h-4 text-primary group-hover:animate-pulse" />
+                      Video Generation Model
+                    </Label>
+                    <Select
+                      value={videoGenerationModel}
+                      onValueChange={setVideoGenerationModel}
+                    >
+                      <SelectTrigger 
+                        id="video-model"
+                        className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50 bg-background"
+                      >
+                        <SelectValue placeholder="Select a model..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-2 z-50">
+                        {VIDEO_MODELS.map((model) => (
+                          <SelectItem 
+                            key={model} 
+                            value={model}
+                            className="cursor-pointer hover:bg-primary/10"
+                          >
+                            {model}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <Button 
                     onClick={handleGenerateVideo}
-                    disabled={isGenerating || !selectedCharacterId || !videoTopic || !videoStyle}
+                    disabled={isGenerating || !selectedCharacterId || !videoTopic || !videoStyle || !videoGenerationModel}
                     className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-300 gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGenerating ? (
