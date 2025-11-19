@@ -6,55 +6,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Model mapping: UI model name -> KIE.AI configuration
+// Model mapping: Only actual KIE.AI models
 const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: string; apiType: 'flux' | 'gpt4o' }> = {
-  'nano-banana': {
-    model: 'gpt-image-1',
-    name: 'Nano Banana (GPT-4o)',
-    endpoint: '/api/v1/gpt4o-image/generate',
-    apiType: 'gpt4o'
-  },
-  'seedream': {
-    model: 'flux-kontext-pro',
-    name: 'Seedream (Flux Pro)',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
-  },
-  'seedream-4k': {
-    model: 'flux-kontext-max',
-    name: 'Seedream 4K (Flux Max)',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
-  },
-  'grok': {
-    model: 'gpt-image-1',
-    name: 'Grok (GPT-4o)',
-    endpoint: '/api/v1/gpt4o-image/generate',
-    apiType: 'gpt4o'
-  },
-  'flux': {
-    model: 'flux-kontext-pro',
-    name: 'Flux Pro',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
-  },
-  'mystic': {
-    model: 'flux-kontext-max',
-    name: 'Mystic (Flux Max)',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
-  },
-  'ideogram': {
-    model: 'flux-kontext-max',
-    name: 'Ideogram 3 (Flux Max)',
-    endpoint: '/api/v1/flux/kontext/generate',
-    apiType: 'flux'
-  },
   'auto': {
     model: 'flux-kontext-pro',
     name: 'Auto (Flux Pro)',
     endpoint: '/api/v1/flux/kontext/generate',
     apiType: 'flux'
+  },
+  'flux-pro': {
+    model: 'flux-kontext-pro',
+    name: 'Flux Pro',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
+  },
+  'flux-max': {
+    model: 'flux-kontext-max',
+    name: 'Flux Max',
+    endpoint: '/api/v1/flux/kontext/generate',
+    apiType: 'flux'
+  },
+  'gpt-4o-image': {
+    model: 'gpt-image-1',
+    name: 'GPT-4o Image',
+    endpoint: '/api/v1/gpt4o-image/generate',
+    apiType: 'gpt4o'
   }
 };
 
@@ -64,7 +40,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "nano-banana" } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto" } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
@@ -103,7 +79,7 @@ serve(async (req) => {
     }
 
     // Get model configuration
-    const modelConfig = MODEL_CONFIGS[model] || MODEL_CONFIGS['nano-banana'];
+    const modelConfig = MODEL_CONFIGS[model] || MODEL_CONFIGS['auto'];
     console.log("Using KIE.AI model:", modelConfig);
 
     // Create database record first with pending status

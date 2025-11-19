@@ -16,7 +16,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('nano-banana');
+  const [selectedModel, setSelectedModel] = useState('auto');
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('Auto');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
@@ -649,7 +649,13 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                       {selectedModel === 'auto' && (
                         <Zap size={14} className="text-brand-blue" />
                       )}
-                      {selectedModel === 'nano-banana' && (
+                      {selectedModel === 'flux-pro' && (
+                        <Sparkles size={14} className="text-purple-500" />
+                      )}
+                      {selectedModel === 'flux-max' && (
+                        <Sparkles size={14} className="text-indigo-600" />
+                      )}
+                      {selectedModel === 'gpt-4o-image' && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -657,33 +663,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
                       )}
-                      {(selectedModel === 'seedream' || selectedModel === 'seedream-4k') && (
-                        <div className="w-3.5 h-3.5 bg-gradient-to-br from-brand-red to-brand-yellow rounded flex items-center justify-center">
-                          <span className="text-white font-bold text-[8px]">S</span>
-                        </div>
-                      )}
-                      {selectedModel === 'flux' && (
-                        <Sparkles size={14} className="text-purple-500" />
-                      )}
-                      {selectedModel === 'mystic' && (
-                        <Sparkles size={14} className="text-indigo-500" />
-                      )}
-                      {selectedModel === 'grok' && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                        </svg>
-                      )}
-                      {selectedModel === 'ideogram' && (
-                        <Image size={14} className="text-blue-500" />
-                      )}
                       {selectedModel === 'auto' && 'Auto'}
-                      {selectedModel === 'nano-banana' && 'Nano Banana'}
-                      {selectedModel === 'seedream' && 'Seedream'}
-                      {selectedModel === 'seedream-4k' && 'Seedream 4K'}
-                      {selectedModel === 'flux' && 'Flux'}
-                      {selectedModel === 'mystic' && 'Mystic'}
-                      {selectedModel === 'grok' && 'Grok'}
-                      {selectedModel === 'ideogram' && 'Ideogram 3'}
+                      {selectedModel === 'flux-pro' && 'Flux Pro'}
+                      {selectedModel === 'flux-max' && 'Flux Max'}
+                      {selectedModel === 'gpt-4o-image' && 'GPT-4o Image'}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
@@ -708,86 +691,50 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     </div>
                   </button>
 
-                  {/* Seedream 4 4K */}
+                  {/* Flux Pro */}
                   <button 
-                    onClick={() => setSelectedModel('seedream-4k')}
+                    onClick={() => setSelectedModel('flux-pro')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-red to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">S4</span>
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={16} className="text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Seedream 4 4K</span>
+                          <span className="font-semibold text-foreground text-sm">Flux Pro</span>
                           <Badge className="bg-brand-red text-primary text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
                             <Flame size={10} />
-                            TRENDING
+                            FAST
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">The only 4K with image references and strong aesthetics</p>
+                        <p className="text-xs text-muted-foreground">Fast generation with excellent quality</p>
                       </div>
                     </div>
                   </button>
 
-                  {/* Seedream */}
+                  {/* Flux Max */}
                   <button 
-                    onClick={() => setSelectedModel('seedream')}
+                    onClick={() => setSelectedModel('flux-max')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-yellow to-brand-blue rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">SD</span>
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={16} className="text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Seedream</span>
-                          <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                          <span className="font-semibold text-foreground text-sm">Flux Max</span>
+                          <Badge className="bg-brand-purple text-primary text-[10px] px-1.5 py-0 h-4">PREMIUM</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">Exceptional creativity</p>
+                        <p className="text-xs text-muted-foreground">Enhanced quality for complex scenes</p>
                       </div>
                     </div>
                   </button>
 
-                  {/* Flux */}
+                  {/* GPT-4o Image */}
                   <button 
-                    onClick={() => setSelectedModel('flux')}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-yellow to-brand-green rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">FX</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Flux</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Most loved by the AI community</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Mystic */}
-                  <button 
-                    onClick={() => setSelectedModel('mystic')}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-yellow to-brand-red rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">MY</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Mystic</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Freepik AI at 2K resolution</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Google */}
-                  <button 
-                    onClick={() => setSelectedModel('nano-banana')}
+                    onClick={() => setSelectedModel('gpt-4o-image')}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -801,48 +748,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Google</span>
+                          <span className="font-semibold text-foreground text-sm">GPT-4o Image</span>
+                          <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">Photorealism and prompt adherence</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Grok */}
-                  <button 
-                    onClick={() => setSelectedModel('grok')}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src="/src/assets/model-logos/grok.png" 
-                        alt="Grok" 
-                        className="w-8 h-8 rounded-lg object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Grok</span>
-                          <Badge className="bg-brand-purple text-primary text-[10px] px-1.5 py-0 h-4">PREMIUM</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Maximum quality and detail</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Ideogram 3 */}
-                  <button 
-                    onClick={() => setSelectedModel('ideogram')}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-green to-brand-blue rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-bold text-xs">I3</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Ideogram 3</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Typography and graphic design</p>
+                        <p className="text-xs text-muted-foreground">OpenAI's advanced image model</p>
                       </div>
                     </div>
                   </button>
