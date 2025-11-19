@@ -342,7 +342,7 @@ const ImageViewerModal = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-xs">Created:</span>
-                  <span className="text-white text-xs font-medium">May 12, 2025</span>
+                  <span className="text-white text-xs font-medium">{imageData.timestamp}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400 text-xs">Model:</span>
