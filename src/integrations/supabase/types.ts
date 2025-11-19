@@ -47,6 +47,65 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_videos: {
+        Row: {
+          character_bio: string
+          character_id: string
+          character_image_url: string
+          character_name: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          status: string
+          user_id: string
+          video_script: string | null
+          video_style: string
+          video_topic: string
+          video_url: string | null
+          webhook_response: Json | null
+        }
+        Insert: {
+          character_bio: string
+          character_id: string
+          character_image_url: string
+          character_name: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          user_id: string
+          video_script?: string | null
+          video_style: string
+          video_topic: string
+          video_url?: string | null
+          webhook_response?: Json | null
+        }
+        Update: {
+          character_bio?: string
+          character_id?: string
+          character_image_url?: string
+          character_name?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+          video_script?: string | null
+          video_style?: string
+          video_topic?: string
+          video_url?: string | null
+          webhook_response?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_videos_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "ai_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
