@@ -3,40 +3,38 @@ import { Clock, AppWindow, Users } from 'lucide-react';
 interface ActionButtonsProps {
   activeView: 'tools' | 'creations' | 'community';
   onViewChange: (view: 'tools' | 'creations' | 'community') => void;
+  hasSelectedType?: boolean;
 }
 
-const ActionButtons = ({ activeView, onViewChange }: ActionButtonsProps) => {
+const ActionButtons = ({ activeView, onViewChange, hasSelectedType = false }: ActionButtonsProps) => {
+  // Default order: Apps, Creations, Community
+  // When type selected: Creations, Community, Apps
+  const buttons = hasSelectedType ? [
+    { view: 'creations' as const, icon: Clock, label: 'Creations' },
+    { view: 'community' as const, icon: Users, label: 'Community' },
+    { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
+  ] : [
+    { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
+    { view: 'creations' as const, icon: Clock, label: 'Creations' },
+    { view: 'community' as const, icon: Users, label: 'Community' },
+  ];
+
   return (
     <div className="w-full mt-8 mb-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => onViewChange('tools')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'tools' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <AppWindow size={18} />
-            <span className="font-medium text-sm">Apps</span>
-          </button>
-          <button 
-            onClick={() => onViewChange('creations')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'creations' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <Clock size={18} />
-            <span className="font-medium text-sm">Creations</span>
-          </button>
-          <button 
-            onClick={() => onViewChange('community')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
-              activeView === 'community' ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
-            }`}
-          >
-            <Users size={18} />
-            <span className="font-medium text-sm">Community</span>
-          </button>
+          {buttons.map(({ view, icon: Icon, label }) => (
+            <button
+              key={view}
+              onClick={() => onViewChange(view)}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition ${
+                activeView === view ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-secondary/80'
+              }`}
+            >
+              <Icon size={18} />
+              <span className="font-medium text-sm">{label}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

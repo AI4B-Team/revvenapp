@@ -391,6 +391,7 @@ const Create = () => {
             <ActionButtons 
               activeView={activeView} 
               onViewChange={setActiveView}
+              hasSelectedType={!!selectedType}
             />
             
             {/* Gallery Views */}
