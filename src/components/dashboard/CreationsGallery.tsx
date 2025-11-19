@@ -39,11 +39,56 @@ interface GalleryProps {
 const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [savedItems, setSavedItems] = useState(new Set());
-  const [shareModalOpen, setShareModalOpen] = useState<number | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState<number | string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
 
-  const allItems = type === 'creations' ? creationsData : communityData;
+  // Fetch generated images from Supabase
+  useEffect(() => {
+    const fetchGeneratedImages = async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) return;
+
+      const { data, error } = await supabase
+        .from('generated_images')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching generated images:', error);
+        return;
+      }
+
+      if (data) {
+        const mappedItems: GalleryItem[] = data.map((img) => ({
+          id: img.id,
+          title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
+          thumbnail: img.image_url || '/placeholder.svg',
+          type: 'image',
+          creator: {
+            name: 'You',
+            avatar: '/placeholder.svg'
+          },
+          likes: 0,
+          isEdited: false,
+          isUpscaled: false,
+          createdAt: img.created_at || new Date().toISOString(),
+          status: img.status as 'pending' | 'processing' | 'completed' | 'error'
+        }));
+        setGeneratedItems(mappedItems);
+      }
+    };
+
+    fetchGeneratedImages();
+
+    // Poll every 8 seconds for updates
+    const interval = setInterval(fetchGeneratedImages, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const allItems = type === 'creations' ? [...generatedItems, ...creationsData] : communityData;
 
   // Apply filters
   const items = allItems.filter(item => {
@@ -80,7 +125,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
     return true;
   });
 
-  const toggleLike = (id: number) => {
+  const toggleLike = (id: number | string) => {
     setLikedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -92,7 +137,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
     });
   };
 
-  const toggleSave = (id: number) => {
+  const toggleSave = (id: number | string) => {
     setSavedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -104,12 +149,12 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
     });
   };
 
-  const handleShare = (id: number) => {
+  const handleShare = (id: number | string) => {
     setShareModalOpen(id);
     setCopiedLink(false);
   };
 
-  const copyShareLink = (id: number) => {
+  const copyShareLink = (id: number | string) => {
     const link = `${window.location.origin}/creation/${id}`;
     navigator.clipboard.writeText(link);
     setCopiedLink(true);

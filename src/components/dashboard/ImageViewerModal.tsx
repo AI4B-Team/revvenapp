@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 
 interface ImageData {
-  id: number;
+  id: number | string;
   type: 'image' | 'video';
   thumbnail: string;
   title: string;
