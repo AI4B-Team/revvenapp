@@ -40,18 +40,16 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'flux'
   },
   'seedream-4': {
-    model: 'seedream-v4-edit',
+    model: 'bytedance/seedream-v4-text-to-image',
     name: 'Seedream 4.0',
-    endpoint: '/v1/models/bytedance/seedream-v4-edit/predictions',
-    apiType: 'replicate',
-    owner: 'bytedance'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'seedream'
   },
   'seedream': {
-    model: 'seedream-v3',
+    model: 'bytedance/seedream-v3-text-to-image',
     name: 'Seedream 3.0',
-    endpoint: '/v1/models/bytedance/seedream/predictions',
-    apiType: 'replicate',
-    owner: 'bytedance'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'seedream'
   },
   'qwen': {
     model: 'qwen-image',
@@ -184,6 +182,23 @@ serve(async (req) => {
         nVariants: 1,
         enableFallback: true,
         fallbackModel: "FLUX_MAX"
+      };
+    } else if (modelConfig.apiType === 'seedream') {
+      // Seedream API format (text-to-image)
+      requestBody = {
+        model: modelConfig.model,
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          image_size: aspectRatio === "1:1" ? "square_hd" : 
+                     aspectRatio === "16:9" ? "landscape_16_9" : 
+                     aspectRatio === "9:16" ? "portrait_16_9" : 
+                     aspectRatio === "4:3" ? "landscape_4_3" : 
+                     aspectRatio === "3:2" ? "landscape_3_2" : 
+                     aspectRatio === "21:9" ? "landscape_21_9" : "square_hd",
+          image_resolution: "2K",
+          max_images: 1
+        }
       };
     } else if (modelConfig.apiType === 'replicate') {
       // Replicate-style API format
