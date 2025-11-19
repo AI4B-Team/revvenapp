@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +6,224 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film } from "lucide-react";
+import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, Loader2, CheckCircle2, X, Trash2, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+interface AICharacter {
+  id: string;
+  name: string;
+  bio: string;
+  image_url: string;
+  created_at: string;
+}
 
 const AIInfluencer = () => {
-  const [activeSection, setActiveSection] = useState<"character" | "video">("character");
+  const [activeSection, setActiveSection] = useState<"character" | "video" | "manage">("character");
+  
+  // Character form state
+  const [characterName, setCharacterName] = useState("");
+  const [characterBio, setCharacterBio] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Characters list state
+  const [characters, setCharacters] = useState<AICharacter[]>([]);
+  const [isLoadingCharacters, setIsLoadingCharacters] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [characterToDelete, setCharacterToDelete] = useState<string | null>(null);
+
+  // Fetch characters
+  const fetchCharacters = async () => {
+    setIsLoadingCharacters(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsLoadingCharacters(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('ai_characters')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching characters:', error);
+        toast.error('Failed to load characters');
+      } else {
+        setCharacters(data || []);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    } finally {
+      setIsLoadingCharacters(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCharacters();
+  }, []);
+
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Image size must be less than 10MB');
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
+  };
+
+  // Handle character creation
+  const handleCreateCharacter = async () => {
+    if (!characterName.trim()) {
+      toast.error('Please enter a character name');
+      return;
+    }
+    
+    if (!characterBio.trim()) {
+      toast.error('Please enter a character bio');
+      return;
+    }
+    
+    if (!selectedFile) {
+      toast.error('Please select a reference image');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to create a character');
+        setIsUploading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const { data: uploadData, error: uploadError } = await supabase.functions.invoke(
+        'upload-character-image',
+        {
+          body: formData,
+        }
+      );
+
+      if (uploadError || !uploadData?.url) {
+        console.error('Upload error:', uploadError);
+        toast.error('Failed to upload image. Please try again.');
+        setIsUploading(false);
+        return;
+      }
+
+      const { error: dbError } = await supabase
+        .from('ai_characters')
+        .insert({
+          user_id: user.id,
+          name: characterName.trim(),
+          bio: characterBio.trim(),
+          image_url: uploadData.url,
+          cloudinary_public_id: uploadData.public_id,
+        });
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        toast.error('Failed to save character. Please try again.');
+        setIsUploading(false);
+        return;
+      }
+
+      toast.success('Character created successfully!', {
+        description: `${characterName} has been added to your collection`,
+      });
+
+      setCharacterName('');
+      setCharacterBio('');
+      setSelectedFile(null);
+      setImagePreview(null);
+      
+      const fileInput = document.getElementById('reference-image') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+
+      fetchCharacters();
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle character deletion
+  const handleDeleteCharacter = async () => {
+    if (!characterToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('ai_characters')
+        .delete()
+        .eq('id', characterToDelete);
+
+      if (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete character');
+        return;
+      }
+
+      toast.success('Character deleted successfully');
+      fetchCharacters();
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setDeleteDialogOpen(false);
+      setCharacterToDelete(null);
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    setCharacterToDelete(id);
+    setDeleteDialogOpen(true);
+  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -68,6 +282,19 @@ const AIInfluencer = () => {
                 <span className="font-semibold text-base">Create Character</span>
               </Button>
               <Button
+                variant={activeSection === "manage" ? "default" : "ghost"}
+                onClick={() => setActiveSection("manage")}
+                size="lg"
+                className={`flex items-center gap-3 transition-all duration-300 px-8 rounded-xl ${
+                  activeSection === "manage" 
+                    ? "shadow-xl scale-105" 
+                    : "hover:bg-muted/50 hover:scale-105"
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-semibold text-base">My Characters</span>
+              </Button>
+              <Button
                 variant={activeSection === "video" ? "default" : "ghost"}
                 onClick={() => setActiveSection("video")}
                 size="lg"
@@ -109,6 +336,9 @@ const AIInfluencer = () => {
                     <Input 
                       id="influencer-name" 
                       placeholder="e.g., Luna Martinez" 
+                      value={characterName}
+                      onChange={(e) => setCharacterName(e.target.value)}
+                      disabled={isUploading}
                       className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.02] border-2 hover:border-primary/50"
                     />
                   </div>
@@ -121,6 +351,9 @@ const AIInfluencer = () => {
                     <Textarea 
                       id="influencer-bio"
                       placeholder="Describe your influencer's personality, interests, and style... e.g., A fitness enthusiast who loves outdoor adventures and healthy living"
+                      value={characterBio}
+                      onChange={(e) => setCharacterBio(e.target.value)}
+                      disabled={isUploading}
                       className="min-h-[160px] text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.01] border-2 hover:border-primary/50"
                     />
                   </div>
@@ -130,27 +363,162 @@ const AIInfluencer = () => {
                       <Upload className="w-4 h-4 text-primary group-hover:animate-pulse" />
                       Reference image
                     </Label>
-                    <div className="relative border-2 border-dashed border-border hover:border-primary/50 rounded-lg p-6 transition-all duration-300 hover:bg-primary/5 cursor-pointer group">
-                      <Input 
-                        id="reference-image" 
-                        type="file" 
-                        accept="image/*"
-                        className="h-full cursor-pointer file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-primary file:to-primary/80 file:text-primary-foreground file:font-semibold file:cursor-pointer hover:file:from-primary/90 hover:file:to-primary/70 file:transition-all file:shadow-md hover:file:shadow-lg"
-                      />
-                    </div>
+                    {imagePreview ? (
+                      <div className="relative border-2 border-primary/50 rounded-lg p-4 bg-primary/5">
+                        <div className="flex items-start gap-4">
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="w-32 h-32 object-cover rounded-lg shadow-lg"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                Image selected
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRemoveImage}
+                                disabled={isUploading}
+                                className="h-8 w-8 p-0 hover:bg-destructive/10"
+                              >
+                                <X className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {selectedFile?.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative border-2 border-dashed border-border hover:border-primary/50 rounded-lg p-6 transition-all duration-300 hover:bg-primary/5 cursor-pointer group">
+                        <Input 
+                          id="reference-image" 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          disabled={isUploading}
+                          className="h-full cursor-pointer file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:bg-gradient-to-r file:from-primary file:to-primary/80 file:text-primary-foreground file:font-semibold file:cursor-pointer hover:file:from-primary/90 hover:file:to-primary/70 file:transition-all file:shadow-md hover:file:shadow-lg"
+                        />
+                      </div>
+                    )}
+                    
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Star className="w-3 h-3" />
-                      Upload a high-quality reference image for best results
+                      Upload a high-quality reference image for best results (max 10MB)
                     </p>
                   </div>
 
-                  <Button className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-300 gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-[1.02] group">
-                    <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
-                    Generate Character
-                    <Zap className="w-5 h-5" />
+                  <Button 
+                    onClick={handleCreateCharacter}
+                    disabled={isUploading}
+                    className="w-full h-14 text-lg font-bold shadow-2xl hover:shadow-primary/50 transition-all duration-300 gap-3 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                        Creating Character...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
+                        Generate Character
+                        <Zap className="w-5 h-5" />
+                      </>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
+            )}
+
+            {/* My Characters Section */}
+            {activeSection === "manage" && (
+              <div className="animate-fade-in">
+                <Card className="border-2 border-primary/20 shadow-2xl overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 mb-8">
+                  <CardHeader className="border-b border-border/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
+                          <Users className="w-6 h-6 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-3xl font-bold">My AI Characters</CardTitle>
+                          <CardDescription className="text-base mt-1">
+                            {characters.length} character{characters.length !== 1 ? 's' : ''} created
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => setActiveSection("character")}
+                        className="gap-2"
+                      >
+                        <User className="w-4 h-4" />
+                        Create New
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-8">
+                    {isLoadingCharacters ? (
+                      <div className="flex items-center justify-center py-16">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      </div>
+                    ) : characters.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="p-4 rounded-full bg-muted mb-4">
+                          <Users className="w-12 h-12 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2">No characters yet</h3>
+                        <p className="text-muted-foreground mb-6">Create your first AI character to get started</p>
+                        <Button
+                          onClick={() => setActiveSection("character")}
+                          className="gap-2"
+                        >
+                          <User className="w-4 h-4" />
+                          Create Character
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {characters.map((character) => (
+                          <Card key={character.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
+                            <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                              <img
+                                src={character.image_url}
+                                alt={character.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-background/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            </div>
+                            <CardContent className="p-4">
+                              <h3 className="font-bold text-lg mb-2 line-clamp-1">{character.name}</h3>
+                              <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{character.bio}</p>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="flex-1 gap-2"
+                                  onClick={() => confirmDelete(character.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
             {/* Create Video Section */}
@@ -235,6 +603,27 @@ const AIInfluencer = () => {
           </div>
         </main>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Character</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this character? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCharacter}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
