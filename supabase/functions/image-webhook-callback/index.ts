@@ -29,10 +29,26 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Treat any 200 code as success, newer API doesn't send successFlag
     if (code === 200) {
       // Success case - download and upload to Cloudinary
-      const imageUrl = data.info?.resultImageUrl || data.response?.resultImageUrl;
+      // Different KIE.AI models return the result URL in different places
+      //  - Flux/GPT4o: data.info.resultImageUrl or data.response.resultImageUrl
+      //  - Seedream: data.resultJson = '{"resultUrls":["https://..."]}'
+      let imageUrl = data.info?.resultImageUrl || data.response?.resultImageUrl;
+
+      // Fallback for Seedream-style payloads
+      if (!imageUrl && data.resultJson) {
+        try {
+          const parsed = typeof data.resultJson === "string" ? JSON.parse(data.resultJson) : data.resultJson;
+          const firstUrl = parsed?.resultUrls?.[0];
+          if (firstUrl && typeof firstUrl === "string") {
+            imageUrl = firstUrl;
+          }
+        } catch (e) {
+          console.error("Failed to parse resultJson:", e);
+        }
+      }
+
       if (!imageUrl) {
         throw new Error("Missing resultImageUrl in callback payload");
       }
