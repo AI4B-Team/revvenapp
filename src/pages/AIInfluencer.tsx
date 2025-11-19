@@ -433,7 +433,7 @@ const AIInfluencer = () => {
   if (showCountdown) {
     return (
       <VideoGenerationCountdown
-        totalSeconds={300}
+        totalSeconds={600}
         onComplete={() => {
           setShowCountdown(false);
           toast.info("Still processing... We'll notify you when it's ready.");
@@ -1226,7 +1226,7 @@ const AIInfluencer = () => {
 
       {showCountdown && (
         <VideoGenerationCountdown 
-          totalSeconds={300} 
+          totalSeconds={600} 
           onComplete={() => setShowCountdown(false)} 
         />
       )}
