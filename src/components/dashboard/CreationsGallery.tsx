@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Play, Bookmark, Heart, Download, Edit, RefreshCw, 
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ImageViewerModal from './ImageViewerModal';
 import { creationsData, communityData, type GalleryItem } from '@/data/creationsData';
+import { supabase } from "@/integrations/supabase/client";
 
 interface FilterState {
   contentType: string;

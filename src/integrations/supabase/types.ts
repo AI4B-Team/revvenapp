@@ -116,7 +116,7 @@ export type Database = {
           created_at: string | null
           error_message: string | null
           id: string
-          image_url: string
+          image_url: string | null
           kie_task_id: string | null
           model: string | null
           prompt: string
@@ -129,7 +129,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
-          image_url: string
+          image_url?: string | null
           kie_task_id?: string | null
           model?: string | null
           prompt: string
@@ -142,7 +142,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
-          image_url?: string
+          image_url?: string | null
           kie_task_id?: string | null
           model?: string | null
           prompt?: string
