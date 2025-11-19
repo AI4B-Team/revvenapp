@@ -1,9 +1,11 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -12,11 +14,60 @@ interface GenerationInputProps {
 
 const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
   const isAudioMode = selectedType === 'Audio';
   const isDesignMode = selectedType === 'Design';
   const isContentMode = selectedType === 'Content';
+  
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast({
+        title: "Prompt required",
+        description: "Please describe what you want to create",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      console.log("Starting image generation...");
+      
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: { 
+          prompt: prompt.trim(),
+          aspectRatio: "1:1"
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Image generated!",
+        description: "Your image has been created successfully",
+      });
+
+      console.log("Generated image:", data.image);
+      
+      // Clear prompt after successful generation
+      setPrompt('');
+      
+    } catch (error) {
+      console.error("Generation error:", error);
+      toast({
+        title: "Generation failed",
+        description: error.message || "Failed to generate image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   return (
     <div className="max-w-6xl mx-auto mb-4">
@@ -62,7 +113,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
           </div>
           <div className="flex-1">
             <textarea 
-              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              disabled={isGenerating}
+              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50"
               rows={3}
               placeholder="Describe what you want to create..."
             />
@@ -814,8 +868,19 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap">
-                    Generate For Free!
+                  <button 
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !prompt.trim()}
+                    className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      "Generate For Free!"
+                    )}
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-xs p-4">

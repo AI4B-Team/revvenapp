@@ -109,6 +109,39 @@ export type Database = {
           },
         ]
       }
+      generated_images: {
+        Row: {
+          aspect_ratio: string | null
+          cloudinary_public_id: string | null
+          created_at: string | null
+          id: string
+          image_url: string
+          model: string | null
+          prompt: string
+          user_id: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          cloudinary_public_id?: string | null
+          created_at?: string | null
+          id?: string
+          image_url: string
+          model?: string | null
+          prompt: string
+          user_id: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          cloudinary_public_id?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          model?: string | null
+          prompt?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
