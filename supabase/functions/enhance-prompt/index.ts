@@ -128,6 +128,17 @@ serve(async (req) => {
       throw new Error("No enhanced prompt generated. Check logs for full response.");
     }
 
+    // Strip markdown formatting (bold, italic, headers, etc.)
+    enhancedPrompt = enhancedPrompt
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold **text**
+      .replace(/\*([^*]+)\*/g, '$1')     // Remove italic *text*
+      .replace(/_{1,2}([^_]+)_{1,2}/g, '$1') // Remove underline _text_ or __text__
+      .replace(/^#+\s+/gm, '')           // Remove markdown headers
+      .replace(/\n{3,}/g, '\n\n')        // Collapse multiple newlines
+      .trim();
+
+    console.log("Final cleaned enhanced prompt:", enhancedPrompt);
+
     console.log("Enhanced prompt:", enhancedPrompt);
 
     return new Response(
