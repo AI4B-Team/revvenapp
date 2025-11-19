@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import grokLogo from '@/assets/model-logos/grok.png';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -966,7 +967,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <img src="/lovable-uploads/model-logos/grok.png" alt="Grok" className="w-6 h-6" />
+                        <img src={grokLogo} alt="Grok" className="w-6 h-6" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
