@@ -560,103 +560,135 @@ const AIInfluencer = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/[0.03]">
       <Sidebar />
       <div className="flex-1 ml-64">
         <Header />
         <main className="p-8 pt-24">
-          <div className="max-w-6xl mx-auto">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-10 mb-10 shadow-2xl animate-fade-in">
+          <div className="max-w-7xl mx-auto space-y-8">
+            {/* Premium Hero Section */}
+            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary/95 to-primary/80 p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] animate-fade-in border border-white/10">
               <div className="relative z-10">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm animate-pulse">
-                    <Sparkles className="w-8 h-8 text-white" />
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-white/30 rounded-2xl blur-lg group-hover:bg-white/40 transition-all duration-300" />
+                    <div className="relative p-4 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-inner">
+                      <Sparkles className="w-10 h-10 text-white drop-shadow-lg" />
+                    </div>
                   </div>
-                  <h1 className="text-5xl font-bold text-white drop-shadow-lg">AI Influencer Studio</h1>
+                  <div>
+                    <h1 className="text-6xl font-black text-white drop-shadow-2xl tracking-tight">AI Influencer Studio</h1>
+                    <div className="h-1 w-32 bg-white/40 rounded-full mt-2" />
+                  </div>
                 </div>
-                <p className="text-white/90 text-xl font-medium mb-6">Create stunning AI-powered influencer characters and videos with cutting-edge technology</p>
+                <p className="text-white/95 text-xl font-medium mb-8 max-w-3xl leading-relaxed">Create stunning AI-powered influencer characters and cinematic videos with cutting-edge technology</p>
                 
-                {/* Stats */}
-                <div className="flex gap-6 mt-8">
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                    <Star className="w-5 h-5 text-yellow-300" />
-                    <span className="text-white font-semibold">Premium Quality</span>
+                {/* Premium Stats Badges */}
+                <div className="flex flex-wrap gap-4 mt-10">
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
+                    <div className="relative flex items-center gap-3 bg-white/15 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20 shadow-lg">
+                      <Star className="w-6 h-6 text-yellow-300 drop-shadow-glow" />
+                      <span className="text-white font-bold text-sm tracking-wide">Premium Quality</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                    <Zap className="w-5 h-5 text-yellow-300" />
-                    <span className="text-white font-semibold">Instant Generation</span>
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
+                    <div className="relative flex items-center gap-3 bg-white/15 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20 shadow-lg">
+                      <Zap className="w-6 h-6 text-yellow-300 drop-shadow-glow" />
+                      <span className="text-white font-bold text-sm tracking-wide">Instant Generation</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                    <Film className="w-5 h-5 text-yellow-300" />
-                    <span className="text-white font-semibold">HD Quality</span>
+                  <div className="group relative">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-xl blur opacity-60 group-hover:opacity-100 transition duration-300" />
+                    <div className="relative flex items-center gap-3 bg-white/15 backdrop-blur-xl px-6 py-3 rounded-xl border border-white/20 shadow-lg">
+                      <Film className="w-6 h-6 text-yellow-300 drop-shadow-glow" />
+                      <span className="text-white font-bold text-sm tracking-wide">4K Quality</span>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Animated Background Elements */}
-              <div className="absolute -top-10 -right-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+              {/* Premium Animated Background */}
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-white/20 to-white/5 rounded-full blur-3xl animate-pulse" />
+              <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-tr from-white/15 to-transparent rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
+              <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute bottom-1/4 left-1/2 w-56 h-56 bg-white/5 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}} />
             </div>
 
-            {/* Section Toggle */}
-            <div className="flex gap-4 mb-10 p-2 bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50 rounded-2xl border-2 border-border/50 shadow-lg w-fit mx-auto backdrop-blur-sm">
-              <Button
-                variant={activeSection === "character" ? "default" : "ghost"}
-                onClick={() => setActiveSection("character")}
-                size="lg"
-                className={`flex items-center gap-3 transition-all duration-300 px-8 rounded-xl ${
-                  activeSection === "character" 
-                    ? "shadow-xl scale-105" 
-                    : "hover:bg-muted/50 hover:scale-105"
-                }`}
-              >
-                <User className="w-5 h-5" />
-                <span className="font-semibold text-base">Create Character</span>
-              </Button>
-              <Button
-                variant={activeSection === "manage" ? "default" : "ghost"}
-                onClick={() => setActiveSection("manage")}
-                size="lg"
-                className={`flex items-center gap-3 transition-all duration-300 px-8 rounded-xl ${
-                  activeSection === "manage" 
-                    ? "shadow-xl scale-105" 
-                    : "hover:bg-muted/50 hover:scale-105"
-                }`}
-              >
-                <Users className="w-5 h-5" />
-                <span className="font-semibold text-base">My Characters</span>
-              </Button>
-              <Button
-                variant={activeSection === "video" ? "default" : "ghost"}
-                onClick={() => setActiveSection("video")}
-                size="lg"
-                className={`flex items-center gap-3 transition-all duration-300 px-8 rounded-xl ${
-                  activeSection === "video" 
-                    ? "shadow-xl scale-105" 
-                    : "hover:bg-muted/50 hover:scale-105"
-                }`}
-              >
-                <Video className="w-5 h-5" />
-                <span className="font-semibold text-base">Create Video</span>
-              </Button>
+            {/* Premium Section Toggle */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-[1.5rem] blur-lg opacity-75 group-hover:opacity-100 transition duration-300" />
+              <div className="relative flex gap-3 p-2 bg-gradient-to-br from-card/95 via-card to-card/95 rounded-[1.5rem] border-2 border-primary/20 shadow-2xl backdrop-blur-xl w-fit mx-auto">
+                <Button
+                  variant={activeSection === "character" ? "default" : "ghost"}
+                  onClick={() => setActiveSection("character")}
+                  size="lg"
+                  className={`relative flex items-center gap-3 transition-all duration-500 px-10 py-6 rounded-xl font-bold text-base overflow-hidden ${
+                    activeSection === "character" 
+                      ? "shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105 bg-gradient-to-br from-primary to-primary/90" 
+                      : "hover:bg-muted/60 hover:scale-105 hover:shadow-lg"
+                  }`}
+                >
+                  {activeSection === "character" && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
+                  )}
+                  <User className={`w-5 h-5 relative z-10 ${activeSection === "character" ? "animate-pulse" : ""}`} />
+                  <span className="relative z-10">Create Character</span>
+                </Button>
+                <Button
+                  variant={activeSection === "manage" ? "default" : "ghost"}
+                  onClick={() => setActiveSection("manage")}
+                  size="lg"
+                  className={`relative flex items-center gap-3 transition-all duration-500 px-10 py-6 rounded-xl font-bold text-base overflow-hidden ${
+                    activeSection === "manage" 
+                      ? "shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105 bg-gradient-to-br from-primary to-primary/90" 
+                      : "hover:bg-muted/60 hover:scale-105 hover:shadow-lg"
+                  }`}
+                >
+                  {activeSection === "manage" && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
+                  )}
+                  <Users className={`w-5 h-5 relative z-10 ${activeSection === "manage" ? "animate-pulse" : ""}`} />
+                  <span className="relative z-10">My Creations</span>
+                </Button>
+                <Button
+                  variant={activeSection === "video" ? "default" : "ghost"}
+                  onClick={() => setActiveSection("video")}
+                  size="lg"
+                  className={`relative flex items-center gap-3 transition-all duration-500 px-10 py-6 rounded-xl font-bold text-base overflow-hidden ${
+                    activeSection === "video" 
+                      ? "shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105 bg-gradient-to-br from-primary to-primary/90" 
+                      : "hover:bg-muted/60 hover:scale-105 hover:shadow-lg"
+                  }`}
+                >
+                  {activeSection === "video" && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
+                  )}
+                  <Video className={`w-5 h-5 relative z-10 ${activeSection === "video" ? "animate-pulse" : ""}`} />
+                  <span className="relative z-10">Create Video</span>
+                </Button>
+              </div>
             </div>
 
             {/* Create Character Section */}
             {activeSection === "character" && (
-              <Card className="border-2 border-primary/20 shadow-2xl animate-fade-in overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-primary/20 transition-all duration-500">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-primary/10 to-transparent rounded-full blur-2xl" />
+              <Card className="relative overflow-hidden border-2 border-primary/30 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] bg-gradient-to-br from-card/98 via-card to-card/98 backdrop-blur-xl animate-fade-in">
+                {/* Premium Background Effects */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/8 to-transparent rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-primary/8 to-transparent rounded-full blur-3xl" />
                 
-                <CardHeader className="relative pb-8 border-b border-border/50">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
-                      <User className="w-6 h-6 text-primary-foreground" />
+                <CardHeader className="relative pb-8 border-b-2 border-border/30 bg-gradient-to-r from-transparent via-primary/5 to-transparent">
+                  <div className="flex items-center gap-5 mb-3">
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-gradient-to-br from-primary to-primary/60 rounded-2xl blur-md group-hover:blur-lg transition-all duration-300" />
+                      <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary via-primary/95 to-primary/90 shadow-xl border border-white/10">
+                        <User className="w-7 h-7 text-primary-foreground drop-shadow-lg" />
+                      </div>
                     </div>
                     <div>
-                      <CardTitle className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Create Your AI Character</CardTitle>
-                      <CardDescription className="text-base mt-1">Design your AI influencer's personality and appearance</CardDescription>
+                      <CardTitle className="text-4xl font-black bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text tracking-tight">Create Your AI Character</CardTitle>
+                      <CardDescription className="text-base mt-2 font-medium">Design your AI influencer's unique personality and stunning appearance</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
