@@ -62,10 +62,38 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
       }
 
       if (data) {
+        const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
+          switch (aspectRatio) {
+            case '1:1': return '1024x1024 px';
+            case '16:9': return '1344x768 px';
+            case '9:16': return '768x1344 px';
+            case '4:3': return '1024x768 px';
+            case '3:4': return '768x1024 px';
+            default: return '1024x1024 px';
+          }
+        };
+
+        const formatTimestamp = (dateString: string | null): string => {
+          if (!dateString) return 'Just now';
+          const date = new Date(dateString);
+          const now = new Date();
+          const diffMs = now.getTime() - date.getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 1) return 'Just now';
+          if (diffMins < 60) return `${diffMins} min ago`;
+          if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+          if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        };
+
         const mappedItems: GalleryItem[] = data.map((img) => ({
           id: img.id,
           title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
           thumbnail: img.image_url || '/placeholder.svg',
+          url: img.image_url || undefined,
           type: 'image',
           creator: {
             name: 'You',
@@ -75,7 +103,12 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
           isEdited: false,
           isUpscaled: false,
           createdAt: img.created_at || new Date().toISOString(),
-          status: img.status as 'pending' | 'processing' | 'completed' | 'error'
+          status: img.status as 'pending' | 'processing' | 'completed' | 'error',
+          prompt: img.prompt,
+          model: img.model || 'Nano Banana (Flux Pro)',
+          aspectRatio: img.aspect_ratio || '1:1',
+          resolution: getResolutionFromAspectRatio(img.aspect_ratio),
+          timestamp: formatTimestamp(img.created_at)
         }));
         setGeneratedItems(mappedItems);
       }
