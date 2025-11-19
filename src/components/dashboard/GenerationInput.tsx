@@ -255,6 +255,21 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   <Tooltip>
                     <TooltipTrigger asChild>
+                      <button 
+                        onClick={onCharactersClick}
+                        className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                      >
+                        <User size={14} />
+                        Character
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Character</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
@@ -1012,7 +1027,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             <Popover open={isStyleDropdownOpen} onOpenChange={setIsStyleDropdownOpen}>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2">
-                  {selectedStyle}
+                  Style
                   <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
@@ -1100,7 +1115,6 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                       <Image size={14} />
                       References
-                      <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-64 bg-background border-border z-50">
