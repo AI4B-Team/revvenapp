@@ -37,18 +37,9 @@ serve(async (req) => {
         throw new Error("Missing resultImageUrl in callback payload");
       }
 
-      console.log("Image ready, downloading from:", imageUrl);
+      console.log("Image ready, passing URL directly to Cloudinary:", imageUrl);
 
-      const imageResponse = await fetch(imageUrl);
-      if (!imageResponse.ok) {
-        throw new Error("Failed to download image from KIE.AI");
-      }
-
-      const imageBuffer = await imageResponse.arrayBuffer();
-      const base64Image = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
-      const dataUrl = `data:image/png;base64,${base64Image}`;
-
-      // Upload to Cloudinary
+      // Upload original URL directly to Cloudinary (no base64 conversion to avoid large in-memory buffers)
       const cloudinaryApiKey = Deno.env.get("CLOUDINARY_API_KEY") || "357119741731559";
       const cloudinaryUploadPreset = "revven";
       const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dszt275xv/upload";
@@ -60,7 +51,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          file: dataUrl,
+          file: imageUrl,
           upload_preset: cloudinaryUploadPreset,
           folder: "generated_images",
         }),
