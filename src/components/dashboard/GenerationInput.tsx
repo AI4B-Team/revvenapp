@@ -21,6 +21,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [selectedStyle, setSelectedStyle] = useState('Auto');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
   const [numberOfImages, setNumberOfImages] = useState(1);
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
@@ -643,8 +644,8 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             ) : (
               <>
                 {/* Image Mode Controls */}
-                <Popover>
-                  <PopoverTrigger asChild>
+            <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
+              <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
                       {selectedModel === 'auto' && (
                         <Zap size={14} className="text-brand-blue" />
@@ -712,7 +713,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                 <div className="space-y-1 p-2">
                   {/* Auto */}
                   <button 
-                    onClick={() => setSelectedModel('auto')}
+                    onClick={() => {
+                      setSelectedModel('auto');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -731,7 +735,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Flux Pro */}
                   <button 
-                    onClick={() => setSelectedModel('flux-pro')}
+                    onClick={() => {
+                      setSelectedModel('flux-pro');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -753,7 +760,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Flux Max */}
                   <button 
-                    onClick={() => setSelectedModel('flux-max')}
+                    onClick={() => {
+                      setSelectedModel('flux-max');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -772,7 +782,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* GPT-4o Image */}
                   <button 
-                    onClick={() => setSelectedModel('gpt-4o-image')}
+                    onClick={() => {
+                      setSelectedModel('gpt-4o-image');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -796,7 +809,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Grok Imagine */}
                   <button 
-                    onClick={() => setSelectedModel('grok')}
+                    onClick={() => {
+                      setSelectedModel('grok');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -814,7 +830,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Seedream 4.0 */}
                   <button 
-                    onClick={() => setSelectedModel('seedream-4')}
+                    onClick={() => {
+                      setSelectedModel('seedream-4');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -833,7 +852,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Seedream 3.0 */}
                   <button 
-                    onClick={() => setSelectedModel('seedream')}
+                    onClick={() => {
+                      setSelectedModel('seedream');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -851,7 +873,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Qwen Image */}
                   <button 
-                    onClick={() => setSelectedModel('qwen')}
+                    onClick={() => {
+                      setSelectedModel('qwen');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -869,7 +894,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Nano Banana */}
                   <button 
-                    onClick={() => setSelectedModel('nano-banana')}
+                    onClick={() => {
+                      setSelectedModel('nano-banana');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -892,7 +920,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Ideogram V3 */}
                   <button 
-                    onClick={() => setSelectedModel('ideogram')}
+                    onClick={() => {
+                      setSelectedModel('ideogram');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
@@ -910,7 +941,10 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
                   {/* Imagen 4 */}
                   <button 
-                    onClick={() => setSelectedModel('imagen')}
+                    onClick={() => {
+                      setSelectedModel('imagen');
+                      setIsModelDropdownOpen(false);
+                    }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
                     <div className="flex items-center gap-3">
