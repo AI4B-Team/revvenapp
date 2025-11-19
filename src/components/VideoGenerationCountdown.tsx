@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Film, Clock, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Film, Clock, Sparkles, SkipForward } from "lucide-react";
 
 interface CountdownProps {
   totalSeconds: number;
   onComplete: () => void;
+  onSkip?: () => void;
 }
 
-export const VideoGenerationCountdown = ({ totalSeconds, onComplete }: CountdownProps) => {
+export const VideoGenerationCountdown = ({ totalSeconds, onComplete, onSkip }: CountdownProps) => {
   const [secondsRemaining, setSecondsRemaining] = useState(totalSeconds);
   
   useEffect(() => {
@@ -70,6 +72,18 @@ export const VideoGenerationCountdown = ({ totalSeconds, onComplete }: Countdown
             You can check back anytime to view or download it.
           </p>
         </div>
+        
+        {onSkip && (
+          <Button
+            onClick={onSkip}
+            variant="outline"
+            className="w-full gap-2 hover:bg-primary/10 border-primary/20"
+            size="lg"
+          >
+            <SkipForward className="w-5 h-5" />
+            Skip & Continue Working
+          </Button>
+        )}
       </Card>
     </div>
   );
