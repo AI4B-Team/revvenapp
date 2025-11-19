@@ -28,6 +28,15 @@ const Create = () => {
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [filters, setFilters] = useState({
+    contentType: 'All',
+    likes: false,
+    edits: false,
+    upscales: false,
+    startDate: '',
+    endDate: '',
+    searchQuery: ''
+  });
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -381,6 +390,8 @@ const Create = () => {
             <ContentTypeSelector selectedType={selectedType} onTypeChange={(type) => {
               setSelectedType(type);
               setActiveTab(type);
+              setActiveView('creations');
+              setFilters(prev => ({ ...prev, contentType: type }));
             }} />
             
             <GenerationInput 
@@ -399,9 +410,18 @@ const Create = () => {
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">CREATIONS</h2>
-                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+                  <FilterToolbar 
+                    zoom={zoom} 
+                    onZoomChange={setZoom}
+                    onFiltersChange={setFilters}
+                    selectedContentType={filters.contentType}
+                  />
                 </div>
-                <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
+                <CreationsGallery 
+                  type="creations" 
+                  columnsPerRow={zoomLevel}
+                  filters={filters}
+                />
               </div>
             )}
             
@@ -409,9 +429,18 @@ const Create = () => {
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">COMMUNITY</h2>
-                  <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
+                  <FilterToolbar 
+                    zoom={zoom} 
+                    onZoomChange={setZoom}
+                    onFiltersChange={setFilters}
+                    selectedContentType={filters.contentType}
+                  />
                 </div>
-                <CreationsGallery type="community" columnsPerRow={zoomLevel} />
+                <CreationsGallery 
+                  type="community" 
+                  columnsPerRow={zoomLevel}
+                  filters={filters}
+                />
               </div>
             )}
             

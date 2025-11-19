@@ -25,13 +25,14 @@ interface FilterToolbarProps {
   onZoomChange?: (zoom: number) => void;
   zoom?: number;
   onFiltersChange?: (filters: FilterState) => void;
+  selectedContentType?: string;
 }
 
-const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange }: FilterToolbarProps) => {
+const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType: externalContentType }: FilterToolbarProps) => {
   const [allDropdownOpen, setAllDropdownOpen] = useState(false);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const [selectedContentType, setSelectedContentType] = useState('All');
+  const [selectedContentType, setSelectedContentType] = useState(externalContentType || 'All');
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     likes: false,
@@ -40,6 +41,13 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange }: FilterToolb
     startDate: '',
     endDate: ''
   });
+
+  // Sync with external content type changes
+  useEffect(() => {
+    if (externalContentType && externalContentType !== selectedContentType) {
+      setSelectedContentType(externalContentType);
+    }
+  }, [externalContentType]);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
 
