@@ -22,6 +22,9 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
   const [numberOfImages, setNumberOfImages] = useState(1);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [isStyleDropdownOpen, setIsStyleDropdownOpen] = useState(false);
+  const [isAspectRatioDropdownOpen, setIsAspectRatioDropdownOpen] = useState(false);
+  const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
   const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
@@ -968,7 +971,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               </PopoverContent>
             </Popover>
             
-            <Popover>
+            <Popover open={isStyleDropdownOpen} onOpenChange={setIsStyleDropdownOpen}>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2">
                   {selectedStyle}
@@ -978,37 +981,55 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               <PopoverContent className="w-56 bg-background border-border z-50">
                 <div className="space-y-1">
                   <button 
-                    onClick={() => setSelectedStyle('Auto')}
+                    onClick={() => {
+                      setSelectedStyle('Auto');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Auto
                   </button>
                   <button 
-                    onClick={() => setSelectedStyle('Photorealistic')}
+                    onClick={() => {
+                      setSelectedStyle('Photorealistic');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Photorealistic
                   </button>
                   <button 
-                    onClick={() => setSelectedStyle('Artistic')}
+                    onClick={() => {
+                      setSelectedStyle('Artistic');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Artistic
                   </button>
                   <button 
-                    onClick={() => setSelectedStyle('Anime')}
+                    onClick={() => {
+                      setSelectedStyle('Anime');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Anime
                   </button>
                   <button 
-                    onClick={() => setSelectedStyle('3D Render')}
+                    onClick={() => {
+                      setSelectedStyle('3D Render');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     3D Render
                   </button>
                   <button 
-                    onClick={() => setSelectedStyle('Cartoon')}
+                    onClick={() => {
+                      setSelectedStyle('Cartoon');
+                      setIsStyleDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     Cartoon
@@ -1051,7 +1072,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   </PopoverContent>
                 </Popover>
             
-            <Popover>
+            <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                   {selectedAspectRatio}
@@ -1061,35 +1082,50 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               <PopoverContent className="w-48 bg-background border-border z-50">
                 <div className="space-y-1">
                   <button 
-                    onClick={() => setSelectedAspectRatio('1:1')}
+                    onClick={() => {
+                      setSelectedAspectRatio('1:1');
+                      setIsAspectRatioDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                   >
                     <div className="w-4 h-4 border-2 border-current"></div>
                     1:1 Square
                   </button>
                   <button 
-                    onClick={() => setSelectedAspectRatio('16:9')}
+                    onClick={() => {
+                      setSelectedAspectRatio('16:9');
+                      setIsAspectRatioDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                   >
                     <div className="w-5 h-3 border-2 border-current"></div>
                     16:9 Landscape
                   </button>
                   <button 
-                    onClick={() => setSelectedAspectRatio('9:16')}
+                    onClick={() => {
+                      setSelectedAspectRatio('9:16');
+                      setIsAspectRatioDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                   >
                     <div className="w-3 h-5 border-2 border-current"></div>
                     9:16 Portrait
                   </button>
                   <button 
-                    onClick={() => setSelectedAspectRatio('4:3')}
+                    onClick={() => {
+                      setSelectedAspectRatio('4:3');
+                      setIsAspectRatioDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                   >
                     <div className="w-5 h-4 border-2 border-current"></div>
                     4:3 Standard
                   </button>
                   <button 
-                    onClick={() => setSelectedAspectRatio('21:9')}
+                    onClick={() => {
+                      setSelectedAspectRatio('21:9');
+                      setIsAspectRatioDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
                   >
                     <div className="w-6 h-3 border-2 border-current"></div>
@@ -1098,7 +1134,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                 </div>
               </PopoverContent>
             </Popover>
-            <Popover>
+            <Popover open={isNumberOfImagesDropdownOpen} onOpenChange={setIsNumberOfImagesDropdownOpen}>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 text-foreground rounded-md text-sm font-medium flex items-center gap-2 whitespace-nowrap">
                   {numberOfImages} {numberOfImages === 1 ? 'Image' : 'Images'}
@@ -1108,31 +1144,46 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               <PopoverContent className="w-48 bg-background border-border z-50">
                 <div className="space-y-1">
                   <button 
-                    onClick={() => setNumberOfImages(1)}
+                    onClick={() => {
+                      setNumberOfImages(1);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     1 Image
                   </button>
                   <button 
-                    onClick={() => setNumberOfImages(2)}
+                    onClick={() => {
+                      setNumberOfImages(2);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     2 Images
                   </button>
                   <button 
-                    onClick={() => setNumberOfImages(3)}
+                    onClick={() => {
+                      setNumberOfImages(3);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     3 Images
                   </button>
                   <button 
-                    onClick={() => setNumberOfImages(4)}
+                    onClick={() => {
+                      setNumberOfImages(4);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     4 Images
                   </button>
                   <button 
-                    onClick={() => setNumberOfImages(5)}
+                    onClick={() => {
+                      setNumberOfImages(5);
+                      setIsNumberOfImagesDropdownOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                   >
                     5 Images
