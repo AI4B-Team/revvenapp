@@ -2,12 +2,15 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
 import { Share2, Send, DollarSign, Target, Calendar } from 'lucide-react';
+import { useState } from 'react';
 
 const Marketing = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         <main className="flex-1 overflow-y-auto p-8">
           <div className="mb-8">

@@ -25,6 +25,7 @@ const Index = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const timeFilters = ['All Time', '7 Days', '30 Days', '12 Months'];
 
@@ -244,10 +245,10 @@ const Index = () => {
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
         onAssetFilterChange={(filter) => {
-          setAssetFilter(filter || 'all');
-          setActiveTab(''); // Clear active tab when viewing assets
-          setSelectedType('');
+          setAssetFilter(filter);
+          setActiveTab('');
         }}
+        onCollapseChange={setIsSidebarCollapsed}
       />
 
       {identitySidebarOpen && (
@@ -257,7 +258,7 @@ const Index = () => {
         />
       )}
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header onCreateClick={() => setSelectedType(selectedType || 'Content')} />
         
         <main className="flex-1 overflow-auto bg-white">

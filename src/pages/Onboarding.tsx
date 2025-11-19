@@ -19,6 +19,7 @@ const Onboarding = () => {
   const [expandedSections, setExpandedSections] = useState(new Set(['getting-started']));
   const [activeTab, setActiveTab] = useState('Content');
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const sections = [
     {
@@ -183,9 +184,9 @@ const Onboarding = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onCollapseChange={setIsSidebarCollapsed} />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         <main className="flex-1 overflow-y-auto">

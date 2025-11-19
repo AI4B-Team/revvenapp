@@ -6,6 +6,7 @@ import Header from '@/components/dashboard/Header';
 const Integrations = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [integrations, setIntegrations] = useState([
     {
       id: 'square',
@@ -133,9 +134,9 @@ const Integrations = () => {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar />
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         <main className="flex-1 overflow-auto bg-gray-50">
