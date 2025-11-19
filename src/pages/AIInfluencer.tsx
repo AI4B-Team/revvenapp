@@ -248,11 +248,11 @@ const AIInfluencer = () => {
           character_name: selectedCharacter.name,
           character_bio: selectedCharacter.bio,
           character_image_url: selectedCharacter.image_url,
-        video_topic: videoTopic,
-        video_script: videoScript || null,
-        video_style: videoStyle,
-        video_generation_model: videoGenerationModel,
-        status: 'processing'
+          video_topic: videoTopic,
+          video_script: videoScript || null,
+          video_style: videoStyle,
+          video_generation_model: videoGenerationModel,
+          status: 'processing'
         })
         .select()
         .single();
@@ -261,28 +261,26 @@ const AIInfluencer = () => {
       
       setCurrentVideoId(videoRecord.id);
       
-      // Get Supabase URL for callback
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback`;
-      
       const webhookPayload = {
         video_id: videoRecord.id,
-        callback_url: callbackUrl,
         character: {
           name: selectedCharacter.name,
           bio: selectedCharacter.bio,
           image_url: selectedCharacter.image_url
         },
-      video: {
-        topic: videoTopic,
-        script: videoScript || "Auto-generate script based on topic",
-        style: videoStyle,
-        model: videoGenerationModel
-      }
+        video: {
+          topic: videoTopic,
+          script: videoScript || "Auto-generate script based on topic",
+          style: videoStyle,
+          model: videoGenerationModel
+        }
       };
       
-      console.log('Sending webhook with callback URL:', callbackUrl);
+      console.log('Sending webhook for video generation...');
+      toast.success("Video generation started!");
+      setShowCountdown(true);
       
+      // Call n8n webhook and get binary video response
       const webhookResponse = await fetch(
         'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
         {
@@ -298,13 +296,58 @@ const AIInfluencer = () => {
         throw new Error(`Webhook failed: ${webhookResponse.statusText}`);
       }
       
-      toast.success("Video generation started!");
-      setShowCountdown(true);
+      // Get the video binary data
+      const videoBlob = await webhookResponse.blob();
+      console.log('Received video binary, size:', videoBlob.size);
+      
+      // Upload video to Cloudinary
+      const formData = new FormData();
+      formData.append('file', videoBlob, `video_${videoRecord.id}.mp4`);
+      formData.append('upload_preset', 'revven');
+      
+      console.log('Uploading video to Cloudinary...');
+      const cloudinaryResponse = await fetch(
+        'https://api.cloudinary.com/v1_1/dszt275xv/video/upload',
+        {
+          method: 'POST',
+          body: formData
+        }
+      );
+      
+      if (!cloudinaryResponse.ok) {
+        throw new Error('Failed to upload video to Cloudinary');
+      }
+      
+      const cloudinaryData = await cloudinaryResponse.json();
+      console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
+      
+      // Update database with video URL
+      const { error: updateError } = await supabase
+        .from('ai_videos')
+        .update({
+          video_url: cloudinaryData.secure_url,
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', videoRecord.id);
+      
+      if (updateError) throw updateError;
+      
+      console.log('Video generation completed successfully');
       
     } catch (error) {
       console.error('Error generating video:', error);
-      toast.error(error instanceof Error ? error.message : "Failed to start video generation");
+      toast.error(error instanceof Error ? error.message : "Failed to generate video");
       setIsGenerating(false);
+      setShowCountdown(false);
+      
+      // Update status to failed
+      if (currentVideoId) {
+        await supabase
+          .from('ai_videos')
+          .update({ status: 'failed' })
+          .eq('id', currentVideoId);
+      }
     }
   };
 
