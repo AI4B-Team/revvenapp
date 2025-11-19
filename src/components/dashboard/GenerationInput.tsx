@@ -17,6 +17,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useState('nano-banana');
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const { toast } = useToast();
   
   const isVideoMode = selectedType === 'Video';
@@ -70,6 +71,50 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
       setIsGenerating(false);
     }
   };
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) {
+      toast({
+        title: "Prompt required",
+        description: "Please enter a prompt to enhance",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsEnhancing(true);
+    
+    try {
+      console.log("Enhancing prompt...");
+      
+      const { data, error } = await supabase.functions.invoke('enhance-prompt', {
+        body: { 
+          prompt: prompt.trim()
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.enhancedPrompt) {
+        setPrompt(data.enhancedPrompt);
+        toast({
+          title: "Prompt enhanced!",
+          description: "Your prompt has been improved with AI",
+        });
+        console.log("Enhanced prompt:", data.enhancedPrompt);
+      }
+      
+    } catch (error) {
+      console.error("Enhancement error:", error);
+      toast({
+        title: "Enhancement failed",
+        description: error.message || "Failed to enhance prompt",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
   
   return (
     <div className="max-w-6xl mx-auto mb-4">
@@ -100,12 +145,20 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition">
-                          <Dices size={18} className="text-muted-foreground" />
+                        <button 
+                          onClick={handleEnhancePrompt}
+                          disabled={isEnhancing || !prompt.trim()}
+                          className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                          ) : (
+                            <Dices size={18} className="text-muted-foreground" />
+                          )}
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Auto Prompt</p>
+                        <p>Auto Enhance Prompt with AI</p>
                       </TooltipContent>
                     </Tooltip>
                   </>
