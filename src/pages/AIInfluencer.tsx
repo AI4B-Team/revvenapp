@@ -295,117 +295,54 @@ const AIInfluencer = () => {
         character: {
           name: selectedCharacter.name,
           bio: selectedCharacter.bio,
-          image_url: selectedCharacter.image_url
+          image_url: selectedCharacter.image_url,
         },
         video: {
           topic: videoTopic,
           script: videoScript || "Auto-generate script based on topic",
           style: videoStyle,
-          model: videoGenerationModel
-        }
+          model: videoGenerationModel,
+        },
       };
       
-      console.log('Sending webhook for video generation...');
+      console.log("Sending webhook for video generation via edge function...");
       toast.success("Video generation started!");
       setShowCountdown(true);
       
-      // Create AbortController with 10 minute timeout for video generation
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 600000); // 10 minutes
-      
-      try {
-        // Call n8n webhook and get binary video response
-        const webhookResponse = await fetch(
-          'https://realcreator.app.n8n.cloud/webhook-test/36a23325-e14a-46bb-be52-c37e66ae88d6',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(webhookPayload),
-            signal: abortController.signal
-          }
+      // Call backend edge function to handle n8n + Cloudinary without browser CORS issues
+      const { data, error: functionError } = await supabase.functions.invoke(
+        "generate-video",
+        {
+          body: webhookPayload,
+        }
+      );
+
+      if (functionError || !data?.success) {
+        console.error("Edge function error:", functionError || data?.error);
+        throw new Error(
+          (data && !data.success && data.error) ||
+            "Failed to generate video. Please try again."
         );
-        
-        clearTimeout(timeoutId);
-        
-        if (!webhookResponse.ok) {
-          throw new Error(`Webhook failed: ${webhookResponse.statusText}`);
-        }
-        
-        // Get the video binary data
-        const videoBlob = await webhookResponse.blob();
-        console.log('Received video binary, size:', videoBlob.size);
-        
-        // Upload video to Cloudinary
-        const formData = new FormData();
-        formData.append('file', videoBlob, `video_${videoRecord.id}.mp4`);
-        formData.append('upload_preset', 'revven');
-        
-        console.log('Uploading video to Cloudinary...');
-        const cloudinaryResponse = await fetch(
-          'https://api.cloudinary.com/v1_1/dszt275xv/video/upload',
-          {
-            method: 'POST',
-            body: formData
-          }
-        );
-        
-        if (!cloudinaryResponse.ok) {
-          throw new Error('Failed to upload video to Cloudinary');
-        }
-        
-        const cloudinaryData = await cloudinaryResponse.json();
-        console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
-        
-        // Update database with video URL
-        const { error: updateError } = await supabase
-          .from('ai_videos')
-          .update({
-            video_url: cloudinaryData.secure_url,
-            status: 'completed',
-            completed_at: new Date().toISOString()
-          })
-          .eq('id', videoRecord.id);
-        
-        if (updateError) throw updateError;
-        
-        console.log('Video generation completed successfully');
-        
-      } catch (webhookError) {
-        clearTimeout(timeoutId);
-        
-        // Check if it's a timeout error
-        if (webhookError instanceof Error && webhookError.name === 'AbortError') {
-          throw new Error('Video generation timed out. Please try again with a shorter video or different settings.');
-        }
-        
-        // Check if it's a network error
-        if (webhookError instanceof TypeError && webhookError.message === 'Failed to fetch') {
-          throw new Error('Network error: Unable to connect to video generation service. Please check your internet connection and try again.');
-        }
-        
-        throw webhookError;
       }
-      
+
+      console.log("generate-video edge function completed successfully");
     } catch (error) {
-      console.error('Error generating video:', error);
+      console.error("Error generating video:", error);
       
-      // Show specific error message
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Failed to generate video. Please try again.";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to generate video. Please try again.";
       
       toast.error(errorMessage);
       setIsGenerating(false);
       setShowCountdown(false);
       
-      // Update status to failed
       if (currentVideoId) {
         await supabase
-          .from('ai_videos')
-          .update({ status: 'failed' })
-          .eq('id', currentVideoId);
+          .from("ai_videos")
+          .update({ status: "failed" })
+          .eq("id", currentVideoId);
       }
     }
   };
