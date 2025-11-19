@@ -28,6 +28,7 @@ const Create = () => {
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -358,6 +359,7 @@ const Create = () => {
         }}
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
+        onCollapseChange={setIsSidebarCollapsed}
       />
 
       <AIPersonaSidebar 
@@ -365,7 +367,7 @@ const Create = () => {
         onClose={() => setIdentitySidebarOpen(false)}
       />
       
-      <div className="flex-1 flex flex-col overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         {/* Show Image Editing Canvas when in edit mode */}
