@@ -40,16 +40,18 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'flux'
   },
   'seedream-4': {
-    model: 'bytedance/seedream-v4-edit',
+    model: 'seedream-v4-edit',
     name: 'Seedream 4.0',
-    endpoint: '/api/v1/jobs/createTask',
-    apiType: 'seedream'
+    endpoint: '/v1/models/bytedance/seedream-v4-edit/predictions',
+    apiType: 'replicate',
+    owner: 'bytedance'
   },
   'seedream': {
-    model: 'bytedance/seedream-v3',
+    model: 'seedream-v3',
     name: 'Seedream 3.0',
-    endpoint: '/api/v1/jobs/createTask',
-    apiType: 'seedream'
+    endpoint: '/v1/models/bytedance/seedream/predictions',
+    apiType: 'replicate',
+    owner: 'bytedance'
   },
   'qwen': {
     model: 'qwen-image',
@@ -182,20 +184,6 @@ serve(async (req) => {
         nVariants: 1,
         enableFallback: true,
         fallbackModel: "FLUX_MAX"
-      };
-    } else if (modelConfig.apiType === 'seedream') {
-      // Seedream API format
-      requestBody = {
-        model: modelConfig.model,
-        callBackUrl: callbackUrl,
-        input: {
-          prompt: prompt,
-          image_size: aspectRatio === "1:1" ? "square_hd" : 
-                     aspectRatio === "16:9" ? "landscape_16_9" : 
-                     aspectRatio === "9:16" ? "portrait_16_9" : "square_hd",
-          image_resolution: "2K",
-          max_images: 1
-        }
       };
     } else if (modelConfig.apiType === 'replicate') {
       // Replicate-style API format
