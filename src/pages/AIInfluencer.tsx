@@ -12,6 +12,12 @@ import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X,
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { VideoGenerationCountdown } from "@/components/VideoGenerationCountdown";
+import seedanceLogo from "@/assets/model-logos/seedance.png";
+import vo3Logo from "@/assets/model-logos/vo3.png";
+import soraLogo from "@/assets/model-logos/sora.png";
+import klingLogo from "@/assets/model-logos/kling.png";
+import hailuoLogo from "@/assets/model-logos/hailuo.png";
+import grokLogo from "@/assets/model-logos/grok.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,12 +85,12 @@ const AIInfluencer = () => {
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
 
   const VIDEO_MODELS = [
-    "Seedance 1.0",
-    "Vo3.1",
-    "Sora 2",
-    "Kling 2.5 T",
-    "Hailuo",
-    "grok-imagine"
+    { name: "Seedance 1.0", logo: seedanceLogo },
+    { name: "Vo3.1", logo: vo3Logo },
+    { name: "Sora 2", logo: soraLogo },
+    { name: "Kling 2.5 T", logo: klingLogo },
+    { name: "Hailuo", logo: hailuoLogo },
+    { name: "grok-imagine", logo: grokLogo }
   ] as const;
 
   // Fetch characters
@@ -997,18 +1003,36 @@ const AIInfluencer = () => {
                     >
                       <SelectTrigger 
                         id="video-model"
-                        className="h-12 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50 bg-background"
+                        className="h-14 text-base transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50 bg-background"
                       >
-                        <SelectValue placeholder="Select a model..." />
+                        <SelectValue placeholder="Select a model...">
+                          {videoGenerationModel && (
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={VIDEO_MODELS.find(m => m.name === videoGenerationModel)?.logo} 
+                                alt={videoGenerationModel}
+                                className="w-6 h-6 object-contain"
+                              />
+                              <span>{videoGenerationModel}</span>
+                            </div>
+                          )}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="bg-background border-2 z-50">
                         {VIDEO_MODELS.map((model) => (
                           <SelectItem 
-                            key={model} 
-                            value={model}
-                            className="cursor-pointer hover:bg-primary/10"
+                            key={model.name} 
+                            value={model.name}
+                            className="cursor-pointer hover:bg-primary/10 h-12"
                           >
-                            {model}
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={model.logo} 
+                                alt={model.name}
+                                className="w-6 h-6 object-contain"
+                              />
+                              <span>{model.name}</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
