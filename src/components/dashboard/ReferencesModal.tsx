@@ -114,14 +114,14 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, selectedReference
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-background">
         <DialogHeader>
-          <DialogTitle>Reference Images</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Reference Images</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Upload Section */}
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+          <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-8 text-center hover:border-primary hover:bg-muted/40 transition-colors">
             <input
               type="file"
               id="reference-upload"
@@ -132,19 +132,21 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, selectedReference
             />
             <label
               htmlFor="reference-upload"
-              className="cursor-pointer flex flex-col items-center gap-2"
+              className="cursor-pointer flex flex-col items-center gap-3"
             >
               {isUploading ? (
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
               ) : (
-                <Upload className="h-8 w-8 text-muted-foreground" />
+                <Upload className="h-12 w-12 text-primary" />
               )}
-              <p className="text-sm text-muted-foreground">
-                {isUploading ? 'Uploading...' : 'Click to upload reference image'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                PNG, JPG up to 10MB
-              </p>
+              <div className="space-y-1">
+                <p className="text-base font-medium text-foreground">
+                  {isUploading ? 'Uploading...' : 'Click to upload reference image'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  PNG, JPG, WEBP up to 10MB
+                </p>
+              </div>
             </label>
           </div>
 
