@@ -57,29 +57,33 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
   // Load user's characters from database
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && selectedTab === 'my-characters') {
       loadMyCharacters();
-      
-      // Subscribe to real-time changes
-      const channel = supabase
-        .channel('ai_characters_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'ai_characters',
-          },
-          () => {
-            loadMyCharacters();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
+  }, [isOpen, selectedTab]);
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const channel = supabase
+      .channel('ai_characters_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ai_characters',
+        },
+        () => {
+          loadMyCharacters();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isOpen]);
 
   const loadMyCharacters = async () => {
@@ -179,6 +183,9 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
       setDescription('');
       setSelectedStyle('custom');
       setUploadedImageUrl(null);
+      
+      // Manually reload characters to ensure UI updates
+      await loadMyCharacters();
       
       // Go back to list view and switch to My Characters tab
       setView('list');
