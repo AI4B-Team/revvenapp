@@ -321,9 +321,6 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            // For character mode, KIE expects both image_url and reference_image_urls.
-            // We use the same reference image for both the base image and the character reference.
-            image_url: effectiveReferenceImage,
             reference_image_urls: [effectiveReferenceImage],
             rendering_speed: "BALANCED",
             style: "AUTO",
