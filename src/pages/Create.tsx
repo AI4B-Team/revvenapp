@@ -587,7 +587,7 @@ const Create = () => {
         onClose={() => setReferencesModalOpen(false)}
         onSelectReference={(reference) => {
           setSelectedReference(reference);
-          setIsCharacterReference(false); // Mark this as a direct reference, not a character
+          // Don't change isCharacterReference flag - allow both to be selected
         }}
         selectedReference={selectedReference}
       />

@@ -116,10 +116,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             name: selectedCharacter.name,
             image: selectedCharacter.image
           } : null,
-          // Use character image as reference if character is selected, otherwise use direct reference
-          referenceImage: selectedCharacter 
-            ? selectedCharacter.image 
-            : (selectedReference ? selectedReference.image_url : null),
+          // Pass reference image if available (separate from character)
+          referenceImage: selectedReference ? selectedReference.image_url : null,
+          // Pass character image separately so backend can use both
+          characterImage: selectedCharacter ? selectedCharacter.image : null,
           maskImage: maskImage
         }
       });
@@ -1496,7 +1496,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               </button>
             )}
             
-            {selectedReference && !isCharacterReference ? (
+            {selectedReference ? (
               <Button
                 variant="default"
                 size="sm"
@@ -1513,7 +1513,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                 Reference Selected
                 <X size={14} />
               </Button>
-            ) : !isCharacterReference && (
+            ) : (
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
