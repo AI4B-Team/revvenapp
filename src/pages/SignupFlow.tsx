@@ -109,9 +109,9 @@ export default function SignupFlow() {
 
               <form onSubmit={handleWorkspaceSetup} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Workspace Name
-                  </label>
+                <label className="block text-lg font-bold text-gray-900 mb-2">
+                  Workspace Name
+                </label>
                   <Input
                     type="text"
                     placeholder="My Business"
