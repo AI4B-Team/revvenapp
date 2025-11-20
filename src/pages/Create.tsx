@@ -417,7 +417,21 @@ const Create = () => {
               isCharacterReference={isCharacterReference}
             />
             
-            <ActionButtons 
+            {/* Reference Image Display */}
+            {selectedReference && (
+              <div className="flex justify-center mb-6">
+                <div className="bg-[hsl(var(--sidebar))] rounded-lg p-4 inline-block">
+                  <h3 className="text-sm font-semibold text-[hsl(var(--sidebar-foreground))] mb-2">Reference</h3>
+                  <img 
+                    src={selectedReference.thumbnail_url || selectedReference.image_url} 
+                    alt="Selected reference" 
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                </div>
+              </div>
+            )}
+            
+            <ActionButtons
               activeView={activeView} 
               onViewChange={setActiveView}
               hasSelectedType={!!selectedType}
