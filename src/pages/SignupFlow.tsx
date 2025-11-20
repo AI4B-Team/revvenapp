@@ -239,9 +239,12 @@ export default function SignupFlow() {
           {/* Step 5: Meet Dolmar & Keisha */}
           {currentStep === 5 && (
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">
-                Meet Dolmar & Keisha — Your Content Creation Engine
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Meet Dolmar & Keisha
               </h1>
+              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+                Your Content Creation Engine
+              </h2>
 
               <div className="space-y-6 mb-8">
                 <div>
@@ -284,7 +287,7 @@ export default function SignupFlow() {
           {/* Step 6: Q&A 2 - Revenue */}
           {currentStep === 6 && (
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-8 whitespace-nowrap">
                 Where are you losing the most money right now?
               </h1>
 
@@ -313,9 +316,12 @@ export default function SignupFlow() {
           {/* Step 7: Meet Francis & Rich */}
           {currentStep === 7 && (
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">
-                Meet Francis & Rich — Your Revenue Growth Team
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Meet Francis & Rich
               </h1>
+              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+                Your Revenue Growth Team
+              </h2>
 
               <div className="space-y-6 mb-8">
                 <div>
@@ -387,9 +393,12 @@ export default function SignupFlow() {
           {/* Step 9: Meet Brian & Damoi */}
           {currentStep === 9 && (
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">
-                Meet Brian & Damoi — Your Business Automation Team
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Meet Brian & Damoi
               </h1>
+              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+                Your Business Automation Team
+              </h2>
 
               <div className="space-y-6 mb-8">
                 <div>
@@ -472,7 +481,7 @@ export default function SignupFlow() {
               </div>
 
               <Button
-                onClick={() => navigate('/create')}
+                onClick={() => navigate('/onboarding')}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-12 px-8"
               >
                 Start Working With Your Team →
