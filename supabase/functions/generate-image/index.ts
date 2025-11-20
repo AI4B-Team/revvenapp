@@ -71,9 +71,8 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
   'ideogram': {
     model: 'ideogram-v3',
     name: 'Ideogram V3',
-    endpoint: '/v1/models/ideogram/ideogram-v3/predictions',
-    apiType: 'replicate',
-    owner: 'ideogram'
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'ideogram'
   }
 };
 
@@ -200,6 +199,11 @@ serve(async (req) => {
           nVariants: 1,
           enableFallback: false
         };
+        
+        // Add reference image if provided (img-to-img)
+        if (referenceImage) {
+          requestBody.filesUrl = [referenceImage]; // Array of up to 5 images
+        }
       } else if (modelConfig.apiType === 'seedream') {
         // Seedream 3.0 API format - supports img-to-img
         requestBody = {
@@ -223,7 +227,7 @@ serve(async (req) => {
           requestBody.input.strength = 0.8; // Control transformation strength
         }
       } else if (modelConfig.apiType === 'qwen') {
-        // Qwen API format
+        // Qwen API format - supports img-to-img
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -237,6 +241,12 @@ serve(async (req) => {
             output_format: "png"
           }
         };
+        
+        // Add reference image if provided (img-to-img)
+        if (referenceImage) {
+          requestBody.input.image_url = referenceImage;
+          requestBody.input.strength = 0.8; // 0.0-1.0 transformation strength
+        }
       } else if (modelConfig.apiType === 'imagen') {
         // Google Imagen 4 Ultra API format - supports img-to-img
         requestBody = {
@@ -254,19 +264,28 @@ serve(async (req) => {
         if (referenceImage) {
           requestBody.input.image = referenceImage;
         }
-      } else if (modelConfig.apiType === 'replicate') {
-        // Replicate-based models
+      } else if (modelConfig.apiType === 'ideogram') {
+        // Ideogram V3 API format - supports img-to-img remix
         requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            aspect_ratio: aspectRatio || "1:1",
-            output_format: "png",
-            output_quality: 100,
-            disable_safety_checker: false
-          },
-          webhook: callbackUrl,
-          webhook_events_filter: ["completed"]
+            image_size: aspectRatio === "1:1" ? "square_hd" : 
+                       aspectRatio === "16:9" ? "landscape_16_9" : 
+                       aspectRatio === "9:16" ? "portrait_16_9" : 
+                       aspectRatio === "4:3" ? "landscape_4_3" : 
+                       aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+            rendering_speed: "BALANCED",
+            magic_prompt_option: true
+          }
         };
+        
+        // Add reference image if provided (img-to-img remix)
+        if (referenceImage) {
+          requestBody.input.image_url = referenceImage;
+          requestBody.input.strength = 0.8; // Control remix intensity
+        }
       }
 
       // Add DB record ID to callback payload so webhook can identify which record to update
