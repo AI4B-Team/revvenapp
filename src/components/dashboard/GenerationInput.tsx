@@ -98,9 +98,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
 
       console.log("Generated image:", data.image);
       
-      // Clear prompt after successful generation
-      setPrompt('');
-      
+      // Keep prompt in the input field after generation
     } catch (error) {
       console.error("Generation error:", error);
       toast({
