@@ -1083,7 +1083,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
-                  {selectedReference && (
+                  {(selectedReference || selectedCharacter) && (
                     <div className="px-4 py-2 bg-primary/10 rounded-lg mb-2">
                       <p className="text-xs font-medium text-primary">Image-to-Image Mode Active</p>
                       <p className="text-xs text-muted-foreground mt-0.5">Only models supporting img-to-img are shown</p>
@@ -1091,7 +1091,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
                   
                   {/* Auto */}
-                  {(!selectedReference || img2imgModels.includes('auto')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('auto')) && (
                     <button 
                       onClick={() => {
                         handleModelChange('auto');
@@ -1118,7 +1118,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Flux Pro */}
-                  {(!selectedReference || img2imgModels.includes('flux-pro')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('flux-pro')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-pro');
@@ -1144,7 +1144,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Flux Max */}
-                  {(!selectedReference || img2imgModels.includes('flux-max')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('flux-max')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-max');
@@ -1171,7 +1171,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* GPT-4o Image */}
-                  {(!selectedReference || img2imgModels.includes('gpt-4o-image')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('gpt-4o-image')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('gpt-4o-image');
@@ -1201,7 +1201,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Seedream 4.0 */}
-                  {(!selectedReference || img2imgModels.includes('seedream-4')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('seedream-4')) && (
                   <button
                     onClick={() => {
                       handleModelChange('seedream-4');
@@ -1225,7 +1225,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Seedream 3.0 */}
-                  {(!selectedReference || img2imgModels.includes('seedream')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('seedream')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('seedream');
@@ -1248,7 +1248,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Qwen Image */}
-                  {(!selectedReference || img2imgModels.includes('qwen')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('qwen')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('qwen');
@@ -1271,7 +1271,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Nano Banana */}
-                  {(!selectedReference || img2imgModels.includes('nano-banana')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('nano-banana')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana');
@@ -1299,7 +1299,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Nano Banana Pro */}
-                  {(!selectedReference || img2imgModels.includes('nano-banana-pro')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('nano-banana-pro')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana-pro');
@@ -1327,7 +1327,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Ideogram V3 Edit */}
-                  {(!selectedReference || img2imgModels.includes('ideogram')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('ideogram')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram');
@@ -1353,7 +1353,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Ideogram Character */}
-                  {(!selectedReference || img2imgModels.includes('ideogram-character')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('ideogram-character')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram-character');
@@ -1379,7 +1379,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Grok Imagine */}
-                  {(!selectedReference || img2imgModels.includes('grok')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('grok')) && (
                   <button
                     onClick={() => {
                       handleModelChange('grok');
@@ -1402,7 +1402,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Imagen 4 Ultra */}
-                  {(!selectedReference || img2imgModels.includes('imagen-ultra')) && (
+                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('imagen-ultra')) && (
                   <button
                     onClick={() => {
                       handleModelChange('imagen-ultra');
