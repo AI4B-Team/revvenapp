@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2, Upload } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2, Upload, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -525,6 +525,41 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </PopoverTrigger>
                     <PopoverContent className="w-80 bg-background border-border z-50 p-4">
                       <div className="space-y-3">
+                        {selectedReference && (
+                          <>
+                            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                              <img 
+                                src={selectedReference.image} 
+                                alt="Selected reference" 
+                                className="w-12 h-12 rounded object-cover"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">
+                                  {selectedReference.name || 'Reference Image'}
+                                </p>
+                                <p className="text-xs text-muted-foreground">Currently selected</p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={() => onReferenceSelect(null)}
+                              variant="destructive"
+                              size="sm"
+                              className="w-full"
+                            >
+                              <X className="mr-2 h-4 w-4" />
+                              Remove Reference
+                            </Button>
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-border" />
+                              </div>
+                              <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">Or</span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
                         <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
                           <input
                             type="file"
@@ -544,7 +579,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                               <Upload className="h-8 w-8 text-primary" />
                             )}
                             <p className="text-sm font-medium text-foreground">
-                              {isUploadingReference ? 'Uploading...' : 'Upload reference image'}
+                              {isUploadingReference ? 'Uploading...' : selectedReference ? 'Upload new reference' : 'Upload reference image'}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               PNG, JPG, WEBP up to 10MB
