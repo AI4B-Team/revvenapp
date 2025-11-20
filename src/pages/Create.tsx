@@ -100,6 +100,10 @@ const Create = () => {
           console.log('Generated image update:', payload);
           if (payload.eventType === 'INSERT') {
             setGeneratedImages(prev => [payload.new, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setGeneratedImages(prev => 
+              prev.map(img => img.id === payload.new.id ? payload.new : img)
+            );
           }
         }
       )
