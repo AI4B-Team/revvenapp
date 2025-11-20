@@ -695,6 +695,8 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             ) : (
               <>
                 {/* Image Mode Controls */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-muted-foreground px-1">Model</span>
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
@@ -1305,6 +1307,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                 <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
                   <MoreVertical size={20} />
                 </button>
+                </div>
               </>
             )}
           </div>
