@@ -3,7 +3,7 @@ import {
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
   Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
   Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare,
-  Tag, Mic, BookOpen, Ticket, X
+  Tag, Mic, BookOpen, Ticket, X, Gift
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -21,6 +21,8 @@ const Onboarding = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const totalCredits = 1000;
+  
   const sections = [
     {
       id: 'getting-started',
@@ -28,6 +30,7 @@ const Onboarding = () => {
       subtitle: 'Set Up Your Brand DNA',
       icon: <Sparkles size={24} />,
       color: 'text-brand-green',
+      credits: 300,
       tasks: [
         {
           id: 'create-project',
@@ -76,6 +79,7 @@ const Onboarding = () => {
       subtitle: 'Launch Your Creative Engine',
       icon: <Sparkles size={24} />,
       color: 'text-primary',
+      credits: 200,
       tasks: [
         {
           id: 'create-task-1',
@@ -109,6 +113,7 @@ const Onboarding = () => {
       subtitle: 'Activate Your Profit System',
       icon: <DollarSign size={24} />,
       color: 'text-brand-green',
+      credits: 200,
       tasks: [
         {
           id: 'monetize-task-1',
@@ -134,6 +139,7 @@ const Onboarding = () => {
       subtitle: 'Let Your AI Take Over',
       icon: <Zap size={24} />,
       color: 'text-purple-500',
+      credits: 300,
       tasks: [
         {
           id: 'automate-task-1',
@@ -181,6 +187,13 @@ const Onboarding = () => {
 
   // Calculate overall progress percentage
   const progressPercentage = 29;
+  
+  // Calculate earned credits based on completed tasks
+  const earnedCredits = sections.reduce((total, section) => {
+    const completedInSection = section.tasks.filter(task => completedTasks.has(task.id)).length;
+    const percentComplete = completedInSection / section.tasks.length;
+    return total + Math.floor(section.credits * percentComplete);
+  }, 0);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -201,7 +214,7 @@ const Onboarding = () => {
               </div>
 
               {/* AI Team Banner */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-6 mb-8">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-2xl p-6 mb-4">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-6 h-6 text-white" />
@@ -214,6 +227,31 @@ const Onboarding = () => {
                       Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
                     </p>
                   </div>
+                </div>
+              </div>
+
+              {/* Rewards Info Banner */}
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 dark:border-yellow-700 rounded-2xl p-6 mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+                    <Gift className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-1">
+                      Unlock {totalCredits.toLocaleString()} Credits By Completing Your Setup!
+                    </h3>
+                    <p className="text-gray-700 dark:text-muted-foreground text-sm">
+                      Complete each step to unlock credits and start creating with AI — totally free!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-white dark:bg-card rounded-lg px-6 py-3 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-foreground">{earnedCredits}</span>
+                    <span className="text-gray-500 dark:text-muted-foreground">/ {totalCredits}</span>
+                  </div>
+                  <span className="text-sm text-gray-600 dark:text-muted-foreground">Credits</span>
                 </div>
               </div>
 
@@ -257,9 +295,15 @@ const Onboarding = () => {
                           className="w-full px-8 py-6 flex items-center justify-between bg-secondary/30 hover:bg-secondary transition-colors"
                         >
                           <div className="text-left">
-                            <h3 className="text-2xl font-bold text-foreground mb-1">
-                              {section.title}
-                            </h3>
+                            <div className="flex items-center gap-3 mb-1">
+                              <h3 className="text-2xl font-bold text-foreground">
+                                {section.title}
+                              </h3>
+                              <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
+                                <Gift className="w-3 h-3" />
+                                Unlock {section.credits} credits
+                              </span>
+                            </div>
                             <p className="text-muted-foreground">{section.subtitle}</p>
                           </div>
                           
@@ -319,7 +363,7 @@ const Onboarding = () => {
                                   {!isCompleted && task.actionLabel ? (
                                     <button
                                       onClick={() => completeTask(task.id)}
-                                      className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold rounded-lg transition-colors shrink-0"
+                                      className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
                                     >
                                       {task.actionLabel}
                                     </button>
