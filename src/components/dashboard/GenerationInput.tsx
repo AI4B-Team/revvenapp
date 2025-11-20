@@ -90,11 +90,24 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
       return;
     }
 
-    // Check if Ideogram requires mask
+    // Check if Ideogram requires mask when a reference image is used
     if (selectedModel === 'ideogram' && selectedReference && !maskImage) {
       toast({
         title: "Mask required",
         description: "Ideogram Edit requires a mask image. Please upload a mask.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Ideogram Character model ALWAYS needs a reference image.
+    // Since referenceImage is derived from either the selected character
+    // or the manual reference image, enforce that one of them is present
+    // before calling the edge function to avoid 500 errors.
+    if (selectedModel === 'ideogram-character' && !selectedCharacter && !selectedReference) {
+      toast({
+        title: "Reference required",
+        description: "Ideogram Character needs a character or reference image. Please select one first.",
         variant: "destructive",
       });
       return;
