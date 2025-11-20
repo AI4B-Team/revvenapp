@@ -265,7 +265,7 @@ const Onboarding = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">
-                        Get 1,000 AI Credits FREE When You Complete Setup Today
+                        Get 1,000 FREE Credits When You Complete Setup Today!
                       </h3>
                       {timeRemaining && timeRemaining !== 'EXPIRED' && (
                         <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
