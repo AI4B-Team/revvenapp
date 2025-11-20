@@ -63,16 +63,16 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     apiType: 'qwen'
   },
   'nano-banana': {
-    model: 'google/nano-banana',
-    name: 'Nano Banana (Gemini 2.5)',
+    model: 'google/nano-banana-edit',
+    name: 'Nano Banana Edit',
     endpoint: '/api/v1/jobs/createTask',
-    apiType: 'imagen'
+    apiType: 'nano-banana-edit'
   },
   'ideogram': {
-    model: 'ideogram-v3',
-    name: 'Ideogram V3',
+    model: 'ideogram/v3-edit',
+    name: 'Ideogram V3 Edit',
     endpoint: '/api/v1/jobs/createTask',
-    apiType: 'ideogram'
+    apiType: 'ideogram-edit'
   }
 };
 
@@ -82,7 +82,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage, maskImage } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
@@ -264,28 +264,43 @@ serve(async (req) => {
         if (referenceImage) {
           requestBody.input.image = referenceImage;
         }
-      } else if (modelConfig.apiType === 'ideogram') {
-        // Ideogram V3 API format - supports img-to-img remix
+      } else if (modelConfig.apiType === 'nano-banana-edit') {
+        // Nano Banana Edit API format - requires image_urls array
+        if (!referenceImage) {
+          throw new Error("Nano Banana Edit requires a reference image");
+        }
+        
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            image_size: aspectRatio === "1:1" ? "square_hd" : 
-                       aspectRatio === "16:9" ? "landscape_16_9" : 
-                       aspectRatio === "9:16" ? "portrait_16_9" : 
-                       aspectRatio === "4:3" ? "landscape_4_3" : 
-                       aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
-            rendering_speed: "BALANCED",
-            magic_prompt_option: true
+            image_urls: [referenceImage], // Array of up to 10 images
+            output_format: "png",
+            image_size: aspectRatio || "1:1"
           }
         };
-        
-        // Add reference image if provided (img-to-img remix)
-        if (referenceImage) {
-          requestBody.input.image_url = referenceImage;
-          requestBody.input.strength = 0.8; // Control remix intensity
+      } else if (modelConfig.apiType === 'ideogram-edit') {
+        // Ideogram V3 Edit API format - inpainting with mask
+        if (!referenceImage) {
+          throw new Error("Ideogram Edit requires a reference image");
         }
+        if (!maskImage) {
+          throw new Error("Ideogram Edit requires a mask image");
+        }
+        
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            image_url: referenceImage,
+            mask_url: maskImage,
+            rendering_speed: "BALANCED",
+            expand_prompt: true,
+            num_images: "1"
+          }
+        };
       }
 
       // Add DB record ID to callback payload so webhook can identify which record to update

@@ -24,6 +24,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
+  const [isUploadingMask, setIsUploadingMask] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('Auto');
@@ -34,6 +35,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [isAspectRatioDropdownOpen, setIsAspectRatioDropdownOpen] = useState(false);
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+  const [maskImage, setMaskImage] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
@@ -86,6 +88,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
       return;
     }
 
+    // Check if Ideogram requires mask
+    if (selectedModel === 'ideogram' && selectedReference && !maskImage) {
+      toast({
+        title: "Mask required",
+        description: "Ideogram Edit requires a mask image. Please upload a mask.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     
     try {
@@ -102,7 +114,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             name: selectedCharacter.name,
             image: selectedCharacter.image
           } : null,
-          referenceImage: selectedReference ? selectedReference.image_url : null
+          referenceImage: selectedReference ? selectedReference.image_url : null,
+          maskImage: maskImage
         }
       });
 
@@ -238,6 +251,72 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
       });
     } finally {
       setIsUploadingReference(false);
+    }
+  };
+
+  const handleMaskUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Mask image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingMask(true);
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Mask image uploaded successfully",
+        });
+
+        // Store mask URL
+        setMaskImage(data?.referenceImage?.image_url || null);
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading mask:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload mask image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingMask(false);
     }
   };
 
@@ -1379,6 +1458,67 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                 </div>
               </PopoverContent>
             </Popover>
+            
+            {/* Mask Upload Button - Only show for Ideogram when reference is selected */}
+            {selectedModel === 'ideogram' && selectedReference && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={maskImage ? "default" : "secondary"}
+                    size="sm"
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Upload size={14} />
+                    {maskImage ? 'Mask Uploaded' : 'Upload Mask'}
+                    <ChevronDown size={14} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-background border-border z-50 p-4">
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Upload a mask image where black areas will be edited and white areas preserved
+                    </p>
+                    <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
+                      <input
+                        type="file"
+                        id="mask-upload"
+                        accept="image/*"
+                        onChange={handleMaskUpload}
+                        className="hidden"
+                        disabled={isUploadingMask}
+                      />
+                      <label
+                        htmlFor="mask-upload"
+                        className="cursor-pointer flex flex-col items-center gap-2"
+                      >
+                        {isUploadingMask ? (
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        ) : (
+                          <Upload className="h-8 w-8 text-primary" />
+                        )}
+                        <p className="text-sm font-medium text-foreground">
+                          {isUploadingMask ? 'Uploading...' : 'Upload mask image'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          PNG, JPG, WEBP up to 10MB
+                        </p>
+                      </label>
+                    </div>
+                    
+                    {maskImage && (
+                      <Button
+                        onClick={() => setMaskImage(null)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        Clear Mask
+                      </Button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
             
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <PopoverTrigger asChild>
