@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { X, Search, Plus, Users, Star, ChevronLeft, Upload, FileText, Image as ImageIcon, Camera, Check, AlertCircle, Wand2, Shuffle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Search, Plus, Users, Star, ChevronLeft, Upload, FileText, Image as ImageIcon, Camera, Check, AlertCircle, Wand2, Shuffle, Trash2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface DigitalCharactersModalProps {
   isOpen: boolean;
@@ -15,7 +17,11 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [characterName, setCharacterName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('custom');
-  const [myCharacters, setMyCharacters] = useState<Array<{ id: number; name: string; image: string }>>([]);
+  const [myCharacters, setMyCharacters] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const characters = [
     { id: 1, name: 'Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop' },
@@ -48,6 +54,56 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
     char.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Load user's characters from database
+  useEffect(() => {
+    if (isOpen) {
+      loadMyCharacters();
+      
+      // Subscribe to real-time changes
+      const channel = supabase
+        .channel('ai_characters_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'ai_characters',
+          },
+          () => {
+            loadMyCharacters();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [isOpen]);
+
+  const loadMyCharacters = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('ai_characters')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMyCharacters(data || []);
+    } catch (error) {
+      console.error('Error loading characters:', error);
+      toast({
+        title: "Error loading characters",
+        description: "Failed to load your characters. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!isOpen) return null;
 
   const handleCharacterSelect = (character: any) => {
@@ -65,25 +121,102 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
     setView('list');
   };
 
-  const handleCreateCharacter = () => {
-    // Create new character with the provided name
-    const newCharacter = {
-      id: Date.now(), // Using timestamp as unique ID
-      name: characterName || 'Unnamed Character',
-      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop' // Default image
-    };
+  const handleCreateCharacter = async () => {
+    if (!characterName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a character name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!description.trim()) {
+      toast({
+        title: "Bio required",
+        description: "Please enter a character bio/description",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!uploadedImageUrl) {
+      toast({
+        title: "Image required",
+        description: "Please upload a character image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
+      const { error } = await supabase
+        .from('ai_characters')
+        .insert({
+          user_id: user.id,
+          name: characterName.trim(),
+          bio: description.trim(),
+          image_url: uploadedImageUrl,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Character created!",
+        description: `${characterName} has been created successfully.`,
+      });
+
+      // Reset form
+      setCharacterName('');
+      setDescription('');
+      setSelectedStyle('custom');
+      setUploadedImageUrl(null);
+      
+      // Go back to list view and switch to My Characters tab
+      setView('list');
+      setSelectedTab('my-characters');
+    } catch (error) {
+      console.error('Error creating character:', error);
+      toast({
+        title: "Creation failed",
+        description: "Failed to create character. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleDeleteCharacter = async (characterId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     
-    // Add to myCharacters array
-    setMyCharacters(prev => [...prev, newCharacter]);
-    
-    // Reset form
-    setCharacterName('');
-    setDescription('');
-    setSelectedStyle('custom');
-    
-    // Go back to list view and switch to My Characters tab
-    setView('list');
-    setSelectedTab('my-characters');
+    try {
+      const { error } = await supabase
+        .from('ai_characters')
+        .delete()
+        .eq('id', characterId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Character deleted",
+        description: "Character has been removed successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting character:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete character. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const tabs = [
@@ -140,19 +273,97 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
     { id: 'black-and-white', label: 'Black And White', image: 'https://images.unsplash.com/photo-1521566652839-697aa473761a?w=150' }
   ];
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    console.log('Files selected:', files);
-  };
-
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 20MB)
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image must be less than 20MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await uploadImage(file);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    console.log('Files dropped:', files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image must be less than 20MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await uploadImage(file);
+  };
+
+  const uploadImage = async (file: File) => {
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const { data, error } = await supabase.functions.invoke('upload-character-image', {
+        body: formData,
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        setUploadedImageUrl(data.url);
+        toast({
+          title: "Image uploaded",
+          description: "Your character image has been uploaded successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -268,16 +479,24 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
 
                   {/* Show user's created characters in My Characters tab */}
                   {selectedTab === 'my-characters' && myCharacters.map((character) => (
-                    <div key={character.id} className="flex flex-col">
+                    <div key={character.id} className="flex flex-col relative group">
                       <button
                         onClick={() => handleCharacterSelect(character)}
-                        className="group relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
+                        className="relative aspect-square rounded-xl overflow-hidden bg-gray-800 hover:ring-2 hover:ring-blue-500 transition-all"
                       >
                         <img
-                          src={character.image}
+                          src={character.image_url}
                           alt={character.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
+                        
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => handleDeleteCharacter(character.id, e)}
+                          className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 size={16} className="text-white" />
+                        </button>
                       </button>
                       <div className="mt-2 text-center text-sm text-white font-medium truncate">
                         {character.name}
@@ -390,21 +609,36 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                         >
                           <input
                             type="file"
-                            multiple
                             onChange={handleFileSelect}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             accept="image/*"
+                            disabled={isUploading}
                           />
                           
-                          <div className="flex flex-col items-center gap-3 text-center px-8">
-                            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
-                              <ImageIcon size={32} className="text-gray-500" />
+                          {uploadedImageUrl ? (
+                            <div className="absolute inset-0">
+                              <img
+                                src={uploadedImageUrl}
+                                alt="Uploaded character"
+                                className="w-full h-full object-contain"
+                              />
                             </div>
-                            <p className="text-gray-400">
-                              Drag and drop an image<br />
-                              or <span className="text-blue-500">select a file</span>
-                            </p>
-                          </div>
+                          ) : isUploading ? (
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-700 border-t-blue-500"></div>
+                              <p className="text-gray-400">Uploading...</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center gap-3 text-center px-8">
+                              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
+                                <ImageIcon size={32} className="text-gray-500" />
+                              </div>
+                              <p className="text-gray-400">
+                                Drag and drop an image<br />
+                                or <span className="text-blue-500">select a file</span>
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -563,9 +797,17 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
               <div className="px-8 py-5 border-t border-gray-800 flex justify-center">
                 <button 
                   onClick={handleCreateCharacter}
-                  className="px-8 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors"
+                  disabled={isCreating || isUploading}
+                  className="px-8 py-3 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Create Character
+                  {isCreating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-900 border-t-white"></div>
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    'Create Character'
+                  )}
                 </button>
               </div>
             </>
