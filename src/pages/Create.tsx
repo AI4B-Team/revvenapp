@@ -571,6 +571,12 @@ const Create = () => {
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
           setSelectedCharacter(character);
+          // Also set the character image as a reference for image generation
+          setSelectedReference({
+            id: character.id,
+            name: character.name,
+            image_url: character.image
+          });
           setCharactersModalOpen(false);
         }}
       />
