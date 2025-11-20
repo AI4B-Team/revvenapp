@@ -374,28 +374,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                            <Image size={14} />
-                            References
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64 bg-background border-border z-50">
-                          <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>References</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                             16:9
                             <ChevronDown size={14} />
                           </button>
@@ -1216,20 +1194,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               <User size={14} />
               Character
             </button>
-            
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      <Image size={14} />
-                      References
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 bg-background border-border z-50">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground px-3 py-2">Upload reference images</p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
             
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <PopoverTrigger asChild>
