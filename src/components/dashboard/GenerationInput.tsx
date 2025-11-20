@@ -1,7 +1,8 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2 } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2, Upload } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -358,24 +359,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </TooltipContent>
                   </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={onReferencesClick}
-                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          selectedReference 
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                            : 'bg-muted hover:bg-muted/80'
-                        }`}
-                      >
-                        <Image size={14} />
-                        {selectedReference ? 'Reference' : 'References'}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{selectedReference ? 'Reference selected' : 'Select Reference Image'}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <Button
+                    onClick={onReferencesClick}
+                    variant={selectedReference ? "default" : "secondary"}
+                    size="sm"
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Upload size={14} />
+                    {selectedReference ? 'Reference Selected' : 'Upload Reference'}
+                  </Button>
 
                   <Tooltip>
                     <TooltipTrigger asChild>
