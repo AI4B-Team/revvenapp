@@ -673,24 +673,38 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                         <div
                           onDragOver={handleDragOver}
                           onDrop={handleDrop}
-                          className="relative h-80 bg-gray-900 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center hover:border-gray-600 transition-colors cursor-pointer"
+                          className="relative h-80 bg-gray-900 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center hover:border-gray-600 transition-colors cursor-pointer overflow-hidden"
                         >
                           <input
                             type="file"
                             onChange={handleFileSelect}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             accept="image/*"
                             disabled={isUploading}
                           />
                           
                           {uploadedImageUrl ? (
-                            <div className="absolute inset-0">
+                            <>
                               <img
                                 src={uploadedImageUrl}
                                 alt="Uploaded character"
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-cover"
                               />
-                            </div>
+                              {/* Remove button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setUploadedImageUrl(null);
+                                  toast({
+                                    title: "Image removed",
+                                    description: "You can upload a new image",
+                                  });
+                                }}
+                                className="absolute top-3 right-3 p-2 bg-red-500/90 hover:bg-red-600 rounded-lg transition-colors z-20"
+                              >
+                                <X size={20} className="text-white" />
+                              </button>
+                            </>
                           ) : isUploading ? (
                             <div className="flex flex-col items-center gap-3">
                               <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-700 border-t-blue-500"></div>
@@ -705,6 +719,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                                 Drag and drop an image<br />
                                 or <span className="text-blue-500">select a file</span>
                               </p>
+                              <p className="text-xs text-gray-500">PNG, JPG up to 20MB</p>
                             </div>
                           )}
                         </div>
