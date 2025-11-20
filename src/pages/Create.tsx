@@ -24,6 +24,7 @@ const Create = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
@@ -399,6 +400,8 @@ const Create = () => {
             <GenerationInput 
               selectedType={selectedType}
               onCharactersClick={() => setCharactersModalOpen(true)}
+              onCharacterSelect={setSelectedCharacter}
+              selectedCharacter={selectedCharacter}
             />
             
             <ActionButtons 
@@ -561,7 +564,8 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
-          console.log('Selected character:', character);
+          setSelectedCharacter(character);
+          setCharactersModalOpen(false);
         }}
       />
     </div>
