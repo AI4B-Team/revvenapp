@@ -511,100 +511,71 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </TooltipContent>
                   </Tooltip>
 
-                  <Popover open={selectedReference ? false : undefined}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={selectedReference ? "default" : "secondary"}
-                        size="sm"
-                        className="flex items-center gap-2 whitespace-nowrap"
-                        onClick={(e) => {
-                          if (selectedReference) {
-                            e.preventDefault();
-                            onReferenceSelect(null);
-                          }
-                        }}
-                      >
-                        <Upload size={14} />
-                        {selectedReference ? 'Reference Selected' : 'References'}
-                        {!selectedReference && <ChevronDown size={14} />}
-                        {selectedReference && <X size={14} />}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 bg-background border-border z-50 p-4">
-                      <div className="space-y-3">
-                        {selectedReference && (
-                          <>
-                            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                              <img 
-                                src={selectedReference.image} 
-                                alt="Selected reference" 
-                                className="w-12 h-12 rounded object-cover"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                  {selectedReference.name || 'Reference Image'}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Currently selected</p>
-                              </div>
-                            </div>
-                            <Button
-                              onClick={() => onReferenceSelect(null)}
-                              variant="destructive"
-                              size="sm"
-                              className="w-full"
-                            >
-                              <X className="mr-2 h-4 w-4" />
-                              Remove Reference
-                            </Button>
-                            <div className="relative">
-                              <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-border" />
-                              </div>
-                              <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-background px-2 text-muted-foreground">Or</span>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        
-                        <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
-                          <input
-                            type="file"
-                            id="inline-reference-upload"
-                            accept="image/*"
-                            onChange={handleReferenceUpload}
-                            className="hidden"
-                            disabled={isUploadingReference}
-                          />
-                          <label
-                            htmlFor="inline-reference-upload"
-                            className="cursor-pointer flex flex-col items-center gap-2"
-                          >
-                            {isUploadingReference ? (
-                              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            ) : (
-                              <Upload className="h-8 w-8 text-primary" />
-                            )}
-                            <p className="text-sm font-medium text-foreground">
-                              {isUploadingReference ? 'Uploading...' : selectedReference ? 'Upload new reference' : 'Upload reference image'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              PNG, JPG, WEBP up to 10MB
-                            </p>
-                          </label>
-                        </div>
-                        
+                  {selectedReference ? (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                      onClick={() => onReferenceSelect(null)}
+                    >
+                      <Upload size={14} />
+                      Reference Selected
+                      <X size={14} />
+                    </Button>
+                  ) : (
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <Button
-                          onClick={onReferencesClick}
-                          variant="outline"
+                          variant="secondary"
                           size="sm"
-                          className="w-full"
+                          className="flex items-center gap-2 whitespace-nowrap"
                         >
-                          View All References
+                          <Upload size={14} />
+                          References
+                          <ChevronDown size={14} />
                         </Button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 bg-background border-border z-50 p-4">
+                        <div className="space-y-3">
+                          <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
+                            <input
+                              type="file"
+                              id="inline-reference-upload"
+                              accept="image/*"
+                              onChange={handleReferenceUpload}
+                              className="hidden"
+                              disabled={isUploadingReference}
+                            />
+                            <label
+                              htmlFor="inline-reference-upload"
+                              className="cursor-pointer flex flex-col items-center gap-2"
+                            >
+                              {isUploadingReference ? (
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                              ) : (
+                                <Upload className="h-8 w-8 text-primary" />
+                              )}
+                              <p className="text-sm font-medium text-foreground">
+                                {isUploadingReference ? 'Uploading...' : 'Upload reference image'}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                PNG, JPG, WEBP up to 10MB
+                              </p>
+                            </label>
+                          </div>
+                          
+                          <Button
+                            onClick={onReferencesClick}
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                          >
+                            View All References
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
 
                   <Tooltip>
                     <TooltipTrigger asChild>
