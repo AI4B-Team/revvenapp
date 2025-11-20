@@ -183,8 +183,8 @@ serve(async (req) => {
         };
         
         // Add reference image if provided (img-to-img)
-        if (referenceImage) {
-          requestBody.imageUrl = referenceImage;
+        if (effectiveReferenceImage) {
+          requestBody.imageUrl = effectiveReferenceImage;
           requestBody.strength = 0.8; // Control how much to transform (0-1, lower = closer to original)
         }
       } else if (modelConfig.apiType === 'gpt4o') {
@@ -257,7 +257,7 @@ serve(async (req) => {
           requestBody.input.strength = 0.8; // 0.0-1.0 transformation strength
         }
       } else if (modelConfig.apiType === 'imagen') {
-        // Google Imagen 4 Ultra API format - supports img-to-img
+        // Google Imagen 4 Ultra / Grok Imagine API format - supports img-to-img
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
