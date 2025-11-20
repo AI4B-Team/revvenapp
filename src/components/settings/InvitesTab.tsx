@@ -55,6 +55,8 @@ export default function InvitesTab() {
     };
 
     setInviteCodes([newCode, ...inviteCodes]);
+    // Sync with invite modal
+    localStorage.setItem('latestInviteCode', randomCode);
     setIsGenerating(false);
   };
 

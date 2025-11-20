@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Copy, Check, Gift, Info, DollarSign, Users, ArrowLeft } from 'lucide-react';
-import { FaFacebook, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
+import { FaFacebook, FaLinkedin, FaXTwitter, FaInstagram, FaThreads } from 'react-icons/fa6';
 
 interface InviteRewardsModalProps {
   isOpen: boolean;
@@ -11,7 +11,10 @@ interface InviteRewardsModalProps {
 export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRewardsModalProps) {
   const [activeTab, setActiveTab] = useState<'invite' | 'rewards'>('invite');
   const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const referralLink = 'revven.ai/ref/yourusername';
   const earnings = {
@@ -19,6 +22,29 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
     totalEarned: 3420,
     referrals: 23,
     activeSubscriptions: 12
+  };
+
+  // Load invite code from localStorage on mount
+  useEffect(() => {
+    const savedCode = localStorage.getItem('latestInviteCode');
+    if (savedCode) {
+      setInviteCode(savedCode);
+    }
+  }, []);
+
+  const generateInviteCode = () => {
+    setIsGenerating(true);
+    const randomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    setInviteCode(randomCode);
+    localStorage.setItem('latestInviteCode', randomCode);
+    setIsGenerating(false);
+  };
+
+  const copyInviteCode = () => {
+    const shareUrl = `${window.location.origin}/signup?invite=${inviteCode}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
   if (!isOpen) return null;
@@ -29,14 +55,19 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shareToSocial = (platform: 'facebook' | 'linkedin' | 'twitter') => {
+  const shareToSocial = (platform: 'facebook' | 'linkedin' | 'twitter' | 'instagram' | 'threads') => {
     const text = encodeURIComponent('Join me on REVVEN - AI-powered business automation! 🚀');
-    const url = encodeURIComponent(`https://${referralLink}`);
+    const shareLink = inviteCode 
+      ? `${window.location.origin}/signup?invite=${inviteCode}`
+      : referralLink;
+    const url = encodeURIComponent(shareLink);
     
     const urls = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-      twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`
+      twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      instagram: `https://www.instagram.com/`, // Instagram doesn't support direct sharing via URL
+      threads: `https://www.threads.net/intent/post?text=${text}%20${url}`
     };
     
     window.open(urls[platform], '_blank', 'width=600,height=400');
@@ -165,7 +196,7 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
             {activeTab === 'invite' ? (
               <div>
                 {/* Hero Image Section */}
-                <div className="relative h-64 overflow-hidden rounded-t-3xl">
+                <div className="relative h-64 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-pink-900 to-red-900">
                     {/* Placeholder for hero image - replace with actual image */}
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -183,16 +214,60 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
                 <div className="p-8">
                   <div className="mb-8">
                     <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                      Invite your friends and get paid!
+                      Invite Your Friends & Get Paid!
                     </h2>
                     <p className="text-lg text-gray-700 leading-relaxed">
-                      Your friends get 50% off the first 3 months, and you'll earn 40% of any purchase they make (up to $50) as a reward. The more friends you refer, the more you earn!
+                      Your friends get 50% off the first 3 months, and you'll earn a recurring 50% of any of our plans, as a reward, as long as they're active. The more friends you refer, the more you earn!
                     </p>
+                  </div>
+
+                  {/* Invite Code Generation */}
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Invite Code</h3>
+                    
+                    {!inviteCode ? (
+                      <div className="text-center py-8">
+                        <Button
+                          onClick={generateInviteCode}
+                          disabled={isGenerating}
+                          className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:opacity-90 text-white px-8 py-3 text-base font-semibold rounded-xl"
+                        >
+                          {isGenerating ? 'Generating...' : 'Generate Invite Code'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                            value={`${window.location.origin}/signup?invite=${inviteCode}`}
+                            readOnly
+                            className="flex-1 bg-transparent text-gray-700 font-mono text-sm focus:outline-none"
+                          />
+                          <button
+                            onClick={copyInviteCode}
+                            className="px-6 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg font-medium transition-colors flex items-center gap-2"
+                          >
+                            {copiedCode ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                Copy
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Share Section */}
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Share Invite Code</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Share Your Link</h3>
                     
                     {/* Referral Link */}
                     <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
@@ -223,13 +298,13 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
                     </div>
 
                     {/* Social Share Buttons */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3 mb-6">
                       <button
                         onClick={() => shareToSocial('facebook')}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 rounded-xl font-medium transition-all"
                       >
                         <FaFacebook className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm text-gray-700">Share on Facebook</span>
+                        <span className="text-sm text-gray-700">Facebook</span>
                       </button>
 
                       <button
@@ -237,7 +312,7 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 hover:border-blue-700 hover:bg-blue-50 rounded-xl font-medium transition-all"
                       >
                         <FaLinkedin className="w-5 h-5 text-blue-700" />
-                        <span className="text-sm text-gray-700">Post on LinkedIn</span>
+                        <span className="text-sm text-gray-700">LinkedIn</span>
                       </button>
 
                       <button
@@ -245,7 +320,23 @@ export default function InviteRewardsModalUpdated({ isOpen, onClose }: InviteRew
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-50 rounded-xl font-medium transition-all"
                       >
                         <FaXTwitter className="w-5 h-5 text-gray-900" />
-                        <span className="text-sm text-gray-700">Post on X/Twitter</span>
+                        <span className="text-sm text-gray-700">X/Twitter</span>
+                      </button>
+
+                      <button
+                        onClick={() => shareToSocial('instagram')}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 hover:border-pink-500 hover:bg-pink-50 rounded-xl font-medium transition-all"
+                      >
+                        <FaInstagram className="w-5 h-5 text-pink-600" />
+                        <span className="text-sm text-gray-700">Instagram</span>
+                      </button>
+
+                      <button
+                        onClick={() => shareToSocial('threads')}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-50 rounded-xl font-medium transition-all col-span-2"
+                      >
+                        <FaThreads className="w-5 h-5 text-gray-900" />
+                        <span className="text-sm text-gray-700">Threads</span>
                       </button>
                     </div>
                   </div>
