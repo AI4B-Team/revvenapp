@@ -11,9 +11,11 @@ import grokLogo from '@/assets/model-logos/grok.png';
 interface GenerationInputProps {
   selectedType: string;
   onCharactersClick?: () => void;
+  onCharacterSelect?: (character: any) => void;
+  selectedCharacter?: any;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -86,7 +88,12 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
           prompt: prompt.trim(),
           aspectRatio: selectedAspectRatio,
           model: selectedModel,
-          numberOfImages: numberOfImages
+          numberOfImages: numberOfImages,
+          character: selectedCharacter ? {
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            image: selectedCharacter.image
+          } : null
         }
       });
 
@@ -332,14 +339,18 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                     <TooltipTrigger asChild>
                       <button 
                         onClick={onCharactersClick}
-                        className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedCharacter 
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
                       >
                         <User size={14} />
-                        Character
+                        {selectedCharacter ? selectedCharacter.name : 'Character'}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Character</p>
+                      <p>{selectedCharacter ? `Selected: ${selectedCharacter.name}` : 'Select Character'}</p>
                     </TooltipContent>
                   </Tooltip>
 
