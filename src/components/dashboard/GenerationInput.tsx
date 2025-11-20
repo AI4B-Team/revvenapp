@@ -694,10 +694,18 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
               </>
             ) : (
               <>
+                {/* Model Section Label */}
+                <div className="w-full mb-2">
+                  <div className="bg-sidebar text-sidebar-foreground px-3 py-1.5 rounded-t-md">
+                    <span className="text-xs font-medium tracking-wide">MODEL</span>
+                  </div>
+                </div>
+                
                 {/* Image Mode Controls */}
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap w-full justify-between border border-border">
+                      <div className="flex items-center gap-2">
                       {selectedModel === 'auto' && (
                         <Zap size={14} className="text-brand-blue" />
                       )}
@@ -766,6 +774,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                       {selectedModel === 'nano-banana' && 'Nano Banana'}
                       {selectedModel === 'ideogram' && 'Ideogram V3'}
                       {selectedModel === 'imagen-ultra' && 'Imagen 4 Ultra'}
+                      </div>
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
