@@ -36,6 +36,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const { toast } = useToast();
   
+  // Define models that support image-to-image generation
+  const img2imgModels = ['auto', 'flux-pro', 'flux-max', 'seedream-4', 'seedream', 'imagen-ultra'];
+  
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
     'auto': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
@@ -891,6 +894,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                      {selectedReference && (
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 mr-1">IMG2IMG</Badge>
+                      )}
                       {selectedModel === 'auto' && (
                         <Zap size={14} className="text-brand-blue" />
                       )}
@@ -964,29 +970,42 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
-                  {/* Auto */}
-                  <button 
-                    onClick={() => {
-                      handleModelChange('auto');
-                      setIsModelDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Zap size={16} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Auto</span>
-                          <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">AI picks what's best</p>
-                      </div>
+                  {selectedReference && (
+                    <div className="px-4 py-2 bg-primary/10 rounded-lg mb-2">
+                      <p className="text-xs font-medium text-primary">Image-to-Image Mode Active</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Only models supporting img-to-img are shown</p>
                     </div>
-                  </button>
+                  )}
+                  
+                  {/* Auto */}
+                  {(!selectedReference || img2imgModels.includes('auto')) && (
+                    <button 
+                      onClick={() => {
+                        handleModelChange('auto');
+                        setIsModelDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Zap size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-semibold text-foreground text-sm">Auto</span>
+                            <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
+                            {img2imgModels.includes('auto') && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">AI picks what's best</p>
+                        </div>
+                      </div>
+                    </button>
+                  )}
 
                   {/* Flux Pro */}
+                  {(!selectedReference || img2imgModels.includes('flux-pro')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-pro');
@@ -994,22 +1013,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Sparkles size={16} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Flux Pro</span>
-                          <Badge className="bg-brand-red text-primary text-[10px] px-1.5 py-0 h-4 flex items-center gap-1">
-                            <Flame size={10} />
-                            FAST
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Fast generation with excellent quality</p>
-                      </div>
-                    </div>
+...
                   </button>
+                  )}
 
                   {/* Flux Max */}
                   <button 
@@ -1059,7 +1065,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </button>
 
                   {/* Seedream 4.0 */}
-                  <button 
+                  {(!selectedReference || img2imgModels.includes('seedream-4')) && (
+                  <button
                     onClick={() => {
                       handleModelChange('seedream-4');
                       setIsModelDropdownOpen(false);
@@ -1079,8 +1086,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Seedream 3.0 */}
+                  {(!selectedReference || img2imgModels.includes('seedream')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('seedream');
@@ -1096,12 +1105,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Seedream 3.0</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">ByteDance's 2K native resolution</p>
+                        <p className="text-xs text-muted-foreground">ByteDance's reliable SD model</p>
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Qwen Image */}
+                  {(!selectedReference || img2imgModels.includes('qwen')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('qwen');
@@ -1121,9 +1132,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Nano Banana */}
-                  <button 
+                  {(!selectedReference || img2imgModels.includes('nano-banana')) && (
+                  <button
                     onClick={() => {
                       handleModelChange('nano-banana');
                       setIsModelDropdownOpen(false);
@@ -1147,9 +1160,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Ideogram V3 */}
-                  <button 
+                  {(!selectedReference || img2imgModels.includes('ideogram')) && (
+                  <button
                     onClick={() => {
                       handleModelChange('ideogram');
                       setIsModelDropdownOpen(false);
@@ -1168,9 +1183,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Grok Imagine */}
-                  <button 
+                  {(!selectedReference || img2imgModels.includes('grok')) && (
+                  <button
                     onClick={() => {
                       handleModelChange('grok');
                       setIsModelDropdownOpen(false);
@@ -1189,9 +1206,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Imagen 4 Ultra */}
-                  <button 
+                  {(!selectedReference || img2imgModels.includes('imagen-ultra')) && (
+                  <button
                     onClick={() => {
                       handleModelChange('imagen-ultra');
                       setIsModelDropdownOpen(false);
@@ -1216,6 +1235,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                     </div>
                   </button>
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
