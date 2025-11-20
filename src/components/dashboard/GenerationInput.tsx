@@ -1307,6 +1307,59 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               Character
             </button>
             
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={selectedReference ? "default" : "secondary"}
+                  size="sm"
+                  className="flex items-center gap-2 whitespace-nowrap"
+                >
+                  <Upload size={14} />
+                  {selectedReference ? 'Reference Selected' : 'References'}
+                  <ChevronDown size={14} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 bg-background border-border z-50 p-4">
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
+                    <input
+                      type="file"
+                      id="inline-reference-upload-image-mode"
+                      accept="image/*"
+                      onChange={handleReferenceUpload}
+                      className="hidden"
+                      disabled={isUploadingReference}
+                    />
+                    <label
+                      htmlFor="inline-reference-upload-image-mode"
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      {isUploadingReference ? (
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      ) : (
+                        <Upload className="h-8 w-8 text-primary" />
+                      )}
+                      <p className="text-sm font-medium text-foreground">
+                        {isUploadingReference ? 'Uploading...' : 'Upload reference image'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        PNG, JPG, WEBP up to 10MB
+                      </p>
+                    </label>
+                  </div>
+                  
+                  <Button
+                    onClick={onReferencesClick}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    View All References
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
