@@ -9,6 +9,7 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
+import ReferencesModal from '@/components/dashboard/ReferencesModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
@@ -25,6 +26,8 @@ const Create = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
+  const [selectedReference, setSelectedReference] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
@@ -402,6 +405,9 @@ const Create = () => {
               onCharactersClick={() => setCharactersModalOpen(true)}
               onCharacterSelect={setSelectedCharacter}
               selectedCharacter={selectedCharacter}
+              onReferencesClick={() => setReferencesModalOpen(true)}
+              onReferenceSelect={setSelectedReference}
+              selectedReference={selectedReference}
             />
             
             <ActionButtons 
@@ -567,6 +573,13 @@ const Create = () => {
           setSelectedCharacter(character);
           setCharactersModalOpen(false);
         }}
+      />
+
+      <ReferencesModal
+        isOpen={referencesModalOpen}
+        onClose={() => setReferencesModalOpen(false)}
+        onSelectReference={setSelectedReference}
+        selectedReference={selectedReference}
       />
     </div>
   );
