@@ -40,7 +40,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
-  const img2imgModels = ['auto', 'flux-pro', 'flux-max', 'seedream-4', 'seedream', 'imagen-ultra', 'grok', 'nano-banana', 'nano-banana-pro', 'gpt-4o-image', 'qwen', 'ideogram', 'ideogram-character'];
+  const img2imgModels = [
+    'auto',
+    'flux-pro',
+    'flux-max',
+    'gpt-4o-image',
+    'seedream-4',
+    'nano-banana',
+    'nano-banana-pro',
+    'ideogram-character',
+    'imagen-ultra',
+  ];
   
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
