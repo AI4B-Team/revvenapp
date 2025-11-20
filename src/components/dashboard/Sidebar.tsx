@@ -189,6 +189,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
+  const [isCampaignsOpen, setIsCampaignsOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
   
@@ -409,6 +410,37 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               <Users size={14} />
               <span className="text-sm">Characters</span>
             </NavLink>
+          </div>
+          )}
+        </div>
+
+        {/* Campaigns Section */}
+        <div className="pt-2">
+          <button 
+            onClick={() => setIsCampaignsOpen(!isCampaignsOpen)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
+            title="Campaigns"
+          >
+            <span className="text-sidebar-muted">
+              <Target size={18} />
+            </span>
+            {!isCollapsed && <span className="flex-1 text-left text-sm">Campaigns</span>}
+            {!isCollapsed && <ChevronDown size={18} className={`text-sidebar-muted transition-transform ${isCampaignsOpen ? 'rotate-0' : '-rotate-90'}`} />}
+          </button>
+          {isCampaignsOpen && !isCollapsed && (
+          <div className="ml-6 mt-2 space-y-2 bg-sidebar">
+            <button
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover w-full text-left rounded"
+            >
+              <LayoutGrid size={14} />
+              <span className="text-sm">Plan</span>
+            </button>
+            <button
+              className="flex items-center gap-3 px-3 py-1.5 text-sidebar-muted hover:text-sidebar-text hover:bg-sidebar-hover w-full text-left rounded"
+            >
+              <Calendar size={14} />
+              <span className="text-sm">Calendar</span>
+            </button>
           </div>
           )}
         </div>
