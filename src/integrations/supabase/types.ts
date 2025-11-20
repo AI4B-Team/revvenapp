@@ -120,6 +120,7 @@ export type Database = {
           kie_task_id: string | null
           model: string | null
           prompt: string
+          reference_image_url: string | null
           status: string | null
           user_id: string
         }
@@ -133,6 +134,7 @@ export type Database = {
           kie_task_id?: string | null
           model?: string | null
           prompt: string
+          reference_image_url?: string | null
           status?: string | null
           user_id: string
         }
@@ -146,6 +148,7 @@ export type Database = {
           kie_task_id?: string | null
           model?: string | null
           prompt?: string
+          reference_image_url?: string | null
           status?: string | null
           user_id?: string
         }

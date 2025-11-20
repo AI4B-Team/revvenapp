@@ -148,6 +148,7 @@ serve(async (req) => {
           model: modelConfig.name,
           aspect_ratio: aspectRatio,
           status: "pending",
+          reference_image_url: effectiveReferenceImage || null,
         })
         .select()
         .single();

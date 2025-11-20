@@ -362,16 +362,18 @@ const ImageViewerModal = ({
             </div>
 
             {/* Reference Image */}
-            <div className="p-4 border-b border-gray-800">
-              <h3 className="text-white font-semibold mb-2 text-sm">Reference</h3>
-              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-800">
-                <img
-                  src={imageData.referenceImage}
-                  alt="Reference"
-                  className="w-full h-full object-cover"
-                />
+            {imageData.referenceImage && (
+              <div className="p-4 border-b border-gray-800">
+                <h3 className="text-white font-semibold mb-2 text-sm">Reference</h3>
+                <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-800">
+                  <img
+                    src={imageData.referenceImage}
+                    alt="Reference"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
 
