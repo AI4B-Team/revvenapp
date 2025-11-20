@@ -459,6 +459,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                         ...prev,
                         [item.label]: !prev[item.label]
                       }));
+                      // Navigate to websites when Sites is clicked
+                      if (item.label === 'Sites') {
+                        navigate('/websites');
+                      }
                     } else {
                       setIsRecentOpen(!isRecentOpen);
                     }
