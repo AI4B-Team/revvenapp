@@ -178,6 +178,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reference_images: {
+        Row: {
+          cloudinary_public_id: string | null
+          created_at: string
+          id: string
+          image_url: string
+          original_filename: string | null
+          thumbnail_url: string | null
+          user_id: string
+        }
+        Insert: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          original_filename?: string | null
+          thumbnail_url?: string | null
+          user_id: string
+        }
+        Update: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          original_filename?: string | null
+          thumbnail_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

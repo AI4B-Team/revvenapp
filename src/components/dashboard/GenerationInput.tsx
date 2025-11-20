@@ -13,9 +13,12 @@ interface GenerationInputProps {
   onCharactersClick?: () => void;
   onCharacterSelect?: (character: any) => void;
   selectedCharacter?: any;
+  onReferencesClick?: () => void;
+  onReferenceSelect?: (reference: any) => void;
+  selectedReference?: any;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter, onReferencesClick, onReferenceSelect, selectedReference }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -93,7 +96,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             id: selectedCharacter.id,
             name: selectedCharacter.name,
             image: selectedCharacter.image
-          } : null
+          } : null,
+          referenceImage: selectedReference ? selectedReference.image_url : null
         }
       });
 
@@ -351,6 +355,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{selectedCharacter ? `Selected: ${selectedCharacter.name}` : 'Select Character'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={onReferencesClick}
+                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedReference 
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
+                        <Image size={14} />
+                        {selectedReference ? 'Reference' : 'References'}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{selectedReference ? 'Reference selected' : 'Select Reference Image'}</p>
                     </TooltipContent>
                   </Tooltip>
 

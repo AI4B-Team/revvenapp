@@ -83,13 +83,13 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1 } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages });
+    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages, hasReference: !!referenceImage });
 
     // Get user from authorization header
     const authHeader = req.headers.get("authorization");
@@ -163,7 +163,7 @@ serve(async (req) => {
       let requestBody: any;
       
       if (modelConfig.apiType === 'flux') {
-        // Flux Kontext API format
+        // Flux Kontext API format - supports img-to-img
         requestBody = {
           prompt: prompt,
           aspectRatio: aspectRatio,
@@ -173,6 +173,12 @@ serve(async (req) => {
           promptUpsampling: false,
           callBackUrl: callbackUrl,
         };
+        
+        // Add reference image if provided (img-to-img)
+        if (referenceImage) {
+          requestBody.imageUrl = referenceImage;
+          requestBody.strength = 0.8; // Control how much to transform (0-1, lower = closer to original)
+        }
       } else if (modelConfig.apiType === 'gpt4o') {
         // GPT-4o Image API format - size must be "1:1", "3:2", or "2:3"
         const sizeMapping: Record<string, string> = {
@@ -195,7 +201,7 @@ serve(async (req) => {
           enableFallback: false
         };
       } else if (modelConfig.apiType === 'seedream') {
-        // Seedream 3.0 API format - matches official documentation
+        // Seedream 3.0 API format - supports img-to-img
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -210,6 +216,12 @@ serve(async (req) => {
             enable_safety_checker: true
           }
         };
+        
+        // Add reference image if provided (img-to-img)
+        if (referenceImage) {
+          requestBody.input.image = referenceImage;
+          requestBody.input.strength = 0.8; // Control transformation strength
+        }
       } else if (modelConfig.apiType === 'qwen') {
         // Qwen API format
         requestBody = {
@@ -226,7 +238,7 @@ serve(async (req) => {
           }
         };
       } else if (modelConfig.apiType === 'imagen') {
-        // Google Imagen 4 Ultra API format
+        // Google Imagen 4 Ultra API format - supports img-to-img
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -237,6 +249,11 @@ serve(async (req) => {
             seed: ""
           }
         };
+        
+        // Add reference image if provided (img-to-img)
+        if (referenceImage) {
+          requestBody.input.image = referenceImage;
+        }
       } else if (modelConfig.apiType === 'replicate') {
         // Replicate-based models
         requestBody = {
