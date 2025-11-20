@@ -1283,7 +1283,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Nano Banana */}
-                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('nano-banana')) && (
+                  {( (selectedReference || selectedCharacter || isCharacterReference) && img2imgModels.includes('nano-banana')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana');
@@ -1311,7 +1311,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Nano Banana Pro */}
-                  {((!selectedReference && !selectedCharacter) || img2imgModels.includes('nano-banana-pro')) && (
+                  {( (selectedReference || selectedCharacter || isCharacterReference) && img2imgModels.includes('nano-banana-pro')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana-pro');
