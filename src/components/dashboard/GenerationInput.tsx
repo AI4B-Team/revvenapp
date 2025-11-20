@@ -511,16 +511,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </TooltipContent>
                   </Tooltip>
 
-                  <Popover>
+                  <Popover open={selectedReference ? false : undefined}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={selectedReference ? "default" : "secondary"}
                         size="sm"
                         className="flex items-center gap-2 whitespace-nowrap"
+                        onClick={(e) => {
+                          if (selectedReference) {
+                            e.preventDefault();
+                            onReferenceSelect(null);
+                          }
+                        }}
                       >
                         <Upload size={14} />
                         {selectedReference ? 'Reference Selected' : 'References'}
-                        <ChevronDown size={14} />
+                        {!selectedReference && <ChevronDown size={14} />}
+                        {selectedReference && <X size={14} />}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80 bg-background border-border z-50 p-4">
