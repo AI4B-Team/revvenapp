@@ -264,12 +264,12 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground">
                         Get 1,000 FREE Credits When You Complete Setup Today!
                       </h3>
                       {timeRemaining && timeRemaining !== 'EXPIRED' && (
-                        <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                          <Clock className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold animate-pulse">
+                          <Clock className="w-4 h-4" />
                           {timeRemaining}
                         </span>
                       )}
