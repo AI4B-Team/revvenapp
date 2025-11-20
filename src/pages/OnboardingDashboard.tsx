@@ -35,7 +35,7 @@ export default function OnboardingDashboard() {
                   Your AI Team Is Ready To Work — But They Need To Learn Your Brand First
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Complete your brand profile to activate Dolmar, Keisha, Francis, Rich, Brian, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
+                  Complete your brand profile to activate Francis, Brian, Rich, Dolmar, Keisha, and Damoi. Once they know your voice, colors, and style, they'll start creating content, building campaigns, and automating your business 24/7.
                 </p>
               </div>
             </div>
