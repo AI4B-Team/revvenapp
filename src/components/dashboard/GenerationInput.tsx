@@ -116,9 +116,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             name: selectedCharacter.name,
             image: selectedCharacter.image
           } : null,
-          // Pass reference image if available (separate from character)
-          referenceImage: selectedReference ? selectedReference.image_url : null,
-          // Pass character image separately so backend can use both
+          // Use character image as reference if character is selected, otherwise use direct reference
+          referenceImage: selectedCharacter 
+            ? selectedCharacter.image 
+            : (selectedReference ? selectedReference.image_url : null),
           characterImage: selectedCharacter ? selectedCharacter.image : null,
           maskImage: maskImage
         }
