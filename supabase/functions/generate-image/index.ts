@@ -68,6 +68,12 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     endpoint: '/api/v1/jobs/createTask',
     apiType: 'nano-banana-edit'
   },
+  'nano-banana-pro': {
+    model: 'nano-banana-pro',
+    name: 'Nano Banana Pro',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'nano-banana-pro'
+  },
   'ideogram': {
     model: 'ideogram/v3-edit',
     name: 'Ideogram V3 Edit',
@@ -335,6 +341,23 @@ serve(async (req) => {
             negative_prompt: ""
           }
         };
+      } else if (modelConfig.apiType === 'nano-banana-pro') {
+        // Nano Banana Pro API format - supports optional img-to-img with image_input array
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            aspect_ratio: aspectRatio || "1:1",
+            resolution: "1K",
+            output_format: "png"
+          }
+        };
+        
+        // Add reference image if provided (img-to-img) - uses image_input array
+        if (effectiveReferenceImage) {
+          requestBody.input.image_input = [effectiveReferenceImage];
+        }
       }
 
       // Add DB record ID to callback payload so webhook can identify which record to update
