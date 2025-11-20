@@ -28,6 +28,7 @@ const Create = () => {
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   const [referencesModalOpen, setReferencesModalOpen] = useState(false);
   const [selectedReference, setSelectedReference] = useState<any>(null);
+  const [isCharacterReference, setIsCharacterReference] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
@@ -406,8 +407,14 @@ const Create = () => {
               onCharacterSelect={setSelectedCharacter}
               selectedCharacter={selectedCharacter}
               onReferencesClick={() => setReferencesModalOpen(true)}
-              onReferenceSelect={setSelectedReference}
+              onReferenceSelect={(reference) => {
+                setSelectedReference(reference);
+                if (reference === null) {
+                  setIsCharacterReference(false);
+                }
+              }}
               selectedReference={selectedReference}
+              isCharacterReference={isCharacterReference}
             />
             
             <ActionButtons 
@@ -577,6 +584,7 @@ const Create = () => {
             name: character.name,
             image_url: character.image
           });
+          setIsCharacterReference(true); // Mark this as a character reference
           setCharactersModalOpen(false);
         }}
       />
@@ -584,7 +592,10 @@ const Create = () => {
       <ReferencesModal
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
-        onSelectReference={setSelectedReference}
+        onSelectReference={(reference) => {
+          setSelectedReference(reference);
+          setIsCharacterReference(false); // Mark this as a direct reference, not a character
+        }}
         selectedReference={selectedReference}
       />
     </div>

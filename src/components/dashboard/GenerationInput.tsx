@@ -17,9 +17,10 @@ interface GenerationInputProps {
   onReferencesClick?: () => void;
   onReferenceSelect?: (reference: any) => void;
   selectedReference?: any;
+  isCharacterReference?: boolean;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter, onReferencesClick, onReferenceSelect, selectedReference }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter, onReferencesClick, onReferenceSelect, selectedReference, isCharacterReference }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1480,8 +1481,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                 className="flex items-center gap-2 whitespace-nowrap"
                 onClick={() => onReferenceSelect(null)}
               >
-                <Upload size={14} />
-                Reference Selected
+                {isCharacterReference ? <User size={14} /> : <Upload size={14} />}
+                {isCharacterReference ? 'Character Selected' : 'Reference Selected'}
                 <X size={14} />
               </Button>
             ) : (
