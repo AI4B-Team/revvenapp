@@ -295,16 +295,14 @@ const Onboarding = () => {
                           className="w-full px-8 py-6 flex items-center justify-between bg-secondary/30 hover:bg-secondary transition-colors"
                         >
                           <div className="text-left">
-                            <div className="flex items-center gap-3 mb-1">
-                              <h3 className="text-2xl font-bold text-foreground">
-                                {section.title}
-                              </h3>
-                              <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
-                                <Gift className="w-3 h-3" />
-                                Unlock {section.credits} credits
-                              </span>
-                            </div>
-                            <p className="text-muted-foreground">{section.subtitle}</p>
+                            <h3 className="text-2xl font-bold text-foreground mb-1">
+                              {section.title}
+                            </h3>
+                            <p className="text-muted-foreground mb-2">{section.subtitle}</p>
+                            <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold w-fit">
+                              <Gift className="w-3 h-3" />
+                              Unlock {section.credits} credits
+                            </span>
                           </div>
                           
                           <div className="flex items-center gap-4">
