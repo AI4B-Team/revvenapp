@@ -1094,11 +1094,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
                   >
-...
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={16} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Flux Pro</span>
+                          {img2imgModels.includes('flux-pro') && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Balanced performance and quality</p>
+                      </div>
+                    </div>
                   </button>
                   )}
 
                   {/* Flux Max */}
+                  {(!selectedReference || img2imgModels.includes('flux-max')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-max');
@@ -1114,13 +1128,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Flux Max</span>
                           <Badge className="bg-brand-purple text-primary text-[10px] px-1.5 py-0 h-4">PREMIUM</Badge>
+                          {img2imgModels.includes('flux-max') && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">Enhanced quality for complex scenes</p>
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* GPT-4o Image */}
+                  {(!selectedReference || img2imgModels.includes('gpt-4o-image')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('gpt-4o-image');
@@ -1139,11 +1158,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">GPT-4o Image</span>
                           <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                          {img2imgModels.includes('gpt-4o-image') && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">OpenAI's advanced image model</p>
                       </div>
                     </div>
                   </button>
+                  )}
 
                   {/* Seedream 4.0 */}
                   {(!selectedReference || img2imgModels.includes('seedream-4')) && (
