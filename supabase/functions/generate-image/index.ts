@@ -73,6 +73,12 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     name: 'Ideogram V3 Edit',
     endpoint: '/api/v1/jobs/createTask',
     apiType: 'ideogram-edit'
+  },
+  'ideogram-character': {
+    model: 'ideogram/character',
+    name: 'Ideogram Character',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'ideogram-character'
   }
 };
 
@@ -299,6 +305,28 @@ serve(async (req) => {
             rendering_speed: "BALANCED",
             expand_prompt: true,
             num_images: "1"
+          }
+        };
+      } else if (modelConfig.apiType === 'ideogram-character') {
+        // Ideogram Character API format - character-consistent generation
+        if (!referenceImage) {
+          throw new Error("Ideogram Character requires a reference image");
+        }
+        
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            reference_image_urls: [referenceImage],
+            rendering_speed: "BALANCED",
+            style: "AUTO",
+            expand_prompt: true,
+            num_images: "1",
+            image_size: aspectRatio === "1:1" ? "square_hd" : 
+                       aspectRatio === "16:9" ? "landscape_16_9" : 
+                       aspectRatio === "9:16" ? "portrait_16_9" : 
+                       aspectRatio === "4:3" ? "landscape_4_3" : "square_hd"
           }
         };
       }

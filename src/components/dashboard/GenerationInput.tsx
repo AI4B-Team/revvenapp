@@ -39,7 +39,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
-  const img2imgModels = ['auto', 'flux-pro', 'flux-max', 'seedream-4', 'seedream', 'imagen-ultra', 'grok', 'nano-banana', 'gpt-4o-image', 'qwen', 'ideogram'];
+  const img2imgModels = ['auto', 'flux-pro', 'flux-max', 'seedream-4', 'seedream', 'imagen-ultra', 'grok', 'nano-banana', 'gpt-4o-image', 'qwen', 'ideogram', 'ideogram-character'];
   
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
@@ -53,7 +53,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     'grok': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'nano-banana': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'imagen-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
-    'ideogram': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9']
+    'ideogram': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'ideogram-character': ['1:1', '16:9', '9:16', '4:3']
   };
   
   // Get available aspect ratios for the selected model
@@ -1013,7 +1014,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
                       )}
-                      {selectedModel === 'ideogram' && (
+                      {(selectedModel === 'ideogram' || selectedModel === 'ideogram-character') && (
                         <Image size={14} className="text-blue-500" />
                       )}
                       {selectedModel === 'grok' && (
@@ -1042,7 +1043,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       {selectedModel === 'seedream' && 'Seedream 3.0'}
                       {selectedModel === 'qwen' && 'Qwen Image'}
                       {selectedModel === 'nano-banana' && 'Nano Banana'}
-                      {selectedModel === 'ideogram' && 'Ideogram V3'}
+                      {selectedModel === 'ideogram' && 'Ideogram V3 Edit'}
+                      {selectedModel === 'ideogram-character' && 'Ideogram Character'}
                       {selectedModel === 'imagen-ultra' && 'Imagen 4 Ultra'}
                       <ChevronDown size={14} />
                     </button>
@@ -1241,7 +1243,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </button>
                   )}
 
-                  {/* Ideogram V3 */}
+                  {/* Ideogram V3 Edit */}
                   {(!selectedReference || img2imgModels.includes('ideogram')) && (
                   <button
                     onClick={() => {
@@ -1256,9 +1258,38 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-foreground text-sm">Ideogram V3</span>
+                          <span className="font-semibold text-foreground text-sm">Ideogram V3 Edit</span>
+                          {img2imgModels.includes('ideogram') && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground">Advanced text rendering and editing</p>
+                        <p className="text-xs text-muted-foreground">Inpainting with mask editing</p>
+                      </div>
+                    </div>
+                  </button>
+                  )}
+
+                  {/* Ideogram Character */}
+                  {(!selectedReference || img2imgModels.includes('ideogram-character')) && (
+                  <button
+                    onClick={() => {
+                      handleModelChange('ideogram-character');
+                      setIsModelDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <User size={16} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Ideogram Character</span>
+                          {img2imgModels.includes('ideogram-character') && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Character-consistent generation</p>
                       </div>
                     </div>
                   </button>
@@ -1459,7 +1490,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               </PopoverContent>
             </Popover>
             
-            {/* Mask Upload Button - Only show for Ideogram when reference is selected */}
+            {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
             {selectedModel === 'ideogram' && selectedReference && (
               <Popover>
                 <PopoverTrigger asChild>
