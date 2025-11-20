@@ -51,6 +51,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     'ideogram-character',
     'imagen-ultra',
   ];
+
+  const hasImageReference = !!selectedReference || !!selectedCharacter || !!isCharacterReference;
   
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
