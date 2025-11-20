@@ -1307,7 +1307,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 ml-12">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
