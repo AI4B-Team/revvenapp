@@ -49,7 +49,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     'nano-banana',
     'nano-banana-pro',
     'ideogram-character',
-    'imagen-ultra',
   ];
 
   const hasImageReference = !!selectedReference || !!selectedCharacter || !!isCharacterReference;
