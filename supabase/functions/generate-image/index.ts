@@ -321,6 +321,9 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
+            // For character mode, KIE expects both image_url and reference_image_urls.
+            // We use the same reference image for both the base image and the character reference.
+            image_url: effectiveReferenceImage,
             reference_image_urls: [effectiveReferenceImage],
             rendering_speed: "BALANCED",
             style: "AUTO",
@@ -329,7 +332,8 @@ serve(async (req) => {
             image_size: aspectRatio === "1:1" ? "square_hd" : 
                        aspectRatio === "16:9" ? "landscape_16_9" : 
                        aspectRatio === "9:16" ? "portrait_16_9" : 
-                       aspectRatio === "4:3" ? "landscape_4_3" : "square_hd"
+                       aspectRatio === "4:3" ? "landscape_4_3" : "square_hd",
+            negative_prompt: ""
           }
         };
       }
