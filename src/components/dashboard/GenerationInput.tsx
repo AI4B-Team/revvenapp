@@ -23,6 +23,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploadingReference, setIsUploadingReference] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('Auto');
@@ -166,6 +167,74 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
       });
     } finally {
       setIsEnhancing(false);
+    }
+  };
+
+  const handleReferenceUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingReference(true);
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Reference image uploaded successfully",
+        });
+
+        // Auto-select the uploaded reference
+        if (onReferenceSelect && data?.referenceImage) {
+          onReferenceSelect(data.referenceImage);
+        }
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading reference:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload reference image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingReference(false);
     }
   };
 
@@ -359,15 +428,58 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </TooltipContent>
                   </Tooltip>
 
-                  <Button
-                    onClick={onReferencesClick}
-                    variant={selectedReference ? "default" : "secondary"}
-                    size="sm"
-                    className="flex items-center gap-2 whitespace-nowrap"
-                  >
-                    <Upload size={14} />
-                    {selectedReference ? 'Reference Selected' : 'Upload Reference'}
-                  </Button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={selectedReference ? "default" : "secondary"}
+                        size="sm"
+                        className="flex items-center gap-2 whitespace-nowrap"
+                      >
+                        <Upload size={14} />
+                        {selectedReference ? 'Reference Selected' : 'References'}
+                        <ChevronDown size={14} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 bg-background border-border z-50 p-4">
+                      <div className="space-y-3">
+                        <div className="border-2 border-dashed border-primary/50 bg-muted/20 rounded-lg p-4 text-center hover:border-primary hover:bg-muted/40 transition-colors">
+                          <input
+                            type="file"
+                            id="inline-reference-upload"
+                            accept="image/*"
+                            onChange={handleReferenceUpload}
+                            className="hidden"
+                            disabled={isUploadingReference}
+                          />
+                          <label
+                            htmlFor="inline-reference-upload"
+                            className="cursor-pointer flex flex-col items-center gap-2"
+                          >
+                            {isUploadingReference ? (
+                              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            ) : (
+                              <Upload className="h-8 w-8 text-primary" />
+                            )}
+                            <p className="text-sm font-medium text-foreground">
+                              {isUploadingReference ? 'Uploading...' : 'Upload reference image'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              PNG, JPG, WEBP up to 10MB
+                            </p>
+                          </label>
+                        </div>
+                        
+                        <Button
+                          onClick={onReferencesClick}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          View All References
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
                   <Tooltip>
                     <TooltipTrigger asChild>
