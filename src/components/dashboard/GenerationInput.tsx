@@ -26,6 +26,7 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
   const [isStyleDropdownOpen, setIsStyleDropdownOpen] = useState(false);
   const [isAspectRatioDropdownOpen, setIsAspectRatioDropdownOpen] = useState(false);
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const { toast } = useToast();
   
   // Define supported aspect ratios for each model
@@ -155,6 +156,71 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
       setIsEnhancing(false);
     }
   };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzingImage(true);
+    
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => {
+          const base64Image = e.target?.result as string;
+          resolve(base64Image);
+        };
+        reader.onerror = reject;
+      });
+      
+      reader.readAsDataURL(file);
+      const base64Image = await base64Promise;
+      
+      console.log("Analyzing image with AI...");
+      
+      const { data, error } = await supabase.functions.invoke('image-to-prompt', {
+        body: { 
+          imageBase64: base64Image
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.prompt) {
+        setPrompt(data.prompt);
+        toast({
+          title: "Prompt generated!",
+          description: "AI has analyzed your image and created a prompt",
+        });
+        console.log("Generated prompt from image:", data.prompt);
+      }
+      
+    } catch (error) {
+      console.error("Image analysis error:", error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: "Analysis failed",
+        description: errorMessage || "Failed to analyze image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzingImage(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
   
   return (
     <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
@@ -175,9 +241,20 @@ const GenerationInput = ({ selectedType, onCharactersClick }: GenerationInputPro
                   <>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition">
-                          <Image size={18} className="text-muted-foreground" />
-                        </button>
+                        <label className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition cursor-pointer">
+                          {isAnalyzingImage ? (
+                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                          ) : (
+                            <Image size={18} className="text-muted-foreground" />
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isAnalyzingImage}
+                            className="hidden"
+                          />
+                        </label>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Image-To-Prompt</p>
