@@ -88,13 +88,16 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage, maskImage } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage, characterImage, maskImage } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages, hasReference: !!referenceImage });
+    // Use characterImage as the effective reference if provided, otherwise use referenceImage
+    const effectiveReferenceImage = characterImage || referenceImage;
+
+    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages, hasCharacter: !!characterImage, hasReference: !!referenceImage, effectiveReference: !!effectiveReferenceImage });
 
     // Get user from authorization header
     const authHeader = req.headers.get("authorization");
@@ -207,8 +210,8 @@ serve(async (req) => {
         };
         
         // Add reference image if provided (img-to-img)
-        if (referenceImage) {
-          requestBody.filesUrl = [referenceImage]; // Array of up to 5 images
+        if (effectiveReferenceImage) {
+          requestBody.filesUrl = [effectiveReferenceImage]; // Array of up to 5 images
         }
       } else if (modelConfig.apiType === 'seedream') {
         // Seedream 3.0 API format - supports img-to-img
@@ -228,8 +231,8 @@ serve(async (req) => {
         };
         
         // Add reference image if provided (img-to-img)
-        if (referenceImage) {
-          requestBody.input.image = referenceImage;
+        if (effectiveReferenceImage) {
+          requestBody.input.image = effectiveReferenceImage;
           requestBody.input.strength = 0.8; // Control transformation strength
         }
       } else if (modelConfig.apiType === 'qwen') {
@@ -249,8 +252,8 @@ serve(async (req) => {
         };
         
         // Add reference image if provided (img-to-img)
-        if (referenceImage) {
-          requestBody.input.image_url = referenceImage;
+        if (effectiveReferenceImage) {
+          requestBody.input.image_url = effectiveReferenceImage;
           requestBody.input.strength = 0.8; // 0.0-1.0 transformation strength
         }
       } else if (modelConfig.apiType === 'imagen') {
@@ -267,12 +270,12 @@ serve(async (req) => {
         };
         
         // Add reference image if provided (img-to-img)
-        if (referenceImage) {
-          requestBody.input.image = referenceImage;
+        if (effectiveReferenceImage) {
+          requestBody.input.image = effectiveReferenceImage;
         }
       } else if (modelConfig.apiType === 'nano-banana-edit') {
         // Nano Banana Edit API format - requires image_urls array
-        if (!referenceImage) {
+        if (!effectiveReferenceImage) {
           throw new Error("Nano Banana Edit requires a reference image");
         }
         
@@ -281,14 +284,14 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            image_urls: [referenceImage], // Array of up to 10 images
+            image_urls: [effectiveReferenceImage], // Array of up to 10 images
             output_format: "png",
             image_size: aspectRatio || "1:1"
           }
         };
       } else if (modelConfig.apiType === 'ideogram-edit') {
         // Ideogram V3 Edit API format - inpainting with mask
-        if (!referenceImage) {
+        if (!effectiveReferenceImage) {
           throw new Error("Ideogram Edit requires a reference image");
         }
         if (!maskImage) {
@@ -300,7 +303,7 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            image_url: referenceImage,
+            image_url: effectiveReferenceImage,
             mask_url: maskImage,
             rendering_speed: "BALANCED",
             expand_prompt: true,
@@ -309,7 +312,7 @@ serve(async (req) => {
         };
       } else if (modelConfig.apiType === 'ideogram-character') {
         // Ideogram Character API format - character-consistent generation
-        if (!referenceImage) {
+        if (!effectiveReferenceImage) {
           throw new Error("Ideogram Character requires a reference image");
         }
         
@@ -318,7 +321,7 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            reference_image_urls: [referenceImage],
+            reference_image_urls: [effectiveReferenceImage],
             rendering_speed: "BALANCED",
             style: "AUTO",
             expand_prompt: true,
