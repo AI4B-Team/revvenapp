@@ -1481,7 +1481,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                 className="flex items-center gap-2 whitespace-nowrap"
                 onClick={() => onReferenceSelect(null)}
               >
-                {isCharacterReference ? <User size={14} /> : <Upload size={14} />}
+                <div className="relative">
+                  {isCharacterReference ? <User size={14} /> : <Upload size={14} />}
+                  {selectedReference?.image_url && (
+                    <img 
+                      src={selectedReference.image_url} 
+                      alt="Preview"
+                      className="absolute -top-1 -right-1 w-4 h-4 rounded-full object-cover border border-background"
+                    />
+                  )}
+                </div>
                 {isCharacterReference ? 'Character Selected' : 'Reference Selected'}
                 <X size={14} />
               </Button>
