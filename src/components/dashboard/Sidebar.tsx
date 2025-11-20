@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -32,6 +32,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange }: SidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
   const isContactsPage = location.pathname === '/contacts';
   const isRevenuePage = location.pathname === '/revenue';
@@ -351,7 +352,10 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
         {/* Brand Section */}
         <div className="pt-2">
           <button 
-            onClick={() => setIsBrandOpen(!isBrandOpen)}
+            onClick={() => {
+              setIsBrandOpen(!isBrandOpen);
+              navigate('/brand/identity');
+            }}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
               isBrandPage ? 'bg-sidebar-active' : ''
             }`}
