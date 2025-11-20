@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ChevronUp, ChevronDown, Check, Play, Image as ImageIcon, 
   Layout, Users, Sparkles, Video, DollarSign, Zap, FileText, 
   Music, CreditCard, TrendingUp, Package, Mail, Bot, MessageSquare,
-  Tag, Mic, BookOpen, Ticket, X, Gift
+  Tag, Mic, BookOpen, Ticket, X, Gift, Clock
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -20,8 +20,38 @@ const Onboarding = () => {
   const [activeTab, setActiveTab] = useState('Content');
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState('');
 
   const totalCredits = 1000;
+  
+  // Calculate time remaining until deadline (24 hours from signup)
+  useEffect(() => {
+    const signupDate = new Date(); // In production, get from user.createdAt
+    
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const deadline = new Date(signupDate);
+      deadline.setHours(deadline.getHours() + 24); // 24-hour deadline
+      
+      const diff = deadline.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setTimeRemaining('EXPIRED');
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
   
   const sections = [
     {
@@ -235,11 +265,14 @@ const Onboarding = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-1">
                       <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">
-                        Get 1,000 FREE Credits When You Complete Setup Today
+                        Get 1,000 AI Credits FREE When You Complete Setup Today
                       </h3>
-                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                        ⚡ TODAY ONLY
-                      </span>
+                      {timeRemaining && timeRemaining !== 'EXPIRED' && (
+                        <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                          <Clock className="w-3 h-3" />
+                          {timeRemaining}
+                        </span>
+                      )}
                     </div>
                     <p className="text-gray-700 dark:text-muted-foreground text-sm">
                       Use credits to create content, build campaigns, and automate revenue — COMPLETELY FREE!
