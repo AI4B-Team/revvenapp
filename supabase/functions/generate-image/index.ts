@@ -215,7 +215,7 @@ serve(async (req) => {
           requestBody.filesUrl = [effectiveReferenceImage]; // Array of up to 5 images
         }
       } else if (modelConfig.apiType === 'seedream') {
-        // Seedream 3.0 API format - supports img-to-img
+        // Seedream 3.0/4.0 API format - supports img-to-img with image_urls
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -226,15 +226,16 @@ serve(async (req) => {
                        aspectRatio === "9:16" ? "portrait_16_9" : 
                        aspectRatio === "4:3" ? "landscape_4_3" : 
                        aspectRatio === "3:4" ? "portrait_4_3" : "square_hd",
+            image_resolution: "1K",
+            max_images: 1,
             guidance_scale: 2.5,
             enable_safety_checker: true
           }
         };
         
-        // Add reference image if provided (img-to-img)
+        // Add reference image if provided (img-to-img) - uses image_urls array
         if (effectiveReferenceImage) {
-          requestBody.input.image = effectiveReferenceImage;
-          requestBody.input.strength = 0.8; // Control transformation strength
+          requestBody.input.image_urls = [effectiveReferenceImage];
         }
       } else if (modelConfig.apiType === 'qwen') {
         // Qwen API format - supports img-to-img
