@@ -189,11 +189,7 @@ const Onboarding = () => {
   const progressPercentage = 29;
   
   // Calculate earned credits based on completed tasks
-  const earnedCredits = sections.reduce((total, section) => {
-    const completedInSection = section.tasks.filter(task => completedTasks.has(task.id)).length;
-    const percentComplete = completedInSection / section.tasks.length;
-    return total + Math.floor(section.credits * percentComplete);
-  }, 0);
+  const earnedCredits = 0;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -237,11 +233,16 @@ const Onboarding = () => {
                     <Gift className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-1">
-                      Unlock {totalCredits.toLocaleString()} Credits By Completing Your Setup!
-                    </h3>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">
+                        Get 1,000 FREE Credits When You Complete Setup Today
+                      </h3>
+                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                        ⚡ TODAY ONLY
+                      </span>
+                    </div>
                     <p className="text-gray-700 dark:text-muted-foreground text-sm">
-                      Complete each step to unlock credits and start creating with AI — totally free!
+                      Use credits to create content, build campaigns, and automate revenue — COMPLETELY FREE!
                     </p>
                   </div>
                 </div>
@@ -300,8 +301,7 @@ const Onboarding = () => {
                             </h3>
                             <p className="text-muted-foreground mb-2">{section.subtitle}</p>
                             <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold w-fit">
-                              <Gift className="w-3 h-3" />
-                              Unlock {section.credits} credits
+                              🎁 EARN {section.credits} Credits
                             </span>
                           </div>
                           
