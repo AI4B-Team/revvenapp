@@ -1526,22 +1526,45 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             </Popover>
             
             {selectedCharacter ? (
-              <Button
-                variant="default"
-                size="sm"
-                className="flex items-center gap-2 whitespace-nowrap"
-                onClick={() => onCharacterSelect?.(null)}
-              >
-                {selectedCharacter?.image && (
-                  <img 
-                    src={selectedCharacter.image} 
-                    alt="Character"
-                    className="w-5 h-5 rounded-full object-cover"
-                  />
-                )}
-                Character Selected
-                <X size={14} />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex items-center gap-2 whitespace-nowrap"
+                      onClick={() => onCharacterSelect?.(null)}
+                    >
+                      {selectedCharacter?.image_url && (
+                        <img 
+                          src={selectedCharacter.image_url} 
+                          alt="Character"
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      )}
+                      Character Selected
+                      <X size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="p-0 border-0 bg-transparent">
+                    <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 shadow-xl">
+                      <div className="w-64 h-80 relative">
+                        <img 
+                          src={selectedCharacter.image_url} 
+                          alt={selectedCharacter.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-3 bg-gray-800">
+                        <p className="text-white font-semibold text-sm">{selectedCharacter.name}</p>
+                        {selectedCharacter.bio && (
+                          <p className="text-gray-400 text-xs mt-1 line-clamp-2">{selectedCharacter.bio}</p>
+                        )}
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ) : (
               <button 
                 onClick={onCharactersClick}
