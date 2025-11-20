@@ -21,6 +21,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const { toast } = useToast();
 
   const characters = [
@@ -363,6 +364,73 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
       });
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleRandomDescription = async () => {
+    setIsGeneratingDescription(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-character-description', {
+        body: { mode: 'random' }
+      });
+
+      if (error) throw error;
+
+      if (data?.description) {
+        setDescription(data.description);
+        toast({
+          title: "Random description generated",
+          description: "A creative character description has been created for you",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating random description:', error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate description. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingDescription(false);
+    }
+  };
+
+  const handleEnhanceDescription = async () => {
+    if (!description.trim()) {
+      toast({
+        title: "No description to enhance",
+        description: "Please enter a description first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingDescription(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-character-description', {
+        body: { description, mode: 'enhance' }
+      });
+
+      if (error) throw error;
+
+      if (data?.description) {
+        setDescription(data.description);
+        toast({
+          title: "Description enhanced",
+          description: "Your character description has been improved",
+        });
+      }
+    } catch (error) {
+      console.error('Error enhancing description:', error);
+      toast({
+        title: "Enhancement failed",
+        description: "Failed to enhance description. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingDescription(false);
     }
   };
 
@@ -730,12 +798,28 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                             />
                             
                             <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
-                              <button className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors">
-                                <Shuffle size={14} />
+                              <button 
+                                onClick={handleRandomDescription}
+                                disabled={isGeneratingDescription}
+                                className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isGeneratingDescription ? (
+                                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-black border-t-white"></div>
+                                ) : (
+                                  <Shuffle size={14} />
+                                )}
                                 <span>Random</span>
                               </button>
-                              <button className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors">
-                                <Wand2 size={14} />
+                              <button 
+                                onClick={handleEnhanceDescription}
+                                disabled={isGeneratingDescription || !description.trim()}
+                                className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-gray-100 text-black rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isGeneratingDescription ? (
+                                  <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-black border-t-white"></div>
+                                ) : (
+                                  <Wand2 size={14} />
+                                )}
                                 <span>Enhance</span>
                               </button>
                             </div>
