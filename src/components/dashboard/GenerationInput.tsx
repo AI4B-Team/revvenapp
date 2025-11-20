@@ -116,7 +116,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             name: selectedCharacter.name,
             image: selectedCharacter.image
           } : null,
-          referenceImage: selectedReference ? selectedReference.image_url : null,
+          // Use character image as reference if character is selected, otherwise use direct reference
+          referenceImage: selectedCharacter 
+            ? selectedCharacter.image 
+            : (selectedReference ? selectedReference.image_url : null),
           maskImage: maskImage
         }
       });
@@ -1466,15 +1469,34 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               </PopoverContent>
             </Popover>
             
-            <button 
-              onClick={onCharactersClick}
-              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-            >
-              <User size={14} />
-              Character
-            </button>
+            {selectedCharacter ? (
+              <Button
+                variant="default"
+                size="sm"
+                className="flex items-center gap-2 whitespace-nowrap"
+                onClick={() => onCharacterSelect?.(null)}
+              >
+                {selectedCharacter?.image && (
+                  <img 
+                    src={selectedCharacter.image} 
+                    alt="Character"
+                    className="w-5 h-5 rounded-full object-cover"
+                  />
+                )}
+                Character Selected
+                <X size={14} />
+              </Button>
+            ) : (
+              <button 
+                onClick={onCharactersClick}
+                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+              >
+                <User size={14} />
+                Character
+              </button>
+            )}
             
-            {selectedReference ? (
+            {selectedReference && !isCharacterReference ? (
               <Button
                 variant="default"
                 size="sm"
@@ -1488,10 +1510,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     className="w-5 h-5 rounded-full object-cover"
                   />
                 )}
-                {isCharacterReference ? 'Character Selected' : 'Reference Selected'}
+                Reference Selected
                 <X size={14} />
               </Button>
-            ) : (
+            ) : !isCharacterReference && (
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
