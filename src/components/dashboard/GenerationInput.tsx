@@ -1229,6 +1229,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Seedream 4.0</span>
                           <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">ByteDance's next-gen 2K model</p>
                       </div>
@@ -1303,6 +1304,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Nano Banana</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">Gemini 2.5 Flash Image Preview</p>
                       </div>
@@ -1331,6 +1333,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Nano Banana Pro</span>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">Advanced Gemini 2.5 Image Model</p>
                       </div>
@@ -1435,6 +1438,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Imagen 4 Ultra</span>
                           <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0 h-4">ULTRA</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">Google's most advanced image model</p>
                       </div>
