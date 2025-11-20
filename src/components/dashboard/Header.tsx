@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import NotificationBell from './NotificationBell';
 import HelpMenu from './HelpMenu';
 import SearchDialog from './SearchDialog';
+import InviteRewardsModalUpdated from './InviteRewardsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -57,6 +58,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -154,7 +156,11 @@ const Header = ({ onCreateClick }: HeaderProps) => {
           <span className="font-semibold">Upgrade</span>
         </Button>
 
-        <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
+        <Button 
+          size="sm" 
+          onClick={() => setIsRewardsModalOpen(true)}
+          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs"
+        >
           <Gift size={14} />
           <span className="font-semibold">Earn</span>
         </Button>
@@ -410,6 +416,10 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         </DropdownMenu>
       </div>
     </header>
+    <InviteRewardsModalUpdated 
+      isOpen={isRewardsModalOpen} 
+      onClose={() => setIsRewardsModalOpen(false)} 
+    />
     </>
   );
 };
