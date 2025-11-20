@@ -138,13 +138,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
           character: selectedCharacter ? {
             id: selectedCharacter.id,
             name: selectedCharacter.name,
-            image: selectedCharacter.image
+            image: selectedCharacter.image_url || selectedCharacter.image
           } : null,
           // Use character image as reference if character is selected, otherwise use direct reference
           referenceImage: selectedCharacter 
-            ? selectedCharacter.image 
+            ? (selectedCharacter.image_url || selectedCharacter.image)
             : (selectedReference ? selectedReference.image_url : null),
-          characterImage: selectedCharacter ? selectedCharacter.image : null,
+          characterImage: selectedCharacter ? (selectedCharacter.image_url || selectedCharacter.image) : null,
           maskImage: maskImage
         }
       });
