@@ -110,7 +110,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
           model: img.model || 'Nano Banana (Flux Pro)',
           aspectRatio: img.aspect_ratio || '1:1',
           resolution: getResolutionFromAspectRatio(img.aspect_ratio),
-          timestamp: formatTimestamp(img.created_at)
+          timestamp: formatTimestamp(img.created_at),
+          referenceImage: img.reference_image_url || undefined
         }));
         setGeneratedItems(mappedItems);
       }
