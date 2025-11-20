@@ -578,6 +578,8 @@ const Create = () => {
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
           setSelectedCharacter(character);
+          // When a character is selected, clear any reference image
+          setSelectedReference(null);
           setCharactersModalOpen(false);
         }}
       />
@@ -587,7 +589,8 @@ const Create = () => {
         onClose={() => setReferencesModalOpen(false)}
         onSelectReference={(reference) => {
           setSelectedReference(reference);
-          // Don't change isCharacterReference flag - allow both to be selected
+          // When a reference is selected, clear any selected character
+          setSelectedCharacter(null);
         }}
         selectedReference={selectedReference}
       />
