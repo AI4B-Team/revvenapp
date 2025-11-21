@@ -609,22 +609,6 @@ const AIInfluencer = () => {
                   <span className="relative z-10">Create Character</span>
                 </Button>
                 <Button
-                  variant={activeSection === "manage" ? "default" : "ghost"}
-                  onClick={() => setActiveSection("manage")}
-                  size="lg"
-                  className={`relative flex items-center gap-3 transition-all duration-500 px-10 py-6 rounded-xl font-bold text-base overflow-hidden ${
-                    activeSection === "manage" 
-                      ? "shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105 bg-gradient-to-br from-primary to-primary/90" 
-                      : "hover:bg-muted/60 hover:scale-105 hover:shadow-lg"
-                  }`}
-                >
-                  {activeSection === "manage" && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
-                  )}
-                  <Users className={`w-5 h-5 relative z-10 ${activeSection === "manage" ? "animate-pulse" : ""}`} />
-                  <span className="relative z-10">My Creations</span>
-                </Button>
-                <Button
                   variant={activeSection === "video" ? "default" : "ghost"}
                   onClick={() => setActiveSection("video")}
                   size="lg"
@@ -639,6 +623,22 @@ const AIInfluencer = () => {
                   )}
                   <Video className={`w-5 h-5 relative z-10 ${activeSection === "video" ? "animate-pulse" : ""}`} />
                   <span className="relative z-10">Create Video</span>
+                </Button>
+                <Button
+                  variant={activeSection === "manage" ? "default" : "ghost"}
+                  onClick={() => setActiveSection("manage")}
+                  size="lg"
+                  className={`relative flex items-center gap-3 transition-all duration-500 px-10 py-6 rounded-xl font-bold text-base overflow-hidden ${
+                    activeSection === "manage" 
+                      ? "shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-105 bg-gradient-to-br from-primary to-primary/90" 
+                      : "hover:bg-muted/60 hover:scale-105 hover:shadow-lg"
+                  }`}
+                >
+                  {activeSection === "manage" && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
+                  )}
+                  <Users className={`w-5 h-5 relative z-10 ${activeSection === "manage" ? "animate-pulse" : ""}`} />
+                  <span className="relative z-10">My Creations</span>
                 </Button>
               </div>
             </div>
