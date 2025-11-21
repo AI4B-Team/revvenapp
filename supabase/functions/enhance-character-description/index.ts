@@ -23,11 +23,11 @@ serve(async (req) => {
     let userPrompt = '';
 
     if (mode === 'random') {
-      systemPrompt = `You are a creative character description generator for AI image generation. Generate unique, vivid character descriptions that include physical attributes, outfits, accessories, and distinctive characteristics.`;
-      userPrompt = `Generate a random, creative character description for AI image generation. Include physical traits (age, height, build, features), outfit/style, accessories, and unique characteristics. Keep it concise (2-3 sentences) but vivid and specific.`;
+      systemPrompt = `You are a creative character description generator for AI image generation. Generate ONLY the character description with NO explanations, options, or additional text. Return a single vivid paragraph describing a unique character.`;
+      userPrompt = `Generate a random, creative character description for AI image generation. Include physical traits (age, height, build, features), outfit/style, accessories, and unique characteristics. Write it as a single detailed paragraph with vivid imagery and specific details. Return ONLY the description with no preamble, explanation, or extra text.`;
     } else if (mode === 'enhance') {
-      systemPrompt = `You are an expert at enhancing character descriptions for AI image generation. Improve descriptions by adding vivid details, specific physical attributes, outfit descriptions, and unique characteristics while maintaining the core essence.`;
-      userPrompt = `Enhance this character description for better AI image generation results. Make it more vivid and specific while keeping the same character essence:\n\n"${description}"`;
+      systemPrompt = `You are an expert at enhancing character descriptions for AI image generation. Return ONLY the enhanced description with NO explanations, options, or additional text. Transform the input into a vivid, detailed single paragraph.`;
+      userPrompt = `Enhance this character description for AI image generation. Transform it into a vivid, detailed paragraph with specific physical attributes, outfit details, and unique characteristics. Return ONLY the enhanced description with no preamble, explanation, or options:\n\n"${description}"`;
     }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
