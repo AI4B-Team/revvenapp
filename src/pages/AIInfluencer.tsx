@@ -490,6 +490,9 @@ const AIInfluencer = () => {
       }
 
       fetchCharacters();
+      
+      // Auto-switch to Create Video tab
+      setActiveSection("video");
 
     } catch (error) {
       console.error('Unexpected error:', error);
