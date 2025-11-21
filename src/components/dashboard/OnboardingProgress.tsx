@@ -19,7 +19,7 @@ const OnboardingProgress = () => {
             <div className="flex items-center gap-2">
               <Rocket size={18} className="text-brand-green" />
               <h3 className="font-semibold text-foreground text-sm">
-                Getting Started
+                Unlock Rewards
               </h3>
             </div>
             <button
