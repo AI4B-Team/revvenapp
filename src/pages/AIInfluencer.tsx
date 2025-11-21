@@ -71,6 +71,7 @@ const AIInfluencer = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isEnhancingBio, setIsEnhancingBio] = useState(false);
 
   // Characters list state
   const [characters, setCharacters] = useState<AICharacter[]>([]);
@@ -534,6 +535,33 @@ const AIInfluencer = () => {
     setDeleteDialogOpen(true);
   };
 
+  // Handle bio enhancement
+  const handleEnhanceBio = async () => {
+    if (!characterBio.trim()) {
+      toast.error("Please enter a bio first");
+      return;
+    }
+
+    setIsEnhancingBio(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-character-description', {
+        body: { description: characterBio, mode: 'enhance' }
+      });
+
+      if (error) throw error;
+      
+      if (data?.description) {
+        setCharacterBio(data.description);
+        toast.success("Bio enhanced successfully!");
+      }
+    } catch (error) {
+      console.error('Error enhancing bio:', error);
+      toast.error("Failed to enhance bio. Please try again.");
+    } finally {
+      setIsEnhancingBio(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/[0.03]">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
@@ -685,16 +713,38 @@ const AIInfluencer = () => {
                   </div>
                   
                   <div className="space-y-3 group">
-                    <Label htmlFor="influencer-bio" className="text-sm font-bold flex items-center gap-2 text-foreground">
-                      <Wand2 className="w-4 h-4 text-primary group-hover:animate-pulse" />
-                      Bio of the influencer
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="influencer-bio" className="text-sm font-bold flex items-center gap-2 text-foreground">
+                        <Wand2 className="w-4 h-4 text-primary group-hover:animate-pulse" />
+                        Bio of the influencer
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEnhanceBio}
+                        disabled={isEnhancingBio || isUploading || !characterBio.trim()}
+                        className="gap-2 h-8 text-xs"
+                      >
+                        {isEnhancingBio ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Enhancing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3" />
+                            AI Enhance
+                          </>
+                        )}
+                      </Button>
+                    </div>
                     <Textarea 
                       id="influencer-bio"
                       placeholder="Describe your influencer's personality, interests, and style... e.g., A fitness enthusiast who loves outdoor adventures and healthy living"
                       value={characterBio}
                       onChange={(e) => setCharacterBio(e.target.value)}
-                      disabled={isUploading}
+                      disabled={isUploading || isEnhancingBio}
                       className="min-h-[160px] text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.01] border-2 hover:border-primary/50"
                     />
                   </div>
