@@ -562,6 +562,28 @@ const AIInfluencer = () => {
     }
   };
 
+  // Handle random bio generation
+  const handleGenerateRandomBio = async () => {
+    setIsEnhancingBio(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-character-description', {
+        body: { mode: 'random' }
+      });
+
+      if (error) throw error;
+      
+      if (data?.description) {
+        setCharacterBio(data.description);
+        toast.success("Random bio generated successfully!");
+      }
+    } catch (error) {
+      console.error('Error generating random bio:', error);
+      toast.error("Failed to generate bio. Please try again.");
+    } finally {
+      setIsEnhancingBio(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/[0.03]">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
@@ -718,26 +740,48 @@ const AIInfluencer = () => {
                         <Wand2 className="w-4 h-4 text-primary group-hover:animate-pulse" />
                         Bio of the influencer
                       </Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleEnhanceBio}
-                        disabled={isEnhancingBio || isUploading || !characterBio.trim()}
-                        className="gap-2 h-8 text-xs"
-                      >
-                        {isEnhancingBio ? (
-                          <>
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                            Enhancing...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-3 h-3" />
-                            AI Enhance
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGenerateRandomBio}
+                          disabled={isEnhancingBio || isUploading}
+                          className="gap-2 h-8 text-xs"
+                        >
+                          {isEnhancingBio ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="w-3 h-3" />
+                              Generate Random Bio
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEnhanceBio}
+                          disabled={isEnhancingBio || isUploading || !characterBio.trim()}
+                          className="gap-2 h-8 text-xs"
+                        >
+                          {isEnhancingBio ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Enhancing...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3 h-3" />
+                              AI Enhance
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <Textarea 
                       id="influencer-bio"
