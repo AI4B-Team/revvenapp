@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import grokLogo from '@/assets/model-logos/grok.png';
+import StylesModal from './StylesModal';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -28,11 +29,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [isUploadingMask, setIsUploadingMask] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
   const [isEnhancing, setIsEnhancing] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState('Auto');
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('1:1');
+  const [isStylesModalOpen, setIsStylesModalOpen] = useState(false);
   const [numberOfImages, setNumberOfImages] = useState(1);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
-  const [isStyleDropdownOpen, setIsStyleDropdownOpen] = useState(false);
   const [isAspectRatioDropdownOpen, setIsAspectRatioDropdownOpen] = useState(false);
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
@@ -1446,83 +1447,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               </PopoverContent>
             </Popover>
             
-            <Popover open={isStyleDropdownOpen} onOpenChange={setIsStyleDropdownOpen}>
-              <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2">
-                  Style
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 bg-background border-border z-50">
-                <div className="space-y-1">
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('Auto');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Auto
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('Photorealistic');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Photorealistic
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('Artistic');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Artistic
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('Anime');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Anime
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('3D Render');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    3D Render
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedStyle('Cartoon');
-                      setIsStyleDropdownOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Cartoon
-                  </button>
-                  <button 
-                    onClick={() => setSelectedStyle('Oil Painting')}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Oil Painting
-                  </button>
-                  <button 
-                    onClick={() => setSelectedStyle('Watercolor')}
-                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                  >
-                    Watercolor
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <button
+              onClick={() => setIsStylesModalOpen(true)}
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2"
+            >
+              {selectedStyle ? selectedStyle.name : 'Style'}
+            </button>
             
             {selectedCharacter ? (
               <TooltipProvider>
@@ -1981,6 +1911,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
           </div>
         </div>
       </div>
+
+      {/* Styles Modal */}
+      <StylesModal
+        isOpen={isStylesModalOpen}
+        onClose={() => setIsStylesModalOpen(false)}
+        onSelectStyle={(style) => {
+          setSelectedStyle(style);
+          setIsStylesModalOpen(false);
+        }}
+        selectedStyle={selectedStyle}
+      />
     </div>
   );
 };
