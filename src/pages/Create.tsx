@@ -21,7 +21,7 @@ const Create = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('creations');
+  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
