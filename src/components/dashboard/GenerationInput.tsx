@@ -1450,7 +1450,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               <PopoverTrigger asChild>
                 <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2">
                   Style
-                  <ChevronDown size={14} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-56 bg-background border-border z-50">
@@ -1602,7 +1601,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   >
                     <Upload size={14} />
                     References
-                    <ChevronDown size={14} />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 bg-background border-border z-50 p-4">
