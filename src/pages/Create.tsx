@@ -71,6 +71,7 @@ const Create = () => {
     if (location.pathname === '/create' && !location.search) {
       setActiveTab('');
       setSelectedType('');
+      setActiveView('tools');
       setIsEditMode(false);
       setEditingImage(null);
     }
