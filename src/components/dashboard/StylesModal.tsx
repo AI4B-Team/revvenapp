@@ -99,30 +99,9 @@ const StylesModal: React.FC<StylesModalProps> = ({
       <div className="bg-[#1a1f2e] rounded-2xl shadow-2xl w-[95vw] max-w-[1400px] max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-1">Styles</h2>
-              <p className="text-sm text-gray-400">Choose A Style</p>
-            </div>
-            
-            {/* Category Links */}
-            <div className="flex items-center gap-1 ml-4">
-              {styleCategories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`
-                    px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                    ${activeCategory === category
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-white'
-                    }
-                  `}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+          <div>
+            <h2 className="text-2xl font-semibold text-white mb-1">Styles</h2>
+            <p className="text-sm text-gray-400">Choose A Style</p>
           </div>
 
           {/* Right Side: Search & New Style Button */}
@@ -140,10 +119,31 @@ const StylesModal: React.FC<StylesModalProps> = ({
             </div>
 
             {/* New Style Button */}
-            <button className="flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-white text-white hover:bg-white/10 rounded-lg transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-100 text-black rounded-lg transition-colors">
               <Plus className="w-4 h-4" />
               <span className="font-medium">New Style</span>
             </button>
+          </div>
+        </div>
+
+        {/* Category Links */}
+        <div className="px-6 py-4 border-b border-gray-800">
+          <div className="flex items-center gap-1">
+            {styleCategories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`
+                  flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors
+                  ${activeCategory === category
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-white'
+                  }
+                `}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
 
