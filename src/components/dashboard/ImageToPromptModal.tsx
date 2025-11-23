@@ -78,7 +78,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-6 relative">
+      <DialogContent className="max-w-6xl max-h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-6 relative overflow-hidden">
         <button
           onClick={onClose}
           className="absolute -top-3 -right-3 z-50 p-2 bg-background border border-border rounded-full hover:bg-muted transition-colors"
@@ -86,7 +86,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
         >
           <X className="h-4 w-4" />
         </button>
-        <div className="w-full h-full overflow-auto">
+        <div className="w-full max-w-7xl mx-auto overflow-y-auto max-h-[calc(85vh-3rem)]">
           <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-2">
             <Camera className="h-6 w-6" />
             Image to Prompt
