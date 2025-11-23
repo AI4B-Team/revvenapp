@@ -25,7 +25,7 @@ const Create = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
-  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+  const [selectedCharacters, setSelectedCharacters] = useState<any[]>([]);
   const [referencesModalOpen, setReferencesModalOpen] = useState(false);
   const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
   const [isCharacterReference, setIsCharacterReference] = useState(false);
@@ -405,8 +405,8 @@ const Create = () => {
             <GenerationInput 
               selectedType={selectedType}
               onCharactersClick={() => setCharactersModalOpen(true)}
-              onCharacterSelect={setSelectedCharacter}
-              selectedCharacter={selectedCharacter}
+              onCharactersSelect={setSelectedCharacters}
+              selectedCharacters={selectedCharacters}
               onReferencesClick={() => setReferencesModalOpen(true)}
               onReferencesSelect={(references) => {
                 setSelectedReferences(references);
@@ -575,8 +575,7 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
-          setSelectedCharacter(character);
-          setCharactersModalOpen(false);
+          setSelectedCharacters(prev => [...prev, character]);
         }}
       />
 
