@@ -452,8 +452,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       <TooltipTrigger asChild>
                         <button 
                           onClick={() => handleEnhancePrompt(false)}
-                          disabled={!prompt.trim()}
-                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
                         >
                           <Shuffle size={18} className="text-muted-foreground" />
                         </button>
