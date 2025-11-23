@@ -240,9 +240,19 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               {/* PROMPT PREVIEW SECTION - Large, scrollable */}
               <div className="flex-[2] px-8 pb-6 flex items-center justify-center">
                   {isGenerating ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-800 rounded-xl">
-                      <div className="animate-spin rounded-full h-12 w-12 border-3 border-gray-700 border-t-white mb-4"></div>
-                      <p className="text-gray-400 text-sm font-medium">Analyzing Image...</p>
+                    <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-800 rounded-xl gap-4">
+                      <div className="relative">
+                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-700 border-t-white"></div>
+                        <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-4 border-gray-600 opacity-20"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <p className="text-white text-base font-semibold">Analyzing Image</p>
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        </div>
+                      </div>
                     </div>
                   ) : generatedPrompt ? (
                     <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
