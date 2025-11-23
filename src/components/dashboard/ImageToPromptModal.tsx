@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { creationsData, communityData } from '@/data/creationsData';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ImageToPromptModalProps {
   isOpen: boolean;
@@ -256,13 +257,21 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                     </div>
                   ) : generatedPrompt ? (
                     <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
-                      <button
-                        onClick={handleCopyPrompt}
-                        className="absolute top-4 right-4 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
-                        title="Copy prompt"
-                      >
-                        <Copy className="h-3 w-3 text-black" />
-                      </button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={handleCopyPrompt}
+                              className="absolute top-4 right-4 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
+                            >
+                              <Copy className="h-3 w-3 text-black" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Prompt</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <Textarea
                         value={generatedPrompt}
                         onChange={(e) => updatePrompt(e.target.value)}
