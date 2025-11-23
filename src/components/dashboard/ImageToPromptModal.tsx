@@ -134,24 +134,24 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   <TabsList className="bg-transparent border-0 mb-4 justify-start gap-6 p-0">
                     <TabsTrigger 
                       value="creations" 
-                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white data-[state=inactive]:text-white flex items-center gap-2"
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none flex items-center gap-2"
                     >
                       <Sparkles className="h-4 w-4 text-white" />
-                      Creations
+                      <span className="text-white">Creations</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="stock" 
-                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white data-[state=inactive]:text-white flex items-center gap-2"
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none flex items-center gap-2"
                     >
                       <ImageIcon className="h-4 w-4 text-white" />
-                      Stock
+                      <span className="text-white">Stock</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="community" 
-                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white data-[state=inactive]:text-white flex items-center gap-2"
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none flex items-center gap-2"
                     >
                       <Users className="h-4 w-4 text-white" />
-                      Community
+                      <span className="text-white">Community</span>
                     </TabsTrigger>
                   </TabsList>
 
