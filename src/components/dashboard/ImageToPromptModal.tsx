@@ -183,16 +183,16 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               </div>
 
               {/* Right: Upload & Prompt - Full Height */}
-              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-[#0a0a0a] h-full justify-center">
+              <div className="w-[480px] flex flex-col bg-[#0a0a0a] h-full">
                 
-                <div className="flex flex-col gap-6 px-8 py-6">
+                <div className="flex flex-col gap-6 px-8 pt-8">
                   {/* TOP SECTION: Upload Area */}
                   <div 
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    className={`h-[280px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
+                    className={`h-[240px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
                       dragActive
                         ? 'border-primary bg-primary/10'
                         : 'border-gray-700 hover:border-gray-600'
@@ -252,7 +252,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   )}
 
                   {/* MIDDLE SECTION 2: Prompt Preview */}
-                  <div className="h-[320px] border-2 border-gray-700 rounded-xl flex items-center justify-center relative p-4">
+                  <div className="h-[440px] border-2 border-gray-700 rounded-xl flex items-center justify-center relative p-4">
                     {isGenerating ? (
                       <div className="text-center">
                         <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
