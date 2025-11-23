@@ -86,16 +86,17 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-hidden pt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-hidden">
           {/* Left: Image Upload */}
-          <div className="space-y-4 overflow-y-auto">
+          <div className="space-y-4 flex flex-col">
             {!uploadedImage ? (
+              <>
               <div
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all flex-1 flex flex-col items-center justify-center ${
                   dragActive
                     ? 'border-primary bg-primary/10'
                     : 'border-[#2a2a2a] bg-[#0f0f0f] hover:border-[#3a3a3a]'
@@ -104,7 +105,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-semibold text-white mb-2">Upload An Image</h3>
                 <p className="text-muted-foreground mb-6">
-                  Drag & Drop Or Click To Browse
+                  Drag & Drop Or Click To Browse Upload An Image For An Instant Prompt
                 </p>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
@@ -121,11 +122,20 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   className="hidden"
                 />
                 <p className="text-xs text-muted-foreground mt-4">
-                  Upload An Image For An Instant Prompt
+                  PNG, JPG, WEBP Up To 10MB
                 </p>
               </div>
+              <Button
+                onClick={generatePrompt}
+                disabled={!uploadedImage || isGenerating}
+                className="bg-white hover:bg-white/90 text-black w-full"
+              >
+                Analyze Image
+              </Button>
+              </>
             ) : (
-              <div className="relative rounded-lg overflow-hidden bg-[#0f0f0f] border border-[#1a1a1a]">
+              <>
+              <div className="relative rounded-lg overflow-hidden bg-[#0f0f0f] border border-[#1a1a1a] flex-1 flex flex-col">
                 <button
                   onClick={clearImage}
                   className="absolute top-2 right-2 z-10 p-2 bg-black/80 hover:bg-black rounded-full transition"
@@ -135,7 +145,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 <img
                   src={uploadedImage.preview}
                   alt="Uploaded"
-                  className="w-full h-auto object-contain max-h-[500px]"
+                  className="w-full h-auto object-contain flex-1"
                 />
                 <div className="p-4 border-t border-[#1a1a1a]">
                   <p className="text-sm text-muted-foreground truncate">
@@ -146,6 +156,14 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   </p>
                 </div>
               </div>
+              <Button
+                onClick={generatePrompt}
+                disabled={!uploadedImage || isGenerating}
+                className="bg-white hover:bg-white/90 text-black w-full"
+              >
+                Analyze Image
+              </Button>
+              </>
             )}
           </div>
 
@@ -176,7 +194,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
-                  <p className="text-muted-foreground">Upload an image to generate a prompt</p>
+                  <p className="text-muted-foreground">The Image Prompt Will Appear Here</p>
                 </div>
               )}
             </div>
