@@ -219,6 +219,33 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     }
   };
 
+  const handleAutoPrompt = async () => {
+    setIsEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
+        body: { contentType: selectedType }
+      });
+
+      if (error) throw error;
+      if (data?.suggestion) {
+        setPrompt(data.suggestion);
+        toast({
+          title: "Prompt generated",
+          description: "A creative prompt has been generated for you.",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating prompt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate prompt. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   const handleReferenceUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -451,10 +478,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
-                          onClick={() => handleEnhancePrompt(false)}
-                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Shuffle size={18} className="text-muted-foreground" />
+                          {isEnhancing ? (
+                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                          ) : (
+                            <Shuffle size={18} className="text-muted-foreground" />
+                          )}
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
