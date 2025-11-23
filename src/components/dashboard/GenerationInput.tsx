@@ -14,15 +14,15 @@ import { ImageToPromptModal } from './ImageToPromptModal';
 interface GenerationInputProps {
   selectedType: string;
   onCharactersClick?: () => void;
-  onCharacterSelect?: (character: any) => void;
-  selectedCharacter?: any;
+  onCharactersSelect?: (characters: any[]) => void;
+  selectedCharacters?: any[];
   onReferencesClick?: () => void;
   onReferencesSelect?: (references: any[]) => void;
   selectedReferences?: any[];
   isCharacterReference?: boolean;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, selectedCharacter, onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -54,7 +54,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     'ideogram-character',
   ];
 
-  const hasImageReference = selectedReferences.length > 0 || !!selectedCharacter || !!isCharacterReference;
+  const hasImageReference = selectedReferences.length > 0 || selectedCharacters.length > 0 || !!isCharacterReference;
   
   // Define supported aspect ratios for each model
   const modelAspectRatios: Record<string, string[]> = {
@@ -115,10 +115,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     }
 
     // Ideogram Character model ALWAYS needs a reference image.
-    // Since referenceImage is derived from either the selected character
+    // Since referenceImage is derived from either the selected characters
     // or the manual reference image, enforce that one of them is present
     // before calling the edge function to avoid 500 errors.
-    if (selectedModel === 'ideogram-character' && !selectedCharacter && selectedReferences.length === 0) {
+    if (selectedModel === 'ideogram-character' && selectedCharacters.length === 0 && selectedReferences.length === 0) {
       toast({
         title: "Reference required",
         description: "Ideogram Character needs a character or reference image. Please select one first.",
@@ -132,22 +132,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
     try {
       console.log("Starting image generation...");
       
+      // Use first character if multiple are selected
+      const primaryCharacter = selectedCharacters.length > 0 ? selectedCharacters[0] : null;
+      
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
           prompt: prompt.trim(),
           aspectRatio: selectedAspectRatio,
           model: selectedModel,
           numberOfImages: numberOfImages,
-          character: selectedCharacter ? {
-            id: selectedCharacter.id,
-            name: selectedCharacter.name,
-            image: selectedCharacter.image_url || selectedCharacter.image
+          character: primaryCharacter ? {
+            id: primaryCharacter.id,
+            name: primaryCharacter.name,
+            image: primaryCharacter.image_url || primaryCharacter.image
           } : null,
           // Use character image as reference if character is selected, otherwise use direct reference
-          referenceImage: selectedCharacter 
-            ? (selectedCharacter.image_url || selectedCharacter.image)
+          referenceImage: primaryCharacter 
+            ? (primaryCharacter.image_url || primaryCharacter.image)
             : (selectedReferences.length > 0 ? selectedReferences[0].image_url || selectedReferences[0].thumbnail_url : null),
-          characterImage: selectedCharacter ? (selectedCharacter.image_url || selectedCharacter.image) : null,
+          characterImage: primaryCharacter ? (primaryCharacter.image_url || primaryCharacter.image) : null,
           maskImage: maskImage
         }
       });
@@ -511,29 +514,32 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
         </div>
 
         {/* Character & Reference Images Display */}
-        {(selectedCharacter || selectedReferences.length > 0) && (
+        {(selectedCharacters.length > 0 || selectedReferences.length > 0) && (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
-            {/* Character Image - Always First */}
-            {selectedCharacter && (
-              <div className="relative group">
+            {/* Character Images */}
+            {selectedCharacters.map((character, index) => (
+              <div key={`character-${index}`} className="relative group">
                 <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
                   <img 
-                    src={selectedCharacter.image_url || selectedCharacter.image} 
-                    alt={selectedCharacter.name}
+                    src={character.image_url || character.image} 
+                    alt={character.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <button
-                  onClick={() => onCharacterSelect?.(null)}
+                  onClick={() => {
+                    const updatedCharacters = selectedCharacters.filter((_, i) => i !== index);
+                    onCharactersSelect?.(updatedCharacters);
+                  }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
                 >
                   <X size={14} />
                 </button>
                 <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
-                  {selectedCharacter.name}
+                  {character.name}
                 </p>
               </div>
-            )}
+            ))}
 
             {/* Reference Images */}
             {selectedReferences.map((reference, index) => (
@@ -612,39 +618,24 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     <TooltipTrigger asChild>
                       <button 
                         onClick={onCharactersClick}
-                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          selectedCharacter 
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                            : 'bg-muted hover:bg-muted/80'
-                        }`}
+                        className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                       >
                         <User size={14} />
-                        {selectedCharacter ? selectedCharacter.name : 'Character'}
+                        Character
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{selectedCharacter ? `Selected: ${selectedCharacter.name}` : 'Select Character'}</p>
+                      <p>Select Character</p>
                     </TooltipContent>
                   </Tooltip>
 
-                  {selectedReferences.length > 0 ? (
-                    <button
-                      onClick={() => onReferencesSelect?.([])}
-                      className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <Upload size={14} />
-                      Reference Selected
-                      <X size={14} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={onReferencesClick}
-                      className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-                    >
-                      <Upload size={14} />
-                      References
-                    </button>
-                  )}
+                  <button
+                    onClick={onReferencesClick}
+                    className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Upload size={14} />
+                    Reference
+                  </button>
 
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -1134,7 +1125,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
-                  {(selectedReferences.length > 0 || selectedCharacter) && (
+                  {(selectedReferences.length > 0 || selectedCharacters.length > 0) && (
                     <div className="px-4 py-2 bg-primary/10 rounded-lg mb-2">
                       <p className="text-xs font-medium text-primary">Image-to-Image Mode Active</p>
                       <p className="text-xs text-muted-foreground mt-0.5">Only models supporting img-to-img are shown</p>
@@ -1142,7 +1133,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
                   
                   {/* Auto */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('auto')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('auto')) && (
                     <button 
                       onClick={() => {
                         handleModelChange('auto');
@@ -1169,7 +1160,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Flux Pro */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('flux-pro')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-pro')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-pro');
@@ -1195,7 +1186,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Flux Max */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('flux-max')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-max')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-max');
@@ -1222,7 +1213,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* GPT-4o Image */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('gpt-4o-image')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('gpt-4o-image')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('gpt-4o-image');
@@ -1252,7 +1243,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Seedream 4.0 */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('seedream-4')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream-4')) && (
                   <button
                     onClick={() => {
                       handleModelChange('seedream-4');
@@ -1277,7 +1268,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Seedream 3.0 */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('seedream')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('seedream');
@@ -1300,7 +1291,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Qwen Image */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('qwen')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('qwen')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('qwen');
@@ -1322,7 +1313,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </button>
                   )}
 
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('nano-banana')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana');
@@ -1350,7 +1341,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </button>
                   )}
 
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('nano-banana-pro')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana-pro')) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana-pro');
@@ -1379,7 +1370,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Ideogram V3 Edit */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('ideogram')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram');
@@ -1405,7 +1396,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Ideogram Character */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('ideogram-character')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram-character')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram-character');
@@ -1431,7 +1422,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Grok Imagine */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('grok')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('grok')) && (
                   <button
                     onClick={() => {
                       handleModelChange('grok');
@@ -1454,7 +1445,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   )}
 
                   {/* Imagen 4 Ultra */}
-                  {((selectedReferences.length === 0 && !selectedCharacter) || img2imgModels.includes('imagen-ultra')) && (
+                  {((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('imagen-ultra')) && (
                   <button
                     onClick={() => {
                       handleModelChange('imagen-ultra');
