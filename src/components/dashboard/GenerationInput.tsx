@@ -528,7 +528,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   <X size={14} />
                 </button>
                 <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
-                  {reference.original_filename || reference.name || "Reference"}
+                  @pic{index + 1}
                 </p>
               </div>
             ))}
