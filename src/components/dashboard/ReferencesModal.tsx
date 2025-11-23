@@ -39,7 +39,19 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReferences(data || []);
+      
+      // Add placeholder images for testing
+      const placeholderImages = Array.from({ length: 18 }, (_, i) => ({
+        id: `placeholder-${i}`,
+        image_url: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=400&fit=crop',
+        thumbnail_url: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=400&fit=crop',
+        original_filename: `Placeholder ${i + 1}.jpg`,
+        user_id: 'placeholder',
+        created_at: new Date().toISOString(),
+        cloudinary_public_id: null
+      }));
+      
+      setReferences([...placeholderImages, ...(data || [])]);
     } catch (error) {
       console.error('Error fetching references:', error);
       toast.error('Failed to load reference images');
@@ -205,7 +217,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             <div className="w-64">
               <input
                 type="text"
-                placeholder="Search references..."
+                placeholder="Search References"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
@@ -391,7 +403,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
         </div>
 
         {/* Right Side - Upload Section */}
-        <div className="w-[480px] bg-[#151a27] border-l border-gray-800 flex flex-col">
+        <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
               <Upload className="w-12 h-12 text-gray-400" />
