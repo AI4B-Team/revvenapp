@@ -85,9 +85,9 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
             Image to Prompt
           </h1>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left: Image Upload */}
-          <div className="space-y-4 flex flex-col">
+          <div className="space-y-4 flex flex-col h-[600px]">
             {!uploadedImage ? (
               <>
               <div
@@ -170,7 +170,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
           </div>
 
           {/* Right: Generated Prompt */}
-          <div className="space-y-4 flex flex-col overflow-hidden">
+          <div className="space-y-4 flex flex-col overflow-hidden h-[600px]">
             <div className="flex-1 flex flex-col overflow-hidden relative">
               {isGenerating ? (
                 <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
