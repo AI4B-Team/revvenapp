@@ -5,7 +5,6 @@ import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Assets = () => {
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
@@ -13,6 +12,7 @@ const Assets = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'creations' | 'community' | 'collections'>('creations');
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -33,33 +33,62 @@ const Assets = () => {
           <div className="px-8 py-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold">ASSETS</h1>
+              <div>
+                <h1 className="text-3xl font-bold mb-4">ASSETS</h1>
+                
+                {/* Tab Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setActiveTab('creations')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      activeTab === 'creations'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Creations
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('community')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      activeTab === 'community'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Community
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('collections')}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      activeTab === 'collections'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    Collections
+                  </button>
+                </div>
+              </div>
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
             </div>
 
-            <Tabs defaultValue="creations" className="w-full">
-              <TabsList>
-                <TabsTrigger value="creations">Creations</TabsTrigger>
-                <TabsTrigger value="community">Community</TabsTrigger>
-                <TabsTrigger value="collections">Collections</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="creations">
-                <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
-              </TabsContent>
-              
-              <TabsContent value="community">
-                <div className="text-center py-12 text-muted-foreground">
-                  Community content coming soon
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="collections">
-                <div className="text-center py-12 text-muted-foreground">
-                  Collections coming soon
-                </div>
-              </TabsContent>
-            </Tabs>
+            {/* Tab Content */}
+            {activeTab === 'creations' && (
+              <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
+            )}
+            
+            {activeTab === 'community' && (
+              <div className="text-center py-12 text-muted-foreground">
+                Community content coming soon
+              </div>
+            )}
+            
+            {activeTab === 'collections' && (
+              <div className="text-center py-12 text-muted-foreground">
+                Collections coming soon
+              </div>
+            )}
           </div>
         </main>
       </div>
