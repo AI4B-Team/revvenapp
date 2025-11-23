@@ -129,6 +129,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               <Button
                 onClick={generatePrompt}
                 disabled={!uploadedImage || isGenerating}
+                size="sm"
                 className="bg-white hover:bg-white/90 text-black w-full"
               >
                 Analyze Image
@@ -160,6 +161,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               <Button
                 onClick={generatePrompt}
                 disabled={!uploadedImage || isGenerating}
+                size="sm"
                 className="bg-white hover:bg-white/90 text-black w-full"
               >
                 Analyze Image
