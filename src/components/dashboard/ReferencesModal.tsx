@@ -40,18 +40,27 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
       if (error) throw error;
       
-      // Add placeholder images for testing
-      const placeholderImages = Array.from({ length: 18 }, (_, i) => ({
+      // Add 18 different placeholder images
+      const imageIds = [
+        '1633356122544-f134324a6cee', '1494790108377-be9c29b29330', '1535713875002-d1d0cf377fde',
+        '1560807707-8cc77767d783', '1544005313-94ddf0286df2', '1517841905240-472988babdf9',
+        '1539571696357-5a69c17a67c6', '1524504388940-b1c1722653e1', '1488161628813-04466f872be2',
+        '1552053831-71594a27632d', '1573164713714-d95e436ab8d6', '1534528741775-53994a69daeb',
+        '1507003211169-0a1dd7228f2d', '1506794778202-cad84cf45f1d', '1517423440428-a5a00ad493e8',
+        '1502323777036-f29e3972d82f', '1522075469751-3a6694fb2f61', '1529626455594-4ff0802cfb7e'
+      ];
+      
+      const placeholderImages = imageIds.map((imageId, i) => ({
         id: `placeholder-${i}`,
-        image_url: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=400&fit=crop',
-        thumbnail_url: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=400&fit=crop',
-        original_filename: `Placeholder ${i + 1}.jpg`,
+        image_url: `https://images.unsplash.com/photo-${imageId}?w=400&h=400&fit=crop`,
+        thumbnail_url: `https://images.unsplash.com/photo-${imageId}?w=400&h=400&fit=crop`,
+        original_filename: `Reference ${i + 1}.jpg`,
         user_id: 'placeholder',
         created_at: new Date().toISOString(),
         cloudinary_public_id: null
       }));
       
-      setReferences([...placeholderImages, ...(data || [])]);
+      setReferences(placeholderImages);
     } catch (error) {
       console.error('Error fetching references:', error);
       toast.error('Failed to load reference images');
