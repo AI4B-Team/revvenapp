@@ -104,9 +104,10 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               >
                 <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-semibold text-white mb-2">Upload An Image</h3>
-                <p className="text-muted-foreground mb-6">
-                  Drag & Drop Or Click To Browse Upload An Image For An Instant Prompt
-                </p>
+                <div className="text-muted-foreground mb-6 text-center">
+                  <p>Drag & Drop Or Click To Browse</p>
+                  <p>Upload An Image For An Instant Prompt</p>
+                </div>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-muted hover:bg-muted/80 text-black"
