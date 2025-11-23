@@ -182,90 +182,85 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </Tabs>
               </div>
 
-              {/* Right: Upload & Prompt (1/3 width) - Lighter background #2d3748 */}
-              <div className="flex flex-col h-full bg-[#2d3748] border-l border-[#374151]">
-                {/* Section 1: Upload Area (flex-1) */}
-                <div className="flex-1 flex flex-col p-6 pb-4 border-b border-[#374151]">
-                  {!uploadedImage ? (
-                    <div
-                      onDragEnter={handleDrag}
-                      onDragLeave={handleDrag}
-                      onDragOver={handleDrag}
-                      onDrop={handleDrop}
-                      className={`flex-1 border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center ${
-                        dragActive
-                          ? 'border-primary bg-primary/10'
-                          : 'border-[#374151] hover:border-[#4b5563]'
-                      }`}
-                    >
-                      <Upload className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
-                      <p className="text-muted-foreground text-sm mb-4">
-                        Drag & drop or click to browse
-                      </p>
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        size="sm"
-                        className="bg-white hover:bg-white/90 text-black font-medium"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Choose File
-                      </Button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      <p className="text-xs text-muted-foreground mt-3">
-                        PNG, JPG, WEBP up to 10MB
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="flex-1 flex flex-col">
-                      <div className="relative rounded-lg overflow-hidden border border-[#374151] flex-1 bg-[#1e293b]">
-                        <button
+              {/* Right: Upload & Prompt - Full Height */}
+              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-[#0a0a0a] h-full">
+                
+                {/* TOP SECTION: Upload Area (Takes up available space) */}
+                <div className="flex-1 p-8 min-h-0">
+                  <div 
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                    className={`h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
+                      dragActive
+                        ? 'border-primary bg-primary/10'
+                        : 'border-gray-700 hover:border-gray-600'
+                    }`}
+                  >
+                    {uploadedImage ? (
+                      <div className="relative w-full h-full">
+                        <img 
+                          src={uploadedImage.preview} 
+                          alt="Selected"
+                          className="w-full h-full object-contain" 
+                        />
+                        <button 
                           onClick={() => {
                             clearImage();
                             setSelectedFromGallery(null);
                           }}
-                          className="absolute top-2 right-2 z-10 p-1.5 bg-black/80 hover:bg-black rounded-full transition"
+                          className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 rounded-full transition"
                         >
-                          <X className="h-3 w-3 text-white" />
+                          <X size={16} className="text-white" />
                         </button>
-                        <img
-                          src={uploadedImage.preview}
-                          alt="Selected"
-                          className="w-full h-full object-cover"
-                        />
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gray-800 flex items-center justify-center">
+                          <Upload size={32} className="text-gray-500" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
+                        <p className="text-sm text-gray-400 mb-4">Drag & drop or click to browse</p>
+                        <button 
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-6 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition"
+                        >
+                          Choose File
+                        </button>
+                        <p className="text-xs text-gray-500 mt-3">PNG, JPG, WEBP up to 10MB</p>
+                      </div>
+                    )}
+                    <input 
+                      ref={fileInputRef} 
+                      type="file" 
+                      accept="image/jpeg,image/png,image/webp,image/gif" 
+                      onChange={handleFileSelect} 
+                      className="hidden" 
+                    />
+                  </div>
                 </div>
 
-                {/* Section 2: Analyze Button */}
+                {/* MIDDLE SECTION 1: Analyze Button */}
                 {uploadedImage && !generatedPrompt && !isGenerating && (
-                  <div className="px-6 py-4 border-b border-[#374151]">
-                    <Button
+                  <div className="px-8 pb-6">
+                    <button
                       onClick={generatePrompt}
                       disabled={isGenerating}
-                      className="bg-[#4b5563] hover:bg-[#6b7280] text-white w-full font-medium"
+                      className="w-full py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition"
                     >
                       Analyze Image
-                    </Button>
+                    </button>
                   </div>
                 )}
 
-                {/* Section 3: Prompt Preview Area (flex-1) */}
-                <div className="flex-1 flex flex-col p-6 border-b border-[#374151]">
-                  <div className="flex-1 flex flex-col overflow-hidden relative">
+                {/* MIDDLE SECTION 2: Prompt Preview (Takes up available space) */}
+                <div className="flex-1 px-8 pb-6 min-h-[150px]">
+                  <div className="h-full flex items-center justify-center relative">
                     {isGenerating ? (
-                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#374151] bg-[#1e293b]">
-                        <div className="text-center">
-                          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
-                          <p className="text-gray-400 text-sm">Analyzing image...</p>
-                        </div>
+                      <div className="text-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
+                        <p className="text-gray-400 text-sm">Analyzing image...</p>
                       </div>
                     ) : generatedPrompt ? (
                       <>
@@ -280,26 +275,28 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                           value={generatedPrompt}
                           onChange={(e) => updatePrompt(e.target.value)}
                           placeholder="The Image Prompt Will Appear Here"
-                          className="flex-1 resize-none border-[#374151] bg-[#1e293b] text-white text-sm placeholder:text-gray-500 pr-12"
+                          className="w-full h-full resize-none bg-gray-900/50 border-gray-700 text-gray-300 text-sm placeholder:text-gray-600 pr-12"
                         />
                       </>
                     ) : (
-                      <div className="flex-1 rounded-lg border border-[#374151] bg-[#1e293b] flex items-center justify-center">
-                        <p className="text-gray-500 text-sm">The Image Prompt Will Appear Here</p>
-                      </div>
+                      <p className="text-gray-600 text-sm">The Image Prompt Will Appear Here</p>
                     )}
                   </div>
                 </div>
 
-                {/* Section 4: Use Button */}
-                <div className="p-6 pt-4">
-                  <Button
+                {/* BOTTOM SECTION: Use Button */}
+                <div className="px-8 pb-8">
+                  <button
                     onClick={handleUsePrompt}
                     disabled={!canUsePrompt || !generatedPrompt}
-                    className="bg-[#6b7280] hover:bg-[#9ca3af] text-white w-full font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full py-3 rounded-lg font-semibold transition ${
+                      generatedPrompt && canUsePrompt
+                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                    }`}
                   >
                     Use
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
