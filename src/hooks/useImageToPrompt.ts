@@ -35,23 +35,27 @@ export const useImageToPrompt = () => {
         reader.readAsDataURL(file);
       });
 
-      setUploadedImage({
+      const imageData: UploadedImage = {
         file,
         preview,
         name: file.name,
         size: file.size,
         type: file.type
-      });
+      };
 
-      return true;
+      setUploadedImage(imageData);
+
+      return imageData;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
-      return false;
+      return null;
     }
   }, []);
 
-  const generatePrompt = useCallback(async () => {
-    if (!uploadedImage) {
+  const generatePrompt = useCallback(async (imageData?: UploadedImage) => {
+    const imageToUse = imageData || uploadedImage;
+    
+    if (!imageToUse) {
       setError('No image uploaded');
       return null;
     }
@@ -61,7 +65,7 @@ export const useImageToPrompt = () => {
 
     try {
       const { data, error: functionError } = await supabase.functions.invoke('image-to-prompt', {
-        body: { imageBase64: uploadedImage.preview }
+        body: { imageBase64: imageToUse.preview }
       });
 
       if (functionError) throw functionError;

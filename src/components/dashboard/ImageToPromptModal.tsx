@@ -57,8 +57,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFromGallery(null);
-      const success = await handleImageUpload(file);
-      if (success) await generatePrompt();
+      const imageData = await handleImageUpload(file);
+      if (imageData) await generatePrompt(imageData);
     }
   };
 
@@ -71,8 +71,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const file = new File([blob], 'gallery-image.jpg', { type: blob.type });
-      const success = await handleImageUpload(file);
-      if (success) await generatePrompt();
+      const imageData = await handleImageUpload(file);
+      if (imageData) await generatePrompt(imageData);
     } catch (error) {
       toast.error('Failed to load image');
     }
@@ -240,7 +240,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               {/* ANALYZE BUTTON */}
               <div className="px-8 pb-6">
                   <button
-                    onClick={generatePrompt}
+                    onClick={() => generatePrompt()}
                     disabled={!uploadedImage || isGenerating}
                     className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all ${
                       uploadedImage && !isGenerating
