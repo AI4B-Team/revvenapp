@@ -483,6 +483,68 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
           </div>
         </div>
 
+        {/* Character & Reference Images Display */}
+        {(selectedCharacter || selectedReference) && (
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
+            {/* Character Image */}
+            {selectedCharacter && (
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
+                  <img 
+                    src={selectedCharacter.image_url || selectedCharacter.image} 
+                    alt={selectedCharacter.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  onClick={() => onCharacterSelect?.(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
+                  {selectedCharacter.name}
+                </p>
+              </div>
+            )}
+            
+            {/* Add Reference Image Button */}
+            <button
+              onClick={onReferencesClick}
+              className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2 group"
+            >
+              <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
+                <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
+              </div>
+              <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
+                Add Image
+              </span>
+            </button>
+
+            {/* Reference Images */}
+            {selectedReference && (
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
+                  <img 
+                    src={selectedReference.image_url || selectedReference.thumbnail_url} 
+                    alt="Reference"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  onClick={() => onReferenceSelect?.(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
+                  Reference
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-nowrap">
             {isVideoMode ? (
