@@ -138,9 +138,10 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
       if (isSelected) {
         return prev.filter(img => img.id !== image.id);
       }
-      if (prev.length < MAX_IMAGES) {
+      if (prev.length < 8) {
         return [...prev, image];
       }
+      toast.error("Maximum 8 images allowed");
       return prev;
     });
   };
@@ -305,15 +306,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                               </div>
                             )}
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveUpload(file.id);
-                            }}
-                            className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
-                          >
-                            <Trash2 className="h-3 w-3 text-white" />
-                          </button>
+                          {/* Removed delete button */}
                           {selectedImages.some(img => img.id === file.id) && (
                             <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                               ✓
@@ -364,15 +357,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(reference.id);
-                                }}
-                                className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
-                              >
-                                <Trash2 className="h-3 w-3 text-white" />
-                              </button>
+                              {/* Removed delete button */}
                               {(selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id) && (
                                 <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                                   ✓
@@ -413,14 +398,42 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
         {/* Right Side - Upload Section */}
         <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
-              <Upload className="w-12 h-12 text-gray-400" />
-            </div>
-            
-            <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 6 Images</h3>
-            <p className="text-gray-400 mb-2">Upload Characters, Backgrounds Or Items To Combine Them</p>
-            <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 5MB</p>
+          <div className="flex-1 p-8">
+            {selectedImages.length > 0 ? (
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-4">Selected Images ({selectedImages.length}/8)</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {selectedImages.slice(0, 8).map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-primary"
+                    >
+                      <img
+                        src={image.thumbnail_url || image.image_url || image.preview}
+                        alt={image.original_filename || image.name || `Selected ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => handleImageClick(image)}
+                        className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition"
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
+                  <Upload className="w-12 h-12 text-gray-400" />
+                </div>
+                
+                <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 8 Images</h3>
+                <p className="text-gray-400 mb-2">Upload Characters, Backgrounds Or Items To Combine Them</p>
+                <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 10MB</p>
+              </div>
+            )}
           </div>
 
           {/* Bottom Buttons */}
