@@ -27,7 +27,7 @@ const Create = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   const [referencesModalOpen, setReferencesModalOpen] = useState(false);
-  const [selectedReference, setSelectedReference] = useState<any>(null);
+  const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
   const [isCharacterReference, setIsCharacterReference] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
@@ -408,13 +408,10 @@ const Create = () => {
               onCharacterSelect={setSelectedCharacter}
               selectedCharacter={selectedCharacter}
               onReferencesClick={() => setReferencesModalOpen(true)}
-              onReferenceSelect={(reference) => {
-                setSelectedReference(reference);
-                if (reference === null) {
-                  setIsCharacterReference(false);
-                }
+              onReferencesSelect={(references) => {
+                setSelectedReferences(references);
               }}
-              selectedReference={selectedReference}
+              selectedReferences={selectedReferences}
               isCharacterReference={isCharacterReference}
             />
             
@@ -579,8 +576,6 @@ const Create = () => {
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
           setSelectedCharacter(character);
-          // When a character is selected, clear any reference image
-          setSelectedReference(null);
           setCharactersModalOpen(false);
         }}
       />
@@ -588,12 +583,10 @@ const Create = () => {
       <ReferencesModal
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
-        onSelectReference={(reference) => {
-          setSelectedReference(reference);
-          // When a reference is selected, clear any selected character
-          setSelectedCharacter(null);
+        onImagesSelect={(images) => {
+          setSelectedReferences(images);
+          setIsCharacterReference(true);
         }}
-        selectedReference={selectedReference}
       />
     </div>
   );
