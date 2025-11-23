@@ -5,6 +5,7 @@ import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import { Sparkles, Users, FolderOpen } from 'lucide-react';
 
 const Assets = () => {
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
@@ -40,32 +41,35 @@ const Assets = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setActiveTab('creations')}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'creations'
                         ? 'bg-primary text-primary-foreground shadow-md'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
+                    <Sparkles className="w-4 h-4" />
                     Creations
                   </button>
                   <button
                     onClick={() => setActiveTab('community')}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'community'
                         ? 'bg-primary text-primary-foreground shadow-md'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
+                    <Users className="w-4 h-4" />
                     Community
                   </button>
                   <button
                     onClick={() => setActiveTab('collections')}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'collections'
                         ? 'bg-primary text-primary-foreground shadow-md'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
+                    <FolderOpen className="w-4 h-4" />
                     Collections
                   </button>
                 </div>
