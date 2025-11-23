@@ -78,8 +78,15 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-6">
-        <div className="w-full max-w-7xl mx-auto">
+      <DialogContent className="max-w-6xl h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute -top-3 -right-3 z-50 p-2 bg-background border border-border rounded-full hover:bg-muted transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="w-full h-full overflow-auto">
           <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-2">
             <Camera className="h-6 w-6" />
             Image to Prompt
@@ -129,7 +136,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 onClick={generatePrompt}
                 disabled={!uploadedImage || isGenerating}
                 size="sm"
-                className="bg-white hover:bg-white/90 text-black w-full"
+                className="bg-white hover:bg-white/90 text-black w-full flex-shrink-0"
               >
                 Analyze Image
               </Button>
@@ -161,7 +168,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 onClick={generatePrompt}
                 disabled={!uploadedImage || isGenerating}
                 size="sm"
-                className="bg-white hover:bg-white/90 text-black w-full"
+                className="bg-white hover:bg-white/90 text-black w-full flex-shrink-0"
               >
                 Analyze Image
               </Button>
@@ -202,11 +209,11 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
             </div>
 
             {/* Action Button */}
-            <div className="flex justify-center pt-4 border-t border-[#1a1a1a]">
+            <div className="flex justify-center pt-4 border-t border-[#1a1a1a] flex-shrink-0">
               <Button
                 onClick={handleUsePrompt}
                 disabled={!canUsePrompt}
-                className="bg-white hover:bg-white/90 text-black px-12"
+                className="bg-white hover:bg-white/90 text-black px-12 flex-shrink-0"
               >
                 Use
               </Button>
