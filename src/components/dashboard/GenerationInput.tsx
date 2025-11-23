@@ -226,8 +226,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     setIsEnhancing(true);
     try {
       // Collect character and reference image URLs
+      console.log('Selected characters:', selectedCharacters);
+      console.log('Selected references:', selectedReferences);
+      
       const characterImages = selectedCharacters.map(char => char.image_url).filter(Boolean);
       const referenceImages = selectedReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
+
+      console.log('Character image URLs:', characterImages);
+      console.log('Reference image URLs:', referenceImages);
 
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
