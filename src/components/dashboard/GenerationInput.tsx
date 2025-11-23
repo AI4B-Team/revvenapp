@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import grokLogo from '@/assets/model-logos/grok.png';
 import StylesModal from './StylesModal';
+import { ImageToPromptModal } from './ImageToPromptModal';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -38,6 +39,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
   const [isNumberOfImagesDropdownOpen, setIsNumberOfImagesDropdownOpen] = useState(false);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
+  const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
@@ -435,20 +437,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   <>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <label className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition cursor-pointer">
-                          {isAnalyzingImage ? (
-                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
-                          ) : (
-                            <Image size={18} className="text-muted-foreground" />
-                          )}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            disabled={isAnalyzingImage}
-                            className="hidden"
-                          />
-                        </label>
+                        <button 
+                          onClick={() => setIsImageToPromptModalOpen(true)}
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+                        >
+                          <Image size={18} className="text-muted-foreground" />
+                        </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
                         <p>Image-To-Prompt</p>
@@ -1828,6 +1822,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
           setIsStylesModalOpen(false);
         }}
         selectedStyle={selectedStyle}
+      />
+
+      {/* Image to Prompt Modal */}
+      <ImageToPromptModal
+        isOpen={isImageToPromptModalOpen}
+        onClose={() => setIsImageToPromptModalOpen(false)}
+        onPromptGenerated={(generatedPrompt) => {
+          setPrompt(generatedPrompt);
+        }}
       />
     </div>
   );
