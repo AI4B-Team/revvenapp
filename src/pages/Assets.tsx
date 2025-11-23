@@ -5,6 +5,7 @@ import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Assets = () => {
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
@@ -36,7 +37,29 @@ const Assets = () => {
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} />
             </div>
 
-            <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
+            <Tabs defaultValue="creations" className="w-full">
+              <TabsList>
+                <TabsTrigger value="creations">Creations</TabsTrigger>
+                <TabsTrigger value="community">Community</TabsTrigger>
+                <TabsTrigger value="collections">Collections</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="creations">
+                <CreationsGallery type="creations" columnsPerRow={zoomLevel} />
+              </TabsContent>
+              
+              <TabsContent value="community">
+                <div className="text-center py-12 text-muted-foreground">
+                  Community content coming soon
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="collections">
+                <div className="text-center py-12 text-muted-foreground">
+                  Collections coming soon
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
