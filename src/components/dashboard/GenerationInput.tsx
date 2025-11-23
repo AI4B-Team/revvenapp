@@ -1466,80 +1466,21 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
               {selectedStyle ? selectedStyle.name : 'Style'}
             </button>
             
-            {selectedCharacter ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="flex items-center gap-2 whitespace-nowrap"
-                      onClick={() => onCharacterSelect?.(null)}
-                    >
-                      {selectedCharacter?.image_url && (
-                        <img 
-                          src={selectedCharacter.image_url} 
-                          alt="Character"
-                          className="w-5 h-5 rounded-full object-cover"
-                        />
-                      )}
-                      Character Selected
-                      <X size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="p-0 border-0 bg-transparent">
-                    <div className="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 shadow-xl">
-                      <div className="w-64 h-80 relative">
-                        <img 
-                          src={selectedCharacter.image_url} 
-                          alt={selectedCharacter.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-3 bg-gray-800">
-                        <p className="text-white font-semibold text-sm">{selectedCharacter.name}</p>
-                        {selectedCharacter.bio && (
-                          <p className="text-gray-400 text-xs mt-1 line-clamp-2">{selectedCharacter.bio}</p>
-                        )}
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <button 
-                onClick={onCharactersClick}
-                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-              >
-                <User size={14} />
-                Character
-              </button>
-            )}
+            <button 
+              onClick={onCharactersClick}
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+            >
+              <User size={14} />
+              Character
+            </button>
             
-            {selectedReferences.length > 0 ? (
-              <button
-                onClick={() => onReferencesSelect?.([])}
-                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-              >
-                {selectedReferences[0]?.image_url && (
-                  <img 
-                    src={selectedReferences[0].image_url} 
-                    alt="Preview"
-                    className="w-5 h-5 rounded-full object-cover"
-                  />
-                )}
-                Reference Selected
-                <X size={14} />
-              </button>
-            ) : (
-              <button
-                onClick={onReferencesClick}
-                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
-              >
-                <Upload size={14} />
-                References
-              </button>
-            )}
+            <button
+              onClick={onReferencesClick}
+              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+            >
+              <Upload size={14} />
+              Reference
+            </button>
             
             {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
             {selectedModel === 'ideogram' && selectedReferences.length > 0 && (
