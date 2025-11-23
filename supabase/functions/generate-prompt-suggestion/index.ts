@@ -11,17 +11,64 @@ serve(async (req) => {
   }
 
   try {
-    const { contentType } = await req.json();
+    const { contentType, characterImages, referenceImages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
+    const hasImages = (characterImages && characterImages.length > 0) || (referenceImages && referenceImages.length > 0);
+
+    let messages: any[] = [];
+
+    if (hasImages) {
+      // Build a message with images for vision analysis
+      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
+Analyze the provided images (characters and/or reference images) and generate a single creative, detailed prompt that incorporates all of them.
+The prompt should be specific, vivid, and imaginative, combining elements from all the images.
+Return only the prompt text, nothing else.`;
+
+      const content: any[] = [
+        { type: "text", text: "Generate a creative prompt based on these images:" }
+      ];
+
+      // Add character images
+      if (characterImages && characterImages.length > 0) {
+        characterImages.forEach((url: string) => {
+          content.push({
+            type: "image_url",
+            image_url: { url }
+          });
+        });
+      }
+
+      // Add reference images
+      if (referenceImages && referenceImages.length > 0) {
+        referenceImages.forEach((url: string) => {
+          content.push({
+            type: "image_url",
+            image_url: { url }
+          });
+        });
+      }
+
+      messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content }
+      ];
+    } else {
+      // No images, generate a random creative prompt
+      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
 Generate a single creative, detailed prompt that would create an interesting and visually appealing result.
 The prompt should be specific, vivid, and imaginative.
 Return only the prompt text, nothing else.`;
+
+      messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Generate a creative prompt idea" }
+      ];
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -31,10 +78,7 @@ Return only the prompt text, nothing else.`;
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: "Generate a creative prompt idea" }
-        ],
+        messages,
       }),
     });
 

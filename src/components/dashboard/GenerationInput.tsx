@@ -225,16 +225,27 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const handleAutoPrompt = async () => {
     setIsEnhancing(true);
     try {
+      // Collect character and reference image URLs
+      const characterImages = selectedCharacters.map(char => char.image_url).filter(Boolean);
+      const referenceImages = selectedReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
-        body: { contentType: selectedType }
+        body: { 
+          contentType: selectedType,
+          characterImages,
+          referenceImages
+        }
       });
 
       if (error) throw error;
       if (data?.suggestion) {
         setPrompt(data.suggestion);
+        const hasImages = characterImages.length > 0 || referenceImages.length > 0;
         toast({
           title: "Prompt generated",
-          description: "A creative prompt has been generated for you.",
+          description: hasImages 
+            ? "A creative prompt based on your selected images has been generated."
+            : "A creative prompt has been generated for you.",
         });
       }
     } catch (error) {
