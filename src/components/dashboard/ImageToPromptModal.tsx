@@ -110,19 +110,21 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-[#1a1a1a]">
-            <div className="flex items-center justify-between gap-4 mb-1">
-              <h1 className="text-2xl font-bold text-white">Image-To-Prompt</h1>
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search References"
-                  className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
-                />
+            <div className="flex items-start gap-6">
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-white mb-1">Image-To-Prompt</h1>
+                <p className="text-muted-foreground text-sm mb-3">Upload An Image For An Instant Prompt</p>
+                <div className="relative max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search References"
+                    className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
+                  />
+                </div>
               </div>
             </div>
-            <p className="text-muted-foreground text-sm">Upload An Image For An Instant Prompt</p>
           </div>
 
           {/* Content */}
@@ -181,9 +183,9 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               </div>
 
               {/* Right: Upload & Prompt (1/3 width) */}
-              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a] p-6 gap-4">
+              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a]">
                 {/* Upload Area - Takes up half the space */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col p-6 pb-3">
                   {!uploadedImage ? (
                     <div
                       onDragEnter={handleDrag}
@@ -253,10 +255,10 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </div>
 
                 {/* Generated Prompt - Takes up half the space */}
-                <div className="flex-1 flex flex-col gap-3">
-                  <div className="flex-1 flex flex-col overflow-hidden relative">
+                <div className="flex-1 flex flex-col p-6 pt-3">
+                  <div className="flex-1 flex flex-col overflow-hidden relative mb-3">
                     {isGenerating ? (
-                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a]">
+                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a] bg-[#0a0a0a]">
                         <div className="text-center">
                           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
                           <p className="text-muted-foreground text-sm">Analyzing...</p>
@@ -268,17 +270,17 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                           onClick={handleCopyPrompt}
                           className="absolute top-2 right-2 z-10 p-1.5 bg-muted hover:bg-muted/80 rounded-md transition"
                         >
-                          <Copy className="h-3 w-3 text-white" />
+                          <Copy className="h-3 w-3 text-black" />
                         </button>
                         <Textarea
                           value={generatedPrompt}
                           onChange={(e) => updatePrompt(e.target.value)}
                           placeholder="Generated prompt..."
-                          className="flex-1 resize-none border-[#1a1a1a] text-white text-sm"
+                          className="flex-1 resize-none border-[#1a1a1a] bg-[#0a0a0a] text-white text-sm placeholder:text-muted-foreground"
                         />
                       </>
                     ) : (
-                      <div className="flex-1 rounded-lg border border-[#1a1a1a]" />
+                      <div className="flex-1 rounded-lg border border-[#1a1a1a] bg-[#0a0a0a]" />
                     )}
                   </div>
 
