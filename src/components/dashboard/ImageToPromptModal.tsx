@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Upload, X, Loader2, Copy, Search } from 'lucide-react';
+import { Camera, Upload, X, Loader2, Copy, Search, Sparkles, Image as ImageIcon, Users } from 'lucide-react';
 import { useImageToPrompt } from '@/hooks/useImageToPrompt';
 import { toast } from 'sonner';
 import { creationsData, communityData } from '@/data/creationsData';
@@ -110,36 +110,48 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-[#1a1a1a]">
-            <h1 className="text-2xl font-bold text-white mb-1">Image-To-Prompt</h1>
+            <div className="flex items-center justify-between gap-4 mb-1">
+              <h1 className="text-2xl font-bold text-white">Image-To-Prompt</h1>
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search References"
+                  className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
+                />
+              </div>
+            </div>
             <p className="text-muted-foreground text-sm">Upload An Image For An Instant Prompt</p>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full">
               {/* Left: Gallery (2/3 width) */}
-              <div className="lg:col-span-2 flex flex-col h-full overflow-hidden">
-                {/* Search */}
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search References"
-                    className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
-                  />
-                </div>
-
+              <div className="lg:col-span-2 flex flex-col h-full overflow-hidden p-6 pr-0">
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                  <TabsList className="bg-[#0f0f0f] border border-[#1a1a1a] mb-4">
-                    <TabsTrigger value="creations" className="data-[state=active]:bg-[#1a1a1a]">
+                  <TabsList className="bg-transparent border-0 mb-4 justify-start gap-6 p-0">
+                    <TabsTrigger 
+                      value="creations" 
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white flex items-center gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" />
                       Creations
                     </TabsTrigger>
-                    <TabsTrigger value="stock" className="data-[state=active]:bg-[#1a1a1a]">
+                    <TabsTrigger 
+                      value="stock" 
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white flex items-center gap-2"
+                    >
+                      <ImageIcon className="h-4 w-4" />
                       Stock
                     </TabsTrigger>
-                    <TabsTrigger value="community" className="data-[state=active]:bg-[#1a1a1a]">
+                    <TabsTrigger 
+                      value="community" 
+                      className="bg-transparent data-[state=active]:bg-transparent border-0 data-[state=active]:shadow-none text-white flex items-center gap-2"
+                    >
+                      <Users className="h-4 w-4" />
                       Community
                     </TabsTrigger>
                   </TabsList>
@@ -169,7 +181,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               </div>
 
               {/* Right: Upload & Prompt (1/3 width) */}
-              <div className="flex flex-col h-full gap-4 overflow-hidden">
+              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a] p-6">
                 {/* Upload Area */}
                 {!uploadedImage ? (
                   <div
@@ -177,10 +189,10 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center ${
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center mb-4 ${
                       dragActive
                         ? 'border-primary bg-primary/10'
-                        : 'border-[#2a2a2a] bg-[#0f0f0f] hover:border-[#3a3a3a]'
+                        : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
                     }`}
                   >
                     <Upload className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
@@ -208,7 +220,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                     </p>
                   </div>
                 ) : (
-                  <div className="relative rounded-lg overflow-hidden bg-[#0f0f0f] border border-[#1a1a1a]">
+                  <div className="relative rounded-lg overflow-hidden border border-[#1a1a1a] mb-4">
                     <button
                       onClick={() => {
                         clearImage();
@@ -227,28 +239,21 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 )}
 
                 {/* Analyze Button */}
-                {uploadedImage && (
+                {uploadedImage && !generatedPrompt && !isGenerating && (
                   <Button
                     onClick={generatePrompt}
                     disabled={isGenerating}
                     size="sm"
-                    className="bg-white hover:bg-white/90 text-black w-full"
+                    className="bg-white hover:bg-white/90 text-black w-full mb-4"
                   >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      'Analyze Image'
-                    )}
+                    Analyze Image
                   </Button>
                 )}
 
                 {/* Generated Prompt */}
-                <div className="flex-1 flex flex-col overflow-hidden relative">
+                <div className="flex-1 flex flex-col overflow-hidden relative mb-4">
                   {isGenerating ? (
-                    <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
+                    <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a]">
                       <div className="text-center">
                         <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
                         <p className="text-muted-foreground text-sm">Analyzing...</p>
@@ -266,24 +271,22 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                         value={generatedPrompt}
                         onChange={(e) => updatePrompt(e.target.value)}
                         placeholder="Generated prompt..."
-                        className="flex-1 resize-none bg-[#0f0f0f] border-[#1a1a1a] text-white text-sm"
+                        className="flex-1 resize-none border-[#1a1a1a] text-white text-sm"
                       />
                     </>
                   ) : (
-                    <div className="flex-1 bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]" />
+                    <div className="flex-1 rounded-lg border border-[#1a1a1a]" />
                   )}
                 </div>
 
                 {/* Use Button */}
-                {generatedPrompt && (
-                  <Button
-                    onClick={handleUsePrompt}
-                    disabled={!canUsePrompt}
-                    className="bg-white hover:bg-white/90 text-black w-full"
-                  >
-                    Use Prompt
-                  </Button>
-                )}
+                <Button
+                  onClick={handleUsePrompt}
+                  disabled={!canUsePrompt || !generatedPrompt}
+                  className="bg-white hover:bg-white/90 text-black w-full"
+                >
+                  Use
+                </Button>
               </div>
             </div>
           </div>
