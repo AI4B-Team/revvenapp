@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Trash2, Loader2, X, Search } from "lucide-react";
+import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
@@ -191,58 +191,208 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
       {/* Modal */}
       <div 
-        className="relative bg-gray-900 rounded-2xl shadow-2xl w-full max-w-7xl h-[85vh] overflow-hidden flex flex-col"
+        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-7xl h-[85vh] overflow-hidden flex"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Tabs */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                activeTab === 'history'
-                  ? 'text-white bg-gray-800'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              History
-            </button>
-            <button
-              onClick={() => setActiveTab('stock')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                activeTab === 'stock'
-                  ? 'text-white bg-gray-800'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Stock
-            </button>
-            <button
-              onClick={() => setActiveTab('community')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                activeTab === 'community'
-                  ? 'text-white bg-gray-800'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Community
-            </button>
+        {/* Left Side - Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <div className="px-6 py-5 border-b border-gray-800">
+            <h2 className="text-2xl font-semibold text-white mb-1">References</h2>
+            <p className="text-sm text-gray-400">Upload Or Select An Image</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search Styles"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-gray-600"
-              />
+          {/* Tabs */}
+          <div className="px-6 py-4 border-b border-gray-800">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'history'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <History className="w-4 h-4" />
+                Creations
+              </button>
+              <button
+                onClick={() => setActiveTab('stock')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'stock'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <ImageIcon className="w-4 h-4" />
+                Stock
+              </button>
+              <button
+                onClick={() => setActiveTab('community')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'community'
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                Community
+              </button>
             </div>
+          </div>
 
-            {/* Upload Button */}
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {activeTab === 'history' && (
+              <>
+                {/* Upload Area */}
+                {uploadedFiles.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-sm font-medium text-gray-400 mb-3">New Uploads</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {uploadedFiles.map((file) => (
+                        <div
+                          key={file.id}
+                          className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
+                            selectedImages.some(img => img.id === file.id)
+                              ? 'border-primary ring-2 ring-primary'
+                              : 'border-gray-700 hover:border-gray-600'
+                          }`}
+                          onClick={() => handleImageClick(file)}
+                        >
+                          <div className="aspect-square">
+                            {file.preview ? (
+                              <img
+                                src={file.preview}
+                                alt={file.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                                <Upload className="text-gray-600" size={24} />
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveUpload(file.id);
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-3 w-3 text-white" />
+                          </button>
+                          {selectedImages.some(img => img.id === file.id) && (
+                            <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                              ✓
+                            </div>
+                          )}
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                            <p className="text-xs text-white truncate">{file.name}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* References Grid */}
+                {isLoading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : filteredReferences.length === 0 && uploadedFiles.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="mb-4">
+                      <Upload className="h-16 w-16 text-gray-600 mx-auto mb-3" />
+                    </div>
+                    <p className="text-gray-400 mb-2">No reference images yet</p>
+                    <p className="text-sm text-gray-500">Upload your first reference image to get started</p>
+                  </div>
+                ) : (
+                  <div>
+                    {filteredReferences.length > 0 && (
+                      <>
+                        <h3 className="text-sm font-medium text-gray-400 mb-3">Your References</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {filteredReferences.map((reference) => (
+                            <div
+                              key={reference.id}
+                              className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
+                                selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id
+                                  ? 'border-primary ring-2 ring-primary'
+                                  : 'border-gray-700 hover:border-gray-600'
+                              }`}
+                              onClick={() => handleImageClick(reference)}
+                            >
+                              <div className="aspect-square">
+                                <img
+                                  src={reference.thumbnail_url || reference.image_url}
+                                  alt={reference.original_filename || 'Reference'}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(reference.id);
+                                }}
+                                className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
+                              >
+                                <Trash2 className="h-3 w-3 text-white" />
+                              </button>
+                              {(selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id) && (
+                                <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                                  ✓
+                                </div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                                <p className="text-xs text-white truncate">
+                                  {reference.original_filename || 'Image'}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === 'stock' && (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg mb-2">Stock Images Coming Soon</p>
+                <p className="text-sm text-gray-500">Access thousands of professional stock images</p>
+              </div>
+            )}
+
+            {activeTab === 'community' && (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg mb-2">Community Styles Coming Soon</p>
+                <p className="text-sm text-gray-500">Discover and share styles with the community</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Side - Upload Section */}
+        <div className="w-96 bg-[#151a27] border-l border-gray-800 flex flex-col">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
+              <Upload className="w-12 h-12 text-gray-400" />
+            </div>
+            
+            <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 6 Images</h3>
+            <p className="text-gray-400 mb-2">Upload Characters, Backgrounds Or Items To Combine Them</p>
+            <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 5MB</p>
+          </div>
+
+          {/* Bottom Buttons */}
+          <div className="p-6 border-t border-gray-800 space-y-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -255,177 +405,24 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             <Button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="bg-white text-black hover:bg-gray-200 font-medium"
+              variant="outline"
+              className="w-full bg-transparent border-gray-700 text-white hover:bg-gray-800"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Upload className="h-4 w-4 mr-2" />
+                "Upload"
               )}
-              + New Style
             </Button>
-          </div>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'history' && (
-            <>
-              {/* Upload Area */}
-              {uploadedFiles.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-3">New Uploads</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {uploadedFiles.map((file) => (
-                      <div
-                        key={file.id}
-                        className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
-                          selectedImages.some(img => img.id === file.id)
-                            ? 'border-primary ring-2 ring-primary'
-                            : 'border-gray-700 hover:border-gray-600'
-                        }`}
-                        onClick={() => handleImageClick(file)}
-                      >
-                        <div className="aspect-square">
-                          {file.preview ? (
-                            <img
-                              src={file.preview}
-                              alt={file.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                              <Upload className="text-gray-600" size={24} />
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveUpload(file.id);
-                          }}
-                          className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash2 className="h-3 w-3 text-white" />
-                        </button>
-                        {selectedImages.some(img => img.id === file.id) && (
-                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                            ✓
-                          </div>
-                        )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                          <p className="text-xs text-white truncate">{file.name}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* References Grid */}
-              {isLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : filteredReferences.length === 0 && uploadedFiles.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mb-4">
-                    <Upload className="h-16 w-16 text-gray-600 mx-auto mb-3" />
-                  </div>
-                  <p className="text-gray-400 mb-2">No reference images yet</p>
-                  <p className="text-sm text-gray-500">Upload your first reference image to get started</p>
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-4 bg-white text-black hover:bg-gray-200"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Images
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  {filteredReferences.length > 0 && (
-                    <>
-                      <h3 className="text-sm font-medium text-gray-400 mb-3">Your References</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {filteredReferences.map((reference) => (
-                          <div
-                            key={reference.id}
-                            className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
-                              selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id
-                                ? 'border-primary ring-2 ring-primary'
-                                : 'border-gray-700 hover:border-gray-600'
-                            }`}
-                            onClick={() => handleImageClick(reference)}
-                          >
-                            <div className="aspect-square">
-                              <img
-                                src={reference.thumbnail_url || reference.image_url}
-                                alt={reference.original_filename || 'Reference'}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(reference.id);
-                              }}
-                              className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition opacity-0 group-hover:opacity-100"
-                            >
-                              <Trash2 className="h-3 w-3 text-white" />
-                            </button>
-                            {(selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id) && (
-                              <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                                ✓
-                              </div>
-                            )}
-                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                              <p className="text-xs text-white truncate">
-                                {reference.original_filename || 'Image'}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'stock' && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg mb-2">Stock Images Coming Soon</p>
-              <p className="text-sm text-gray-500">Access thousands of professional stock images</p>
-            </div>
-          )}
-
-          {activeTab === 'community' && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg mb-2">Community Styles Coming Soon</p>
-              <p className="text-sm text-gray-500">Discover and share styles with the community</p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        {(selectedImages.length > 0 || uploadedFiles.length > 0) && (
-          <div className="px-6 py-4 border-t border-gray-800 flex items-center justify-between">
-            <span className="text-sm text-gray-400">
-              {selectedImages.length} image{selectedImages.length !== 1 ? 's' : ''} selected
-            </span>
             <Button
               onClick={handleUse}
               disabled={selectedImages.length === 0}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
-              Use Selected
+              Use
             </Button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
