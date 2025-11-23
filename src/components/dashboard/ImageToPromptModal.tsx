@@ -186,7 +186,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               <div className="w-[480px] border-l border-gray-800 flex flex-col bg-[#0a0a0a] h-full">
                 
                 {/* TOP SECTION: Upload Area (Takes up available space) */}
-                <div className="flex-1 p-8 min-h-0">
+                <div className="flex-1 px-8 pt-4 pb-4 min-h-0">
                   <div 
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
