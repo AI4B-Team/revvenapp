@@ -141,10 +141,10 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
       if (isSelected) {
         return prev.filter(img => img.id !== image.id);
       }
-      if (prev.length < 8) {
+      if (prev.length < 6) {
         return [...prev, image];
       }
-      toast.error("Maximum 8 images allowed");
+      toast.error("Maximum 6 images allowed");
       return prev;
     });
   };
@@ -216,7 +216,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
       {/* Modal */}
       <div 
-        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-[95vw] h-[85vh] overflow-hidden flex"
+        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-[95vw] h-[90vh] overflow-hidden flex"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Side - Main Content */}
@@ -403,16 +403,16 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
         {/* Right Side - Upload Section */}
         <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
-          <div className="flex-1 p-6 flex flex-col">
+          <div className="flex-1 p-6 flex flex-col justify-center">
             {selectedImages.length > 0 ? (
-              <div className="flex-1 flex flex-col items-center">
-                <h3 className="text-lg font-semibold text-white mb-4 self-start">Selected Images ({selectedImages.length}/8)</h3>
-                <div className="grid grid-cols-2 gap-4 justify-items-center">
-                  {selectedImages.slice(0, 8).map((image, index) => (
+              <div className="flex flex-col items-center justify-center">
+                <h3 className="text-lg font-semibold text-white mb-6 self-start">Selected Images ({selectedImages.length}/6)</h3>
+                <div className="grid grid-cols-2 gap-6 justify-items-center items-center">
+                  {selectedImages.slice(0, 6).map((image, index) => (
                     <div
                       key={image.id}
                       className="relative rounded-lg overflow-hidden border-2 border-primary"
-                      style={{ aspectRatio: '1/1', maxHeight: '180px', width: '100%', maxWidth: '180px' }}
+                      style={{ aspectRatio: '1/1', width: '220px', height: '220px' }}
                     >
                       <img
                         src={image.thumbnail_url || image.image_url || image.preview}
@@ -435,7 +435,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                   <Upload className="w-12 h-12 text-gray-400" />
                 </div>
                 
-                <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 8 Images</h3>
+                <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 6 Images</h3>
                 <p className="text-gray-400 mb-2">Upload Characters, Backgrounds Or Items To Combine Them</p>
                 <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 10MB</p>
               </div>
