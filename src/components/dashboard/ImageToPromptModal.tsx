@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Upload, X, Loader2 } from 'lucide-react';
+import { Camera, Upload, X, Loader2, Copy } from 'lucide-react';
 import { useImageToPrompt } from '@/hooks/useImageToPrompt';
 import { toast } from 'sonner';
 
@@ -63,6 +63,13 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
     }
   };
 
+  const handleCopyPrompt = () => {
+    if (generatedPrompt) {
+      navigator.clipboard.writeText(generatedPrompt);
+      toast.success('Prompt copied to clipboard');
+    }
+  };
+
   React.useEffect(() => {
     if (error) {
       toast.error(error);
@@ -72,14 +79,14 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl h-[85vh] bg-[#0a0a0a] border-[#1a1a1a]">
-        <DialogHeader>
+        <DialogHeader className="mb-2">
           <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
             <Camera className="h-6 w-6" />
-            Image to Prompt
+            Image-To-Prompt
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-hidden pt-2">
           {/* Left: Image Upload */}
           <div className="space-y-4 overflow-y-auto">
             {!uploadedImage ? (
@@ -95,15 +102,15 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 }`}
               >
                 <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold text-white mb-2">Upload an Image</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Upload An Image</h3>
                 <p className="text-muted-foreground mb-6">
-                  Drag and drop or click to browse
+                  Drag & Drop Or Click To Browse
                 </p>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-muted hover:bg-muted/80"
+                  className="bg-muted hover:bg-muted/80 text-black"
                 >
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload className="h-4 w-4 mr-2 text-black" />
                   Choose File
                 </Button>
                 <input
@@ -114,7 +121,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   className="hidden"
                 />
                 <p className="text-xs text-muted-foreground mt-4">
-                  Supports: JPG, PNG, WEBP, GIF (Max 10MB)
+                  Upload An Image For An Instant Prompt
                 </p>
               </div>
             ) : (
@@ -144,16 +151,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
 
           {/* Right: Generated Prompt */}
           <div className="space-y-4 flex flex-col overflow-hidden">
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-white">Generated Prompt</h3>
-                {generatedPrompt && (
-                  <span className={`text-xs ${promptLength > 1024 ? 'text-red-500' : 'text-muted-foreground'}`}>
-                    {promptLength} / 1024
-                  </span>
-                )}
-              </div>
-
+            <div className="flex-1 flex flex-col overflow-hidden relative">
               {isGenerating ? (
                 <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
                   <div className="text-center">
@@ -162,12 +160,20 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   </div>
                 </div>
               ) : generatedPrompt ? (
-                <Textarea
-                  value={generatedPrompt}
-                  onChange={(e) => updatePrompt(e.target.value)}
-                  placeholder="Generated prompt will appear here..."
-                  className="flex-1 resize-none bg-[#0f0f0f] border-[#1a1a1a] text-white min-h-[400px]"
-                />
+                <>
+                  <button
+                    onClick={handleCopyPrompt}
+                    className="absolute top-2 right-2 z-10 p-2 bg-muted hover:bg-muted/80 rounded-md transition"
+                  >
+                    <Copy className="h-4 w-4 text-white" />
+                  </button>
+                  <Textarea
+                    value={generatedPrompt}
+                    onChange={(e) => updatePrompt(e.target.value)}
+                    placeholder="Generated prompt will appear here..."
+                    className="flex-1 resize-none bg-[#0f0f0f] border-[#1a1a1a] text-white min-h-[400px]"
+                  />
+                </>
               ) : (
                 <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
                   <p className="text-muted-foreground">Upload an image to generate a prompt</p>
@@ -175,21 +181,14 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-[#1a1a1a]">
-              <Button
-                onClick={onClose}
-                variant="outline"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
+            {/* Action Button */}
+            <div className="flex justify-center pt-4 border-t border-[#1a1a1a]">
               <Button
                 onClick={handleUsePrompt}
                 disabled={!canUsePrompt}
-                className="flex-1 bg-primary hover:bg-primary/90"
+                className="bg-white hover:bg-white/90 text-black px-12"
               >
-                Use Prompt
+                Use
               </Button>
             </div>
           </div>
