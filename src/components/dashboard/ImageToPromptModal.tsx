@@ -183,16 +183,16 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               </div>
 
               {/* Right: Upload & Prompt - Full Height */}
-              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-[#0a0a0a] h-full">
+              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-[#0a0a0a] h-full justify-center">
                 
-                {/* TOP SECTION: Upload Area (Takes up available space) */}
-                <div className="flex-1 px-8 pb-4 min-h-0">
+                <div className="flex flex-col gap-6 px-8 py-6">
+                  {/* TOP SECTION: Upload Area */}
                   <div 
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    className={`h-full border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
+                    className={`h-[280px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
                       dragActive
                         ? 'border-primary bg-primary/10'
                         : 'border-gray-700 hover:border-gray-600'
@@ -239,11 +239,9 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       className="hidden" 
                     />
                   </div>
-                </div>
 
-                {/* MIDDLE SECTION 1: Analyze Button */}
-                {uploadedImage && !generatedPrompt && !isGenerating && (
-                  <div className="px-8 pb-6">
+                  {/* MIDDLE SECTION 1: Analyze Button */}
+                  {uploadedImage && !generatedPrompt && !isGenerating && (
                     <button
                       onClick={generatePrompt}
                       disabled={isGenerating}
@@ -251,12 +249,10 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                     >
                       Analyze Image
                     </button>
-                  </div>
-                )}
+                  )}
 
-                {/* MIDDLE SECTION 2: Prompt Preview (Takes up available space) */}
-                <div className="flex-1 px-8 pb-6 min-h-[150px]">
-                  <div className="h-full flex items-center justify-center relative">
+                  {/* MIDDLE SECTION 2: Prompt Preview */}
+                  <div className="h-[320px] border-2 border-gray-700 rounded-xl flex items-center justify-center relative p-4">
                     {isGenerating ? (
                       <div className="text-center">
                         <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
@@ -266,7 +262,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       <>
                         <button
                           onClick={handleCopyPrompt}
-                          className="absolute top-2 right-2 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
+                          className="absolute top-4 right-4 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
                           title="Copy prompt"
                         >
                           <Copy className="h-3 w-3 text-black" />
@@ -275,17 +271,15 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                           value={generatedPrompt}
                           onChange={(e) => updatePrompt(e.target.value)}
                           placeholder="The Image Prompt Will Appear Here"
-                          className="w-full h-full resize-none bg-gray-900/50 border-gray-700 text-gray-300 text-sm placeholder:text-gray-600 pr-12"
+                          className="w-full h-full resize-none bg-transparent border-0 text-gray-300 text-sm placeholder:text-gray-600 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
                       </>
                     ) : (
                       <p className="text-gray-600 text-sm">The Image Prompt Will Appear Here</p>
                     )}
                   </div>
-                </div>
 
-                {/* BOTTOM SECTION: Use Button */}
-                <div className="px-8 pb-8">
+                  {/* BOTTOM SECTION: Use Button */}
                   <button
                     onClick={handleUsePrompt}
                     disabled={!canUsePrompt || !generatedPrompt}
