@@ -85,7 +85,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
   );
 
   const handleUsePrompt = () => {
-    if (canUsePrompt) {
+    if (generatedPrompt?.trim()) {
+      console.log('Using prompt:', generatedPrompt);
       onPromptGenerated(generatedPrompt);
       toast.success('Prompt added to input');
       onClose();
