@@ -584,7 +584,7 @@ const Create = () => {
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
         onImagesSelect={(images) => {
-          setSelectedReferences(images);
+          setSelectedReferences(prev => [...prev, ...images]);
           setIsCharacterReference(true);
         }}
       />
