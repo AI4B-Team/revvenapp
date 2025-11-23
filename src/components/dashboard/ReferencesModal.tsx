@@ -191,15 +191,26 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
       {/* Modal */}
       <div 
-        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-7xl h-[85vh] overflow-hidden flex"
+        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-[95vw] h-[85vh] overflow-hidden flex"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Side - Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-800">
-            <h2 className="text-2xl font-semibold text-white mb-1">References</h2>
-            <p className="text-sm text-gray-400">Upload Or Select An Image</p>
+          <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-white mb-1">References</h2>
+              <p className="text-sm text-gray-400">Upload Or Select An Image</p>
+            </div>
+            <div className="w-64">
+              <input
+                type="text"
+                placeholder="Search references..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+              />
+            </div>
           </div>
 
           {/* Tabs */}
@@ -249,7 +260,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 {uploadedFiles.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-400 mb-3">New Uploads</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-6 gap-4">
                       {uploadedFiles.map((file) => (
                         <div
                           key={file.id}
@@ -314,7 +325,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                     {filteredReferences.length > 0 && (
                       <>
                         <h3 className="text-sm font-medium text-gray-400 mb-3">Your References</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-6 gap-4">
                           {filteredReferences.map((reference) => (
                             <div
                               key={reference.id}
@@ -380,7 +391,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
         </div>
 
         {/* Right Side - Upload Section */}
-        <div className="w-96 bg-[#151a27] border-l border-gray-800 flex flex-col">
+        <div className="w-[480px] bg-[#151a27] border-l border-gray-800 flex flex-col">
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
               <Upload className="w-12 h-12 text-gray-400" />
@@ -406,7 +417,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               variant="outline"
-              className="w-full bg-transparent border-gray-700 text-white hover:bg-gray-800"
+              className="w-full bg-transparent border-2 border-white text-white hover:bg-white/10"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -417,7 +428,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             <Button
               onClick={handleUse}
               disabled={selectedImages.length === 0}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-white hover:bg-gray-100 text-black"
             >
               Use
             </Button>
