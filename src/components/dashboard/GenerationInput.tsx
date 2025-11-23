@@ -452,14 +452,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                       <TooltipTrigger asChild>
                         <button 
                           onClick={() => handleEnhancePrompt(false)}
-                          disabled={isEnhancing || !prompt.trim()}
+                          disabled={!prompt.trim()}
                           className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          {isEnhancing ? (
-                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
-                          ) : (
-                            <Shuffle size={18} className="text-muted-foreground" />
-                          )}
+                          <Shuffle size={18} className="text-muted-foreground" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
@@ -1775,8 +1771,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                     </PopoverContent>
                   </Popover>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Enhance Prompt with AI</p>
+                <TooltipContent className="bg-black border-black">
+                  <p>Enhance Prompt</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
