@@ -182,109 +182,119 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </Tabs>
               </div>
 
-              {/* Right: Upload & Prompt - Full Height */}
-              <div className="w-[480px] flex flex-col bg-[#0a0a0a] h-full">
+              {/* RIGHT PANEL - NO TOP PADDING/GAP */}
+              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-black">
                 
-                <div className="flex flex-col gap-6 px-8 pt-8">
-                  {/* TOP SECTION: Upload Area */}
+                {/* UPLOAD SECTION - Large, fills space */}
+                <div className="flex-[2] flex items-center justify-center p-8">
                   <div 
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    className={`h-[240px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 transition-all ${
-                      dragActive
-                        ? 'border-primary bg-primary/10'
-                        : 'border-gray-700 hover:border-gray-600'
+                    className={`w-full h-full border-2 border-dashed rounded-xl flex items-center justify-center transition-colors ${
+                      dragActive ? 'border-blue-500 bg-blue-500/5' : 'border-gray-700'
                     }`}
                   >
                     {uploadedImage ? (
-                      <div className="relative w-full h-full">
-                        <img 
-                          src={uploadedImage.preview} 
-                          alt="Selected"
-                          className="w-full h-full object-contain" 
+                      <div className="relative w-full h-full p-4">
+                        <img
+                          src={uploadedImage.preview}
+                          alt="Preview"
+                          className="w-full h-full object-contain rounded-lg"
                         />
-                        <button 
+                        <button
                           onClick={() => {
                             clearImage();
                             setSelectedFromGallery(null);
                           }}
-                          className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 rounded-full transition"
+                          className="absolute top-6 right-6 p-2 bg-red-500 hover:bg-red-600 rounded-full transition-colors"
                         >
-                          <X size={16} className="text-white" />
+                          <X size={20} className="text-white" />
                         </button>
                       </div>
                     ) : (
-                      <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gray-800 flex items-center justify-center">
-                          <Upload size={32} className="text-gray-500" />
+                      <div className="text-center px-8">
+                        <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-800 flex items-center justify-center">
+                          <Upload size={40} className="text-gray-500" />
                         </div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
-                        <p className="text-sm text-gray-400 mb-4">Drag & drop or click to browse</p>
-                        <button 
+                        <h3 className="text-xl font-bold text-white mb-2">Upload Image</h3>
+                        <p className="text-sm text-gray-400 mb-6">Drag & drop or click to browse</p>
+                        <button
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-6 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition"
+                          className="px-8 py-3 bg-white hover:bg-gray-200 text-black font-semibold rounded-lg transition-colors"
                         >
                           Choose File
                         </button>
-                        <p className="text-xs text-gray-500 mt-3">PNG, JPG, WEBP up to 10MB</p>
+                        <p className="text-xs text-gray-500 mt-4">PNG, JPG, WEBP up to 10MB</p>
                       </div>
                     )}
-                    <input 
-                      ref={fileInputRef} 
-                      type="file" 
-                      accept="image/jpeg,image/png,image/webp,image/gif" 
-                      onChange={handleFileSelect} 
-                      className="hidden" 
+                    
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
                     />
                   </div>
+                </div>
 
-                  {/* MIDDLE SECTION 1: Analyze Button */}
-                  {uploadedImage && !generatedPrompt && !isGenerating && (
-                    <button
-                      onClick={generatePrompt}
-                      disabled={isGenerating}
-                      className="w-full py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition"
-                    >
-                      Analyze Image
-                    </button>
-                  )}
-
-                  {/* MIDDLE SECTION 2: Prompt Preview */}
-                  <div className="h-[440px] border-2 border-gray-700 rounded-xl flex items-center justify-center relative p-4">
+                {/* ANALYZE BUTTON */}
+                <div className="px-8 pb-6">
+                  <button
+                    onClick={generatePrompt}
+                    disabled={!uploadedImage || isGenerating}
+                    className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all ${
+                      uploadedImage && !isGenerating
+                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                    }`}
+                  >
                     {isGenerating ? (
-                      <div className="text-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
-                        <p className="text-gray-400 text-sm">Analyzing image...</p>
-                      </div>
-                    ) : generatedPrompt ? (
-                      <>
-                        <button
-                          onClick={handleCopyPrompt}
-                          className="absolute top-4 right-4 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
-                          title="Copy prompt"
-                        >
-                          <Copy className="h-3 w-3 text-black" />
-                        </button>
-                        <Textarea
-                          value={generatedPrompt}
-                          onChange={(e) => updatePrompt(e.target.value)}
-                          placeholder="The Image Prompt Will Appear Here"
-                          className="w-full h-full resize-none bg-transparent border-0 text-gray-300 text-sm placeholder:text-gray-600 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0"
-                        />
-                      </>
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        Analyzing...
+                      </span>
                     ) : (
-                      <p className="text-gray-600 text-sm">The Image Prompt Will Appear Here</p>
+                      'Analyze Image'
                     )}
-                  </div>
+                  </button>
+                </div>
 
-                  {/* BOTTOM SECTION: Use Button */}
+                {/* PROMPT PREVIEW SECTION - Large, scrollable */}
+                <div className="flex-[2] px-8 pb-6 flex items-center justify-center">
+                  {generatedPrompt ? (
+                    <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
+                      <button
+                        onClick={handleCopyPrompt}
+                        className="absolute top-4 right-4 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
+                        title="Copy prompt"
+                      >
+                        <Copy className="h-3 w-3 text-black" />
+                      </button>
+                      <Textarea
+                        value={generatedPrompt}
+                        onChange={(e) => updatePrompt(e.target.value)}
+                        className="w-full h-full resize-none bg-transparent border-0 text-gray-300 text-sm placeholder:text-gray-600 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-800 rounded-xl">
+                      <p className="text-gray-600 text-sm text-center px-8">
+                        The Image Prompt Will Appear Here
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* USE BUTTON */}
+                <div className="px-8 pb-8">
                   <button
                     onClick={handleUsePrompt}
-                    disabled={!canUsePrompt || !generatedPrompt}
-                    className={`w-full py-3 rounded-lg font-semibold transition ${
-                      generatedPrompt && canUsePrompt
+                    disabled={!generatedPrompt?.trim()}
+                    className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all ${
+                      generatedPrompt?.trim()
                         ? 'bg-gray-600 hover:bg-gray-500 text-white'
                         : 'bg-gray-800 text-gray-600 cursor-not-allowed'
                     }`}
