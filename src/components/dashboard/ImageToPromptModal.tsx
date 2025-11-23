@@ -237,31 +237,14 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   </div>
                 </div>
 
-              {/* ANALYZE BUTTON */}
-              <div className="px-8 pb-6">
-                  <button
-                    onClick={() => generatePrompt()}
-                    disabled={!uploadedImage || isGenerating}
-                    className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all ${
-                      uploadedImage && !isGenerating
-                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                    }`}
-                  >
-                    {isGenerating ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                        Analyzing...
-                      </span>
-                    ) : (
-                      'Analyze Image'
-                    )}
-                  </button>
-                </div>
-
               {/* PROMPT PREVIEW SECTION - Large, scrollable */}
               <div className="flex-[2] px-8 pb-6 flex items-center justify-center">
-                  {generatedPrompt ? (
+                  {isGenerating ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-800 rounded-xl">
+                      <div className="animate-spin rounded-full h-12 w-12 border-3 border-gray-700 border-t-white mb-4"></div>
+                      <p className="text-gray-400 text-sm font-medium">Analyzing Image...</p>
+                    </div>
+                  ) : generatedPrompt ? (
                     <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
                       <button
                         onClick={handleCopyPrompt}
