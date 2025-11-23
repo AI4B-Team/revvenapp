@@ -27,6 +27,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   useEffect(() => {
     if (isOpen) {
       fetchReferences();
+    } else {
+      // Clear selections when modal closes
+      setSelectedImages([]);
     }
   }, [isOpen]);
 
@@ -292,7 +295,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                           className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
                             selectedImages.some(img => img.id === file.id)
                               ? 'border-primary ring-2 ring-primary'
-                              : 'border-gray-700 hover:border-gray-600'
+                              : 'border-gray-700 hover:border-green-500'
                           }`}
                           onClick={() => handleImageClick(file)}
                         >
@@ -341,7 +344,6 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                   <div>
                     {filteredReferences.length > 0 && (
                       <>
-                        <h3 className="text-sm font-medium text-gray-400 mb-3">Your References</h3>
                         <div className="grid grid-cols-6 gap-4">
                           {filteredReferences.map((reference) => (
                             <div
@@ -349,7 +351,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                               className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
                                 selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id
                                   ? 'border-primary ring-2 ring-primary'
-                                  : 'border-gray-700 hover:border-gray-600'
+                                  : 'border-gray-700 hover:border-green-500'
                               }`}
                               onClick={() => handleImageClick(reference)}
                             >
@@ -403,14 +405,14 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
         <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
           <div className="flex-1 p-6 flex flex-col">
             {selectedImages.length > 0 ? (
-              <div className="flex-1 flex flex-col">
-                <h3 className="text-lg font-semibold text-white mb-3">Selected Images ({selectedImages.length}/8)</h3>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="flex-1 flex flex-col items-center">
+                <h3 className="text-lg font-semibold text-white mb-4 self-start">Selected Images ({selectedImages.length}/8)</h3>
+                <div className="grid grid-cols-2 gap-4 justify-items-center">
                   {selectedImages.slice(0, 8).map((image, index) => (
                     <div
                       key={image.id}
                       className="relative rounded-lg overflow-hidden border-2 border-primary"
-                      style={{ aspectRatio: '1/1', maxHeight: '140px' }}
+                      style={{ aspectRatio: '1/1', maxHeight: '180px', width: '100%', maxWidth: '180px' }}
                     >
                       <img
                         src={image.thumbnail_url || image.image_url || image.preview}
