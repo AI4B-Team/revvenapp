@@ -542,26 +542,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   </Tooltip>
 
                   {selectedReference ? (
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="flex items-center gap-2 whitespace-nowrap"
+                    <button
                       onClick={() => onReferenceSelect(null)}
+                      className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                     >
                       <Upload size={14} />
                       Reference Selected
                       <X size={14} />
-                    </Button>
+                    </button>
                   ) : (
-                    <Button
+                    <button
                       onClick={onReferencesClick}
-                      variant="secondary"
-                      size="sm"
-                      className="flex items-center gap-2 whitespace-nowrap"
+                      className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                     >
                       <Upload size={14} />
                       References
-                    </Button>
+                    </button>
                   )}
 
                   <Tooltip>
@@ -1462,11 +1458,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
             )}
             
             {selectedReference ? (
-              <Button
-                variant="default"
-                size="sm"
-                className="flex items-center gap-2 whitespace-nowrap"
+              <button
                 onClick={() => onReferenceSelect(null)}
+                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
               >
                 {selectedReference?.image_url && (
                   <img 
@@ -1477,17 +1471,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                 )}
                 Reference Selected
                 <X size={14} />
-              </Button>
+              </button>
             ) : (
-              <Button
+              <button
                 onClick={onReferencesClick}
-                variant="secondary"
-                size="sm"
-                className="flex items-center gap-2 whitespace-nowrap"
+                className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
               >
                 <Upload size={14} />
                 References
-              </Button>
+              </button>
             )}
             
             {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
