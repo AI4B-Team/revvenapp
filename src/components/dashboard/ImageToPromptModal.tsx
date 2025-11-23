@@ -109,29 +109,26 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
       <DialogContent className="max-w-[90vw] h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-0 overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b border-[#1a1a1a]">
-            <div className="flex items-start gap-6">
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold text-white mb-1">Image-To-Prompt</h1>
-                <p className="text-muted-foreground text-sm mb-3">Upload An Image For An Instant Prompt</p>
-                <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search References"
-                    className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
-                  />
-                </div>
-              </div>
+          <div className="px-6 pt-6 pb-4 border-b border-[#1a1a1a] flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white mb-1">Image-To-Prompt</h1>
+              <p className="text-muted-foreground text-sm">Upload An Image For An Instant Prompt</p>
+            </div>
+            <div className="relative w-[400px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search References"
+                className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
+              />
             </div>
           </div>
 
           {/* Content - 2-column layout */}
-          <div className="flex-1 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full">
-              {/* Left: Gallery (2/3 width) - Darker background #1e293b */}
-              <div className="lg:col-span-2 flex flex-col h-full overflow-hidden p-6 pr-0 bg-[#1e293b]">
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left: Gallery (2/3 width) - Darker background #1e293b */}
+            <div className="flex-[2] flex flex-col h-full overflow-hidden p-6 bg-[#1e293b]">
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
                   <TabsList className="bg-transparent border-0 mb-4 justify-start gap-6 p-0">
@@ -182,11 +179,11 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </Tabs>
               </div>
 
-              {/* RIGHT PANEL - NO TOP PADDING/GAP */}
-              <div className="w-[480px] border-l border-gray-800 flex flex-col bg-black">
-                
-                {/* UPLOAD SECTION - Large, fills space */}
-                <div className="flex-[2] flex items-center justify-center p-8">
+            {/* RIGHT PANEL - Starts at top */}
+            <div className="flex-1 border-l border-gray-800 flex flex-col bg-black">
+              
+              {/* UPLOAD SECTION - Large, fills space */}
+              <div className="flex-[2] flex items-center justify-center p-8 pt-6">
                   <div 
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
@@ -240,8 +237,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   </div>
                 </div>
 
-                {/* ANALYZE BUTTON */}
-                <div className="px-8 pb-6">
+              {/* ANALYZE BUTTON */}
+              <div className="px-8 pb-6">
                   <button
                     onClick={generatePrompt}
                     disabled={!uploadedImage || isGenerating}
@@ -262,8 +259,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   </button>
                 </div>
 
-                {/* PROMPT PREVIEW SECTION - Large, scrollable */}
-                <div className="flex-[2] px-8 pb-6 flex items-center justify-center">
+              {/* PROMPT PREVIEW SECTION - Large, scrollable */}
+              <div className="flex-[2] px-8 pb-6 flex items-center justify-center">
                   {generatedPrompt ? (
                     <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
                       <button
@@ -288,8 +285,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   )}
                 </div>
 
-                {/* USE BUTTON */}
-                <div className="px-8 pb-8">
+              {/* USE BUTTON */}
+              <div className="px-8 pb-8">
                   <button
                     onClick={handleUsePrompt}
                     disabled={!generatedPrompt?.trim()}
@@ -301,7 +298,6 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   >
                     Use
                   </button>
-                </div>
               </div>
             </div>
           </div>
