@@ -79,14 +79,13 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl h-[85vh] bg-[#0a0a0a] border-[#1a1a1a] p-6">
-        <DialogHeader className="mb-0 pb-2">
-          <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
+        <div className="w-full max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-2">
             <Camera className="h-6 w-6" />
-            Image-To-Prompt
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100%-3rem)] overflow-hidden">
+            Image to Prompt
+          </h1>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left: Image Upload */}
           <div className="space-y-4 flex flex-col">
             {!uploadedImage ? (
@@ -211,6 +210,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               >
                 Use
               </Button>
+            </div>
             </div>
           </div>
         </div>
