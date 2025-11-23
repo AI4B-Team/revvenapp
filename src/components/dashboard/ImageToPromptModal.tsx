@@ -127,11 +127,11 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
             </div>
           </div>
 
-          {/* Content */}
+          {/* Content - 2-column layout */}
           <div className="flex-1 overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 h-full">
-              {/* Left: Gallery (2/3 width) */}
-              <div className="lg:col-span-2 flex flex-col h-full overflow-hidden p-6 pr-0">
+              {/* Left: Gallery (2/3 width) - Darker background #1e293b */}
+              <div className="lg:col-span-2 flex flex-col h-full overflow-hidden p-6 pr-0 bg-[#1e293b]">
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
                   <TabsList className="bg-transparent border-0 mb-4 justify-start gap-6 p-0">
@@ -182,10 +182,10 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                 </Tabs>
               </div>
 
-              {/* Right: Upload & Prompt (1/3 width) */}
-              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a]">
-                {/* Upload Area - Takes up half the space */}
-                <div className="flex-1 flex flex-col p-6 pb-3">
+              {/* Right: Upload & Prompt (1/3 width) - Lighter background #2d3748 */}
+              <div className="flex flex-col h-full bg-[#2d3748] border-l border-[#374151]">
+                {/* Section 1: Upload Area (flex-1) */}
+                <div className="flex-1 flex flex-col p-6 pb-4 border-b border-[#374151]">
                   {!uploadedImage ? (
                     <div
                       onDragEnter={handleDrag}
@@ -195,7 +195,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       className={`flex-1 border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center ${
                         dragActive
                           ? 'border-primary bg-primary/10'
-                          : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                          : 'border-[#374151] hover:border-[#4b5563]'
                       }`}
                     >
                       <Upload className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
@@ -206,7 +206,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       <Button
                         onClick={() => fileInputRef.current?.click()}
                         size="sm"
-                        className="bg-muted hover:bg-muted/80 text-black"
+                        className="bg-white hover:bg-white/90 text-black font-medium"
                       >
                         <Upload className="h-4 w-4 mr-2" />
                         Choose File
@@ -223,8 +223,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       </p>
                     </div>
                   ) : (
-                    <div className="flex-1 flex flex-col gap-3">
-                      <div className="relative rounded-lg overflow-hidden border border-[#1a1a1a] flex-1">
+                    <div className="flex-1 flex flex-col">
+                      <div className="relative rounded-lg overflow-hidden border border-[#374151] flex-1 bg-[#1e293b]">
                         <button
                           onClick={() => {
                             clearImage();
@@ -240,55 +240,63 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {!generatedPrompt && !isGenerating && (
-                        <Button
-                          onClick={generatePrompt}
-                          disabled={isGenerating}
-                          size="sm"
-                          className="bg-white hover:bg-white/90 text-black w-full"
-                        >
-                          Analyze Image
-                        </Button>
-                      )}
                     </div>
                   )}
                 </div>
 
-                {/* Generated Prompt - Takes up half the space */}
-                <div className="flex-1 flex flex-col p-6 pt-3">
-                  <div className="flex-1 flex flex-col overflow-hidden relative mb-3">
+                {/* Section 2: Analyze Button */}
+                {uploadedImage && !generatedPrompt && !isGenerating && (
+                  <div className="px-6 py-4 border-b border-[#374151]">
+                    <Button
+                      onClick={generatePrompt}
+                      disabled={isGenerating}
+                      className="bg-[#4b5563] hover:bg-[#6b7280] text-white w-full font-medium"
+                    >
+                      Analyze Image
+                    </Button>
+                  </div>
+                )}
+
+                {/* Section 3: Prompt Preview Area (flex-1) */}
+                <div className="flex-1 flex flex-col p-6 border-b border-[#374151]">
+                  <div className="flex-1 flex flex-col overflow-hidden relative">
                     {isGenerating ? (
-                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a] bg-[#0a0a0a]">
+                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#374151] bg-[#1e293b]">
                         <div className="text-center">
                           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
-                          <p className="text-muted-foreground text-sm">Analyzing...</p>
+                          <p className="text-gray-400 text-sm">Analyzing image...</p>
                         </div>
                       </div>
                     ) : generatedPrompt ? (
                       <>
                         <button
                           onClick={handleCopyPrompt}
-                          className="absolute top-2 right-2 z-10 p-1.5 bg-muted hover:bg-muted/80 rounded-md transition"
+                          className="absolute top-2 right-2 z-10 p-1.5 bg-white hover:bg-gray-100 rounded-md transition"
+                          title="Copy prompt"
                         >
                           <Copy className="h-3 w-3 text-black" />
                         </button>
                         <Textarea
                           value={generatedPrompt}
                           onChange={(e) => updatePrompt(e.target.value)}
-                          placeholder="Generated prompt..."
-                          className="flex-1 resize-none border-[#1a1a1a] bg-[#0a0a0a] text-white text-sm placeholder:text-muted-foreground"
+                          placeholder="The Image Prompt Will Appear Here"
+                          className="flex-1 resize-none border-[#374151] bg-[#1e293b] text-white text-sm placeholder:text-gray-500 pr-12"
                         />
                       </>
                     ) : (
-                      <div className="flex-1 rounded-lg border border-[#1a1a1a] bg-[#0a0a0a]" />
+                      <div className="flex-1 rounded-lg border border-[#374151] bg-[#1e293b] flex items-center justify-center">
+                        <p className="text-gray-500 text-sm">The Image Prompt Will Appear Here</p>
+                      </div>
                     )}
                   </div>
+                </div>
 
-                  {/* Use Button */}
+                {/* Section 4: Use Button */}
+                <div className="p-6 pt-4">
                   <Button
                     onClick={handleUsePrompt}
                     disabled={!canUsePrompt || !generatedPrompt}
-                    className="bg-white hover:bg-white/90 text-black w-full"
+                    className="bg-[#6b7280] hover:bg-[#9ca3af] text-white w-full font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Use
                   </Button>
