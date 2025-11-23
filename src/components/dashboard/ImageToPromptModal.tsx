@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, Upload, X, Loader2, Copy, Search, Image as ImageIcon } from 'lucide-react';
+import { Camera, Upload, X, Loader2, Copy, Search } from 'lucide-react';
 import { useImageToPrompt } from '@/hooks/useImageToPrompt';
 import { toast } from 'sonner';
 import { creationsData, communityData } from '@/data/creationsData';
@@ -110,11 +110,8 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-[#1a1a1a]">
-            <h1 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
-              <Camera className="h-6 w-6" />
-              Image-To-Prompt
-            </h1>
-            <p className="text-muted-foreground text-sm">Upload Or Select An Image</p>
+            <h1 className="text-2xl font-bold text-white mb-1">Image-To-Prompt</h1>
+            <p className="text-muted-foreground text-sm">Upload An Image For An Instant Prompt</p>
           </div>
 
           {/* Content */}
@@ -128,7 +125,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search references..."
+                    placeholder="Search References"
                     className="pl-10 bg-[#0f0f0f] border-[#1a1a1a] text-white"
                   />
                 </div>
@@ -149,7 +146,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
 
                   <TabsContent value={activeTab} className="flex-1 overflow-y-auto mt-0">
                     <div className="grid grid-cols-6 gap-3">
-                      {filteredImages.map((item) => (
+                      {filteredImages.slice(0, 18).map((item) => (
                         <button
                           key={item.id}
                           onClick={() => handleGalleryImageSelect(item.thumbnail)}
@@ -164,11 +161,6 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                             alt={item.title}
                             className="w-full h-full object-cover"
                           />
-                          {item.type === 'video' && (
-                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                              <ImageIcon className="h-6 w-6 text-white" />
-                            </div>
-                          )}
                         </button>
                       ))}
                     </div>
@@ -278,11 +270,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       />
                     </>
                   ) : (
-                    <div className="flex-1 flex items-center justify-center bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]">
-                      <p className="text-muted-foreground text-sm text-center px-4">
-                        Select or upload an image to generate a prompt
-                      </p>
-                    </div>
+                    <div className="flex-1 bg-[#0f0f0f] rounded-lg border border-[#1a1a1a]" />
                   )}
                 </div>
 
