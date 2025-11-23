@@ -181,112 +181,116 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
               </div>
 
               {/* Right: Upload & Prompt (1/3 width) */}
-              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a] p-6">
-                {/* Upload Area */}
-                {!uploadedImage ? (
-                  <div
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center mb-4 ${
-                      dragActive
-                        ? 'border-primary bg-primary/10'
-                        : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
-                    }`}
-                  >
-                    <Upload className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Drag & drop or click to browse
-                    </p>
-                    <Button
-                      onClick={() => fileInputRef.current?.click()}
-                      size="sm"
-                      className="bg-muted hover:bg-muted/80 text-black"
+              <div className="flex flex-col h-full bg-[#0f0f0f] border-l border-[#1a1a1a] p-6 gap-4">
+                {/* Upload Area - Takes up half the space */}
+                <div className="flex-1 flex flex-col">
+                  {!uploadedImage ? (
+                    <div
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      className={`flex-1 border-2 border-dashed rounded-lg p-6 text-center transition-all flex flex-col items-center justify-center ${
+                        dragActive
+                          ? 'border-primary bg-primary/10'
+                          : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                      }`}
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Choose File
-                    </Button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                    <p className="text-xs text-muted-foreground mt-3">
-                      PNG, JPG, WEBP up to 10MB
-                    </p>
-                  </div>
-                ) : (
-                  <div className="relative rounded-lg overflow-hidden border border-[#1a1a1a] mb-4">
-                    <button
-                      onClick={() => {
-                        clearImage();
-                        setSelectedFromGallery(null);
-                      }}
-                      className="absolute top-2 right-2 z-10 p-1.5 bg-black/80 hover:bg-black rounded-full transition"
-                    >
-                      <X className="h-3 w-3 text-white" />
-                    </button>
-                    <img
-                      src={uploadedImage.preview}
-                      alt="Selected"
-                      className="w-full h-32 object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* Analyze Button */}
-                {uploadedImage && !generatedPrompt && !isGenerating && (
-                  <Button
-                    onClick={generatePrompt}
-                    disabled={isGenerating}
-                    size="sm"
-                    className="bg-white hover:bg-white/90 text-black w-full mb-4"
-                  >
-                    Analyze Image
-                  </Button>
-                )}
-
-                {/* Generated Prompt */}
-                <div className="flex-1 flex flex-col overflow-hidden relative mb-4">
-                  {isGenerating ? (
-                    <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a]">
-                      <div className="text-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
-                        <p className="text-muted-foreground text-sm">Analyzing...</p>
-                      </div>
-                    </div>
-                  ) : generatedPrompt ? (
-                    <>
-                      <button
-                        onClick={handleCopyPrompt}
-                        className="absolute top-2 right-2 z-10 p-1.5 bg-muted hover:bg-muted/80 rounded-md transition"
+                      <Upload className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        Drag & drop or click to browse
+                      </p>
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        size="sm"
+                        className="bg-muted hover:bg-muted/80 text-black"
                       >
-                        <Copy className="h-3 w-3 text-white" />
-                      </button>
-                      <Textarea
-                        value={generatedPrompt}
-                        onChange={(e) => updatePrompt(e.target.value)}
-                        placeholder="Generated prompt..."
-                        className="flex-1 resize-none border-[#1a1a1a] text-white text-sm"
+                        <Upload className="h-4 w-4 mr-2" />
+                        Choose File
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleFileSelect}
+                        className="hidden"
                       />
-                    </>
+                      <p className="text-xs text-muted-foreground mt-3">
+                        PNG, JPG, WEBP up to 10MB
+                      </p>
+                    </div>
                   ) : (
-                    <div className="flex-1 rounded-lg border border-[#1a1a1a]" />
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="relative rounded-lg overflow-hidden border border-[#1a1a1a] flex-1">
+                        <button
+                          onClick={() => {
+                            clearImage();
+                            setSelectedFromGallery(null);
+                          }}
+                          className="absolute top-2 right-2 z-10 p-1.5 bg-black/80 hover:bg-black rounded-full transition"
+                        >
+                          <X className="h-3 w-3 text-white" />
+                        </button>
+                        <img
+                          src={uploadedImage.preview}
+                          alt="Selected"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      {!generatedPrompt && !isGenerating && (
+                        <Button
+                          onClick={generatePrompt}
+                          disabled={isGenerating}
+                          size="sm"
+                          className="bg-white hover:bg-white/90 text-black w-full"
+                        >
+                          Analyze Image
+                        </Button>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                {/* Use Button */}
-                <Button
-                  onClick={handleUsePrompt}
-                  disabled={!canUsePrompt || !generatedPrompt}
-                  className="bg-white hover:bg-white/90 text-black w-full"
-                >
-                  Use
-                </Button>
+                {/* Generated Prompt - Takes up half the space */}
+                <div className="flex-1 flex flex-col gap-3">
+                  <div className="flex-1 flex flex-col overflow-hidden relative">
+                    {isGenerating ? (
+                      <div className="flex-1 flex items-center justify-center rounded-lg border border-[#1a1a1a]">
+                        <div className="text-center">
+                          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
+                          <p className="text-muted-foreground text-sm">Analyzing...</p>
+                        </div>
+                      </div>
+                    ) : generatedPrompt ? (
+                      <>
+                        <button
+                          onClick={handleCopyPrompt}
+                          className="absolute top-2 right-2 z-10 p-1.5 bg-muted hover:bg-muted/80 rounded-md transition"
+                        >
+                          <Copy className="h-3 w-3 text-white" />
+                        </button>
+                        <Textarea
+                          value={generatedPrompt}
+                          onChange={(e) => updatePrompt(e.target.value)}
+                          placeholder="Generated prompt..."
+                          className="flex-1 resize-none border-[#1a1a1a] text-white text-sm"
+                        />
+                      </>
+                    ) : (
+                      <div className="flex-1 rounded-lg border border-[#1a1a1a]" />
+                    )}
+                  </div>
+
+                  {/* Use Button */}
+                  <Button
+                    onClick={handleUsePrompt}
+                    disabled={!canUsePrompt || !generatedPrompt}
+                    className="bg-white hover:bg-white/90 text-black w-full"
+                  >
+                    Use
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
