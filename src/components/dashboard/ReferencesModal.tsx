@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users } from "lucide-react";
+import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
@@ -225,13 +225,16 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
               <p className="text-sm text-gray-400">Upload Or Select An Image</p>
             </div>
             <div className="w-64">
-              <input
-                type="text"
-                placeholder="Search References"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
-              />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search References"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+                />
+              </div>
             </div>
           </div>
 
@@ -398,15 +401,16 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
         {/* Right Side - Upload Section */}
         <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-6 flex flex-col">
             {selectedImages.length > 0 ? (
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Selected Images ({selectedImages.length}/8)</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-lg font-semibold text-white mb-3">Selected Images ({selectedImages.length}/8)</h3>
+                <div className="grid grid-cols-2 gap-3">
                   {selectedImages.slice(0, 8).map((image, index) => (
                     <div
                       key={image.id}
-                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-primary"
+                      className="relative rounded-lg overflow-hidden border-2 border-primary"
+                      style={{ aspectRatio: '1/1', maxHeight: '140px' }}
                     >
                       <img
                         src={image.thumbnail_url || image.image_url || image.preview}
@@ -415,9 +419,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                       />
                       <button
                         onClick={() => handleImageClick(image)}
-                        className="absolute top-2 right-2 p-1 bg-black/60 hover:bg-black/80 rounded transition"
+                        className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/80 rounded transition"
                       >
-                        <X className="h-4 w-4 text-white" />
+                        <X className="h-3 w-3 text-white" />
                       </button>
                     </div>
                   ))}
