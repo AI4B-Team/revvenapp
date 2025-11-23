@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Dices, Gift, FileText, Loader2, Upload, X } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -435,7 +435,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                   <>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <label className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition cursor-pointer">
+                        <label className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition cursor-pointer">
                           {isAnalyzingImage ? (
                             <Loader2 size={18} className="text-muted-foreground animate-spin" />
                           ) : (
@@ -450,7 +450,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                           />
                         </label>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-black border-black">
                         <p>Image-To-Prompt</p>
                       </TooltipContent>
                     </Tooltip>
@@ -459,17 +459,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharacterSelect, s
                         <button 
                           onClick={() => handleEnhancePrompt(false)}
                           disabled={isEnhancing || !prompt.trim()}
-                          className="bg-muted/50 hover:bg-muted rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isEnhancing ? (
                             <Loader2 size={18} className="text-muted-foreground animate-spin" />
                           ) : (
-                            <Dices size={18} className="text-muted-foreground" />
+                            <Shuffle size={18} className="text-muted-foreground" />
                           )}
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Auto Enhance Prompt with AI</p>
+                      <TooltipContent className="bg-black border-black">
+                        <p>Auto Prompt</p>
                       </TooltipContent>
                     </Tooltip>
                   </>
