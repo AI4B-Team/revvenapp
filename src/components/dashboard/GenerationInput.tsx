@@ -723,6 +723,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
+                    console.log('Deletion: Filtered from', activeCharacters.length, 'to', updatedCharacters.length);
+                    console.log('Calling onCharactersSelect with:', updatedCharacters.map(c => c.name || c.id));
                     onCharactersSelect?.(updatedCharacters);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
