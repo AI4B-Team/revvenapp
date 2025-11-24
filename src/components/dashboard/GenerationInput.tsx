@@ -168,20 +168,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
   
-  // Sync external props to video mode state when in video mode
-  useEffect(() => {
-    if (isVideoMode) {
-      // Direct sync - parent is source of truth
-      setVideoModeState({
-        characters: selectedCharacters,
-        references: selectedReferences,
-        startingFrame: null,
-        endingFrame: null
-      });
-    }
-  }, [isVideoMode, selectedCharacters.length, selectedReferences.length]);
-  
-  
   // Video mode: Auto-populate frames when characters/references change
   useEffect(() => {
     if (!isVideoMode) return;
@@ -191,26 +177,27 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const totalImages = chars.length + refs.length;
     
     if (totalImages === 0) {
-      setVideoModeState(prev => ({
-        ...prev,
+      // Clear everything when no images
+      setVideoModeState({
         characters: [],
         references: [],
         startingFrame: null,
         endingFrame: null
-      }));
+      });
     } else if (totalImages === 1) {
+      // Single image - populate only start frame
       const firstImage = chars[0] || refs[0];
       const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
       const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
       
-      setVideoModeState(prev => ({
-        ...prev,
+      setVideoModeState({
         characters: chars,
         references: refs,
         startingFrame: { preview: imageUrl, name: imageName },
         endingFrame: null
-      }));
+      });
     } else {
+      // Multiple images - populate both frames
       const firstImage = chars[0] || refs[0];
       const secondImage = chars[1] || (chars.length === 1 ? refs[0] : refs[1]);
       
@@ -219,13 +206,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const secondUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
       const secondName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
       
-      setVideoModeState(prev => ({
-        ...prev,
+      setVideoModeState({
         characters: chars,
         references: refs,
         startingFrame: { preview: firstUrl, name: firstName },
         endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
-      }));
+      });
     }
   }, [isVideoMode, selectedCharacters, selectedReferences]);
   
@@ -700,8 +686,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
-                    console.log('Deletion: Filtered from', activeCharacters.length, 'to', updatedCharacters.length);
-                    console.log('Calling onCharactersSelect with:', updatedCharacters.map(c => c.name || c.id));
                     onCharactersSelect?.(updatedCharacters);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
