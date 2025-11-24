@@ -168,19 +168,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
   
-  // Video mode: Track previous image count to detect when to auto-populate
-  const prevImageCountRef = useRef(0);
+  // Video mode: Track which frame to populate next
+  const framePopulateIntentRef = useRef<'start' | 'end' | null>(null);
   
   useEffect(() => {
     if (!isVideoMode) return;
     
     const totalImages = selectedCharacters.length + selectedReferences.length;
-    const prevTotal = prevImageCountRef.current;
     
     setVideoModeState(prev => {
       // If all images removed, clear everything
       if (totalImages === 0) {
-        prevImageCountRef.current = 0;
+        framePopulateIntentRef.current = null;
         return {
           characters: [],
           references: [],
@@ -189,15 +188,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         };
       }
       
-      // Only auto-populate when going from 0 images to 1+ images (initial population)
-      if (prevTotal === 0 && totalImages > 0 && !prev.startingFrame && !prev.endingFrame) {
-        prevImageCountRef.current = totalImages;
-        
+      // Auto-populate frames based on intent or if both are empty
+      if (!prev.startingFrame && !prev.endingFrame) {
+        // Initial population - both frames empty
         if (totalImages === 1) {
           const firstImage = selectedCharacters[0] || selectedReferences[0];
           const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
           const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
           
+          framePopulateIntentRef.current = null;
           return {
             characters: selectedCharacters,
             references: selectedReferences,
@@ -213,6 +212,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           const secondUrl = secondImage?.image_url || secondImage?.image || secondImage?.thumbnail_url || secondImage?.preview;
           const secondName = secondImage?.name || secondImage?.original_filename || 'image.jpg';
           
+          framePopulateIntentRef.current = null;
           return {
             characters: selectedCharacters,
             references: selectedReferences,
@@ -222,8 +222,34 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
       }
       
-      // Update ref and arrays without touching frames
-      prevImageCountRef.current = totalImages;
+      // Populate specific frame based on intent
+      if (framePopulateIntentRef.current === 'end' && !prev.endingFrame && totalImages > 0) {
+        const latestImage = selectedReferences[selectedReferences.length - 1] || selectedCharacters[selectedCharacters.length - 1];
+        const imageUrl = latestImage.image_url || latestImage.image || latestImage.thumbnail_url || latestImage.preview;
+        const imageName = latestImage.name || latestImage.original_filename || 'image.jpg';
+        framePopulateIntentRef.current = null;
+        return {
+          ...prev,
+          characters: selectedCharacters,
+          references: selectedReferences,
+          endingFrame: { preview: imageUrl, name: imageName }
+        };
+      }
+      
+      if (framePopulateIntentRef.current === 'start' && !prev.startingFrame && totalImages > 0) {
+        const latestImage = selectedReferences[selectedReferences.length - 1] || selectedCharacters[selectedCharacters.length - 1];
+        const imageUrl = latestImage.image_url || latestImage.image || latestImage.thumbnail_url || latestImage.preview;
+        const imageName = latestImage.name || latestImage.original_filename || 'image.jpg';
+        framePopulateIntentRef.current = null;
+        return {
+          ...prev,
+          characters: selectedCharacters,
+          references: selectedReferences,
+          startingFrame: { preview: imageUrl, name: imageName }
+        };
+      }
+      
+      // Just update arrays without touching frames
       return {
         ...prev,
         characters: selectedCharacters,
@@ -802,7 +828,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   endingFrame: temp
                 }));
               }}
-              onEndingFrameUploadClick={onReferencesClick}
+              onEndingFrameUploadClick={() => {
+                framePopulateIntentRef.current = 'end';
+                onReferencesClick?.();
+              }}
             />
           </div>
         )}
