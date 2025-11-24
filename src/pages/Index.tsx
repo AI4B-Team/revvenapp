@@ -20,7 +20,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [timeFilter, setTimeFilter] = useState('All Time');
-  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community'>('tools');
+  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community' | 'collections'>('tools');
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [assetFilter, setAssetFilter] = useState<string | null>(null);
