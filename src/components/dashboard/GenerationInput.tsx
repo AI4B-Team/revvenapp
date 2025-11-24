@@ -171,17 +171,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Sync external props to video mode state when in video mode
   useEffect(() => {
     if (isVideoMode) {
-      console.log('Syncing to videoModeState:', { 
-        selectedCharacters: selectedCharacters.length, 
-        selectedReferences: selectedReferences.length 
-      });
       setVideoModeState(prev => ({
         ...prev,
         characters: selectedCharacters,
         references: selectedReferences
       }));
     } else {
-      // Clear frames when leaving video mode to prevent auto-population on return
+      // Clear frames when leaving video mode
       setVideoModeState(prev => ({
         ...prev,
         startingFrame: null,
@@ -196,17 +192,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     if (!isVideoMode) return;
     
     const totalImages = videoModeState.characters.length + videoModeState.references.length;
-    console.log('Auto-populate effect running:', { 
-      totalImages, 
-      characters: videoModeState.characters.length,
-      references: videoModeState.references.length,
-      hasStartFrame: !!videoModeState.startingFrame,
-      hasEndFrame: !!videoModeState.endingFrame
-    });
     
     if (totalImages === 0) {
       // Clear frames when all images are removed
-      console.log('Clearing frames - no images');
       setVideoModeState(prev => ({
         ...prev,
         startingFrame: null,
@@ -221,7 +209,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
       const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
       
-      console.log('Setting start frame only:', { imageUrl, imageName });
       setVideoModeState(prev => ({
         ...prev,
         startingFrame: {
@@ -251,12 +238,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const secondImageUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
       const secondImageName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
       
-      console.log('Setting both frames:', { 
-        firstImageUrl, 
-        firstImageName, 
-        secondImageUrl, 
-        secondImageName 
-      });
       setVideoModeState(prev => ({
         ...prev,
         startingFrame: {
@@ -269,7 +250,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         } : null
       }));
     }
-  }, [isVideoMode, videoModeState.characters.length, videoModeState.references.length, JSON.stringify(videoModeState.characters.map(c => c.id || c.name)), JSON.stringify(videoModeState.references.map(r => r.id))]);
+  }, [isVideoMode, videoModeState.characters.length, videoModeState.references.length]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -742,8 +723,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
-                    console.log('Deleting character, calling onCharactersSelect with:', updatedCharacters.length, 'characters');
-                    // Update parent state only - the sync effect will handle videoModeState
                     onCharactersSelect?.(updatedCharacters);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
@@ -769,8 +748,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedReferences = activeReferences.filter((_, i) => i !== index);
-                    console.log('Deleting reference, calling onReferencesSelect with:', updatedReferences.length, 'references');
-                    // Update parent state only - the sync effect will handle videoModeState
                     onReferencesSelect?.(updatedReferences);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"

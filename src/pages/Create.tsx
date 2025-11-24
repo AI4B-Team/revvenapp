@@ -82,6 +82,15 @@ const Create = () => {
       setActiveView('tools');
       setIsEditMode(false);
       setEditingImage(null);
+      // Clear all content type states
+      setImageCharacters([]);
+      setImageReferences([]);
+      setVideoCharacters([]);
+      setVideoReferences([]);
+      setAudioCharacters([]);
+      setAudioReferences([]);
+      setDesignCharacters([]);
+      setDesignReferences([]);
     }
   }, [location]);
 
@@ -414,11 +423,6 @@ const Create = () => {
               selectedType={selectedType}
               onCharactersClick={() => setCharactersModalOpen(true)}
               onCharactersSelect={(characters) => {
-                console.log('onCharactersSelect called:', { 
-                  selectedType, 
-                  charactersCount: characters.length,
-                  characters: characters.map(c => c.name || c.id)
-                });
                 if (selectedType === 'Image') setImageCharacters(characters);
                 else if (selectedType === 'Video') setVideoCharacters(characters);
                 else if (selectedType === 'Audio') setAudioCharacters(characters);
@@ -432,11 +436,6 @@ const Create = () => {
               }
               onReferencesClick={() => setReferencesModalOpen(true)}
               onReferencesSelect={(references) => {
-                console.log('onReferencesSelect called:', { 
-                  selectedType, 
-                  referencesCount: references.length,
-                  references: references.map(r => r.id)
-                });
                 if (selectedType === 'Image') setImageReferences(references);
                 else if (selectedType === 'Video') setVideoReferences(references);
                 else if (selectedType === 'Audio') setAudioReferences(references);
