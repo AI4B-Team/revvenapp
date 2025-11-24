@@ -112,6 +112,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   if (!isOpen) return null;
 
   const handleCharacterSelect = (character: any) => {
+    console.log('Character selected in modal:', character);
     if (onSelectCharacter) {
       onSelectCharacter(character);
     }

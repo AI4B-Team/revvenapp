@@ -170,12 +170,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Sync external props to video mode state when in video mode
   useEffect(() => {
+    console.log('Video mode sync effect triggered:', { 
+      isVideoMode, 
+      selectedCharacters: selectedCharacters.length, 
+      selectedReferences: selectedReferences.length 
+    });
+    
     if (isVideoMode) {
-      setVideoModeState(prev => ({
-        ...prev,
-        characters: selectedCharacters,
-        references: selectedReferences
-      }));
+      setVideoModeState(prev => {
+        const newState = {
+          ...prev,
+          characters: selectedCharacters,
+          references: selectedReferences
+        };
+        console.log('Updating videoModeState:', newState);
+        return newState;
+      });
     } else {
       // Clear frames when leaving video mode to prevent auto-population on return
       setVideoModeState(prev => ({
