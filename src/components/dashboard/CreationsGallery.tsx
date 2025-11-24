@@ -35,9 +35,10 @@ interface GalleryProps {
   type: 'creations' | 'community';
   columnsPerRow?: number;
   filters?: FilterState;
+  onAnimate?: (imageUrl: string) => void;
 }
 
-const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) => {
+const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: GalleryProps) => {
   const [likedItems, setLikedItems] = useState(new Set());
   const [savedItems, setSavedItems] = useState(new Set());
   const [shareModalOpen, setShareModalOpen] = useState<number | string | null>(null);
@@ -652,6 +653,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters }: GalleryProps) =>
           isSaved={savedItems.has(items[selectedImageIndex].id)}
           onToggleLike={() => toggleLike(items[selectedImageIndex].id)}
           onToggleSave={() => toggleSave(items[selectedImageIndex].id)}
+          onAnimate={onAnimate}
         />
       )}
 

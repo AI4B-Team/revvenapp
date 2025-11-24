@@ -37,6 +37,7 @@ interface ImageViewerModalProps {
   isSaved?: boolean;
   onToggleLike?: () => void;
   onToggleSave?: () => void;
+  onAnimate?: (imageUrl: string) => void;
 }
 
 const ImageViewerModal = ({ 
@@ -47,7 +48,8 @@ const ImageViewerModal = ({
   isLiked = false,
   isSaved = false,
   onToggleLike,
-  onToggleSave
+  onToggleSave,
+  onAnimate
 }: ImageViewerModalProps) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -427,7 +429,13 @@ const ImageViewerModal = ({
                   <Maximize size={14} />
                   <span>Upscale</span>
                 </button>
-                <button className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs">
+                <button 
+                  onClick={() => {
+                    onAnimate?.(imageData.url);
+                    onClose();
+                  }}
+                  className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs"
+                >
                   <Play size={14} />
                   <span>Animate</span>
                 </button>

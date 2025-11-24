@@ -34,6 +34,7 @@ const Create = () => {
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [externalStartingFrame, setExternalStartingFrame] = useState<{ preview: string; name: string } | null>(null);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -414,6 +415,8 @@ const Create = () => {
               selectedReferences={selectedReferences}
               isCharacterReference={isCharacterReference}
               onGenerationStart={() => setActiveView('creations')}
+              externalStartingFrame={externalStartingFrame}
+              onContentTypeChange={(type) => setSelectedType(type)}
             />
             
             <ActionButtons 
@@ -438,6 +441,14 @@ const Create = () => {
                   type="creations" 
                   columnsPerRow={zoomLevel}
                   filters={filters}
+                  onAnimate={(imageUrl) => {
+                    setSelectedType('Video');
+                    setExternalStartingFrame({
+                      preview: imageUrl,
+                      name: 'animated-image.jpg'
+                    });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 />
               </div>
             )}
