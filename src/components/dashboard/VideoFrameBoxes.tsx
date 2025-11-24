@@ -47,20 +47,7 @@ const VideoFrameBoxes = ({
   };
 
   const handleSwap = () => {
-    if (startingFrame && endingFrame) {
-      // Both exist, swap them
-      const temp = startingFrame;
-      onStartingFrameChange(endingFrame);
-      onEndingFrameChange(temp);
-    } else if (startingFrame && !endingFrame) {
-      // Only start frame exists, move to end frame
-      onEndingFrameChange(startingFrame);
-      onStartingFrameChange(null);
-    } else if (!startingFrame && endingFrame) {
-      // Only end frame exists, move to start frame
-      onStartingFrameChange(endingFrame);
-      onEndingFrameChange(null);
-    }
+    onSwap();
   };
 
   return (
