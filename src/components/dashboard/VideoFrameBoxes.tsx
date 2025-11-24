@@ -1,5 +1,5 @@
 import { ArrowRightLeft, X, Upload } from 'lucide-react';
-import { useState } from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface VideoFrameBoxesProps {
   startingFrame: { preview: string; name: string } | null;
@@ -44,11 +44,29 @@ const VideoFrameBoxes = ({
     }
   };
 
+  const handleSwap = () => {
+    if (startingFrame && endingFrame) {
+      // Both exist, swap them
+      const temp = startingFrame;
+      onStartingFrameChange(endingFrame);
+      onEndingFrameChange(temp);
+    } else if (startingFrame && !endingFrame) {
+      // Only start frame exists, move to end frame
+      onEndingFrameChange(startingFrame);
+      onStartingFrameChange(null);
+    } else if (!startingFrame && endingFrame) {
+      // Only end frame exists, move to start frame
+      onStartingFrameChange(endingFrame);
+      onEndingFrameChange(null);
+    }
+  };
+
   return (
-    <div className="flex items-center gap-4">
-      {/* Starting Frame */}
-      <div>
-        <label className="text-sm text-muted-foreground mb-2 block">Start Frame</label>
+    <TooltipProvider>
+      <div className="flex items-center gap-4">
+        {/* Starting Frame */}
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block text-center">Start Frame</label>
         <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {startingFrame ? (
             <>
@@ -80,23 +98,32 @@ const VideoFrameBoxes = ({
       </div>
 
       {/* Swap Button */}
-      <button
-        onClick={onSwap}
-        className="mt-6 bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
-      >
-        <ArrowRightLeft size={16} className="text-muted-foreground" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={handleSwap}
+            className="mt-6 bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+          >
+            <ArrowRightLeft size={16} className="text-muted-foreground" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Swap</p>
+        </TooltipContent>
+      </Tooltip>
 
       {/* Ending Frame */}
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">End Frame (Optional)</label>
+        <label className="text-sm text-muted-foreground mb-2 block text-center">
+          End Frame<br />(Optional)
+        </label>
         <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {endingFrame ? (
             <>
               <img 
                 src={endingFrame.preview} 
                 alt="Ending frame" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover opacity-70"
               />
               <button
                 onClick={() => onEndingFrameChange(null)}
@@ -120,6 +147,7 @@ const VideoFrameBoxes = ({
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 };
 
