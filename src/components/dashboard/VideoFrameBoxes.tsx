@@ -63,10 +63,10 @@ const VideoFrameBoxes = ({
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         {/* Starting Frame */}
         <div>
-          <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden group/frame">
           {startingFrame ? (
             <>
               <img 
@@ -76,7 +76,7 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onStartingFrameChange(null)}
-                className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-1.5 transition"
+                className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-1.5 transition opacity-0 group-hover/frame:opacity-100"
               >
                 <X size={16} className="text-white" />
               </button>
@@ -97,24 +97,26 @@ const VideoFrameBoxes = ({
           <label className="text-sm text-muted-foreground mt-2 block text-left">Start Frame</label>
       </div>
 
-      {/* Swap Button */}
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={handleSwap}
-            className="mt-6 bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
-          >
-            <ArrowRightLeft size={16} className="text-muted-foreground" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Swap</p>
-        </TooltipContent>
-      </Tooltip>
+      {/* Swap Button - Centered vertically */}
+      <div className="flex items-center h-32">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleSwap}
+              className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+            >
+              <ArrowRightLeft size={16} className="text-muted-foreground" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Swap</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
 
       {/* Ending Frame */}
       <div>
-        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
+        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden group/frame">
           {endingFrame ? (
             <>
               <img 
@@ -124,7 +126,7 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onEndingFrameChange(null)}
-                className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-1.5 transition"
+                className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-1.5 transition opacity-0 group-hover/frame:opacity-100"
               >
                 <X size={16} className="text-white" />
               </button>
