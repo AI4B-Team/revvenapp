@@ -107,13 +107,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
   const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
 
-  // Clear frames when all character/reference images are removed in video mode
+  // Auto-populate starting frame when character or reference is added in video mode
   useEffect(() => {
-    if (isVideoMode && selectedCharacters.length === 0 && selectedReferences.length === 0) {
-      setStartingFrame(null);
-      setEndingFrame(null);
+    if (isVideoMode) {
+      if (!startingFrame && (selectedCharacters.length > 0 || selectedReferences.length > 0)) {
+        // Auto-populate starting frame from first available image
+        if (selectedCharacters.length > 0) {
+          const character = selectedCharacters[0];
+          const imageUrl = character.image_url || character.image;
+          if (imageUrl) {
+            setStartingFrame({
+              preview: imageUrl,
+              name: character.name || 'character.jpg'
+            });
+          }
+        } else if (selectedReferences.length > 0) {
+          const reference = selectedReferences[0];
+          const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
+          if (imageUrl) {
+            setStartingFrame({
+              preview: imageUrl,
+              name: reference.original_filename || reference.name || 'reference.jpg'
+            });
+          }
+        }
+      } else if (selectedCharacters.length === 0 && selectedReferences.length === 0) {
+        // Clear both frames when all images are removed
+        setStartingFrame(null);
+        setEndingFrame(null);
+      }
     }
-  }, [isVideoMode, selectedCharacters, selectedReferences]);
+  }, [isVideoMode, selectedCharacters, selectedReferences, startingFrame]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
