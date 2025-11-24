@@ -20,9 +20,10 @@ interface GenerationInputProps {
   onReferencesSelect?: (references: any[]) => void;
   selectedReferences?: any[];
   isCharacterReference?: boolean;
+  onGenerationStart?: () => void;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -128,6 +129,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
 
     setIsGenerating(true);
+    onGenerationStart?.();
     
     try {
       console.log("Starting image generation...");

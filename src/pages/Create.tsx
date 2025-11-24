@@ -413,6 +413,7 @@ const Create = () => {
               }}
               selectedReferences={selectedReferences}
               isCharacterReference={isCharacterReference}
+              onGenerationStart={() => setActiveView('creations')}
             />
             
             <ActionButtons 
