@@ -168,68 +168,63 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
   
-  // Video mode: Only sync character/reference arrays, never overwrite manually set frames
+  // Video mode: Sync arrays and auto-populate frames only when frames are empty
   useEffect(() => {
     if (!isVideoMode) return;
     
-    const chars = selectedCharacters;
-    const refs = selectedReferences;
-    const totalImages = chars.length + refs.length;
+    const totalImages = selectedCharacters.length + selectedReferences.length;
     
-    // Only update if this is genuinely new data (compare array contents)
-    const currentTotal = videoModeState.characters.length + videoModeState.references.length;
-    
-    // If we're adding NEW images (going from fewer to more)
-    if (totalImages > currentTotal) {
-      // Only auto-populate if frames are currently empty
-      if (!videoModeState.startingFrame && !videoModeState.endingFrame) {
+    // Always sync the arrays
+    setVideoModeState(prev => {
+      // If all images removed, clear frames
+      if (totalImages === 0) {
+        return {
+          characters: [],
+          references: [],
+          startingFrame: null,
+          endingFrame: null
+        };
+      }
+      
+      // If frames are empty, auto-populate them
+      if (!prev.startingFrame && !prev.endingFrame) {
         if (totalImages === 1) {
-          const firstImage = chars[0] || refs[0];
+          const firstImage = selectedCharacters[0] || selectedReferences[0];
           const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
           const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
           
-          setVideoModeState({
-            characters: chars,
-            references: refs,
+          return {
+            characters: selectedCharacters,
+            references: selectedReferences,
             startingFrame: { preview: imageUrl, name: imageName },
             endingFrame: null
-          });
+          };
         } else {
-          const firstImage = chars[0] || refs[0];
-          const secondImage = chars[1] || (chars.length === 1 ? refs[0] : refs[1]);
+          const firstImage = selectedCharacters[0] || selectedReferences[0];
+          const secondImage = selectedCharacters[1] || (selectedCharacters.length === 1 ? selectedReferences[0] : selectedReferences[1]);
           
           const firstUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
           const firstName = firstImage.name || firstImage.original_filename || 'image.jpg';
           const secondUrl = secondImage?.image_url || secondImage?.image || secondImage?.thumbnail_url || secondImage?.preview;
           const secondName = secondImage?.name || secondImage?.original_filename || 'image.jpg';
           
-          setVideoModeState({
-            characters: chars,
-            references: refs,
+          return {
+            characters: selectedCharacters,
+            references: selectedReferences,
             startingFrame: { preview: firstUrl, name: firstName },
             endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
-          });
+          };
         }
-      } else {
-        // Frames exist, just update the arrays
-        setVideoModeState(prev => ({
-          ...prev,
-          characters: chars,
-          references: refs
-        }));
       }
-    } 
-    // If we're removing ALL images
-    else if (totalImages === 0 && currentTotal > 0) {
-      setVideoModeState({
-        characters: [],
-        references: [],
-        startingFrame: null,
-        endingFrame: null
-      });
-    }
-    // Otherwise keep existing frames untouched
-  }, [isVideoMode, selectedCharacters, selectedReferences, videoModeState.characters.length, videoModeState.references.length, videoModeState.startingFrame, videoModeState.endingFrame]);
+      
+      // Frames exist, just update arrays without touching frames
+      return {
+        ...prev,
+        characters: selectedCharacters,
+        references: selectedReferences
+      };
+    });
+  }, [isVideoMode, selectedCharacters, selectedReferences]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
