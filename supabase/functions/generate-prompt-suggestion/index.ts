@@ -25,12 +25,13 @@ serve(async (req) => {
     if (hasImages) {
       // Build a message with images for vision analysis
       const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
-Analyze the provided images (characters and/or reference images) and generate a single creative, detailed prompt that incorporates all of them.
-The prompt should be specific, vivid, and imaginative, combining elements from all the images.
-Return only the prompt text, nothing else.`;
+Based on the provided character and reference images, create a completely NEW creative scenario or scene that FEATURES these characters/elements in an interesting situation.
+DO NOT describe what you see in the images. Instead, imagine these characters in a new setting, action, or scenario.
+The prompt should be specific, vivid, and imaginative - like "character from image 1 doing X in Y setting" or "character in Z dramatic scene".
+Return only the creative prompt text for generating a NEW image, nothing else.`;
 
       const content: any[] = [
-        { type: "text", text: "Generate a creative prompt based on these images:" }
+        { type: "text", text: "Look at these character/reference images and create a NEW creative prompt that features them in an interesting scenario:" }
       ];
 
       // Add character images
