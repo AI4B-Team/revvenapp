@@ -581,8 +581,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* Character & Reference Images Display */}
-        {(selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+        {/* Character & Reference Images Display - Hidden in video mode */}
+        {!isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
             {selectedCharacters.map((character, index) => (
@@ -649,8 +649,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         )}
 
-        {/* Video Animation Frames - Show only in video mode when character or reference is added */}
-        {isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+        {/* Video Animation Frames - Show only in video mode when frames are added */}
+        {isVideoMode && (startingFrame || endingFrame) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={startingFrame}
