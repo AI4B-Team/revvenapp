@@ -76,9 +76,9 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onStartingFrameChange(null)}
-                className="absolute -top-3 -right-3 w-10 h-10 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
+                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
               >
-                <X size={18} strokeWidth={3} />
+                <X size={14} strokeWidth={2} />
               </button>
             </>
           ) : (
@@ -126,9 +126,9 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onEndingFrameChange(null)}
-                className="absolute -top-3 -right-3 w-10 h-10 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
+                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
               >
-                <X size={18} strokeWidth={3} />
+                <X size={14} strokeWidth={2} />
               </button>
             </>
           ) : (
