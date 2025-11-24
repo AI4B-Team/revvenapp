@@ -155,8 +155,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Determine if we should show character and reference displays
   const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
-  const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
-  const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
+  const shouldShowCharacters = !shouldHideCharacterAndReference;
+  const shouldShowReferences = !shouldHideCharacterAndReference && !isAudioMode;
 
   // Sync external props to image mode state only when in image mode
   useEffect(() => {
