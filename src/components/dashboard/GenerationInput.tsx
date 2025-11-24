@@ -224,9 +224,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       
       // Populate specific frame based on intent
       if (framePopulateIntentRef.current === 'end' && !prev.endingFrame && totalImages > 0) {
-        const latestImage = selectedReferences[selectedReferences.length - 1] || selectedCharacters[selectedCharacters.length - 1];
-        const imageUrl = latestImage.image_url || latestImage.image || latestImage.thumbnail_url || latestImage.preview;
-        const imageName = latestImage.name || latestImage.original_filename || 'image.jpg';
+        const allImages = [...selectedCharacters, ...selectedReferences];
+        // Find an image that's not already used in the start frame
+        let imageToUse = allImages[allImages.length - 1]; // Default to latest
+        
+        if (prev.startingFrame) {
+          const differentImage = allImages.find(img => {
+            const imgUrl = img.image_url || img.image || img.thumbnail_url || img.preview;
+            return imgUrl !== prev.startingFrame?.preview;
+          });
+          if (differentImage) {
+            imageToUse = differentImage;
+          }
+        }
+        
+        const imageUrl = imageToUse.image_url || imageToUse.image || imageToUse.thumbnail_url || imageToUse.preview;
+        const imageName = imageToUse.name || imageToUse.original_filename || 'image.jpg';
         framePopulateIntentRef.current = null;
         return {
           ...prev,
@@ -237,9 +250,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       }
       
       if (framePopulateIntentRef.current === 'start' && !prev.startingFrame && totalImages > 0) {
-        const latestImage = selectedReferences[selectedReferences.length - 1] || selectedCharacters[selectedCharacters.length - 1];
-        const imageUrl = latestImage.image_url || latestImage.image || latestImage.thumbnail_url || latestImage.preview;
-        const imageName = latestImage.name || latestImage.original_filename || 'image.jpg';
+        const allImages = [...selectedCharacters, ...selectedReferences];
+        // Find an image that's not already used in the end frame
+        let imageToUse = allImages[allImages.length - 1]; // Default to latest
+        
+        if (prev.endingFrame) {
+          const differentImage = allImages.find(img => {
+            const imgUrl = img.image_url || img.image || img.thumbnail_url || img.preview;
+            return imgUrl !== prev.endingFrame?.preview;
+          });
+          if (differentImage) {
+            imageToUse = differentImage;
+          }
+        }
+        
+        const imageUrl = imageToUse.image_url || imageToUse.image || imageToUse.thumbnail_url || imageToUse.preview;
+        const imageName = imageToUse.name || imageToUse.original_filename || 'image.jpg';
         framePopulateIntentRef.current = null;
         return {
           ...prev,
