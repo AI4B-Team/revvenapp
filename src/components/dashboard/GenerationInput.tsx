@@ -821,12 +821,32 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 setVideoModeState(prev => ({ ...prev, endingFrame: frame }));
               }}
               onSwap={() => {
-                const temp = videoModeState.startingFrame;
-                setVideoModeState(prev => ({
-                  ...prev,
-                  startingFrame: prev.endingFrame,
-                  endingFrame: temp
-                }));
+                setVideoModeState(prev => {
+                  // Handle all swap cases in a single state update
+                  if (prev.startingFrame && prev.endingFrame) {
+                    // Both exist, swap them
+                    return {
+                      ...prev,
+                      startingFrame: prev.endingFrame,
+                      endingFrame: prev.startingFrame
+                    };
+                  } else if (prev.startingFrame && !prev.endingFrame) {
+                    // Only start frame exists, move to end frame
+                    return {
+                      ...prev,
+                      startingFrame: null,
+                      endingFrame: prev.startingFrame
+                    };
+                  } else if (!prev.startingFrame && prev.endingFrame) {
+                    // Only end frame exists, move to start frame
+                    return {
+                      ...prev,
+                      startingFrame: prev.endingFrame,
+                      endingFrame: null
+                    };
+                  }
+                  return prev;
+                });
               }}
               onEndingFrameUploadClick={() => {
                 framePopulateIntentRef.current = 'end';
