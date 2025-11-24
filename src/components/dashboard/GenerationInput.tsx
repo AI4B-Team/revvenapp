@@ -424,6 +424,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const characterImages = currentCharacters.map(char => char.image_url || char.image).filter(Boolean);
       const referenceImages = currentReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
 
+      // If in video mode, also include frame images
+      if (isVideoMode) {
+        if (videoModeState.startingFrame?.preview) {
+          referenceImages.push(videoModeState.startingFrame.preview);
+        }
+        if (videoModeState.endingFrame?.preview) {
+          referenceImages.push(videoModeState.endingFrame.preview);
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
           contentType: selectedType,
