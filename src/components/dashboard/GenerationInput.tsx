@@ -663,17 +663,19 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             
             {/* Add Reference Image Button - Always Last */}
             {shouldShowReferences && (
-              <button
-                onClick={onReferencesClick}
-                className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2 group"
-              >
-                <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
-                  <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
-                </div>
-                <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
-                  Add Image
-                </span>
-              </button>
+              <div className="relative group">
+                <button
+                  onClick={onReferencesClick}
+                  className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2"
+                >
+                  <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
+                    <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
+                  </div>
+                  <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
+                    Add Image
+                  </span>
+                </button>
+              </div>
             )}
           </div>
         ) : null}
