@@ -25,9 +25,16 @@ const Create = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
-  const [selectedCharacters, setSelectedCharacters] = useState<any[]>([]);
+  // Separate state for each content type
+  const [imageCharacters, setImageCharacters] = useState<any[]>([]);
+  const [imageReferences, setImageReferences] = useState<any[]>([]);
+  const [videoCharacters, setVideoCharacters] = useState<any[]>([]);
+  const [videoReferences, setVideoReferences] = useState<any[]>([]);
+  const [audioCharacters, setAudioCharacters] = useState<any[]>([]);
+  const [audioReferences, setAudioReferences] = useState<any[]>([]);
+  const [designCharacters, setDesignCharacters] = useState<any[]>([]);
+  const [designReferences, setDesignReferences] = useState<any[]>([]);
   const [referencesModalOpen, setReferencesModalOpen] = useState(false);
-  const [selectedReferences, setSelectedReferences] = useState<any[]>([]);
   const [isCharacterReference, setIsCharacterReference] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
@@ -406,13 +413,31 @@ const Create = () => {
             <GenerationInput 
               selectedType={selectedType}
               onCharactersClick={() => setCharactersModalOpen(true)}
-              onCharactersSelect={setSelectedCharacters}
-              selectedCharacters={selectedCharacters}
+              onCharactersSelect={(characters) => {
+                if (selectedType === 'Image') setImageCharacters(characters);
+                else if (selectedType === 'Video') setVideoCharacters(characters);
+                else if (selectedType === 'Audio') setAudioCharacters(characters);
+                else if (selectedType === 'Design') setDesignCharacters(characters);
+              }}
+              selectedCharacters={
+                selectedType === 'Image' ? imageCharacters :
+                selectedType === 'Video' ? videoCharacters :
+                selectedType === 'Audio' ? audioCharacters :
+                selectedType === 'Design' ? designCharacters : []
+              }
               onReferencesClick={() => setReferencesModalOpen(true)}
               onReferencesSelect={(references) => {
-                setSelectedReferences(references);
+                if (selectedType === 'Image') setImageReferences(references);
+                else if (selectedType === 'Video') setVideoReferences(references);
+                else if (selectedType === 'Audio') setAudioReferences(references);
+                else if (selectedType === 'Design') setDesignReferences(references);
               }}
-              selectedReferences={selectedReferences}
+              selectedReferences={
+                selectedType === 'Image' ? imageReferences :
+                selectedType === 'Video' ? videoReferences :
+                selectedType === 'Audio' ? audioReferences :
+                selectedType === 'Design' ? designReferences : []
+              }
               isCharacterReference={isCharacterReference}
               onGenerationStart={() => setActiveView('creations')}
               externalStartingFrame={externalStartingFrame}
@@ -587,7 +612,10 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
-          setSelectedCharacters(prev => [...prev, character]);
+          if (selectedType === 'Image') setImageCharacters(prev => [...prev, character]);
+          else if (selectedType === 'Video') setVideoCharacters(prev => [...prev, character]);
+          else if (selectedType === 'Audio') setAudioCharacters(prev => [...prev, character]);
+          else if (selectedType === 'Design') setDesignCharacters(prev => [...prev, character]);
         }}
       />
 
@@ -595,7 +623,10 @@ const Create = () => {
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
         onImagesSelect={(images) => {
-          setSelectedReferences(prev => [...prev, ...images]);
+          if (selectedType === 'Image') setImageReferences(prev => [...prev, ...images]);
+          else if (selectedType === 'Video') setVideoReferences(prev => [...prev, ...images]);
+          else if (selectedType === 'Audio') setAudioReferences(prev => [...prev, ...images]);
+          else if (selectedType === 'Design') setDesignReferences(prev => [...prev, ...images]);
           setIsCharacterReference(true);
         }}
       />
