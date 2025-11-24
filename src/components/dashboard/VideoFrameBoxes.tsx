@@ -45,11 +45,11 @@ const VideoFrameBoxes = ({
   };
 
   return (
-    <div className="flex items-center gap-4 w-full">
+    <div className="flex items-center gap-4">
       {/* Starting Frame */}
-      <div className="flex-1">
+      <div>
         <label className="text-sm text-muted-foreground mb-2 block">Starting Frame</label>
-        <div className="relative bg-black border-2 border-border rounded-lg h-48 flex items-center justify-center overflow-hidden">
+        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {startingFrame ? (
             <>
               <img 
@@ -65,9 +65,9 @@ const VideoFrameBoxes = ({
               </button>
             </>
           ) : (
-            <label className="cursor-pointer flex flex-col items-center gap-2 text-white/60 hover:text-white/80 transition">
-              <Upload size={32} />
-              <span className="text-sm">Upload Starting Frame</span>
+            <label className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition">
+              <Upload size={24} />
+              <span className="text-xs text-center">Upload</span>
               <input
                 type="file"
                 accept="image/*"
@@ -83,15 +83,15 @@ const VideoFrameBoxes = ({
       <button
         onClick={onSwap}
         disabled={!startingFrame || !endingFrame}
-        className="mt-8 bg-muted hover:bg-muted/80 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg p-3 transition"
+        className="mt-6 bg-muted hover:bg-muted/80 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg p-2 transition"
       >
-        <ArrowRightLeft size={20} className="text-muted-foreground" />
+        <ArrowRightLeft size={16} className="text-muted-foreground" />
       </button>
 
       {/* Ending Frame */}
-      <div className="flex-1">
+      <div>
         <label className="text-sm text-muted-foreground mb-2 block">Ending Frame (Optional)</label>
-        <div className="relative bg-black border-2 border-border rounded-lg h-48 flex items-center justify-center overflow-hidden">
+        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {endingFrame ? (
             <>
               <img 
@@ -107,9 +107,9 @@ const VideoFrameBoxes = ({
               </button>
             </>
           ) : (
-            <label className="cursor-pointer flex flex-col items-center gap-2 text-white/60 hover:text-white/80 transition">
-              <Upload size={32} />
-              <span className="text-sm">Upload Ending Frame</span>
+            <label className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition">
+              <Upload size={24} />
+              <span className="text-xs text-center">Upload</span>
               <input
                 type="file"
                 accept="image/*"
