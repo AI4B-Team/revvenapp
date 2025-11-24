@@ -168,7 +168,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
   
-  // Video mode: Auto-populate frames when characters/references change
+  // Video mode: Only sync character/reference arrays, never overwrite manually set frames
   useEffect(() => {
     if (!isVideoMode) return;
     
@@ -176,44 +176,60 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const refs = selectedReferences;
     const totalImages = chars.length + refs.length;
     
-    if (totalImages === 0) {
-      // Clear everything when no images
+    // Only update if this is genuinely new data (compare array contents)
+    const currentTotal = videoModeState.characters.length + videoModeState.references.length;
+    
+    // If we're adding NEW images (going from fewer to more)
+    if (totalImages > currentTotal) {
+      // Only auto-populate if frames are currently empty
+      if (!videoModeState.startingFrame && !videoModeState.endingFrame) {
+        if (totalImages === 1) {
+          const firstImage = chars[0] || refs[0];
+          const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
+          const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
+          
+          setVideoModeState({
+            characters: chars,
+            references: refs,
+            startingFrame: { preview: imageUrl, name: imageName },
+            endingFrame: null
+          });
+        } else {
+          const firstImage = chars[0] || refs[0];
+          const secondImage = chars[1] || (chars.length === 1 ? refs[0] : refs[1]);
+          
+          const firstUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
+          const firstName = firstImage.name || firstImage.original_filename || 'image.jpg';
+          const secondUrl = secondImage?.image_url || secondImage?.image || secondImage?.thumbnail_url || secondImage?.preview;
+          const secondName = secondImage?.name || secondImage?.original_filename || 'image.jpg';
+          
+          setVideoModeState({
+            characters: chars,
+            references: refs,
+            startingFrame: { preview: firstUrl, name: firstName },
+            endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
+          });
+        }
+      } else {
+        // Frames exist, just update the arrays
+        setVideoModeState(prev => ({
+          ...prev,
+          characters: chars,
+          references: refs
+        }));
+      }
+    } 
+    // If we're removing ALL images
+    else if (totalImages === 0 && currentTotal > 0) {
       setVideoModeState({
         characters: [],
         references: [],
         startingFrame: null,
         endingFrame: null
       });
-    } else if (totalImages === 1) {
-      // Single image - populate only start frame
-      const firstImage = chars[0] || refs[0];
-      const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
-      const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
-      
-      setVideoModeState({
-        characters: chars,
-        references: refs,
-        startingFrame: { preview: imageUrl, name: imageName },
-        endingFrame: null
-      });
-    } else {
-      // Multiple images - populate both frames
-      const firstImage = chars[0] || refs[0];
-      const secondImage = chars[1] || (chars.length === 1 ? refs[0] : refs[1]);
-      
-      const firstUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
-      const firstName = firstImage.name || firstImage.original_filename || 'image.jpg';
-      const secondUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
-      const secondName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
-      
-      setVideoModeState({
-        characters: chars,
-        references: refs,
-        startingFrame: { preview: firstUrl, name: firstName },
-        endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
-      });
     }
-  }, [isVideoMode, selectedCharacters, selectedReferences]);
+    // Otherwise keep existing frames untouched
+  }, [isVideoMode, selectedCharacters, selectedReferences, videoModeState.characters.length, videoModeState.references.length, videoModeState.startingFrame, videoModeState.endingFrame]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -752,9 +768,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               startingFrame={videoModeState.startingFrame}
               endingFrame={videoModeState.endingFrame}
               onStartingFrameChange={(frame) => {
+                if (!frame) {
+                  // Clearing start frame - also clear from parent if it matches
+                  const updatedChars = videoModeState.characters.slice(1);
+                  const updatedRefs = videoModeState.references.length > 0 && videoModeState.characters.length === 0 
+                    ? videoModeState.references.slice(1) 
+                    : videoModeState.references;
+                  onCharactersSelect?.(updatedChars);
+                  onReferencesSelect?.(updatedRefs);
+                }
                 setVideoModeState(prev => ({ ...prev, startingFrame: frame }));
               }}
               onEndingFrameChange={(frame) => {
+                if (!frame) {
+                  // Clearing end frame - remove the second item
+                  const updatedChars = videoModeState.characters.length > 1 
+                    ? videoModeState.characters.slice(0, 1)
+                    : videoModeState.characters;
+                  const updatedRefs = videoModeState.characters.length <= 1 && videoModeState.references.length > 0
+                    ? []
+                    : videoModeState.references;
+                  onCharactersSelect?.(updatedChars);
+                  onReferencesSelect?.(updatedRefs);
+                }
                 setVideoModeState(prev => ({ ...prev, endingFrame: frame }));
               }}
               onSwap={() => {
