@@ -180,9 +180,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [selectedCharacters, selectedReferences, isVideoMode]);
   
   
-  // Track if frames were manually cleared by the user
-  const [manuallyCleared, setManuallyCleared] = useState({ start: false, end: false });
-  
   // Video mode: Auto-populate frames when character or reference is added
   useEffect(() => {
     if (isVideoMode) {
@@ -195,81 +192,62 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           startingFrame: null,
           endingFrame: null
         }));
-        setManuallyCleared({ start: false, end: false });
       } else if (totalImages === 1) {
-        // First image goes to starting frame (only if not manually cleared)
-        if (!videoModeState.startingFrame && !manuallyCleared.start) {
-          if (videoModeState.characters.length > 0) {
-            const character = videoModeState.characters[0];
-            const imageUrl = character.image_url || character.image;
-            if (imageUrl) {
-              setVideoModeState(prev => ({
-                ...prev,
-                startingFrame: {
-                  preview: imageUrl,
-                  name: character.name || 'character.jpg'
-                }
-              }));
-            }
-          } else if (videoModeState.references.length > 0) {
-            const reference = videoModeState.references[0];
-            const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
-            if (imageUrl) {
-              setVideoModeState(prev => ({
-                ...prev,
-                startingFrame: {
-                  preview: imageUrl,
-                  name: reference.original_filename || reference.name || 'reference.jpg'
-                }
-              }));
-            }
-          }
+        // First image always goes to starting frame
+        const firstImage = videoModeState.characters.length > 0 
+          ? videoModeState.characters[0] 
+          : videoModeState.references[0];
+        
+        const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
+        const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
+        
+        if (imageUrl) {
+          setVideoModeState(prev => ({
+            ...prev,
+            startingFrame: {
+              preview: imageUrl,
+              name: imageName
+            },
+            endingFrame: null // Clear ending frame when only one image
+          }));
         }
       } else if (totalImages >= 2) {
-        // Second image goes to ending frame (only if not manually cleared)
-        if (!videoModeState.endingFrame && !manuallyCleared.end) {
-          let secondImage = null;
-          
-          // Get the second image (could be second character, first reference if one character, etc.)
-          if (videoModeState.characters.length >= 2) {
-            const character = videoModeState.characters[1];
-            const imageUrl = character.image_url || character.image;
-            if (imageUrl) {
-              secondImage = {
-                preview: imageUrl,
-                name: character.name || 'character.jpg'
-              };
-            }
-          } else if (videoModeState.characters.length === 1 && videoModeState.references.length >= 1) {
-            const reference = videoModeState.references[0];
-            const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
-            if (imageUrl) {
-              secondImage = {
-                preview: imageUrl,
-                name: reference.original_filename || reference.name || 'reference.jpg'
-              };
-            }
-          } else if (videoModeState.references.length >= 2) {
-            const reference = videoModeState.references[1];
-            const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
-            if (imageUrl) {
-              secondImage = {
-                preview: imageUrl,
-                name: reference.original_filename || reference.name || 'reference.jpg'
-              };
-            }
-          }
-          
-          if (secondImage) {
-            setVideoModeState(prev => ({
-              ...prev,
-              endingFrame: secondImage
-            }));
-          }
+        // First image in start frame, second image in end frame
+        const firstImage = videoModeState.characters.length > 0 
+          ? videoModeState.characters[0] 
+          : videoModeState.references[0];
+        
+        let secondImage;
+        if (videoModeState.characters.length >= 2) {
+          secondImage = videoModeState.characters[1];
+        } else if (videoModeState.characters.length === 1 && videoModeState.references.length >= 1) {
+          secondImage = videoModeState.references[0];
+        } else if (videoModeState.references.length >= 2) {
+          secondImage = videoModeState.references[1];
+        }
+        
+        const firstImageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
+        const firstImageName = firstImage.name || firstImage.original_filename || 'image.jpg';
+        
+        const secondImageUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
+        const secondImageName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
+        
+        if (firstImageUrl) {
+          setVideoModeState(prev => ({
+            ...prev,
+            startingFrame: {
+              preview: firstImageUrl,
+              name: firstImageName
+            },
+            endingFrame: secondImageUrl ? {
+              preview: secondImageUrl,
+              name: secondImageName
+            } : null
+          }));
         }
       }
     }
-  }, [isVideoMode, videoModeState.characters, videoModeState.references, manuallyCleared.start, manuallyCleared.end]);
+  }, [isVideoMode, videoModeState.characters, videoModeState.references]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -827,17 +805,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               endingFrame={videoModeState.endingFrame}
               onStartingFrameChange={(frame) => {
                 setVideoModeState(prev => ({ ...prev, startingFrame: frame }));
-                // Track manual clear when frame is set to null
-                if (frame === null) {
-                  setManuallyCleared(prev => ({ ...prev, start: true }));
-                }
               }}
               onEndingFrameChange={(frame) => {
                 setVideoModeState(prev => ({ ...prev, endingFrame: frame }));
-                // Track manual clear when frame is set to null
-                if (frame === null) {
-                  setManuallyCleared(prev => ({ ...prev, end: true }));
-                }
               }}
               onSwap={() => {
                 const temp = videoModeState.startingFrame;
