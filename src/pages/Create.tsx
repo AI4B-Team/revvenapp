@@ -612,8 +612,16 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
+          console.log('Character selected, selectedType:', selectedType, 'character:', character);
           if (selectedType === 'Image') setImageCharacters(prev => [...prev, character]);
-          else if (selectedType === 'Video') setVideoCharacters(prev => [...prev, character]);
+          else if (selectedType === 'Video') {
+            console.log('Adding character to videoCharacters');
+            setVideoCharacters(prev => {
+              const updated = [...prev, character];
+              console.log('Updated videoCharacters:', updated);
+              return updated;
+            });
+          }
           else if (selectedType === 'Audio') setAudioCharacters(prev => [...prev, character]);
           else if (selectedType === 'Design') setDesignCharacters(prev => [...prev, character]);
         }}
