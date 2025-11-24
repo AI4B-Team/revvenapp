@@ -874,6 +874,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   return prev;
                 });
               }}
+              onStartingFrameUploadClick={() => {
+                framePopulateIntentRef.current = 'start';
+                onReferencesClick?.();
+              }}
               onEndingFrameUploadClick={() => {
                 framePopulateIntentRef.current = 'end';
                 onReferencesClick?.();

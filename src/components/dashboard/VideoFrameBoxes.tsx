@@ -7,6 +7,7 @@ interface VideoFrameBoxesProps {
   onStartingFrameChange: (frame: { preview: string; name: string } | null) => void;
   onEndingFrameChange: (frame: { preview: string; name: string } | null) => void;
   onSwap: () => void;
+  onStartingFrameUploadClick?: () => void;
   onEndingFrameUploadClick?: () => void;
 }
 
@@ -16,6 +17,7 @@ const VideoFrameBoxes = ({
   onStartingFrameChange,
   onEndingFrameChange,
   onSwap,
+  onStartingFrameUploadClick,
   onEndingFrameUploadClick
 }: VideoFrameBoxesProps) => {
   const handleStartingFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,17 +73,28 @@ const VideoFrameBoxes = ({
               </button>
             </>
           ) : (
-            <label className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition">
+            <button 
+              onClick={() => {
+                if (onStartingFrameUploadClick) {
+                  onStartingFrameUploadClick();
+                } else {
+                  // Fallback to file input if callback not provided
+                  document.getElementById('starting-frame-upload')?.click();
+                }
+              }}
+              className="cursor-pointer flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition w-full h-full"
+            >
               <Upload size={24} />
               <span className="text-xs text-center">Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleStartingFrameUpload}
-                className="hidden"
-              />
-            </label>
+            </button>
           )}
+          <input
+            id="starting-frame-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleStartingFrameUpload}
+            className="hidden"
+          />
         </div>
           <label className="text-sm text-muted-foreground mt-2 block text-center">Start Frame</label>
       </div>
