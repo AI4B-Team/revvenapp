@@ -171,6 +171,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Sync external props to video mode state when in video mode
   useEffect(() => {
     if (isVideoMode) {
+      console.log('Syncing to videoModeState:', { 
+        selectedCharacters: selectedCharacters.length, 
+        selectedReferences: selectedReferences.length 
+      });
       setVideoModeState(prev => ({
         ...prev,
         characters: selectedCharacters,
@@ -192,16 +196,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     if (!isVideoMode) return;
     
     const totalImages = videoModeState.characters.length + videoModeState.references.length;
+    console.log('Auto-populate effect running:', { 
+      totalImages, 
+      characters: videoModeState.characters.length,
+      references: videoModeState.references.length,
+      hasStartFrame: !!videoModeState.startingFrame,
+      hasEndFrame: !!videoModeState.endingFrame
+    });
     
     if (totalImages === 0) {
       // Clear frames when all images are removed
-      if (videoModeState.startingFrame || videoModeState.endingFrame) {
-        setVideoModeState(prev => ({
-          ...prev,
-          startingFrame: null,
-          endingFrame: null
-        }));
-      }
+      console.log('Clearing frames - no images');
+      setVideoModeState(prev => ({
+        ...prev,
+        startingFrame: null,
+        endingFrame: null
+      }));
     } else if (totalImages === 1) {
       // First image goes to start frame
       const firstImage = videoModeState.characters.length > 0 
@@ -211,16 +221,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
       const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
       
-      if (imageUrl) {
-        setVideoModeState(prev => ({
-          ...prev,
-          startingFrame: {
-            preview: imageUrl,
-            name: imageName
-          },
-          endingFrame: null
-        }));
-      }
+      console.log('Setting start frame only:', { imageUrl, imageName });
+      setVideoModeState(prev => ({
+        ...prev,
+        startingFrame: {
+          preview: imageUrl,
+          name: imageName
+        },
+        endingFrame: null
+      }));
     } else if (totalImages >= 2) {
       // First image in start frame, second image in end frame
       const firstImage = videoModeState.characters.length > 0 
@@ -242,19 +251,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const secondImageUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
       const secondImageName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
       
-      if (firstImageUrl) {
-        setVideoModeState(prev => ({
-          ...prev,
-          startingFrame: {
-            preview: firstImageUrl,
-            name: firstImageName
-          },
-          endingFrame: secondImageUrl ? {
-            preview: secondImageUrl,
-            name: secondImageName
-          } : null
-        }));
-      }
+      console.log('Setting both frames:', { 
+        firstImageUrl, 
+        firstImageName, 
+        secondImageUrl, 
+        secondImageName 
+      });
+      setVideoModeState(prev => ({
+        ...prev,
+        startingFrame: {
+          preview: firstImageUrl,
+          name: firstImageName
+        },
+        endingFrame: secondImageUrl ? {
+          preview: secondImageUrl,
+          name: secondImageName
+        } : null
+      }));
     }
   }, [isVideoMode, videoModeState.characters.length, videoModeState.references.length, JSON.stringify(videoModeState.characters.map(c => c.id || c.name)), JSON.stringify(videoModeState.references.map(r => r.id))]);
   
