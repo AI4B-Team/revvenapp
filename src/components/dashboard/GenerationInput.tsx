@@ -742,6 +742,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
+                    console.log('Deleting character, calling onCharactersSelect with:', updatedCharacters.length, 'characters');
                     // Update parent state only - the sync effect will handle videoModeState
                     onCharactersSelect?.(updatedCharacters);
                   }}
@@ -768,6 +769,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedReferences = activeReferences.filter((_, i) => i !== index);
+                    console.log('Deleting reference, calling onReferencesSelect with:', updatedReferences.length, 'references');
                     // Update parent state only - the sync effect will handle videoModeState
                     onReferencesSelect?.(updatedReferences);
                   }}
