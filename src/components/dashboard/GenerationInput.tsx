@@ -99,6 +99,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const isAudioMode = selectedType === 'Audio';
   const isDesignMode = selectedType === 'Design';
   const isContentMode = selectedType === 'Content';
+  const isAppsMode = selectedType === 'Apps';
+  const isDocumentMode = selectedType === 'Document';
+  
+  // Determine if we should show character and reference displays
+  const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
+  const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
+  const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
 
   // Auto-populate starting frame when character or reference is added in video mode
   useEffect(() => {
@@ -581,8 +588,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* Character & Reference Images Display - Hidden in video mode */}
-        {!isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+        {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
+        {shouldShowCharacters && selectedCharacters.length > 0 && (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
             {selectedCharacters.map((character, index) => (
@@ -608,7 +615,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </p>
               </div>
             ))}
+          </div>
+        )}
 
+        {/* Reference Images Display - Separate from characters, hidden for audio mode */}
+        {shouldShowReferences && selectedReferences.length > 0 && (
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Reference Images */}
             {selectedReferences.map((reference, index) => (
               <div key={reference.id} className="relative group">
@@ -633,8 +645,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </p>
               </div>
             ))}
-            
-            {/* Add Reference Image Button - Always Last */}
+          </div>
+        )}
+
+        {/* Add Reference Image Button - Show when references are supported and no video mode */}
+        {shouldShowReferences && (
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
             <button
               onClick={onReferencesClick}
               className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2 group"
