@@ -643,8 +643,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               </div>
             ))}
             
-            {/* Add Reference Image Button - Always Last */}
-            {shouldShowReferences && (
+            {/* Add Reference Image Button - Show only when character or reference is already selected */}
+            {shouldShowReferences && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
               <div className="relative group">
                 <button
                   onClick={onReferencesClick}
