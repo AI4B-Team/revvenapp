@@ -675,6 +675,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     Add Image
                   </span>
                 </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px] opacity-0">
+                  .
+                </p>
               </div>
             )}
           </div>
