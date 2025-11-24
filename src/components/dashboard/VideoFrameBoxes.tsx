@@ -143,7 +143,7 @@ const VideoFrameBoxes = ({
                   document.getElementById('ending-frame-upload')?.click();
                 }
               }}
-              className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition w-full h-full"
+              className="cursor-pointer flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition w-full h-full"
             >
               <Upload size={24} />
               <span className="text-xs text-center">Upload</span>
