@@ -155,8 +155,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Determine if we should show character and reference displays
   const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
-  const shouldShowCharacters = !shouldHideCharacterAndReference;
-  const shouldShowReferences = !shouldHideCharacterAndReference && !isAudioMode;
+  const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
+  const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
 
   // Sync external props to image mode state only when in image mode
   useEffect(() => {
@@ -170,22 +170,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Sync external props to video mode state when in video mode
   useEffect(() => {
-    console.log('Video mode sync effect triggered:', { 
-      isVideoMode, 
-      selectedCharacters: selectedCharacters.length, 
-      selectedReferences: selectedReferences.length 
-    });
-    
     if (isVideoMode) {
-      setVideoModeState(prev => {
-        const newState = {
-          ...prev,
-          characters: selectedCharacters,
-          references: selectedReferences
-        };
-        console.log('Updating videoModeState:', newState);
-        return newState;
-      });
+      setVideoModeState(prev => ({
+        ...prev,
+        characters: selectedCharacters,
+        references: selectedReferences
+      }));
     } else {
       // Clear frames when leaving video mode to prevent auto-population on return
       setVideoModeState(prev => ({
@@ -668,8 +658,131 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
-        {(shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0) || shouldShowReferences ? (
+        {/* Character & Reference Images Display - Show in video mode with click-to-assign functionality */}
+        {isVideoMode && (videoModeState.characters.length > 0 || videoModeState.references.length > 0) ? (
+          <div className="mb-6 flex items-center gap-3 flex-wrap">
+            {/* Character Images */}
+            {videoModeState.characters.map((character, index) => (
+              <div key={`video-character-${index}`} className="relative group">
+                <button
+                  onClick={() => {
+                    const imageUrl = character.image_url || character.image;
+                    const imageName = character.name;
+                    if (!videoModeState.startingFrame) {
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        startingFrame: { preview: imageUrl, name: imageName }
+                      }));
+                    } else if (!videoModeState.endingFrame) {
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        endingFrame: { preview: imageUrl, name: imageName }
+                      }));
+                    }
+                  }}
+                  className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
+                >
+                  <img 
+                    src={character.image_url || character.image} 
+                    alt={character.name}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+                <button
+                  onClick={() => {
+                    const updatedCharacters = videoModeState.characters.filter((_, i) => i !== index);
+                    setVideoModeState(prev => ({
+                      ...prev,
+                      characters: updatedCharacters
+                    }));
+                    onCharactersSelect?.(updatedCharacters);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
+                  {character.name}
+                </p>
+              </div>
+            ))}
+
+            {/* Reference Images */}
+            {videoModeState.references.map((reference, index) => (
+              <div key={`video-reference-${reference.id}-${index}`} className="relative group">
+                <button
+                  onClick={() => {
+                    const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
+                    const imageName = reference.original_filename || reference.name || 'image.jpg';
+                    if (!videoModeState.startingFrame) {
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        startingFrame: { preview: imageUrl, name: imageName }
+                      }));
+                    } else if (!videoModeState.endingFrame) {
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        endingFrame: { preview: imageUrl, name: imageName }
+                      }));
+                    }
+                  }}
+                  className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
+                >
+                  <img 
+                    src={reference.image_url || reference.thumbnail_url || reference.preview} 
+                    alt={reference.original_filename || reference.name || "Reference"}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+                <button
+                  onClick={() => {
+                    const updatedReferences = videoModeState.references.filter((_, i) => i !== index);
+                    setVideoModeState(prev => ({
+                      ...prev,
+                      references: updatedReferences
+                    }));
+                    onReferencesSelect?.(updatedReferences);
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
+                  @pic{index + 1}
+                </p>
+              </div>
+            ))}
+
+            {/* Add buttons */}
+            <div className="relative group">
+              <button
+                onClick={onCharactersClick}
+                className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
+                  <User size={20} className="text-muted-foreground group-hover:text-primary transition" />
+                </div>
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
+                  Add Character
+                </span>
+              </button>
+            </div>
+
+            <div className="relative group">
+              <button
+                onClick={onReferencesClick}
+                className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
+                  <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
+                </div>
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
+                  Add Reference
+                </span>
+              </button>
+            </div>
+          </div>
+        ) : (shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0) || shouldShowReferences ? (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
             {shouldShowCharacters && activeCharacters.map((character, index) => (
@@ -763,8 +876,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only in video mode when character/reference is selected AND at least one frame has content */}
-        {isVideoMode && (videoModeState.characters.length > 0 || videoModeState.references.length > 0) && (videoModeState.startingFrame || videoModeState.endingFrame) && (
+        {/* Video Animation Frames - Only show frame boxes if at least one frame is manually set */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) ? (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
@@ -786,7 +899,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               onEndingFrameUploadClick={onReferencesClick}
             />
           </div>
-        )}
+        ) : isVideoMode && (videoModeState.characters.length > 0 || videoModeState.references.length > 0) ? (
+          <div className="mb-6 mt-6 p-4 border-2 border-dashed border-border rounded-lg">
+            <p className="text-sm text-muted-foreground text-center">
+              {videoModeState.characters.length + videoModeState.references.length} image(s) selected. Click on an image below to assign it to a frame, or use the buttons to add more.
+            </p>
+          </div>
+        ) : null}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-nowrap">
