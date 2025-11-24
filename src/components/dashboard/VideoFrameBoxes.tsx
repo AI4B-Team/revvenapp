@@ -66,19 +66,19 @@ const VideoFrameBoxes = ({
       <div className="flex items-start gap-4">
         {/* Starting Frame */}
         <div>
-          <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden group/frame">
+          <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-visible group/frame">
           {startingFrame ? (
             <>
               <img 
                 src={startingFrame.preview} 
                 alt="Starting frame" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-lg"
               />
               <button
                 onClick={() => onStartingFrameChange(null)}
-                className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-white rounded-full flex items-center justify-center shadow-lg hover:bg-destructive/90 transition-colors"
+                className="absolute -top-3 -right-3 w-10 h-10 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
               >
-                <X size={16} strokeWidth={3} />
+                <X size={18} strokeWidth={3} />
               </button>
             </>
           ) : (
@@ -116,19 +116,19 @@ const VideoFrameBoxes = ({
 
       {/* Ending Frame */}
       <div>
-        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden group/frame">
+        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-visible group/frame">
           {endingFrame ? (
             <>
               <img 
                 src={endingFrame.preview} 
                 alt="Ending frame" 
-                className="w-full h-full object-cover opacity-70"
+                className="w-full h-full object-cover opacity-70 rounded-lg"
               />
               <button
                 onClick={() => onEndingFrameChange(null)}
-                className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-white rounded-full flex items-center justify-center shadow-lg hover:bg-destructive/90 transition-colors"
+                className="absolute -top-3 -right-3 w-10 h-10 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
               >
-                <X size={16} strokeWidth={3} />
+                <X size={18} strokeWidth={3} />
               </button>
             </>
           ) : (
