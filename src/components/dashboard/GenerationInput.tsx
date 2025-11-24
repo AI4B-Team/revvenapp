@@ -665,8 +665,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only in video mode when starting frame exists */}
-        {isVideoMode && startingFrame && (
+        {/* Video Animation Frames - Show only in video mode when character/reference is selected */}
+        {isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={startingFrame}
