@@ -727,17 +727,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
-                    if (isVideoMode) {
-                      // Update both video mode state AND parent state
-                      setVideoModeState(prev => ({
-                        ...prev,
-                        characters: updatedCharacters
-                      }));
-                      onCharactersSelect?.(updatedCharacters);
-                    } else {
-                      // Update parent state for image mode
-                      onCharactersSelect?.(updatedCharacters);
-                    }
+                    // Update parent state only - the sync effect will handle videoModeState
+                    onCharactersSelect?.(updatedCharacters);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
                 >
@@ -762,17 +753,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <button
                   onClick={() => {
                     const updatedReferences = activeReferences.filter((_, i) => i !== index);
-                    if (isVideoMode) {
-                      // Update both video mode state AND parent state
-                      setVideoModeState(prev => ({
-                        ...prev,
-                        references: updatedReferences
-                      }));
-                      onReferencesSelect?.(updatedReferences);
-                    } else {
-                      // Update parent state for image mode
-                      onReferencesSelect?.(updatedReferences);
-                    }
+                    // Update parent state only - the sync effect will handle videoModeState
+                    onReferencesSelect?.(updatedReferences);
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
                 >
@@ -806,8 +788,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show in video mode when images are selected */}
-        {isVideoMode && (videoModeState.characters.length > 0 || videoModeState.references.length > 0) && (
+        {/* Video Animation Frames - Show only when frames exist */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
