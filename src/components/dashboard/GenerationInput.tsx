@@ -675,11 +675,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   onClick={() => {
                     const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
                     if (isVideoMode) {
-                      // Update video mode state
+                      // Update both video mode state AND parent state
                       setVideoModeState(prev => ({
                         ...prev,
                         characters: updatedCharacters
                       }));
+                      onCharactersSelect?.(updatedCharacters);
                     } else {
                       // Update parent state for image mode
                       onCharactersSelect?.(updatedCharacters);
@@ -709,11 +710,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   onClick={() => {
                     const updatedReferences = activeReferences.filter((_, i) => i !== index);
                     if (isVideoMode) {
-                      // Update video mode state
+                      // Update both video mode state AND parent state
                       setVideoModeState(prev => ({
                         ...prev,
                         references: updatedReferences
                       }));
+                      onReferencesSelect?.(updatedReferences);
                     } else {
                       // Update parent state for image mode
                       onReferencesSelect?.(updatedReferences);
