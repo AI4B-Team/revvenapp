@@ -66,8 +66,7 @@ const VideoFrameBoxes = ({
       <div className="flex items-center gap-4">
         {/* Starting Frame */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block text-center">Start Frame</label>
-        <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {startingFrame ? (
             <>
               <img 
@@ -95,6 +94,7 @@ const VideoFrameBoxes = ({
             </label>
           )}
         </div>
+          <label className="text-sm text-muted-foreground mt-2 block text-left">Start Frame</label>
       </div>
 
       {/* Swap Button */}
@@ -114,9 +114,6 @@ const VideoFrameBoxes = ({
 
       {/* Ending Frame */}
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block text-center">
-          End Frame<br />(Optional)
-        </label>
         <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {endingFrame ? (
             <>
@@ -145,6 +142,7 @@ const VideoFrameBoxes = ({
             </label>
           )}
         </div>
+          <label className="text-sm text-muted-foreground mt-2 block text-left">End Frame (Optional)</label>
       </div>
     </div>
     </TooltipProvider>
