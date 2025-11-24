@@ -22,6 +22,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -72,8 +73,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
     }
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+  const processFiles = async (files: File[]) => {
     const validationResults = files.map(file => ({ file, validation: validateFile(file) }));
     
     const invalidFiles = validationResults.filter(r => !r.validation.valid);
@@ -133,6 +133,34 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    await processFiles(files);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    if (files.length > 0) {
+      await processFiles(files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
   };
 
   const handleImageClick = (image: any) => {
@@ -402,8 +430,17 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
         </div>
 
         {/* Right Side - Upload Section */}
-        <div className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col">
-          <div className="flex-1 p-6 flex flex-col justify-center">
+        <div 
+          className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          <div 
+            className={`flex-1 p-6 flex flex-col justify-center transition-colors ${
+              isDragging ? 'bg-primary/10 border-2 border-dashed border-primary' : ''
+            }`}
+          >
             {selectedImages.length > 0 ? (
               <div className="flex flex-col items-center justify-center">
                 <h3 className="text-lg font-semibold text-white mb-6 self-start">Selected Images ({selectedImages.length}/6)</h3>
@@ -430,13 +467,23 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center justify-center h-full text-center cursor-pointer hover:bg-gray-800/30 transition-colors rounded-lg"
+              >
                 <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
                   <Upload className="w-12 h-12 text-gray-400" />
                 </div>
                 
-                <h3 className="text-xl font-semibold text-white mb-3">Upload Up To 6 Images</h3>
-                <p className="text-gray-400 mb-2">Upload Characters, Backgrounds Or Items To Combine Them</p>
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  {isDragging ? 'Drop Images Here' : 'Upload Up To 6 Images'}
+                </h3>
+                <p className="text-gray-400 mb-2">
+                  {isDragging 
+                    ? 'Release to upload your images' 
+                    : 'Click to upload or drag and drop'
+                  }
+                </p>
                 <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 10MB</p>
               </div>
             )}
