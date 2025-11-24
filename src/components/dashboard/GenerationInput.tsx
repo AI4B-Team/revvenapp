@@ -171,98 +171,63 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Sync external props to video mode state when in video mode
   useEffect(() => {
     if (isVideoMode) {
-      console.log('SYNC EFFECT - Updating videoModeState from parent:', {
-        selectedCharacters: selectedCharacters.length,
-        selectedReferences: selectedReferences.length,
-        characterNames: selectedCharacters.map(c => c.name || c.id),
-        referenceIds: selectedReferences.map(r => r.id)
-      });
-      setVideoModeState(prev => {
-        const newState = {
-          ...prev,
-          characters: selectedCharacters,
-          references: selectedReferences
-        };
-        console.log('SYNC EFFECT - New videoModeState will be:', {
-          characters: newState.characters.length,
-          references: newState.references.length
-        });
-        return newState;
-      });
-    } else {
-      // Clear frames when leaving video mode
-      setVideoModeState(prev => ({
-        ...prev,
+      // Direct sync - parent is source of truth
+      setVideoModeState({
+        characters: selectedCharacters,
+        references: selectedReferences,
         startingFrame: null,
         endingFrame: null
-      }));
+      });
     }
-  }, [selectedCharacters, selectedReferences, isVideoMode]);
+  }, [isVideoMode, selectedCharacters.length, selectedReferences.length]);
   
   
-  // Video mode: Auto-populate frames based on selection order
+  // Video mode: Auto-populate frames when characters/references change
   useEffect(() => {
     if (!isVideoMode) return;
     
-    const totalImages = videoModeState.characters.length + videoModeState.references.length;
-    console.log('AUTO-POPULATE EFFECT - Running with:', {
-      totalImages,
-      characters: videoModeState.characters.length,
-      references: videoModeState.references.length,
-      characterNames: videoModeState.characters.map(c => c.name || c.id),
-      referenceIds: videoModeState.references.map(r => r.id)
-    });
+    const chars = selectedCharacters;
+    const refs = selectedReferences;
+    const totalImages = chars.length + refs.length;
     
     if (totalImages === 0) {
-      console.log('AUTO-POPULATE - Clearing frames (no images)');
       setVideoModeState(prev => ({
         ...prev,
+        characters: [],
+        references: [],
         startingFrame: null,
         endingFrame: null
       }));
-      return;
-    }
-    
-    if (totalImages === 1) {
-      const firstImage = videoModeState.characters.length > 0 
-        ? videoModeState.characters[0] 
-        : videoModeState.references[0];
-      
+    } else if (totalImages === 1) {
+      const firstImage = chars[0] || refs[0];
       const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
       const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
       
-      console.log('AUTO-POPULATE - Setting start frame:', imageName);
       setVideoModeState(prev => ({
         ...prev,
+        characters: chars,
+        references: refs,
         startingFrame: { preview: imageUrl, name: imageName },
         endingFrame: null
       }));
-      return;
+    } else {
+      const firstImage = chars[0] || refs[0];
+      const secondImage = chars[1] || (chars.length === 1 ? refs[0] : refs[1]);
+      
+      const firstUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
+      const firstName = firstImage.name || firstImage.original_filename || 'image.jpg';
+      const secondUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
+      const secondName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
+      
+      setVideoModeState(prev => ({
+        ...prev,
+        characters: chars,
+        references: refs,
+        startingFrame: { preview: firstUrl, name: firstName },
+        endingFrame: secondUrl ? { preview: secondUrl, name: secondName } : null
+      }));
     }
-    
-    // 2 or more images
-    const firstImage = videoModeState.characters[0] || videoModeState.references[0];
-    const secondImage = videoModeState.characters[1] || 
-                       (videoModeState.characters.length === 1 ? videoModeState.references[0] : null) ||
-                       videoModeState.references[1];
-    
-    const firstImageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
-    const firstImageName = firstImage.name || firstImage.original_filename || 'image.jpg';
-    
-    const secondImageUrl = secondImage ? (secondImage.image_url || secondImage.image || secondImage.thumbnail_url || secondImage.preview) : null;
-    const secondImageName = secondImage ? (secondImage.name || secondImage.original_filename || 'image.jpg') : null;
-    
-    console.log('AUTO-POPULATE - Setting both frames:', { 
-      start: firstImageName, 
-      end: secondImageName 
-    });
-    
-    setVideoModeState(prev => ({
-      ...prev,
-      startingFrame: { preview: firstImageUrl, name: firstImageName },
-      endingFrame: secondImageUrl ? { preview: secondImageUrl, name: secondImageName } : null
-    }));
-  }, [isVideoMode, videoModeState.characters.length, videoModeState.references.length]);
+  }, [isVideoMode, selectedCharacters, selectedReferences]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
