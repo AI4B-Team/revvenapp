@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
-import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import FilterToolbar, { type FilterState } from '@/components/dashboard/FilterToolbar';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import { Users, FolderOpen } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 
 const Community = () => {
   const [zoom, setZoom] = useState(50);
@@ -13,7 +12,6 @@ const Community = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<'community' | 'collections'>('community');
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -41,23 +39,7 @@ const Community = () => {
                 {/* Tab Buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setActiveTab('community')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                      activeTab === 'community'
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    <Users className="w-4 h-4" />
-                    Community
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('collections')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                      activeTab === 'collections'
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold bg-primary text-primary-foreground shadow-md"
                   >
                     <FolderOpen className="w-4 h-4" />
                     Collections
@@ -67,16 +49,10 @@ const Community = () => {
               <FilterToolbar zoom={zoom} onZoomChange={setZoom} onFiltersChange={setFilters} />
             </div>
 
-            {/* Tab Content */}
-            {activeTab === 'community' && (
-              <CreationsGallery type="community" columnsPerRow={zoomLevel} filters={filters} />
-            )}
-            
-            {activeTab === 'collections' && (
-              <div className="text-center py-12 text-muted-foreground">
-                Collections coming soon
-              </div>
-            )}
+            {/* Collections Content */}
+            <div className="text-center py-12 text-muted-foreground">
+              Collections coming soon
+            </div>
           </div>
         </main>
       </div>
