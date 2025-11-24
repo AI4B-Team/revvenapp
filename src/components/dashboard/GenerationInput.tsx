@@ -179,6 +179,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode]);
   
+  
+  // Track if frames were manually cleared by the user
+  const [manuallyCleared, setManuallyCleared] = useState({ start: false, end: false });
+  
   // Video mode: Auto-populate frames when character or reference is added
   useEffect(() => {
     if (isVideoMode) {
@@ -191,9 +195,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           startingFrame: null,
           endingFrame: null
         }));
+        setManuallyCleared({ start: false, end: false });
       } else if (totalImages === 1) {
-        // First image goes to starting frame
-        if (!videoModeState.startingFrame) {
+        // First image goes to starting frame (only if not manually cleared)
+        if (!videoModeState.startingFrame && !manuallyCleared.start) {
           if (videoModeState.characters.length > 0) {
             const character = videoModeState.characters[0];
             const imageUrl = character.image_url || character.image;
@@ -221,8 +226,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           }
         }
       } else if (totalImages >= 2) {
-        // Second image goes to ending frame
-        if (!videoModeState.endingFrame) {
+        // Second image goes to ending frame (only if not manually cleared)
+        if (!videoModeState.endingFrame && !manuallyCleared.end) {
           let secondImage = null;
           
           // Get the second image (could be second character, first reference if one character, etc.)
@@ -264,7 +269,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
       }
     }
-  }, [isVideoMode, videoModeState.characters, videoModeState.references, videoModeState.startingFrame, videoModeState.endingFrame]);
+  }, [isVideoMode, videoModeState.characters, videoModeState.references, manuallyCleared.start, manuallyCleared.end]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -820,8 +825,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
               endingFrame={videoModeState.endingFrame}
-              onStartingFrameChange={(frame) => setVideoModeState(prev => ({ ...prev, startingFrame: frame }))}
-              onEndingFrameChange={(frame) => setVideoModeState(prev => ({ ...prev, endingFrame: frame }))}
+              onStartingFrameChange={(frame) => {
+                setVideoModeState(prev => ({ ...prev, startingFrame: frame }));
+                // Track manual clear when frame is set to null
+                if (frame === null) {
+                  setManuallyCleared(prev => ({ ...prev, start: true }));
+                }
+              }}
+              onEndingFrameChange={(frame) => {
+                setVideoModeState(prev => ({ ...prev, endingFrame: frame }));
+                // Track manual clear when frame is set to null
+                if (frame === null) {
+                  setManuallyCleared(prev => ({ ...prev, end: true }));
+                }
+              }}
               onSwap={() => {
                 const temp = videoModeState.startingFrame;
                 setVideoModeState(prev => ({
