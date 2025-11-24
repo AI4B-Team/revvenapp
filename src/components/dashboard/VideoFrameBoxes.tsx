@@ -48,7 +48,7 @@ const VideoFrameBoxes = ({
     <div className="flex items-center gap-4">
       {/* Starting Frame */}
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">Starting Frame</label>
+        <label className="text-sm text-muted-foreground mb-2 block">Start Frame</label>
         <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {startingFrame ? (
             <>
@@ -82,15 +82,14 @@ const VideoFrameBoxes = ({
       {/* Swap Button */}
       <button
         onClick={onSwap}
-        disabled={!startingFrame || !endingFrame}
-        className="mt-6 bg-muted hover:bg-muted/80 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg p-2 transition"
+        className="mt-6 bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
       >
         <ArrowRightLeft size={16} className="text-muted-foreground" />
       </button>
 
       {/* Ending Frame */}
       <div>
-        <label className="text-sm text-muted-foreground mb-2 block">Ending Frame (Optional)</label>
+        <label className="text-sm text-muted-foreground mb-2 block">End Frame (Optional)</label>
         <div className="relative w-32 h-32 bg-white border-2 border-border rounded-lg flex items-center justify-center overflow-hidden">
           {endingFrame ? (
             <>
