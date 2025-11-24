@@ -7,6 +7,7 @@ interface VideoFrameBoxesProps {
   onStartingFrameChange: (frame: { preview: string; name: string } | null) => void;
   onEndingFrameChange: (frame: { preview: string; name: string } | null) => void;
   onSwap: () => void;
+  onEndingFrameUploadClick?: () => void;
 }
 
 const VideoFrameBoxes = ({
@@ -14,7 +15,8 @@ const VideoFrameBoxes = ({
   endingFrame,
   onStartingFrameChange,
   onEndingFrameChange,
-  onSwap
+  onSwap,
+  onEndingFrameUploadClick
 }: VideoFrameBoxesProps) => {
   const handleStartingFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -76,7 +78,7 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onStartingFrameChange(null)}
-                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
+                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full items-center justify-center shadow-lg hover:bg-[#d43d49] transition-all z-10 opacity-0 group-hover/frame:opacity-100 hidden group-hover/frame:flex"
               >
                 <X size={14} strokeWidth={2} />
               </button>
@@ -126,23 +128,34 @@ const VideoFrameBoxes = ({
               />
               <button
                 onClick={() => onEndingFrameChange(null)}
-                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#d43d49] transition-colors z-10"
+                className="absolute -top-3 -right-3 w-8 h-8 bg-[#E84855] text-white rounded-full items-center justify-center shadow-lg hover:bg-[#d43d49] transition-all z-10 opacity-0 group-hover/frame:opacity-100 hidden group-hover/frame:flex"
               >
                 <X size={14} strokeWidth={2} />
               </button>
             </>
           ) : (
-            <label className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition">
+            <button 
+              onClick={() => {
+                if (onEndingFrameUploadClick) {
+                  onEndingFrameUploadClick();
+                } else {
+                  // Fallback to file input if callback not provided
+                  document.getElementById('ending-frame-upload')?.click();
+                }
+              }}
+              className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition w-full h-full"
+            >
               <Upload size={24} />
               <span className="text-xs text-center">Upload</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleEndingFrameUpload}
-                className="hidden"
-              />
-            </label>
+            </button>
           )}
+          <input
+            id="ending-frame-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleEndingFrameUpload}
+            className="hidden"
+          />
         </div>
           <label className="text-sm text-muted-foreground mt-2 block text-center">End Frame (Optional)</label>
       </div>
