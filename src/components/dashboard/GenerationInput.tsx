@@ -184,9 +184,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (isVideoMode) {
       const totalImages = videoModeState.characters.length + videoModeState.references.length;
+      console.log('Video mode state update:', {
+        totalImages,
+        characters: videoModeState.characters.length,
+        references: videoModeState.references.length,
+        startingFrame: videoModeState.startingFrame,
+        endingFrame: videoModeState.endingFrame
+      });
       
       if (totalImages === 0) {
         // Clear both frames when all images are removed
+        console.log('Clearing all frames - no images');
         setVideoModeState(prev => ({
           ...prev,
           startingFrame: null,
