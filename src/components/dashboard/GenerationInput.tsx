@@ -176,6 +176,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         characters: selectedCharacters,
         references: selectedReferences
       }));
+    } else {
+      // Clear frames when leaving video mode to prevent auto-population on return
+      setVideoModeState(prev => ({
+        ...prev,
+        startingFrame: null,
+        endingFrame: null
+      }));
     }
   }, [selectedCharacters, selectedReferences, isVideoMode]);
   
