@@ -26,6 +26,27 @@ interface GenerationInputProps {
   onContentTypeChange?: (type: string) => void;
 }
 
+// Separate state containers for each content type
+interface ImageModeState {
+  characters: any[];
+  references: any[];
+}
+
+interface VideoModeState {
+  characters: any[];
+  references: any[];
+  startingFrame: { preview: string; name: string } | null;
+  endingFrame: { preview: string; name: string } | null;
+}
+
+interface AudioModeState {
+  // Audio-specific state can be added here
+}
+
+interface DesignModeState {
+  // Design-specific state can be added here
+}
+
 const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -44,8 +65,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
-  const [startingFrame, setStartingFrame] = useState<{ preview: string; name: string } | null>(externalStartingFrame || null);
-  const [endingFrame, setEndingFrame] = useState<{ preview: string; name: string } | null>(null);
+  
+  // Isolated state for each content type
+  const [imageModeState, setImageModeState] = useState<ImageModeState>({
+    characters: [],
+    references: []
+  });
+  
+  const [videoModeState, setVideoModeState] = useState<VideoModeState>({
+    characters: [],
+    references: [],
+    startingFrame: null,
+    endingFrame: null
+  });
+  
+  const [audioModeState, setAudioModeState] = useState<AudioModeState>({});
+  const [designModeState, setDesignModeState] = useState<DesignModeState>({});
+  
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
@@ -102,42 +138,87 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const isAppsMode = selectedType === 'Apps';
   const isDocumentMode = selectedType === 'Document';
   
+  // Get current state based on content type
+  const getCurrentCharacters = () => {
+    if (isVideoMode) return videoModeState.characters;
+    return imageModeState.characters;
+  };
+  
+  const getCurrentReferences = () => {
+    if (isVideoMode) return videoModeState.references;
+    return imageModeState.references;
+  };
+  
+  // Use isolated state instead of props when in specific modes
+  const activeCharacters = isVideoMode ? videoModeState.characters : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedCharacters);
+  const activeReferences = isVideoMode ? videoModeState.references : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedReferences);
+  
   // Determine if we should show character and reference displays
   const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
   const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
   const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
 
-  // Auto-populate starting frame when character or reference is added in video mode
+  // Sync external props to image mode state only when in image mode
+  useEffect(() => {
+    if (!isVideoMode && !isAudioMode && !isDesignMode && !isContentMode && !isAppsMode && !isDocumentMode) {
+      setImageModeState({
+        characters: selectedCharacters,
+        references: selectedReferences
+      });
+    }
+  }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
+  
+  // Sync external props to video mode state when in video mode
   useEffect(() => {
     if (isVideoMode) {
-      if (!startingFrame && (selectedCharacters.length > 0 || selectedReferences.length > 0)) {
+      setVideoModeState(prev => ({
+        ...prev,
+        characters: selectedCharacters,
+        references: selectedReferences
+      }));
+    }
+  }, [selectedCharacters, selectedReferences, isVideoMode]);
+  
+  // Video mode: Auto-populate starting frame when character or reference is added
+  useEffect(() => {
+    if (isVideoMode) {
+      if (!videoModeState.startingFrame && (videoModeState.characters.length > 0 || videoModeState.references.length > 0)) {
         // Auto-populate starting frame from first available image
-        if (selectedCharacters.length > 0) {
-          const character = selectedCharacters[0];
+        if (videoModeState.characters.length > 0) {
+          const character = videoModeState.characters[0];
           const imageUrl = character.image_url || character.image;
           if (imageUrl) {
-            setStartingFrame({
-              preview: imageUrl,
-              name: character.name || 'character.jpg'
-            });
+            setVideoModeState(prev => ({
+              ...prev,
+              startingFrame: {
+                preview: imageUrl,
+                name: character.name || 'character.jpg'
+              }
+            }));
           }
-        } else if (selectedReferences.length > 0) {
-          const reference = selectedReferences[0];
+        } else if (videoModeState.references.length > 0) {
+          const reference = videoModeState.references[0];
           const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
           if (imageUrl) {
-            setStartingFrame({
-              preview: imageUrl,
-              name: reference.original_filename || reference.name || 'reference.jpg'
-            });
+            setVideoModeState(prev => ({
+              ...prev,
+              startingFrame: {
+                preview: imageUrl,
+                name: reference.original_filename || reference.name || 'reference.jpg'
+              }
+            }));
           }
         }
-      } else if (selectedCharacters.length === 0 && selectedReferences.length === 0) {
+      } else if (videoModeState.characters.length === 0 && videoModeState.references.length === 0) {
         // Clear both frames when all images are removed
-        setStartingFrame(null);
-        setEndingFrame(null);
+        setVideoModeState(prev => ({
+          ...prev,
+          startingFrame: null,
+          endingFrame: null
+        }));
       }
     }
-  }, [isVideoMode, selectedCharacters, selectedReferences, startingFrame]);
+  }, [isVideoMode, videoModeState.characters, videoModeState.references, videoModeState.startingFrame]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -149,8 +230,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
+    // Use active state based on content type
+    const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
+    const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
+
     // Check if Ideogram requires mask when a reference image is used
-    if (selectedModel === 'ideogram' && selectedReferences.length > 0 && !maskImage) {
+    if (selectedModel === 'ideogram' && currentReferences.length > 0 && !maskImage) {
       toast({
         title: "Mask required",
         description: "Ideogram Edit requires a mask image. Please upload a mask.",
@@ -160,10 +245,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
 
     // Ideogram Character model ALWAYS needs a reference image.
-    // Since referenceImage is derived from either the selected characters
-    // or the manual reference image, enforce that one of them is present
-    // before calling the edge function to avoid 500 errors.
-    if (selectedModel === 'ideogram-character' && selectedCharacters.length === 0 && selectedReferences.length === 0) {
+    if (selectedModel === 'ideogram-character' && currentCharacters.length === 0 && currentReferences.length === 0) {
       toast({
         title: "Reference required",
         description: "Ideogram Character needs a character or reference image. Please select one first.",
@@ -179,7 +261,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       console.log("Starting image generation...");
       
       // Use first character if multiple are selected
-      const primaryCharacter = selectedCharacters.length > 0 ? selectedCharacters[0] : null;
+      const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
@@ -195,7 +277,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           // Use character image as reference if character is selected, otherwise use direct reference
           referenceImage: primaryCharacter 
             ? (primaryCharacter.image_url || primaryCharacter.image)
-            : (selectedReferences.length > 0 ? selectedReferences[0].image_url || selectedReferences[0].thumbnail_url : null),
+            : (currentReferences.length > 0 ? currentReferences[0].image_url || currentReferences[0].thumbnail_url : null),
           characterImage: primaryCharacter ? (primaryCharacter.image_url || primaryCharacter.image) : null,
           maskImage: maskImage
         }
@@ -210,7 +292,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
       console.log("Generated image:", data.image);
       
-      // Keep prompt in the input field after generation
     } catch (error) {
       console.error("Generation error:", error);
       toast({
@@ -271,9 +352,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const handleAutoPrompt = async () => {
     setIsEnhancing(true);
     try {
+      // Get active characters and references based on content type
+      const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
+      const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
+      
       // Collect character and reference image URLs
-      const characterImages = selectedCharacters.map(char => char.image_url || char.image).filter(Boolean);
-      const referenceImages = selectedReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
+      const characterImages = currentCharacters.map(char => char.image_url || char.image).filter(Boolean);
+      const referenceImages = currentReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
 
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
@@ -591,10 +676,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         </div>
 
         {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
-        {(shouldShowCharacters && selectedCharacters.length > 0) || (shouldShowReferences && selectedReferences.length > 0) || shouldShowReferences ? (
+        {(shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0) || shouldShowReferences ? (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
-            {shouldShowCharacters && selectedCharacters.map((character, index) => (
+            {shouldShowCharacters && activeCharacters.map((character, index) => (
               <div key={`character-${index}`} className="relative group">
                 <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
                   <img 
@@ -605,8 +690,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </div>
                 <button
                   onClick={() => {
-                    const updatedCharacters = selectedCharacters.filter((_, i) => i !== index);
-                    onCharactersSelect?.(updatedCharacters);
+                    const updatedCharacters = activeCharacters.filter((_, i) => i !== index);
+                    if (isVideoMode) {
+                      // Update video mode state
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        characters: updatedCharacters
+                      }));
+                    } else {
+                      // Update parent state for image mode
+                      onCharactersSelect?.(updatedCharacters);
+                    }
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
                 >
@@ -619,7 +713,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             ))}
 
             {/* Reference Images */}
-            {shouldShowReferences && selectedReferences.map((reference, index) => (
+            {shouldShowReferences && activeReferences.map((reference, index) => (
               <div key={reference.id} className="relative group">
                 <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
                   <img 
@@ -630,8 +724,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </div>
                 <button
                   onClick={() => {
-                    const updatedReferences = selectedReferences.filter((_, i) => i !== index);
-                    onReferencesSelect?.(updatedReferences);
+                    const updatedReferences = activeReferences.filter((_, i) => i !== index);
+                    if (isVideoMode) {
+                      // Update video mode state
+                      setVideoModeState(prev => ({
+                        ...prev,
+                        references: updatedReferences
+                      }));
+                    } else {
+                      // Update parent state for image mode
+                      onReferencesSelect?.(updatedReferences);
+                    }
                   }}
                   className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
                 >
@@ -644,7 +747,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             ))}
             
             {/* Add Reference Image Button - Show only when character or reference is already selected */}
-            {shouldShowReferences && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+            {shouldShowReferences && (activeCharacters.length > 0 || activeReferences.length > 0) && (
               <div className="relative group">
                 <button
                   onClick={onReferencesClick}
@@ -666,17 +769,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         ) : null}
 
         {/* Video Animation Frames - Show only in video mode when character/reference is selected */}
-        {isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+        {isVideoMode && (videoModeState.characters.length > 0 || videoModeState.references.length > 0) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
-              startingFrame={startingFrame}
-              endingFrame={endingFrame}
-              onStartingFrameChange={setStartingFrame}
-              onEndingFrameChange={setEndingFrame}
+              startingFrame={videoModeState.startingFrame}
+              endingFrame={videoModeState.endingFrame}
+              onStartingFrameChange={(frame) => setVideoModeState(prev => ({ ...prev, startingFrame: frame }))}
+              onEndingFrameChange={(frame) => setVideoModeState(prev => ({ ...prev, endingFrame: frame }))}
               onSwap={() => {
-                const temp = startingFrame;
-                setStartingFrame(endingFrame);
-                setEndingFrame(temp);
+                const temp = videoModeState.startingFrame;
+                setVideoModeState(prev => ({
+                  ...prev,
+                  startingFrame: prev.endingFrame,
+                  endingFrame: temp
+                }));
               }}
             />
           </div>
@@ -718,7 +824,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        onClick={onCharactersClick}
+                        onClick={() => {
+                          // Open character selector and update video mode state
+                          onCharactersClick?.();
+                        }}
                         className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                       >
                         <User size={14} />
@@ -731,7 +840,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </Tooltip>
 
                   <button
-                    onClick={onReferencesClick}
+                    onClick={() => {
+                      // Open reference selector and update video mode state
+                      onReferencesClick?.();
+                    }}
                     className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
                   >
                     <Upload size={14} />
