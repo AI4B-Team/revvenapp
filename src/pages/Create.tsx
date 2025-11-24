@@ -423,8 +423,6 @@ const Create = () => {
               selectedType={selectedType}
               onCharactersClick={() => setCharactersModalOpen(true)}
               onCharactersSelect={(characters) => {
-                console.log('onCharactersSelect called with', characters.length, 'characters for type:', selectedType);
-                console.log('Characters:', characters.map(c => c.name || c.id));
                 if (selectedType === 'Image') setImageCharacters(characters);
                 else if (selectedType === 'Video') setVideoCharacters(characters);
                 else if (selectedType === 'Audio') setAudioCharacters(characters);
@@ -623,18 +621,11 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
-          console.log('Modal: Adding character', character.name, 'to', selectedType);
           if (selectedType === 'Image') {
-            setImageCharacters(prev => {
-              console.log('Current imageCharacters:', prev.map(c => c.name));
-              return [...prev, character];
-            });
+            setImageCharacters(prev => [...prev, character]);
           }
           else if (selectedType === 'Video') {
-            setVideoCharacters(prev => {
-              console.log('Current videoCharacters:', prev.map(c => c.name));
-              return [...prev, character];
-            });
+            setVideoCharacters(prev => [...prev, character]);
           }
           else if (selectedType === 'Audio') setAudioCharacters(prev => [...prev, character]);
           else if (selectedType === 'Design') setDesignCharacters(prev => [...prev, character]);
