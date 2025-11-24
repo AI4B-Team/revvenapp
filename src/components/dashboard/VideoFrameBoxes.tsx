@@ -94,7 +94,7 @@ const VideoFrameBoxes = ({
             </label>
           )}
         </div>
-          <label className="text-sm text-muted-foreground mt-2 block text-left">Start Frame</label>
+          <label className="text-sm text-muted-foreground mt-2 block text-center">Start Frame</label>
       </div>
 
       {/* Swap Button - Centered vertically */}
@@ -144,7 +144,7 @@ const VideoFrameBoxes = ({
             </label>
           )}
         </div>
-          <label className="text-sm text-muted-foreground mt-2 block text-left">End Frame (Optional)</label>
+          <label className="text-sm text-muted-foreground mt-2 block text-center">End Frame (Optional)</label>
       </div>
     </div>
     </TooltipProvider>
