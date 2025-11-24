@@ -180,48 +180,21 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [selectedCharacters, selectedReferences, isVideoMode]);
   
   
-  // Video mode: Auto-populate only the starting frame when first image is added
+  // Video mode: Clear frames when all images are removed
   useEffect(() => {
     if (isVideoMode) {
       const totalImages = videoModeState.characters.length + videoModeState.references.length;
-      console.log('Video mode state update:', {
-        totalImages,
-        characters: videoModeState.characters.length,
-        references: videoModeState.references.length,
-        startingFrame: videoModeState.startingFrame,
-        endingFrame: videoModeState.endingFrame
-      });
       
-      if (totalImages === 0) {
-        // Clear both frames when all images are removed
-        console.log('Clearing all frames - no images');
+      // Only clear frames if no images remain
+      if (totalImages === 0 && (videoModeState.startingFrame || videoModeState.endingFrame)) {
         setVideoModeState(prev => ({
           ...prev,
           startingFrame: null,
           endingFrame: null
         }));
-      } else if (totalImages >= 1 && !videoModeState.startingFrame) {
-        // Only auto-populate starting frame if it's empty
-        const firstImage = videoModeState.characters.length > 0 
-          ? videoModeState.characters[0] 
-          : videoModeState.references[0];
-        
-        const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
-        const imageName = firstImage.name || firstImage.original_filename || 'image.jpg';
-        
-        if (imageUrl) {
-          console.log('Auto-populating start frame only');
-          setVideoModeState(prev => ({
-            ...prev,
-            startingFrame: {
-              preview: imageUrl,
-              name: imageName
-            }
-          }));
-        }
       }
     }
-  }, [isVideoMode, videoModeState.characters, videoModeState.references]);
+  }, [isVideoMode, videoModeState.characters.length, videoModeState.references.length, videoModeState.startingFrame, videoModeState.endingFrame]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
