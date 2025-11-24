@@ -531,9 +531,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
-                  <button className="bg-muted/50 rounded-lg p-2">
-                    <Video size={18} className="text-muted-foreground" />
-                  </button>
+                  <>
+                    <button className="bg-muted/50 rounded-lg p-2">
+                      <Video size={18} className="text-muted-foreground" />
+                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                          ) : (
+                            <Shuffle size={18} className="text-muted-foreground" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
                 ) : isAudioMode ? (
                   <button className="bg-muted/50 rounded-lg p-2">
                     <Sparkles size={18} className="text-muted-foreground" />
