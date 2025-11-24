@@ -4,12 +4,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import grokLogo from '@/assets/model-logos/grok.png';
 import StylesModal from './StylesModal';
 import { ImageToPromptModal } from './ImageToPromptModal';
+import VideoFrameBoxes from './VideoFrameBoxes';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -21,9 +22,11 @@ interface GenerationInputProps {
   selectedReferences?: any[];
   isCharacterReference?: boolean;
   onGenerationStart?: () => void;
+  externalStartingFrame?: { preview: string; name: string } | null;
+  onContentTypeChange?: (type: string) => void;
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -41,6 +44,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
+  const [startingFrame, setStartingFrame] = useState<{ preview: string; name: string } | null>(externalStartingFrame || null);
+  const [endingFrame, setEndingFrame] = useState<{ preview: string; name: string } | null>(null);
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
@@ -94,6 +99,56 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const isAudioMode = selectedType === 'Audio';
   const isDesignMode = selectedType === 'Design';
   const isContentMode = selectedType === 'Content';
+
+  // Auto-populate starting frame when character or reference is added in video mode
+  useEffect(() => {
+    if (isVideoMode && !startingFrame) {
+      if (selectedCharacters.length > 0) {
+        const character = selectedCharacters[0];
+        const imageUrl = character.image_url || character.image;
+        if (imageUrl) {
+          setStartingFrame({
+            preview: imageUrl,
+            name: character.name || 'character.jpg'
+          });
+        }
+      } else if (selectedReferences.length > 0) {
+        const reference = selectedReferences[0];
+        const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
+        if (imageUrl) {
+          setStartingFrame({
+            preview: imageUrl,
+            name: reference.original_filename || reference.name || 'reference.jpg'
+          });
+        }
+      }
+    }
+  }, [isVideoMode, selectedCharacters, selectedReferences, startingFrame]);
+
+  // Auto-populate starting frame when character or reference is added in video mode
+  useEffect(() => {
+    if (isVideoMode && !startingFrame) {
+      if (selectedCharacters.length > 0) {
+        const character = selectedCharacters[0];
+        const imageUrl = character.image_url || character.image;
+        if (imageUrl) {
+          setStartingFrame({
+            preview: imageUrl,
+            name: character.name || 'character.jpg'
+          });
+        }
+      } else if (selectedReferences.length > 0) {
+        const reference = selectedReferences[0];
+        const imageUrl = reference.image_url || reference.thumbnail_url || reference.preview;
+        if (imageUrl) {
+          setStartingFrame({
+            preview: imageUrl,
+            name: reference.original_filename || reference.name || 'reference.jpg'
+          });
+        }
+      }
+    }
+  }, [isVideoMode, selectedCharacters, selectedReferences, startingFrame]);
   
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -591,6 +646,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 Add Image
               </span>
             </button>
+          </div>
+        )}
+
+        {/* Video Animation Frames - Show only in video mode when character or reference is added */}
+        {isVideoMode && (selectedCharacters.length > 0 || selectedReferences.length > 0) && (
+          <div className="mb-6 mt-6">
+            <VideoFrameBoxes
+              startingFrame={startingFrame}
+              endingFrame={endingFrame}
+              onStartingFrameChange={setStartingFrame}
+              onEndingFrameChange={setEndingFrame}
+              onSwap={() => {
+                const temp = startingFrame;
+                setStartingFrame(endingFrame);
+                setEndingFrame(temp);
+              }}
+            />
           </div>
         )}
 
