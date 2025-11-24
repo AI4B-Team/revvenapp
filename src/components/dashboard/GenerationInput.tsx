@@ -609,10 +609,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         </div>
 
         {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
-        {shouldShowCharacters && selectedCharacters.length > 0 && (
+        {(shouldShowCharacters && selectedCharacters.length > 0) || (shouldShowReferences && selectedReferences.length > 0) || shouldShowReferences ? (
           <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Character Images */}
-            {selectedCharacters.map((character, index) => (
+            {shouldShowCharacters && selectedCharacters.map((character, index) => (
               <div key={`character-${index}`} className="relative group">
                 <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
                   <img 
@@ -635,14 +635,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </p>
               </div>
             ))}
-          </div>
-        )}
 
-        {/* Reference Images Display - Separate from characters, hidden for audio mode */}
-        {shouldShowReferences && selectedReferences.length > 0 && (
-          <div className="mb-6 flex items-center gap-3 flex-wrap">
             {/* Reference Images */}
-            {selectedReferences.map((reference, index) => (
+            {shouldShowReferences && selectedReferences.map((reference, index) => (
               <div key={reference.id} className="relative group">
                 <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-border">
                   <img 
@@ -665,25 +660,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </p>
               </div>
             ))}
+            
+            {/* Add Reference Image Button - Always Last */}
+            {shouldShowReferences && (
+              <button
+                onClick={onReferencesClick}
+                className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2 group"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
+                  <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
+                </div>
+                <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
+                  Add Image
+                </span>
+              </button>
+            )}
           </div>
-        )}
-
-        {/* Add Reference Image Button - Show when references are supported and no video mode */}
-        {shouldShowReferences && (
-          <div className="mb-6 flex items-center gap-3 flex-wrap">
-            <button
-              onClick={onReferencesClick}
-              className="w-32 h-32 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-2 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition">
-                <Upload size={20} className="text-muted-foreground group-hover:text-primary transition" />
-              </div>
-              <span className="text-xs text-muted-foreground group-hover:text-primary transition font-medium">
-                Add Image
-              </span>
-            </button>
-          </div>
-        )}
+        ) : null}
 
         {/* Video Animation Frames - Show only in video mode when frames are added */}
         {isVideoMode && (startingFrame || endingFrame) && (
