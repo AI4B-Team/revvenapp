@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import grokLogo from '@/assets/model-logos/grok.png';
@@ -168,16 +168,19 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
   
-  // Video mode: Sync arrays and auto-populate frames only when frames are empty
+  // Video mode: Track previous image count to detect when to auto-populate
+  const prevImageCountRef = useRef(0);
+  
   useEffect(() => {
     if (!isVideoMode) return;
     
     const totalImages = selectedCharacters.length + selectedReferences.length;
+    const prevTotal = prevImageCountRef.current;
     
-    // Always sync the arrays
     setVideoModeState(prev => {
-      // If all images removed, clear frames
+      // If all images removed, clear everything
       if (totalImages === 0) {
+        prevImageCountRef.current = 0;
         return {
           characters: [],
           references: [],
@@ -186,8 +189,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         };
       }
       
-      // If frames are empty, auto-populate them
-      if (!prev.startingFrame && !prev.endingFrame) {
+      // Only auto-populate when going from 0 images to 1+ images (initial population)
+      if (prevTotal === 0 && totalImages > 0 && !prev.startingFrame && !prev.endingFrame) {
+        prevImageCountRef.current = totalImages;
+        
         if (totalImages === 1) {
           const firstImage = selectedCharacters[0] || selectedReferences[0];
           const imageUrl = firstImage.image_url || firstImage.image || firstImage.thumbnail_url || firstImage.preview;
@@ -217,7 +222,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
       }
       
-      // Frames exist, just update arrays without touching frames
+      // Update ref and arrays without touching frames
+      prevImageCountRef.current = totalImages;
       return {
         ...prev,
         characters: selectedCharacters,
