@@ -17,6 +17,31 @@ import CollectionsView from '@/components/dashboard/CollectionsView';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
+// Import collection images
+import ceoBossBabe from '@/assets/collections/ceo-boss-babe.jpg';
+import luxuryLifestyle from '@/assets/collections/luxury-lifestyle.jpg';
+import streetFashion from '@/assets/collections/street-fashion.jpg';
+import runwayInspired from '@/assets/collections/runway-inspired.jpg';
+import wellness from '@/assets/collections/wellness.jpg';
+import home from '@/assets/collections/home.jpg';
+import cafe from '@/assets/collections/cafe.jpg';
+import office from '@/assets/collections/office.jpg';
+import gym from '@/assets/collections/gym.jpg';
+import beach from '@/assets/collections/beach.jpg';
+import pool from '@/assets/collections/pool.jpg';
+import redCarpet from '@/assets/collections/red-carpet.jpg';
+import restaurant from '@/assets/collections/restaurant.jpg';
+import resort from '@/assets/collections/resort.jpg';
+import nature from '@/assets/collections/nature.jpg';
+import springBloom from '@/assets/collections/spring-bloom.jpg';
+import summerHeat from '@/assets/collections/summer-heat.jpg';
+import autumnAesthetic from '@/assets/collections/autumn-aesthetic.jpg';
+import winterWonderland from '@/assets/collections/winter-wonderland.jpg';
+import casualChic from '@/assets/collections/casual-chic.jpg';
+import corporate from '@/assets/collections/corporate.jpg';
+import activewear from '@/assets/collections/activewear.jpg';
+import beachwear from '@/assets/collections/beachwear.jpg';
+
 const Create = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -508,101 +533,283 @@ const Create = () => {
             )}
 
             {activeView === 'collections' && (
-              <CollectionsView
-                categories={[]}
-                popularCollections={[
-                  {
-                    id: '1',
-                    title: 'AI Product Photography',
-                    totalCount: 127,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800', alt: 'Product 1' },
-                      { url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', alt: 'Product 2' },
-                      { url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400', alt: 'Product 3' },
-                      { url: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400', alt: 'Product 4' },
-                    ],
-                  },
-                  {
-                    id: '2',
-                    title: 'Social Media Content',
-                    totalCount: 89,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800', alt: 'Social 1' },
-                      { url: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400', alt: 'Social 2' },
-                      { url: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400', alt: 'Social 3' },
-                      { url: 'https://images.unsplash.com/photo-1611162618479-ee3d24aaef0b?w=400', alt: 'Social 4' },
-                    ],
-                  },
-                  {
-                    id: '3',
-                    title: 'Marketing Visuals',
-                    totalCount: 64,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800', alt: 'Marketing 1' },
-                      { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', alt: 'Marketing 2' },
-                      { url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400', alt: 'Marketing 3' },
-                      { url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400', alt: 'Marketing 4' },
-                    ],
-                  },
-                  {
-                    id: '3b',
-                    title: 'Brand Assets',
-                    totalCount: 103,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800', alt: 'Brand 1' },
-                      { url: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=400', alt: 'Brand 2' },
-                      { url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400', alt: 'Brand 3' },
-                      { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', alt: 'Brand 4' },
-                    ],
-                  },
-                ]}
-                recommendedCollections={[
-                  {
-                    id: '4',
-                    title: 'Video Content Library',
-                    totalCount: 52,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800', alt: 'Video 1' },
-                      { url: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400', alt: 'Video 2' },
-                      { url: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400', alt: 'Video 3' },
-                      { url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400', alt: 'Video 4' },
-                    ],
-                  },
-                  {
-                    id: '5',
-                    title: 'Digital Avatars',
-                    totalCount: 38,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800', alt: 'Avatar 1' },
-                      { url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', alt: 'Avatar 2' },
-                      { url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', alt: 'Avatar 3' },
-                      { url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', alt: 'Avatar 4' },
-                    ],
-                  },
-                  {
-                    id: '6',
-                    title: 'Campaign Templates',
-                    totalCount: 71,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1634942537034-2531766767d1?w=800', alt: 'Template 1' },
-                      { url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400', alt: 'Template 2' },
-                      { url: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?w=400', alt: 'Template 3' },
-                      { url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400', alt: 'Template 4' },
-                    ],
-                  },
-                  {
-                    id: '7',
-                    title: 'Creative Designs',
-                    totalCount: 95,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1561070791-36c11767b26a?w=800', alt: 'Design 1' },
-                      { url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400', alt: 'Design 2' },
-                      { url: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?w=400', alt: 'Design 3' },
-                      { url: 'https://images.unsplash.com/photo-1604537529586-27d218c1a62e?w=400', alt: 'Design 4' },
-                    ],
-                  },
-                ]}
-              />
+              <>
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SIGNATURE STYLES"
+                  popularSubtitle="For Overall Aesthetic Direction & Mood"
+                  popularCollections={[
+                    {
+                      id: 'ceo-boss-babe',
+                      title: 'CEO / Boss Babe',
+                      totalCount: 156,
+                      images: [
+                        { url: ceoBossBabe, alt: 'CEO Boss Babe' },
+                        { url: ceoBossBabe, alt: 'CEO Boss Babe 2' },
+                        { url: ceoBossBabe, alt: 'CEO Boss Babe 3' },
+                        { url: ceoBossBabe, alt: 'CEO Boss Babe 4' },
+                      ],
+                    },
+                    {
+                      id: 'luxury-lifestyle',
+                      title: 'Luxury Lifestyle',
+                      totalCount: 243,
+                      images: [
+                        { url: luxuryLifestyle, alt: 'Luxury Lifestyle' },
+                        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 2' },
+                        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 3' },
+                        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 4' },
+                      ],
+                    },
+                    {
+                      id: 'street-fashion',
+                      title: 'Street Fashion',
+                      totalCount: 189,
+                      images: [
+                        { url: streetFashion, alt: 'Street Fashion' },
+                        { url: streetFashion, alt: 'Street Fashion 2' },
+                        { url: streetFashion, alt: 'Street Fashion 3' },
+                        { url: streetFashion, alt: 'Street Fashion 4' },
+                      ],
+                    },
+                    {
+                      id: 'runway-inspired',
+                      title: 'Runway Inspired',
+                      totalCount: 134,
+                      images: [
+                        { url: runwayInspired, alt: 'Runway Inspired' },
+                        { url: runwayInspired, alt: 'Runway Inspired 2' },
+                        { url: runwayInspired, alt: 'Runway Inspired 3' },
+                        { url: runwayInspired, alt: 'Runway Inspired 4' },
+                      ],
+                    },
+                    {
+                      id: 'wellness',
+                      title: 'Wellness',
+                      totalCount: 198,
+                      images: [
+                        { url: wellness, alt: 'Wellness' },
+                        { url: wellness, alt: 'Wellness 2' },
+                        { url: wellness, alt: 'Wellness 3' },
+                        { url: wellness, alt: 'Wellness 4' },
+                      ],
+                    },
+                  ]}
+                  recommendedTitle="LOCATIONS"
+                  recommendedSubtitle="For Where The Visuals Or Stories Take Place"
+                  recommendedCollections={[
+                    {
+                      id: 'home',
+                      title: 'Home',
+                      totalCount: 312,
+                      images: [
+                        { url: home, alt: 'Home' },
+                        { url: home, alt: 'Home 2' },
+                        { url: home, alt: 'Home 3' },
+                        { url: home, alt: 'Home 4' },
+                      ],
+                    },
+                    {
+                      id: 'cafe',
+                      title: 'Café',
+                      totalCount: 267,
+                      images: [
+                        { url: cafe, alt: 'Café' },
+                        { url: cafe, alt: 'Café 2' },
+                        { url: cafe, alt: 'Café 3' },
+                        { url: cafe, alt: 'Café 4' },
+                      ],
+                    },
+                    {
+                      id: 'office',
+                      title: 'Office',
+                      totalCount: 198,
+                      images: [
+                        { url: office, alt: 'Office' },
+                        { url: office, alt: 'Office 2' },
+                        { url: office, alt: 'Office 3' },
+                        { url: office, alt: 'Office 4' },
+                      ],
+                    },
+                    {
+                      id: 'gym',
+                      title: 'Gym',
+                      totalCount: 176,
+                      images: [
+                        { url: gym, alt: 'Gym' },
+                        { url: gym, alt: 'Gym 2' },
+                        { url: gym, alt: 'Gym 3' },
+                        { url: gym, alt: 'Gym 4' },
+                      ],
+                    },
+                    {
+                      id: 'beach',
+                      title: 'Beach',
+                      totalCount: 421,
+                      images: [
+                        { url: beach, alt: 'Beach' },
+                        { url: beach, alt: 'Beach 2' },
+                        { url: beach, alt: 'Beach 3' },
+                        { url: beach, alt: 'Beach 4' },
+                      ],
+                    },
+                    {
+                      id: 'pool',
+                      title: 'Pool',
+                      totalCount: 289,
+                      images: [
+                        { url: pool, alt: 'Pool' },
+                        { url: pool, alt: 'Pool 2' },
+                        { url: pool, alt: 'Pool 3' },
+                        { url: pool, alt: 'Pool 4' },
+                      ],
+                    },
+                    {
+                      id: 'red-carpet',
+                      title: 'Red Carpet',
+                      totalCount: 143,
+                      images: [
+                        { url: redCarpet, alt: 'Red Carpet' },
+                        { url: redCarpet, alt: 'Red Carpet 2' },
+                        { url: redCarpet, alt: 'Red Carpet 3' },
+                        { url: redCarpet, alt: 'Red Carpet 4' },
+                      ],
+                    },
+                    {
+                      id: 'restaurant',
+                      title: 'Restaurant',
+                      totalCount: 234,
+                      images: [
+                        { url: restaurant, alt: 'Restaurant' },
+                        { url: restaurant, alt: 'Restaurant 2' },
+                        { url: restaurant, alt: 'Restaurant 3' },
+                        { url: restaurant, alt: 'Restaurant 4' },
+                      ],
+                    },
+                    {
+                      id: 'resort',
+                      title: 'Resort',
+                      totalCount: 356,
+                      images: [
+                        { url: resort, alt: 'Resort' },
+                        { url: resort, alt: 'Resort 2' },
+                        { url: resort, alt: 'Resort 3' },
+                        { url: resort, alt: 'Resort 4' },
+                      ],
+                    },
+                    {
+                      id: 'nature',
+                      title: 'Nature',
+                      totalCount: 487,
+                      images: [
+                        { url: nature, alt: 'Nature' },
+                        { url: nature, alt: 'Nature 2' },
+                        { url: nature, alt: 'Nature 3' },
+                        { url: nature, alt: 'Nature 4' },
+                      ],
+                    },
+                  ]}
+                />
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SEASONS"
+                  popularSubtitle="Perfect for lifestyle or fashion tie-ins"
+                  popularCollections={[
+                    {
+                      id: 'spring-bloom',
+                      title: 'Spring Bloom',
+                      totalCount: 298,
+                      images: [
+                        { url: springBloom, alt: 'Spring Bloom' },
+                        { url: springBloom, alt: 'Spring Bloom 2' },
+                        { url: springBloom, alt: 'Spring Bloom 3' },
+                        { url: springBloom, alt: 'Spring Bloom 4' },
+                      ],
+                    },
+                    {
+                      id: 'summer-heat',
+                      title: 'Summer Heat',
+                      totalCount: 412,
+                      images: [
+                        { url: summerHeat, alt: 'Summer Heat' },
+                        { url: summerHeat, alt: 'Summer Heat 2' },
+                        { url: summerHeat, alt: 'Summer Heat 3' },
+                        { url: summerHeat, alt: 'Summer Heat 4' },
+                      ],
+                    },
+                    {
+                      id: 'autumn-aesthetic',
+                      title: 'Autumn Aesthetic',
+                      totalCount: 276,
+                      images: [
+                        { url: autumnAesthetic, alt: 'Autumn Aesthetic' },
+                        { url: autumnAesthetic, alt: 'Autumn Aesthetic 2' },
+                        { url: autumnAesthetic, alt: 'Autumn Aesthetic 3' },
+                        { url: autumnAesthetic, alt: 'Autumn Aesthetic 4' },
+                      ],
+                    },
+                    {
+                      id: 'winter-wonderland',
+                      title: 'Winter Wonderland',
+                      totalCount: 324,
+                      images: [
+                        { url: winterWonderland, alt: 'Winter Wonderland' },
+                        { url: winterWonderland, alt: 'Winter Wonderland 2' },
+                        { url: winterWonderland, alt: 'Winter Wonderland 3' },
+                        { url: winterWonderland, alt: 'Winter Wonderland 4' },
+                      ],
+                    },
+                  ]}
+                  recommendedTitle="FASHION"
+                  recommendedSubtitle="To define outfit energy"
+                  recommendedCollections={[
+                    {
+                      id: 'casual-chic',
+                      title: 'Casual Chic',
+                      totalCount: 267,
+                      images: [
+                        { url: casualChic, alt: 'Casual Chic' },
+                        { url: casualChic, alt: 'Casual Chic 2' },
+                        { url: casualChic, alt: 'Casual Chic 3' },
+                        { url: casualChic, alt: 'Casual Chic 4' },
+                      ],
+                    },
+                    {
+                      id: 'corporate',
+                      title: 'Corporate',
+                      totalCount: 198,
+                      images: [
+                        { url: corporate, alt: 'Corporate' },
+                        { url: corporate, alt: 'Corporate 2' },
+                        { url: corporate, alt: 'Corporate 3' },
+                        { url: corporate, alt: 'Corporate 4' },
+                      ],
+                    },
+                    {
+                      id: 'activewear',
+                      title: 'Activewear',
+                      totalCount: 234,
+                      images: [
+                        { url: activewear, alt: 'Activewear' },
+                        { url: activewear, alt: 'Activewear 2' },
+                        { url: activewear, alt: 'Activewear 3' },
+                        { url: activewear, alt: 'Activewear 4' },
+                      ],
+                    },
+                    {
+                      id: 'beachwear',
+                      title: 'Beachwear',
+                      totalCount: 312,
+                      images: [
+                        { url: beachwear, alt: 'Beachwear' },
+                        { url: beachwear, alt: 'Beachwear 2' },
+                        { url: beachwear, alt: 'Beachwear 3' },
+                        { url: beachwear, alt: 'Beachwear 4' },
+                      ],
+                    },
+                  ]}
+                />
+              </>
             )}
             
             {/* Tools View */}
