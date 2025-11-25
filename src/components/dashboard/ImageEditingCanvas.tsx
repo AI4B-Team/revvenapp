@@ -181,7 +181,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background relative">
       {/* Top Toolbar */}
       <div className="h-16 border-b border-border flex items-center justify-between px-6 bg-background">
         <div className="flex items-center gap-4">
@@ -357,12 +357,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main Content Area - add bottom padding to account for Edit History */}
+      <div className="flex-1 flex overflow-hidden pb-32">
         <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
         {!isChatMinimized && (
-        <div className="w-80 border-r border-border flex flex-col bg-muted/50">
+        <div className="w-80 border-r-2 border-gray-400 flex flex-col bg-muted/50">
           {/* Chat Header - Model Selector with Minimize Button */}
           <div className="p-4 border-b border-border bg-background flex items-center gap-2">
             <Select defaultValue="nano-banana">
@@ -473,7 +473,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
         {/* Minimized Chat Toggle Button */}
         {isChatMinimized && (
-          <div className="w-12 border-r border-border flex items-start justify-center pt-4 bg-muted/50">
+          <div className="w-12 border-r-2 border-gray-400 flex items-start justify-center pt-4 bg-muted/50">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -598,7 +598,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
         {/* Right Sidebar - Editing Tools */}
         {showRightPanel && (
-          <div className="w-80 border-l border-border flex flex-col bg-background">
+          <div className="w-80 border-l-2 border-gray-400 flex flex-col bg-background">
             {/* Tabs */}
             <div className="flex border-b border-border">
               <button
@@ -779,10 +779,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
       </div>
 
-      {/* Bottom History Panel - Fixed at bottom, always visible, positioned to right of chat */}
-      <div className="h-32 border-t border-border bg-background flex-shrink-0 flex">
-        {/* Spacer for chat panel */}
-        <div className={`${isChatMinimized ? 'w-12' : 'w-80'} border-r border-border flex-shrink-0`}></div>
+      {/* Bottom History Panel - Fixed at bottom right, aligned with chat */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 border-t border-border bg-background flex">
+        {/* Spacer matching chat panel width */}
+        <div className={`${isChatMinimized ? 'w-12' : 'w-80'} border-r-2 border-gray-400 flex-shrink-0 bg-muted/50`}></div>
         
         {/* History Content */}
         <div className="flex-1 flex items-center gap-3 px-6 overflow-x-auto">
