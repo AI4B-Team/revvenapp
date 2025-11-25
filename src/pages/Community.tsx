@@ -382,22 +382,12 @@ const Community = () => {
             {activeTab === 'collections' && (
               <>
                 {selectedCollection ? (
-                  // Show selected collection images
+                  // Show selected collection images with gallery functionality
                   <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-foreground">
+                    <h2 className="text-2xl font-bold text-foreground mb-6">
                       {allCollections.find(c => c.id === selectedCollection)?.title}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {Array.from({ length: allCollections.find(c => c.id === selectedCollection)?.totalCount || 0 }).map((_, idx) => (
-                        <div key={idx} className="aspect-square rounded-xl overflow-hidden bg-muted">
-                          <img
-                            src={allCollections.find(c => c.id === selectedCollection)?.images[0]?.url}
-                            alt={`${allCollections.find(c => c.id === selectedCollection)?.title} ${idx + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    <CreationsGallery type="community" columnsPerRow={zoomLevel} filters={filters} />
                   </div>
                 ) : (
                   // Show collection cards
