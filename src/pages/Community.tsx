@@ -8,6 +8,31 @@ import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import CollectionsView from '@/components/dashboard/CollectionsView';
 import { Users, FolderOpen } from 'lucide-react';
 
+// Import collection images
+import ceoBossBabe from '@/assets/collections/ceo-boss-babe.jpg';
+import luxuryLifestyle from '@/assets/collections/luxury-lifestyle.jpg';
+import streetFashion from '@/assets/collections/street-fashion.jpg';
+import runwayInspired from '@/assets/collections/runway-inspired.jpg';
+import wellness from '@/assets/collections/wellness.jpg';
+import home from '@/assets/collections/home.jpg';
+import cafe from '@/assets/collections/cafe.jpg';
+import office from '@/assets/collections/office.jpg';
+import gym from '@/assets/collections/gym.jpg';
+import beach from '@/assets/collections/beach.jpg';
+import pool from '@/assets/collections/pool.jpg';
+import redCarpet from '@/assets/collections/red-carpet.jpg';
+import restaurant from '@/assets/collections/restaurant.jpg';
+import resort from '@/assets/collections/resort.jpg';
+import nature from '@/assets/collections/nature.jpg';
+import springBloom from '@/assets/collections/spring-bloom.jpg';
+import summerHeat from '@/assets/collections/summer-heat.jpg';
+import autumnAesthetic from '@/assets/collections/autumn-aesthetic.jpg';
+import winterWonderland from '@/assets/collections/winter-wonderland.jpg';
+import casualChic from '@/assets/collections/casual-chic.jpg';
+import corporate from '@/assets/collections/corporate.jpg';
+import activewear from '@/assets/collections/activewear.jpg';
+import beachwear from '@/assets/collections/beachwear.jpg';
+
 const Community = () => {
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
@@ -18,6 +43,275 @@ const Community = () => {
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
+
+  // Signature Styles Collections
+  const signatureStylesCollections = [
+    {
+      id: 'ceo-boss-babe',
+      title: 'CEO / Boss Babe',
+      totalCount: 156,
+      images: [
+        { url: ceoBossBabe, alt: 'CEO Boss Babe' },
+        { url: ceoBossBabe, alt: 'CEO Boss Babe 2' },
+        { url: ceoBossBabe, alt: 'CEO Boss Babe 3' },
+        { url: ceoBossBabe, alt: 'CEO Boss Babe 4' },
+      ],
+    },
+    {
+      id: 'luxury-lifestyle',
+      title: 'Luxury Lifestyle',
+      totalCount: 243,
+      images: [
+        { url: luxuryLifestyle, alt: 'Luxury Lifestyle' },
+        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 2' },
+        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 3' },
+        { url: luxuryLifestyle, alt: 'Luxury Lifestyle 4' },
+      ],
+    },
+    {
+      id: 'street-fashion',
+      title: 'Street Fashion',
+      totalCount: 189,
+      images: [
+        { url: streetFashion, alt: 'Street Fashion' },
+        { url: streetFashion, alt: 'Street Fashion 2' },
+        { url: streetFashion, alt: 'Street Fashion 3' },
+        { url: streetFashion, alt: 'Street Fashion 4' },
+      ],
+    },
+    {
+      id: 'runway-inspired',
+      title: 'Runway Inspired',
+      totalCount: 134,
+      images: [
+        { url: runwayInspired, alt: 'Runway Inspired' },
+        { url: runwayInspired, alt: 'Runway Inspired 2' },
+        { url: runwayInspired, alt: 'Runway Inspired 3' },
+        { url: runwayInspired, alt: 'Runway Inspired 4' },
+      ],
+    },
+    {
+      id: 'wellness',
+      title: 'Wellness',
+      totalCount: 198,
+      images: [
+        { url: wellness, alt: 'Wellness' },
+        { url: wellness, alt: 'Wellness 2' },
+        { url: wellness, alt: 'Wellness 3' },
+        { url: wellness, alt: 'Wellness 4' },
+      ],
+    },
+  ];
+
+  // Locations Collections
+  const locationsCollections = [
+    {
+      id: 'home',
+      title: 'Home',
+      totalCount: 312,
+      images: [
+        { url: home, alt: 'Home' },
+        { url: home, alt: 'Home 2' },
+        { url: home, alt: 'Home 3' },
+        { url: home, alt: 'Home 4' },
+      ],
+    },
+    {
+      id: 'cafe',
+      title: 'Café',
+      totalCount: 267,
+      images: [
+        { url: cafe, alt: 'Café' },
+        { url: cafe, alt: 'Café 2' },
+        { url: cafe, alt: 'Café 3' },
+        { url: cafe, alt: 'Café 4' },
+      ],
+    },
+    {
+      id: 'office',
+      title: 'Office',
+      totalCount: 198,
+      images: [
+        { url: office, alt: 'Office' },
+        { url: office, alt: 'Office 2' },
+        { url: office, alt: 'Office 3' },
+        { url: office, alt: 'Office 4' },
+      ],
+    },
+    {
+      id: 'gym',
+      title: 'Gym',
+      totalCount: 176,
+      images: [
+        { url: gym, alt: 'Gym' },
+        { url: gym, alt: 'Gym 2' },
+        { url: gym, alt: 'Gym 3' },
+        { url: gym, alt: 'Gym 4' },
+      ],
+    },
+    {
+      id: 'beach',
+      title: 'Beach',
+      totalCount: 421,
+      images: [
+        { url: beach, alt: 'Beach' },
+        { url: beach, alt: 'Beach 2' },
+        { url: beach, alt: 'Beach 3' },
+        { url: beach, alt: 'Beach 4' },
+      ],
+    },
+    {
+      id: 'pool',
+      title: 'Pool',
+      totalCount: 289,
+      images: [
+        { url: pool, alt: 'Pool' },
+        { url: pool, alt: 'Pool 2' },
+        { url: pool, alt: 'Pool 3' },
+        { url: pool, alt: 'Pool 4' },
+      ],
+    },
+    {
+      id: 'red-carpet',
+      title: 'Red Carpet',
+      totalCount: 143,
+      images: [
+        { url: redCarpet, alt: 'Red Carpet' },
+        { url: redCarpet, alt: 'Red Carpet 2' },
+        { url: redCarpet, alt: 'Red Carpet 3' },
+        { url: redCarpet, alt: 'Red Carpet 4' },
+      ],
+    },
+    {
+      id: 'restaurant',
+      title: 'Restaurant',
+      totalCount: 234,
+      images: [
+        { url: restaurant, alt: 'Restaurant' },
+        { url: restaurant, alt: 'Restaurant 2' },
+        { url: restaurant, alt: 'Restaurant 3' },
+        { url: restaurant, alt: 'Restaurant 4' },
+      ],
+    },
+    {
+      id: 'resort',
+      title: 'Resort',
+      totalCount: 356,
+      images: [
+        { url: resort, alt: 'Resort' },
+        { url: resort, alt: 'Resort 2' },
+        { url: resort, alt: 'Resort 3' },
+        { url: resort, alt: 'Resort 4' },
+      ],
+    },
+    {
+      id: 'nature',
+      title: 'Nature',
+      totalCount: 487,
+      images: [
+        { url: nature, alt: 'Nature' },
+        { url: nature, alt: 'Nature 2' },
+        { url: nature, alt: 'Nature 3' },
+        { url: nature, alt: 'Nature 4' },
+      ],
+    },
+  ];
+
+  // Seasons Collections
+  const seasonsCollections = [
+    {
+      id: 'spring-bloom',
+      title: 'Spring Bloom',
+      totalCount: 298,
+      images: [
+        { url: springBloom, alt: 'Spring Bloom' },
+        { url: springBloom, alt: 'Spring Bloom 2' },
+        { url: springBloom, alt: 'Spring Bloom 3' },
+        { url: springBloom, alt: 'Spring Bloom 4' },
+      ],
+    },
+    {
+      id: 'summer-heat',
+      title: 'Summer Heat',
+      totalCount: 412,
+      images: [
+        { url: summerHeat, alt: 'Summer Heat' },
+        { url: summerHeat, alt: 'Summer Heat 2' },
+        { url: summerHeat, alt: 'Summer Heat 3' },
+        { url: summerHeat, alt: 'Summer Heat 4' },
+      ],
+    },
+    {
+      id: 'autumn-aesthetic',
+      title: 'Autumn Aesthetic',
+      totalCount: 276,
+      images: [
+        { url: autumnAesthetic, alt: 'Autumn Aesthetic' },
+        { url: autumnAesthetic, alt: 'Autumn Aesthetic 2' },
+        { url: autumnAesthetic, alt: 'Autumn Aesthetic 3' },
+        { url: autumnAesthetic, alt: 'Autumn Aesthetic 4' },
+      ],
+    },
+    {
+      id: 'winter-wonderland',
+      title: 'Winter Wonderland',
+      totalCount: 324,
+      images: [
+        { url: winterWonderland, alt: 'Winter Wonderland' },
+        { url: winterWonderland, alt: 'Winter Wonderland 2' },
+        { url: winterWonderland, alt: 'Winter Wonderland 3' },
+        { url: winterWonderland, alt: 'Winter Wonderland 4' },
+      ],
+    },
+  ];
+
+  // Fashion Collections
+  const fashionCollections = [
+    {
+      id: 'casual-chic',
+      title: 'Casual Chic',
+      totalCount: 267,
+      images: [
+        { url: casualChic, alt: 'Casual Chic' },
+        { url: casualChic, alt: 'Casual Chic 2' },
+        { url: casualChic, alt: 'Casual Chic 3' },
+        { url: casualChic, alt: 'Casual Chic 4' },
+      ],
+    },
+    {
+      id: 'corporate',
+      title: 'Corporate',
+      totalCount: 198,
+      images: [
+        { url: corporate, alt: 'Corporate' },
+        { url: corporate, alt: 'Corporate 2' },
+        { url: corporate, alt: 'Corporate 3' },
+        { url: corporate, alt: 'Corporate 4' },
+      ],
+    },
+    {
+      id: 'activewear',
+      title: 'Activewear',
+      totalCount: 234,
+      images: [
+        { url: activewear, alt: 'Activewear' },
+        { url: activewear, alt: 'Activewear 2' },
+        { url: activewear, alt: 'Activewear 3' },
+        { url: activewear, alt: 'Activewear 4' },
+      ],
+    },
+    {
+      id: 'beachwear',
+      title: 'Beachwear',
+      totalCount: 312,
+      images: [
+        { url: beachwear, alt: 'Beachwear' },
+        { url: beachwear, alt: 'Beachwear 2' },
+        { url: beachwear, alt: 'Beachwear 3' },
+        { url: beachwear, alt: 'Beachwear 4' },
+      ],
+    },
+  ];
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -74,101 +368,26 @@ const Community = () => {
             )}
             
             {activeTab === 'collections' && (
-              <CollectionsView
-                categories={[]}
-                popularCollections={[
-                  {
-                    id: 'community-1',
-                    title: 'Community Favorites',
-                    totalCount: 234,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', alt: 'Favorite 1' },
-                      { url: 'https://images.unsplash.com/photo-1618004912476-29818d81ae2e?w=400', alt: 'Favorite 2' },
-                      { url: 'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=400', alt: 'Favorite 3' },
-                      { url: 'https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=400', alt: 'Favorite 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-2',
-                    title: 'Trending Designs',
-                    totalCount: 156,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800', alt: 'Design 1' },
-                      { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', alt: 'Design 2' },
-                      { url: 'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=400', alt: 'Design 3' },
-                      { url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400', alt: 'Design 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-3',
-                    title: 'Creator Showcase',
-                    totalCount: 98,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800', alt: 'Showcase 1' },
-                      { url: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=400', alt: 'Showcase 2' },
-                      { url: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=400', alt: 'Showcase 3' },
-                      { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=400', alt: 'Showcase 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-3b',
-                    title: 'Digital Art Gallery',
-                    totalCount: 176,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800', alt: 'Art 1' },
-                      { url: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400', alt: 'Art 2' },
-                      { url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=400', alt: 'Art 3' },
-                      { url: 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=400', alt: 'Art 4' },
-                    ],
-                  },
-                ]}
-                recommendedCollections={[
-                  {
-                    id: 'community-4',
-                    title: 'Weekly Highlights',
-                    totalCount: 145,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800', alt: 'Highlight 1' },
-                      { url: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=400', alt: 'Highlight 2' },
-                      { url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400', alt: 'Highlight 3' },
-                      { url: 'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=400', alt: 'Highlight 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-5',
-                    title: 'Inspiration Board',
-                    totalCount: 187,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1558655146-364adaf1fcc9?w=800', alt: 'Inspiration 1' },
-                      { url: 'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=400', alt: 'Inspiration 2' },
-                      { url: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=400', alt: 'Inspiration 3' },
-                      { url: 'https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=400', alt: 'Inspiration 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-6',
-                    title: 'Top Rated Collection',
-                    totalCount: 213,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1561070791-36c11767b26a?w=800', alt: 'Top 1' },
-                      { url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400', alt: 'Top 2' },
-                      { url: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?w=400', alt: 'Top 3' },
-                      { url: 'https://images.unsplash.com/photo-1604537529586-27d218c1a62e?w=400', alt: 'Top 4' },
-                    ],
-                  },
-                  {
-                    id: 'community-7',
-                    title: 'Seasonal Collections',
-                    totalCount: 142,
-                    images: [
-                      { url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800', alt: 'Season 1' },
-                      { url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400', alt: 'Season 2' },
-                      { url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400', alt: 'Season 3' },
-                      { url: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400', alt: 'Season 4' },
-                    ],
-                  },
-                ]}
-              />
+              <>
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SIGNATURE STYLES"
+                  popularSubtitle="For Overall Aesthetic Direction & Mood"
+                  popularCollections={signatureStylesCollections}
+                  recommendedTitle="LOCATIONS"
+                  recommendedSubtitle="For Where The Visuals Or Stories Take Place"
+                  recommendedCollections={locationsCollections}
+                />
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SEASONS"
+                  popularSubtitle="Perfect for lifestyle or fashion tie-ins"
+                  popularCollections={seasonsCollections}
+                  recommendedTitle="FASHION"
+                  recommendedSubtitle="To define outfit energy"
+                  recommendedCollections={fashionCollections}
+                />
+              </>
             )}
           </div>
         </main>
