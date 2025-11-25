@@ -47,81 +47,119 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   const [generatedItems, setGeneratedItems] = useState<GalleryItem[]>([]);
   const { toast } = useToast();
 
-  // Fetch generated images from Supabase with real-time subscriptions
+  // Fetch generated images and videos from Supabase with real-time subscriptions
   useEffect(() => {
-    const fetchGeneratedImages = async () => {
+    const fetchGeneratedContent = async () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) return;
 
-      const { data, error } = await supabase
+      // Fetch images
+      const { data: imagesData, error: imagesError } = await supabase
         .from('generated_images')
         .select('*')
         .eq('user_id', session.session.user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching generated images:', error);
-        return;
+      if (imagesError) {
+        console.error('Error fetching generated images:', imagesError);
       }
 
-      if (data) {
-        const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
-          switch (aspectRatio) {
-            case '1:1': return '1024x1024 px';
-            case '16:9': return '1344x768 px';
-            case '9:16': return '768x1344 px';
-            case '4:3': return '1024x768 px';
-            case '3:4': return '768x1024 px';
-            default: return '1024x1024 px';
-          }
-        };
+      // Fetch videos
+      const { data: videosData, error: videosError } = await supabase
+        .from('ai_videos')
+        .select('*')
+        .eq('user_id', session.session.user.id)
+        .order('created_at', { ascending: false });
 
-        const formatTimestamp = (dateString: string | null): string => {
-          if (!dateString) return 'Just now';
-          const date = new Date(dateString);
-          const now = new Date();
-          const diffMs = now.getTime() - date.getTime();
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-          
-          if (diffMins < 1) return 'Just now';
-          if (diffMins < 60) return `${diffMins} min ago`;
-          if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-          if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        };
-
-        const mappedItems: GalleryItem[] = data.map((img) => ({
-          id: img.id,
-          title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
-          thumbnail: img.image_url || '/placeholder.svg',
-          url: img.image_url || undefined,
-          type: 'image',
-          creator: {
-            name: 'You',
-            avatar: '/placeholder.svg'
-          },
-          likes: 0,
-          isEdited: false,
-          isUpscaled: false,
-          createdAt: img.created_at || new Date().toISOString(),
-          status: img.status as 'pending' | 'processing' | 'completed' | 'error',
-          prompt: img.prompt,
-          model: img.model || 'Nano Banana (Flux Pro)',
-          aspectRatio: img.aspect_ratio || '1:1',
-          resolution: getResolutionFromAspectRatio(img.aspect_ratio),
-          timestamp: formatTimestamp(img.created_at),
-          referenceImage: img.reference_image_url || undefined
-        }));
-        setGeneratedItems(mappedItems);
+      if (videosError) {
+        console.error('Error fetching generated videos:', videosError);
       }
+
+      const getResolutionFromAspectRatio = (aspectRatio: string | null): string => {
+        switch (aspectRatio) {
+          case '1:1': return '1024x1024 px';
+          case '16:9': return '1344x768 px';
+          case '9:16': return '768x1344 px';
+          case '4:3': return '1024x768 px';
+          case '3:4': return '768x1024 px';
+          default: return '1024x1024 px';
+        }
+      };
+
+      const formatTimestamp = (dateString: string | null): string => {
+        if (!dateString) return 'Just now';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      };
+
+      const mappedImages: GalleryItem[] = imagesData?.map((img) => ({
+        id: img.id,
+        title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
+        thumbnail: img.image_url || '/placeholder.svg',
+        url: img.image_url || undefined,
+        type: 'image',
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: img.created_at || new Date().toISOString(),
+        status: img.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: img.prompt,
+        model: img.model || 'Nano Banana (Flux Pro)',
+        aspectRatio: img.aspect_ratio || '1:1',
+        resolution: getResolutionFromAspectRatio(img.aspect_ratio),
+        timestamp: formatTimestamp(img.created_at),
+        referenceImage: img.reference_image_url || undefined
+      })) || [];
+
+      const mappedVideos: GalleryItem[] = videosData?.map((video) => ({
+        id: video.id,
+        title: video.video_topic.substring(0, 50) + (video.video_topic.length > 50 ? '...' : ''),
+        thumbnail: video.video_url || video.character_image_url || '/placeholder.svg',
+        url: video.video_url || undefined,
+        type: 'video',
+        creator: {
+          name: 'You',
+          avatar: '/placeholder.svg'
+        },
+        likes: 0,
+        isEdited: false,
+        isUpscaled: false,
+        createdAt: video.created_at || new Date().toISOString(),
+        status: video.status as 'pending' | 'processing' | 'completed' | 'error',
+        prompt: video.video_topic,
+        model: video.video_generation_model || 'Seedance 1.0',
+        aspectRatio: '9:16',
+        resolution: '768x1344 px',
+        timestamp: formatTimestamp(video.created_at),
+        referenceImage: video.character_image_url || undefined
+      })) || [];
+
+      // Combine and sort by creation date
+      const allItems = [...mappedImages, ...mappedVideos].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setGeneratedItems(allItems);
     };
 
-    fetchGeneratedImages();
+    fetchGeneratedContent();
 
-    // Real-time subscription for instant updates
-    const channel = supabase
+    // Real-time subscription for images
+    const imagesChannel = supabase
       .channel('generated_images_updates')
       .on(
         'postgres_changes',
@@ -132,13 +170,31 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         },
         (payload) => {
           console.log('Generated images update:', payload);
-          fetchGeneratedImages(); // Refetch to get latest data
+          fetchGeneratedContent();
+        }
+      )
+      .subscribe();
+
+    // Real-time subscription for videos
+    const videosChannel = supabase
+      .channel('ai_videos_updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ai_videos'
+        },
+        (payload) => {
+          console.log('AI videos update:', payload);
+          fetchGeneratedContent();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(imagesChannel);
+      supabase.removeChannel(videosChannel);
     };
   }, []);
 
