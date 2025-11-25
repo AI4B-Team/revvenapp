@@ -96,9 +96,9 @@ const CollectionsSection: React.FC<CollectionsSectionProps> = ({
   return (
     <section className="mb-16">
       <h2 className="text-3xl font-bold text-foreground mb-8">
-        {title}
+        {title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {collections.map((collection) => (
           <CollectionCard key={collection.id} collection={collection} />
         ))}
@@ -141,19 +141,6 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Collections
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Explore curated content collections for your creative projects
-          </p>
-        </div>
-
-        {/* Category Tags */}
-        {categories.length > 0 && <CategoryTags categories={categories} />}
-
         {/* Popular Collections */}
         <CollectionsSection
           title="Popular Collections"

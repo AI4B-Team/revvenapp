@@ -75,7 +75,7 @@ const Community = () => {
             
             {activeTab === 'collections' && (
               <CollectionsView
-                categories={['All Content', 'Popular', 'Trending', 'Recent', 'Favorites']}
+                categories={[]}
                 popularCollections={[
                   {
                     id: 'community-1',
@@ -108,6 +108,17 @@ const Community = () => {
                       { url: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=400', alt: 'Showcase 2' },
                       { url: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=400', alt: 'Showcase 3' },
                       { url: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=400', alt: 'Showcase 4' },
+                    ],
+                  },
+                  {
+                    id: 'community-3b',
+                    title: 'Digital Art Gallery',
+                    totalCount: 176,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=800', alt: 'Art 1' },
+                      { url: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400', alt: 'Art 2' },
+                      { url: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=400', alt: 'Art 3' },
+                      { url: 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=400', alt: 'Art 4' },
                     ],
                   },
                 ]}
@@ -143,6 +154,17 @@ const Community = () => {
                       { url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400', alt: 'Top 2' },
                       { url: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?w=400', alt: 'Top 3' },
                       { url: 'https://images.unsplash.com/photo-1604537529586-27d218c1a62e?w=400', alt: 'Top 4' },
+                    ],
+                  },
+                  {
+                    id: 'community-7',
+                    title: 'Seasonal Collections',
+                    totalCount: 142,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800', alt: 'Season 1' },
+                      { url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400', alt: 'Season 2' },
+                      { url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400', alt: 'Season 3' },
+                      { url: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400', alt: 'Season 4' },
                     ],
                   },
                 ]}

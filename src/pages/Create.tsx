@@ -509,7 +509,7 @@ const Create = () => {
 
             {activeView === 'collections' && (
               <CollectionsView
-                categories={['All Content', 'AI Images', 'AI Videos', 'Marketing', 'Social Media', 'Product Photos']}
+                categories={[]}
                 popularCollections={[
                   {
                     id: '1',
@@ -542,6 +542,17 @@ const Create = () => {
                       { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', alt: 'Marketing 2' },
                       { url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400', alt: 'Marketing 3' },
                       { url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400', alt: 'Marketing 4' },
+                    ],
+                  },
+                  {
+                    id: '3b',
+                    title: 'Brand Assets',
+                    totalCount: 103,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800', alt: 'Brand 1' },
+                      { url: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=400', alt: 'Brand 2' },
+                      { url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400', alt: 'Brand 3' },
+                      { url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', alt: 'Brand 4' },
                     ],
                   },
                 ]}
@@ -577,6 +588,17 @@ const Create = () => {
                       { url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400', alt: 'Template 2' },
                       { url: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?w=400', alt: 'Template 3' },
                       { url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400', alt: 'Template 4' },
+                    ],
+                  },
+                  {
+                    id: '7',
+                    title: 'Creative Designs',
+                    totalCount: 95,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1561070791-36c11767b26a?w=800', alt: 'Design 1' },
+                      { url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400', alt: 'Design 2' },
+                      { url: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?w=400', alt: 'Design 3' },
+                      { url: 'https://images.unsplash.com/photo-1604537529586-27d218c1a62e?w=400', alt: 'Design 4' },
                     ],
                   },
                 ]}
