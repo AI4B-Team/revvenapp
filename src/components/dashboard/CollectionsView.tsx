@@ -28,6 +28,7 @@ interface Collection {
 
 interface CollectionsSectionProps {
   title: string;
+  subtitle?: string;
   collections: Collection[];
 }
 
@@ -95,13 +96,19 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
 // Collections Section Component
 const CollectionsSection: React.FC<CollectionsSectionProps> = ({
   title,
+  subtitle,
   collections,
 }) => {
   return (
     <section className="mb-16">
-      <h2 className="text-3xl font-bold text-foreground mb-8">
-        {title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
-      </h2>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-foreground mb-2">
+          {title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
+        </h2>
+        {subtitle && (
+          <p className="text-base text-muted-foreground">{subtitle}</p>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {collections.map((collection) => (
           <CollectionCard key={collection.id} collection={collection} />
@@ -151,13 +158,15 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
       <div className="py-8">
         {/* Popular Collections */}
         <CollectionsSection
-          title={popularSubtitle ? `${popularTitle} | ${popularSubtitle}` : popularTitle}
+          title={popularTitle}
+          subtitle={popularSubtitle}
           collections={popularCollections}
         />
 
         {/* Recommended Collections */}
         <CollectionsSection
-          title={recommendedSubtitle ? `${recommendedTitle} | ${recommendedSubtitle}` : recommendedTitle}
+          title={recommendedTitle}
+          subtitle={recommendedSubtitle}
           collections={recommendedCollections}
         />
       </div>
