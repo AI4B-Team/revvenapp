@@ -28,9 +28,10 @@ interface SidebarProps {
   onIdentityClick?: () => void;
   onAssetFilterChange?: (filter: string | null) => void;
   onCollapseChange?: (isCollapsed: boolean) => void;
+  onEditClick?: () => void;
 }
 
-const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
@@ -583,7 +584,14 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             ) : (
               <button
                 key={idx}
-                onClick={() => onTabChange(item.label)}
+                onClick={() => {
+                  // Special handling for Edit button in Image section
+                  if (item.label === 'Edit' && activeTab === 'Image' && onEditClick) {
+                    onEditClick();
+                  } else {
+                    onTabChange(item.label);
+                  }
+                }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover ${
                   activeTab === item.label ? 'bg-sidebar-active' : ''
                 }`}
