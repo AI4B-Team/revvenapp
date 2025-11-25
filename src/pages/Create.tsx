@@ -409,6 +409,10 @@ const Create = () => {
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
         onCollapseChange={setIsSidebarCollapsed}
+        onEditClick={() => {
+          setIsEditMode(true);
+          setEditingImage('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1024&h=1024&fit=crop');
+        }}
       />
 
       <AIPersonaSidebar 
