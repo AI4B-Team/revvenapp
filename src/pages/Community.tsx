@@ -40,6 +40,7 @@ const Community = () => {
   const [filters, setFilters] = useState<FilterState | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'community' | 'collections'>('community');
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -313,6 +314,14 @@ const Community = () => {
     },
   ];
 
+  // Get all collections in a flat array
+  const allCollections = [
+    ...signatureStylesCollections,
+    ...locationsCollections,
+    ...seasonsCollections,
+    ...fashionCollections,
+  ];
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -347,7 +356,10 @@ const Community = () => {
                     All
                   </button>
                   <button
-                    onClick={() => setActiveTab('collections')}
+                    onClick={() => {
+                      setActiveTab('collections');
+                      setSelectedCollection(null);
+                    }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'collections'
                         ? 'bg-primary text-primary-foreground shadow-md'
@@ -369,24 +381,49 @@ const Community = () => {
             
             {activeTab === 'collections' && (
               <>
-                <CollectionsView
-                  categories={[]}
-                  popularTitle="SIGNATURE STYLES"
-                  popularSubtitle="For Overall Aesthetic Direction & Mood"
-                  popularCollections={signatureStylesCollections}
-                  recommendedTitle="LOCATIONS"
-                  recommendedSubtitle="For Where The Visuals Or Stories Take Place"
-                  recommendedCollections={locationsCollections}
-                />
-                <CollectionsView
-                  categories={[]}
-                  popularTitle="SEASONS"
-                  popularSubtitle="Perfect for lifestyle or fashion tie-ins"
-                  popularCollections={seasonsCollections}
-                  recommendedTitle="FASHION"
-                  recommendedSubtitle="To define outfit energy"
-                  recommendedCollections={fashionCollections}
-                />
+                {selectedCollection ? (
+                  // Show selected collection images
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {allCollections.find(c => c.id === selectedCollection)?.title}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {Array.from({ length: allCollections.find(c => c.id === selectedCollection)?.totalCount || 0 }).map((_, idx) => (
+                        <div key={idx} className="aspect-square rounded-xl overflow-hidden bg-muted">
+                          <img
+                            src={allCollections.find(c => c.id === selectedCollection)?.images[0]?.url}
+                            alt={`${allCollections.find(c => c.id === selectedCollection)?.title} ${idx + 1}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // Show collection cards
+                  <>
+                    <CollectionsView
+                      categories={[]}
+                      popularTitle="SIGNATURE STYLES"
+                      popularSubtitle="For Overall Aesthetic Direction & Mood"
+                      popularCollections={signatureStylesCollections}
+                      recommendedTitle="LOCATIONS"
+                      recommendedSubtitle="For Where The Visuals Or Stories Take Place"
+                      recommendedCollections={locationsCollections}
+                      onCollectionClick={setSelectedCollection}
+                    />
+                    <CollectionsView
+                      categories={[]}
+                      popularTitle="SEASONS"
+                      popularSubtitle="Perfect for lifestyle or fashion tie-ins"
+                      popularCollections={seasonsCollections}
+                      recommendedTitle="FASHION"
+                      recommendedSubtitle="To define outfit energy"
+                      recommendedCollections={fashionCollections}
+                      onCollectionClick={setSelectedCollection}
+                    />
+                  </>
+                )}
               </>
             )}
           </div>
