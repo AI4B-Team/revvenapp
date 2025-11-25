@@ -64,6 +64,19 @@ const Create = () => {
   const [isCharacterReference, setIsCharacterReference] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
+
+  // Check for image to edit from navigation state or URL params
+  useEffect(() => {
+    const state = location.state as { editImage?: string } | null;
+    const params = new URLSearchParams(location.search);
+    const imageUrl = state?.editImage || params.get('editImage');
+    
+    if (imageUrl) {
+      setIsEditMode(true);
+      setEditingImage(imageUrl);
+      setActiveTab('Image');
+    }
+  }, [location]);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
