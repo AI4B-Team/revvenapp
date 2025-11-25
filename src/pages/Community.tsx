@@ -40,6 +40,7 @@ const Community = () => {
   const [filters, setFilters] = useState<FilterState | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'community' | 'collections'>('community');
+  const [collectionsKey, setCollectionsKey] = useState(0);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -347,7 +348,10 @@ const Community = () => {
                     All
                   </button>
                   <button
-                    onClick={() => setActiveTab('collections')}
+                    onClick={() => {
+                      setActiveTab('collections');
+                      setCollectionsKey(prev => prev + 1);
+                    }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'collections'
                         ? 'bg-primary text-primary-foreground shadow-md'
@@ -370,6 +374,7 @@ const Community = () => {
             {activeTab === 'collections' && (
               <>
                 <CollectionsView
+                  key={`sig-${collectionsKey}`}
                   categories={[]}
                   popularTitle="SIGNATURE STYLES"
                   popularSubtitle="For Overall Aesthetic Direction & Mood"
@@ -379,6 +384,7 @@ const Community = () => {
                   recommendedCollections={locationsCollections}
                 />
                 <CollectionsView
+                  key={`seas-${collectionsKey}`}
                   categories={[]}
                   popularTitle="SEASONS"
                   popularSubtitle="Perfect for lifestyle or fashion tie-ins"
