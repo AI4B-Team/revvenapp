@@ -148,7 +148,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
 }) => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="py-12">
+      <div className="py-8">
         {/* Popular Collections */}
         <CollectionsSection
           title={popularSubtitle ? `${popularTitle} | ${popularSubtitle}` : popularTitle}
