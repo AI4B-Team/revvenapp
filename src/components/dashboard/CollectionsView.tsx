@@ -100,7 +100,7 @@ const CollectionsSection: React.FC<CollectionsSectionProps> = ({
   collections,
 }) => {
   return (
-    <section className="mb-16">
+    <section className="mb-20">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-foreground mb-2">
           {title} <span className="text-base font-normal text-muted-foreground">| Curated By: Vicki Ravelle</span>
@@ -155,7 +155,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
 }) => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="py-8">
+      <div className="py-8 space-y-0">
         {/* Popular Collections */}
         <CollectionsSection
           title={popularTitle}
