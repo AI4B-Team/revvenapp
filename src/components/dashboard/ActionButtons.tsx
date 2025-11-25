@@ -11,13 +11,13 @@ const ActionButtons = ({ activeView, onViewChange, hasSelectedType = false }: Ac
   // When type selected: Creations, Community, Collections, Apps
   const buttons = hasSelectedType ? [
     { view: 'creations' as const, icon: Clock, label: 'Creations' },
-    { view: 'community' as const, icon: Users, label: 'Community' },
+    { view: 'community' as const, icon: Users, label: 'All' },
     { view: 'collections' as const, icon: Folder, label: 'Collections' },
     { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
   ] : [
     { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
     { view: 'creations' as const, icon: Clock, label: 'Creations' },
-    { view: 'community' as const, icon: Users, label: 'Community' },
+    { view: 'community' as const, icon: Users, label: 'All' },
     { view: 'collections' as const, icon: Folder, label: 'Collections' },
   ];
 
