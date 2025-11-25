@@ -421,7 +421,12 @@ const ImageViewerModal = ({
 
               {/* Bottom Action Buttons */}
               <div className="p-4 flex gap-2">
-                <button className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs">
+                <button 
+                  onClick={() => {
+                    window.location.href = `/create?editImage=${encodeURIComponent(imageData.url)}`;
+                  }}
+                  className="flex-1 px-2 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-colors text-xs"
+                >
                   <Edit size={14} />
                   <span>Edit</span>
                 </button>

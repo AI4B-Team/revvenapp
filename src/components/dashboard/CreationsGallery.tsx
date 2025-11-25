@@ -374,10 +374,15 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
   };
 
   const handleEdit = (item: GalleryItem) => {
-    toast({
-      title: "Edit feature",
-      description: "Image editing will be available soon",
-    });
+    if (!item.url) {
+      toast({
+        title: "Cannot edit",
+        description: "Image URL not available",
+        variant: "destructive",
+      });
+      return;
+    }
+    window.location.href = `/create?editImage=${encodeURIComponent(item.url)}`;
   };
 
   const handleAnimate = (item: GalleryItem, type: 'video' | 'speak' | 'ugc') => {
