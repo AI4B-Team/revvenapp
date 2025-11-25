@@ -4,8 +4,10 @@ import {
   Hand, Layers, Trash2, Copy, Download, Save, Undo2, Redo2,
   Mic, Send, Upload, Sparkles, Palette, Sun, Contrast, 
   Sliders, Scissors, Move, ZoomIn, MessageSquare, Settings,
-  Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X
+  Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X, ZoomOut, Home, User
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -52,7 +54,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [showRightPanel, setShowRightPanel] = useState(true);
   
   // Right panel tabs
-  const [activeRightTab, setActiveRightTab] = useState<'adjust' | 'filters' | 'effects'>('adjust');
+  const [activeRightTab, setActiveRightTab] = useState<'adjust' | 'filters' | 'effects'>('effects');
   
   // Adjustment values
   const [adjustments, setAdjustments] = useState<Adjustments>({
@@ -64,7 +66,46 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     sharpness: 0
   });
 
+  // Zoom and pan state
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Zoom handlers
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleResetView = () => {
+    setZoom(1);
+    setPanX(0);
+    setPanY(0);
+  };
+
+  // Pan handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!selectedImage) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPanX(e.clientX - dragStart.x);
+    setPanY(e.clientY - dragStart.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,148 +184,215 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       {/* Top Toolbar */}
       <div className="h-16 border-b border-border flex items-center justify-between px-6 bg-background">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-foreground">REVVEN Edit Canvas</h1>
+          <h1 className="text-xl font-bold text-foreground">Edit Canvas</h1>
           
           {/* Undo/Redo */}
           <div className="flex items-center gap-2 ml-8">
-            <button
-              onClick={handleUndo}
-              disabled={currentHistoryIndex <= 0}
-              className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              title="Undo"
-            >
-              <Undo2 className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleRedo}
-              disabled={currentHistoryIndex >= editHistory.length - 1}
-              className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              title="Redo"
-            >
-              <Redo2 className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Quick Action Icons */}
-          <div className="flex items-center gap-1 ml-4 pl-4 border-l border-border">
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'select' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('select')}
-              title="Select"
-            >
-              <Hand className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'crop' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('crop')}
-              title="Crop"
-            >
-              <Crop className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'brush' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('brush')}
-              title="Brush"
-            >
-              <Paintbrush className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'eraser' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('eraser')}
-              title="Eraser"
-            >
-              <Eraser className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'text' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('text')}
-              title="Text"
-            >
-              <Type className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'wand' ? 'bg-primary/10 text-primary' : ''}`}
-              onClick={() => setActiveTool('wand')}
-              title="Magic Wand"
-            >
-              <Wand2 className="w-5 h-5" />
-            </button>
-            <button
-              className={`p-2 rounded-lg hover:bg-muted transition-colors`}
-              title="Layers"
-            >
-              <Layers className="w-5 h-5" />
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleUndo}
+                    disabled={currentHistoryIndex <= 0}
+                    className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Undo2 className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Undo</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleRedo}
+                    disabled={currentHistoryIndex >= editHistory.length - 1}
+                    className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Redo2 className="w-5 h-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Redo</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
+        {/* Center Quick Action Icons */}
+        <div className="flex items-center gap-1 absolute left-1/2 transform -translate-x-1/2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'select' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('select')}
+                >
+                  <Hand className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Select</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'crop' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('crop')}
+                >
+                  <Crop className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Crop</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'brush' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('brush')}
+                >
+                  <Paintbrush className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Brush</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'eraser' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('eraser')}
+                >
+                  <Eraser className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Eraser</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'text' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('text')}
+                >
+                  <Type className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Add Text</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'wand' ? 'bg-primary/10 text-primary' : ''}`}
+                  onClick={() => setActiveTool('wand')}
+                >
+                  <Wand2 className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Magic Wand</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className={`p-2 rounded-lg hover:bg-muted transition-colors`}>
+                  <Layers className="w-5 h-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Layers</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        <div></div>
+
         {/* Right side buttons */}
         <div className="flex items-center gap-2">
-          <button className="px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-          <button
-            onClick={() => selectedImage && saveToCreations(selectedImage)}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-600 transition-all flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            Save to Creations
-          </button>
-          <button
-            onClick={onClose}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X size={24} />
-          </button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Export Image</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => selectedImage && saveToCreations(selectedImage)}
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-600 transition-all flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Save To Creations
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Save To Creations</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onClose}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white">Close</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
         <div className="w-80 border-r border-border flex flex-col bg-muted/50">
-          {/* Chat Header */}
+          {/* Chat Header - Model Selector */}
           <div className="p-4 border-b border-border bg-background">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <h2 className="font-semibold text-foreground">AI Assistant</h2>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Tell me what you'd like to edit</p>
+            <Select defaultValue="nano-banana">
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="nano-banana">Nano Banana</SelectItem>
+                <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
+                <SelectItem value="flux-pro">Flux Pro</SelectItem>
+                <SelectItem value="seedream">Seedream V4</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Quick Actions */}
-          <div className="p-4 bg-background border-b border-border">
-            <div className="grid grid-cols-2 gap-2">
-              <button className="px-3 py-2 rounded-lg bg-purple-50 text-purple-700 text-sm font-medium hover:bg-purple-100 transition-colors flex items-center gap-2">
-                <ImageIcon className="w-4 h-4" />
-                Change image
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-orange-50 text-orange-700 text-sm font-medium hover:bg-orange-100 transition-colors flex items-center gap-2">
-                <Palette className="w-4 h-4" />
-                Change colors
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors flex items-center gap-2">
-                <Type className="w-4 h-4" />
-                Change text
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 transition-colors flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Change caption
-              </button>
+          {/* Cora Profile */}
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 mb-4 flex items-center justify-center">
+              <User className="h-12 w-12 text-white" />
+            </div>
+            <h4 className="font-semibold text-foreground text-lg mb-1">Cora</h4>
+            <p className="text-sm text-muted-foreground mb-6">Designer</p>
+            <div className="space-y-2">
+              <p className="text-base font-medium text-foreground">Start A Conversation</p>
+              <p className="text-sm text-muted-foreground">I'll Help Edit Your Image</p>
             </div>
           </div>
 
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {chatMessages.length === 0 ? (
-              <div className="text-center text-muted-foreground mt-8">
-                <Sparkles className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Start a conversation</p>
-                <p className="text-xs mt-1">Ask me to edit your image</p>
-              </div>
-            ) : (
-              chatMessages.map((message) => (
+          {/* Chat Messages (will appear when conversation starts) */}
+          {chatMessages.length > 0 && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {chatMessages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -299,9 +407,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     <p className="text-sm">{message.text}</p>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Chat Input */}
           <div className="p-4 bg-background border-t border-border">
@@ -311,49 +419,123 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask AI to edit something..."
+                placeholder="Ask Cora To Edit Something..."
                 className="flex-1 outline-none text-sm bg-transparent"
               />
-              <button
-                onClick={toggleRecording}
-                className={`p-2 rounded-lg transition-colors ${
-                  isRecording ? 'bg-red-100 text-red-600' : 'hover:bg-muted'
-                }`}
-              >
-                <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
-              </button>
-              <button
-                onClick={handleSendMessage}
-                disabled={!chatInput.trim()}
-                className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={toggleRecording}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isRecording ? 'bg-red-100 text-red-600' : 'hover:bg-muted'
+                      }`}
+                    >
+                      <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-black text-white">Voice Input</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!chatInput.trim()}
+                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-black text-white">Send Message</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
 
         {/* Center Canvas */}
-        <div className="flex-1 flex flex-col bg-muted/30">
-          <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
+          <div 
+            className="flex-1 flex items-center justify-center p-8 relative overflow-hidden"
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
             {selectedImage ? (
-              <div className="relative bg-background rounded-lg shadow-lg max-w-full max-h-full">
-                <img
-                  src={selectedImage.url}
-                  alt="Editing canvas"
-                  className="max-w-full max-h-full object-contain rounded-lg"
-                />
-              </div>
+              <>
+                <div 
+                  className="relative cursor-move select-none"
+                  style={{
+                    transform: `scale(${zoom}) translate(${panX}px, ${panY}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                    maxWidth: '500px',
+                    maxHeight: '400px'
+                  }}
+                  onMouseDown={handleMouseDown}
+                >
+                  <img
+                    src={selectedImage.url}
+                    alt="Editing canvas"
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                    draggable={false}
+                  />
+                </div>
+                
+                {/* Zoom Controls */}
+                <div className="absolute bottom-4 right-4 flex gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleZoomIn}
+                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
+                        >
+                          <ZoomIn className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white">Zoom In</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleZoomOut}
+                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
+                        >
+                          <ZoomOut className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white">Zoom Out</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleResetView}
+                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
+                        >
+                          <Home className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white">Reset View</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </>
             ) : (
               <div className="text-center">
                 <div className="w-32 h-32 mx-auto mb-6 bg-muted rounded-2xl flex items-center justify-center">
                   <ImageIcon className="w-16 h-16 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Start by adding an image
+                  Start By Adding An Image
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Upload an image or select from your history
+                  Upload An Image Or Select From Your History
                 </p>
                 <div className="flex items-center gap-3 justify-center">
                   <button
@@ -364,7 +546,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     Upload Image
                   </button>
                   <button className="px-6 py-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                    Select from History
+                    Select From History
                   </button>
                 </div>
                 <input
@@ -385,6 +567,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             {/* Tabs */}
             <div className="flex border-b border-border">
               <button
+                onClick={() => setActiveRightTab('effects')}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                  activeRightTab === 'effects'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Effects
+              </button>
+              <button
                 onClick={() => setActiveRightTab('adjust')}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   activeRightTab === 'adjust'
@@ -403,16 +595,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 }`}
               >
                 Filters
-              </button>
-              <button
-                onClick={() => setActiveRightTab('effects')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeRightTab === 'effects'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Effects
               </button>
             </div>
 
@@ -560,9 +742,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         )}
       </div>
+      </div>
 
-      {/* Bottom History Panel */}
-      <div className="h-32 border-t border-border bg-background">
+      {/* Bottom History Panel - Fixed at bottom, always visible */}
+      <div className="h-40 border-t border-border bg-background flex-shrink-0">
         <div className="h-full flex items-center gap-3 px-6 overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
             <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
