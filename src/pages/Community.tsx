@@ -344,7 +344,7 @@ const Community = () => {
                     }`}
                   >
                     <Users className="w-4 h-4" />
-                    Community
+                    All
                   </button>
                   <button
                     onClick={() => setActiveTab('collections')}
