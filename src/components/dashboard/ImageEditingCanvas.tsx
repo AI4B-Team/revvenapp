@@ -4,7 +4,7 @@ import {
   Hand, Layers, Trash2, Copy, Download, Save, Undo2, Redo2,
   Mic, Send, Upload, Sparkles, Palette, Sun, Contrast, 
   Sliders, Scissors, Move, ZoomIn, MessageSquare, Settings,
-  Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X, ZoomOut, Home, User
+  Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X, ZoomOut, Home, User, ChevronLeft, ChevronRight, Plus
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -72,6 +72,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [panY, setPanY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -360,9 +361,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
+        {!isChatMinimized && (
         <div className="w-80 border-r border-border flex flex-col bg-muted/50">
-          {/* Chat Header - Model Selector */}
-          <div className="p-4 border-b border-border bg-background">
+          {/* Chat Header - Model Selector with Minimize Button */}
+          <div className="p-4 border-b border-border bg-background flex items-center gap-2">
             <Select defaultValue="nano-banana">
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -374,6 +376,19 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 <SelectItem value="seedream">Seedream V4</SelectItem>
               </SelectContent>
             </Select>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setIsChatMinimized(true)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors shrink-0"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Minimize Chat</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Cora Profile */}
@@ -454,6 +469,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
         </div>
+        )}
+
+        {/* Minimized Chat Toggle Button */}
+        {isChatMinimized && (
+          <div className="w-12 border-r border-border flex items-start justify-center pt-4 bg-muted/50">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setIsChatMinimized(false)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Show Chat</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
 
         {/* Center Canvas */}
         <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
@@ -744,20 +779,41 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
       </div>
 
-      {/* Bottom History Panel - Fixed at bottom, always visible */}
-      <div className="h-40 border-t border-border bg-background flex-shrink-0">
-        <div className="h-full flex items-center gap-3 px-6 overflow-x-auto">
+      {/* Bottom History Panel - Fixed at bottom, always visible, positioned to right of chat */}
+      <div className="h-32 border-t border-border bg-background flex-shrink-0 flex">
+        {/* Spacer for chat panel */}
+        <div className={`${isChatMinimized ? 'w-12' : 'w-80'} border-r border-border flex-shrink-0`}></div>
+        
+        {/* History Content */}
+        <div className="flex-1 flex items-center gap-3 px-6 overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
             <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
           </div>
           
-          {editHistory.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-sm text-muted-foreground">No edits yet</p>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              {editHistory.map((item, index) => (
+          <div className="flex items-center gap-3">
+            {/* New Image Button */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-1"
+                  >
+                    <Plus className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-[10px] font-medium text-muted-foreground">New Image</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Upload New Image</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            {/* History thumbnails */}
+            {editHistory.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">No edits yet</p>
+              </div>
+            ) : (
+              editHistory.map((item, index) => (
                 <div
                   key={item.id}
                   className={`relative group cursor-pointer ${
@@ -792,9 +848,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
