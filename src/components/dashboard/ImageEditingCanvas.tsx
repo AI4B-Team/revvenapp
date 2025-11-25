@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import ReferencesModal from './ReferencesModal';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -74,7 +73,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isChatMinimized, setIsChatMinimized] = useState(false);
-  const [isReferencesModalOpen, setIsReferencesModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -183,9 +181,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background relative overflow-hidden">
+    <div className="h-screen flex flex-col bg-background relative">
       {/* Top Toolbar */}
-      <div className="h-14 border-b border-border flex items-center justify-between px-6 bg-background">
+      <div className="h-16 border-b border-border flex items-center justify-between px-6 bg-background">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-foreground">Edit Canvas</h1>
           
@@ -360,40 +358,37 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
 
       {/* Main Content Area - add bottom padding to account for Edit History */}
-      <div className="flex-1 flex overflow-hidden pb-24">
+      <div className="flex-1 flex overflow-hidden pb-32">
         <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
         {!isChatMinimized && (
-        <div className="w-96 border-r-2 border-gray-400 flex flex-col bg-muted/50">
-          {/* Chat Header */}
-          <div className="p-3 border-b border-border bg-background flex items-center justify-between">
-            <h3 className="text-base font-medium text-muted-foreground">Edit Visuals</h3>
-            <div className="flex items-center gap-2">
-              <Select defaultValue="nano-banana">
-                <SelectTrigger className="w-32 h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="nano-banana">Nano Banana</SelectItem>
-                  <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
-                  <SelectItem value="flux-pro">Flux Pro</SelectItem>
-                  <SelectItem value="seedream">Seedream V4</SelectItem>
-                </SelectContent>
-              </Select>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setIsChatMinimized(true)}
-                      className="p-1.5 rounded-lg hover:bg-muted transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-black text-white">Minimize Chat</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+        <div className="w-80 border-r-2 border-gray-400 flex flex-col bg-muted/50">
+          {/* Chat Header - Model Selector with Minimize Button */}
+          <div className="p-4 border-b border-border bg-background flex items-center gap-2">
+            <Select defaultValue="nano-banana">
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="nano-banana">Nano Banana</SelectItem>
+                <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
+                <SelectItem value="flux-pro">Flux Pro</SelectItem>
+                <SelectItem value="seedream">Seedream V4</SelectItem>
+              </SelectContent>
+            </Select>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setIsChatMinimized(true)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors shrink-0"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-black text-white">Minimize Chat</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Chat Messages or Cora Profile */}
@@ -433,24 +428,23 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
 
           {/* Chat Input */}
-          <div className="p-3 bg-background border-t border-border">
-            <div className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-full focus-within:border-primary transition-colors bg-background">
-              <Plus className="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+          <div className="p-4 bg-background border-t border-border">
+            <div className="flex items-center gap-2 p-2 border border-border rounded-lg focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Type your message..."
-                className="flex-1 outline-none text-sm bg-transparent placeholder:text-muted-foreground"
+                placeholder="Ask Cora To Edit Something..."
+                className="flex-1 outline-none text-sm bg-transparent"
               />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={toggleRecording}
-                      className={`transition-colors ${
-                        isRecording ? 'text-red-600' : 'text-muted-foreground hover:text-foreground'
+                      className={`p-2 rounded-lg transition-colors ${
+                        isRecording ? 'bg-red-100 text-red-600' : 'hover:bg-muted'
                       }`}
                     >
                       <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
@@ -465,9 +459,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     <button
                       onClick={handleSendMessage}
                       disabled={!chatInput.trim()}
-                      className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
-                      <Send className="w-3.5 h-3.5" />
+                      <Send className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-black text-white">Send Message</TooltipContent>
@@ -786,10 +780,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
       </div>
 
-      {/* Bottom History Panel - Full width */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 border-t border-border bg-background">
+      {/* Bottom History Panel - Fixed at bottom right, aligned with chat */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 border-t border-border bg-background flex">
+        {/* Spacer matching chat panel width */}
+        <div className={`${isChatMinimized ? 'w-12' : 'w-80'} border-r-2 border-gray-400 flex-shrink-0 bg-muted/50`}></div>
+        
         {/* History Content */}
-        <div className="flex items-center gap-3 px-6 overflow-x-auto h-full">
+        <div className="flex-1 flex items-center gap-3 px-6 overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
             <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
           </div>
@@ -800,14 +797,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={() => setIsReferencesModalOpen(true)}
-                    className="w-16 h-16 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-1"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-1"
                   >
                     <Plus className="w-5 h-5 text-muted-foreground" />
                     <span className="text-[10px] font-medium text-muted-foreground">New Image</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Add New Image</TooltipContent>
+                <TooltipContent className="bg-black text-white">Upload New Image</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             
@@ -828,7 +825,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     setSelectedImage(item);
                   }}
                 >
-                  <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden">
+                  <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden">
                     <img
                       src={item.url}
                       alt={`History ${index}`}
@@ -857,24 +854,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         </div>
       </div>
-
-      {/* References Modal */}
-      <ReferencesModal
-        isOpen={isReferencesModalOpen}
-        onClose={() => setIsReferencesModalOpen(false)}
-        onSelectReference={(reference) => {
-          const newImage: ImageData = {
-            id: Date.now(),
-            url: reference.url,
-            name: reference.name || 'reference',
-            timestamp: new Date().toISOString()
-          };
-          setSelectedImage(newImage);
-          setEditHistory([...editHistory, newImage]);
-          setCurrentHistoryIndex(editHistory.length);
-          setIsReferencesModalOpen(false);
-        }}
-      />
     </div>
   );
 };

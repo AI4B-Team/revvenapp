@@ -40,7 +40,6 @@ const Community = () => {
   const [filters, setFilters] = useState<FilterState | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'community' | 'collections'>('community');
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -314,14 +313,6 @@ const Community = () => {
     },
   ];
 
-  // Get all collections in a flat array
-  const allCollections = [
-    ...signatureStylesCollections,
-    ...locationsCollections,
-    ...seasonsCollections,
-    ...fashionCollections,
-  ];
-
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -356,10 +347,7 @@ const Community = () => {
                     All
                   </button>
                   <button
-                    onClick={() => {
-                      setActiveTab('collections');
-                      setSelectedCollection(null);
-                    }}
+                    onClick={() => setActiveTab('collections')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
                       activeTab === 'collections'
                         ? 'bg-primary text-primary-foreground shadow-md'
@@ -381,39 +369,24 @@ const Community = () => {
             
             {activeTab === 'collections' && (
               <>
-                {selectedCollection ? (
-                  // Show selected collection images with gallery functionality
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold text-foreground mb-6">
-                      {allCollections.find(c => c.id === selectedCollection)?.title}
-                    </h2>
-                    <CreationsGallery type="community" columnsPerRow={zoomLevel} filters={filters} />
-                  </div>
-                ) : (
-                  // Show collection cards
-                  <>
-                    <CollectionsView
-                      categories={[]}
-                      popularTitle="SIGNATURE STYLES"
-                      popularSubtitle="For Overall Aesthetic Direction & Mood"
-                      popularCollections={signatureStylesCollections}
-                      recommendedTitle="LOCATIONS"
-                      recommendedSubtitle="For Where The Visuals Or Stories Take Place"
-                      recommendedCollections={locationsCollections}
-                      onCollectionClick={setSelectedCollection}
-                    />
-                    <CollectionsView
-                      categories={[]}
-                      popularTitle="SEASONS"
-                      popularSubtitle="Perfect for lifestyle or fashion tie-ins"
-                      popularCollections={seasonsCollections}
-                      recommendedTitle="FASHION"
-                      recommendedSubtitle="To define outfit energy"
-                      recommendedCollections={fashionCollections}
-                      onCollectionClick={setSelectedCollection}
-                    />
-                  </>
-                )}
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SIGNATURE STYLES"
+                  popularSubtitle="For Overall Aesthetic Direction & Mood"
+                  popularCollections={signatureStylesCollections}
+                  recommendedTitle="LOCATIONS"
+                  recommendedSubtitle="For Where The Visuals Or Stories Take Place"
+                  recommendedCollections={locationsCollections}
+                />
+                <CollectionsView
+                  categories={[]}
+                  popularTitle="SEASONS"
+                  popularSubtitle="Perfect for lifestyle or fashion tie-ins"
+                  popularCollections={seasonsCollections}
+                  recommendedTitle="FASHION"
+                  recommendedSubtitle="To define outfit energy"
+                  recommendedCollections={fashionCollections}
+                />
               </>
             )}
           </div>

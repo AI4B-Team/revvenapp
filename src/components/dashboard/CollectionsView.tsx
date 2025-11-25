@@ -30,7 +30,6 @@ interface CollectionsSectionProps {
   title: string;
   subtitle?: string;
   collections: Collection[];
-  onCollectionClick?: (collectionId: string) => void;
 }
 
 interface CollectionsPageProps {
@@ -41,16 +40,15 @@ interface CollectionsPageProps {
   popularSubtitle?: string;
   recommendedTitle?: string;
   recommendedSubtitle?: string;
-  onCollectionClick?: (collectionId: string) => void;
 }
 
 // Collection Card Component
-const CollectionCard: React.FC<{ collection: Collection; onClick?: () => void }> = ({ collection, onClick }) => {
+const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) => {
   const displayImages = collection.images.slice(0, 4);
   const remainingCount = collection.totalCount - displayImages.length;
 
   return (
-    <div className="group cursor-pointer" onClick={onClick}>
+    <div className="group cursor-pointer">
       {/* Card Container */}
       <div className="space-y-2">
         {/* Main Image */}
@@ -100,7 +98,6 @@ const CollectionsSection: React.FC<CollectionsSectionProps> = ({
   title,
   subtitle,
   collections,
-  onCollectionClick,
 }) => {
   return (
     <section className="mb-20">
@@ -114,11 +111,7 @@ const CollectionsSection: React.FC<CollectionsSectionProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {collections.map((collection) => (
-          <CollectionCard 
-            key={collection.id} 
-            collection={collection} 
-            onClick={() => onCollectionClick?.(collection.id)}
-          />
+          <CollectionCard key={collection.id} collection={collection} />
         ))}
       </div>
     </section>
@@ -159,7 +152,6 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
   popularSubtitle = "",
   recommendedTitle = "Recommended For You",
   recommendedSubtitle = "",
-  onCollectionClick,
 }) => {
   return (
     <div className="min-h-screen bg-background">
@@ -169,7 +161,6 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
           title={popularTitle}
           subtitle={popularSubtitle}
           collections={popularCollections}
-          onCollectionClick={onCollectionClick}
         />
 
         {/* Recommended Collections */}
@@ -177,7 +168,6 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
           title={recommendedTitle}
           subtitle={recommendedSubtitle}
           collections={recommendedCollections}
-          onCollectionClick={onCollectionClick}
         />
       </div>
 
