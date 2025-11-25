@@ -4,6 +4,7 @@ import {
   Share2, X, Copy, Check, Image as ImageIcon, Trash2,
   Video, Film, Mic, Users
 } from 'lucide-react';
+import ImageViewerModal from './ImageViewerModal';
 import {
   Tooltip,
   TooltipContent,
@@ -113,7 +114,7 @@ const CollectionCard: React.FC<{ collection: Collection; onClick: () => void }> 
 };
 
 // Gallery Image Card Component with Icon Overlays
-const GalleryImageCard: React.FC<{ image: CollectionImage; columnsPerRow: number }> = ({ image, columnsPerRow }) => {
+const GalleryImageCard: React.FC<{ image: CollectionImage; columnsPerRow: number; onClick: () => void }> = ({ image, columnsPerRow, onClick }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -199,7 +200,7 @@ const GalleryImageCard: React.FC<{ image: CollectionImage; columnsPerRow: number
     <>
       <div className="relative group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
         {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden cursor-pointer">
+        <div className="relative aspect-[4/3] overflow-hidden cursor-pointer" onClick={onClick}>
           <img
             src={image.url}
             alt={image.alt}
@@ -541,9 +542,43 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
   recommendedSubtitle = "",
 }) => {
   const [expandedCollection, setExpandedCollection] = useState<Collection | null>(null);
+  const [selectedImage, setSelectedImage] = useState<any>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const getGridCols = () => {
     return 'lg:grid-cols-4';
+  };
+
+  const handleImageClick = (image: CollectionImage, index: number) => {
+    setCurrentImageIndex(index);
+    setSelectedImage({
+      id: `${expandedCollection?.id}-${index}`,
+      type: 'image' as const,
+      thumbnail: image.url,
+      url: image.url,
+      title: image.alt || 'Collection Image',
+      creator: {
+        name: 'Vicki Ravelle',
+        avatar: '/placeholder.svg'
+      },
+      prompt: 'A stunning AI-generated creation from the curated collections showcasing beautiful composition and artistic vision.',
+      aspectRatio: '16:9',
+      model: 'Nano Banana',
+      timestamp: '2 weeks ago',
+      resolution: '1344x768 px'
+    });
+  };
+
+  const handlePreviousImage = () => {
+    if (!expandedCollection) return;
+    const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : expandedCollection.images.length - 1;
+    handleImageClick(expandedCollection.images[newIndex], newIndex);
+  };
+
+  const handleNextImage = () => {
+    if (!expandedCollection) return;
+    const newIndex = currentImageIndex < expandedCollection.images.length - 1 ? currentImageIndex + 1 : 0;
+    handleImageClick(expandedCollection.images[newIndex], newIndex);
   };
 
   if (expandedCollection) {
@@ -566,10 +601,26 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
                 key={index} 
                 image={image} 
                 columnsPerRow={4}
+                onClick={() => handleImageClick(image, index)}
               />
             ))}
           </div>
         </div>
+
+        {/* Image Viewer Modal */}
+        {selectedImage && (
+          <ImageViewerModal
+            image={selectedImage}
+            onClose={() => setSelectedImage(null)}
+            onPrevious={handlePreviousImage}
+            onNext={handleNextImage}
+            isLiked={false}
+            isSaved={false}
+            onToggleLike={() => {}}
+            onToggleSave={() => {}}
+            onAnimate={() => {}}
+          />
+        )}
       </div>
     );
   }
