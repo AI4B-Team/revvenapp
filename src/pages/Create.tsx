@@ -13,6 +13,7 @@ import ReferencesModal from '@/components/dashboard/ReferencesModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
+import CollectionsView from '@/components/dashboard/CollectionsView';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -504,6 +505,82 @@ const Create = () => {
                   filters={filters}
                 />
               </div>
+            )}
+
+            {activeView === 'collections' && (
+              <CollectionsView
+                categories={['All Content', 'AI Images', 'AI Videos', 'Marketing', 'Social Media', 'Product Photos']}
+                popularCollections={[
+                  {
+                    id: '1',
+                    title: 'AI Product Photography',
+                    totalCount: 127,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800', alt: 'Product 1' },
+                      { url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', alt: 'Product 2' },
+                      { url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400', alt: 'Product 3' },
+                      { url: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?w=400', alt: 'Product 4' },
+                    ],
+                  },
+                  {
+                    id: '2',
+                    title: 'Social Media Content',
+                    totalCount: 89,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800', alt: 'Social 1' },
+                      { url: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400', alt: 'Social 2' },
+                      { url: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400', alt: 'Social 3' },
+                      { url: 'https://images.unsplash.com/photo-1611162618479-ee3d24aaef0b?w=400', alt: 'Social 4' },
+                    ],
+                  },
+                  {
+                    id: '3',
+                    title: 'Marketing Visuals',
+                    totalCount: 64,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800', alt: 'Marketing 1' },
+                      { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400', alt: 'Marketing 2' },
+                      { url: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400', alt: 'Marketing 3' },
+                      { url: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400', alt: 'Marketing 4' },
+                    ],
+                  },
+                ]}
+                recommendedCollections={[
+                  {
+                    id: '4',
+                    title: 'Video Content Library',
+                    totalCount: 52,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800', alt: 'Video 1' },
+                      { url: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400', alt: 'Video 2' },
+                      { url: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400', alt: 'Video 3' },
+                      { url: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400', alt: 'Video 4' },
+                    ],
+                  },
+                  {
+                    id: '5',
+                    title: 'Digital Avatars',
+                    totalCount: 38,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800', alt: 'Avatar 1' },
+                      { url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400', alt: 'Avatar 2' },
+                      { url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', alt: 'Avatar 3' },
+                      { url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', alt: 'Avatar 4' },
+                    ],
+                  },
+                  {
+                    id: '6',
+                    title: 'Campaign Templates',
+                    totalCount: 71,
+                    images: [
+                      { url: 'https://images.unsplash.com/photo-1634942537034-2531766767d1?w=800', alt: 'Template 1' },
+                      { url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400', alt: 'Template 2' },
+                      { url: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?w=400', alt: 'Template 3' },
+                      { url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400', alt: 'Template 4' },
+                    ],
+                  },
+                ]}
+              />
             )}
             
             {/* Tools View */}
