@@ -3,6 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import dolmarImage from '@/assets/agents/dolmar.png';
+import keishaImage from '@/assets/agents/keisha.png';
+import francisImage from '@/assets/agents/francis.png';
+import richImage from '@/assets/agents/rich.png';
+import brianImage from '@/assets/agents/brian.png';
+import damoiImage from '@/assets/agents/damoi.png';
 
 // Progress sidebar component
 const SignupProgress = ({ currentStep }: { currentStep: number }) => {
@@ -95,7 +101,8 @@ export default function SignupFlow() {
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center bg-white p-8">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-6xl"
+>
           {/* Step 2: Workspace Setup */}
           {currentStep === 2 && (
             <div>
@@ -238,49 +245,60 @@ export default function SignupFlow() {
 
           {/* Step 5: Meet Dolmar & Keisha */}
           {currentStep === 5 && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Meet Dolmar & Keisha
-              </h1>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
-                Your Content Creation Engine
-              </h2>
-
-              <div className="space-y-6 mb-8">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-3">What They Solve:</h2>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Dolmar</strong> creates your visual identity — Generates branded graphics, videos, and your AI Avatar that posts in your voice
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Keisha</strong> writes everything — Converts your ideas into viral posts, sales pages, emails, and digital products in minutes
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded-r-lg">
-                  <p className="text-gray-800 font-semibold">
-                    Their Promise:
-                  </p>
-                  <p className="text-gray-800 italic">
-                    "We'll turn your scattered ideas into 30 days of branded content before you finish your coffee."
-                  </p>
+            <div className="flex gap-8 items-start max-w-5xl">
+              {/* Agent Images */}
+              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-blue-100 to-yellow-100 rounded-2xl overflow-hidden flex items-end justify-center p-6">
+                <div className="flex gap-4">
+                  <img src={keishaImage} alt="Keisha" className="w-48 h-auto object-contain" />
+                  <img src={dolmarImage} alt="Dolmar" className="w-48 h-auto object-contain" />
                 </div>
               </div>
 
-              <Button
-                onClick={() => setCurrentStep(6)}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-12"
-              >
-                That Sounds Perfect! Continue
-              </Button>
+              {/* Content */}
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  Meet Dolmar & Keisha
+                </h1>
+                <h2 className="text-xl text-gray-600 mb-8">
+                  Your Content Creation Engine
+                </h2>
+
+                <div className="space-y-6 mb-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Dolmar</strong> creates your visual identity — Generates branded graphics, videos, and your AI Avatar that posts in your voice
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Keisha</strong> writes everything — Converts your ideas into viral posts, sales pages, emails, and digital products in minutes
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
+                    <p className="text-gray-900 font-semibold mb-2">
+                      Their Promise:
+                    </p>
+                    <p className="text-gray-700 italic">
+                      "We'll turn your scattered ideas into 30 days of branded content before you finish your coffee."
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setCurrentStep(6)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
+                >
+                  That Sounds Perfect! Continue
+                </Button>
+              </div>
             </div>
           )}
 
@@ -315,49 +333,60 @@ export default function SignupFlow() {
 
           {/* Step 7: Meet Francis & Rich */}
           {currentStep === 7 && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Meet Francis & Rich
-              </h1>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
-                Your Revenue Growth Team
-              </h2>
-
-              <div className="space-y-6 mb-8">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-3">What They Solve:</h2>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Francis</strong> builds your marketing engine — Crafts offers, builds funnels, and launches marketing campaigns that brings qualified buyers to you
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Rich</strong> turns interest into income — Automates follow-ups, writes conversion-focused sales scripts, and closes deals 24/7
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded-r-lg">
-                  <p className="text-gray-800 font-semibold">
-                    Their Promise:
-                  </p>
-                  <p className="text-gray-800 italic">
-                    "We'll fill your calendar with ready-to-buy leads and convert them while you sleep."
-                  </p>
+            <div className="flex gap-8 items-start max-w-5xl">
+              {/* Agent Images */}
+              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-blue-100 to-gray-200 rounded-2xl overflow-hidden flex items-end justify-center p-6">
+                <div className="flex gap-4">
+                  <img src={francisImage} alt="Francis" className="w-48 h-auto object-contain" />
+                  <img src={richImage} alt="Rich" className="w-48 h-auto object-contain" />
                 </div>
               </div>
 
-              <Button
-                onClick={() => setCurrentStep(8)}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-12"
-              >
-                YES, I Need This! Continue
-              </Button>
+              {/* Content */}
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  Meet Francis & Rich
+                </h1>
+                <h2 className="text-xl text-gray-600 mb-8">
+                  Your Revenue Growth Team
+                </h2>
+
+                <div className="space-y-6 mb-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Francis</strong> builds your marketing engine — Crafts offers, builds funnels, and launches marketing campaigns that brings qualified buyers to you
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Rich</strong> turns interest into income — Automates follow-ups, writes conversion-focused sales scripts, and closes deals 24/7
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
+                    <p className="text-gray-900 font-semibold mb-2">
+                      Their Promise:
+                    </p>
+                    <p className="text-gray-700 italic">
+                      "We'll fill your calendar with ready-to-buy leads and convert them while you sleep."
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setCurrentStep(8)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
+                >
+                  YES, I Need This! Continue
+                </Button>
+              </div>
             </div>
           )}
 
@@ -392,49 +421,60 @@ export default function SignupFlow() {
 
           {/* Step 9: Meet Brian & Damoi */}
           {currentStep === 9 && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Meet Brian & Damoi
-              </h1>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-6">
-                Your Business Automation Team
-              </h2>
-
-              <div className="space-y-6 mb-8">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-3">What They Solve:</h2>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Brian</strong> builds your automated systems — Connects your tools, creates automated workflows, and makes everything run on autopilot
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-1 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">
-                        <strong>Damoi</strong> organizes and executes — Manages projects, keeps everything on track, and scales operations without the overwhelm
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded-r-lg">
-                  <p className="text-gray-800 font-semibold">
-                    Their Promise:
-                  </p>
-                  <p className="text-gray-800 italic">
-                    "We'll eliminate 80% of your busywork and give you back 20+ hours per week."
-                  </p>
+            <div className="flex gap-8 items-start max-w-5xl">
+              {/* Agent Images */}
+              <div className="flex-shrink-0 w-[400px] h-[500px] bg-gradient-to-br from-slate-800 to-blue-900 rounded-2xl overflow-hidden flex items-end justify-center p-6">
+                <div className="flex gap-4">
+                  <img src={brianImage} alt="Brian" className="w-48 h-auto object-contain" />
+                  <img src={damoiImage} alt="Damoi" className="w-48 h-auto object-contain" />
                 </div>
               </div>
 
-              <Button
-                onClick={() => setCurrentStep(10)}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-12"
-              >
-                Sign Me Up! Continue
-              </Button>
+              {/* Content */}
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  Meet Brian & Damoi
+                </h1>
+                <h2 className="text-xl text-gray-600 mb-8">
+                  Your Business Automation Team
+                </h2>
+
+                <div className="space-y-6 mb-8">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">What They Solve:</h3>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Brian</strong> builds your automated systems — Connects your tools, creates automated workflows, and makes everything run on autopilot
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          <strong>Damoi</strong> organizes and executes — Manages projects, keeps everything on track, and scales operations without the overwhelm
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-green-50 border-l-4 border-green-600 p-6 rounded">
+                    <p className="text-gray-900 font-semibold mb-2">
+                      Their Promise:
+                    </p>
+                    <p className="text-gray-700 italic">
+                      "We'll eliminate 80% of your busywork and give you back 20+ hours per week."
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setCurrentStep(10)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-14 text-lg font-semibold"
+                >
+                  Sign Me Up! Continue
+                </Button>
+              </div>
             </div>
           )}
 
