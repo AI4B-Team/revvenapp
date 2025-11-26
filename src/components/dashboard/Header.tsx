@@ -1,7 +1,6 @@
 import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift, Settings } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import * as React from 'react';
-import { NavLink } from '@/components/NavLink';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,7 +59,29 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isRewardsModalOpen, setIsRewardsModalOpen] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Helper function to check if a top menu item should be active
+  const isMenuActive = (menuType: 'create' | 'monetize' | 'automate') => {
+    const path = location.pathname;
+    
+    if (menuType === 'create') {
+      return path === '/create' || path.startsWith('/create/');
+    }
+    
+    if (menuType === 'monetize') {
+      const monetizePaths = ['/products', '/websites', '/funnels', '/store', '/marketing', '/revenue', '/contacts', '/monetize'];
+      return monetizePaths.some(p => path === p || path.startsWith(p + '/'));
+    }
+    
+    if (menuType === 'automate') {
+      const automatePaths = ['/apps', '/automate', '/templates'];
+      return automatePaths.some(p => path === p || path.startsWith(p + '/'));
+    }
+    
+    return false;
+  };
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -136,17 +157,32 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       
       <div className="flex items-center gap-8">
         <nav className="flex items-center gap-8">
-          <NavLink to="/create" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
+          <Link 
+            to="/create" 
+            className={`font-medium hover:text-foreground transition ${
+              isMenuActive('create') ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
             Create
-          </NavLink>
+          </Link>
           <span className="text-muted">|</span>
-          <NavLink to="/products" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
+          <Link 
+            to="/products" 
+            className={`font-medium hover:text-foreground transition ${
+              isMenuActive('monetize') ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
             Monetize
-          </NavLink>
+          </Link>
           <span className="text-muted">|</span>
-          <NavLink to="/apps" className="text-muted-foreground font-medium hover:text-foreground transition" activeClassName="text-foreground">
+          <Link 
+            to="/apps" 
+            className={`font-medium hover:text-foreground transition ${
+              isMenuActive('automate') ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
             Automate
-          </NavLink>
+          </Link>
         </nav>
       </div>
 
