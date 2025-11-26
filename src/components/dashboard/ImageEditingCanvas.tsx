@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { 
   Wand2, Image as ImageIcon, Type, Crop, Paintbrush, Eraser, 
   Hand, Layers, Trash2, Copy, Download, Save, Undo2, Redo2,
-  Mic, ArrowUp, Upload, Sparkles, Palette, Sun, Contrast, 
+  Mic, Send, Upload, Sparkles, Palette, Sun, Contrast, 
   Sliders, Scissors, Move, ZoomIn, MessageSquare, Settings,
   Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X, ZoomOut, Home, User, ChevronLeft, ChevronRight, Plus
 } from 'lucide-react';
@@ -40,26 +40,6 @@ interface Adjustments {
 }
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
-  // Sample stock images for edit history
-  const stockImages = [
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400",
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
-    "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=400",
-    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400",
-    "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?w=400",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
-    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
-    "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=400",
-    "https://images.unsplash.com/photo-1474176857210-7287d38d27c6?w=400",
-    "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400",
-  ];
-
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(
     image ? { id: Date.now(), url: image, name: 'image', timestamp: new Date().toISOString() } : null
   );
@@ -497,9 +477,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                     <button
                       onClick={handleSendMessage}
                       disabled={!chatInput.trim()}
-                      className="p-2 rounded-lg bg-green-500 text-white hover:bg-green-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
-                      <ArrowUp className="w-4 h-4" />
+                      <Send className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-black text-white">Send Message</TooltipContent>
@@ -819,9 +799,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
 
       {/* Bottom History Panel - Extends full width under chat */}
-      <div className="absolute bottom 0 left-0 right-0 h-28 border-t-2 border-border bg-background">
+      <div className="absolute bottom-0 left-0 right-0 h-28 border-t border-border bg-background">
         {/* History Content */}
-        <div className="flex items-center gap-3 px-6 h-full overflow-x-auto border-2 border-border/60">
+        <div className="flex items-center gap-3 px-6 h-full overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
             <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
           </div>
@@ -843,32 +823,49 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </Tooltip>
             </TooltipProvider>
             
-            {/* History thumbnails - Show stock images */}
-            {stockImages.map((imageUrl, index) => (
-              <div
-                key={index}
-                className="relative group cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-                onClick={() => {
-                  const newImage: ImageData = {
-                    id: Date.now() + index,
-                    url: imageUrl,
-                    name: `Stock Image ${index + 1}`,
-                    timestamp: new Date().toISOString()
-                  };
-                  setSelectedImage(newImage);
-                  setEditHistory([...editHistory, newImage]);
-                  setCurrentHistoryIndex(editHistory.length);
-                }}
-              >
-                <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden">
-                  <img
-                    src={imageUrl}
-                    alt={`Stock ${index}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+            {/* History thumbnails */}
+            {editHistory.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">No edits yet</p>
               </div>
-            ))}
+            ) : (
+              editHistory.map((item, index) => (
+                <div
+                  key={item.id}
+                  className={`relative group cursor-pointer ${
+                    index === currentHistoryIndex ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => {
+                    setCurrentHistoryIndex(index);
+                    setSelectedImage(item);
+                  }}
+                >
+                  <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden">
+                    <img
+                      src={item.url}
+                      alt={`History ${index}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  {index === 0 && (
+                    <div className="absolute top-1 left-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">
+                      Original
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        saveToCreations(item);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-background rounded-lg shadow-lg"
+                    >
+                      <Star className="w-4 h-4 text-yellow-500" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
