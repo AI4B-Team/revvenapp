@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ReferencesModal from './ReferencesModal';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -73,6 +74,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isReferencesModalOpen, setIsReferencesModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -125,6 +127,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         setCurrentHistoryIndex(0);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle images selected from references modal
+  const handleImagesSelect = (images: any[]) => {
+    if (images.length > 0) {
+      const firstImage = images[0];
+      const newImage: ImageData = {
+        id: Date.now(),
+        url: firstImage.image_url || firstImage.preview || firstImage.url,
+        name: firstImage.original_filename || firstImage.name || 'Reference Image',
+        timestamp: new Date().toISOString()
+      };
+      setSelectedImage(newImage);
+      setEditHistory([newImage]);
+      setCurrentHistoryIndex(0);
     }
   };
 
@@ -357,8 +375,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         </div>
       </div>
 
-      {/* Main Content Area - add bottom padding to account for Edit History */}
-      <div className="flex-1 flex overflow-hidden pb-32">
+      {/* Main Content Area - adjusted for Edit History */}
+      <div className="flex-1 flex overflow-hidden" style={{ maxHeight: 'calc(100vh - 180px)' }}>
         <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
         {!isChatMinimized && (
@@ -780,13 +798,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
       </div>
 
-      {/* Bottom History Panel - Fixed at bottom right, aligned with chat */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 border-t border-border bg-background flex">
-        {/* Spacer matching chat panel width */}
-        <div className={`${isChatMinimized ? 'w-12' : 'w-80'} border-r-2 border-gray-400 flex-shrink-0 bg-muted/50`}></div>
-        
+      {/* Bottom History Panel - Extends full width under chat */}
+      <div className="absolute bottom-0 left-0 right-0 h-28 border-t border-border bg-background">
         {/* History Content */}
-        <div className="flex-1 flex items-center gap-3 px-6 overflow-x-auto">
+        <div className="flex items-center gap-3 px-6 h-full overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
             <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
           </div>
@@ -797,14 +812,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => setIsReferencesModalOpen(true)}
                     className="w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-1"
                   >
                     <Plus className="w-5 h-5 text-muted-foreground" />
                     <span className="text-[10px] font-medium text-muted-foreground">New Image</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Upload New Image</TooltipContent>
+                <TooltipContent className="bg-black text-white">Add New Image</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             
@@ -854,6 +869,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         </div>
       </div>
+
+      {/* References Modal */}
+      <ReferencesModal
+        isOpen={isReferencesModalOpen}
+        onClose={() => setIsReferencesModalOpen(false)}
+        onImagesSelect={handleImagesSelect}
+      />
     </div>
   );
 };
