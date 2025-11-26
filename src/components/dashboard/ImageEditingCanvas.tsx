@@ -46,27 +46,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  
-  // Placeholder images for edit history
-  const placeholderImages = [
-    'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=400&fit=crop&sat=-50',
-    'https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?w=400&h=400&fit=crop&brightness=1.2'
-  ];
-  
   const [editHistory, setEditHistory] = useState<ImageData[]>(
-    image ? [
-      { id: Date.now(), url: image, name: 'image', timestamp: new Date().toISOString() },
-      ...placeholderImages.map((url, i) => ({
-        id: Date.now() + i + 1,
-        url,
-        name: `edit-${i + 1}`,
-        timestamp: new Date().toISOString()
-      }))
-    ] : []
+    image ? [{ id: Date.now(), url: image, name: 'image', timestamp: new Date().toISOString() }] : []
   );
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(image ? 0 : -1);
   const [savedCreations, setSavedCreations] = useState<ImageData[]>([]);
@@ -399,15 +380,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - AI Chat */}
         {!isChatMinimized && (
-        <div className="w-96 border-r-2 border-gray-400 flex flex-col bg-muted/50">
+        <div className="w-80 border-r-2 border-gray-400 flex flex-col bg-muted/50">
           {/* Chat Header - Model Selector with Minimize Button */}
           <div className="p-4 border-b border-border bg-background flex items-center gap-2">
-            <Select defaultValue="flux-2">
+            <Select defaultValue="nano-banana">
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="flux-2">FLUX 2</SelectItem>
                 <SelectItem value="nano-banana">Nano Banana</SelectItem>
                 <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
                 <SelectItem value="flux-pro">Flux Pro</SelectItem>
@@ -467,58 +447,39 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
           {/* Chat Input */}
           <div className="p-4 bg-background border-t border-border">
-            <div className="flex items-center gap-3 px-4 py-3 bg-muted/30 border border-border rounded-full focus-within:border-primary/40 transition-colors">
-              <button className="p-1 hover:bg-muted rounded-md transition-colors">
-                <Plus className="w-5 h-5 text-muted-foreground" />
-              </button>
+            <div className="flex items-center gap-2 p-2 border border-border rounded-lg focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Ask Cora To Edit Something..."
-                className="flex-1 outline-none text-sm bg-transparent placeholder:text-muted-foreground"
+                className="flex-1 outline-none text-sm bg-transparent"
               />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={toggleRecording}
-                      className={`p-1 rounded-md transition-colors ${
+                      className={`p-2 rounded-lg transition-colors ${
                         isRecording ? 'bg-red-100 text-red-600' : 'hover:bg-muted'
                       }`}
                     >
-                      <Mic className={`w-5 h-5 ${isRecording ? 'animate-pulse' : ''}`} />
+                      <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-black text-white">Voice Input</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <div className="h-6 w-px bg-border"></div>
-              <Select defaultValue="flux-2">
-                <SelectTrigger className="w-[120px] border-0 bg-transparent hover:bg-muted focus:ring-0 focus:ring-offset-0 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    <SelectValue />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="flux-2">FLUX 2</SelectItem>
-                  <SelectItem value="nano-banana">Nano Banana</SelectItem>
-                  <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
-                  <SelectItem value="flux-pro">Flux Pro</SelectItem>
-                  <SelectItem value="seedream">Seedream V4</SelectItem>
-                </SelectContent>
-              </Select>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleSendMessage}
                       disabled={!chatInput.trim()}
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
-                      <Send className="w-5 h-5 text-white" fill="white" />
+                      <Send className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-black text-white">Send Message</TooltipContent>
@@ -838,7 +799,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       </div>
 
       {/* Bottom History Panel - Extends full width under chat */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 border-t border-border bg-background">
+      <div className="absolute bottom-0 left-0 right-0 h-28 border-t border-border bg-background">
         {/* History Content */}
         <div className="flex items-center gap-3 px-6 h-full overflow-x-auto">
           <div className="flex items-center gap-2 pr-4 border-r border-border">
