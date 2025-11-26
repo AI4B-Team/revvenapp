@@ -75,6 +75,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [isReferencesModalOpen, setIsReferencesModalOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string>('text');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -244,7 +245,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'select' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'select' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('select')}
                 >
                   <Hand className="w-5 h-5" />
@@ -257,7 +262,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'crop' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'crop' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('crop')}
                 >
                   <Crop className="w-5 h-5" />
@@ -270,7 +279,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'brush' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'brush' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('brush')}
                 >
                   <Paintbrush className="w-5 h-5" />
@@ -283,7 +296,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'eraser' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'eraser' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('eraser')}
                 >
                   <Eraser className="w-5 h-5" />
@@ -296,7 +313,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'text' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'text' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('text')}
                 >
                   <Type className="w-5 h-5" />
@@ -309,7 +330,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`p-2 rounded-lg hover:bg-muted transition-colors ${activeTool === 'wand' ? 'bg-primary/10 text-primary' : ''}`}
+                  className={`p-2 rounded-lg transition-colors ${
+                    activeTool === 'wand' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'hover:bg-muted'
+                  }`}
                   onClick={() => setActiveTool('wand')}
                 >
                   <Wand2 className="w-5 h-5" />
