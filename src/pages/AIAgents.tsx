@@ -11,6 +11,7 @@ import dolmarImage from '@/assets/agents/dolmar.png';
 import francisImage from '@/assets/agents/francis.png';
 import keishaImage from '@/assets/agents/keisha.png';
 import richImage from '@/assets/agents/rich.png';
+import damoiImage from '@/assets/agents/damoi.png';
 
 const AIAgentsPage = () => {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
@@ -65,7 +66,7 @@ const AIAgentsPage = () => {
       name: 'Damoi',
       role: 'The Operator',
       description: 'Manages projects and executes systems with precision and consistency.',
-      gradient: 'from-teal-400 to-cyan-500',
+      image: damoiImage,
       icon: 'Users'
     }
   ];
@@ -190,25 +191,12 @@ const AIAgentsPage = () => {
                       className="group relative bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all cursor-pointer border border-border"
                     >
                       {/* Agent Avatar */}
-                      <div className={`relative aspect-square ${agent.image ? '' : `bg-gradient-to-br ${agent.gradient}`}`}>
-                        {agent.image ? (
-                          <img
-                            src={agent.image}
-                            alt={agent.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
+                      <div className="relative aspect-square">
+                        <img
+                          src={agent.image}
+                          alt={agent.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       {/* Content */}
