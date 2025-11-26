@@ -6,7 +6,11 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import keishaImage from '@/assets/keisha.png';
+import brianImage from '@/assets/agents/brian.png';
+import dolmarImage from '@/assets/agents/dolmar.png';
+import francisImage from '@/assets/agents/francis.png';
+import keishaImage from '@/assets/agents/keisha.png';
+import richImage from '@/assets/agents/rich.png';
 
 const AIAgentsPage = () => {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
@@ -21,7 +25,7 @@ const AIAgentsPage = () => {
       name: 'Brian',
       role: 'The Architect',
       description: 'Builds the automated workflows that scales your business.',
-      gradient: 'from-purple-400 to-purple-600',
+      image: brianImage,
       icon: 'Users'
     },
     {
@@ -29,7 +33,7 @@ const AIAgentsPage = () => {
       name: 'Francis',
       role: 'The Strategist',
       description: 'Crafts offers, builds marketing funnels, and campaigns that attract real buyers.',
-      gradient: 'from-cyan-400 to-blue-500',
+      image: francisImage,
       icon: 'Users'
     },
     {
@@ -37,7 +41,7 @@ const AIAgentsPage = () => {
       name: 'Rich',
       role: 'The Closer',
       description: 'Writes sales scripts and follow-up sequences that generate revenue.',
-      gradient: 'from-orange-400 to-orange-600',
+      image: richImage,
       icon: 'Users'
     },
     {
@@ -45,7 +49,7 @@ const AIAgentsPage = () => {
       name: 'Dolmar',
       role: 'The Visionary',
       description: 'Generates branded visuals, videos, and AI characters that posts in your voice.',
-      gradient: 'from-green-400 to-green-600',
+      image: dolmarImage,
       icon: 'Users'
     },
     {
@@ -53,7 +57,7 @@ const AIAgentsPage = () => {
       name: 'Keisha',
       role: 'The Creator',
       description: 'Creates digital products, content, and writes sales copy in minutes.',
-      image: true,
+      image: keishaImage,
       icon: 'Users'
     },
     {
@@ -189,7 +193,7 @@ const AIAgentsPage = () => {
                       <div className={`relative aspect-square ${agent.image ? '' : `bg-gradient-to-br ${agent.gradient}`}`}>
                         {agent.image ? (
                           <img
-                            src={keishaImage}
+                            src={agent.image}
                             alt={agent.name}
                             className="w-full h-full object-cover"
                           />
