@@ -382,6 +382,7 @@ const Community = () => {
                   recommendedTitle="LOCATIONS"
                   recommendedSubtitle="For Where The Visuals Or Stories Take Place"
                   recommendedCollections={locationsCollections}
+                  zoom={zoom}
                 />
                 <CollectionsView
                   key={`seas-${collectionsKey}`}
@@ -392,6 +393,7 @@ const Community = () => {
                   recommendedTitle="FASHION"
                   recommendedSubtitle="To define outfit energy"
                   recommendedCollections={fashionCollections}
+                  zoom={zoom}
                 />
               </>
             )}
