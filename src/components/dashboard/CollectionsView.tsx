@@ -60,6 +60,7 @@ interface CollectionsPageProps {
   popularSubtitle?: string;
   recommendedTitle?: string;
   recommendedSubtitle?: string;
+  zoom?: number;
 }
 
 // Collection Card Component
@@ -540,13 +541,23 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
   popularSubtitle = "",
   recommendedTitle = "Recommended For You",
   recommendedSubtitle = "",
+  zoom = 50,
 }) => {
   const [expandedCollection, setExpandedCollection] = useState<Collection | null>(null);
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Map zoom value (0-100) to columns (3-6)
+  const columnsPerRow = Math.round(3 + (zoom / 100) * 3);
+
   const getGridCols = () => {
-    return 'lg:grid-cols-4';
+    switch(columnsPerRow) {
+      case 3: return 'lg:grid-cols-3';
+      case 4: return 'lg:grid-cols-4';
+      case 5: return 'lg:grid-cols-5';
+      case 6: return 'lg:grid-cols-6';
+      default: return 'lg:grid-cols-4';
+    }
   };
 
   const handleImageClick = (image: CollectionImage, index: number) => {
@@ -600,7 +611,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({
               <GalleryImageCard 
                 key={index} 
                 image={image} 
-                columnsPerRow={4}
+                columnsPerRow={columnsPerRow}
                 onClick={() => handleImageClick(image, index)}
               />
             ))}
