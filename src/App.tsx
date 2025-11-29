@@ -38,6 +38,7 @@ import SignupFlow from "./pages/SignupFlow";
 import OnboardingDashboard from "./pages/OnboardingDashboard";
 import AIInfluencer from "./pages/AIInfluencer";
 import Marketing from "./pages/Marketing";
+import Edit from "./pages/Edit";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/landing" element={<Landing />} />
           <Route path="/dashboard" element={<Index />} />
           <Route path="/create" element={<Create />} />
+          <Route path="/edit" element={<Edit />} />
           <Route path="/ai-influencer" element={<AIInfluencer />} />
           <Route path="/automate" element={<AIAgents />} />
           <Route path="/ai-agents" element={<AIAgents />} />
