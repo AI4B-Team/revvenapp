@@ -47,7 +47,7 @@ const Create = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'community' | 'collections'>('tools');
+  const [activeView, setActiveView] = useState<'tools' | 'creations' | 'templates' | 'community' | 'collections'>('tools');
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
@@ -548,6 +548,48 @@ const Create = () => {
                   columnsPerRow={zoomLevel}
                   filters={filters}
                 />
+              </div>
+            )}
+
+            {activeView === 'templates' && (
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">TEMPLATES</h2>
+                  <FilterToolbar 
+                    zoom={zoom} 
+                    onZoomChange={setZoom}
+                    onFiltersChange={setFilters}
+                    selectedContentType={filters.contentType}
+                  />
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {[
+                    { name: 'Product Showcase', category: 'E-commerce', emoji: '🛍️' },
+                    { name: 'Social Story', category: 'Social Media', emoji: '📱' },
+                    { name: 'Brand Promo', category: 'Marketing', emoji: '🎯' },
+                    { name: 'Tutorial Video', category: 'Education', emoji: '📚' },
+                    { name: 'Testimonial', category: 'Social Proof', emoji: '⭐' },
+                    { name: 'Behind The Scenes', category: 'Lifestyle', emoji: '🎬' },
+                    { name: 'Before & After', category: 'Transformation', emoji: '✨' },
+                    { name: 'Unboxing', category: 'Reviews', emoji: '📦' },
+                    { name: 'Day In My Life', category: 'Lifestyle', emoji: '☀️' },
+                    { name: 'Q&A Session', category: 'Engagement', emoji: '💬' },
+                    { name: 'Product Demo', category: 'E-commerce', emoji: '🎥' },
+                    { name: 'Motivational', category: 'Inspiration', emoji: '💪' },
+                  ].map((template, idx) => (
+                    <div 
+                      key={idx}
+                      className="group relative bg-secondary rounded-xl p-6 hover:bg-secondary/80 transition cursor-pointer border border-border hover:border-primary"
+                    >
+                      <div className="text-4xl mb-4">{template.emoji}</div>
+                      <h3 className="font-semibold text-lg mb-1">{template.name}</h3>
+                      <p className="text-sm text-muted-foreground">{template.category}</p>
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition">
+                        <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">Use</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
