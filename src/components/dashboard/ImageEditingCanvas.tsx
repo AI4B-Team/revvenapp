@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Send,
   Paperclip,
@@ -183,6 +184,7 @@ const CanvasTool: React.FC<{
 );
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
+  const navigate = useNavigate();
   const [activeTool, setActiveTool] = useState('select');
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(105);
@@ -258,6 +260,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
+  const handleClose = () => {
+    navigate('/create');
+  };
+
   return (
     <div className="h-full w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
       {/* Hidden file input */}
@@ -269,271 +275,268 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         className="hidden"
       />
 
-      {/* Editor Section */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Editor Header + Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Editor Toolbar */}
-          <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-lg font-bold text-white">Editor</span>
-              <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
-                <Pencil className="w-3.5 h-3.5 text-violet-300" />
-                <span className="text-sm font-medium text-violet-200">Editing</span>
-                <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
-              </div>
-            </div>
-
-            {/* Undo/Redo & Zoom */}
-            <div className="flex items-center gap-2 ml-4">
-              <button className="p-2 text-slate-300 hover:text-white transition-colors">
-                <RotateCcw className="w-4 h-4" />
-              </button>
-              <button className="p-2 text-slate-300 hover:text-white transition-colors">
-                <RotateCw className="w-4 h-4" />
-              </button>
-              <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
-                <Diamond className="w-4 h-4" />
-              </button>
-              <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
-                <button
-                  onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
-                  className="p-1 text-slate-400 hover:text-white transition-colors"
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
-                <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
-                <button
-                  onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
-                  className="p-1 text-slate-400 hover:text-white transition-colors"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1" />
-
-            {/* Media Type Tabs */}
-            <div className="flex items-center gap-6">
-              <button className="flex items-center gap-2 text-white font-medium text-sm">
-                <Image className="w-4 h-4" />
-                <span>Image</span>
-              </button>
-              <span className="text-slate-500">|</span>
-              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-                <Video className="w-4 h-4" />
-                <span>Video</span>
-              </button>
-              <span className="text-slate-500">|</span>
-              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-                <Music className="w-4 h-4" />
-                <span>Audio</span>
-              </button>
-            </div>
-
-            <div className="flex-1" />
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              <button className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors">
-                DB Ads
-              </button>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-                K
-              </div>
-              <button className="p-2 text-slate-300 hover:text-white transition-colors">
-                <Plus className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-slate-300 hover:text-white transition-colors">
-                <BarChart3 className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-slate-300 hover:text-white transition-colors">
-                <MessageSquare className="w-5 h-5" />
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-sm text-white transition-colors">
-                <Share2 className="w-4 h-4" />
-                <span>Share</span>
-              </button>
-              <button
-                onClick={onClose}
-                className="p-2 text-slate-300 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Full-width Editor Toolbar */}
+      <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold text-white">Editor</span>
+          <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
+            <Pencil className="w-3.5 h-3.5 text-violet-300" />
+            <span className="text-sm font-medium text-violet-200">Editing</span>
+            <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
           </div>
+        </div>
 
-          {/* Main Editor Area */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* Design Agent Panel */}
-            {!isPanelCollapsed && (
-              <div className="w-[300px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
-                {/* Panel Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                  <span className="text-sm font-semibold text-slate-700 tracking-wide">DESIGN AGENT: CORA</span>
-                  <div className="flex items-center gap-1">
-                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                      <HelpCircle className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                      <Settings2 className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                      <FolderOpen className="w-4 h-4" />
-                    </button>
-                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                      <Wand2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+        {/* Undo/Redo & Zoom */}
+        <div className="flex items-center gap-2 ml-4">
+          <button className="p-2 text-slate-300 hover:text-white transition-colors">
+            <RotateCcw className="w-4 h-4" />
+          </button>
+          <button className="p-2 text-slate-300 hover:text-white transition-colors">
+            <RotateCw className="w-4 h-4" />
+          </button>
+          <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
+            <Diamond className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
+            <button
+              onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
+              className="p-1 text-slate-400 hover:text-white transition-colors"
+            >
+              <Minus className="w-3 h-3" />
+            </button>
+            <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
+            <button
+              onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
+              className="p-1 text-slate-400 hover:text-white transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messages.map((message) => (
-                    <div key={message.id}>
-                      {message.isRequest && (
-                        <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="w-3 h-3 text-slate-400" />
-                            <span className="text-xs text-slate-400 font-medium">Request</span>
+        <div className="flex-1" />
+
+        {/* Media Type Tabs */}
+        <div className="flex items-center gap-6">
+          <button className="flex items-center gap-2 text-white font-medium text-sm">
+            <Image className="w-4 h-4" />
+            <span>Image</span>
+          </button>
+          <span className="text-slate-500">|</span>
+          <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+            <Video className="w-4 h-4" />
+            <span>Video</span>
+          </button>
+          <span className="text-slate-500">|</span>
+          <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+            <Music className="w-4 h-4" />
+            <span>Audio</span>
+          </button>
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-3">
+          <button className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors">
+            DB Ads
+          </button>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+            K
+          </div>
+          <button className="p-2 text-slate-300 hover:text-white transition-colors">
+            <Plus className="w-5 h-5" />
+          </button>
+          <button className="p-2 text-slate-300 hover:text-white transition-colors">
+            <BarChart3 className="w-5 h-5" />
+          </button>
+          <button className="p-2 text-slate-300 hover:text-white transition-colors">
+            <MessageSquare className="w-5 h-5" />
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-sm text-white transition-colors">
+            <Share2 className="w-4 h-4" />
+            <span>Share</span>
+          </button>
+          <button
+            onClick={handleClose}
+            className="p-2 text-slate-300 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Design Agent Panel - Extended width to align with zoom + button */}
+        {!isPanelCollapsed && (
+          <div className="w-[340px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+            {/* Panel Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+              <span className="text-sm font-semibold text-slate-700 tracking-wide">DESIGN AGENT: CORA</span>
+              <div className="flex items-center gap-1">
+                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                  <HelpCircle className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                  <Settings2 className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                  <FolderOpen className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                  <Wand2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message) => (
+                <div key={message.id}>
+                  {message.isRequest && (
+                    <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-3 h-3 text-slate-400" />
+                        <span className="text-xs text-slate-400 font-medium">Request</span>
+                      </div>
+                      <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                      {message.image && (
+                        <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                          <img src={message.image} alt="Design" className="w-full h-auto" />
+                          <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
+                            <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
-                          {message.image && (
-                            <div className="relative rounded-lg overflow-hidden border border-slate-200">
-                              <img src={message.image} alt="Design" className="w-full h-auto" />
-                              <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
-                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
-                  ))}
+                  )}
                 </div>
+              ))}
+            </div>
 
-                {/* Promo Banner */}
-                <div className="mx-4 mb-3">
-                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
-                    <div className="flex items-center gap-2">
-                      <Gift className="w-4 h-4 text-amber-500" />
-                      <span className="text-sm text-amber-700 font-medium">Get 365 days of FREE Nano Banana Pro!</span>
-                    </div>
-                    <button className="text-amber-400 hover:text-amber-600">
-                      <X className="w-4 h-4" />
+            {/* Promo Banner */}
+            <div className="mx-4 mb-3">
+              <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm text-amber-700 font-medium">Get 365 days of FREE Nano Banana Pro!</span>
+                </div>
+                <button className="text-amber-400 hover:text-amber-600">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 border-t border-slate-200 bg-white">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                </span>
+                <span className="text-sm text-slate-500">Cora is waiting for your response...</span>
+              </div>
+              <form onSubmit={handleSendMessage}>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder='Start with an idea, or type "@" to mention'
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                    <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                      <Paperclip className="w-4 h-4" />
+                    </button>
+                    <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                      <AtSign className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="submit"
+                      className={`p-2 rounded-lg transition-all ${
+                        inputValue.trim()
+                          ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+                          : 'text-slate-300 cursor-not-allowed'
+                      }`}
+                      disabled={!inputValue.trim()}
+                    >
+                      <Send className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-
-                {/* Input Area */}
-                <div className="p-4 border-t border-slate-200 bg-white">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    </span>
-                    <span className="text-sm text-slate-500">Cora is waiting for your response...</span>
-                  </div>
-                  <form onSubmit={handleSendMessage}>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        placeholder='Start with an idea, or type "@" to mention'
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
-                      />
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                          <Paperclip className="w-4 h-4" />
-                        </button>
-                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                          <AtSign className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="submit"
-                          className={`p-2 rounded-lg transition-all ${
-                            inputValue.trim()
-                              ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
-                              : 'text-slate-300 cursor-not-allowed'
-                          }`}
-                          disabled={!inputValue.trim()}
-                        >
-                          <Send className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <button type="button" className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors">
-                        <span className="font-medium">Nano Banana</span>
-                        <ChevronDown className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </form>
+                <div className="flex items-center justify-between mt-3">
+                  <button type="button" className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors">
+                    <span className="font-medium">Nano Banana</span>
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
                 </div>
-              </div>
-            )}
-
-            {/* Collapse Toggle */}
-            <button
-              onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
-              className="absolute top-1/2 -translate-y-1/2 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
-              style={{ left: isPanelCollapsed ? '0px' : '300px' }}
-            >
-              <ChevronRight className={`w-4 h-4 transition-transform ${isPanelCollapsed ? '' : 'rotate-180'}`} />
-            </button>
-
-            {/* White Canvas Area */}
-            <main className="flex-1 bg-white relative overflow-hidden">
-              {/* Canvas Tools */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
-                {canvasTools.map((tool) => (
-                  <CanvasTool
-                    key={tool.id}
-                    icon={tool.icon}
-                    active={activeTool === tool.id}
-                    onClick={() => setActiveTool(tool.id)}
-                  />
-                ))}
-              </div>
-
-              {/* Canvas Content */}
-              <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="relative max-w-lg w-full">
-                  {selectedImage ? (
-                    <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
-                      <img
-                        src={selectedImage}
-                        alt="Editing"
-                        className="w-full h-auto"
-                        style={{ transform: `scale(${zoomLevel / 100})` }}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <div className="p-16 text-center">
-                        <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
-                          <Upload className="w-10 h-10 text-slate-400" />
-                        </div>
-                        <h2 className="text-xl font-semibold text-slate-600 mb-2">
-                          Upload an Image
-                        </h2>
-                        <p className="text-slate-400">
-                          Click here or drag & drop to get started
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </main>
+              </form>
+            </div>
           </div>
+        )}
+
+        {/* Collapse Toggle */}
+        <button
+          onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+          className="absolute top-1/2 -translate-y-1/2 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+          style={{ left: isPanelCollapsed ? '0px' : '340px' }}
+        >
+          <ChevronRight className={`w-4 h-4 transition-transform ${isPanelCollapsed ? '' : 'rotate-180'}`} />
+        </button>
+
+        {/* Center Area: Canvas + Creations */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* White Canvas Area */}
+          <main className="flex-1 bg-white relative overflow-hidden">
+            {/* Canvas Content */}
+            <div className="absolute inset-0 flex items-center justify-center p-8">
+              <div className="relative max-w-lg w-full">
+                {/* Canvas Tools - Positioned directly on top of image */}
+                <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
+                  {canvasTools.map((tool) => (
+                    <CanvasTool
+                      key={tool.id}
+                      icon={tool.icon}
+                      active={activeTool === tool.id}
+                      onClick={() => setActiveTool(tool.id)}
+                    />
+                  ))}
+                </div>
+
+                {selectedImage ? (
+                  <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                    <img
+                      src={selectedImage}
+                      alt="Editing"
+                      className="w-full h-auto"
+                      style={{ transform: `scale(${zoomLevel / 100})` }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="p-16 text-center">
+                      <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
+                        <Upload className="w-10 h-10 text-slate-400" />
+                      </div>
+                      <h2 className="text-xl font-semibold text-slate-600 mb-2">
+                        Upload an Image
+                      </h2>
+                      <p className="text-slate-400">
+                        Click here or drag & drop to get started
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
 
           {/* Creations Strip */}
           <div className="h-20 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
@@ -561,7 +564,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         </div>
 
-        {/* Right Panel - Canvas Mode (REVVEN Green) */}
+        {/* Right Panel - Canvas Mode (Below header now) */}
         <div className="w-[260px] bg-[#1a2e35] overflow-y-auto flex-shrink-0">
           <div className="p-4 space-y-5">
             {/* Canvas Mode Header */}
