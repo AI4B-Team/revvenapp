@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  Search,
   Send,
   Paperclip,
   AtSign,
@@ -34,7 +33,6 @@ import {
   Layers,
   Upload,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -185,7 +183,6 @@ const CanvasTool: React.FC<{
 );
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
-  const navigate = useNavigate();
   const [activeTool, setActiveTool] = useState('select');
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(105);
@@ -262,7 +259,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   };
 
   return (
-    <div className="h-screen w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
+    <div className="h-full w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
       {/* Hidden file input */}
       <input
         type="file"
