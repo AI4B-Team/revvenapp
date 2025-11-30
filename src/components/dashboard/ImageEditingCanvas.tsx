@@ -190,6 +190,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [zoomLevel, setZoomLevel] = useState(105);
   const [inputValue, setInputValue] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | undefined>(image);
+  const [isImageSelected, setIsImageSelected] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
@@ -370,11 +371,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       <div className="flex-1 flex overflow-hidden">
         {/* Design Agent Panel - Extended width to align with zoom + button */}
         {!isPanelCollapsed && (
-          <div className="w-[400px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 relative">
+          <div className="w-[440px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 relative">
             {/* Collapse Button - Top Right */}
             <button
               onClick={() => setIsPanelCollapsed(true)}
-              className="absolute top-3 right-0 translate-x-1/2 z-20 bg-white border border-slate-200 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+              className="absolute top-3 right-0 translate-x-1/2 z-20 bg-emerald-500 p-1.5 rounded-lg text-white hover:bg-emerald-600 transition-colors shadow-sm"
             >
               <MessageSquare className="w-4 h-4" />
             </button>
@@ -503,21 +504,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           <main className="flex-1 bg-white relative overflow-hidden">
             {/* Canvas Content */}
             <div className="absolute inset-0 flex items-center justify-center p-8">
-              <div className="relative max-w-lg w-full">
-                {/* Canvas Tools - Positioned directly on top of image */}
-                <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
-                  {canvasTools.map((tool) => (
-                    <CanvasTool
-                      key={tool.id}
-                      icon={tool.icon}
-                      active={activeTool === tool.id}
-                      onClick={() => setActiveTool(tool.id)}
-                    />
-                  ))}
-                </div>
+                <div className="relative max-w-lg w-full">
+                {/* Canvas Tools - Only visible when image is selected */}
+                {isImageSelected && (
+                  <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
+                    {canvasTools.map((tool) => (
+                      <CanvasTool
+                        key={tool.id}
+                        icon={tool.icon}
+                        active={activeTool === tool.id}
+                        onClick={() => setActiveTool(tool.id)}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {selectedImage ? (
-                  <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                  <div 
+                    className={`bg-white rounded-xl shadow-xl overflow-hidden cursor-pointer transition-all ${isImageSelected ? 'border-2 border-emerald-500' : 'border border-slate-200'}`}
+                    onClick={() => setIsImageSelected(!isImageSelected)}
+                  >
                     <img
                       src={selectedImage}
                       alt="Editing"
