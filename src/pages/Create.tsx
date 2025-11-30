@@ -946,14 +946,15 @@ const Create = () => {
         isOpen={charactersModalOpen}
         onClose={() => setCharactersModalOpen(false)}
         onSelectCharacter={(character) => {
-          if (selectedType === 'Image') {
+          const effectiveType = selectedType || 'Image';
+          if (effectiveType === 'Image') {
             setImageCharacters(prev => [...prev, character]);
           }
-          else if (selectedType === 'Video') {
+          else if (effectiveType === 'Video') {
             setVideoCharacters(prev => [...prev, character]);
           }
-          else if (selectedType === 'Audio') setAudioCharacters(prev => [...prev, character]);
-          else if (selectedType === 'Design') setDesignCharacters(prev => [...prev, character]);
+          else if (effectiveType === 'Audio') setAudioCharacters(prev => [...prev, character]);
+          else if (effectiveType === 'Design') setDesignCharacters(prev => [...prev, character]);
         }}
       />
 
@@ -961,10 +962,11 @@ const Create = () => {
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
         onImagesSelect={(images) => {
-          if (selectedType === 'Image') setImageReferences(prev => [...prev, ...images]);
-          else if (selectedType === 'Video') setVideoReferences(prev => [...prev, ...images]);
-          else if (selectedType === 'Audio') setAudioReferences(prev => [...prev, ...images]);
-          else if (selectedType === 'Design') setDesignReferences(prev => [...prev, ...images]);
+          const effectiveType = selectedType || 'Image';
+          if (effectiveType === 'Image') setImageReferences(prev => [...prev, ...images]);
+          else if (effectiveType === 'Video') setVideoReferences(prev => [...prev, ...images]);
+          else if (effectiveType === 'Audio') setAudioReferences(prev => [...prev, ...images]);
+          else if (effectiveType === 'Design') setDesignReferences(prev => [...prev, ...images]);
           setIsCharacterReference(true);
         }}
       />
