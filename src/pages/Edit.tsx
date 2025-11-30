@@ -1,26 +1,7 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import ImageEditingCanvas from "@/components/dashboard/ImageEditingCanvas";
+import DesignEditor from "@/components/editor/DesignEditor";
 
 const Edit = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const image = location.state?.imageUrl || undefined;
-
-  const handleClose = () => {
-    navigate(-1);
-  };
-
-  const handleSave = () => {
-    navigate("/create");
-  };
-
-  return (
-    <ImageEditingCanvas
-      image={image}
-      onClose={handleClose}
-      onSave={handleSave}
-    />
-  );
+  return <DesignEditor />;
 };
 
 export default Edit;
