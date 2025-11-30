@@ -936,7 +936,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                           // Open character selector and update video mode state
                           onCharactersClick?.();
                         }}
-                        className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          videoModeState.characters.length > 0 
+                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
                       >
                         <User size={14} />
                         Character
@@ -952,7 +956,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       // Open reference selector and update video mode state
                       onReferencesClick?.();
                     }}
-                    className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                    className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                      videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
                   >
                     <Upload size={14} />
                     Reference
@@ -1086,7 +1094,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
                 <button 
                   onClick={onCharactersClick}
-                  className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+                  className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                    selectedCharacters.length > 0 
+                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
                 >
                   <User size={14} />
                   Character
@@ -1367,7 +1379,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 {/* Image Mode Controls */}
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                    <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                      selectedModel !== 'auto' 
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}>
                       {selectedReferences.length > 0 && (
                         <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 mr-1">IMG2IMG</Badge>
                       )}
@@ -1800,14 +1816,22 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             
             <button
               onClick={() => setIsStylesModalOpen(true)}
-              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2"
+              className={`px-4 py-1.5 rounded-md text-sm transition whitespace-nowrap flex items-center gap-2 ${
+                selectedStyle 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                  : 'bg-muted hover:bg-muted/80'
+              }`}
             >
               {selectedStyle ? selectedStyle.name : 'Style'}
             </button>
             
             <button 
               onClick={onCharactersClick}
-              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+              className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                activeCharacters.length > 0 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                  : 'bg-muted hover:bg-muted/80'
+              }`}
             >
               <User size={14} />
               Character
@@ -1815,7 +1839,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             
             <button
               onClick={onReferencesClick}
-              className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap"
+              className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                activeReferences.length > 0 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                  : 'bg-muted hover:bg-muted/80'
+              }`}
             >
               <Upload size={14} />
               Reference
@@ -1884,7 +1912,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             
             <Popover open={isAspectRatioDropdownOpen} onOpenChange={setIsAspectRatioDropdownOpen}>
               <PopoverTrigger asChild>
-                <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                  selectedAspectRatio !== '1:1' 
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                    : 'bg-muted hover:bg-muted/80'
+                }`}>
                   {selectedAspectRatio}
                   <ChevronDown size={14} />
                 </button>
