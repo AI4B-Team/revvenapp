@@ -370,11 +370,19 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       <div className="flex-1 flex overflow-hidden">
         {/* Design Agent Panel - Extended width to align with zoom + button */}
         {!isPanelCollapsed && (
-          <div className="w-[340px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+          <div className="w-[400px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 relative">
+            {/* Collapse Button - Top Right */}
+            <button
+              onClick={() => setIsPanelCollapsed(true)}
+              className="absolute top-3 right-0 translate-x-1/2 z-20 bg-white border border-slate-200 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </button>
+
             {/* Panel Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-              <span className="text-sm font-semibold text-slate-700 tracking-wide">DESIGN AGENT: CORA</span>
-              <div className="flex items-center gap-1">
+              <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">DESIGN AGENT: CORA</span>
+              <div className="flex items-center gap-1 flex-shrink-0">
                 <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
                   <HelpCircle className="w-4 h-4" />
                 </button>
@@ -479,14 +487,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           </div>
         )}
 
-        {/* Collapse Toggle */}
-        <button
-          onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
-          className="absolute top-1/2 -translate-y-1/2 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
-          style={{ left: isPanelCollapsed ? '0px' : '340px' }}
-        >
-          <ChevronRight className={`w-4 h-4 transition-transform ${isPanelCollapsed ? '' : 'rotate-180'}`} />
-        </button>
+        {/* Collapsed State Toggle */}
+        {isPanelCollapsed && (
+          <button
+            onClick={() => setIsPanelCollapsed(false)}
+            className="absolute top-4 left-0 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+          >
+            <MessageSquare className="w-4 h-4" />
+          </button>
+        )}
 
         {/* Center Area: Canvas + Creations */}
         <div className="flex-1 flex flex-col overflow-hidden">
