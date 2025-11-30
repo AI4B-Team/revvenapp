@@ -585,9 +585,9 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
               <button
                 key={idx}
                 onClick={() => {
-                  // Navigate to Edit page for Edit button in Image/Design/Content sections
-                  if (item.label === 'Edit' && (activeTab === 'Image' || activeTab === 'Design' || activeTab === 'Content')) {
-                    navigate('/edit');
+                  // Special handling for Edit button in Image section
+                  if (item.label === 'Edit' && activeTab === 'Image' && onEditClick) {
+                    onEditClick();
                   } else {
                     onTabChange(item.label);
                   }
