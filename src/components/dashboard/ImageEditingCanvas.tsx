@@ -216,21 +216,24 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     },
   ]);
 
-  // Sample creations with real placeholder images
-  const creations: Creation[] = [
-    { id: '1', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&h=100&fit=crop', title: 'Creation 1' },
-    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=100&h=100&fit=crop', title: 'Creation 2' },
-    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&h=100&fit=crop', title: 'Creation 3' },
-    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=100&h=100&fit=crop', title: 'Creation 4' },
-    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=100&h=100&fit=crop', title: 'Creation 5' },
-    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=100&h=100&fit=crop', title: 'Creation 6' },
-    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=100&h=100&fit=crop', title: 'Creation 7' },
-    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=100&h=100&fit=crop', title: 'Creation 8' },
-    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1634017839464-5c339bbe3c35?w=100&h=100&fit=crop', title: 'Creation 9' },
-    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=100&h=100&fit=crop', title: 'Creation 10' },
-    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=100&h=100&fit=crop', title: 'Creation 11' },
-    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=100&h=100&fit=crop', title: 'Creation 12' },
+  // Sample creations with real placeholder images - first one matches canvas image
+  const baseCreations: Creation[] = [
+    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop', title: 'Portrait 1' },
+    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop', title: 'Portrait 2' },
+    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop', title: 'Portrait 3' },
+    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop', title: 'Portrait 4' },
+    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop', title: 'Portrait 5' },
+    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop', title: 'Portrait 6' },
+    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop', title: 'Portrait 7' },
+    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 8' },
+    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop', title: 'Portrait 9' },
+    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1524638431109-93d95c968f03?w=200&h=200&fit=crop', title: 'Portrait 10' },
   ];
+  
+  // First creation is the current canvas image
+  const creations: Creation[] = selectedImage 
+    ? [{ id: '1', thumbnail: selectedImage, title: 'Current' }, ...baseCreations]
+    : baseCreations;
 
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" /> },
