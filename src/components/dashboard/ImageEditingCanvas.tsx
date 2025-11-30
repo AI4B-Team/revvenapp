@@ -1,14 +1,40 @@
-import React, { useState, useRef } from 'react';
-import { 
-  Wand2, Image as ImageIcon, Type, Crop, Paintbrush, Eraser, 
-  Hand, Layers, Trash2, Copy, Download, Save, Undo2, Redo2,
-  Mic, Send, Upload, Sparkles, Palette, Sun, Contrast, 
-  Sliders, Scissors, Move, ZoomIn, MessageSquare, Settings,
-  Star, Folder, Eye, EyeOff, Lock, Unlock, MoreVertical, X, ZoomOut, Home, User, ChevronLeft, ChevronRight, Plus
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Search,
+  Send,
+  Paperclip,
+  AtSign,
+  RotateCcw,
+  RotateCw,
+  Diamond,
+  Plus,
+  Minus,
+  Share2,
+  MessageSquare,
+  BarChart3,
+  Crop,
+  Eraser,
+  PaintBucket,
+  MousePointer2,
+  Type,
+  Wand2,
+  Settings2,
+  HelpCircle,
+  Lock,
+  X,
+  Image,
+  Video,
+  Music,
+  Sparkles,
+  ChevronDown,
+  ChevronRight,
+  FolderOpen,
+  Gift,
+  Pencil,
+  Layers,
+  Upload,
 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import ReferencesModal from './ReferencesModal';
+import { useNavigate } from 'react-router-dom';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -16,891 +42,706 @@ interface ImageEditingCanvasProps {
   onSave: () => void;
 }
 
-interface ImageData {
-  id: number;
-  url: string;
-  name: string;
-  timestamp: string;
+interface Message {
+  id: string;
+  role: 'assistant' | 'user';
+  content: string;
+  image?: string;
+  isRequest?: boolean;
 }
 
-interface ChatMessage {
-  id: number;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: string;
+interface Creation {
+  id: string;
+  thumbnail: string;
+  title: string;
 }
 
-interface Adjustments {
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  temperature: number;
-  tint: number;
-  sharpness: number;
+interface CanvasSettings {
+  mode: string;
+  outpaint: boolean;
+  inpaintStrength: number;
+  numberOfImages: number;
+  dimensions: string;
+  aspectRatio: string;
+  width: number;
+  height: number;
+  renderDensity: number;
+  guidanceScale: number;
 }
+
+// Toggle Switch Component
+const Toggle: React.FC<{
+  enabled: boolean;
+  onChange: (enabled: boolean) => void;
+}> = ({ enabled, onChange }) => (
+  <button
+    onClick={() => onChange(!enabled)}
+    className={`relative w-11 h-6 rounded-full transition-all duration-300 ${
+      enabled ? 'bg-emerald-500' : 'bg-slate-600'
+    }`}
+  >
+    <span
+      className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-all duration-300 ${
+        enabled ? 'left-6' : 'left-1'
+      }`}
+    />
+  </button>
+);
+
+// Slider Component
+const Slider: React.FC<{
+  value: number;
+  onChange: (value: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  showValue?: boolean;
+  suffix?: string;
+}> = ({ value, onChange, min = 0, max = 100, step = 1, showValue = true, suffix = '' }) => {
+  const percentage = ((value - min) / (max - min)) * 100;
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1 relative">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="w-full h-1.5 rounded-full appearance-none cursor-pointer
+            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
+            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white 
+            [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer
+            [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110
+            [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-10"
+          style={{
+            background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${percentage}%, #475569 ${percentage}%, #475569 100%)`,
+          }}
+        />
+      </div>
+      {showValue && (
+        <span className="text-sm text-slate-300 min-w-[40px] text-right tabular-nums">
+          {value}{suffix}
+        </span>
+      )}
+    </div>
+  );
+};
+
+// Number Selector Button
+const NumberButton: React.FC<{
+  value: number;
+  selected: boolean;
+  onClick: () => void;
+}> = ({ value, selected, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-0 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+      selected
+        ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/30'
+        : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white'
+    }`}
+  >
+    {value}
+  </button>
+);
+
+// Dimension Button
+const DimensionButton: React.FC<{
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}> = ({ label, selected, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+      selected
+        ? 'bg-teal-500/20 text-teal-300 border border-teal-500/50'
+        : 'bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white border border-transparent'
+    }`}
+  >
+    {label}
+  </button>
+);
+
+// Canvas Tool Button
+const CanvasTool: React.FC<{
+  icon: React.ReactNode;
+  active?: boolean;
+  onClick?: () => void;
+}> = ({ icon, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`p-2.5 rounded-lg transition-all duration-200 ${
+      active
+        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
+        : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-800 shadow-sm'
+    }`}
+  >
+    {icon}
+  </button>
+);
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(
-    image ? { id: Date.now(), url: image, name: 'image', timestamp: new Date().toISOString() } : null
-  );
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [editHistory, setEditHistory] = useState<ImageData[]>(
-    image ? [{ id: Date.now(), url: image, name: 'image', timestamp: new Date().toISOString() }] : []
-  );
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(image ? 0 : -1);
-  const [savedCreations, setSavedCreations] = useState<ImageData[]>([]);
+  const navigate = useNavigate();
   const [activeTool, setActiveTool] = useState('select');
-  const [showRightPanel, setShowRightPanel] = useState(true);
-  
-  // Right panel tabs
-  const [activeRightTab, setActiveRightTab] = useState<'adjust' | 'filters' | 'effects'>('effects');
-  
-  // Adjustment values
-  const [adjustments, setAdjustments] = useState<Adjustments>({
-    brightness: 0,
-    contrast: 0,
-    saturation: 0,
-    temperature: 0,
-    tint: 0,
-    sharpness: 0
-  });
-
-  // Zoom and pan state
-  const [zoom, setZoom] = useState(1);
-  const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
-  const [isReferencesModalOpen, setIsReferencesModalOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<string>('text');
-
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(105);
+  const [inputValue, setInputValue] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(image);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Zoom handlers
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev + 0.25, 3));
+  const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
+    mode: 'inpaint',
+    outpaint: true,
+    inpaintStrength: 1,
+    numberOfImages: 4,
+    dimensions: '512 × 512',
+    aspectRatio: '1:1',
+    width: 512,
+    height: 512,
+    renderDensity: 50,
+    guidanceScale: 7,
+  });
+
+  const [messages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'What do you think of this first storyboard frame? Would you like me to make any adjustments before we move on to the second frame?',
+      image: selectedImage,
+      isRequest: true,
+    },
+  ]);
+
+  // Sample creations with real placeholder images
+  const creations: Creation[] = [
+    { id: '1', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&h=100&fit=crop', title: 'Creation 1' },
+    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=100&h=100&fit=crop', title: 'Creation 2' },
+    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&h=100&fit=crop', title: 'Creation 3' },
+    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=100&h=100&fit=crop', title: 'Creation 4' },
+    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=100&h=100&fit=crop', title: 'Creation 5' },
+    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=100&h=100&fit=crop', title: 'Creation 6' },
+    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=100&h=100&fit=crop', title: 'Creation 7' },
+    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=100&h=100&fit=crop', title: 'Creation 8' },
+    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1634017839464-5c339bbe3c35?w=100&h=100&fit=crop', title: 'Creation 9' },
+    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=100&h=100&fit=crop', title: 'Creation 10' },
+    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=100&h=100&fit=crop', title: 'Creation 11' },
+    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=100&h=100&fit=crop', title: 'Creation 12' },
+  ];
+
+  const canvasTools = [
+    { id: 'select', icon: <MousePointer2 className="w-4 h-4" /> },
+    { id: 'crop', icon: <Crop className="w-4 h-4" /> },
+    { id: 'brush', icon: <Eraser className="w-4 h-4" /> },
+    { id: 'fill', icon: <PaintBucket className="w-4 h-4" /> },
+    { id: 'text', icon: <Type className="w-4 h-4" /> },
+    { id: 'magic', icon: <Wand2 className="w-4 h-4" /> },
+    { id: 'layers', icon: <Layers className="w-4 h-4" /> },
+  ];
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      console.log('Sending:', inputValue);
+      setInputValue('');
+    }
   };
 
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev - 0.25, 0.5));
-  };
-
-  const handleResetView = () => {
-    setZoom(1);
-    setPanX(0);
-    setPanY(0);
-  };
-
-  // Pan handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!selectedImage) return;
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPanX(e.clientX - dragStart.x);
-    setPanY(e.clientY - dragStart.y);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const newImage: ImageData = {
-          id: Date.now(),
-          url: reader.result as string,
-          name: file.name,
-          timestamp: new Date().toISOString()
-        };
-        setSelectedImage(newImage);
-        setEditHistory([newImage]);
-        setCurrentHistoryIndex(0);
+        setSelectedImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Handle images selected from references modal
-  const handleImagesSelect = (images: any[]) => {
-    if (images.length > 0) {
-      const firstImage = images[0];
-      const newImage: ImageData = {
-        id: Date.now(),
-        url: firstImage.image_url || firstImage.preview || firstImage.url,
-        name: firstImage.original_filename || firstImage.name || 'Reference Image',
-        timestamp: new Date().toISOString()
-      };
-      setSelectedImage(newImage);
-      setEditHistory([newImage]);
-      setCurrentHistoryIndex(0);
-    }
-  };
-
-  // Handle chat message
-  const handleSendMessage = () => {
-    if (chatInput.trim()) {
-      const newMessage: ChatMessage = {
-        id: Date.now(),
-        text: chatInput,
-        sender: 'user',
-        timestamp: new Date().toISOString()
-      };
-      setChatMessages([...chatMessages, newMessage]);
-      setChatInput('');
-      
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse: ChatMessage = {
-          id: Date.now() + 1,
-          text: "I'll help you with that! Processing your request...",
-          sender: 'ai',
-          timestamp: new Date().toISOString()
-        };
-        setChatMessages(prev => [...prev, aiResponse]);
-      }, 500);
-    }
-  };
-
-  // Handle voice recording
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-  };
-
-  // Save to creations
-  const saveToCreations = (imageData: ImageData) => {
-    if (!savedCreations.find(c => c.id === imageData.id)) {
-      setSavedCreations([...savedCreations, imageData]);
-    }
-  };
-
-  // Undo/Redo
-  const handleUndo = () => {
-    if (currentHistoryIndex > 0) {
-      setCurrentHistoryIndex(currentHistoryIndex - 1);
-      setSelectedImage(editHistory[currentHistoryIndex - 1]);
-    }
-  };
-
-  const handleRedo = () => {
-    if (currentHistoryIndex < editHistory.length - 1) {
-      setCurrentHistoryIndex(currentHistoryIndex + 1);
-      setSelectedImage(editHistory[currentHistoryIndex + 1]);
-    }
-  };
-
   return (
-    <div className="h-screen flex flex-col bg-background relative">
-      {/* Top Toolbar */}
-      <div className="h-16 border-b border-border flex items-center justify-between px-6 bg-background">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-foreground">Edit Canvas</h1>
-          
-          {/* Undo/Redo */}
-          <div className="flex items-center gap-2 ml-8">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={handleUndo}
-                    disabled={currentHistoryIndex <= 0}
-                    className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <Undo2 className="w-5 h-5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Undo</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={handleRedo}
-                    disabled={currentHistoryIndex >= editHistory.length - 1}
-                    className="p-2 rounded-lg hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <Redo2 className="w-5 h-5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Redo</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
+    <div className="h-screen w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        accept="image/*"
+        className="hidden"
+      />
 
-        {/* Center Quick Action Icons */}
-        <div className="flex items-center gap-1 absolute left-1/2 transform -translate-x-1/2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'select' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('select')}
-                >
-                  <Hand className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Select</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'crop' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('crop')}
-                >
-                  <Crop className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Crop</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'brush' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('brush')}
-                >
-                  <Paintbrush className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Brush</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'eraser' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('eraser')}
-                >
-                  <Eraser className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Eraser</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'text' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('text')}
-                >
-                  <Type className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Add Text</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={`p-2 rounded-lg transition-colors ${
-                    activeTool === 'wand' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'hover:bg-muted'
-                  }`}
-                  onClick={() => setActiveTool('wand')}
-                >
-                  <Wand2 className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Magic Wand</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className={`p-2 rounded-lg hover:bg-muted transition-colors`}>
-                  <Layers className="w-5 h-5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Layers</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-
-        <div></div>
-
-        {/* Right side buttons */}
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors flex items-center gap-2">
-                  <Download className="w-4 h-4" />
-                  Export
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Export Image</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => selectedImage && saveToCreations(selectedImage)}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-400 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-600 transition-all flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Save To Creations
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Save To Creations</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={onClose}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white">Close</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-
-      {/* Main Content Area - adjusted for Edit History */}
-      <div className="flex-1 flex overflow-hidden" style={{ maxHeight: 'calc(100vh - 180px)' }}>
-        <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - AI Chat */}
-        {!isChatMinimized && (
-        <div className="w-80 border-r-2 border-gray-400 flex flex-col bg-muted/50">
-          {/* Chat Header - Model Selector with Minimize Button */}
-          <div className="p-4 border-b border-border bg-background flex items-center gap-2">
-            <Select defaultValue="nano-banana">
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="nano-banana">Nano Banana</SelectItem>
-                <SelectItem value="gpt-image">GPT-4o Image</SelectItem>
-                <SelectItem value="flux-pro">Flux Pro</SelectItem>
-                <SelectItem value="seedream">Seedream V4</SelectItem>
-              </SelectContent>
-            </Select>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setIsChatMinimized(true)}
-                    className="p-2 rounded-lg hover:bg-muted transition-colors shrink-0"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Minimize Chat</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          {/* Chat Messages or Cora Profile */}
-          <div className="flex-1 overflow-y-auto">
-            {chatMessages.length > 0 ? (
-              <div className="p-4 space-y-3">
-                {chatMessages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                        message.sender === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-background border border-border text-foreground'
-                      }`}
-                    >
-                      <p className="text-sm">{message.text}</p>
-                    </div>
-                  </div>
-                ))}
+      {/* Editor Section */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Editor Header + Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Editor Toolbar */}
+          <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-bold text-white">Editor</span>
+              <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
+                <Pencil className="w-3.5 h-3.5 text-violet-300" />
+                <span className="text-sm font-medium text-violet-200">Editing</span>
+                <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 mb-4 flex items-center justify-center">
-                  <User className="h-12 w-12 text-white" />
-                </div>
-                <h4 className="font-semibold text-foreground text-lg mb-1">Cora</h4>
-                <p className="text-sm text-muted-foreground mb-6">Designer</p>
-                <div className="space-y-2">
-                  <p className="text-base font-medium text-foreground">Start A Conversation</p>
-                  <p className="text-sm text-muted-foreground">I'll Help Edit Your Image</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Chat Input */}
-          <div className="p-4 bg-background border-t border-border">
-            <div className="flex items-center gap-2 p-2 border border-border rounded-lg focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask Cora To Edit Something..."
-                className="flex-1 outline-none text-sm bg-transparent"
-              />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={toggleRecording}
-                      className={`p-2 rounded-lg transition-colors ${
-                        isRecording ? 'bg-red-100 text-red-600' : 'hover:bg-muted'
-                      }`}
-                    >
-                      <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-black text-white">Voice Input</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!chatInput.trim()}
-                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-black text-white">Send Message</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
-          </div>
-        </div>
-        )}
 
-        {/* Minimized Chat Toggle Button */}
-        {isChatMinimized && (
-          <div className="w-12 border-r-2 border-gray-400 flex items-start justify-center pt-4 bg-muted/50">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setIsChatMinimized(false)}
-                    className="p-2 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Show Chat</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
-
-        {/* Center Canvas */}
-        <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
-          <div 
-            className="flex-1 flex items-center justify-center p-8 relative overflow-hidden"
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-          >
-            {selectedImage ? (
-              <>
-                <div 
-                  className="relative cursor-move select-none"
-                  style={{
-                    transform: `scale(${zoom}) translate(${panX}px, ${panY}px)`,
-                    transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-                    maxWidth: '500px',
-                    maxHeight: '400px'
-                  }}
-                  onMouseDown={handleMouseDown}
+            {/* Undo/Redo & Zoom */}
+            <div className="flex items-center gap-2 ml-4">
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <RotateCw className="w-4 h-4" />
+              </button>
+              <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
+                <Diamond className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
+                <button
+                  onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
+                  className="p-1 text-slate-400 hover:text-white transition-colors"
                 >
-                  <img
-                    src={selectedImage.url}
-                    alt="Editing canvas"
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                    draggable={false}
-                  />
-                </div>
-                
-                {/* Zoom Controls */}
-                <div className="absolute bottom-4 right-4 flex gap-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleZoomIn}
-                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
-                        >
-                          <ZoomIn className="w-5 h-5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white">Zoom In</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleZoomOut}
-                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
-                        >
-                          <ZoomOut className="w-5 h-5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white">Zoom Out</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleResetView}
-                          className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors"
-                        >
-                          <Home className="w-5 h-5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white">Reset View</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="w-32 h-32 mx-auto mb-6 bg-muted rounded-2xl flex items-center justify-center">
-                  <ImageIcon className="w-16 h-16 text-muted-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Start By Adding An Image
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Upload An Image Or Select From Your History
-                </p>
-                <div className="flex items-center gap-3 justify-center">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-2"
-                  >
-                    <Upload className="w-5 h-5" />
-                    Upload Image
-                  </button>
-                  <button className="px-6 py-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                    Select From History
-                  </button>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
+                  <Minus className="w-3 h-3" />
+                </button>
+                <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
+                <button
+                  onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
+                  className="p-1 text-slate-400 hover:text-white transition-colors"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Right Sidebar - Editing Tools */}
-        {showRightPanel && (
-          <div className="w-80 border-l-2 border-gray-400 flex flex-col bg-background">
-            {/* Tabs */}
-            <div className="flex border-b border-border">
-              <button
-                onClick={() => setActiveRightTab('effects')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeRightTab === 'effects'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Effects
+            <div className="flex-1" />
+
+            {/* Media Type Tabs */}
+            <div className="flex items-center gap-6">
+              <button className="flex items-center gap-2 text-white font-medium text-sm">
+                <Image className="w-4 h-4" />
+                <span>Image</span>
               </button>
-              <button
-                onClick={() => setActiveRightTab('adjust')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeRightTab === 'adjust'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Adjust
+              <span className="text-slate-500">|</span>
+              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+                <Video className="w-4 h-4" />
+                <span>Video</span>
               </button>
-              <button
-                onClick={() => setActiveRightTab('filters')}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeRightTab === 'filters'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Filters
+              <span className="text-slate-500">|</span>
+              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+                <Music className="w-4 h-4" />
+                <span>Audio</span>
               </button>
             </div>
 
-            {/* Panel Content */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {activeRightTab === 'adjust' && (
-                <div className="space-y-6">
-                  {/* Brightness */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Sun className="w-4 h-4 text-muted-foreground" />
-                        <label className="text-sm font-medium text-foreground">Brightness</label>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{adjustments.brightness}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={adjustments.brightness}
-                      onChange={(e) => setAdjustments({...adjustments, brightness: parseInt(e.target.value)})}
-                      className="w-full"
-                    />
-                  </div>
+            <div className="flex-1" />
 
-                  {/* Contrast */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Contrast className="w-4 h-4 text-muted-foreground" />
-                        <label className="text-sm font-medium text-foreground">Contrast</label>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{adjustments.contrast}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={adjustments.contrast}
-                      onChange={(e) => setAdjustments({...adjustments, contrast: parseInt(e.target.value)})}
-                      className="w-full"
-                    />
-                  </div>
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              <button className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors">
+                DB Ads
+              </button>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                K
+              </div>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <Plus className="w-5 h-5" />
+              </button>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <BarChart3 className="w-5 h-5" />
+              </button>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <MessageSquare className="w-5 h-5" />
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-sm text-white transition-colors">
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 text-slate-300 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
-                  {/* Saturation */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Palette className="w-4 h-4 text-muted-foreground" />
-                        <label className="text-sm font-medium text-foreground">Saturation</label>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{adjustments.saturation}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={adjustments.saturation}
-                      onChange={(e) => setAdjustments({...adjustments, saturation: parseInt(e.target.value)})}
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Temperature */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-foreground">Temperature</label>
-                      <span className="text-xs text-muted-foreground">{adjustments.temperature}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-100"
-                      max="100"
-                      value={adjustments.temperature}
-                      onChange={(e) => setAdjustments({...adjustments, temperature: parseInt(e.target.value)})}
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Sharpness */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-foreground">Sharpness</label>
-                      <span className="text-xs text-muted-foreground">{adjustments.sharpness}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={adjustments.sharpness}
-                      onChange={(e) => setAdjustments({...adjustments, sharpness: parseInt(e.target.value)})}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <button className="w-full px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors">
-                    Reset All
-                  </button>
-                </div>
-              )}
-
-              {activeRightTab === 'filters' && (
-                <div className="grid grid-cols-2 gap-3">
-                  {['Original', 'Vivid', 'Dramatic', 'B&W', 'Vintage', 'Warm', 'Cool', 'Sepia'].map((filter) => (
-                    <button
-                      key={filter}
-                      className="aspect-square rounded-lg bg-gradient-to-br from-muted to-muted/50 hover:ring-2 hover:ring-primary transition-all flex items-center justify-center text-sm font-medium"
-                    >
-                      {filter}
+          {/* Main Editor Area */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Design Agent Panel */}
+            {!isPanelCollapsed && (
+              <div className="w-[300px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+                {/* Panel Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                  <span className="text-sm font-semibold text-slate-700 tracking-wide">DESIGN AGENT: CORA</span>
+                  <div className="flex items-center gap-1">
+                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                      <HelpCircle className="w-4 h-4" />
                     </button>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                      <Settings2 className="w-4 h-4" />
+                    </button>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                      <FolderOpen className="w-4 h-4" />
+                    </button>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                      <Wand2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.map((message) => (
+                    <div key={message.id}>
+                      {message.isRequest && (
+                        <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-3 h-3 text-slate-400" />
+                            <span className="text-xs text-slate-400 font-medium">Request</span>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                          {message.image && (
+                            <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                              <img src={message.image} alt="Design" className="w-full h-auto" />
+                              <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
+                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
-              )}
 
-              {activeRightTab === 'effects' && (
-                <div className="space-y-3">
-                  <button className="w-full px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors text-left flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Scissors className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm font-medium">Remove Background</span>
+                {/* Promo Banner */}
+                <div className="mx-4 mb-3">
+                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+                    <div className="flex items-center gap-2">
+                      <Gift className="w-4 h-4 text-amber-500" />
+                      <span className="text-sm text-amber-700 font-medium">Get 365 days of FREE Nano Banana Pro!</span>
                     </div>
-                  </button>
-                  <button className="w-full px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors text-left flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <ZoomIn className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm font-medium">Upscale</span>
-                    </div>
-                  </button>
-                  <button className="w-full px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors text-left flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm font-medium">AI Enhance</span>
-                    </div>
-                  </button>
-                  <button className="w-full px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors text-left flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Wand2 className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm font-medium">Magic Fill</span>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-      </div>
-
-      {/* Bottom History Panel - Extends full width under chat */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 border-t border-border bg-background">
-        {/* History Content */}
-        <div className="flex items-center gap-3 px-6 h-full overflow-x-auto">
-          <div className="flex items-center gap-2 pr-4 border-r border-border">
-            <h3 className="text-sm font-semibold text-foreground whitespace-nowrap">Edit History</h3>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {/* New Image Button */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setIsReferencesModalOpen(true)}
-                    className="w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted/50 transition-all flex flex-col items-center justify-center gap-1"
-                  >
-                    <Plus className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-[10px] font-medium text-muted-foreground">New Image</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black text-white">Add New Image</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            {/* History thumbnails */}
-            {editHistory.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">No edits yet</p>
-              </div>
-            ) : (
-              editHistory.map((item, index) => (
-                <div
-                  key={item.id}
-                  className={`relative group cursor-pointer ${
-                    index === currentHistoryIndex ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => {
-                    setCurrentHistoryIndex(index);
-                    setSelectedImage(item);
-                  }}
-                >
-                  <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden">
-                    <img
-                      src={item.url}
-                      alt={`History ${index}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  {index === 0 && (
-                    <div className="absolute top-1 left-1 px-2 py-0.5 bg-green-500 text-white text-xs rounded">
-                      Original
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        saveToCreations(item);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-background rounded-lg shadow-lg"
-                    >
-                      <Star className="w-4 h-4 text-yellow-500" />
+                    <button className="text-amber-400 hover:text-amber-600">
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-              ))
+
+                {/* Input Area */}
+                <div className="p-4 border-t border-slate-200 bg-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    </span>
+                    <span className="text-sm text-slate-500">Cora is waiting for your response...</span>
+                  </div>
+                  <form onSubmit={handleSendMessage}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder='Start with an idea, or type "@" to mention'
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                          <Paperclip className="w-4 h-4" />
+                        </button>
+                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                          <AtSign className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="submit"
+                          className={`p-2 rounded-lg transition-all ${
+                            inputValue.trim()
+                              ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+                              : 'text-slate-300 cursor-not-allowed'
+                          }`}
+                          disabled={!inputValue.trim()}
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <button type="button" className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors">
+                        <span className="font-medium">Nano Banana</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             )}
+
+            {/* Collapse Toggle */}
+            <button
+              onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+              className="absolute top-1/2 -translate-y-1/2 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+              style={{ left: isPanelCollapsed ? '0px' : '300px' }}
+            >
+              <ChevronRight className={`w-4 h-4 transition-transform ${isPanelCollapsed ? '' : 'rotate-180'}`} />
+            </button>
+
+            {/* White Canvas Area */}
+            <main className="flex-1 bg-white relative overflow-hidden">
+              {/* Canvas Tools */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
+                {canvasTools.map((tool) => (
+                  <CanvasTool
+                    key={tool.id}
+                    icon={tool.icon}
+                    active={activeTool === tool.id}
+                    onClick={() => setActiveTool(tool.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Canvas Content */}
+              <div className="absolute inset-0 flex items-center justify-center p-8">
+                <div className="relative max-w-lg w-full">
+                  {selectedImage ? (
+                    <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                      <img
+                        src={selectedImage}
+                        alt="Editing"
+                        className="w-full h-auto"
+                        style={{ transform: `scale(${zoomLevel / 100})` }}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <div className="p-16 text-center">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
+                          <Upload className="w-10 h-10 text-slate-400" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-slate-600 mb-2">
+                          Upload an Image
+                        </h2>
+                        <p className="text-slate-400">
+                          Click here or drag & drop to get started
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </main>
+          </div>
+
+          {/* Creations Strip */}
+          <div className="h-20 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
+            <div className="flex items-center gap-2 mr-4">
+              <span className="text-sm font-semibold text-slate-700">Creations</span>
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="flex-1 overflow-x-auto">
+              <div className="flex items-center gap-2">
+                {creations.map((creation) => (
+                  <button
+                    key={creation.id}
+                    className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 hover:ring-2 hover:ring-violet-500 transition-all hover:scale-105"
+                    onClick={() => setSelectedImage(creation.thumbnail)}
+                  >
+                    <img
+                      src={creation.thumbnail}
+                      alt={creation.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* References Modal */}
-      <ReferencesModal
-        isOpen={isReferencesModalOpen}
-        onClose={() => setIsReferencesModalOpen(false)}
-        onImagesSelect={handleImagesSelect}
-      />
+        {/* Right Panel - Canvas Mode (REVVEN Green) */}
+        <div className="w-[260px] bg-[#1a2e35] overflow-y-auto flex-shrink-0">
+          <div className="p-4 space-y-5">
+            {/* Canvas Mode Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-white">Canvas Mode</span>
+                <HelpCircle className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* Mode Selector */}
+            <div className="flex items-center justify-between bg-slate-700/30 rounded-xl p-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-violet-500/30 rounded-lg">
+                  <Sparkles className="w-4 h-4 text-violet-300" />
+                </div>
+                <span className="text-sm text-slate-200">Inpaint / Outpaint</span>
+              </div>
+              <button className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium">
+                Change
+              </button>
+            </div>
+
+            {/* Outpaint Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-200">Outpaint</span>
+                <HelpCircle className="w-4 h-4 text-slate-500" />
+              </div>
+              <Toggle
+                enabled={canvasSettings.outpaint}
+                onChange={(enabled) => setCanvasSettings({ ...canvasSettings, outpaint: enabled })}
+              />
+            </div>
+
+            {/* Inpaint Strength */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-200">Inpaint Strength</span>
+                <HelpCircle className="w-4 h-4 text-slate-500" />
+              </div>
+              <Slider
+                value={canvasSettings.inpaintStrength}
+                onChange={(value) => setCanvasSettings({ ...canvasSettings, inpaintStrength: value })}
+                min={0}
+                max={1}
+                step={0.1}
+              />
+            </div>
+
+            {/* Number of Images */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-200">Number of Images</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                  <NumberButton
+                    key={num}
+                    value={num}
+                    selected={canvasSettings.numberOfImages === num}
+                    onClick={() => setCanvasSettings({ ...canvasSettings, numberOfImages: num })}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Image Dimensions */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-200">Image Dimensions</span>
+                <HelpCircle className="w-4 h-4 text-slate-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {['512 × 512', '768 × 768', '512 × 1024', '768 × 1024', '1024 × 768', '1024 × 1024'].map((dim) => (
+                  <DimensionButton
+                    key={dim}
+                    label={dim}
+                    selected={canvasSettings.dimensions === dim}
+                    onClick={() => setCanvasSettings({ ...canvasSettings, dimensions: dim })}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Advanced Controls */}
+            <div className="space-y-4">
+              <span className="text-sm text-slate-200">Advanced Controls</span>
+
+              {/* Aspect Ratio Lock */}
+              <div className="flex items-center gap-3 bg-slate-700/30 rounded-xl p-3">
+                <button className="p-2 bg-slate-600 rounded-lg text-slate-300 hover:text-white hover:bg-slate-500 transition-all">
+                  <Lock className="w-4 h-4" />
+                </button>
+                <div className="flex-1 flex items-center justify-center">
+                  <span className="text-sm text-slate-200 font-medium">{canvasSettings.aspectRatio}</span>
+                </div>
+              </div>
+
+              {/* Width */}
+              <div className="flex items-center gap-3">
+                <Slider
+                  value={canvasSettings.width}
+                  onChange={(value) => setCanvasSettings({ ...canvasSettings, width: value })}
+                  min={256}
+                  max={2048}
+                  showValue={false}
+                />
+                <div className="flex items-center gap-1 bg-slate-700/30 rounded-lg px-2 py-1.5">
+                  <span className="text-xs text-slate-400">W</span>
+                  <input
+                    type="number"
+                    value={canvasSettings.width}
+                    onChange={(e) => setCanvasSettings({ ...canvasSettings, width: Number(e.target.value) })}
+                    className="w-10 bg-transparent text-sm text-slate-200 text-right focus:outline-none tabular-nums"
+                  />
+                  <span className="text-xs text-slate-400">px</span>
+                </div>
+              </div>
+
+              {/* Height */}
+              <div className="flex items-center gap-3">
+                <Slider
+                  value={canvasSettings.height}
+                  onChange={(value) => setCanvasSettings({ ...canvasSettings, height: value })}
+                  min={256}
+                  max={2048}
+                  showValue={false}
+                />
+                <div className="flex items-center gap-1 bg-slate-700/30 rounded-lg px-2 py-1.5">
+                  <span className="text-xs text-slate-400">H</span>
+                  <input
+                    type="number"
+                    value={canvasSettings.height}
+                    onChange={(e) => setCanvasSettings({ ...canvasSettings, height: Number(e.target.value) })}
+                    className="w-10 bg-transparent text-sm text-slate-200 text-right focus:outline-none tabular-nums"
+                  />
+                  <span className="text-xs text-slate-400">px</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Render Density */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-200">Render Density</span>
+                <HelpCircle className="w-4 h-4 text-slate-500" />
+              </div>
+              <Slider
+                value={canvasSettings.renderDensity}
+                onChange={(value) => setCanvasSettings({ ...canvasSettings, renderDensity: value })}
+                min={0}
+                max={100}
+              />
+            </div>
+
+            {/* Guidance Scale */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-200">Guidance Scale</span>
+                <HelpCircle className="w-4 h-4 text-slate-500" />
+              </div>
+              <Slider
+                value={canvasSettings.guidanceScale}
+                onChange={(value) => setCanvasSettings({ ...canvasSettings, guidanceScale: value })}
+                min={1}
+                max={20}
+              />
+            </div>
+          </div>
+
+          {/* Floating Chat Button */}
+          <button className="fixed bottom-24 right-8 w-12 h-12 bg-violet-500 rounded-full flex items-center justify-center shadow-xl shadow-violet-500/30 hover:bg-violet-400 transition-all hover:scale-105 z-50">
+            <MessageSquare className="w-5 h-5 text-white" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
