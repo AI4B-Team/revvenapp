@@ -463,32 +463,34 @@ const Create = () => {
             }} />
             
             <GenerationInput 
-              selectedType={selectedType}
+              selectedType={selectedType || 'Image'}
               onCharactersClick={() => setCharactersModalOpen(true)}
               onCharactersSelect={(characters) => {
-                if (selectedType === 'Image') setImageCharacters(characters);
-                else if (selectedType === 'Video') setVideoCharacters(characters);
-                else if (selectedType === 'Audio') setAudioCharacters(characters);
-                else if (selectedType === 'Design') setDesignCharacters(characters);
+                const effectiveType = selectedType || 'Image';
+                if (effectiveType === 'Image') setImageCharacters(characters);
+                else if (effectiveType === 'Video') setVideoCharacters(characters);
+                else if (effectiveType === 'Audio') setAudioCharacters(characters);
+                else if (effectiveType === 'Design') setDesignCharacters(characters);
               }}
               selectedCharacters={
-                selectedType === 'Image' ? imageCharacters :
+                (selectedType === 'Image' || selectedType === '') ? imageCharacters :
                 selectedType === 'Video' ? videoCharacters :
                 selectedType === 'Audio' ? audioCharacters :
-                selectedType === 'Design' ? designCharacters : []
+                selectedType === 'Design' ? designCharacters : imageCharacters
               }
               onReferencesClick={() => setReferencesModalOpen(true)}
               onReferencesSelect={(references) => {
-                if (selectedType === 'Image') setImageReferences(references);
-                else if (selectedType === 'Video') setVideoReferences(references);
-                else if (selectedType === 'Audio') setAudioReferences(references);
-                else if (selectedType === 'Design') setDesignReferences(references);
+                const effectiveType = selectedType || 'Image';
+                if (effectiveType === 'Image') setImageReferences(references);
+                else if (effectiveType === 'Video') setVideoReferences(references);
+                else if (effectiveType === 'Audio') setAudioReferences(references);
+                else if (effectiveType === 'Design') setDesignReferences(references);
               }}
               selectedReferences={
-                selectedType === 'Image' ? imageReferences :
+                (selectedType === 'Image' || selectedType === '') ? imageReferences :
                 selectedType === 'Video' ? videoReferences :
                 selectedType === 'Audio' ? audioReferences :
-                selectedType === 'Design' ? designReferences : []
+                selectedType === 'Design' ? designReferences : imageReferences
               }
               isCharacterReference={isCharacterReference}
               onGenerationStart={() => setActiveView('creations')}
