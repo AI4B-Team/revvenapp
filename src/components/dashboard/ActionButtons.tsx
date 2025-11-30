@@ -1,22 +1,24 @@
-import { Clock, AppWindow, Users, Folder } from 'lucide-react';
+import { Clock, AppWindow, Users, Folder, LayoutTemplate } from 'lucide-react';
 
 interface ActionButtonsProps {
-  activeView: 'tools' | 'creations' | 'community' | 'collections';
-  onViewChange: (view: 'tools' | 'creations' | 'community' | 'collections') => void;
+  activeView: 'tools' | 'creations' | 'templates' | 'community' | 'collections';
+  onViewChange: (view: 'tools' | 'creations' | 'templates' | 'community' | 'collections') => void;
   hasSelectedType?: boolean;
 }
 
 const ActionButtons = ({ activeView, onViewChange, hasSelectedType = false }: ActionButtonsProps) => {
-  // Default order: Apps, Creations, Community, Collections
-  // When type selected: Creations, Community, Collections, Apps
+  // Default order: Apps, Creations, Templates, Community, Collections
+  // When type selected: Creations, Templates, Community, Collections, Apps
   const buttons = hasSelectedType ? [
     { view: 'creations' as const, icon: Clock, label: 'Creations' },
+    { view: 'templates' as const, icon: LayoutTemplate, label: 'Templates' },
     { view: 'community' as const, icon: Users, label: 'Community' },
     { view: 'collections' as const, icon: Folder, label: 'Collections' },
     { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
   ] : [
     { view: 'tools' as const, icon: AppWindow, label: 'Apps' },
     { view: 'creations' as const, icon: Clock, label: 'Creations' },
+    { view: 'templates' as const, icon: LayoutTemplate, label: 'Templates' },
     { view: 'community' as const, icon: Users, label: 'Community' },
     { view: 'collections' as const, icon: Folder, label: 'Collections' },
   ];
