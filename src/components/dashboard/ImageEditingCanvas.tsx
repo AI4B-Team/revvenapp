@@ -27,13 +27,40 @@ import {
   Music,
   Sparkles,
   ChevronDown,
-  ChevronRight,
-  FolderOpen,
-  Gift,
   Pencil,
   Layers,
   Upload,
+  History,
+  MessageCirclePlus,
+  ZoomIn,
+  Play,
+  Eraser as RemoveBgIcon,
+  SlidersHorizontal,
+  Trash2,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Palette,
+  CircleDot,
+  Square,
+  Move,
+  RotateCcw as Rotate,
+  FlipHorizontal,
+  FlipVertical,
+  Maximize2,
+  Minimize2,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -165,32 +192,167 @@ const DimensionButton: React.FC<{
   </button>
 );
 
-// Canvas Tool Button
+// Canvas Tool Button with Tooltip
 const CanvasTool: React.FC<{
   icon: React.ReactNode;
+  tooltip: string;
   active?: boolean;
   onClick?: () => void;
-}> = ({ icon, active, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`p-2.5 rounded-lg transition-all duration-200 ${
-      active
-        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
-        : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-800 shadow-sm'
-    }`}
-  >
-    {icon}
-  </button>
+}> = ({ icon, tooltip, active, onClick }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button
+        onClick={onClick}
+        className={`p-2.5 rounded-lg transition-all duration-200 ${
+          active
+            ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
+            : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-800 shadow-sm'
+        }`}
+      >
+        {icon}
+      </button>
+    </TooltipTrigger>
+    <TooltipContent className="bg-black text-white">
+      <p>{tooltip}</p>
+    </TooltipContent>
+  </Tooltip>
 );
+
+// Tool settings configurations
+const getToolSettings = (tool: string) => {
+  switch (tool) {
+    case 'select':
+      return {
+        title: 'Selection',
+        settings: [
+          { type: 'buttons', label: 'Selection Mode', options: ['Rectangle', 'Ellipse', 'Freeform', 'Magic'] },
+          { type: 'toggle', label: 'Feather Edges', key: 'feather' },
+          { type: 'slider', label: 'Feather Amount', min: 0, max: 100, key: 'featherAmount' },
+          { type: 'toggle', label: 'Anti-Alias', key: 'antiAlias' },
+        ],
+      };
+    case 'crop':
+      return {
+        title: 'Crop',
+        settings: [
+          { type: 'buttons', label: 'Aspect Ratio', options: ['Free', '1:1', '16:9', '4:3', '3:2'] },
+          { type: 'toggle', label: 'Lock Ratio', key: 'lockRatio' },
+          { type: 'buttons', label: 'Rotation', options: ['0°', '90°', '180°', '270°'] },
+          { type: 'toggle', label: 'Show Grid', key: 'showGrid' },
+        ],
+      };
+    case 'brush':
+      return {
+        title: 'Brush / Eraser',
+        settings: [
+          { type: 'slider', label: 'Size', min: 1, max: 500, key: 'brushSize' },
+          { type: 'slider', label: 'Hardness', min: 0, max: 100, key: 'hardness' },
+          { type: 'slider', label: 'Opacity', min: 0, max: 100, key: 'opacity' },
+          { type: 'slider', label: 'Flow', min: 0, max: 100, key: 'flow' },
+          { type: 'buttons', label: 'Blend Mode', options: ['Normal', 'Multiply', 'Screen', 'Overlay'] },
+        ],
+      };
+    case 'fill':
+      return {
+        title: 'Fill',
+        settings: [
+          { type: 'color', label: 'Fill Color', key: 'fillColor' },
+          { type: 'slider', label: 'Tolerance', min: 0, max: 255, key: 'tolerance' },
+          { type: 'toggle', label: 'Contiguous', key: 'contiguous' },
+          { type: 'toggle', label: 'All Layers', key: 'allLayers' },
+          { type: 'slider', label: 'Opacity', min: 0, max: 100, key: 'opacity' },
+        ],
+      };
+    case 'text':
+      return {
+        title: 'Text',
+        settings: [
+          { type: 'dropdown', label: 'Font Family', options: ['Inter', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Roboto'] },
+          { type: 'slider', label: 'Font Size', min: 8, max: 200, key: 'fontSize' },
+          { type: 'buttons', label: 'Style', options: ['Bold', 'Italic', 'Underline'] },
+          { type: 'buttons', label: 'Alignment', options: ['Left', 'Center', 'Right', 'Justify'] },
+          { type: 'color', label: 'Text Color', key: 'textColor' },
+          { type: 'slider', label: 'Letter Spacing', min: -50, max: 100, key: 'letterSpacing' },
+          { type: 'slider', label: 'Line Height', min: 0.5, max: 3, key: 'lineHeight', step: 0.1 },
+        ],
+      };
+    case 'magic':
+      return {
+        title: 'AI Magic',
+        settings: [
+          { type: 'buttons', label: 'AI Mode', options: ['Generate', 'Inpaint', 'Outpaint', 'Enhance'] },
+          { type: 'slider', label: 'Strength', min: 0, max: 100, key: 'aiStrength' },
+          { type: 'slider', label: 'Guidance Scale', min: 1, max: 20, key: 'guidance' },
+          { type: 'slider', label: 'Steps', min: 10, max: 50, key: 'steps' },
+          { type: 'toggle', label: 'Preserve Details', key: 'preserveDetails' },
+        ],
+      };
+    case 'layers':
+      return {
+        title: 'Layers',
+        settings: [
+          { type: 'slider', label: 'Layer Opacity', min: 0, max: 100, key: 'layerOpacity' },
+          { type: 'buttons', label: 'Blend Mode', options: ['Normal', 'Multiply', 'Screen', 'Overlay', 'Soft Light'] },
+          { type: 'toggle', label: 'Lock Layer', key: 'lockLayer' },
+          { type: 'toggle', label: 'Visible', key: 'layerVisible' },
+        ],
+      };
+    case 'upscale':
+      return {
+        title: 'Upscale',
+        settings: [
+          { type: 'buttons', label: 'Scale Factor', options: ['2x', '4x', '8x'] },
+          { type: 'buttons', label: 'Model', options: ['Standard', 'Creative', 'Sharp'] },
+          { type: 'toggle', label: 'Denoise', key: 'denoise' },
+          { type: 'slider', label: 'Denoise Strength', min: 0, max: 100, key: 'denoiseStrength' },
+          { type: 'toggle', label: 'Face Enhancement', key: 'faceEnhance' },
+        ],
+      };
+    case 'animate':
+      return {
+        title: 'Animate',
+        settings: [
+          { type: 'buttons', label: 'Animation Type', options: ['Pan', 'Zoom', 'Rotate', 'Morph'] },
+          { type: 'slider', label: 'Duration (s)', min: 1, max: 30, key: 'duration' },
+          { type: 'buttons', label: 'Easing', options: ['Linear', 'Ease In', 'Ease Out', 'Bounce'] },
+          { type: 'slider', label: 'Intensity', min: 0, max: 100, key: 'intensity' },
+          { type: 'toggle', label: 'Loop', key: 'loop' },
+        ],
+      };
+    case 'removebg':
+      return {
+        title: 'Remove Background',
+        settings: [
+          { type: 'buttons', label: 'Model', options: ['Auto', 'Portrait', 'Product', 'General'] },
+          { type: 'slider', label: 'Edge Refinement', min: 0, max: 100, key: 'edgeRefinement' },
+          { type: 'toggle', label: 'Feather Edges', key: 'featherEdges' },
+          { type: 'slider', label: 'Feather Amount', min: 0, max: 20, key: 'featherAmount' },
+          { type: 'color', label: 'Replacement Color', key: 'bgColor' },
+        ],
+      };
+    case 'opacity':
+      return {
+        title: 'Opacity',
+        settings: [
+          { type: 'slider', label: 'Image Opacity', min: 0, max: 100, key: 'imageOpacity' },
+          { type: 'toggle', label: 'Affect All Layers', key: 'affectAll' },
+          { type: 'buttons', label: 'Blend Mode', options: ['Normal', 'Multiply', 'Screen', 'Overlay'] },
+        ],
+      };
+    default:
+      return null;
+  }
+};
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
   const navigate = useNavigate();
-  const [activeTool, setActiveTool] = useState('select');
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(105);
   const [inputValue, setInputValue] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | undefined>(image);
   const [isImageSelected, setIsImageSelected] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('Nano Banana');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
@@ -204,6 +366,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     height: 512,
     renderDensity: 50,
     guidanceScale: 7,
+  });
+
+  // Tool-specific settings state
+  const [toolSettings, setToolSettings] = useState<Record<string, any>>({
+    fontSize: 24,
+    brushSize: 20,
+    opacity: 100,
+    tolerance: 32,
+    aiStrength: 75,
+    guidance: 7,
+    steps: 30,
+    duration: 5,
+    intensity: 50,
+    edgeRefinement: 50,
+    imageOpacity: 100,
+    denoiseStrength: 50,
   });
 
   const [messages] = useState<Message[]>([
@@ -236,13 +414,18 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     : baseCreations;
 
   const canvasTools = [
-    { id: 'select', icon: <MousePointer2 className="w-4 h-4" /> },
-    { id: 'crop', icon: <Crop className="w-4 h-4" /> },
-    { id: 'brush', icon: <Eraser className="w-4 h-4" /> },
-    { id: 'fill', icon: <PaintBucket className="w-4 h-4" /> },
-    { id: 'text', icon: <Type className="w-4 h-4" /> },
-    { id: 'magic', icon: <Wand2 className="w-4 h-4" /> },
-    { id: 'layers', icon: <Layers className="w-4 h-4" /> },
+    { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
+    { id: 'crop', icon: <Crop className="w-4 h-4" />, tooltip: 'Crop' },
+    { id: 'brush', icon: <Eraser className="w-4 h-4" />, tooltip: 'Brush / Eraser' },
+    { id: 'fill', icon: <PaintBucket className="w-4 h-4" />, tooltip: 'Fill' },
+    { id: 'text', icon: <Type className="w-4 h-4" />, tooltip: 'Text' },
+    { id: 'magic', icon: <Wand2 className="w-4 h-4" />, tooltip: 'AI Magic' },
+    { id: 'layers', icon: <Layers className="w-4 h-4" />, tooltip: 'Layers' },
+    { id: 'upscale', icon: <ZoomIn className="w-4 h-4" />, tooltip: 'Upscale' },
+    { id: 'animate', icon: <Play className="w-4 h-4" />, tooltip: 'Animate' },
+    { id: 'removebg', icon: <RemoveBgIcon className="w-4 h-4" />, tooltip: 'Remove Background' },
+    { id: 'opacity', icon: <SlidersHorizontal className="w-4 h-4" />, tooltip: 'Opacity' },
+    { id: 'delete', icon: <Trash2 className="w-4 h-4" />, tooltip: 'Delete' },
   ];
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -268,499 +451,428 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     navigate('/create');
   };
 
-  return (
-    <div className="h-full w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        accept="image/*"
-        className="hidden"
-      />
+  const handleToolClick = (toolId: string) => {
+    if (toolId === 'delete') {
+      setSelectedImage(undefined);
+      setIsImageSelected(false);
+      setActiveTool(null);
+    } else {
+      setActiveTool(activeTool === toolId ? null : toolId);
+    }
+  };
 
-      {/* Full-width Editor Toolbar */}
-      <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-white">Editor</span>
-          <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
-            <Pencil className="w-3.5 h-3.5 text-violet-300" />
-            <span className="text-sm font-medium text-violet-200">Editing</span>
-            <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+  const currentToolSettings = activeTool ? getToolSettings(activeTool) : null;
+
+  const renderToolSettingsPanel = () => {
+    if (!currentToolSettings) return null;
+
+    return (
+      <div className="p-4 space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-white">{currentToolSettings.title}</span>
+            <HelpCircle className="w-4 h-4 text-slate-400" />
           </div>
-        </div>
-
-        {/* Undo/Redo & Zoom */}
-        <div className="flex items-center gap-2 ml-4">
-          <button className="p-2 text-slate-300 hover:text-white transition-colors">
-            <RotateCcw className="w-4 h-4" />
-          </button>
-          <button className="p-2 text-slate-300 hover:text-white transition-colors">
-            <RotateCw className="w-4 h-4" />
-          </button>
-          <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
-            <Diamond className="w-4 h-4" />
-          </button>
-          <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
-            <button
-              onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
-              className="p-1 text-slate-400 hover:text-white transition-colors"
-            >
-              <Minus className="w-3 h-3" />
-            </button>
-            <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
-            <button
-              onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
-              className="p-1 text-slate-400 hover:text-white transition-colors"
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex-1" />
-
-        {/* Media Type Tabs */}
-        <div className="flex items-center gap-6">
-          <button className="flex items-center gap-2 text-white font-medium text-sm">
-            <Image className="w-4 h-4" />
-            <span>Image</span>
-          </button>
-          <span className="text-slate-500">|</span>
-          <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-            <Video className="w-4 h-4" />
-            <span>Video</span>
-          </button>
-          <span className="text-slate-500">|</span>
-          <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-            <Music className="w-4 h-4" />
-            <span>Audio</span>
-          </button>
-        </div>
-
-        <div className="flex-1" />
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
-          <button className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors">
-            DB Ads
-          </button>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-            K
-          </div>
-          <button className="p-2 text-slate-300 hover:text-white transition-colors">
-            <Plus className="w-5 h-5" />
-          </button>
-          <button className="p-2 text-slate-300 hover:text-white transition-colors">
-            <BarChart3 className="w-5 h-5" />
-          </button>
-          <button className="p-2 text-slate-300 hover:text-white transition-colors">
-            <MessageSquare className="w-5 h-5" />
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-sm text-white transition-colors">
-            <Share2 className="w-4 h-4" />
-            <span>Share</span>
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-2 text-slate-300 hover:text-white transition-colors"
+          <button 
+            onClick={() => setActiveTool(null)}
+            className="p-1 text-slate-400 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Design Agent Panel - Extended width to align with zoom + button */}
-        {!isPanelCollapsed && (
-          <div className="w-[440px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 relative">
-            {/* Collapse Button - Top Right */}
+        {currentToolSettings.settings.map((setting: any, index: number) => (
+          <div key={index} className="space-y-2">
+            {setting.type === 'slider' && (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-200">{setting.label}</span>
+                </div>
+                <Slider
+                  value={toolSettings[setting.key] || setting.min}
+                  onChange={(value) => setToolSettings({ ...toolSettings, [setting.key]: value })}
+                  min={setting.min}
+                  max={setting.max}
+                  step={setting.step || 1}
+                />
+              </>
+            )}
+            {setting.type === 'buttons' && (
+              <>
+                <span className="text-sm text-slate-200">{setting.label}</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {setting.options.map((opt: string) => (
+                    <button
+                      key={opt}
+                      className="px-2 py-2 rounded-lg text-xs font-medium bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white transition-all"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {setting.type === 'toggle' && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-200">{setting.label}</span>
+                <Toggle
+                  enabled={toolSettings[setting.key] || false}
+                  onChange={(enabled) => setToolSettings({ ...toolSettings, [setting.key]: enabled })}
+                />
+              </div>
+            )}
+            {setting.type === 'dropdown' && (
+              <>
+                <span className="text-sm text-slate-200">{setting.label}</span>
+                <div className="relative">
+                  <select className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2 text-sm appearance-none cursor-pointer">
+                    {setting.options.map((opt: string) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </>
+            )}
+            {setting.type === 'color' && (
+              <>
+                <span className="text-sm text-slate-200">{setting.label}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-600 cursor-pointer" />
+                  <input 
+                    type="text" 
+                    value="#FFFFFF" 
+                    className="flex-1 bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2 text-sm"
+                    readOnly
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <TooltipProvider>
+      <div className="h-full w-full bg-slate-100 flex flex-col overflow-hidden font-sans">
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          accept="image/*"
+          className="hidden"
+        />
+
+        {/* Full-width Editor Toolbar */}
+        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-white">Editor</span>
+            <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
+              <Pencil className="w-3.5 h-3.5 text-violet-300" />
+              <span className="text-sm font-medium text-violet-200">Editing</span>
+              <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+            </div>
+          </div>
+
+          {/* Undo/Redo & Zoom */}
+          <div className="flex items-center gap-2 ml-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Undo</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                  <RotateCw className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Redo</p></TooltipContent>
+            </Tooltip>
+            <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
+              <Diamond className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
+              <button
+                onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
+                className="p-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
+              <button
+                onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
+                className="p-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Media Type Tabs */}
+          <div className="flex items-center gap-6">
+            <button className="flex items-center gap-2 text-white font-medium text-sm">
+              <Image className="w-4 h-4" />
+              <span>Image</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+              <Video className="w-4 h-4" />
+              <span>Video</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+              <Music className="w-4 h-4" />
+              <span>Audio</span>
+            </button>
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <button className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium hover:bg-orange-500/30 transition-colors">
+              DB Ads
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+              K
+            </div>
+            <button className="p-2 text-slate-300 hover:text-white transition-colors">
+              <Plus className="w-5 h-5" />
+            </button>
+            <button className="p-2 text-slate-300 hover:text-white transition-colors">
+              <BarChart3 className="w-5 h-5" />
+            </button>
+            <button className="p-2 text-slate-300 hover:text-white transition-colors">
+              <MessageSquare className="w-5 h-5" />
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg text-sm text-white transition-colors">
+              <Share2 className="w-4 h-4" />
+              <span>Share</span>
+            </button>
             <button
-              onClick={() => setIsPanelCollapsed(true)}
-              className="absolute top-3 right-0 translate-x-1/2 z-20 bg-emerald-500 p-1.5 rounded-lg text-white hover:bg-emerald-600 transition-colors shadow-sm"
+              onClick={handleClose}
+              className="p-2 text-slate-300 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Design Agent Panel */}
+          {!isPanelCollapsed && (
+            <div className="w-[440px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 relative">
+              {/* Collapse Button - Top Right */}
+              <button
+                onClick={() => setIsPanelCollapsed(true)}
+                className="absolute top-3 right-0 translate-x-1/2 z-20 bg-emerald-500 p-1.5 rounded-lg text-white hover:bg-emerald-600 transition-colors shadow-sm"
+              >
+                <MessageSquare className="w-4 h-4" />
+              </button>
+
+              {/* Panel Header - Updated Layout */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
+                  {/* Model Dropdown */}
+                  <div className="relative">
+                    <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
+                      <span className="font-medium">{selectedModel}</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                  {/* New Chat & History Icons */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                        <MessageCirclePlus className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white"><p>New Chat</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                        <History className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black text-white"><p>History</p></TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div key={message.id}>
+                    {message.isRequest && (
+                      <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-3 h-3 text-slate-400" />
+                          <span className="text-xs text-slate-400 font-medium">Request</span>
+                        </div>
+                        <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                        {message.image && (
+                          <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                            <img src={message.image} alt="Design" className="w-full h-auto" />
+                            <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
+                              <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Input Area - No promo banner, no waiting message */}
+              <div className="p-4 border-t border-slate-200 bg-white">
+                <form onSubmit={handleSendMessage}>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      placeholder="Ask Cora to edit something..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                      <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <Paperclip className="w-4 h-4" />
+                      </button>
+                      <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <AtSign className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="submit"
+                        className={`p-2 rounded-lg transition-all ${
+                          inputValue.trim()
+                            ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+                            : 'text-slate-300 cursor-not-allowed'
+                        }`}
+                        disabled={!inputValue.trim()}
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Collapsed State Toggle */}
+          {isPanelCollapsed && (
+            <button
+              onClick={() => setIsPanelCollapsed(false)}
+              className="absolute top-20 left-0 z-10 bg-emerald-500 p-2 rounded-r-lg text-white hover:bg-emerald-600 transition-colors shadow-sm"
             >
               <MessageSquare className="w-4 h-4" />
             </button>
+          )}
 
-            {/* Panel Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-              <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">DESIGN AGENT: CORA</span>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                  <HelpCircle className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                  <Settings2 className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                  <Share2 className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                  <FolderOpen className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                  <Wand2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+          {/* Center Area: Canvas + Creations */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* White Canvas Area */}
+            <main className="flex-1 bg-white relative overflow-hidden">
+              {/* Canvas Content */}
+              <div className="absolute inset-0 flex items-center justify-center p-8">
+                  <div className="relative max-w-lg w-full">
+                  {/* Canvas Tools - Only visible when image is selected */}
+                  {isImageSelected && (
+                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
+                      {canvasTools.map((tool) => (
+                        <CanvasTool
+                          key={tool.id}
+                          icon={tool.icon}
+                          tooltip={tool.tooltip}
+                          active={activeTool === tool.id}
+                          onClick={() => handleToolClick(tool.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div key={message.id}>
-                  {message.isRequest && (
-                    <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-3 h-3 text-slate-400" />
-                        <span className="text-xs text-slate-400 font-medium">Request</span>
-                      </div>
-                      <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
-                      {message.image && (
-                        <div className="relative rounded-lg overflow-hidden border border-slate-200">
-                          <img src={message.image} alt="Design" className="w-full h-auto" />
-                          <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
-                            <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
-                          </div>
+                  {selectedImage ? (
+                    <div 
+                      className={`bg-white rounded-xl shadow-xl overflow-hidden cursor-pointer transition-all ${isImageSelected ? 'border-2 border-emerald-500' : 'border border-slate-200'}`}
+                      onClick={() => setIsImageSelected(!isImageSelected)}
+                    >
+                      <img
+                        src={selectedImage}
+                        alt="Editing"
+                        className="w-full h-auto"
+                        style={{ transform: `scale(${zoomLevel / 100})` }}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <div className="p-16 text-center">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
+                          <Upload className="w-10 h-10 text-slate-400" />
                         </div>
-                      )}
+                        <h2 className="text-xl font-semibold text-slate-600 mb-2">
+                          Upload an Image
+                        </h2>
+                        <p className="text-slate-400">
+                          Click here or drag & drop to get started
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
+              </div>
+            </main>
 
-            {/* Promo Banner */}
-            <div className="mx-4 mb-3">
-              <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+            {/* Creations Strip */}
+            <div className="h-20 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
+              <div className="flex items-center gap-2 mr-4">
+                <span className="text-sm font-semibold text-slate-700">Creations</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </div>
+              <div className="flex-1 overflow-x-auto">
                 <div className="flex items-center gap-2">
-                  <Gift className="w-4 h-4 text-amber-500" />
-                  <span className="text-sm text-amber-700 font-medium">Get 365 days of FREE Nano Banana Pro!</span>
-                </div>
-                <button className="text-amber-400 hover:text-amber-600">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Input Area */}
-            <div className="p-4 border-t border-slate-200 bg-white">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                </span>
-                <span className="text-sm text-slate-500">Cora is waiting for your response...</span>
-              </div>
-              <form onSubmit={handleSendMessage}>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder='Start with an idea, or type "@" to mention'
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
-                  />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-                    <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                      <Paperclip className="w-4 h-4" />
-                    </button>
-                    <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                      <AtSign className="w-4 h-4" />
-                    </button>
+                  {creations.map((creation) => (
                     <button
-                      type="submit"
-                      className={`p-2 rounded-lg transition-all ${
-                        inputValue.trim()
-                          ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
-                          : 'text-slate-300 cursor-not-allowed'
-                      }`}
-                      disabled={!inputValue.trim()}
+                      key={creation.id}
+                      className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 hover:ring-2 hover:ring-violet-500 transition-all hover:scale-105"
+                      onClick={() => setSelectedImage(creation.thumbnail)}
                     >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-3">
-                  <button type="button" className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-700 transition-colors">
-                    <span className="font-medium">Nano Banana</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Collapsed State Toggle */}
-        {isPanelCollapsed && (
-          <button
-            onClick={() => setIsPanelCollapsed(false)}
-            className="absolute top-4 left-0 z-10 bg-white border border-slate-200 p-1.5 rounded-r-lg text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
-          >
-            <MessageSquare className="w-4 h-4" />
-          </button>
-        )}
-
-        {/* Center Area: Canvas + Creations */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* White Canvas Area */}
-          <main className="flex-1 bg-white relative overflow-hidden">
-            {/* Canvas Content */}
-            <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="relative max-w-lg w-full">
-                {/* Canvas Tools - Only visible when image is selected */}
-                {isImageSelected && (
-                  <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10">
-                    {canvasTools.map((tool) => (
-                      <CanvasTool
-                        key={tool.id}
-                        icon={tool.icon}
-                        active={activeTool === tool.id}
-                        onClick={() => setActiveTool(tool.id)}
+                      <img
+                        src={creation.thumbnail}
+                        alt={creation.title}
+                        className="w-full h-full object-cover"
                       />
-                    ))}
-                  </div>
-                )}
-
-                {selectedImage ? (
-                  <div 
-                    className={`bg-white rounded-xl shadow-xl overflow-hidden cursor-pointer transition-all ${isImageSelected ? 'border-2 border-emerald-500' : 'border border-slate-200'}`}
-                    onClick={() => setIsImageSelected(!isImageSelected)}
-                  >
-                    <img
-                      src={selectedImage}
-                      alt="Editing"
-                      className="w-full h-auto"
-                      style={{ transform: `scale(${zoomLevel / 100})` }}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <div className="p-16 text-center">
-                      <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
-                        <Upload className="w-10 h-10 text-slate-400" />
-                      </div>
-                      <h2 className="text-xl font-semibold text-slate-600 mb-2">
-                        Upload an Image
-                      </h2>
-                      <p className="text-slate-400">
-                        Click here or drag & drop to get started
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </main>
-
-          {/* Creations Strip */}
-          <div className="h-20 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
-            <div className="flex items-center gap-2 mr-4">
-              <span className="text-sm font-semibold text-slate-700">Creations</span>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </div>
-            <div className="flex-1 overflow-x-auto">
-              <div className="flex items-center gap-2">
-                {creations.map((creation) => (
-                  <button
-                    key={creation.id}
-                    className="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 hover:ring-2 hover:ring-violet-500 transition-all hover:scale-105"
-                    onClick={() => setSelectedImage(creation.thumbnail)}
-                  >
-                    <img
-                      src={creation.thumbnail}
-                      alt={creation.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Panel - Canvas Mode (Below header now) */}
-        <div className="w-[260px] bg-[#1a2e35] overflow-y-auto flex-shrink-0">
-          <div className="p-4 space-y-5">
-            {/* Canvas Mode Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white">Canvas Mode</span>
-                <HelpCircle className="w-4 h-4 text-slate-400" />
-              </div>
+          {/* Right Panel - Only show when a tool is selected */}
+          {activeTool && activeTool !== 'delete' && currentToolSettings && (
+            <div className="w-[260px] bg-[#1a2e35] overflow-y-auto flex-shrink-0">
+              {renderToolSettingsPanel()}
             </div>
-
-            {/* Mode Selector */}
-            <div className="flex items-center justify-between bg-slate-700/30 rounded-xl p-3">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-violet-500/30 rounded-lg">
-                  <Sparkles className="w-4 h-4 text-violet-300" />
-                </div>
-                <span className="text-sm text-slate-200">Inpaint / Outpaint</span>
-              </div>
-              <button className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium">
-                Change
-              </button>
-            </div>
-
-            {/* Outpaint Toggle */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-200">Outpaint</span>
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-              </div>
-              <Toggle
-                enabled={canvasSettings.outpaint}
-                onChange={(enabled) => setCanvasSettings({ ...canvasSettings, outpaint: enabled })}
-              />
-            </div>
-
-            {/* Inpaint Strength */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-200">Inpaint Strength</span>
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-              </div>
-              <Slider
-                value={canvasSettings.inpaintStrength}
-                onChange={(value) => setCanvasSettings({ ...canvasSettings, inpaintStrength: value })}
-                min={0}
-                max={1}
-                step={0.1}
-              />
-            </div>
-
-            {/* Number of Images */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-200">Number of Images</span>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                  <NumberButton
-                    key={num}
-                    value={num}
-                    selected={canvasSettings.numberOfImages === num}
-                    onClick={() => setCanvasSettings({ ...canvasSettings, numberOfImages: num })}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Image Dimensions */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-200">Image Dimensions</span>
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {['512 × 512', '768 × 768', '512 × 1024', '768 × 1024', '1024 × 768', '1024 × 1024'].map((dim) => (
-                  <DimensionButton
-                    key={dim}
-                    label={dim}
-                    selected={canvasSettings.dimensions === dim}
-                    onClick={() => setCanvasSettings({ ...canvasSettings, dimensions: dim })}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Advanced Controls */}
-            <div className="space-y-4">
-              <span className="text-sm text-slate-200">Advanced Controls</span>
-
-              {/* Aspect Ratio Lock */}
-              <div className="flex items-center gap-3 bg-slate-700/30 rounded-xl p-3">
-                <button className="p-2 bg-slate-600 rounded-lg text-slate-300 hover:text-white hover:bg-slate-500 transition-all">
-                  <Lock className="w-4 h-4" />
-                </button>
-                <div className="flex-1 flex items-center justify-center">
-                  <span className="text-sm text-slate-200 font-medium">{canvasSettings.aspectRatio}</span>
-                </div>
-              </div>
-
-              {/* Width */}
-              <div className="flex items-center gap-3">
-                <Slider
-                  value={canvasSettings.width}
-                  onChange={(value) => setCanvasSettings({ ...canvasSettings, width: value })}
-                  min={256}
-                  max={2048}
-                  showValue={false}
-                />
-                <div className="flex items-center gap-1 bg-slate-700/30 rounded-lg px-2 py-1.5">
-                  <span className="text-xs text-slate-400">W</span>
-                  <input
-                    type="number"
-                    value={canvasSettings.width}
-                    onChange={(e) => setCanvasSettings({ ...canvasSettings, width: Number(e.target.value) })}
-                    className="w-10 bg-transparent text-sm text-slate-200 text-right focus:outline-none tabular-nums"
-                  />
-                  <span className="text-xs text-slate-400">px</span>
-                </div>
-              </div>
-
-              {/* Height */}
-              <div className="flex items-center gap-3">
-                <Slider
-                  value={canvasSettings.height}
-                  onChange={(value) => setCanvasSettings({ ...canvasSettings, height: value })}
-                  min={256}
-                  max={2048}
-                  showValue={false}
-                />
-                <div className="flex items-center gap-1 bg-slate-700/30 rounded-lg px-2 py-1.5">
-                  <span className="text-xs text-slate-400">H</span>
-                  <input
-                    type="number"
-                    value={canvasSettings.height}
-                    onChange={(e) => setCanvasSettings({ ...canvasSettings, height: Number(e.target.value) })}
-                    className="w-10 bg-transparent text-sm text-slate-200 text-right focus:outline-none tabular-nums"
-                  />
-                  <span className="text-xs text-slate-400">px</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Render Density */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-200">Render Density</span>
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-              </div>
-              <Slider
-                value={canvasSettings.renderDensity}
-                onChange={(value) => setCanvasSettings({ ...canvasSettings, renderDensity: value })}
-                min={0}
-                max={100}
-              />
-            </div>
-
-            {/* Guidance Scale */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-200">Guidance Scale</span>
-                <HelpCircle className="w-4 h-4 text-slate-500" />
-              </div>
-              <Slider
-                value={canvasSettings.guidanceScale}
-                onChange={(value) => setCanvasSettings({ ...canvasSettings, guidanceScale: value })}
-                min={1}
-                max={20}
-              />
-            </div>
-          </div>
-
-          {/* Floating Chat Button */}
-          <button className="fixed bottom-24 right-8 w-12 h-12 bg-violet-500 rounded-full flex items-center justify-center shadow-xl shadow-violet-500/30 hover:bg-violet-400 transition-all hover:scale-105 z-50">
-            <MessageSquare className="w-5 h-5 text-white" />
-          </button>
+          )}
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
