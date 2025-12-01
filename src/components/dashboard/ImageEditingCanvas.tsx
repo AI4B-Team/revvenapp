@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Send,
   Paperclip,
-  AtSign,
+  Mic,
   RotateCcw,
   RotateCw,
   Cloud,
@@ -381,18 +381,23 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     },
   ]);
 
-  // Sample creations with real placeholder images
+  // Sample creations with diverse real images - nature, cars, houses, animals, portraits
   const baseCreations: Creation[] = [
     { id: '2', thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop', title: 'Portrait 1' },
-    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop', title: 'Portrait 2' },
-    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop', title: 'Portrait 3' },
-    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop', title: 'Portrait 4' },
-    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop', title: 'Portrait 5' },
-    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop', title: 'Portrait 6' },
-    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop', title: 'Portrait 7' },
-    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 8' },
-    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop', title: 'Portrait 9' },
-    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1524638431109-93d95c968f03?w=200&h=200&fit=crop', title: 'Portrait 10' },
+    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', title: 'Mountain' },
+    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200&h=200&fit=crop', title: 'Sports Car' },
+    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop', title: 'Modern House' },
+    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=200&h=200&fit=crop', title: 'Lion' },
+    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 2' },
+    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop', title: 'Lake' },
+    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=200&fit=crop', title: 'Luxury Car' },
+    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop', title: 'Villa' },
+    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Turtle' },
+    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop', title: 'Forest' },
+    { id: '13', thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=200&fit=crop', title: 'BMW' },
+    { id: '14', thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop', title: 'Mansion' },
+    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200&h=200&fit=crop', title: 'Hamster' },
+    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=200&h=200&fit=crop', title: 'Cat' },
   ];
   
   // Build creations list with current image first if exists
@@ -651,7 +656,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         />
 
         {/* Full-width Editor Toolbar */}
-        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600">
+        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-white">Editor</span>
             <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
@@ -705,24 +710,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
 
-          {/* Centered Media Type Tabs */}
-          <div className="flex-1 flex justify-center">
-            <div className="flex items-center gap-6">
-              <button className="flex items-center gap-2 text-white font-medium text-sm">
-                <Image className="w-4 h-4" />
-                <span>Image</span>
-              </button>
-              <span className="text-slate-500">|</span>
-              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-                <Video className="w-4 h-4" />
-                <span>Video</span>
-              </button>
-              <span className="text-slate-500">|</span>
-              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-                <Music className="w-4 h-4" />
-                <span>Audio</span>
-              </button>
-            </div>
+          {/* Centered Media Type Tabs - properly centered */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+            <button className="flex items-center gap-2 text-white font-medium text-sm">
+              <Image className="w-4 h-4" />
+              <span>Image</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+              <Video className="w-4 h-4" />
+              <span>Video</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+              <Music className="w-4 h-4" />
+              <span>Audio</span>
+            </button>
           </div>
 
           {/* Right Actions */}
@@ -752,240 +755,238 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Design Agent Panel - 3D style border with shadow */}
-          {!isPanelCollapsed && (
-            <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative my-3 ml-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200">
-              {/* Panel Header - Updated Layout */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
-                  {/* Model Dropdown */}
-                  <div className="relative">
-                    <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
-                      <span className="font-medium">{selectedModel}</span>
-                      <ChevronDown className="w-3 h-3" />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top Section: Chat + Canvas + Right Panel */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Design Agent Panel - sits on top of creations */}
+            {!isPanelCollapsed && (
+              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 rounded-t-xl rounded-b-none shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200 border-b-0">
+                {/* Panel Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
+                    <div className="relative">
+                      <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
+                        <span className="font-medium">{selectedModel}</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                          <MessageCirclePlus className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white"><p>New Chat</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                          <History className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black text-white"><p>History</p></TooltipContent>
+                    </Tooltip>
+                    <button
+                      onClick={() => setIsPanelCollapsed(true)}
+                      className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1 relative z-10"
+                    >
+                      <MessageSquare className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-                {/* New Chat, History & Collapse Icons - closer together */}
-                <div className="flex items-center gap-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                        <MessageCirclePlus className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-black text-white"><p>New Chat</p></TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                        <History className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-black text-white"><p>History</p></TooltipContent>
-                  </Tooltip>
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.map((message) => (
+                    <div key={message.id}>
+                      {message.isRequest && (
+                        <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-3 h-3 text-slate-400" />
+                            <span className="text-xs text-slate-400 font-medium">Request</span>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                          {message.image && (
+                            <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                              <img src={message.image} alt="Design" className="w-full h-auto" />
+                              <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
+                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Input Area */}
+                <div className="p-4 border-t border-slate-200 bg-white">
+                  <form onSubmit={handleSendMessage}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Ask Cora to edit something..."
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                          <Paperclip className="w-4 h-4" />
+                        </button>
+                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                          <Mic className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="submit"
+                          className={`p-2 rounded-lg transition-all ${
+                            inputValue.trim()
+                              ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+                              : 'text-slate-300 cursor-not-allowed'
+                          }`}
+                          disabled={!inputValue.trim()}
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Collapsed State */}
+            {isPanelCollapsed && (
+              <div className="flex-shrink-0 flex items-start px-3 py-3 ml-3 mt-3">
+                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
+                  <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
                   <button
-                    onClick={() => setIsPanelCollapsed(true)}
-                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1 relative z-10"
+                    onClick={() => setIsPanelCollapsed(false)}
+                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
                   >
                     <MessageSquare className="w-4 h-4" />
                   </button>
                 </div>
               </div>
+            )}
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message) => (
-                  <div key={message.id}>
-                    {message.isRequest && (
-                      <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-3 h-3 text-slate-400" />
-                          <span className="text-xs text-slate-400 font-medium">Request</span>
-                        </div>
-                        <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
-                        {message.image && (
-                          <div className="relative rounded-lg overflow-hidden border border-slate-200">
-                            <img src={message.image} alt="Design" className="w-full h-auto" />
-                            <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
-                              <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Input Area */}
-              <div className="p-4 border-t border-slate-200 bg-white rounded-b-xl">
-                <form onSubmit={handleSendMessage}>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="Ask Cora to edit something..."
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
-                    />
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-                      <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                        <Paperclip className="w-4 h-4" />
-                      </button>
-                      <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                        <AtSign className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="submit"
-                        className={`p-2 rounded-lg transition-all ${
-                          inputValue.trim()
-                            ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
-                            : 'text-slate-300 cursor-not-allowed'
-                        }`}
-                        disabled={!inputValue.trim()}
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Collapsed State - Only shows "Design Agent" text and chat icon at top */}
-          {isPanelCollapsed && (
-            <div className="flex-shrink-0 flex items-start px-3 py-3 ml-3 mt-3">
-              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
-                <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
-                <button
-                  onClick={() => setIsPanelCollapsed(false)}
-                  className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Center Area: Canvas + Creations */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* White Canvas Area */}
-            <main 
-              ref={canvasRef}
-              className="flex-1 bg-slate-50 relative overflow-hidden canvas-background"
-              onClick={handleCanvasClick}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              {/* Canvas Content */}
-              <div className="absolute inset-0 flex items-center justify-center p-8 canvas-background">
-                {selectedImage ? (
-                  <div 
-                    className="relative"
-                    style={{
-                      transform: `scale(${zoomLevel / 100}) translate(${imagePosition.x / (zoomLevel / 100)}px, ${imagePosition.y / (zoomLevel / 100)}px)`,
-                      transformOrigin: 'center center',
-                      cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
-                    }}
-                  >
-                    {/* Canvas Tools - Only visible when image is selected */}
-                    {isImageSelected && (
-                      <div className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10"
-                        style={{ transform: `translateX(-50%) scale(${100 / zoomLevel})`, transformOrigin: 'center bottom' }}
-                      >
-                        {canvasTools.map((tool) => (
-                          <CanvasTool
-                            key={tool.id}
-                            icon={tool.icon}
-                            tooltip={tool.tooltip}
-                            active={activeTool === tool.id}
-                            onClick={() => handleToolClick(tool.id)}
-                          />
-                        ))}
-                      </div>
-                    )}
-
+            {/* Center Area: Canvas */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <main 
+                ref={canvasRef}
+                className="flex-1 bg-slate-50 relative overflow-hidden canvas-background"
+                onClick={handleCanvasClick}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <div className="absolute inset-0 flex items-center justify-center p-8 canvas-background">
+                  {selectedImage ? (
                     <div 
-                      className={`bg-white rounded-xl shadow-xl overflow-hidden transition-all max-w-2xl ${isImageSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'border border-slate-200'}`}
+                      className="relative"
+                      style={{
+                        transform: `scale(${zoomLevel / 100}) translate(${imagePosition.x / (zoomLevel / 100)}px, ${imagePosition.y / (zoomLevel / 100)}px)`,
+                        transformOrigin: 'center center',
+                        cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+                      }}
+                    >
+                      {isImageSelected && (
+                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10"
+                          style={{ transform: `translateX(-50%) scale(${100 / zoomLevel})`, transformOrigin: 'center bottom' }}
+                        >
+                          {canvasTools.map((tool) => (
+                            <CanvasTool
+                              key={tool.id}
+                              icon={tool.icon}
+                              tooltip={tool.tooltip}
+                              active={activeTool === tool.id}
+                              onClick={() => handleToolClick(tool.id)}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      <div 
+                        className={`bg-white rounded-xl shadow-xl overflow-hidden transition-all max-w-2xl ${isImageSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'border border-slate-200'}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsImageSelected(true);
+                        }}
+                        onMouseDown={handleImageMouseDown}
+                      >
+                        <img
+                          src={selectedImage}
+                          alt="Editing"
+                          className="w-full h-auto"
+                          draggable={false}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors max-w-lg w-full"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setIsImageSelected(true);
+                        setShowReferencesModal(true);
                       }}
-                      onMouseDown={handleImageMouseDown}
                     >
-                      <img
-                        src={selectedImage}
-                        alt="Editing"
-                        className="w-full h-auto"
-                        draggable={false}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors max-w-lg w-full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowReferencesModal(true);
-                    }}
-                  >
-                    <div className="p-16 text-center">
-                      <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
-                        <Upload className="w-10 h-10 text-slate-400" />
+                      <div className="p-16 text-center">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
+                          <Upload className="w-10 h-10 text-slate-400" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-slate-600 mb-2">
+                          Upload An Image
+                        </h2>
+                        <p className="text-slate-400">
+                          Click Here Or Drag & Drop To Get Started
+                        </p>
                       </div>
-                      <h2 className="text-xl font-semibold text-slate-600 mb-2">
-                        Upload An Image
-                      </h2>
-                      <p className="text-slate-400">
-                        Click Here Or Drag & Drop To Get Started
-                      </p>
                     </div>
-                  </div>
-                )}
-              </div>
-            </main>
-
-            {/* Creations Strip - lighter border, more padding for selection ring */}
-            <div className="h-24 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
-              <div className="flex items-center gap-2 mr-4">
-                <span className="text-sm font-semibold text-slate-700">Creations</span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
-              </div>
-              <div className="flex-1 overflow-x-auto py-2">
-                <div className="flex items-center gap-3 px-1">
-                  {creations.map((creation) => (
-                    <button
-                      key={creation.id}
-                      className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
-                        creation.isActive || activeCreationId === creation.id
-                          ? 'ring-2 ring-emerald-500 ring-offset-2'
-                          : 'hover:ring-2 hover:ring-violet-500 hover:ring-offset-1'
-                      }`}
-                      onClick={() => handleSelectFromCreations(creation)}
-                    >
-                      <img
-                        src={creation.thumbnail}
-                        alt={creation.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
+                  )}
                 </div>
+              </main>
+            </div>
+
+            {/* Right Panel */}
+            {activeTool && activeTool !== 'delete' && currentToolSettings && isImageSelected && (
+              <div className="w-[300px] bg-[#1a2e35] overflow-y-auto flex-shrink-0 border-l border-slate-600">
+                {renderToolSettingsPanel()}
+              </div>
+            )}
+          </div>
+
+          {/* Creations Strip - Full width at bottom */}
+          <div className="h-24 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
+            <div className="flex items-center gap-2 mr-4">
+              <span className="text-sm font-semibold text-slate-700">Creations</span>
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            </div>
+            <div className="flex-1 overflow-x-auto py-2">
+              <div className="flex items-center gap-3 px-1">
+                {creations.map((creation) => (
+                  <button
+                    key={creation.id}
+                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
+                      creation.isActive || activeCreationId === creation.id
+                        ? 'ring-2 ring-emerald-500 ring-offset-2'
+                        : 'hover:ring-2 hover:ring-violet-500 hover:ring-offset-1'
+                    }`}
+                    onClick={() => handleSelectFromCreations(creation)}
+                  >
+                    <img
+                      src={creation.thumbnail}
+                      alt={creation.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-
-          {/* Right Panel - Only show when a tool is selected AND image is selected */}
-          {activeTool && activeTool !== 'delete' && currentToolSettings && isImageSelected && (
-            <div className="w-[300px] bg-[#1a2e35] overflow-y-auto flex-shrink-0 border-l border-slate-600">
-              {renderToolSettingsPanel()}
-            </div>
-          )}
         </div>
       </div>
     </TooltipProvider>
