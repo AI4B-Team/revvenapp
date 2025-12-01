@@ -900,9 +900,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </div>
             )}
 
-            {/* Collapsed State - floating button on canvas */}
+            {/* Collapsed State - positioned at edge of left menu */}
             {isPanelCollapsed && (
-              <div className="absolute top-3 left-3 z-10">
+              <div className="flex-shrink-0 p-3">
                 <div className="inline-flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-lg border border-slate-300">
                   <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
                   <button
