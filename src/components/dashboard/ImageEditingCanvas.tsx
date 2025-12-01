@@ -47,6 +47,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ReferencesModal from './ReferencesModal';
 
 interface ImageEditingCanvasProps {
@@ -337,6 +343,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [selectedModel, setSelectedModel] = useState('Nano Banana');
   const [showReferencesModal, setShowReferencesModal] = useState(false);
   const [activeCreationId, setActiveCreationId] = useState<string | null>(null);
+  const [creationsFilter, setCreationsFilter] = useState<string>('Creations');
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -1024,10 +1031,34 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
           {/* Creations Strip - Full width at bottom */}
           <div className="h-24 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
-            <div className="flex items-center gap-2 mr-4 flex-shrink-0">
-              <span className="text-sm font-semibold text-slate-700">Creations</span>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 mr-4 flex-shrink-0 hover:bg-slate-100 px-2 py-1 rounded-lg transition-colors">
+                  <span className="text-sm font-semibold text-slate-700">{creationsFilter}</span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="bg-white border border-slate-200 shadow-lg z-50">
+                <DropdownMenuItem 
+                  onClick={() => setCreationsFilter('Creations')}
+                  className={creationsFilter === 'Creations' ? 'bg-slate-100' : ''}
+                >
+                  Creations
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setCreationsFilter('Edited')}
+                  className={creationsFilter === 'Edited' ? 'bg-slate-100' : ''}
+                >
+                  Edited
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setCreationsFilter('Upscaled')}
+                  className={creationsFilter === 'Upscaled' ? 'bg-slate-100' : ''}
+                >
+                  Upscaled
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="flex-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
               <div className="flex items-center gap-3 px-1 w-max">
                 {creations.map((creation) => (
