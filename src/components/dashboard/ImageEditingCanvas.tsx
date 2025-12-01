@@ -6,7 +6,8 @@ import {
   AtSign,
   RotateCcw,
   RotateCw,
-  Diamond,
+  Cloud,
+  Check,
   Plus,
   Minus,
   Share2,
@@ -334,6 +335,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [selectedModel, setSelectedModel] = useState('Nano Banana');
   const [showReferencesModal, setShowReferencesModal] = useState(false);
   const [activeCreationId, setActiveCreationId] = useState<string | null>(null);
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -410,6 +414,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setCreations(prev => [newCreation, ...prev.map(c => ({ ...c, isActive: false }))]);
     setSelectedImage(imageUrl);
     setActiveCreationId(newCreation.id);
+    setIsImageSelected(true);
+    setImagePosition({ x: 0, y: 0 });
     setShowReferencesModal(false);
   };
 
@@ -417,10 +423,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const handleSelectFromCreations = (creation: Creation) => {
     setSelectedImage(creation.thumbnail);
     setActiveCreationId(creation.id);
+    setIsImageSelected(true);
+    setImagePosition({ x: 0, y: 0 });
     setCreations(prev => prev.map(c => ({ ...c, isActive: c.id === creation.id })));
   };
 
-  // Handle mouse wheel zoom on canvas
+  // Handle mouse wheel zoom on canvas - scales entire image including border
   useEffect(() => {
     const canvasElement = canvasRef.current;
     if (!canvasElement) return;
@@ -436,6 +444,37 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     canvasElement.addEventListener('wheel', handleWheel, { passive: false });
     return () => canvasElement.removeEventListener('wheel', handleWheel);
   }, []);
+
+  // Handle click outside image to deselect
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    // Only deselect if clicking directly on the canvas background, not on the image
+    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('canvas-background')) {
+      setIsImageSelected(false);
+      setActiveTool(null);
+    }
+  };
+
+  // Handle image dragging with select tool
+  const handleImageMouseDown = (e: React.MouseEvent) => {
+    if (activeTool === 'select' && isImageSelected) {
+      e.preventDefault();
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && activeTool === 'select') {
+      setImagePosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
@@ -485,6 +524,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       setIsImageSelected(false);
       setActiveTool(null);
       setActiveCreationId(null);
+      setImagePosition({ x: 0, y: 0 });
       setCreations(prev => prev.map(c => ({ ...c, isActive: false })));
     } else {
       setActiveTool(activeTool === toolId ? null : toolId);
@@ -504,7 +544,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     if (!currentToolSettings) return null;
 
     return (
-      <div className="p-4 space-y-5">
+      <div className="p-5 space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-white">{currentToolSettings.title}</span>
@@ -541,7 +581,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                   {setting.options.map((opt: string) => (
                     <button
                       key={opt}
-                      className="px-2 py-2 rounded-lg text-xs font-medium bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white transition-all"
+                      className="px-3 py-2.5 rounded-lg text-xs font-medium bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white transition-all"
                     >
                       {opt}
                     </button>
@@ -562,7 +602,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <>
                 <span className="text-sm text-slate-200">{setting.label}</span>
                 <div className="relative">
-                  <select className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2 text-sm appearance-none cursor-pointer">
+                  <select className="w-full bg-slate-700/60 text-slate-200 rounded-lg px-3 py-2.5 text-sm appearance-none cursor-pointer">
                     {setting.options.map((opt: string) => (
                       <option key={opt} value={opt}>{opt}</option>
                     ))}
@@ -611,7 +651,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         />
 
         {/* Full-width Editor Toolbar */}
-        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b-2 border-slate-600">
+        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-white">Editor</span>
             <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
@@ -639,9 +679,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </TooltipTrigger>
               <TooltipContent className="bg-black text-white"><p>Redo</p></TooltipContent>
             </Tooltip>
-            <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors">
-              <Diamond className="w-4 h-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors relative">
+                  <Cloud className="w-4 h-4" />
+                  <Check className="w-2 h-2 absolute bottom-1.5 right-1.5 stroke-[3]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Saved To Cloud</p></TooltipContent>
+            </Tooltip>
             <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
               <button
                 onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
@@ -659,27 +705,25 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
 
-          <div className="flex-1" />
-
-          {/* Media Type Tabs */}
-          <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 text-white font-medium text-sm">
-              <Image className="w-4 h-4" />
-              <span>Image</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-              <Video className="w-4 h-4" />
-              <span>Video</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-              <Music className="w-4 h-4" />
-              <span>Audio</span>
-            </button>
+          {/* Centered Media Type Tabs */}
+          <div className="flex-1 flex justify-center">
+            <div className="flex items-center gap-6">
+              <button className="flex items-center gap-2 text-white font-medium text-sm">
+                <Image className="w-4 h-4" />
+                <span>Image</span>
+              </button>
+              <span className="text-slate-500">|</span>
+              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+                <Video className="w-4 h-4" />
+                <span>Video</span>
+              </button>
+              <span className="text-slate-500">|</span>
+              <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+                <Music className="w-4 h-4" />
+                <span>Audio</span>
+              </button>
+            </div>
           </div>
-
-          <div className="flex-1" />
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
@@ -709,11 +753,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
         {/* Main Content Area */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Design Agent Panel */}
+          {/* Design Agent Panel - 3D style border with shadow */}
           {!isPanelCollapsed && (
-            <div className="w-[440px] bg-white border-r-2 border-slate-300 flex flex-col flex-shrink-0 relative">
+            <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative my-3 ml-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200">
               {/* Panel Header - Updated Layout */}
-              <div className="flex items-center justify-between px-4 py-3 border-b-2 border-slate-300">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
                   {/* Model Dropdown */}
@@ -744,7 +788,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                   </Tooltip>
                   <button
                     onClick={() => setIsPanelCollapsed(true)}
-                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1"
+                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1 relative z-10"
                   >
                     <MessageSquare className="w-4 h-4" />
                   </button>
@@ -777,7 +821,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </div>
 
               {/* Input Area */}
-              <div className="p-4 border-t-2 border-slate-300 bg-white">
+              <div className="p-4 border-t border-slate-200 bg-white rounded-b-xl">
                 <form onSubmit={handleSendMessage}>
                   <div className="relative">
                     <input
@@ -785,7 +829,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       placeholder="Ask Cora to edit something..."
-                      className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
                       <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -812,16 +856,18 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           )}
 
-          {/* Collapsed State - Shows only "Design Agent" text and chat icon */}
+          {/* Collapsed State - Only shows "Design Agent" text and chat icon at top */}
           {isPanelCollapsed && (
-            <div className="w-[140px] bg-white border-r-2 border-slate-300 flex-shrink-0 flex items-start justify-between px-3 py-3">
-              <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
-              <button
-                onClick={() => setIsPanelCollapsed(false)}
-                className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </button>
+            <div className="flex-shrink-0 flex items-start px-3 py-3 ml-3 mt-3">
+              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
+                <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
+                <button
+                  onClick={() => setIsPanelCollapsed(false)}
+                  className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -830,75 +876,95 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             {/* White Canvas Area */}
             <main 
               ref={canvasRef}
-              className="flex-1 bg-white relative overflow-hidden border-b-2 border-slate-300"
+              className="flex-1 bg-slate-50 relative overflow-hidden canvas-background"
+              onClick={handleCanvasClick}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
             >
               {/* Canvas Content */}
-              <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <div className="relative max-w-lg w-full">
-                  {/* Canvas Tools - Only visible when image is selected */}
-                  {isImageSelected && (
-                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border-2 border-slate-300 z-10">
-                      {canvasTools.map((tool) => (
-                        <CanvasTool
-                          key={tool.id}
-                          icon={tool.icon}
-                          tooltip={tool.tooltip}
-                          active={activeTool === tool.id}
-                          onClick={() => handleToolClick(tool.id)}
-                        />
-                      ))}
-                    </div>
-                  )}
+              <div className="absolute inset-0 flex items-center justify-center p-8 canvas-background">
+                {selectedImage ? (
+                  <div 
+                    className="relative"
+                    style={{
+                      transform: `scale(${zoomLevel / 100}) translate(${imagePosition.x / (zoomLevel / 100)}px, ${imagePosition.y / (zoomLevel / 100)}px)`,
+                      transformOrigin: 'center center',
+                      cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
+                    }}
+                  >
+                    {/* Canvas Tools - Only visible when image is selected */}
+                    {isImageSelected && (
+                      <div className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white rounded-xl p-1.5 shadow-lg border border-slate-200 z-10"
+                        style={{ transform: `translateX(-50%) scale(${100 / zoomLevel})`, transformOrigin: 'center bottom' }}
+                      >
+                        {canvasTools.map((tool) => (
+                          <CanvasTool
+                            key={tool.id}
+                            icon={tool.icon}
+                            tooltip={tool.tooltip}
+                            active={activeTool === tool.id}
+                            onClick={() => handleToolClick(tool.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
 
-                  {selectedImage ? (
                     <div 
-                      className={`bg-white rounded-xl shadow-xl overflow-hidden cursor-pointer transition-all ${isImageSelected ? 'border-2 border-emerald-500' : 'border-2 border-slate-300'}`}
-                      onClick={() => setIsImageSelected(!isImageSelected)}
+                      className={`bg-white rounded-xl shadow-xl overflow-hidden transition-all max-w-2xl ${isImageSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'border border-slate-200'}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsImageSelected(true);
+                      }}
+                      onMouseDown={handleImageMouseDown}
                     >
                       <img
                         src={selectedImage}
                         alt="Editing"
-                        className="w-full h-auto transition-transform"
-                        style={{ transform: `scale(${zoomLevel / 100})` }}
+                        className="w-full h-auto"
+                        draggable={false}
                       />
                     </div>
-                  ) : (
-                    <div
-                      className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border-2 border-slate-300 cursor-pointer hover:border-emerald-300 transition-colors"
-                      onClick={() => setShowReferencesModal(true)}
-                    >
-                      <div className="p-16 text-center">
-                        <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
-                          <Upload className="w-10 h-10 text-slate-400" />
-                        </div>
-                        <h2 className="text-xl font-semibold text-slate-600 mb-2">
-                          Upload An Image
-                        </h2>
-                        <p className="text-slate-400">
-                          Click Here Or Drag & Drop To Get Started
-                        </p>
+                  </div>
+                ) : (
+                  <div
+                    className="bg-gradient-to-b from-slate-50 to-slate-100 rounded-xl shadow-xl overflow-hidden border border-slate-200 cursor-pointer hover:border-emerald-300 transition-colors max-w-lg w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowReferencesModal(true);
+                    }}
+                  >
+                    <div className="p-16 text-center">
+                      <div className="w-20 h-20 mx-auto mb-6 bg-slate-200 rounded-full flex items-center justify-center">
+                        <Upload className="w-10 h-10 text-slate-400" />
                       </div>
+                      <h2 className="text-xl font-semibold text-slate-600 mb-2">
+                        Upload An Image
+                      </h2>
+                      <p className="text-slate-400">
+                        Click Here Or Drag & Drop To Get Started
+                      </p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </main>
 
-            {/* Creations Strip */}
-            <div className="h-20 bg-white border-t-2 border-slate-300 flex items-center px-4 flex-shrink-0">
+            {/* Creations Strip - lighter border, more padding for selection ring */}
+            <div className="h-24 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
               <div className="flex items-center gap-2 mr-4">
                 <span className="text-sm font-semibold text-slate-700">Creations</span>
                 <ChevronDown className="w-4 h-4 text-slate-400" />
               </div>
-              <div className="flex-1 overflow-x-auto">
-                <div className="flex items-center gap-2">
+              <div className="flex-1 overflow-x-auto py-2">
+                <div className="flex items-center gap-3 px-1">
                   {creations.map((creation) => (
                     <button
                       key={creation.id}
                       className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
                         creation.isActive || activeCreationId === creation.id
-                          ? 'ring-2 ring-emerald-500 ring-offset-1'
-                          : 'hover:ring-2 hover:ring-violet-500'
+                          ? 'ring-2 ring-emerald-500 ring-offset-2'
+                          : 'hover:ring-2 hover:ring-violet-500 hover:ring-offset-1'
                       }`}
                       onClick={() => handleSelectFromCreations(creation)}
                     >
@@ -914,9 +980,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
 
-          {/* Right Panel - Only show when a tool is selected */}
-          {activeTool && activeTool !== 'delete' && currentToolSettings && (
-            <div className="w-[260px] bg-[#1a2e35] overflow-y-auto flex-shrink-0 border-l-2 border-slate-600">
+          {/* Right Panel - Only show when a tool is selected AND image is selected */}
+          {activeTool && activeTool !== 'delete' && currentToolSettings && isImageSelected && (
+            <div className="w-[300px] bg-[#1a2e35] overflow-y-auto flex-shrink-0 border-l border-slate-600">
               {renderToolSettingsPanel()}
             </div>
           )}
