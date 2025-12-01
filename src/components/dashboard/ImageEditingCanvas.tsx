@@ -406,6 +406,27 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '22', thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=200&fit=crop', title: 'Sunlit Forest' },
     { id: '23', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop', title: 'Classic Car' },
     { id: '24', thumbnail: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&h=200&fit=crop', title: 'Luxury Villa' },
+    { id: '25', thumbnail: 'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?w=200&h=200&fit=crop', title: 'Elephant' },
+    { id: '26', thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&h=200&fit=crop', title: 'Snowy Peak' },
+    { id: '27', thumbnail: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=200&h=200&fit=crop', title: 'Ferrari' },
+    { id: '28', thumbnail: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=200&h=200&fit=crop', title: 'Suburban Home' },
+    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=200&h=200&fit=crop', title: 'Peacock' },
+    { id: '30', thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop', title: 'Portrait 3' },
+    { id: '31', thumbnail: 'https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=200&h=200&fit=crop', title: 'Waterfall' },
+    { id: '32', thumbnail: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=200&h=200&fit=crop', title: 'Lamborghini' },
+    { id: '33', thumbnail: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200&h=200&fit=crop', title: 'Pool House' },
+    { id: '34', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Sea Turtle' },
+    { id: '35', thumbnail: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=200&h=200&fit=crop', title: 'Starry Sky' },
+    { id: '36', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop', title: 'Jellyfish' },
+    { id: '37', thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop', title: 'Portrait 4' },
+    { id: '38', thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=200&fit=crop', title: 'Beach' },
+    { id: '39', thumbnail: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=200&h=200&fit=crop', title: 'Race Car' },
+    { id: '40', thumbnail: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=200&h=200&fit=crop', title: 'Cottage' },
+    { id: '41', thumbnail: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200&h=200&fit=crop', title: 'Hamster' },
+    { id: '42', thumbnail: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=200&h=200&fit=crop', title: 'Sunbeams' },
+    { id: '43', thumbnail: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&h=200&fit=crop', title: 'Corvette' },
+    { id: '44', thumbnail: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&h=200&fit=crop', title: 'Modern Villa' },
+    { id: '45', thumbnail: 'https://images.unsplash.com/photo-1474314243412-cd4a79f02c6a?w=200&h=200&fit=crop', title: 'Flamingo' },
   ];
   
   // Build creations list with current image first if exists
@@ -867,17 +888,19 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </div>
             )}
 
-            {/* Collapsed State - only shows Design Agent text and icon */}
+            {/* Collapsed State - only shows Design Agent text and icon at top, rest is canvas color */}
             {isPanelCollapsed && (
-              <div className="flex-shrink-0 ml-3 mt-3">
-                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
-                  <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
-                  <button
-                    onClick={() => setIsPanelCollapsed(false)}
-                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                  </button>
+              <div className="w-[100px] flex-shrink-0 flex flex-col">
+                <div className="ml-3 mt-3">
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
+                    <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
+                    <button
+                      onClick={() => setIsPanelCollapsed(false)}
+                      className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
