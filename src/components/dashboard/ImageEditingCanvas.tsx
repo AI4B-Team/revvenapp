@@ -801,7 +801,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           <div className="flex-1 flex overflow-hidden">
             {/* Design Agent Panel - sits on top of creations with gap */}
             {!isPanelCollapsed && (
-              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 mb-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400">
+              <div className="flex-shrink-0 bg-slate-50 p-3">
+                <div className="w-[440px] h-full bg-white flex flex-col rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400">
                 {/* Panel Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                   <div className="flex items-center gap-3">
@@ -896,6 +897,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       </div>
                     </div>
                   </form>
+                </div>
                 </div>
               </div>
             )}
