@@ -113,9 +113,12 @@ const Create = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Reset states when navigating to /create without parameters
+  // Track if this is the initial mount
+  const [hasInitialized, setHasInitialized] = useState(false);
+  
+  // Reset states only on initial mount when navigating to /create without parameters
   useEffect(() => {
-    if (location.pathname === '/create' && !location.search) {
+    if (!hasInitialized && location.pathname === '/create' && !location.search) {
       setActiveTab('');
       setSelectedType('');
       setActiveView('tools');
@@ -130,8 +133,9 @@ const Create = () => {
       setAudioReferences([]);
       setDesignCharacters([]);
       setDesignReferences([]);
+      setHasInitialized(true);
     }
-  }, [location]);
+  }, [hasInitialized, location.pathname, location.search]);
 
   // Fetch and subscribe to generated images
   useEffect(() => {
