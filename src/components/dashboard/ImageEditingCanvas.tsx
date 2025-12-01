@@ -387,17 +387,25 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '3', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', title: 'Mountain' },
     { id: '4', thumbnail: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200&h=200&fit=crop', title: 'Sports Car' },
     { id: '5', thumbnail: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop', title: 'Modern House' },
-    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=200&h=200&fit=crop', title: 'Lion' },
+    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=200&h=200&fit=crop', title: 'Lion' },
     { id: '7', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 2' },
     { id: '8', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop', title: 'Lake' },
     { id: '9', thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=200&fit=crop', title: 'Luxury Car' },
     { id: '10', thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop', title: 'Villa' },
-    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Turtle' },
+    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1559253664-ca249d4608c6?w=200&h=200&fit=crop', title: 'Turtle' },
     { id: '12', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop', title: 'Forest' },
     { id: '13', thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=200&fit=crop', title: 'BMW' },
     { id: '14', thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop', title: 'Mansion' },
-    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200&h=200&fit=crop', title: 'Hamster' },
-    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=200&h=200&fit=crop', title: 'Cat' },
+    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop', title: 'Dogs' },
+    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', title: 'Cat' },
+    { id: '17', thumbnail: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&h=200&fit=crop', title: 'Foggy Forest' },
+    { id: '18', thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&h=200&fit=crop', title: 'Porsche' },
+    { id: '19', thumbnail: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&h=200&fit=crop', title: 'Beach House' },
+    { id: '20', thumbnail: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&h=200&fit=crop', title: 'Golden Retriever' },
+    { id: '21', thumbnail: 'https://images.unsplash.com/photo-1518173946687-a4c036bc6d05?w=200&h=200&fit=crop', title: 'Owl' },
+    { id: '22', thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=200&fit=crop', title: 'Sunlit Forest' },
+    { id: '23', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop', title: 'Classic Car' },
+    { id: '24', thumbnail: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&h=200&fit=crop', title: 'Luxury Villa' },
   ];
   
   // Build creations list with current image first if exists
@@ -728,8 +736,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </button>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          {/* Right Actions - positioned far right */}
+          <div className="flex items-center gap-3 ml-auto">
             {/* Collaborator Avatars */}
             <div className="flex items-center -space-x-2">
               {collaborators.map((avatar, index) => (
@@ -758,9 +766,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Section: Chat + Canvas + Right Panel */}
           <div className="flex-1 flex overflow-hidden">
-            {/* Design Agent Panel - sits on top of creations */}
+            {/* Design Agent Panel - sits on top of creations with gap */}
             {!isPanelCollapsed && (
-              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 rounded-t-xl rounded-b-none shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200 border-b-0">
+              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 mb-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200">
                 {/* Panel Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                   <div className="flex items-center gap-3">
@@ -810,10 +818,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           </div>
                           <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
                           {message.image && (
-                            <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                            <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
                               <img src={message.image} alt="Design" className="w-full h-auto" />
-                              <div className="absolute top-2 left-2 w-5 h-5 bg-white rounded shadow flex items-center justify-center">
-                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-sm" />
+                              <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
+                                <div className="w-2 h-2 bg-slate-800 rounded-sm" />
                               </div>
                             </div>
                           )}
@@ -859,9 +867,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </div>
             )}
 
-            {/* Collapsed State */}
+            {/* Collapsed State - only shows Design Agent text and icon */}
             {isPanelCollapsed && (
-              <div className="flex-shrink-0 flex items-start px-3 py-3 ml-3 mt-3">
+              <div className="flex-shrink-0 ml-3 mt-3">
                 <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
                   <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
                   <button
