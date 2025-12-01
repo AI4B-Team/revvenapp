@@ -410,7 +410,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '26', thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&h=200&fit=crop', title: 'Snowy Peak' },
     { id: '27', thumbnail: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=200&h=200&fit=crop', title: 'Ferrari' },
     { id: '28', thumbnail: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=200&h=200&fit=crop', title: 'Suburban Home' },
-    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1474511320723-9a56873571b7?w=200&h=200&fit=crop', title: 'Peacock' },
+    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=200&h=200&fit=crop', title: 'Peacock' },
     { id: '30', thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop', title: 'Portrait 3' },
     { id: '31', thumbnail: 'https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=200&h=200&fit=crop', title: 'Waterfall' },
     { id: '32', thumbnail: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=200&h=200&fit=crop', title: 'Lamborghini' },
@@ -422,7 +422,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '38', thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=200&fit=crop', title: 'Beach' },
     { id: '39', thumbnail: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=200&h=200&fit=crop', title: 'Race Car' },
     { id: '40', thumbnail: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=200&h=200&fit=crop', title: 'Cottage' },
-    { id: '41', thumbnail: 'https://images.unsplash.com/photo-1425082661705-1834bfd09dca?w=200&h=200&fit=crop', title: 'Hamster' },
+    { id: '41', thumbnail: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=200&h=200&fit=crop', title: 'Hamster' },
     { id: '42', thumbnail: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=200&h=200&fit=crop', title: 'Sunbeams' },
     { id: '43', thumbnail: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&h=200&fit=crop', title: 'Corvette' },
     { id: '44', thumbnail: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&h=200&fit=crop', title: 'Modern Villa' },
@@ -1024,6 +1024,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       src={creation.thumbnail}
                       alt={creation.title}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop';
+                      }}
                     />
                   </button>
                 ))}
