@@ -500,9 +500,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
-  // Handle image dragging with select tool
-  const handleImageMouseDown = (e: React.MouseEvent) => {
-    if (activeTool === 'select' && isImageSelected) {
+  // Handle image dragging - allow drag anywhere on canvas when image exists
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (selectedImage && !e.defaultPrevented) {
       e.preventDefault();
       setIsDragging(true);
       setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y });
@@ -510,7 +510,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && activeTool === 'select' && canvasRef.current) {
+    if (isDragging && selectedImage && canvasRef.current) {
       const canvasRect = canvasRef.current.getBoundingClientRect();
       const canvasWidth = canvasRect.width;
       const canvasHeight = canvasRect.height;
@@ -940,6 +940,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 className="flex-1 bg-slate-50 relative overflow-hidden canvas-background"
                 style={{ cursor: selectedImage ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
                 onClick={handleCanvasClick}
+                onMouseDown={handleCanvasMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
@@ -976,7 +977,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           e.stopPropagation();
                           setIsImageSelected(true);
                         }}
-                        onMouseDown={handleImageMouseDown}
                       >
                         <img
                           src={selectedImage}
