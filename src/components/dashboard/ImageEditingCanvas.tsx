@@ -427,6 +427,18 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '43', thumbnail: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&h=200&fit=crop', title: 'Corvette' },
     { id: '44', thumbnail: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&h=200&fit=crop', title: 'Modern Villa' },
     { id: '45', thumbnail: 'https://images.unsplash.com/photo-1474314243412-cd4a79f02c6a?w=200&h=200&fit=crop', title: 'Flamingo' },
+    { id: '46', thumbnail: 'https://images.unsplash.com/photo-1516117172878-fd2c41f4a759?w=200&h=200&fit=crop', title: 'Rock Formation' },
+    { id: '47', thumbnail: 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=200&h=200&fit=crop', title: 'Aurora' },
+    { id: '48', thumbnail: 'https://images.unsplash.com/photo-1558981359-219d6364c9c8?w=200&h=200&fit=crop', title: 'Audi' },
+    { id: '49', thumbnail: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=200&h=200&fit=crop', title: 'Farmhouse' },
+    { id: '50', thumbnail: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=200&h=200&fit=crop', title: 'Labrador' },
+    { id: '51', thumbnail: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=200&h=200&fit=crop', title: 'Pug' },
+    { id: '52', thumbnail: 'https://images.unsplash.com/photo-1462275646964-a0e3571f4f5f?w=200&h=200&fit=crop', title: 'Vintage Car' },
+    { id: '53', thumbnail: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=200&h=200&fit=crop', title: 'Lake House' },
+    { id: '54', thumbnail: 'https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=200&h=200&fit=crop', title: 'Parrot' },
+    { id: '55', thumbnail: 'https://images.unsplash.com/photo-1540206395-68808572332f?w=200&h=200&fit=crop', title: 'Canyon' },
+    { id: '56', thumbnail: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=200&fit=crop', title: 'Mercedes' },
+    { id: '57', thumbnail: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=200&fit=crop', title: 'Apartment' },
   ];
   
   // Build creations list with current image first if exists
@@ -789,7 +801,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           <div className="flex-1 flex overflow-hidden">
             {/* Design Agent Panel - sits on top of creations with gap */}
             {!isPanelCollapsed && (
-              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 mb-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-200">
+              <div className="w-[440px] bg-white flex flex-col flex-shrink-0 relative mt-3 ml-3 mb-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400">
                 {/* Panel Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                   <div className="flex items-center gap-3">
@@ -888,19 +900,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               </div>
             )}
 
-            {/* Collapsed State - only shows Design Agent text and icon at top, rest is canvas color */}
+            {/* Collapsed State - floating button on canvas */}
             {isPanelCollapsed && (
-              <div className="w-[200px] flex-shrink-0 bg-slate-50 flex flex-col">
-                <div className="p-3">
-                  <div className="inline-flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
-                    <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
-                    <button
-                      onClick={() => setIsPanelCollapsed(false)}
-                      className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
-                  </div>
+              <div className="absolute top-3 left-3 z-10">
+                <div className="inline-flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-lg border border-slate-300">
+                  <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
+                  <button
+                    onClick={() => setIsPanelCollapsed(false)}
+                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             )}
@@ -992,12 +1002,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
           {/* Creations Strip - Full width at bottom */}
           <div className="h-24 bg-white border-t border-slate-200 flex items-center px-4 flex-shrink-0">
-            <div className="flex items-center gap-2 mr-4">
+            <div className="flex items-center gap-2 mr-4 flex-shrink-0">
               <span className="text-sm font-semibold text-slate-700">Creations</span>
               <ChevronDown className="w-4 h-4 text-slate-400" />
             </div>
-            <div className="flex-1 overflow-x-auto py-2">
-              <div className="flex items-center gap-3 px-1">
+            <div className="flex-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
+              <div className="flex items-center gap-3 px-1 w-max">
                 {creations.map((creation) => (
                   <button
                     key={creation.id}
