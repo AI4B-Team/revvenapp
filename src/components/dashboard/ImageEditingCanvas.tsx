@@ -38,6 +38,8 @@ import {
   Paintbrush,
   Download,
   Save,
+  Globe,
+  ExternalLink,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -546,13 +548,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: 'removebg', icon: <Scissors className="w-4 h-4" />, tooltip: 'Remove Background' },
     { id: 'fill', icon: <PaintBucket className="w-4 h-4" />, tooltip: 'Fill' },
     { id: 'text', icon: <Type className="w-4 h-4" />, tooltip: 'Text' },
-    { id: 'magic', icon: <Wand2 className="w-4 h-4" />, tooltip: 'AI Magic' },
     { id: 'layers', icon: <Layers className="w-4 h-4" />, tooltip: 'Layers' },
     { id: 'upscale', icon: <ZoomIn className="w-4 h-4" />, tooltip: 'Upscale' },
     { id: 'animate', icon: <Play className="w-4 h-4" />, tooltip: 'Animate' },
     { id: 'opacity', icon: <SlidersHorizontal className="w-4 h-4" />, tooltip: 'Opacity' },
-    { id: 'download', icon: <Download className="w-4 h-4" />, tooltip: 'Download' },
     { id: 'save', icon: <Save className="w-4 h-4" />, tooltip: 'Save To Creations' },
+    { id: 'publish', icon: <Globe className="w-4 h-4" />, tooltip: 'Publish' },
+    { id: 'download', icon: <Download className="w-4 h-4" />, tooltip: 'Download' },
+    { id: 'use', icon: <ExternalLink className="w-4 h-4" />, tooltip: 'Use' },
     { id: 'delete', icon: <Trash2 className="w-4 h-4" />, tooltip: 'Delete' },
   ];
 
