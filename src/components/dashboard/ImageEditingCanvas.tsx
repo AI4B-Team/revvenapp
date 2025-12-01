@@ -510,11 +510,27 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && activeTool === 'select') {
-      setImagePosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      });
+    if (isDragging && activeTool === 'select' && canvasRef.current) {
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      const canvasWidth = canvasRect.width;
+      const canvasHeight = canvasRect.height;
+      
+      // Estimate image size (base size scaled by zoom)
+      const imageBaseSize = 400; // approximate base image size
+      const scaledImageSize = imageBaseSize * (zoomLevel / 100);
+      
+      // Calculate bounds - keep at least 50px of image visible
+      const minVisiblePx = 50;
+      const maxX = (canvasWidth / 2) + (scaledImageSize / 2) - minVisiblePx;
+      const minX = -maxX;
+      const maxY = (canvasHeight / 2) + (scaledImageSize / 2) - minVisiblePx;
+      const minY = -maxY;
+      
+      // Calculate new position with constraints
+      const newX = Math.max(minX, Math.min(maxX, e.clientX - dragStart.x));
+      const newY = Math.max(minY, Math.min(maxY, e.clientY - dragStart.y));
+      
+      setImagePosition({ x: newX, y: newY });
     }
   };
 
@@ -922,6 +938,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               <main 
                 ref={canvasRef}
                 className="flex-1 bg-slate-50 relative overflow-hidden canvas-background"
+                style={{ cursor: selectedImage ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
                 onClick={handleCanvasClick}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
