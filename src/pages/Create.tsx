@@ -90,6 +90,7 @@ const Create = () => {
     endDate: '',
     searchQuery: ''
   });
+  const [creationsFilter, setCreationsFilter] = useState<'all' | 'edited' | 'upscaled'>('all');
   
   // Map zoom value (0-100) to columns (3-6)
   const zoomLevel = Math.round(3 + (zoom / 100) * 3);
@@ -121,6 +122,7 @@ const Create = () => {
       setActiveView('tools');
       setIsEditMode(false);
       setEditingImage(null);
+      setCreationsFilter('all');
       // Clear all content type states
       setImageCharacters([]);
       setImageReferences([]);
@@ -502,6 +504,15 @@ const Create = () => {
               activeView={activeView} 
               onViewChange={setActiveView}
               hasSelectedType={!!selectedType}
+              creationsFilter={creationsFilter}
+              onCreationsFilterChange={(filter) => {
+                setCreationsFilter(filter);
+                setFilters(prev => ({
+                  ...prev,
+                  edits: filter === 'edited',
+                  upscales: filter === 'upscaled'
+                }));
+              }}
             />
             
             {/* Gallery Views */}
