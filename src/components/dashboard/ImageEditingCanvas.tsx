@@ -802,7 +802,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             {/* Design Agent Panel - sits on top of creations with gap */}
             {!isPanelCollapsed && (
               <div className="flex-shrink-0 bg-slate-50 p-3">
-                <div className="w-[440px] h-full bg-white flex flex-col rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400">
+                <div className="w-[440px] h-full bg-white flex flex-col rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400 overflow-hidden">
                 {/* Panel Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                   <div className="flex items-center gap-3">
