@@ -890,9 +890,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
             {/* Collapsed State - only shows Design Agent text and icon at top, rest is canvas color */}
             {isPanelCollapsed && (
-              <div className="w-[100px] flex-shrink-0 flex flex-col">
-                <div className="ml-3 mt-3">
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
+              <div className="w-[200px] flex-shrink-0 bg-slate-50 flex flex-col">
+                <div className="p-3">
+                  <div className="inline-flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-md border border-slate-200">
                     <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
                     <button
                       onClick={() => setIsPanelCollapsed(false)}
