@@ -31,7 +31,7 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Received callback payload:", JSON.stringify(payload, null, 2));
 
-    const { status, videoUrl, data } = payload;
+    const { status, videoUrl, data, code, msg } = payload;
     const taskId = payload.taskId || data?.taskId;
 
     if (!taskId) {
@@ -143,11 +143,18 @@ serve(async (req) => {
       );
     } else {
       // Handle error status
+      const errorMessage = msg || 'Video generation failed';
       const { error: updateError } = await supabase
         .from('ai_videos')
         .update({
           status: 'error',
-          webhook_response: { ...videoRecord.webhook_response, callback: payload }
+          error_message: errorMessage,
+          webhook_response: { 
+            ...videoRecord.webhook_response, 
+            callback: payload,
+            error: errorMessage,
+            errorCode: code 
+          }
         })
         .eq('id', videoRecord.id);
 

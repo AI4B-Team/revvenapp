@@ -55,6 +55,7 @@ export type Database = {
           character_name: string
           completed_at: string | null
           created_at: string | null
+          error_message: string | null
           id: string
           status: string
           user_id: string
@@ -72,6 +73,7 @@ export type Database = {
           character_name: string
           completed_at?: string | null
           created_at?: string | null
+          error_message?: string | null
           id?: string
           status?: string
           user_id: string
@@ -89,6 +91,7 @@ export type Database = {
           character_name?: string
           completed_at?: string | null
           created_at?: string | null
+          error_message?: string | null
           id?: string
           status?: string
           user_id?: string

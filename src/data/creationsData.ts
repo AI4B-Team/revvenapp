@@ -16,6 +16,7 @@ export interface GalleryItem {
   prompt?: string;
   aspectRatio?: string;
   model?: string;
+  errorMessage?: string;
 }
 
 export const creationsData: GalleryItem[] = [
