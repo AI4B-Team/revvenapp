@@ -31,7 +31,8 @@ serve(async (req) => {
     const payload = await req.json();
     console.log("Received callback payload:", JSON.stringify(payload, null, 2));
 
-    const { taskId, status, videoUrl, data } = payload;
+    const { status, videoUrl, data } = payload;
+    const taskId = payload.taskId || data?.taskId;
 
     if (!taskId) {
       throw new Error("taskId is required in callback");
