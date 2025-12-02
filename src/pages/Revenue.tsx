@@ -8,7 +8,7 @@ const Revenue = () => {
   
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar activeTab="" onTabChange={() => {}} onCollapseChange={setIsSidebarCollapsed} />
+      <Sidebar isMonetizePage={true} activeTab="" onTabChange={() => {}} onCollapseChange={setIsSidebarCollapsed} />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
