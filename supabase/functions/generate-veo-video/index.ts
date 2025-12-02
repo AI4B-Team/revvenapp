@@ -47,7 +47,7 @@ serve(async (req) => {
       .from('ai_videos')
       .insert({
         user_id: userId,
-        character_id: characterId || '',
+        character_id: characterId || null,
         character_name: characterName || 'Unknown',
         character_bio: characterBio || '',
         character_image_url: characterImageUrl || '',

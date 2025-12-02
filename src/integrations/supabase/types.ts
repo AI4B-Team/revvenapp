@@ -50,7 +50,7 @@ export type Database = {
       ai_videos: {
         Row: {
           character_bio: string
-          character_id: string
+          character_id: string | null
           character_image_url: string
           character_name: string
           completed_at: string | null
@@ -67,7 +67,7 @@ export type Database = {
         }
         Insert: {
           character_bio: string
-          character_id: string
+          character_id?: string | null
           character_image_url: string
           character_name: string
           completed_at?: string | null
@@ -84,7 +84,7 @@ export type Database = {
         }
         Update: {
           character_bio?: string
-          character_id?: string
+          character_id?: string | null
           character_image_url?: string
           character_name?: string
           completed_at?: string | null
