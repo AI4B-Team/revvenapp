@@ -26,7 +26,13 @@ const Onboarding = () => {
   
   // Calculate time remaining until deadline (24 hours from signup)
   useEffect(() => {
-    const signupDate = new Date(); // In production, get from user.createdAt
+    // Get or set signup date in localStorage for consistency across pages
+    let signupDateStr = localStorage.getItem('signupDate');
+    if (!signupDateStr) {
+      signupDateStr = new Date().toISOString();
+      localStorage.setItem('signupDate', signupDateStr);
+    }
+    const signupDate = new Date(signupDateStr);
     
     const calculateTimeRemaining = () => {
       const now = new Date();
