@@ -12,6 +12,7 @@ const Contacts = () => {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
+        isMonetizePage={true}
         activeTab="" 
         onTabChange={() => {}}
         onCharactersClick={() => setCharactersModalOpen(true)}
