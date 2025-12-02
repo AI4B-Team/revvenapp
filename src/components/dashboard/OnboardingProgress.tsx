@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Rocket, Clock } from 'lucide-react';
+import { Rocket, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const OnboardingProgress = () => {
-  const [showOnboarding, setShowOnboarding] = useState(true);
   const [progress, setProgress] = useState(29);
   const [timeRemaining, setTimeRemaining] = useState('');
 
@@ -42,32 +41,18 @@ const OnboardingProgress = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (!showOnboarding) return null;
-
   return (
     <div className="px-3 py-4 space-y-3">
       
       {/* Onboarding Card */}
       <Link to="/onboarding" className="block">
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border hover:border-brand-green/50 transition-all cursor-pointer">
-          {/* Header with close button */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Rocket size={18} className="text-brand-green" />
-              <h3 className="font-semibold text-foreground text-sm">
-                Unlock Rewards
-              </h3>
-            </div>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                setShowOnboarding(false);
-              }}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-3">
+            <Rocket size={18} className="text-brand-green" />
+            <h3 className="font-semibold text-foreground text-sm">
+              Unlock Rewards
+            </h3>
           </div>
 
           {/* Countdown Timer */}
