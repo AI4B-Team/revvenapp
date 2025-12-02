@@ -82,6 +82,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [audioModeState, setAudioModeState] = useState<AudioModeState>({});
   const [designModeState, setDesignModeState] = useState<DesignModeState>({});
   
+  // Video mode specific state
+  const [videoModel, setVideoModel] = useState('veo3_fast');
+  const [videoAspectRatio, setVideoAspectRatio] = useState('16:9');
+  const [videoDuration, setVideoDuration] = useState('4');
+  const [videoQuality, setVideoQuality] = useState('1080p');
+  
   const { toast } = useToast();
   
   // Define models that support image-to-image generation
@@ -298,6 +304,82 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
     const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
 
+    // VIDEO MODE: Generate video using Veo 3.1
+    if (isVideoMode) {
+      setIsGenerating(true);
+      onGenerationStart?.();
+      
+      try {
+        console.log("Starting Veo 3.1 video generation...");
+        
+        // Get the authenticated user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        // Collect image URLs from characters, references, and frames
+        const imageUrls: string[] = [];
+        
+        // Add character images
+        currentCharacters.forEach(char => {
+          const imgUrl = char.image_url || char.image;
+          if (imgUrl) imageUrls.push(imgUrl);
+        });
+        
+        // Add reference images
+        currentReferences.forEach(ref => {
+          const imgUrl = ref.image_url || ref.thumbnail_url;
+          if (imgUrl) imageUrls.push(imgUrl);
+        });
+        
+        // Add frame images in order (start, then end)
+        if (videoModeState.startingFrame?.preview) {
+          imageUrls.push(videoModeState.startingFrame.preview);
+        }
+        if (videoModeState.endingFrame?.preview) {
+          imageUrls.push(videoModeState.endingFrame.preview);
+        }
+
+        const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
+
+        const { data, error } = await supabase.functions.invoke('generate-veo-video', {
+          body: { 
+            prompt: prompt.trim(),
+            imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+            model: videoModel,
+            aspectRatio: videoAspectRatio,
+            userId: user.id,
+            characterId: primaryCharacter?.id || null,
+            characterName: primaryCharacter?.name || 'Unknown',
+            characterBio: primaryCharacter?.bio || '',
+            characterImageUrl: primaryCharacter?.image_url || primaryCharacter?.image || ''
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Video generating!",
+          description: "Your video is being created with Veo 3.1. This may take a few minutes.",
+        });
+
+        console.log("Video generation started:", data);
+        
+      } catch (error) {
+        console.error("Video generation error:", error);
+        toast({
+          title: "Generation failed",
+          description: error.message || "Failed to generate video",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
+      return;
+    }
+
+    // IMAGE MODE: Generate image (existing logic)
     // Check if Ideogram requires mask when a reference image is used
     if (selectedModel === 'ideogram' && currentReferences.length > 0 && !maskImage) {
       toast({
@@ -906,19 +988,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     <TooltipTrigger asChild>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
+                          <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel !== 'veo3_fast' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
                             <Video size={14} />
-                            Veo 3 Fast
+                            {videoModel === 'veo3_fast' ? 'Veo 3.1 Fast' : 'Veo 3.1 Quality'}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-64 bg-background border-border z-50">
                           <div className="space-y-1">
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Veo 3 Fast
+                            <button 
+                              onClick={() => setVideoModel('veo3_fast')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                            >
+                              Veo 3.1 Fast
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              Veo 3 Standard
+                            <button 
+                              onClick={() => setVideoModel('veo3')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                            >
+                              Veo 3.1 Quality
                             </button>
                           </div>
                         </PopoverContent>
@@ -970,24 +1062,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     <TooltipTrigger asChild>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                            16:9
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoAspectRatio !== '16:9' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {videoAspectRatio}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                            <button 
+                              onClick={() => setVideoAspectRatio('16:9')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
                               <div className="w-5 h-3 border-2 border-current"></div>
                               16:9 Landscape
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                            <button 
+                              onClick={() => setVideoAspectRatio('9:16')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
                               <div className="w-3 h-5 border-2 border-current"></div>
                               9:16 Portrait
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                            <button 
+                              onClick={() => setVideoAspectRatio('Auto')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
                               <div className="w-4 h-4 border-2 border-current"></div>
-                              1:1 Square
+                              Auto
                             </button>
                           </div>
                         </PopoverContent>

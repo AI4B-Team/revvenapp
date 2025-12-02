@@ -3,10 +3,16 @@ project_id = "ghhafcmjhmwwfhldmxzc"
 [functions.generate-video]
 verify_jwt = true
 
+[functions.generate-veo-video]
+verify_jwt = true
+
 [functions.upload-character-image]
 verify_jwt = true
 
 [functions.video-webhook-callback]
+verify_jwt = false
+
+[functions.veo-webhook-callback]
 verify_jwt = false
 
 [functions.generate-image]
