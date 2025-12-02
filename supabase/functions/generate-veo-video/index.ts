@@ -42,12 +42,18 @@ serve(async (req) => {
 
     console.log("Creating ai_videos record...");
 
+    // Ensure character_id is either a valid UUID or null
+    const safeCharacterId =
+      characterId && /^[0-9a-fA-F-]{36}$/.test(characterId)
+        ? characterId
+        : null;
+
     // Create the video record with status 'pending'
     const { data: videoRecord, error: insertError } = await supabase
       .from('ai_videos')
       .insert({
         user_id: userId,
-        character_id: characterId || null,
+        character_id: safeCharacterId,
         character_name: characterName || 'Unknown',
         character_bio: characterBio || '',
         character_image_url: characterImageUrl || '',
