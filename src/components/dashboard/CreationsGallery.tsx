@@ -122,7 +122,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         aspectRatio: img.aspect_ratio || '1:1',
         resolution: getResolutionFromAspectRatio(img.aspect_ratio),
         timestamp: formatTimestamp(img.created_at),
-        referenceImage: img.reference_image_url || undefined
+        referenceImage: img.reference_image_url || undefined,
+        errorMessage: img.error_message || undefined
       })) || [];
 
       const mappedVideos: GalleryItem[] = videosData?.map((video) => ({
@@ -145,7 +146,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         aspectRatio: '9:16',
         resolution: '768x1344 px',
         timestamp: formatTimestamp(video.created_at),
-        referenceImage: video.character_image_url || undefined
+        referenceImage: video.character_image_url || undefined,
+        errorMessage: video.error_message || undefined
       })) || [];
 
       // Combine and sort by creation date
@@ -476,11 +478,16 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
               
               {/* Error Overlay */}
               {item.status === 'error' && (
-                <div className="absolute inset-0 bg-red-500/20 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-red-500/20 backdrop-blur-sm flex flex-col items-center justify-center gap-2 p-4">
                   <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
                     <X size={24} className="text-white" />
                   </div>
                   <p className="text-red-600 font-semibold text-sm">Generation Failed</p>
+                  {item.errorMessage && (
+                    <p className="text-red-600 text-xs text-center max-w-[90%] line-clamp-3">
+                      {item.errorMessage}
+                    </p>
+                  )}
                 </div>
               )}
 
