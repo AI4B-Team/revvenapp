@@ -52,19 +52,11 @@ const OnboardingProgress = () => {
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border hover:border-brand-green/50 transition-all cursor-pointer">
           {/* Header with close button */}
           <div className="flex items-start justify-between mb-3">
-            <div className="flex items-col gap-2">
-              <div className="flex items-center gap-2">
-                <Rocket size={18} className="text-brand-green" />
-                <h3 className="font-semibold text-foreground text-sm">
-                  Unlock Rewards
-                </h3>
-              </div>
-              {timeRemaining && timeRemaining !== 'EXPIRED' && (
-                <div className="flex items-center gap-1 bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold animate-pulse mt-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{timeRemaining}</span>
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <Rocket size={18} className="text-brand-green" />
+              <h3 className="font-semibold text-foreground text-sm">
+                Unlock Rewards
+              </h3>
             </div>
             <button
               onClick={(e) => {
@@ -77,6 +69,14 @@ const OnboardingProgress = () => {
               <X size={16} />
             </button>
           </div>
+
+          {/* Countdown Timer */}
+          {timeRemaining && timeRemaining !== 'EXPIRED' && (
+            <div className="flex items-center gap-1 bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold animate-pulse mb-3 w-fit">
+              <Clock className="w-3 h-3" />
+              <span>{timeRemaining}</span>
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="space-y-2">
