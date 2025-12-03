@@ -67,14 +67,26 @@ const Create = () => {
 
   // Check for image to edit from navigation state or URL params
   useEffect(() => {
-    const state = location.state as { editImage?: string } | null;
+    const state = location.state as { editImage?: string; animateImage?: string } | null;
     const params = new URLSearchParams(location.search);
     const imageUrl = state?.editImage || params.get('editImage');
+    const animateUrl = state?.animateImage || params.get('animateImage');
     
     if (imageUrl) {
       setIsEditMode(true);
       setEditingImage(imageUrl);
       setActiveTab('Image');
+    }
+    
+    if (animateUrl) {
+      setSelectedType('Video');
+      setActiveTab('Video');
+      setExternalStartingFrame({
+        preview: animateUrl,
+        name: 'animated-image.jpg'
+      });
+      setActiveView('creations');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [location]);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
