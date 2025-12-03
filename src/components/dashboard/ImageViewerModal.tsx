@@ -183,7 +183,7 @@ const ImageViewerModal = ({
             {/* Left Side - Image */}
             <div className="flex-1 relative bg-black flex items-center justify-center">
 
-            {/* Image Container */}
+            {/* Image/Video Container */}
             <div 
               className="relative w-full h-full group p-4 overflow-hidden flex items-center justify-center"
               onMouseDown={handleMouseDown}
@@ -194,17 +194,32 @@ const ImageViewerModal = ({
                 cursor: zoom > 100 ? (isDragging ? 'grabbing' : 'grab') : 'default'
               }}
             >
-              <img
-                src={imageData.url}
-                alt={imageData.title}
-                className="rounded-lg max-w-full max-h-full object-contain select-none"
-                style={{ 
-                  transform: `scale(${zoom / 100}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
-                  transformOrigin: 'center',
-                  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-                }}
-                draggable={false}
-              />
+              {image.type === 'video' && imageData.url?.includes('.mp4') ? (
+                <video
+                  src={imageData.url}
+                  className="rounded-lg max-w-full max-h-full object-contain select-none"
+                  style={{ 
+                    transform: `scale(${zoom / 100}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                    transformOrigin: 'center',
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                  }}
+                  controls
+                  autoPlay
+                  loop
+                />
+              ) : (
+                <img
+                  src={imageData.url}
+                  alt={imageData.title}
+                  className="rounded-lg max-w-full max-h-full object-contain select-none"
+                  style={{ 
+                    transform: `scale(${zoom / 100}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                    transformOrigin: 'center',
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                  }}
+                  draggable={false}
+                />
+              )}
             </div>
           </div>
 
