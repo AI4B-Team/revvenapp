@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X, Search, Plus, Users, Star, ChevronLeft, Upload, FileText, Image as ImageIcon, Camera, Check, AlertCircle, Wand2, Shuffle, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 
 interface DigitalCharactersModalProps {
   isOpen: boolean;
@@ -23,6 +25,13 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const { toast } = useToast();
+  
+  // Resizable textarea
+  const { height: descHeight, isResizing: isDescResizing, handleResizeStart: handleDescResizeStart } = useResizableTextarea({
+    minHeight: 120,
+    maxHeight: 400,
+    initialHeight: 150,
+  });
 
   const characters = [
     { id: 1, name: 'Luna', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop' },
@@ -803,16 +812,15 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                         {/* Description */}
                         <div>
                           <label className="block text-white font-medium mb-2">Describe Your Character</label>
-                          <div className="relative">
+                          <div className="relative" style={{ height: descHeight }}>
                             <textarea
                               placeholder="Describe the defining traits of your character that need to stay consistent across all visuals. This includes physical attributes, outfits, accessories, or specific characteristics like 'a tall pirate with a scar'."
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
-                              rows={6}
-                              className="w-full px-4 py-3 pb-14 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500 resize-none"
+                              className="w-full h-full px-4 py-3 pb-14 bg-gray-900 border-2 border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500 resize-none"
                             />
                             
-                            <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+                            <div className="absolute bottom-3 left-3 right-12 flex items-center gap-2">
                               <button 
                                 onClick={handleRandomDescription}
                                 disabled={isGeneratingDescription}
@@ -838,6 +846,12 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                                 <span>Enhance</span>
                               </button>
                             </div>
+                            <ResizeHandle 
+                              onResizeStart={handleDescResizeStart} 
+                              isResizing={isDescResizing}
+                              variant="subtle"
+                            />
+                            {isDescResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
                           </div>
                         </div>
                       </div>

@@ -12,6 +12,8 @@ import { User, Video, Sparkles, Upload, Wand2, Star, Zap, Film, CheckCircle2, X,
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { VideoGenerationCountdown } from "@/components/VideoGenerationCountdown";
+import { useResizableTextarea } from "@/hooks/useResizableTextarea";
+import ResizeHandle from "@/components/ui/ResizeHandle";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +66,18 @@ const AIInfluencer = () => {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<"character" | "video" | "manage">("character");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // Resizable textareas
+  const { height: bioHeight, isResizing: isBioResizing, handleResizeStart: handleBioResizeStart } = useResizableTextarea({
+    minHeight: 120,
+    maxHeight: 400,
+    initialHeight: 160,
+  });
+  const { height: scriptHeight, isResizing: isScriptResizing, handleResizeStart: handleScriptResizeStart } = useResizableTextarea({
+    minHeight: 150,
+    maxHeight: 500,
+    initialHeight: 200,
+  });
   
   // Character form state
   const [characterName, setCharacterName] = useState("");
@@ -783,14 +797,22 @@ const AIInfluencer = () => {
                         </Button>
                       </div>
                     </div>
-                    <Textarea 
-                      id="influencer-bio"
-                      placeholder="Describe your influencer's personality, interests, and style... e.g., A fitness enthusiast who loves outdoor adventures and healthy living"
-                      value={characterBio}
-                      onChange={(e) => setCharacterBio(e.target.value)}
-                      disabled={isUploading || isEnhancingBio}
-                      className="min-h-[160px] text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.01] border-2 hover:border-primary/50"
-                    />
+                    <div className="relative" style={{ height: bioHeight }}>
+                      <Textarea 
+                        id="influencer-bio"
+                        placeholder="Describe your influencer's personality, interests, and style... e.g., A fitness enthusiast who loves outdoor adventures and healthy living"
+                        value={characterBio}
+                        onChange={(e) => setCharacterBio(e.target.value)}
+                        disabled={isUploading || isEnhancingBio}
+                        className="h-full text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50"
+                      />
+                      <ResizeHandle 
+                        onResizeStart={handleBioResizeStart} 
+                        isResizing={isBioResizing}
+                        variant="subtle"
+                      />
+                      {isBioResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
+                    </div>
                   </div>
 
                   <div className="space-y-3 group">
@@ -1164,13 +1186,21 @@ const AIInfluencer = () => {
                       <Wand2 className="w-4 h-4 text-primary group-hover:animate-pulse" />
                       Script/Content
                     </Label>
-                    <Textarea 
-                      id="video-script"
-                      value={videoScript}
-                      onChange={(e) => setVideoScript(e.target.value)}
-                      placeholder="Enter your script here or describe what you want the AI to generate..."
-                      className="min-h-[200px] text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:scale-[1.01] border-2 hover:border-primary/50"
-                    />
+                    <div className="relative" style={{ height: scriptHeight }}>
+                      <Textarea 
+                        id="video-script"
+                        value={videoScript}
+                        onChange={(e) => setVideoScript(e.target.value)}
+                        placeholder="Enter your script here or describe what you want the AI to generate..."
+                        className="h-full text-base resize-none transition-all duration-300 focus:ring-2 focus:ring-primary/30 border-2 hover:border-primary/50"
+                      />
+                      <ResizeHandle 
+                        onResizeStart={handleScriptResizeStart} 
+                        isResizing={isScriptResizing}
+                        variant="subtle"
+                      />
+                      {isScriptResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
+                    </div>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Wand2 className="w-3 h-3" />
                       Leave empty to let AI generate the script automatically

@@ -869,12 +869,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50"
               placeholder="Describe what you want to create..."
             />
-            <ResizeHandle 
-              onResizeStart={handleResizeStart} 
-              isResizing={isResizing}
-              variant="subtle"
-            />
-            {isResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
           </div>
         </div>
 
@@ -2339,6 +2333,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+            <div className="relative">
+              <ResizeHandle 
+                onResizeStart={handleResizeStart} 
+                isResizing={isResizing}
+                variant="subtle"
+                className="relative bottom-auto right-auto"
+              />
+            </div>
+            {isResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
           </div>
         </div>
       </div>
