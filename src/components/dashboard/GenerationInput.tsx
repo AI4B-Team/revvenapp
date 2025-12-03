@@ -173,6 +173,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
+
+  // Handle external starting frame (e.g., from Animate button in modal)
+  useEffect(() => {
+    if (externalStartingFrame && isVideoMode) {
+      setVideoModeState(prev => ({
+        ...prev,
+        startingFrame: externalStartingFrame
+      }));
+    }
+  }, [externalStartingFrame, isVideoMode]);
   
   // Video mode: Track which frame to populate next
   const framePopulateIntentRef = useRef<'start' | 'end' | null>(null);
