@@ -4,9 +4,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 import grokLogo from '@/assets/model-logos/grok.png';
 import StylesModal from './StylesModal';
 import { ImageToPromptModal } from './ImageToPromptModal';
@@ -65,6 +67,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
+  
+  // Resizable prompt box
+  const { height: promptHeight, isResizing, handleResizeStart } = useResizableTextarea({
+    minHeight: 80,
+    maxHeight: 400,
+    initialHeight: 100,
+  });
   
   // Isolated state for each content type
   const [imageModeState, setImageModeState] = useState<ImageModeState>({
@@ -852,15 +861,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               </div>
             </TooltipProvider>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 relative" style={{ height: promptHeight }}>
             <textarea 
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
-              className="w-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50"
-              rows={3}
+              className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50"
               placeholder="Describe what you want to create..."
             />
+            <ResizeHandle 
+              onResizeStart={handleResizeStart} 
+              isResizing={isResizing}
+              variant="subtle"
+            />
+            {isResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
           </div>
         </div>
 
