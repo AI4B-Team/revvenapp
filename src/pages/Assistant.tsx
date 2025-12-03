@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Network, Mic, ArrowUp, Search, Sparkles, ChevronDown } from 'lucide-react';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ChatHistorySidebar from '@/components/dashboard/ChatHistorySidebar';
@@ -21,6 +23,14 @@ const Assistant = () => {
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [userInput, setUserInput] = useState('');
+  
+  // Resizable prompt box
+  const { height: promptHeight, isResizing, handleResizeStart } = useResizableTextarea({
+    minHeight: 60,
+    maxHeight: 300,
+    initialHeight: 64,
+  });
 
   const models = [
     'All-Purpose (GPT-5)',
@@ -106,18 +116,19 @@ const Assistant = () => {
               <div className="bg-background border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
                 {/* Input Area with Animated Text */}
-                <div className="mb-6 h-16 flex items-center">
-                  <input
-                    type="text"
-                    value={currentPrompt}
-                    placeholder="What would you like to create?"
-                    className="w-full bg-transparent text-muted-foreground text-xl lg:text-2xl outline-none placeholder-muted"
-                    readOnly
+                <div className="mb-6 relative" style={{ height: promptHeight }}>
+                  <textarea
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    placeholder={currentPrompt + (isTyping ? '' : '...')}
+                    className="w-full h-full bg-transparent text-foreground text-xl lg:text-2xl outline-none placeholder-muted-foreground resize-none pr-8"
                   />
-                  {/* Typing Cursor */}
-                  {isTyping && (
-                    <span className="inline-block w-0.5 h-6 lg:h-7 bg-muted-foreground ml-1 animate-pulse" />
-                  )}
+                  <ResizeHandle 
+                    onResizeStart={handleResizeStart} 
+                    isResizing={isResizing}
+                    variant="subtle"
+                  />
+                  {isResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
                 </div>
 
                 {/* Action Buttons */}

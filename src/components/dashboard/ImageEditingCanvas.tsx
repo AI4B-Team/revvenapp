@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Send,
@@ -54,6 +54,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ReferencesModal from './ReferencesModal';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -349,6 +351,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  
+  // Resizable prompt box
+  const { height: chatInputHeight, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
+    minHeight: 48,
+    maxHeight: 200,
+    initialHeight: 48,
+  });
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
     mode: 'inpaint',
@@ -894,15 +903,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 {/* Input Area */}
                 <div className="p-4 border-t border-slate-200 bg-white">
                   <form onSubmit={handleSendMessage}>
-                    <div className="relative">
-                      <input
-                        type="text"
+                    <div className="relative" style={{ height: chatInputHeight }}>
+                      <textarea
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Ask Cora to edit something..."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+                        className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none"
                       />
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                      <div className="absolute right-2 top-3 flex items-center gap-0.5">
                         <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
                           <Paperclip className="w-4 h-4" />
                         </button>
@@ -921,6 +929,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           <Send className="w-4 h-4" />
                         </button>
                       </div>
+                      <ResizeHandle 
+                        onResizeStart={handleChatResizeStart} 
+                        isResizing={isChatResizing}
+                        variant="subtle"
+                      />
+                      {isChatResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
                     </div>
                   </form>
                 </div>
