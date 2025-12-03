@@ -195,9 +195,46 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       )
       .subscribe();
 
+    // Poll for stuck processing videos every 30 seconds
+    const checkStuckVideos = async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) return;
+
+      // Check if there are any processing videos older than 2 minutes
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      const { data: stuckVideos } = await supabase
+        .from('ai_videos')
+        .select('id')
+        .eq('user_id', session.session.user.id)
+        .eq('status', 'processing')
+        .lt('created_at', twoMinutesAgo);
+
+      if (stuckVideos && stuckVideos.length > 0) {
+        console.log('Found stuck videos, checking status...', stuckVideos.map(v => v.id));
+        try {
+          const response = await supabase.functions.invoke('check-video-status', {
+            body: {}
+          });
+          console.log('Video status check result:', response.data);
+          if (response.data?.updated > 0) {
+            fetchGeneratedContent();
+          }
+        } catch (error) {
+          console.error('Error checking video status:', error);
+        }
+      }
+    };
+
+    // Check immediately on mount
+    checkStuckVideos();
+
+    // Then poll every 30 seconds
+    const pollInterval = setInterval(checkStuckVideos, 30000);
+
     return () => {
       supabase.removeChannel(imagesChannel);
       supabase.removeChannel(videosChannel);
+      clearInterval(pollInterval);
     };
   }, []);
 
