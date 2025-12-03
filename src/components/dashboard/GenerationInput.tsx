@@ -95,7 +95,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [designModeState, setDesignModeState] = useState<DesignModeState>({});
   
   // Video mode specific state
-  const [videoModel, setVideoModel] = useState('veo3_fast');
+  const videoModel = 'veo3_fast'; // Fixed to Veo 3.1 Fast
   const [videoAspectRatio, setVideoAspectRatio] = useState('16:9');
   const [videoDuration, setVideoDuration] = useState('4');
   const [videoQuality, setVideoQuality] = useState('1080p');
@@ -1037,35 +1037,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                            videoModel !== 'veo3_fast' 
-                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                              : 'bg-muted hover:bg-muted/80'
-                          }`}>
-                            <Video size={14} />
-                            {videoModel === 'veo3_fast' ? 'Veo 3.1 Fast' : 'Veo 3.1 Quality'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64 bg-background border-border z-50">
-                          <div className="space-y-1">
-                            <button 
-                              onClick={() => setVideoModel('veo3_fast')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                            >
-                              Veo 3.1 Fast
-                            </button>
-                            <button 
-                              onClick={() => setVideoModel('veo3')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                            >
-                              Veo 3.1 Quality
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      <div className="px-4 py-1.5 rounded-md text-sm font-medium bg-muted flex items-center gap-2 whitespace-nowrap">
+                        <Video size={14} />
+                        Veo 3.1
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Model</p>
