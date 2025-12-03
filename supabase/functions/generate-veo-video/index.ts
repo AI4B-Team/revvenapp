@@ -60,7 +60,7 @@ serve(async (req) => {
         character_image_url: characterImageUrl || '',
         video_topic: prompt,
         video_script: prompt,
-        video_style: model.startsWith('sora') ? 'sora' : 'veo',
+        video_style: model.startsWith('sora') ? 'sora' : model.startsWith('kling') ? 'kling' : 'veo',
         video_generation_model: model,
         status: 'pending'
       })
@@ -139,6 +139,45 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(soraPayload),
+      });
+
+    } else if (model === 'kling-2.1') {
+      // Use the /api/v1/jobs/createTask endpoint for Kling 2.1
+      console.log("Using Kling 2.1 API");
+
+      // Kling uses 5 or 10 second durations
+      let klingDuration = '5';
+      const durationNum = parseInt(duration) || 10;
+      if (durationNum > 5) {
+        klingDuration = '10';
+      }
+
+      const klingPayload: any = {
+        model: 'kling/v2-1-master-image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          duration: klingDuration,
+          negative_prompt: 'blur, distort, low quality, pixelated',
+          cfg_scale: 0.5
+        }
+      };
+
+      // Kling requires a single image_url for image-to-video
+      if (imageUrls && imageUrls.length > 0) {
+        klingPayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Kling:", imageUrls[0]);
+      }
+
+      console.log("Kling API payload:", JSON.stringify(klingPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(klingPayload),
       });
 
     } else {
