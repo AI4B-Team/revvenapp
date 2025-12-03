@@ -29,6 +29,7 @@ serve(async (req) => {
       imageUrls, 
       model = 'veo3_fast',
       aspectRatio = '16:9',
+      duration = '10',
       userId,
       characterId,
       characterName,
@@ -59,7 +60,7 @@ serve(async (req) => {
         character_image_url: characterImageUrl || '',
         video_topic: prompt,
         video_script: prompt,
-        video_style: 'veo',
+        video_style: model.startsWith('sora') ? 'sora' : 'veo',
         video_generation_model: model,
         status: 'pending'
       })
@@ -73,78 +74,144 @@ serve(async (req) => {
 
     console.log("Video record created with ID:", videoRecord.id);
 
-    // Call KIE.AI Veo 3.1 API
     const callbackUrl = `${supabaseUrl}/functions/v1/veo-webhook-callback`;
-    console.log("Calling KIE.AI Veo API with callback:", callbackUrl);
+    console.log("Using callback URL:", callbackUrl);
 
-    const veoPayload: any = {
-      prompt,
-      model,
-      aspectRatio,
-      callBackUrl: callbackUrl,
-      enableTranslation: true
-    };
+    let apiResponse;
+    let taskId;
 
-    // Add imageUrls if provided (for image-to-video)
-    if (imageUrls && imageUrls.length > 0) {
-      veoPayload.imageUrls = imageUrls;
-      console.log("Using reference images for video generation:", imageUrls);
-      
-      // Determine generation type based on number of images
-      if (imageUrls.length === 1) {
-        // Single image: use IMAGE_2_VIDEO for image-to-video generation
-        veoPayload.generationType = 'IMAGE_2_VIDEO';
-      } else if (imageUrls.length === 2) {
-        // Two images: use as start and end frames for transition
-        veoPayload.generationType = 'FIRST_AND_LAST_FRAMES_2_VIDEO';
-      } else if (imageUrls.length >= 3) {
-        // Multiple images: use as reference material
-        veoPayload.generationType = 'REFERENCE_2_VIDEO';
+    // Check if this is a Sora model
+    if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
+      // Use the /api/v1/jobs/createTask endpoint for Sora 2 Pro
+      console.log("Using Sora 2 Pro API");
+
+      // Convert aspect ratio to Sora format
+      let soraAspectRatio = 'landscape';
+      if (aspectRatio === '9:16') {
+        soraAspectRatio = 'portrait';
+      } else if (aspectRatio === '16:9') {
+        soraAspectRatio = 'landscape';
       }
+
+      // Parse duration to valid n_frames value (10, 15, or 25)
+      let nFrames = '10';
+      const durationNum = parseInt(duration) || 10;
+      if (durationNum <= 10) {
+        nFrames = '10';
+      } else if (durationNum <= 15) {
+        nFrames = '15';
+      } else {
+        nFrames = '25';
+      }
+
+      // Create shots array from the prompt
+      // For single prompt, create one shot with full duration
+      const durationSeconds = parseInt(nFrames);
+      const shots = [
+        {
+          Scene: prompt,
+          duration: durationSeconds
+        }
+      ];
+
+      const soraPayload: any = {
+        model: 'sora-2-pro-storyboard',
+        callBackUrl: callbackUrl,
+        input: {
+          n_frames: nFrames,
+          aspect_ratio: soraAspectRatio,
+          shots: shots
+        }
+      };
+
+      // Add reference images if provided
+      if (imageUrls && imageUrls.length > 0) {
+        soraPayload.input.image_urls = imageUrls;
+        console.log("Using reference images for Sora:", imageUrls);
+      }
+
+      console.log("Sora API payload:", JSON.stringify(soraPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(soraPayload),
+      });
+
     } else {
-      veoPayload.generationType = 'TEXT_2_VIDEO';
-      console.log("No reference images, using TEXT_2_VIDEO mode");
+      // Use the Veo API for veo3 and veo3_fast models
+      console.log("Using Veo API");
+
+      const veoPayload: any = {
+        prompt,
+        model,
+        aspectRatio,
+        callBackUrl: callbackUrl,
+        enableTranslation: true
+      };
+
+      // Add imageUrls if provided (for image-to-video)
+      if (imageUrls && imageUrls.length > 0) {
+        veoPayload.imageUrls = imageUrls;
+        console.log("Using reference images for video generation:", imageUrls);
+        
+        // Determine generation type based on number of images
+        if (imageUrls.length === 1) {
+          veoPayload.generationType = 'IMAGE_2_VIDEO';
+        } else if (imageUrls.length === 2) {
+          veoPayload.generationType = 'FIRST_AND_LAST_FRAMES_2_VIDEO';
+        } else if (imageUrls.length >= 3) {
+          veoPayload.generationType = 'REFERENCE_2_VIDEO';
+        }
+      } else {
+        veoPayload.generationType = 'TEXT_2_VIDEO';
+        console.log("No reference images, using TEXT_2_VIDEO mode");
+      }
+
+      console.log("Veo API payload:", JSON.stringify(veoPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/veo/generate", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(veoPayload),
+      });
     }
 
-    console.log("Veo API payload:", JSON.stringify(veoPayload, null, 2));
-
-    const veoResponse = await fetch("https://api.kie.ai/api/v1/veo/generate", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${kieApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(veoPayload),
-    });
-
-    if (!veoResponse.ok) {
-      const errorText = await veoResponse.text();
-      console.error("KIE.AI API error:", veoResponse.status, errorText);
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text();
+      console.error("KIE.AI API error:", apiResponse.status, errorText);
       
       // Update video record with error status
       await supabase
         .from('ai_videos')
         .update({
           status: 'error',
+          error_message: errorText,
           webhook_response: { error: errorText }
         })
         .eq('id', videoRecord.id);
       
-      throw new Error(`KIE.AI API failed: ${veoResponse.status} ${errorText}`);
+      throw new Error(`KIE.AI API failed: ${apiResponse.status} ${errorText}`);
     }
 
-    const veoResult = await veoResponse.json();
-    console.log("KIE.AI API response:", JSON.stringify(veoResult, null, 2));
+    const apiResult = await apiResponse.json();
+    console.log("KIE.AI API response:", JSON.stringify(apiResult, null, 2));
 
     // Store the task ID for tracking
-    const taskId = veoResult.data?.taskId || veoResult.data?.id;
+    taskId = apiResult.data?.taskId || apiResult.data?.id;
     
     if (taskId) {
       await supabase
         .from('ai_videos')
         .update({
           status: 'processing',
-          webhook_response: { taskId, veoResult }
+          webhook_response: { taskId, apiResult }
         })
         .eq('id', videoRecord.id);
     }
@@ -155,7 +222,7 @@ serve(async (req) => {
         message: "Video generation started",
         video_id: videoRecord.id,
         task_id: taskId,
-        data: veoResult
+        data: apiResult
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
