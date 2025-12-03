@@ -181,10 +181,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (externalStartingFrame && isVideoMode) {
       externalFrameRef.current = externalStartingFrame;
-      setVideoModeState(prev => ({
-        ...prev,
-        startingFrame: externalStartingFrame
-      }));
+      setVideoModeState(prev => {
+        // If start frame already has an image, put new one in end frame
+        if (prev.startingFrame) {
+          return {
+            ...prev,
+            endingFrame: externalStartingFrame
+          };
+        }
+        // Otherwise put in start frame
+        return {
+          ...prev,
+          startingFrame: externalStartingFrame
+        };
+      });
     }
   }, [externalStartingFrame, isVideoMode]);
   
