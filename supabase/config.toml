@@ -29,3 +29,12 @@ verify_jwt = true
 
 [functions.upload-reference-image]
 verify_jwt = true
+
+[functions.check-video-status]
+verify_jwt = true
+
+[functions.generate-prompt-suggestion]
+verify_jwt = true
+
+[functions.enhance-character-description]
+verify_jwt = true
