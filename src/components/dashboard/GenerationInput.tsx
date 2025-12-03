@@ -1046,13 +1046,38 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="px-4 py-1.5 rounded-md text-sm font-medium bg-muted flex items-center gap-2 whitespace-nowrap">
-                        <Video size={14} />
-                        Veo 3.1
-                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel !== 'veo3_fast' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            <Video size={14} />
+                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            {videoModels.map((model) => (
+                              <button 
+                                key={model.value}
+                                onClick={() => setVideoModel(model.value)}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                  videoModel === model.value ? 'bg-secondary' : ''
+                                }`}
+                              >
+                                <div className="font-medium">{model.label}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Model</p>
+                      <p>Video Model</p>
                     </TooltipContent>
                   </Tooltip>
 
@@ -1092,43 +1117,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     <Upload size={14} />
                     Reference
                   </button>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            videoModel !== 'veo3_fast' 
-                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                              : 'bg-muted hover:bg-muted/80'
-                          }`}>
-                            <Video size={14} />
-                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56 bg-background border-border z-50">
-                          <div className="space-y-1">
-                            {videoModels.map((model) => (
-                              <button 
-                                key={model.value}
-                                onClick={() => setVideoModel(model.value)}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  videoModel === model.value ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <div className="font-medium">{model.label}</div>
-                                <div className="text-xs text-muted-foreground">{model.description}</div>
-                              </button>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Video Model</p>
-                    </TooltipContent>
-                  </Tooltip>
 
                   <Tooltip>
                     <TooltipTrigger asChild>
