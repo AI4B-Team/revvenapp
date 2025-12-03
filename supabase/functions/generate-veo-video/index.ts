@@ -88,17 +88,22 @@ serve(async (req) => {
     // Add imageUrls if provided (for image-to-video)
     if (imageUrls && imageUrls.length > 0) {
       veoPayload.imageUrls = imageUrls;
+      console.log("Using reference images for video generation:", imageUrls);
       
       // Determine generation type based on number of images
       if (imageUrls.length === 1) {
-        veoPayload.generationType = 'FIRST_AND_LAST_FRAMES_2_VIDEO';
+        // Single image: use IMAGE_2_VIDEO for image-to-video generation
+        veoPayload.generationType = 'IMAGE_2_VIDEO';
       } else if (imageUrls.length === 2) {
+        // Two images: use as start and end frames for transition
         veoPayload.generationType = 'FIRST_AND_LAST_FRAMES_2_VIDEO';
       } else if (imageUrls.length >= 3) {
+        // Multiple images: use as reference material
         veoPayload.generationType = 'REFERENCE_2_VIDEO';
       }
     } else {
       veoPayload.generationType = 'TEXT_2_VIDEO';
+      console.log("No reference images, using TEXT_2_VIDEO mode");
     }
 
     console.log("Veo API payload:", JSON.stringify(veoPayload, null, 2));
