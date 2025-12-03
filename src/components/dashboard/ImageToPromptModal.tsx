@@ -25,11 +25,14 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFromGallery, setSelectedFromGallery] = useState<string | null>(null);
   
-  // Resizable textarea
-  const { height: promptBoxHeight, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({
+  // Resizable textarea (both directions)
+  const { height: promptBoxHeight, width: promptBoxWidth, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({
     minHeight: 150,
     maxHeight: 400,
     initialHeight: 200,
+    minWidth: 300,
+    maxWidth: 700,
+    resizeDirection: 'both',
   });
 
   const {
@@ -266,7 +269,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       </div>
                     </div>
                   ) : generatedPrompt ? (
-                    <div className="w-full bg-gray-900/40 rounded-xl p-6 border border-gray-800 relative" style={{ height: promptBoxHeight }}>
+                    <div className="w-full bg-gray-900/40 rounded-xl p-6 border border-gray-800 relative" style={{ height: promptBoxHeight, ...(promptBoxWidth && { width: promptBoxWidth }) }}>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>

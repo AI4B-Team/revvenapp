@@ -25,11 +25,14 @@ const Assistant = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [userInput, setUserInput] = useState('');
   
-  // Resizable prompt box
-  const { height: promptHeight, isResizing, handleResizeStart } = useResizableTextarea({
+  // Resizable prompt box (both directions)
+  const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
     minHeight: 60,
     maxHeight: 300,
     initialHeight: 64,
+    minWidth: 400,
+    maxWidth: 1200,
+    resizeDirection: 'both',
   });
 
   const models = [
@@ -116,7 +119,7 @@ const Assistant = () => {
               <div className="bg-background border border-border rounded-3xl p-6 lg:p-8 shadow-2xl">
                 
                 {/* Input Area with Animated Text */}
-                <div className="mb-6 relative" style={{ height: promptHeight }}>
+                <div className="mb-6 relative" style={{ height: promptHeight, width: promptWidth }}>
                   <textarea
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}

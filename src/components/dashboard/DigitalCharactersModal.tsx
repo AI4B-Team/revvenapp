@@ -26,11 +26,14 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   const { toast } = useToast();
   
-  // Resizable textarea
-  const { height: descHeight, isResizing: isDescResizing, handleResizeStart: handleDescResizeStart } = useResizableTextarea({
+  // Resizable textarea (both directions)
+  const { height: descHeight, width: descWidth, isResizing: isDescResizing, handleResizeStart: handleDescResizeStart } = useResizableTextarea({
     minHeight: 120,
     maxHeight: 400,
     initialHeight: 150,
+    minWidth: 300,
+    maxWidth: 600,
+    resizeDirection: 'both',
   });
 
   const characters = [
@@ -812,7 +815,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
                         {/* Description */}
                         <div>
                           <label className="block text-white font-medium mb-2">Describe Your Character</label>
-                          <div className="relative" style={{ height: descHeight }}>
+                          <div className="relative" style={{ height: descHeight, ...(descWidth && { width: descWidth }) }}>
                             <textarea
                               placeholder="Describe the defining traits of your character that need to stay consistent across all visuals. This includes physical attributes, outfits, accessories, or specific characteristics like 'a tall pirate with a scar'."
                               value={description}
