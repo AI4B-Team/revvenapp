@@ -183,6 +183,45 @@ serve(async (req) => {
         body: JSON.stringify(klingPayload),
       });
 
+    } else if (model === 'kling-2.1') {
+      // Use the /api/v1/jobs/createTask endpoint for Kling 2.1 (image-to-video)
+      console.log("Using Kling 2.1 API");
+
+      // Kling 2.1 uses 5 or 10 second durations
+      let klingDuration = '5';
+      const durationNum = parseInt(duration) || 10;
+      if (durationNum > 5) {
+        klingDuration = '10';
+      }
+
+      const klingPayload: any = {
+        model: 'kling/v2-1-master-image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          duration: klingDuration,
+          negative_prompt: 'blur, distort, low quality, pixelated',
+          cfg_scale: 0.5
+        }
+      };
+
+      // Kling 2.1 requires a single image_url for image-to-video
+      if (imageUrls && imageUrls.length > 0) {
+        klingPayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Kling 2.1:", imageUrls[0]);
+      }
+
+      console.log("Kling 2.1 API payload:", JSON.stringify(klingPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(klingPayload),
+      });
+
     } else {
       // Use the Veo API for veo3 and veo3_fast models
       console.log("Using Veo API");
