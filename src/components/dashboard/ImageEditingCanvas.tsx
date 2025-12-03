@@ -354,9 +354,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   
   // Resizable prompt box
   const { height: chatInputHeight, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
-    minHeight: 48,
+    minHeight: 80,
     maxHeight: 200,
-    initialHeight: 48,
+    initialHeight: 80,
   });
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
