@@ -95,10 +95,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [designModeState, setDesignModeState] = useState<DesignModeState>({});
   
   // Video mode specific state
-  const videoModel = 'veo3_fast'; // Fixed to Veo 3.1 Fast
+  const [videoModel, setVideoModel] = useState('veo3_fast');
   const [videoAspectRatio, setVideoAspectRatio] = useState('16:9');
-  const [videoDuration, setVideoDuration] = useState('4');
+  const [videoDuration, setVideoDuration] = useState('10');
   const [videoQuality, setVideoQuality] = useState('1080p');
+  
+  // Video model options
+  const videoModels = [
+    { value: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation' },
+    { value: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output' },
+    { value: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard video generation' },
+  ];
   
   const { toast } = useToast();
   
@@ -394,6 +401,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
             model: videoModel,
             aspectRatio: videoAspectRatio,
+            duration: videoDuration,
             userId: user.id,
             characterId: primaryCharacter?.id || null,
             characterName: primaryCharacter?.name || 'Unknown',
@@ -404,9 +412,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         if (error) throw error;
 
+        const modelLabel = videoModels.find(m => m.value === videoModel)?.label || 'AI';
         toast({
           title: "Video generating!",
-          description: "Your video is being created with Veo 3.1. This may take a few minutes.",
+          description: `Your video is being created with ${modelLabel}. This may take a few minutes.`,
         });
 
         console.log("Video generation started:", data);
@@ -1089,6 +1098,43 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel !== 'veo3_fast' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            <Video size={14} />
+                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            {videoModels.map((model) => (
+                              <button 
+                                key={model.value}
+                                onClick={() => setVideoModel(model.value)}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                  videoModel === model.value ? 'bg-secondary' : ''
+                                }`}
+                              >
+                                <div className="font-medium">{model.label}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Video Model</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
                             videoAspectRatio !== '16:9' 
                               ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                               : 'bg-muted hover:bg-muted/80'
@@ -1133,21 +1179,34 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     <TooltipTrigger asChild>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                            4 sec
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoDuration !== '10' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {videoDuration} sec
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              4 seconds
+                            <button 
+                              onClick={() => setVideoDuration('10')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '10' ? 'bg-secondary' : ''}`}
+                            >
+                              10 seconds
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              8 seconds
+                            <button 
+                              onClick={() => setVideoDuration('15')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '15' ? 'bg-secondary' : ''}`}
+                            >
+                              15 seconds
                             </button>
-                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                              12 seconds
+                            <button 
+                              onClick={() => setVideoDuration('25')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '25' ? 'bg-secondary' : ''}`}
+                            >
+                              25 seconds
                             </button>
                           </div>
                         </PopoverContent>

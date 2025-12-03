@@ -54,14 +54,28 @@ serve(async (req) => {
 
     // Extract video URL from various possible locations in the payload
     // KIE.AI Veo API returns URLs in data.info.resultUrls or data.info.result_urls
+    // Sora API returns URLs in data.resultJson as JSON string containing resultUrls array
     let finalVideoUrl = videoUrl || 
       data?.videoUrl || 
       data?.url ||
       data?.info?.resultUrls?.[0] ||
       data?.info?.result_urls?.[0];
 
-    // Check if this is a success response (code 200 or has video URL)
-    const isSuccess = code === 200 || status === 'success' || !!finalVideoUrl;
+    // Check for Sora-style response with resultJson
+    if (!finalVideoUrl && data?.resultJson) {
+      try {
+        const resultData = typeof data.resultJson === 'string' 
+          ? JSON.parse(data.resultJson) 
+          : data.resultJson;
+        finalVideoUrl = resultData?.resultUrls?.[0];
+        console.log("Extracted URL from resultJson:", finalVideoUrl);
+      } catch (parseError) {
+        console.error("Failed to parse resultJson:", parseError);
+      }
+    }
+
+    // Check if this is a success response (code 200 or has video URL or state is success)
+    const isSuccess = code === 200 || status === 'success' || data?.state === 'success' || !!finalVideoUrl;
 
     if (isSuccess && finalVideoUrl) {
       console.log("Video generation successful, URL:", finalVideoUrl);
