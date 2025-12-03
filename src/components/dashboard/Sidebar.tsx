@@ -68,9 +68,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   ];
 
   const imageNavItems = [
-    { icon: <Edit size={18} />, label: 'Create', color: 'text-brand-yellow' },
-    { icon: <Image size={18} />, label: 'Edit', color: 'text-brand-green' },
-    { icon: <Video size={18} />, label: 'Upscale', color: 'text-brand-blue' },
+    { icon: <Image size={18} />, label: 'Edit', color: 'text-brand-green', link: '/edit' },
+    { icon: <ArrowUpCircle size={18} />, label: 'Upscale', color: 'text-brand-blue', link: '/edit' },
     { icon: <FileText size={18} />, label: 'Batch', color: 'text-brand-yellow' },
   ];
 
