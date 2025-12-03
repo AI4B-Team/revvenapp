@@ -52,13 +52,19 @@ serve(async (req) => {
     const videoRecord = videos[0];
     console.log("Found video record:", videoRecord.id);
 
-    // Handle successful completion
-    if (status === 'success' || videoUrl) {
-      const finalVideoUrl = videoUrl || data?.videoUrl || data?.url;
-      
-      if (!finalVideoUrl) {
-        throw new Error("No video URL found in callback");
-      }
+    // Extract video URL from various possible locations in the payload
+    // KIE.AI Veo API returns URLs in data.info.resultUrls or data.info.result_urls
+    let finalVideoUrl = videoUrl || 
+      data?.videoUrl || 
+      data?.url ||
+      data?.info?.resultUrls?.[0] ||
+      data?.info?.result_urls?.[0];
+
+    // Check if this is a success response (code 200 or has video URL)
+    const isSuccess = code === 200 || status === 'success' || !!finalVideoUrl;
+
+    if (isSuccess && finalVideoUrl) {
+      console.log("Video generation successful, URL:", finalVideoUrl);
 
       // Upload to Cloudinary for permanent storage
       let cloudinaryUrl = finalVideoUrl;
@@ -144,6 +150,8 @@ serve(async (req) => {
     } else {
       // Handle error status
       const errorMessage = msg || 'Video generation failed';
+      console.log("Video generation failed:", errorMessage);
+      
       const { error: updateError } = await supabase
         .from('ai_videos')
         .update({
