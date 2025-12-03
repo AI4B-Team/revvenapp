@@ -352,11 +352,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   
-  // Resizable prompt box
-  const { height: chatInputHeight, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
+  // Resizable prompt box (both directions)
+  const { height: chatInputHeight, width: chatInputWidth, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
     minHeight: 80,
     maxHeight: 200,
     initialHeight: 80,
+    minWidth: 250,
+    maxWidth: 500,
+    resizeDirection: 'both',
   });
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
@@ -903,7 +906,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 {/* Input Area */}
                 <div className="p-4 border-t border-slate-200 bg-white">
                   <form onSubmit={handleSendMessage}>
-                    <div className="relative" style={{ height: chatInputHeight }}>
+                    <div className="relative" style={{ height: chatInputHeight, ...(chatInputWidth && { width: chatInputWidth }) }}>
                       <textarea
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}

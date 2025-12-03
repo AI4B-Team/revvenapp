@@ -68,11 +68,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
   
-  // Resizable prompt box
-  const { height: promptHeight, isResizing, handleResizeStart } = useResizableTextarea({
+  // Resizable prompt box (both directions)
+  const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
     minHeight: 80,
     maxHeight: 400,
     initialHeight: 100,
+    minWidth: 600,
+    maxWidth: 1400,
+    resizeDirection: 'both',
   });
   
   // Isolated state for each content type
@@ -861,7 +864,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               </div>
             </TooltipProvider>
           </div>
-          <div className="flex-1 relative" style={{ height: promptHeight }}>
+          <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             <textarea 
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
