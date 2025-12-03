@@ -81,7 +81,16 @@ serve(async (req) => {
           
           const videoBlob = await videoResponse.blob();
           const videoBuffer = await videoBlob.arrayBuffer();
-          const videoBase64 = btoa(String.fromCharCode(...new Uint8Array(videoBuffer)));
+          
+          // Convert to base64 in chunks to avoid stack overflow
+          const uint8Array = new Uint8Array(videoBuffer);
+          const chunkSize = 32768; // Process 32KB at a time
+          let videoBase64 = '';
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.slice(i, Math.min(i + chunkSize, uint8Array.length));
+            videoBase64 += String.fromCharCode.apply(null, Array.from(chunk));
+          }
+          videoBase64 = btoa(videoBase64);
           
           // Upload to Cloudinary
           const timestamp = Math.floor(Date.now() / 1000);
@@ -114,7 +123,9 @@ serve(async (req) => {
             cloudinaryUrl = cloudinaryData.secure_url;
             console.log("Video uploaded to Cloudinary:", cloudinaryUrl);
           } else {
-            console.error("Cloudinary upload failed, using original URL");
+            const errorText = await cloudinaryResponse.text();
+            console.error("Cloudinary upload failed:", errorText);
+            // Continue with original URL
           }
         } catch (uploadError) {
           console.error("Error uploading to Cloudinary:", uploadError);
