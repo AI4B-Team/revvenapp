@@ -310,8 +310,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
 
   const handleDelete = async (item: GalleryItem) => {
     try {
+      const tableName = item.type === 'video' ? 'ai_videos' : 'generated_images';
       const { error } = await supabase
-        .from('generated_images')
+        .from(tableName)
         .delete()
         .eq('id', String(item.id));
 
@@ -321,12 +322,12 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       
       toast({
         title: "Deleted",
-        description: "Image deleted successfully",
+        description: `${item.type === 'video' ? 'Video' : 'Image'} deleted successfully`,
       });
     } catch (error) {
       toast({
         title: "Delete failed",
-        description: "Unable to delete image",
+        description: `Unable to delete ${item.type === 'video' ? 'video' : 'image'}`,
         variant: "destructive",
       });
     }
