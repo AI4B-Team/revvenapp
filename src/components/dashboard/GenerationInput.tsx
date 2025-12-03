@@ -175,8 +175,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
 
   // Handle external starting frame (e.g., from Animate button in modal)
+  // Use a ref to track external frame so it persists across other useEffect resets
+  const externalFrameRef = useRef<{ preview: string; name: string } | null>(null);
+  
   useEffect(() => {
     if (externalStartingFrame && isVideoMode) {
+      externalFrameRef.current = externalStartingFrame;
       setVideoModeState(prev => ({
         ...prev,
         startingFrame: externalStartingFrame
@@ -193,9 +197,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const totalImages = selectedCharacters.length + selectedReferences.length;
     
     setVideoModeState(prev => {
-      // If all images removed, clear everything
+      // If all images removed, clear everything UNLESS there's an external frame
       if (totalImages === 0) {
         framePopulateIntentRef.current = null;
+        // Preserve external starting frame if set
+        if (externalFrameRef.current) {
+          return {
+            characters: [],
+            references: [],
+            startingFrame: externalFrameRef.current,
+            endingFrame: null
+          };
+        }
         return {
           characters: [],
           references: [],
