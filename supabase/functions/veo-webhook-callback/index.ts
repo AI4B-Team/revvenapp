@@ -173,8 +173,8 @@ serve(async (req) => {
         }
       );
     } else {
-      // Handle error status
-      const errorMessage = msg || 'Video generation failed';
+      // Handle error status - extract specific error message from various locations
+      const errorMessage = data?.failMsg || msg || 'Video generation failed';
       console.log("Video generation failed:", errorMessage);
       
       const { error: updateError } = await supabase
@@ -186,7 +186,8 @@ serve(async (req) => {
             ...videoRecord.webhook_response, 
             callback: payload,
             error: errorMessage,
-            errorCode: code 
+            errorCode: code,
+            failCode: data?.failCode
           }
         })
         .eq('id', videoRecord.id);
