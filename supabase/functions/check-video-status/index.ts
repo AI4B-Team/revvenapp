@@ -110,52 +110,41 @@ serve(async (req) => {
         if (videoUrl) {
           console.log(`Video completed! URL: ${videoUrl}`);
 
-          // Upload to Cloudinary
+          // Use Cloudinary's URL-based upload to avoid memory issues
           let finalUrl = videoUrl;
           if (cloudinaryApiSecret) {
             try {
-              console.log("Uploading video to Cloudinary...");
-              const videoResponse = await fetch(videoUrl);
-              if (videoResponse.ok) {
-                const videoBlob = await videoResponse.blob();
-                const videoBuffer = await videoBlob.arrayBuffer();
-                
-                const uint8Array = new Uint8Array(videoBuffer);
-                const chunkSize = 32768;
-                let videoBase64 = '';
-                for (let i = 0; i < uint8Array.length; i += chunkSize) {
-                  const chunk = uint8Array.slice(i, Math.min(i + chunkSize, uint8Array.length));
-                  videoBase64 += String.fromCharCode.apply(null, Array.from(chunk));
-                }
-                videoBase64 = btoa(videoBase64);
-                
-                const timestamp = Math.floor(Date.now() / 1000);
-                const signatureString = `timestamp=${timestamp}${cloudinaryApiSecret}`;
-                const signature = await crypto.subtle.digest(
-                  "SHA-256",
-                  new TextEncoder().encode(signatureString)
-                );
-                const signatureHex = Array.from(new Uint8Array(signature))
-                  .map(b => b.toString(16).padStart(2, "0"))
-                  .join("");
+              console.log("Uploading video to Cloudinary via URL fetch...");
+              
+              const timestamp = Math.floor(Date.now() / 1000);
+              const signatureString = `folder=ai_videos&timestamp=${timestamp}${cloudinaryApiSecret}`;
+              const encoder = new TextEncoder();
+              const data = encoder.encode(signatureString);
+              const hashBuffer = await crypto.subtle.digest("SHA-1", data);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-                const formData = new FormData();
-                formData.append("file", `data:video/mp4;base64,${videoBase64}`);
-                formData.append("api_key", cloudinaryApiKey);
-                formData.append("timestamp", timestamp.toString());
-                formData.append("signature", signatureHex);
-                formData.append("folder", "ai_videos");
+              // Use Cloudinary's URL-based upload (no download needed)
+              const formData = new FormData();
+              formData.append("file", videoUrl); // Pass URL directly
+              formData.append("api_key", cloudinaryApiKey);
+              formData.append("timestamp", timestamp.toString());
+              formData.append("signature", signature);
+              formData.append("folder", "ai_videos");
+              formData.append("resource_type", "video");
 
-                const cloudinaryResponse = await fetch(
-                  `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/video/upload`,
-                  { method: "POST", body: formData }
-                );
+              const cloudinaryResponse = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/video/upload`,
+                { method: "POST", body: formData }
+              );
 
-                if (cloudinaryResponse.ok) {
-                  const cloudinaryData = await cloudinaryResponse.json();
-                  finalUrl = cloudinaryData.secure_url;
-                  console.log("Uploaded to Cloudinary:", finalUrl);
-                }
+              if (cloudinaryResponse.ok) {
+                const cloudinaryData = await cloudinaryResponse.json();
+                finalUrl = cloudinaryData.secure_url;
+                console.log("Uploaded to Cloudinary:", finalUrl);
+              } else {
+                const errText = await cloudinaryResponse.text();
+                console.error("Cloudinary upload error:", errText);
               }
             } catch (uploadError) {
               console.error("Cloudinary upload error:", uploadError);

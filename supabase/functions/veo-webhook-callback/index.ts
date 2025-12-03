@@ -53,15 +53,13 @@ serve(async (req) => {
     console.log("Found video record:", videoRecord.id);
 
     // Extract video URL from various possible locations in the payload
-    // KIE.AI Veo API returns URLs in data.info.resultUrls or data.info.result_urls
-    // Sora API returns URLs in data.resultJson as JSON string containing resultUrls array
     let finalVideoUrl = videoUrl || 
       data?.videoUrl || 
       data?.url ||
       data?.info?.resultUrls?.[0] ||
       data?.info?.result_urls?.[0];
 
-    // Check for Sora-style response with resultJson
+    // Check for Sora/Kling-style response with resultJson
     if (!finalVideoUrl && data?.resultJson) {
       try {
         const resultData = typeof data.resultJson === 'string' 
@@ -74,62 +72,39 @@ serve(async (req) => {
       }
     }
 
-    // Check if this is a success response (code 200 or has video URL or state is success)
+    // Check if this is a success response
     const isSuccess = code === 200 || status === 'success' || data?.state === 'success' || !!finalVideoUrl;
 
     if (isSuccess && finalVideoUrl) {
       console.log("Video generation successful, URL:", finalVideoUrl);
 
-      // Upload to Cloudinary for permanent storage
+      // Use Cloudinary's URL-based upload to avoid memory issues
       let cloudinaryUrl = finalVideoUrl;
       
       if (cloudinaryApiSecret) {
         try {
-          console.log("Uploading video to Cloudinary...");
+          console.log("Uploading video to Cloudinary via URL fetch...");
           
-          // Download the video
-          const videoResponse = await fetch(finalVideoUrl);
-          if (!videoResponse.ok) {
-            throw new Error(`Failed to download video: ${videoResponse.status}`);
-          }
-          
-          const videoBlob = await videoResponse.blob();
-          const videoBuffer = await videoBlob.arrayBuffer();
-          
-          // Convert to base64 in chunks to avoid stack overflow
-          const uint8Array = new Uint8Array(videoBuffer);
-          const chunkSize = 32768; // Process 32KB at a time
-          let videoBase64 = '';
-          for (let i = 0; i < uint8Array.length; i += chunkSize) {
-            const chunk = uint8Array.slice(i, Math.min(i + chunkSize, uint8Array.length));
-            videoBase64 += String.fromCharCode.apply(null, Array.from(chunk));
-          }
-          videoBase64 = btoa(videoBase64);
-          
-          // Upload to Cloudinary
           const timestamp = Math.floor(Date.now() / 1000);
-          const signatureString = `timestamp=${timestamp}${cloudinaryApiSecret}`;
-          const signature = await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(signatureString)
-          );
-          const signatureHex = Array.from(new Uint8Array(signature))
-            .map(b => b.toString(16).padStart(2, "0"))
-            .join("");
+          const signatureString = `folder=veo_videos&timestamp=${timestamp}${cloudinaryApiSecret}`;
+          const encoder = new TextEncoder();
+          const hashData = encoder.encode(signatureString);
+          const hashBuffer = await crypto.subtle.digest("SHA-1", hashData);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
+          // Use Cloudinary's URL-based upload (pass URL directly, no download)
           const formData = new FormData();
-          formData.append("file", `data:video/mp4;base64,${videoBase64}`);
+          formData.append("file", finalVideoUrl); // Pass URL directly
           formData.append("api_key", cloudinaryApiKey);
           formData.append("timestamp", timestamp.toString());
-          formData.append("signature", signatureHex);
+          formData.append("signature", signature);
           formData.append("folder", "veo_videos");
+          formData.append("resource_type", "video");
 
           const cloudinaryResponse = await fetch(
             `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/video/upload`,
-            {
-              method: "POST",
-              body: formData,
-            }
+            { method: "POST", body: formData }
           );
 
           if (cloudinaryResponse.ok) {
@@ -167,13 +142,10 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, message: "Video processed successfully" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     } else {
-      // Handle error status - extract specific error message from various locations
+      // Handle error status
       const errorMessage = data?.failMsg || msg || 'Video generation failed';
       console.log("Video generation failed:", errorMessage);
       
@@ -198,10 +170,7 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: false, message: "Video generation failed" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
   } catch (error) {
@@ -212,10 +181,7 @@ serve(async (req) => {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
 });
