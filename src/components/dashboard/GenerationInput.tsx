@@ -105,7 +105,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'veo3_fast', label: 'Veo 3.1 Fast', description: 'Quick video generation' },
     { value: 'veo3', label: 'Veo 3.1 Quality', description: 'Higher quality output' },
     { value: 'sora-2-pro', label: 'Sora 2 Pro', description: 'Storyboard (no people photos)' },
-    { value: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people' },
+    { value: 'kling-2.5', label: 'Kling 2.5', description: 'Text-to-video, fast generation' },
   ];
   
   const { toast } = useToast();
