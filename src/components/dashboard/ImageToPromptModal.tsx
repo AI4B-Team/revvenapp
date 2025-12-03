@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, Upload, X, Loader2, Copy, Search, Sparkles, Image as ImageIcon, Users } from 'lucide-react';
 import { useImageToPrompt } from '@/hooks/useImageToPrompt';
+import { useResizableTextarea } from '@/hooks/useResizableTextarea';
+import ResizeHandle from '@/components/ui/ResizeHandle';
 import { toast } from 'sonner';
 import { creationsData, communityData } from '@/data/creationsData';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,13 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
   const [activeTab, setActiveTab] = useState('creations');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFromGallery, setSelectedFromGallery] = useState<string | null>(null);
+  
+  // Resizable textarea
+  const { height: promptBoxHeight, isResizing: isPromptResizing, handleResizeStart: handlePromptResizeStart } = useResizableTextarea({
+    minHeight: 150,
+    maxHeight: 400,
+    initialHeight: 200,
+  });
 
   const {
     uploadedImage,
@@ -257,7 +266,7 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                       </div>
                     </div>
                   ) : generatedPrompt ? (
-                    <div className="w-full h-full bg-gray-900/40 rounded-xl p-6 overflow-y-auto border border-gray-800 relative">
+                    <div className="w-full bg-gray-900/40 rounded-xl p-6 border border-gray-800 relative" style={{ height: promptBoxHeight }}>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -278,6 +287,12 @@ export const ImageToPromptModal = ({ isOpen, onClose, onPromptGenerated }: Image
                         onChange={(e) => updatePrompt(e.target.value)}
                         className="w-full h-full resize-none bg-transparent border-0 text-gray-300 text-sm placeholder:text-gray-600 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0"
                       />
+                      <ResizeHandle 
+                        onResizeStart={handlePromptResizeStart} 
+                        isResizing={isPromptResizing}
+                        variant="subtle"
+                      />
+                      {isPromptResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
                     </div>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-800 rounded-xl">
