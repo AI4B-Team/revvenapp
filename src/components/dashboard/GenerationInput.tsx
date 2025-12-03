@@ -937,7 +937,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               endingFrame={videoModeState.endingFrame}
               onStartingFrameChange={(frame) => {
                 if (!frame) {
-                  // Clearing start frame - also clear from parent if it matches
+                  // Clearing start frame - also clear external frame ref and from parent if it matches
+                  externalFrameRef.current = null;
                   const updatedChars = videoModeState.characters.slice(1);
                   const updatedRefs = videoModeState.references.length > 0 && videoModeState.characters.length === 0 
                     ? videoModeState.references.slice(1) 
