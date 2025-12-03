@@ -129,7 +129,8 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
       const mappedVideos: GalleryItem[] = videosData?.map((video) => ({
         id: video.id,
         title: video.video_topic.substring(0, 50) + (video.video_topic.length > 50 ? '...' : ''),
-        thumbnail: video.video_url || video.character_image_url || '/placeholder.svg',
+        // Use character image as thumbnail, video_url for playback
+        thumbnail: video.character_image_url || '/placeholder.svg',
         url: video.video_url || undefined,
         type: 'video',
         creator: {
@@ -142,9 +143,9 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         createdAt: video.created_at || new Date().toISOString(),
         status: video.status as 'pending' | 'processing' | 'completed' | 'error',
         prompt: video.video_topic,
-        model: video.video_generation_model || 'Seedance 1.0',
-        aspectRatio: '9:16',
-        resolution: '768x1344 px',
+        model: video.video_generation_model || 'Veo 3.1',
+        aspectRatio: '16:9',
+        resolution: '1280x720 px',
         timestamp: formatTimestamp(video.created_at),
         referenceImage: video.character_image_url || undefined,
         errorMessage: video.error_message || undefined
@@ -458,21 +459,38 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
               className="relative aspect-[4/3] overflow-hidden cursor-pointer"
               onClick={() => handleImageClick(index)}
             >
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
+              {/* For completed videos, show video element; otherwise show image */}
+              {item.type === 'video' && item.status === 'completed' && item.url ? (
+                <video
+                  src={item.url}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                  onMouseEnter={(e) => e.currentTarget.play()}
+                  onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                />
+              ) : (
+                <img
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
               
-              {/* Loading Overlay for pending/processing images */}
+              {/* Loading Overlay for pending/processing */}
               {(item.status === 'pending' || item.status === 'processing') && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
                   <div className="relative">
                     <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-white font-semibold text-lg mb-1">Generating Image</p>
-                    <p className="text-white/70 text-sm">This may take a few moments...</p>
+                    <p className="text-white font-semibold text-lg mb-1">
+                      {item.type === 'video' ? 'Generating Video' : 'Generating Image'}
+                    </p>
+                    <p className="text-white/70 text-sm">
+                      {item.type === 'video' ? 'This may take a few minutes...' : 'This may take a few moments...'}
+                    </p>
                   </div>
                 </div>
               )}
