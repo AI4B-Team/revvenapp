@@ -19,19 +19,48 @@ serve(async (req) => {
     }
 
     const hasImages = (characterImages && characterImages.length > 0) || (referenceImages && referenceImages.length > 0);
+    const isVideo = contentType === 'video';
+
+    // Different system prompts for video vs image
+    const videoPromptGuidance = `Create prompts for VIDEO generation that describe:
+- Camera movements (pan, zoom, tracking shot, crane shot)
+- Action and motion (what moves, how it moves, speed)
+- Scene transitions or progression over time
+- Lighting changes or time of day shifts
+- Character actions and expressions
+Example style: "Slow zoom into a woman's face as she turns to look at the camera, golden hour sunlight streaming through her hair, soft wind blowing"`;
+
+    const imagePromptGuidance = `Create prompts for IMAGE/PHOTO generation that describe:
+- Composition and framing (close-up, wide shot, portrait)
+- Lighting and mood (dramatic, soft, cinematic)
+- Style and aesthetic (photorealistic, artistic, vintage)
+- Details and textures
+- Color palette and atmosphere
+Example style: "A stunning portrait of a woman in golden hour light, soft bokeh background, cinematic color grading, 85mm lens"`;
 
     let messages: any[] = [];
 
     if (hasImages) {
       // Build a message with images for vision analysis
-      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
-Based on the provided character and reference images, create a completely NEW creative scenario or scene that FEATURES these characters/elements in an interesting situation.
-DO NOT describe what you see in the images. Instead, imagine these characters in a new setting, action, or scenario.
-The prompt should be specific, vivid, and imaginative - like "character from image 1 doing X in Y setting" or "character in Z dramatic scene".
-Return only the creative prompt text for generating a NEW image, nothing else.`;
+      const systemPrompt = isVideo
+        ? `You are a creative AI assistant that generates inspiring and detailed prompts for VIDEO generation.
+${videoPromptGuidance}
+
+Based on the provided character and reference images, create a completely NEW creative VIDEO scenario that FEATURES these characters/elements in motion.
+Focus on what ACTIONS occur, how the camera MOVES, and how the scene PROGRESSES over time.
+Return only the creative video prompt text, nothing else.`
+        : `You are a creative AI assistant that generates inspiring and detailed prompts for IMAGE/PHOTO generation.
+${imagePromptGuidance}
+
+Based on the provided character and reference images, create a completely NEW creative scenario that FEATURES these characters/elements.
+DO NOT describe what you see in the images. Instead, imagine these characters in a new setting or artistic composition.
+Return only the creative image prompt text, nothing else.`;
 
       const content: any[] = [
-        { type: "text", text: "Look at these character/reference images and create a NEW creative prompt that features them in an interesting scenario:" }
+        { type: "text", text: isVideo 
+          ? "Look at these character/reference images and create a NEW creative VIDEO prompt that features them in motion with camera movements:" 
+          : "Look at these character/reference images and create a NEW creative IMAGE prompt featuring them in an interesting composition:" 
+        }
       ];
 
       // Add character images
@@ -60,14 +89,24 @@ Return only the creative prompt text for generating a NEW image, nothing else.`;
       ];
     } else {
       // No images, generate a random creative prompt
-      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contentType || 'image'} generation. 
-Generate a single creative, detailed prompt that would create an interesting and visually appealing result.
-The prompt should be specific, vivid, and imaginative.
+      const systemPrompt = isVideo
+        ? `You are a creative AI assistant that generates inspiring and detailed prompts for VIDEO generation.
+${videoPromptGuidance}
+
+Generate a single creative, detailed VIDEO prompt with camera movements, action, and scene progression.
+Return only the prompt text, nothing else.`
+        : `You are a creative AI assistant that generates inspiring and detailed prompts for IMAGE/PHOTO generation.
+${imagePromptGuidance}
+
+Generate a single creative, detailed IMAGE prompt that would create a visually stunning result.
 Return only the prompt text, nothing else.`;
 
       messages = [
         { role: "system", content: systemPrompt },
-        { role: "user", content: "Generate a creative prompt idea" }
+        { role: "user", content: isVideo 
+          ? "Generate a creative VIDEO prompt idea with camera movements and action" 
+          : "Generate a creative IMAGE prompt idea" 
+        }
       ];
     }
 
