@@ -2420,12 +2420,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
       {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
       {isContentMode && showSocialButtons && (
-        <div className="mt-6 p-4 bg-card rounded-xl border border-border">
-          <p className="text-foreground font-medium mb-4 text-center">
+        <div className="mt-6 p-6 bg-card rounded-xl border border-border">
+          <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate 30 Days Of Content For Each One
           </p>
           
-          <div className="flex items-center justify-center gap-3 flex-wrap">
+          <div className="flex items-center justify-center gap-4 flex-wrap">
             <button
               onClick={() => {
                 if (selectedPlatforms.length === socialPlatforms.length) {
@@ -2434,7 +2434,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   setSelectedPlatforms(socialPlatforms.map(p => p.id));
                 }
               }}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`px-5 py-2.5 rounded-xl text-base font-medium transition-all ${
                 selectedPlatforms.length === socialPlatforms.length
                   ? 'bg-emerald-500 text-white'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -2457,17 +2457,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                         : [...prev, platform.id]
                     );
                   }}
-                  className={`relative p-3 rounded-2xl transition-all ${
+                  className={`relative p-4 rounded-2xl transition-all ${
                     isSelected
                       ? 'bg-card shadow-lg ring-2 ring-emerald-500'
                       : 'bg-muted/50 hover:bg-muted border border-border'
                   }`}
                   title={platform.name}
                 >
-                  <IconComponent className="w-6 h-6" />
+                  <IconComponent className="w-10 h-10" />
                   {isSelected && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
+                    <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" />
                     </div>
                   )}
                 </button>
@@ -2476,7 +2476,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
           
           {selectedPlatforms.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-3 text-center">
+            <p className="text-base text-muted-foreground mt-4 text-center">
               {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * 30} posts will be generated
             </p>
           )}
