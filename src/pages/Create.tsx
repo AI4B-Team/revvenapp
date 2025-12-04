@@ -14,6 +14,8 @@ import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
+import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
+import { socialPlatforms } from '@/components/dashboard/SocialIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -93,6 +95,9 @@ const Create = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [externalStartingFrame, setExternalStartingFrame] = useState<{ preview: string; name: string } | null>(null);
+  const [socialGeneratedContent, setSocialGeneratedContent] = useState<any[]>([]);
+  const [isSocialGenerating, setIsSocialGenerating] = useState(false);
+  const [showSocialCalendar, setShowSocialCalendar] = useState(false);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
