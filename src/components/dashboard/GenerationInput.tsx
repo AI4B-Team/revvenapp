@@ -108,7 +108,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'kling-2.1', label: 'Kling 2.1', description: 'Image-to-video, supports people' },
     { value: 'kling-2.5', label: 'Kling 2.5', description: 'Text-to-video, fast generation' },
     { value: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)' },
-    { value: 'wan-2.2', label: 'Wan 2.2', description: 'Text-to-video, turbo' },
+    { value: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo' },
   ];
   
   const { toast } = useToast();
