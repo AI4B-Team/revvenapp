@@ -369,6 +369,44 @@ serve(async (req) => {
         body: JSON.stringify(hailuoPayload),
       });
 
+    } else if (model === 'bytedance-v1') {
+      // Use the /api/v1/jobs/createTask endpoint for Bytedance V1 Pro (image-to-video)
+      console.log("Using Bytedance V1 Pro API");
+
+      // Bytedance uses 5 or 10 second durations
+      let bytedanceDuration = '5';
+      const durationNum = parseInt(duration) || 5;
+      if (durationNum > 5) {
+        bytedanceDuration = '10';
+      }
+
+      const bytedancePayload: any = {
+        model: 'bytedance/v1-pro-fast-image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt, // Bytedance supports up to 10000 chars
+          duration: bytedanceDuration,
+          resolution: '720p'
+        }
+      };
+
+      // Bytedance requires image_url for image-to-video
+      if (imageUrls && imageUrls.length > 0) {
+        bytedancePayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Bytedance V1:", imageUrls[0]);
+      }
+
+      console.log("Bytedance V1 API payload:", JSON.stringify(bytedancePayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bytedancePayload),
+      });
+
     } else {
       // Use the Veo API for veo3 and veo3_fast models
       console.log("Using Veo API");
