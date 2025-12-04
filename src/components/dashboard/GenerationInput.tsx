@@ -71,9 +71,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
   
   // Social content mode state
-  const [showSocialButtons, setShowSocialButtons] = useState(false);
+  const [showSocialButtons, setShowSocialButtons] = useState(true);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [contentType, setContentType] = useState('Article');
+  const [contentType, setContentType] = useState('Social');
+  const [contentGoal, setContentGoal] = useState('Engagement');
+  const [contentLanguage, setContentLanguage] = useState('English');
   
   // Resizable prompt box (both directions)
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
@@ -915,7 +917,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder="Describe what you want to create..."
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
@@ -1530,73 +1532,145 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             ) : isContentMode ? (
               <>
                 {/* Content Mode Controls */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                      </svg>
-                      Nano Banana
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[420px] p-0 bg-background border-border z-50" align="start">
-                    <div className="space-y-1 p-2">
-                      <button className="w-full text-left px-4 py-3 hover:bg-secondary rounded-lg transition group">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Zap size={16} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="font-semibold text-foreground text-sm">Auto</span>
-                              <Badge className="bg-brand-green text-primary text-[10px] px-1.5 py-0 h-4">SUGGESTED</Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground">AI picks what's best</p>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                
+                {/* Type Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
                       contentType === 'Social' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
                     }`}>
-                      {contentType}
+                      Type: {contentType}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-48 bg-background border-border z-50">
                     <div className="space-y-1">
                       <button 
-                        onClick={() => { setContentType('Article'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Article' ? 'bg-secondary' : ''}`}
-                      >
-                        Article
-                      </button>
-                      <button 
-                        onClick={() => { setContentType('eBook'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'eBook' ? 'bg-secondary' : ''}`}
-                      >
-                        eBook
-                      </button>
-                      <button 
-                        onClick={() => { setContentType('Presentation'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Presentation' ? 'bg-secondary' : ''}`}
-                      >
-                        Presentation
-                      </button>
-                      <button 
                         onClick={() => { setContentType('Social'); setShowSocialButtons(true); }}
                         className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Social' ? 'bg-secondary' : ''}`}
                       >
                         Social
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                
+                {/* Goal Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                      contentGoal !== 'Engagement' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    }`}>
+                      Goal: {contentGoal}
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button 
+                        onClick={() => setContentGoal('Engagement')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Engagement' ? 'bg-secondary' : ''}`}
+                      >
+                        Engagement
+                      </button>
+                      <button 
+                        onClick={() => setContentGoal('Authority')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Authority' ? 'bg-secondary' : ''}`}
+                      >
+                        Authority
+                      </button>
+                      <button 
+                        onClick={() => setContentGoal('Followers')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Followers' ? 'bg-secondary' : ''}`}
+                      >
+                        Followers
+                      </button>
+                      <button 
+                        onClick={() => setContentGoal('Leads')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Leads' ? 'bg-secondary' : ''}`}
+                      >
+                        Leads
+                      </button>
+                      <button 
+                        onClick={() => setContentGoal('Sales')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentGoal === 'Sales' ? 'bg-secondary' : ''}`}
+                      >
+                        Sales
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                
+                {/* Language Dropdown */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                      contentLanguage !== 'English' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    }`}>
+                      Language: {contentLanguage}
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button 
+                        onClick={() => setContentLanguage('English')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'English' ? 'bg-secondary' : ''}`}
+                      >
+                        English
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Spanish')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Spanish' ? 'bg-secondary' : ''}`}
+                      >
+                        Spanish
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('French')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'French' ? 'bg-secondary' : ''}`}
+                      >
+                        French
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('German')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'German' ? 'bg-secondary' : ''}`}
+                      >
+                        German
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Portuguese')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Portuguese' ? 'bg-secondary' : ''}`}
+                      >
+                        Portuguese
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Italian')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Italian' ? 'bg-secondary' : ''}`}
+                      >
+                        Italian
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Chinese')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Chinese' ? 'bg-secondary' : ''}`}
+                      >
+                        Chinese
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Japanese')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Japanese' ? 'bg-secondary' : ''}`}
+                      >
+                        Japanese
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Arabic')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Arabic' ? 'bg-secondary' : ''}`}
+                      >
+                        Arabic
+                      </button>
+                      <button 
+                        onClick={() => setContentLanguage('Hindi')}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentLanguage === 'Hindi' ? 'bg-secondary' : ''}`}
+                      >
+                        Hindi
                       </button>
                     </div>
                   </PopoverContent>
