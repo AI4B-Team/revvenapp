@@ -331,6 +331,44 @@ serve(async (req) => {
         body: JSON.stringify(wanPayload),
       });
 
+    } else if (model === 'hailuo-2.3') {
+      // Use the /api/v1/jobs/createTask endpoint for Hailuo 2.3 (image-to-video)
+      console.log("Using Hailuo 2.3 API");
+
+      // Hailuo uses 6 or 10 second durations (10 not supported for 1080P)
+      let hailuoDuration = '6';
+      const durationNum = parseInt(duration) || 6;
+      if (durationNum > 6) {
+        hailuoDuration = '10';
+      }
+
+      const hailuoPayload: any = {
+        model: 'hailuo/2-3-image-to-video-pro',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt, // Hailuo supports up to 5000 chars
+          duration: hailuoDuration,
+          resolution: hailuoDuration === '10' ? '768P' : '1080P' // 10s not supported for 1080P
+        }
+      };
+
+      // Hailuo requires image_url for image-to-video
+      if (imageUrls && imageUrls.length > 0) {
+        hailuoPayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Hailuo 2.3:", imageUrls[0]);
+      }
+
+      console.log("Hailuo 2.3 API payload:", JSON.stringify(hailuoPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(hailuoPayload),
+      });
+
     } else {
       // Use the Veo API for veo3 and veo3_fast models
       console.log("Using Veo API");
