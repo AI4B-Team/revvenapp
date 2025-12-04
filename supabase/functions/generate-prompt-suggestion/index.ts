@@ -19,7 +19,7 @@ serve(async (req) => {
     }
 
     const hasImages = (characterImages && characterImages.length > 0) || (referenceImages && referenceImages.length > 0);
-    const isVideo = contentType === 'video';
+    const isVideo = contentType?.toLowerCase() === 'video';
 
     // Different system prompts for video vs image
     const videoPromptGuidance = `Create prompts for VIDEO generation that describe:
