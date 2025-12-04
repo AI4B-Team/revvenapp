@@ -2448,29 +2448,34 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               const IconComponent = platform.Icon;
               
               return (
-                <button
-                  key={platform.id}
-                  onClick={() => {
-                    setSelectedPlatforms(prev => 
-                      prev.includes(platform.id) 
-                        ? prev.filter(id => id !== platform.id)
-                        : [...prev, platform.id]
-                    );
-                  }}
-                  className={`relative p-4 rounded-2xl transition-all ${
-                    isSelected
-                      ? 'bg-card shadow-lg ring-2 ring-emerald-500'
-                      : 'bg-muted/50 hover:bg-muted border border-border'
-                  }`}
-                  title={platform.name}
-                >
-                  <IconComponent className="w-10 h-10" />
-                  {isSelected && (
-                    <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                </button>
+                <Tooltip key={platform.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => {
+                        setSelectedPlatforms(prev => 
+                          prev.includes(platform.id) 
+                            ? prev.filter(id => id !== platform.id)
+                            : [...prev, platform.id]
+                        );
+                      }}
+                      className={`relative p-4 rounded-2xl transition-all border-2 ${
+                        isSelected
+                          ? 'bg-card shadow-lg border-emerald-500'
+                          : 'bg-muted/50 hover:bg-muted border-transparent hover:border-emerald-500'
+                      }`}
+                    >
+                      <IconComponent className="w-10 h-10" />
+                      {isSelected && (
+                        <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{platform.name}</p>
+                  </TooltipContent>
+                </Tooltip>
               );
             })}
           </div>
