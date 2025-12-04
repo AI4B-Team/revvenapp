@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import grokLogo from '@/assets/model-logos/grok.png';
 import StylesModal from './StylesModal';
 import { ImageToPromptModal } from './ImageToPromptModal';
 import VideoFrameBoxes from './VideoFrameBoxes';
+import { socialPlatforms, getPlatformIcon } from './SocialIcons';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -26,6 +27,7 @@ interface GenerationInputProps {
   onGenerationStart?: () => void;
   externalStartingFrame?: { preview: string; name: string } | null;
   onContentTypeChange?: (type: string) => void;
+  onSocialGenerate?: (platforms: string[], prompt: string) => void;
 }
 
 // Separate state containers for each content type
@@ -49,7 +51,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -67,6 +69,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [isImageToPromptModalOpen, setIsImageToPromptModalOpen] = useState(false);
+  
+  // Social content mode state
+  const [showSocialButtons, setShowSocialButtons] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [contentType, setContentType] = useState('Article');
   
   // Resizable prompt box (both directions)
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
@@ -349,6 +356,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [isVideoMode, selectedCharacters, selectedReferences]);
   
   const handleGenerate = async () => {
+    // Handle social content generation
+    if (isContentMode && showSocialButtons) {
+      if (selectedPlatforms.length === 0) {
+        toast({
+          title: "Platforms required",
+          description: "Please select at least one social platform",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!prompt.trim()) {
+        toast({
+          title: "Prompt required",
+          description: "Please describe the theme or topic for your content plan",
+          variant: "destructive",
+        });
+        return;
+      }
+      // Call the social generate callback
+      onSocialGenerate?.(selectedPlatforms, prompt.trim());
+      return;
+    }
+
     if (!prompt.trim()) {
       toast({
         title: "Prompt required",
@@ -1513,9 +1543,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50" align="start">
+                  <PopoverContent className="w-[420px] p-0 bg-background border-border z-50" align="start">
                     <div className="space-y-1 p-2">
-                      <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
+                      <button className="w-full text-left px-4 py-3 hover:bg-secondary rounded-lg transition group">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
                             <Zap size={16} className="text-white" />
@@ -1535,23 +1565,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      Type
+                    <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                      contentType === 'Social' ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-muted hover:bg-muted/80'
+                    }`}>
+                      {contentType}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-48 bg-background border-border z-50">
                     <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => { setContentType('Article'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Article' ? 'bg-secondary' : ''}`}
+                      >
                         Article
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => { setContentType('eBook'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'eBook' ? 'bg-secondary' : ''}`}
+                      >
                         eBook
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => { setContentType('Presentation'); setShowSocialButtons(false); setSelectedPlatforms([]); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Presentation' ? 'bg-secondary' : ''}`}
+                      >
                         Presentation
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => { setContentType('Social'); setShowSocialButtons(true); }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${contentType === 'Social' ? 'bg-secondary' : ''}`}
+                      >
                         Social
                       </button>
                     </div>
@@ -2373,6 +2417,71 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
       </div>
+
+      {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
+      {isContentMode && showSocialButtons && (
+        <div className="mt-6 p-4 bg-card rounded-xl border border-border">
+          <p className="text-foreground font-medium mb-4 text-center">
+            Choose Your Platforms To Generate 30 Days Of Content For Each One
+          </p>
+          
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              onClick={() => {
+                if (selectedPlatforms.length === socialPlatforms.length) {
+                  setSelectedPlatforms([]);
+                } else {
+                  setSelectedPlatforms(socialPlatforms.map(p => p.id));
+                }
+              }}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                selectedPlatforms.length === socialPlatforms.length
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {selectedPlatforms.length === socialPlatforms.length ? 'Deselect All' : 'Select All'}
+            </button>
+
+            {socialPlatforms.map(platform => {
+              const isSelected = selectedPlatforms.includes(platform.id);
+              const IconComponent = platform.Icon;
+              
+              return (
+                <button
+                  key={platform.id}
+                  onClick={() => {
+                    setSelectedPlatforms(prev => 
+                      prev.includes(platform.id) 
+                        ? prev.filter(id => id !== platform.id)
+                        : [...prev, platform.id]
+                    );
+                  }}
+                  className={`relative p-3 rounded-2xl transition-all ${
+                    isSelected
+                      ? 'bg-card shadow-lg ring-2 ring-emerald-500'
+                      : 'bg-muted/50 hover:bg-muted border border-border'
+                  }`}
+                  title={platform.name}
+                >
+                  <IconComponent className="w-6 h-6" />
+                  {isSelected && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          
+          {selectedPlatforms.length > 0 && (
+            <p className="text-sm text-muted-foreground mt-3 text-center">
+              {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * 30} posts will be generated
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Styles Modal */}
       <StylesModal
