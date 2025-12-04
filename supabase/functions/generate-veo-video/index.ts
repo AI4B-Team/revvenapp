@@ -142,8 +142,13 @@ serve(async (req) => {
       });
 
     } else if (model === 'kling-2.5') {
-      // Use the /api/v1/jobs/createTask endpoint for Kling 2.5
-      console.log("Using Kling 2.5 API");
+      // Kling 2.5 supports both text-to-video and image-to-video
+      const hasReferenceImage = imageUrls && imageUrls.length > 0;
+      const klingModel = hasReferenceImage 
+        ? 'kling/v2-5-turbo-image-to-video-pro' 
+        : 'kling/v2-5-turbo-text-to-video-pro';
+      
+      console.log(`Using Kling 2.5 API (${hasReferenceImage ? 'image-to-video' : 'text-to-video'})`);
 
       // Kling 2.5 uses 5 or 10 second durations
       let klingDuration = '5';
@@ -161,16 +166,32 @@ serve(async (req) => {
       }
 
       const klingPayload: any = {
-        model: 'kling/v2-5-turbo-text-to-video-pro',
+        model: klingModel,
         callBackUrl: callbackUrl,
         input: {
-          prompt: prompt,
+          prompt: prompt.substring(0, 2500), // Kling 2.5 has 2500 char limit
           duration: klingDuration,
-          aspect_ratio: klingAspectRatio,
           negative_prompt: 'blur, distort, and low quality',
           cfg_scale: 0.5
         }
       };
+
+      // Add aspect_ratio only for text-to-video mode
+      if (!hasReferenceImage) {
+        klingPayload.input.aspect_ratio = klingAspectRatio;
+      }
+
+      // Add image URLs for image-to-video mode
+      if (hasReferenceImage) {
+        klingPayload.input.image_url = imageUrls[0];
+        console.log("Using start frame image for Kling 2.5:", imageUrls[0]);
+        
+        // If two images provided, use second as tail/end frame
+        if (imageUrls.length >= 2) {
+          klingPayload.input.tail_image_url = imageUrls[1];
+          console.log("Using end frame image for Kling 2.5:", imageUrls[1]);
+        }
+      }
 
       console.log("Kling 2.5 API payload:", JSON.stringify(klingPayload, null, 2));
 
