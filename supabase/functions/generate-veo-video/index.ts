@@ -372,6 +372,23 @@ serve(async (req) => {
     const apiResult = await apiResponse.json();
     console.log("KIE.AI API response:", JSON.stringify(apiResult, null, 2));
 
+    // Check for KIE.AI error response (code !== 200 in body even if HTTP 200)
+    if (apiResult.code && apiResult.code !== 200) {
+      const errorMsg = apiResult.msg || apiResult.message || 'Unknown KIE.AI error';
+      console.error("KIE.AI API error in response body:", apiResult.code, errorMsg);
+      
+      await supabase
+        .from('ai_videos')
+        .update({
+          status: 'error',
+          error_message: errorMsg,
+          webhook_response: apiResult
+        })
+        .eq('id', videoRecord.id);
+      
+      throw new Error(`KIE.AI API error: ${errorMsg}`);
+    }
+
     // Store the task ID for tracking
     taskId = apiResult.data?.taskId || apiResult.data?.id;
     
