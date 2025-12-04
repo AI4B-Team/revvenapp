@@ -110,6 +110,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'wan-2.5', label: 'Wan 2.5', description: 'Image-to-video (800 char limit)' },
     { value: 'wan-2.2', label: 'Wan 2.2', description: 'Text or image-to-video, turbo' },
     { value: 'hailuo-2.3', label: 'Hailuo 2.3', description: 'Image-to-video, high quality' },
+    { value: 'bytedance-v1', label: 'Bytedance V1', description: 'Image-to-video, fast' },
   ];
   
   const { toast } = useToast();
