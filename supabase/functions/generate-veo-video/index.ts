@@ -222,6 +222,46 @@ serve(async (req) => {
         body: JSON.stringify(klingPayload),
       });
 
+    } else if (model === 'wan-2.5') {
+      // Use the /api/v1/jobs/createTask endpoint for Wan 2.5 (image-to-video)
+      console.log("Using Wan 2.5 API");
+
+      // Wan 2.5 uses 5 or 10 second durations
+      let wanDuration = '5';
+      const durationNum = parseInt(duration) || 10;
+      if (durationNum > 5) {
+        wanDuration = '10';
+      }
+
+      const wanPayload: any = {
+        model: 'wan/2-5-image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt,
+          duration: wanDuration,
+          resolution: '1080p',
+          negative_prompt: 'blur, distort, low quality, pixelated',
+          enable_prompt_expansion: true
+        }
+      };
+
+      // Wan 2.5 requires a single image_url for image-to-video
+      if (imageUrls && imageUrls.length > 0) {
+        wanPayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Wan 2.5:", imageUrls[0]);
+      }
+
+      console.log("Wan 2.5 API payload:", JSON.stringify(wanPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(wanPayload),
+      });
+
     } else {
       // Use the Veo API for veo3 and veo3_fast models
       console.log("Using Veo API");
