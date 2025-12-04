@@ -263,19 +263,26 @@ serve(async (req) => {
       });
 
     } else if (model === 'wan-2.2') {
-      // Use the /api/v1/jobs/createTask endpoint for Wan 2.2 (text-to-video)
-      console.log("Using Wan 2.2 API");
+      // Wan 2.2 supports both text-to-video and image-to-video
+      const hasReferenceImage = imageUrls && imageUrls.length > 0;
+      const wanModel = hasReferenceImage 
+        ? 'wan/2-2-a14b-image-to-video-turbo' 
+        : 'wan/2-2-a14b-text-to-video-turbo';
+      
+      console.log(`Using Wan 2.2 API (${hasReferenceImage ? 'image-to-video' : 'text-to-video'})`);
 
       // Map aspect ratio to Wan 2.2 format
-      let wanAspectRatio = '16:9';
+      let wanAspectRatio = hasReferenceImage ? 'auto' : '16:9';
       if (aspectRatio === '9:16') {
         wanAspectRatio = '9:16';
       } else if (aspectRatio === '1:1') {
         wanAspectRatio = '1:1';
+      } else if (aspectRatio === '16:9') {
+        wanAspectRatio = '16:9';
       }
 
       const wanPayload: any = {
-        model: 'wan/2-2-a14b-text-to-video-turbo',
+        model: wanModel,
         callBackUrl: callbackUrl,
         input: {
           prompt: prompt, // Wan 2.2 supports up to 5000 chars
@@ -285,6 +292,12 @@ serve(async (req) => {
           acceleration: 'none'
         }
       };
+
+      // Add image_url for image-to-video mode
+      if (hasReferenceImage) {
+        wanPayload.input.image_url = imageUrls[0];
+        console.log("Using reference image for Wan 2.2:", imageUrls[0]);
+      }
 
       console.log("Wan 2.2 API payload:", JSON.stringify(wanPayload, null, 2));
 
