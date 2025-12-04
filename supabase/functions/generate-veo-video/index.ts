@@ -237,7 +237,7 @@ serve(async (req) => {
         model: 'wan/2-5-image-to-video',
         callBackUrl: callbackUrl,
         input: {
-          prompt: prompt,
+          prompt: prompt.substring(0, 800), // Wan 2.5 has 800 char limit
           duration: wanDuration,
           resolution: '1080p',
           negative_prompt: 'blur, distort, low quality, pixelated',
@@ -252,6 +252,41 @@ serve(async (req) => {
       }
 
       console.log("Wan 2.5 API payload:", JSON.stringify(wanPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(wanPayload),
+      });
+
+    } else if (model === 'wan-2.2') {
+      // Use the /api/v1/jobs/createTask endpoint for Wan 2.2 (text-to-video)
+      console.log("Using Wan 2.2 API");
+
+      // Map aspect ratio to Wan 2.2 format
+      let wanAspectRatio = '16:9';
+      if (aspectRatio === '9:16') {
+        wanAspectRatio = '9:16';
+      } else if (aspectRatio === '1:1') {
+        wanAspectRatio = '1:1';
+      }
+
+      const wanPayload: any = {
+        model: 'wan/2-2-a14b-text-to-video-turbo',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt, // Wan 2.2 supports up to 5000 chars
+          resolution: '720p',
+          aspect_ratio: wanAspectRatio,
+          enable_prompt_expansion: true,
+          acceleration: 'none'
+        }
+      };
+
+      console.log("Wan 2.2 API payload:", JSON.stringify(wanPayload, null, 2));
 
       apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
         method: "POST",
