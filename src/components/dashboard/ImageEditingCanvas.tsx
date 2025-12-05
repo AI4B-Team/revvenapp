@@ -922,18 +922,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setIsLoadingHistory(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setIsLoadingHistory(false);
+        return;
+      }
 
-      // Get unique conversation IDs with their latest message
+      // Get user messages for previews (ascending to get first message per conversation)
       const { data, error } = await supabase
         .from('editor_chat_messages')
-        .select('conversation_id, content, created_at')
+        .select('conversation_id, content, created_at, role')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('role', 'user')
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      // Group by conversation_id and get first message as preview
+      // Group by conversation_id and get first user message as preview
       const conversations = new Map<string, ChatConversation>();
       data?.forEach((msg: any) => {
         if (!conversations.has(msg.conversation_id)) {
@@ -945,7 +949,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         }
       });
 
-      setChatHistory(Array.from(conversations.values()).slice(0, 10));
+      // Sort by date descending (newest first) and take top 10
+      const sortedConversations = Array.from(conversations.values())
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 10);
+
+      setChatHistory(sortedConversations);
     } catch (error) {
       console.error('Failed to load chat history:', error);
     } finally {
