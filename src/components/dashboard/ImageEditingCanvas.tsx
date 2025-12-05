@@ -1,6 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+
+// Lazy load ReactMarkdown to prevent blocking page load
+const ReactMarkdown = lazy(() => import('react-markdown'));
 import {
   Send,
   Paperclip,
@@ -1298,7 +1300,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           </div>
                           <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:font-semibold prose-em:italic prose-code:bg-slate-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-pre:bg-slate-800 prose-pre:text-slate-100 prose-headings:text-slate-800 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm">
                             {message.content ? (
-                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                              <Suspense fallback={<span>{message.content}</span>}>
+                                <ReactMarkdown>{message.content}</ReactMarkdown>
+                              </Suspense>
                             ) : (
                               'Thinking...'
                             )}
