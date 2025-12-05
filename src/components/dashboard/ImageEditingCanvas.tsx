@@ -674,14 +674,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   // Crop mouse handlers - using refs to track state for document listeners
   const isCroppingRef = useRef(false);
   
-  const handleCropMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleCropMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
     if (!isCropMode || !imageRef.current) return;
     e.preventDefault();
     e.stopPropagation();
     
-    const rect = imageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Use nativeEvent.offsetX/Y for coordinates relative to the target element
+    const x = e.nativeEvent.offsetX;
+    const y = e.nativeEvent.offsetY;
     
     setCropStart({ x, y });
     setCropEnd({ x, y });
@@ -697,6 +697,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     e.preventDefault();
     
     const rect = imageRef.current.getBoundingClientRect();
+    // Calculate position relative to displayed image, clamped to image bounds
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
     const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
     
