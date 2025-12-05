@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Markdown from 'react-markdown';
 import {
   Send,
   Paperclip,
@@ -1581,9 +1580,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                               <span className="text-xs text-emerald-500">typing...</span>
                             )}
                           </div>
-                          <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-600 prose-pre:bg-slate-800 prose-pre:text-slate-100">
+                          <div className="text-sm text-slate-700 leading-relaxed">
                             {message.content ? (
-                              <Markdown>{message.content}</Markdown>
+                              <span className="whitespace-pre-wrap">{message.content}</span>
                             ) : (
                               'Thinking...'
                             )}
@@ -1623,8 +1622,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             </div>
                             <span className="text-xs text-emerald-600 font-medium">You</span>
                           </div>
-                          <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5">
-                            <Markdown>{message.content}</Markdown>
+                          <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                            {message.content}
                           </div>
                           {message.image && (
                             <div className="relative rounded-lg overflow-hidden border border-emerald-200 max-w-[180px]">
