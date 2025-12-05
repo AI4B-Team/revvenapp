@@ -1323,12 +1323,27 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             )}
                           </div>
                           {message.image && !message.isLoading && (
-                            <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
-                              <img src={message.image} alt="Generated" className="w-full h-auto" />
-                              <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
-                                <div className="w-2 h-2 bg-emerald-500 rounded-sm" />
-                              </div>
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div 
+                                  className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all group"
+                                  onClick={() => handleSelectFromModal(message.image!)}
+                                >
+                                  <img src={message.image} alt="Generated" className="w-full h-auto" />
+                                  <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-sm" />
+                                  </div>
+                                  <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/10 transition-colors flex items-center justify-center">
+                                    <span className="text-xs font-medium text-white bg-slate-800/80 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                      Click To Apply
+                                    </span>
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-slate-900 text-white">
+                                <p>Click To Apply To Canvas</p>
+                              </TooltipContent>
+                            </Tooltip>
                           )}
                         </div>
                       ) : (
