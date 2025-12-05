@@ -701,12 +701,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         setIsGeneratingImage(false);
       }
     } else {
-      // Regular chat with AI
+      // Regular chat with AI - use streaming
       setIsLoadingChat(true);
+      const streamingMsgId = crypto.randomUUID();
+      
+      // Add empty assistant message that we'll update with streamed content
       setMessages(prev => [...prev, {
-        id: `loading-${Date.now()}`,
+        id: streamingMsgId,
         role: 'assistant',
-        content: 'Thinking...',
+        content: '',
         isLoading: true,
       }]);
 
@@ -718,26 +721,102 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         }));
         chatHistory.push({ role: 'user', content: userMessage, image: selectedImage });
 
-        const { data, error } = await supabase.functions.invoke('editor-chat', {
-          body: {
+        const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/editor-chat`;
+        
+        const resp = await fetch(CHAT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
             messages: chatHistory,
             conversationId,
             imageUrl: selectedImage,
-          }
+            stream: true,
+          }),
         });
 
-        // Remove loading message
-        setMessages(prev => prev.filter(m => !m.isLoading));
+        if (!resp.ok || !resp.body) {
+          throw new Error('Failed to start stream');
+        }
 
-        if (error) throw error;
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let textBuffer = '';
+        let fullContent = '';
+        let streamDone = false;
 
-        setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: data.message,
-        }]);
+        while (!streamDone) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          textBuffer += decoder.decode(value, { stream: true });
+
+          // Process line-by-line as data arrives
+          let newlineIndex: number;
+          while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+            let line = textBuffer.slice(0, newlineIndex);
+            textBuffer = textBuffer.slice(newlineIndex + 1);
+
+            if (line.endsWith('\r')) line = line.slice(0, -1);
+            if (line.startsWith(':') || line.trim() === '') continue;
+            if (!line.startsWith('data: ')) continue;
+
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') {
+              streamDone = true;
+              break;
+            }
+
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+              if (content) {
+                fullContent += content;
+                // Update the message with new content token by token
+                setMessages(prev => prev.map(m => 
+                  m.id === streamingMsgId 
+                    ? { ...m, content: fullContent, isLoading: true }
+                    : m
+                ));
+              }
+            } catch {
+              // Incomplete JSON, put it back and wait for more
+              textBuffer = line + '\n' + textBuffer;
+              break;
+            }
+          }
+        }
+
+        // Final flush
+        if (textBuffer.trim()) {
+          for (let raw of textBuffer.split('\n')) {
+            if (!raw) continue;
+            if (raw.endsWith('\r')) raw = raw.slice(0, -1);
+            if (raw.startsWith(':') || raw.trim() === '') continue;
+            if (!raw.startsWith('data: ')) continue;
+            const jsonStr = raw.slice(6).trim();
+            if (jsonStr === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+              if (content) {
+                fullContent += content;
+              }
+            } catch { /* ignore */ }
+          }
+        }
+
+        // Mark message as complete (remove loading state)
+        setMessages(prev => prev.map(m => 
+          m.id === streamingMsgId 
+            ? { ...m, content: fullContent || 'I\'m here to help! What would you like me to do?', isLoading: false }
+            : m
+        ));
+
       } catch (error: any) {
-        setMessages(prev => prev.filter(m => !m.isLoading));
+        // Remove the streaming message on error
+        setMessages(prev => prev.filter(m => m.id !== streamingMsgId));
         console.error('Chat error:', error);
         toast({
           title: 'Chat Error',
@@ -1084,16 +1163,24 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                   {messages.map((message) => (
                     <div key={message.id}>
                       {message.role === 'assistant' ? (
-                        <div className={`bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100 ${message.isLoading ? 'animate-pulse' : ''}`}>
+                        <div className={`bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100`}>
                           <div className="flex items-center gap-2">
-                            {message.isLoading ? (
+                            {message.isLoading && !message.content ? (
                               <Loader2 className="w-3 h-3 text-emerald-500 animate-spin" />
                             ) : (
                               <Sparkles className="w-3 h-3 text-emerald-500" />
                             )}
                             <span className="text-xs text-slate-500 font-medium">Cora</span>
+                            {message.isLoading && message.content && (
+                              <span className="text-xs text-emerald-500">typing...</span>
+                            )}
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                            {message.content || 'Thinking...'}
+                            {message.isLoading && message.content && (
+                              <span className="inline-block w-1.5 h-4 bg-emerald-500 ml-0.5 animate-pulse" />
+                            )}
+                          </p>
                           {message.image && !message.isLoading && (
                             <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
                               <img src={message.image} alt="Generated" className="w-full h-auto" />
