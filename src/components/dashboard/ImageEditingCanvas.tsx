@@ -12,7 +12,6 @@ import {
   Minus,
   Share2,
   MessageSquare,
-  Crop,
   Eraser,
   PaintBucket,
   MousePointer2,
@@ -61,7 +60,7 @@ import { useResizableTextarea } from '@/hooks/useResizableTextarea';
 import ResizeHandle from '@/components/ui/ResizeHandle';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { removeBackground, cropImage } from '@/utils/backgroundRemoval';
+import { removeBackground } from '@/utils/backgroundRemoval';
 
 interface ChatConversation {
   id: string;
@@ -203,16 +202,6 @@ const getToolSettings = (tool: string) => {
           { type: 'toggle', label: 'Feather Edges', key: 'feather' },
           { type: 'slider', label: 'Feather Amount', min: 0, max: 100, key: 'featherAmount' },
           { type: 'toggle', label: 'Anti-Alias', key: 'antiAlias' },
-        ],
-      };
-    case 'crop':
-      return {
-        title: 'Crop',
-        settings: [
-          { type: 'buttons', label: 'Aspect Ratio', options: ['Free', '1:1', '16:9', '4:3', '3:2'] },
-          { type: 'toggle', label: 'Lock Ratio', key: 'lockRatio' },
-          { type: 'buttons', label: 'Rotation', options: ['0°', '90°', '180°', '270°'] },
-          { type: 'toggle', label: 'Show Grid', key: 'showGrid' },
         ],
       };
     case 'brush':
@@ -372,9 +361,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isCropMode, setIsCropMode] = useState(false);
-  const [cropStart, setCropStart] = useState<{ x: number; y: number } | null>(null);
-  const [cropEnd, setCropEnd] = useState<{ x: number; y: number } | null>(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatAttachmentInputRef = useRef<HTMLInputElement>(null);
@@ -671,57 +657,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setIsDragging(false);
   };
 
-  // Crop mouse handlers - using refs to track state for document listeners
-  const isCroppingRef = useRef(false);
-  
-  const handleCropMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (!isCropMode || !imageRef.current) return;
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Use clientX/Y - rect for consistent coordinate calculation
-    const rect = imageRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setCropStart({ x, y });
-    setCropEnd({ x, y });
-    isCroppingRef.current = true;
-    
-    // Add document-level listeners for reliable tracking
-    document.addEventListener('mousemove', handleDocumentCropMouseMove);
-    document.addEventListener('mouseup', handleDocumentCropMouseUp);
-  };
-
-  const handleDocumentCropMouseMove = useCallback((e: MouseEvent) => {
-    if (!isCroppingRef.current || !imageRef.current) return;
-    e.preventDefault();
-    
-    const rect = imageRef.current.getBoundingClientRect();
-    // Calculate position relative to displayed image, clamped to image bounds
-    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
-    
-    setCropEnd({ x, y });
-  }, []);
-
-  const handleDocumentCropMouseUp = useCallback(() => {
-    isCroppingRef.current = false;
-    document.removeEventListener('mousemove', handleDocumentCropMouseMove);
-    document.removeEventListener('mouseup', handleDocumentCropMouseUp);
-  }, [handleDocumentCropMouseMove]);
-
-  // Cleanup document listeners on unmount
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('mousemove', handleDocumentCropMouseMove);
-      document.removeEventListener('mouseup', handleDocumentCropMouseUp);
-    };
-  }, [handleDocumentCropMouseMove, handleDocumentCropMouseUp]);
-
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
-    { id: 'crop', icon: <Crop className="w-4 h-4" />, tooltip: 'Crop' },
     { id: 'brush', icon: <Paintbrush className="w-4 h-4" />, tooltip: 'Brush' },
     { id: 'eraser', icon: <Eraser className="w-4 h-4" />, tooltip: 'Eraser' },
     { id: 'removebg', icon: <Scissors className="w-4 h-4" />, tooltip: 'Remove Background' },
@@ -1264,9 +1201,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       setActiveTool(null);
       setActiveCreationId(null);
       setImagePosition({ x: 0, y: 0 });
-      setIsCropMode(false);
-      setCropStart(null);
-      setCropEnd(null);
       setCreations(prev => prev.map(c => ({ ...c, isActive: false })));
       toast({
         title: 'Image Removed',
@@ -1380,84 +1314,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       } finally {
         setIsProcessing(false);
       }
-    } else if (toolId === 'crop' && selectedImage) {
-      // Toggle crop mode
-      if (isCropMode) {
-        // Apply crop if we have a selection
-        if (cropStart && cropEnd && imageRef.current) {
-          const imgRect = imageRef.current.getBoundingClientRect();
-          const naturalWidth = imageRef.current.naturalWidth;
-          const naturalHeight = imageRef.current.naturalHeight;
-          const scaleX = naturalWidth / imgRect.width;
-          const scaleY = naturalHeight / imgRect.height;
-          
-          const displayX = Math.min(cropStart.x, cropEnd.x);
-          const displayY = Math.min(cropStart.y, cropEnd.y);
-          const displayW = Math.abs(cropEnd.x - cropStart.x);
-          const displayH = Math.abs(cropEnd.y - cropStart.y);
-          
-          const x = Math.round(displayX * scaleX);
-          const y = Math.round(displayY * scaleY);
-          const width = Math.round(displayW * scaleX);
-          const height = Math.round(displayH * scaleY);
-          
-          console.log('Crop debug:', {
-            cropStart, cropEnd,
-            displayCoords: { displayX, displayY, displayW, displayH },
-            imgRect: { width: imgRect.width, height: imgRect.height },
-            natural: { naturalWidth, naturalHeight },
-            scale: { scaleX, scaleY },
-            finalCoords: { x, y, width, height }
-          });
-          
-          if (width > 5 && height > 5) {
-            setIsProcessing(true);
-            try {
-              const croppedImage = await cropImage(selectedImage, { x, y, width, height });
-              setSelectedImage(croppedImage);
-              toast({
-                title: 'Image Cropped!',
-                description: 'Crop applied successfully',
-              });
-            } catch (error: any) {
-              console.error('Crop error:', error);
-              toast({
-                title: 'Crop Failed',
-                description: error.message || 'Could not crop the image',
-                variant: 'destructive',
-              });
-            } finally {
-              setIsProcessing(false);
-            }
-          } else {
-            toast({
-              title: 'Selection Too Small',
-              description: 'Please draw a larger crop area',
-              variant: 'destructive',
-            });
-          }
-        } else {
-          toast({
-            title: 'No Selection',
-            description: 'Please draw a crop area on the image first',
-            variant: 'destructive',
-          });
-        }
-        setIsCropMode(false);
-        setCropStart(null);
-        setCropEnd(null);
-        setActiveTool(null);
-      } else {
-        setIsCropMode(true);
-        setCropStart(null);
-        setCropEnd(null);
-        setActiveTool('crop');
-        toast({
-          title: 'Crop Mode',
-          description: 'Draw on the image to select crop area, then click Crop again',
-        });
-      }
-    } else if (!selectedImage && ['download', 'save', 'upscale', 'publish', 'use', 'animate', 'removebg', 'crop'].includes(toolId)) {
+    } else if (!selectedImage && ['download', 'save', 'upscale', 'publish', 'use', 'animate', 'removebg'].includes(toolId)) {
       toast({
         title: 'No Image Selected',
         description: 'Please upload or select an image first',
@@ -2003,7 +1860,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       style={{
                         transform: `scale(${zoomLevel / 100}) translate(${imagePosition.x / (zoomLevel / 100)}px, ${imagePosition.y / (zoomLevel / 100)}px)`,
                         transformOrigin: 'center center',
-                        cursor: isCropMode ? 'crosshair' : (activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer'),
+                        cursor: activeTool === 'select' && isImageSelected ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
                       }}
                     >
                       {isImageSelected && (
@@ -2028,7 +1885,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           e.stopPropagation();
                           setIsImageSelected(true);
                         }}
-                        style={{ cursor: isCropMode ? 'crosshair' : undefined }}
                       >
                         <img
                           ref={imageRef}
@@ -2036,37 +1892,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           alt="Editing"
                           className="w-full h-auto"
                           draggable={false}
-                          onMouseDown={isCropMode ? handleCropMouseDown : undefined}
-                          style={{ cursor: isCropMode ? 'crosshair' : undefined }}
                         />
-                        {/* Crop overlay */}
-                        {isCropMode && cropStart && cropEnd && (
-                          <>
-                            {/* Darkened overlay */}
-                            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
-                            {/* Crop selection box */}
-                            <div 
-                              className="absolute border-2 border-white border-dashed bg-transparent pointer-events-none"
-                              style={{
-                                left: Math.min(cropStart.x, cropEnd.x),
-                                top: Math.min(cropStart.y, cropEnd.y),
-                                width: Math.abs(cropEnd.x - cropStart.x),
-                                height: Math.abs(cropEnd.y - cropStart.y),
-                                boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-                              }}
-                            >
-                              {/* Corner handles */}
-                              <div className="absolute -top-1 -left-1 w-3 h-3 bg-white border border-slate-400 rounded-sm" />
-                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border border-slate-400 rounded-sm" />
-                              <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border border-slate-400 rounded-sm" />
-                              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border border-slate-400 rounded-sm" />
-                              {/* Size indicator */}
-                              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                                {Math.round(Math.abs(cropEnd.x - cropStart.x))} × {Math.round(Math.abs(cropEnd.y - cropStart.y))}
-                              </div>
-                            </div>
-                          </>
-                        )}
                         {/* Processing overlay */}
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
