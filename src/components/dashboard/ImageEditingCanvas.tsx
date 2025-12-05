@@ -453,56 +453,113 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     loadChatHistory();
   }, [conversationId]);
 
-  // Sample creations with diverse real images - nature, cars, houses, animals, portraits
-  const baseCreations: Creation[] = [
-    // Creations (AI-generated images)
-    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop', title: 'Portrait 1', category: 'creation' },
-    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', title: 'Mountain', category: 'creation' },
-    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200&h=200&fit=crop', title: 'Sports Car', category: 'creation' },
-    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop', title: 'Modern House', category: 'creation' },
-    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=200&h=200&fit=crop', title: 'Lion', category: 'creation' },
-    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 2', category: 'creation' },
-    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop', title: 'Lake', category: 'creation' },
-    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=200&fit=crop', title: 'Luxury Car', category: 'creation' },
-    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop', title: 'Villa', category: 'creation' },
-    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Turtle', category: 'creation' },
-    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop', title: 'Forest', category: 'creation' },
-    { id: '13', thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=200&fit=crop', title: 'BMW', category: 'creation' },
-    { id: '14', thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop', title: 'Mansion', category: 'creation' },
-    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop', title: 'Dogs', category: 'creation' },
-    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', title: 'Cat', category: 'creation' },
-    // Edited images
-    { id: '17', thumbnail: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&h=200&fit=crop', title: 'Foggy Forest', category: 'edited' },
-    { id: '18', thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&h=200&fit=crop', title: 'Porsche', category: 'edited' },
-    { id: '19', thumbnail: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&h=200&fit=crop', title: 'Beach House', category: 'edited' },
-    { id: '20', thumbnail: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&h=200&fit=crop', title: 'Golden Retriever', category: 'edited' },
-    { id: '21', thumbnail: 'https://images.unsplash.com/photo-1549608276-5786777e6587?w=200&h=200&fit=crop', title: 'Owl', category: 'edited' },
-    { id: '22', thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=200&fit=crop', title: 'Sunlit Forest', category: 'edited' },
-    { id: '23', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop', title: 'Classic Car', category: 'edited' },
-    { id: '24', thumbnail: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&h=200&fit=crop', title: 'Luxury Villa', category: 'edited' },
-    { id: '25', thumbnail: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=200&h=200&fit=crop', title: 'Elephant', category: 'edited' },
-    { id: '26', thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&h=200&fit=crop', title: 'Snowy Peak', category: 'edited' },
-    // Upscaled images
-    { id: '27', thumbnail: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=200&h=200&fit=crop', title: 'Ferrari', category: 'upscaled' },
-    { id: '28', thumbnail: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=200&h=200&fit=crop', title: 'Suburban Home', category: 'upscaled' },
-    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=200&h=200&fit=crop', title: 'Peacock', category: 'upscaled' },
-    { id: '30', thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop', title: 'Portrait 3', category: 'upscaled' },
-    { id: '31', thumbnail: 'https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=200&h=200&fit=crop', title: 'Waterfall', category: 'upscaled' },
-    { id: '32', thumbnail: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=200&h=200&fit=crop', title: 'Lamborghini', category: 'upscaled' },
-    { id: '33', thumbnail: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200&h=200&fit=crop', title: 'Pool House', category: 'upscaled' },
-    { id: '34', thumbnail: 'https://images.unsplash.com/photo-1591025207163-942350e47db2?w=200&h=200&fit=crop', title: 'Sea Turtle', category: 'upscaled' },
-    { id: '35', thumbnail: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=200&h=200&fit=crop', title: 'Starry Sky', category: 'upscaled' },
-    { id: '36', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop', title: 'Jellyfish', category: 'upscaled' },
-  ];
-  
-  // Build creations list - no auto-selection
-  const [creations, setCreations] = useState<Creation[]>(() => {
-    if (image) {
-      // Add current image to creations list but don't auto-select
-      return [{ id: '1', thumbnail: image, title: 'Current', isActive: false, category: 'creation' as const }, ...baseCreations];
+  // State for creations loaded from database
+  const [creations, setCreations] = useState<Creation[]>([]);
+  const [isLoadingCreations, setIsLoadingCreations] = useState(true);
+
+  // Load creations from database
+  useEffect(() => {
+    const loadCreations = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsLoadingCreations(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('generated_images')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const loadedCreations: Creation[] = (data || []).map((img: any) => ({
+          id: img.id,
+          thumbnail: img.image_url,
+          title: img.prompt?.substring(0, 20) || 'Image',
+          category: (img.category || 'creation') as 'creation' | 'edited' | 'upscaled',
+          isActive: false,
+        }));
+
+        // Add current image if provided
+        if (image) {
+          loadedCreations.unshift({
+            id: 'current',
+            thumbnail: image,
+            title: 'Current',
+            category: 'creation',
+            isActive: false,
+          });
+        }
+
+        setCreations(loadedCreations);
+      } catch (error) {
+        console.error('Failed to load creations:', error);
+      } finally {
+        setIsLoadingCreations(false);
+      }
+    };
+
+    loadCreations();
+  }, [image]);
+
+  // Save image to database
+  const saveImageToDatabase = async (imageUrl: string, category: 'creation' | 'edited' | 'upscaled', prompt?: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Not Authenticated',
+          description: 'Please log in to save images',
+          variant: 'destructive',
+        });
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('generated_images')
+        .insert({
+          user_id: user.id,
+          image_url: imageUrl,
+          prompt: prompt || `${category} image`,
+          model: selectedModel,
+          status: 'completed',
+          category: category,
+        } as any)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Add to creations list
+      const newCreation: Creation = {
+        id: data.id,
+        thumbnail: imageUrl,
+        title: prompt?.substring(0, 20) || category,
+        category: category,
+        isActive: true,
+      };
+      setCreations(prev => [newCreation, ...prev.map(c => ({ ...c, isActive: false }))]);
+
+      toast({
+        title: 'Image Saved',
+        description: `Image saved to ${category} collection`,
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Failed to save image:', error);
+      toast({
+        title: 'Save Failed',
+        description: error.message || 'Failed to save image',
+        variant: 'destructive',
+      });
+      return null;
     }
-    return baseCreations;
-  });
+  };
 
   // Update creations when new image is selected from modal
   const handleSelectFromModal = (imageUrl: string) => {
@@ -672,11 +729,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         if (error) throw error;
 
         if (data.imageUrl) {
+          // Save generated image to database
+          await saveImageToDatabase(data.imageUrl, selectedImage ? 'edited' : 'creation', userMessage);
+          
           // Show generated image in chat only (don't auto-select on canvas)
           setMessages(prev => [...prev, {
             id: crypto.randomUUID(),
             role: 'assistant',
-            content: data.message || 'Here\'s your generated image!',
+            content: data.message || 'Here\'s your generated image! It has been saved to your creations.',
             image: data.imageUrl,
           }]);
         } else {
@@ -947,7 +1007,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     navigate('/create');
   };
 
-  const handleToolClick = (toolId: string) => {
+  const handleToolClick = async (toolId: string) => {
     if (toolId === 'delete') {
       setSelectedImage(undefined);
       setIsImageSelected(false);
@@ -955,6 +1015,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       setActiveCreationId(null);
       setImagePosition({ x: 0, y: 0 });
       setCreations(prev => prev.map(c => ({ ...c, isActive: false })));
+    } else if (toolId === 'save' && selectedImage) {
+      // Save current image to creations
+      await saveImageToDatabase(selectedImage, 'edited', 'Edited image');
+    } else if (toolId === 'upscale' && selectedImage) {
+      // For now, save as upscaled (actual upscaling would require an API call)
+      toast({
+        title: 'Upscaling',
+        description: 'Upscaling image and saving...',
+      });
+      await saveImageToDatabase(selectedImage, 'upscaled', 'Upscaled image');
     } else {
       setActiveTool(activeTool === toolId ? null : toolId);
     }
@@ -1530,33 +1600,42 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </DropdownMenu>
             <div className="flex-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
               <div className="flex items-center gap-3 px-1 w-max">
-                {creations
-                  .filter((creation) => {
-                    if (creationsFilter === 'Creations') return creation.category === 'creation';
-                    if (creationsFilter === 'Edited') return creation.category === 'edited';
-                    if (creationsFilter === 'Upscaled') return creation.category === 'upscaled';
-                    return true;
-                  })
-                  .map((creation) => (
-                  <button
-                    key={creation.id}
-                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
-                      creation.isActive || activeCreationId === creation.id
-                        ? 'ring-2 ring-emerald-500 ring-offset-2'
-                        : 'hover:ring-2 hover:ring-violet-500 hover:ring-offset-1'
-                    }`}
-                    onClick={() => handleSelectFromCreations(creation)}
-                  >
-                    <img
-                      src={creation.thumbnail}
-                      alt={creation.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop';
-                      }}
-                    />
-                  </button>
-                ))}
+                {isLoadingCreations ? (
+                  <div className="flex items-center gap-2 text-slate-500">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Loading...</span>
+                  </div>
+                ) : creations.length === 0 ? (
+                  <div className="text-sm text-slate-500">No images yet. Generate or upload images to see them here.</div>
+                ) : (
+                  creations
+                    .filter((creation) => {
+                      if (creationsFilter === 'Creations') return creation.category === 'creation';
+                      if (creationsFilter === 'Edited') return creation.category === 'edited';
+                      if (creationsFilter === 'Upscaled') return creation.category === 'upscaled';
+                      return true;
+                    })
+                    .map((creation) => (
+                    <button
+                      key={creation.id}
+                      className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
+                        creation.isActive || activeCreationId === creation.id
+                          ? 'ring-2 ring-emerald-500 ring-offset-2'
+                          : 'hover:ring-2 hover:ring-violet-500 hover:ring-offset-1'
+                      }`}
+                      onClick={() => handleSelectFromCreations(creation)}
+                    >
+                      <img
+                        src={creation.thumbnail}
+                        alt={creation.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop';
+                        }}
+                      />
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>

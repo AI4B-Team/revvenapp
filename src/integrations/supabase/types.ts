@@ -145,6 +145,7 @@ export type Database = {
       generated_images: {
         Row: {
           aspect_ratio: string | null
+          category: string | null
           cloudinary_public_id: string | null
           created_at: string | null
           error_message: string | null
@@ -159,6 +160,7 @@ export type Database = {
         }
         Insert: {
           aspect_ratio?: string | null
+          category?: string | null
           cloudinary_public_id?: string | null
           created_at?: string | null
           error_message?: string | null
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           aspect_ratio?: string | null
+          category?: string | null
           cloudinary_public_id?: string | null
           created_at?: string | null
           error_message?: string | null
