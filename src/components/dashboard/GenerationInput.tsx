@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import StylesModal from './StylesModal';
 import { ImageToPromptModal } from './ImageToPromptModal';
 import VideoFrameBoxes from './VideoFrameBoxes';
 import { socialPlatforms, getPlatformIcon } from './SocialIcons';
+import SocialContentCalendar from './SocialContentCalendar';
 
 interface GenerationInputProps {
   selectedType: string;
@@ -76,6 +77,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [contentType, setContentType] = useState('Social');
   const [contentGoal, setContentGoal] = useState('Engagement');
   const [contentLanguage, setContentLanguage] = useState('English');
+  const [contentTabView, setContentTabView] = useState<'calendar' | 'plan'>('calendar');
+  const [generatedContent, setGeneratedContent] = useState<any[]>([]);
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   
   // Resizable prompt box (both directions)
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
@@ -2559,6 +2563,51 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? 's' : ''} selected • {selectedPlatforms.length * 30} posts will be generated
             </p>
           )}
+
+          {/* Calendar/Plan Tabs */}
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <button
+              onClick={() => setContentTabView('calendar')}
+              className={`px-5 py-2.5 rounded-xl text-base font-medium flex items-center gap-2 transition-all ${
+                contentTabView === 'calendar'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              <Calendar size={18} />
+              Calendar
+            </button>
+            <button
+              onClick={() => setContentTabView('plan')}
+              className={`px-5 py-2.5 rounded-xl text-base font-medium flex items-center gap-2 transition-all ${
+                contentTabView === 'plan'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              <LayoutList size={18} />
+              Plan
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Content Calendar */}
+      {isContentMode && contentTabView === 'calendar' && (
+        <SocialContentCalendar 
+          generatedContent={generatedContent}
+          isGenerating={isGeneratingContent}
+        />
+      )}
+
+      {/* Plan View - Placeholder */}
+      {isContentMode && contentTabView === 'plan' && (
+        <div className="bg-card rounded-2xl border border-border shadow-lg overflow-hidden mt-8 p-8">
+          <div className="text-center">
+            <LayoutList className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mb-2">Content Plan View</h3>
+            <p className="text-muted-foreground">View and organize your content strategy here.</p>
+          </div>
         </div>
       )}
 
