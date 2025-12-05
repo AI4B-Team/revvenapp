@@ -2019,7 +2019,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           e.stopPropagation();
                           setIsImageSelected(true);
                         }}
-                        onMouseDown={isCropMode ? handleCropMouseDown : undefined}
                         style={{ cursor: isCropMode ? 'crosshair' : undefined }}
                       >
                         <img
@@ -2028,6 +2027,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           alt="Editing"
                           className="w-full h-auto"
                           draggable={false}
+                          onMouseDown={isCropMode ? handleCropMouseDown : undefined}
+                          style={{ cursor: isCropMode ? 'crosshair' : undefined }}
                         />
                         {/* Crop overlay */}
                         {isCropMode && cropStart && cropEnd && (
