@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import {
   Send,
   Paperclip,
@@ -1493,12 +1494,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                               <span className="text-xs text-emerald-500">typing...</span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-                            {message.content || 'Thinking...'}
+                          <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-600 prose-pre:bg-slate-800 prose-pre:text-slate-100">
+                            {message.content ? (
+                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                            ) : (
+                              'Thinking...'
+                            )}
                             {message.isLoading && message.content && (
                               <span className="inline-block w-1.5 h-4 bg-emerald-500 ml-0.5 animate-pulse" />
                             )}
-                          </p>
+                          </div>
                           {message.image && !message.isLoading && (
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1531,7 +1536,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             </div>
                             <span className="text-xs text-emerald-600 font-medium">You</span>
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                          <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          </div>
                           {message.image && (
                             <div className="relative rounded-lg overflow-hidden border border-emerald-200 max-w-[180px]">
                               <img src={message.image} alt="Attached" className="w-full h-auto" />
