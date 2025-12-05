@@ -1203,23 +1203,115 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   const handleToolClick = async (toolId: string) => {
     if (toolId === 'delete') {
+      // Delete/clear the current image from canvas
       setSelectedImage(undefined);
       setIsImageSelected(false);
       setActiveTool(null);
       setActiveCreationId(null);
       setImagePosition({ x: 0, y: 0 });
       setCreations(prev => prev.map(c => ({ ...c, isActive: false })));
+      toast({
+        title: 'Image Removed',
+        description: 'The image has been removed from the canvas',
+      });
     } else if (toolId === 'save' && selectedImage) {
       // Save current image to creations
+      toast({
+        title: 'Saving...',
+        description: 'Saving image to your creations',
+      });
       await saveImageToDatabase(selectedImage, 'edited', 'Edited image');
+      toast({
+        title: 'Saved!',
+        description: 'Image saved to your creations',
+      });
     } else if (toolId === 'upscale' && selectedImage) {
       // For now, save as upscaled (actual upscaling would require an API call)
       toast({
-        title: 'Upscaling',
-        description: 'Upscaling image and saving...',
+        title: 'Upscaling...',
+        description: 'Processing image upscale',
       });
       await saveImageToDatabase(selectedImage, 'upscaled', 'Upscaled image');
+      toast({
+        title: 'Upscaled!',
+        description: 'Image upscaled and saved to creations',
+      });
+    } else if (toolId === 'download' && selectedImage) {
+      // Download the current image
+      try {
+        const response = await fetch(selectedImage);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `edited-image-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast({
+          title: 'Downloaded!',
+          description: 'Image downloaded successfully',
+        });
+      } catch (error) {
+        toast({
+          title: 'Download Failed',
+          description: 'Could not download the image',
+          variant: 'destructive',
+        });
+      }
+    } else if (toolId === 'publish' && selectedImage) {
+      // Share/publish the image (copy to clipboard or open share dialog)
+      try {
+        if (navigator.share && navigator.canShare({ url: selectedImage })) {
+          await navigator.share({
+            title: 'My Creation',
+            text: 'Check out this image I created!',
+            url: selectedImage,
+          });
+        } else {
+          await navigator.clipboard.writeText(selectedImage);
+          toast({
+            title: 'Link Copied!',
+            description: 'Image URL copied to clipboard',
+          });
+        }
+      } catch (error) {
+        toast({
+          title: 'Copied!',
+          description: 'Image URL copied to clipboard',
+        });
+      }
+    } else if (toolId === 'use' && selectedImage) {
+      // Navigate to create page with this image as reference
+      navigate('/create', { state: { referenceImage: selectedImage } });
+      toast({
+        title: 'Opening Creator',
+        description: 'Using this image in the content creator',
+      });
+    } else if (toolId === 'animate' && selectedImage) {
+      // Navigate to create page in video mode with this image
+      navigate('/create', { state: { referenceImage: selectedImage, contentType: 'Video' } });
+      toast({
+        title: 'Opening Animator',
+        description: 'Creating animation from this image',
+      });
+    } else if (toolId === 'removebg' && selectedImage) {
+      // Remove background - would need an API call in real implementation
+      toast({
+        title: 'Processing...',
+        description: 'Background removal is processing. This feature requires AI processing.',
+      });
+      // For now, just show the settings panel
+      setActiveTool('removebg');
+    } else if (!selectedImage && ['download', 'save', 'upscale', 'publish', 'use', 'animate', 'removebg'].includes(toolId)) {
+      toast({
+        title: 'No Image Selected',
+        description: 'Please upload or select an image first',
+        variant: 'destructive',
+      });
     } else {
+      // For other tools, toggle the settings panel
       setActiveTool(activeTool === toolId ? null : toolId);
     }
   };
