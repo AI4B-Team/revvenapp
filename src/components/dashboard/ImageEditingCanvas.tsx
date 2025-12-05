@@ -89,6 +89,7 @@ interface Creation {
   thumbnail: string;
   title: string;
   isActive?: boolean;
+  category: 'creation' | 'edited' | 'upscaled';
 }
 
 interface CanvasSettings {
@@ -455,69 +456,51 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   // Sample creations with diverse real images - nature, cars, houses, animals, portraits
   const baseCreations: Creation[] = [
-    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop', title: 'Portrait 1' },
-    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', title: 'Mountain' },
-    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200&h=200&fit=crop', title: 'Sports Car' },
-    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop', title: 'Modern House' },
-    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=200&h=200&fit=crop', title: 'Lion' },
-    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 2' },
-    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop', title: 'Lake' },
-    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=200&fit=crop', title: 'Luxury Car' },
-    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop', title: 'Villa' },
-    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Turtle' },
-    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop', title: 'Forest' },
-    { id: '13', thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=200&fit=crop', title: 'BMW' },
-    { id: '14', thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop', title: 'Mansion' },
-    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop', title: 'Dogs' },
-    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', title: 'Cat' },
-    { id: '17', thumbnail: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&h=200&fit=crop', title: 'Foggy Forest' },
-    { id: '18', thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&h=200&fit=crop', title: 'Porsche' },
-    { id: '19', thumbnail: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&h=200&fit=crop', title: 'Beach House' },
-    { id: '20', thumbnail: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&h=200&fit=crop', title: 'Golden Retriever' },
-    { id: '21', thumbnail: 'https://images.unsplash.com/photo-1549608276-5786777e6587?w=200&h=200&fit=crop', title: 'Owl' },
-    { id: '22', thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=200&fit=crop', title: 'Sunlit Forest' },
-    { id: '23', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop', title: 'Classic Car' },
-    { id: '24', thumbnail: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&h=200&fit=crop', title: 'Luxury Villa' },
-    { id: '25', thumbnail: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=200&h=200&fit=crop', title: 'Elephant' },
-    { id: '26', thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&h=200&fit=crop', title: 'Snowy Peak' },
-    { id: '27', thumbnail: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=200&h=200&fit=crop', title: 'Ferrari' },
-    { id: '28', thumbnail: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=200&h=200&fit=crop', title: 'Suburban Home' },
-    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=200&h=200&fit=crop', title: 'Peacock' },
-    { id: '30', thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop', title: 'Portrait 3' },
-    { id: '31', thumbnail: 'https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=200&h=200&fit=crop', title: 'Waterfall' },
-    { id: '32', thumbnail: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=200&h=200&fit=crop', title: 'Lamborghini' },
-    { id: '33', thumbnail: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200&h=200&fit=crop', title: 'Pool House' },
-    { id: '34', thumbnail: 'https://images.unsplash.com/photo-1591025207163-942350e47db2?w=200&h=200&fit=crop', title: 'Sea Turtle' },
-    { id: '35', thumbnail: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=200&h=200&fit=crop', title: 'Starry Sky' },
-    { id: '36', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop', title: 'Jellyfish' },
-    { id: '37', thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop', title: 'Portrait 4' },
-    { id: '38', thumbnail: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&h=200&fit=crop', title: 'Beach' },
-    { id: '39', thumbnail: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=200&h=200&fit=crop', title: 'Race Car' },
-    { id: '40', thumbnail: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=200&h=200&fit=crop', title: 'Cottage' },
-    { id: '41', thumbnail: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=200&h=200&fit=crop', title: 'Hamster' },
-    { id: '42', thumbnail: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=200&h=200&fit=crop', title: 'Sunbeams' },
-    { id: '43', thumbnail: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&h=200&fit=crop', title: 'Corvette' },
-    { id: '44', thumbnail: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&h=200&fit=crop', title: 'Modern Villa' },
-    { id: '45', thumbnail: 'https://images.unsplash.com/photo-1474314243412-cd4a79f02c6a?w=200&h=200&fit=crop', title: 'Flamingo' },
-    { id: '46', thumbnail: 'https://images.unsplash.com/photo-1516117172878-fd2c41f4a759?w=200&h=200&fit=crop', title: 'Rock Formation' },
-    { id: '47', thumbnail: 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=200&h=200&fit=crop', title: 'Aurora' },
-    { id: '48', thumbnail: 'https://images.unsplash.com/photo-1558981359-219d6364c9c8?w=200&h=200&fit=crop', title: 'Audi' },
-    { id: '49', thumbnail: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=200&h=200&fit=crop', title: 'Farmhouse' },
-    { id: '50', thumbnail: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=200&h=200&fit=crop', title: 'Labrador' },
-    { id: '51', thumbnail: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=200&h=200&fit=crop', title: 'Pug' },
-    { id: '52', thumbnail: 'https://images.unsplash.com/photo-1462275646964-a0e3571f4f5f?w=200&h=200&fit=crop', title: 'Vintage Car' },
-    { id: '53', thumbnail: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=200&h=200&fit=crop', title: 'Lake House' },
-    { id: '54', thumbnail: 'https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=200&h=200&fit=crop', title: 'Parrot' },
-    { id: '55', thumbnail: 'https://images.unsplash.com/photo-1540206395-68808572332f?w=200&h=200&fit=crop', title: 'Canyon' },
-    { id: '56', thumbnail: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=200&h=200&fit=crop', title: 'Mercedes' },
-    { id: '57', thumbnail: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=200&fit=crop', title: 'Apartment' },
+    // Creations (AI-generated images)
+    { id: '2', thumbnail: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop', title: 'Portrait 1', category: 'creation' },
+    { id: '3', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop', title: 'Mountain', category: 'creation' },
+    { id: '4', thumbnail: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200&h=200&fit=crop', title: 'Sports Car', category: 'creation' },
+    { id: '5', thumbnail: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop', title: 'Modern House', category: 'creation' },
+    { id: '6', thumbnail: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=200&h=200&fit=crop', title: 'Lion', category: 'creation' },
+    { id: '7', thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop', title: 'Portrait 2', category: 'creation' },
+    { id: '8', thumbnail: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=200&h=200&fit=crop', title: 'Lake', category: 'creation' },
+    { id: '9', thumbnail: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200&h=200&fit=crop', title: 'Luxury Car', category: 'creation' },
+    { id: '10', thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop', title: 'Villa', category: 'creation' },
+    { id: '11', thumbnail: 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=200&h=200&fit=crop', title: 'Turtle', category: 'creation' },
+    { id: '12', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=200&h=200&fit=crop', title: 'Forest', category: 'creation' },
+    { id: '13', thumbnail: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&h=200&fit=crop', title: 'BMW', category: 'creation' },
+    { id: '14', thumbnail: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=200&fit=crop', title: 'Mansion', category: 'creation' },
+    { id: '15', thumbnail: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=200&h=200&fit=crop', title: 'Dogs', category: 'creation' },
+    { id: '16', thumbnail: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', title: 'Cat', category: 'creation' },
+    // Edited images
+    { id: '17', thumbnail: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&h=200&fit=crop', title: 'Foggy Forest', category: 'edited' },
+    { id: '18', thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&h=200&fit=crop', title: 'Porsche', category: 'edited' },
+    { id: '19', thumbnail: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=200&h=200&fit=crop', title: 'Beach House', category: 'edited' },
+    { id: '20', thumbnail: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200&h=200&fit=crop', title: 'Golden Retriever', category: 'edited' },
+    { id: '21', thumbnail: 'https://images.unsplash.com/photo-1549608276-5786777e6587?w=200&h=200&fit=crop', title: 'Owl', category: 'edited' },
+    { id: '22', thumbnail: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200&h=200&fit=crop', title: 'Sunlit Forest', category: 'edited' },
+    { id: '23', thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=200&h=200&fit=crop', title: 'Classic Car', category: 'edited' },
+    { id: '24', thumbnail: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=200&h=200&fit=crop', title: 'Luxury Villa', category: 'edited' },
+    { id: '25', thumbnail: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=200&h=200&fit=crop', title: 'Elephant', category: 'edited' },
+    { id: '26', thumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200&h=200&fit=crop', title: 'Snowy Peak', category: 'edited' },
+    // Upscaled images
+    { id: '27', thumbnail: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=200&h=200&fit=crop', title: 'Ferrari', category: 'upscaled' },
+    { id: '28', thumbnail: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=200&h=200&fit=crop', title: 'Suburban Home', category: 'upscaled' },
+    { id: '29', thumbnail: 'https://images.unsplash.com/photo-1456926631375-92c8ce872def?w=200&h=200&fit=crop', title: 'Peacock', category: 'upscaled' },
+    { id: '30', thumbnail: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop', title: 'Portrait 3', category: 'upscaled' },
+    { id: '31', thumbnail: 'https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=200&h=200&fit=crop', title: 'Waterfall', category: 'upscaled' },
+    { id: '32', thumbnail: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=200&h=200&fit=crop', title: 'Lamborghini', category: 'upscaled' },
+    { id: '33', thumbnail: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200&h=200&fit=crop', title: 'Pool House', category: 'upscaled' },
+    { id: '34', thumbnail: 'https://images.unsplash.com/photo-1591025207163-942350e47db2?w=200&h=200&fit=crop', title: 'Sea Turtle', category: 'upscaled' },
+    { id: '35', thumbnail: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=200&h=200&fit=crop', title: 'Starry Sky', category: 'upscaled' },
+    { id: '36', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=200&fit=crop', title: 'Jellyfish', category: 'upscaled' },
   ];
   
   // Build creations list - no auto-selection
   const [creations, setCreations] = useState<Creation[]>(() => {
     if (image) {
       // Add current image to creations list but don't auto-select
-      return [{ id: '1', thumbnail: image, title: 'Current', isActive: false }, ...baseCreations];
+      return [{ id: '1', thumbnail: image, title: 'Current', isActive: false, category: 'creation' as const }, ...baseCreations];
     }
     return baseCreations;
   });
@@ -529,6 +512,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       thumbnail: imageUrl,
       title: 'New',
       isActive: true,
+      category: 'creation',
     };
     setCreations(prev => [newCreation, ...prev.map(c => ({ ...c, isActive: false }))]);
     setSelectedImage(imageUrl);
@@ -1547,7 +1531,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </DropdownMenu>
             <div className="flex-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
               <div className="flex items-center gap-3 px-1 w-max">
-                {creations.map((creation) => (
+                {creations
+                  .filter((creation) => {
+                    if (creationsFilter === 'Creations') return creation.category === 'creation';
+                    if (creationsFilter === 'Edited') return creation.category === 'edited';
+                    if (creationsFilter === 'Upscaled') return creation.category === 'upscaled';
+                    return true;
+                  })
+                  .map((creation) => (
                   <button
                     key={creation.id}
                     className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100 transition-all hover:scale-105 ${
