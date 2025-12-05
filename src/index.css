@@ -90,4 +90,42 @@ All colors MUST be HSL.
     background-color: rgb(31, 41, 55);
     border-radius: 3px;
   }
+
+  /* Safari backdrop-filter support */
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Accessibility improvements */
+@layer base {
+  /* Ensure buttons without visible text are still accessible */
+  button:not([aria-label]):not([title]):empty::before {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* Focus visible styles for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
