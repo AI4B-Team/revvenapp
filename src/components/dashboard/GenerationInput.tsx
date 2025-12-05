@@ -220,11 +220,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const processedExternalFrameRef = useRef<string | null>(null);
   
   useEffect(() => {
+    console.log('External frame effect:', { 
+      externalStartingFrame, 
+      isVideoMode, 
+      alreadyProcessed: processedExternalFrameRef.current,
+      selectedType 
+    });
+    
     // Only process if we have an external frame, we're in video mode, and we haven't already processed this frame
     if (externalStartingFrame && isVideoMode && processedExternalFrameRef.current !== externalStartingFrame.preview) {
+      console.log('Processing external frame:', externalStartingFrame);
       processedExternalFrameRef.current = externalStartingFrame.preview;
       externalFrameRef.current = externalStartingFrame;
       setVideoModeState(prev => {
+        console.log('Setting videoModeState, prev:', prev);
         // If start frame already has an image, put new one in end frame
         if (prev.startingFrame) {
           return {
@@ -239,7 +248,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         };
       });
     }
-  }, [externalStartingFrame, isVideoMode]);
+  }, [externalStartingFrame, isVideoMode, selectedType]);
   
   // Video mode: Track which frame to populate next
   const framePopulateIntentRef = useRef<'start' | 'end' | null>(null);
