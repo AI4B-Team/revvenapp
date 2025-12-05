@@ -1427,6 +1427,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       <textarea
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if (inputValue.trim() && !isLoadingChat && !isGeneratingImage) {
+                              handleSendMessage(e as any);
+                            }
+                          }
+                        }}
                         placeholder={isLoadingChat || isGeneratingImage ? 'Please wait...' : 'Ask Cora to edit or generate images...'}
                         disabled={isLoadingChat || isGeneratingImage}
                         className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none disabled:opacity-50"
