@@ -112,6 +112,36 @@ export type Database = {
           },
         ]
       }
+      editor_chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          image_url: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_images: {
         Row: {
           aspect_ratio: string | null
