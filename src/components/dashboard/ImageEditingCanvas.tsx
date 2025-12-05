@@ -948,7 +948,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           conversations.set(msg.conversation_id, {
             id: msg.conversation_id,
             created_at: msg.created_at,
-            preview: msg.content.substring(0, 50) + (msg.content.length > 50 ? '...' : ''),
+            preview: msg.content,
           });
         }
       });
