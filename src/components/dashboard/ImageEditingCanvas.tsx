@@ -538,13 +538,22 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setShowReferencesModal(false);
   };
 
-  // Handle selection from creations strip
+  // Handle selection from creations strip - toggle selection if same image clicked
   const handleSelectFromCreations = (creation: Creation) => {
-    setSelectedImage(creation.thumbnail);
-    setActiveCreationId(creation.id);
-    setIsImageSelected(true);
-    setImagePosition({ x: 0, y: 0 });
-    setCreations(prev => prev.map(c => ({ ...c, isActive: c.id === creation.id })));
+    if (activeCreationId === creation.id) {
+      // Deselect if clicking the same image
+      setSelectedImage(undefined);
+      setActiveCreationId(null);
+      setIsImageSelected(false);
+      setCreations(prev => prev.map(c => ({ ...c, isActive: false })));
+    } else {
+      // Select new image
+      setSelectedImage(creation.thumbnail);
+      setActiveCreationId(creation.id);
+      setIsImageSelected(true);
+      setImagePosition({ x: 0, y: 0 });
+      setCreations(prev => prev.map(c => ({ ...c, isActive: c.id === creation.id })));
+    }
   };
 
   // Handle mouse wheel zoom on canvas - scales entire image including border
