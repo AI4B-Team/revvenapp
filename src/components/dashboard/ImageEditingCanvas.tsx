@@ -1282,8 +1282,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         description: 'Using this image in the content creator',
       });
     } else if (toolId === 'animate' && selectedImage) {
-      // Navigate to create page in video mode with this image
-      navigate('/create', { state: { referenceImage: selectedImage, contentType: 'Video' } });
+      // Navigate to create page in video mode with this image as start frame
+      navigate('/create', { state: { animateImage: selectedImage } });
       toast({
         title: 'Opening Animator',
         description: 'Creating animation from this image',
