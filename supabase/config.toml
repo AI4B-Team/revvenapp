@@ -38,3 +38,9 @@ verify_jwt = true
 
 [functions.enhance-character-description]
 verify_jwt = true
+
+[functions.editor-chat]
+verify_jwt = true
+
+[functions.editor-generate-image]
+verify_jwt = true

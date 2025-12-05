@@ -40,6 +40,7 @@ import {
   Save,
   Globe,
   ExternalLink,
+  Loader2,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -56,6 +57,8 @@ import {
 import ReferencesModal from './ReferencesModal';
 import { useResizableTextarea } from '@/hooks/useResizableTextarea';
 import ResizeHandle from '@/components/ui/ResizeHandle';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -69,6 +72,7 @@ interface Message {
   content: string;
   image?: string;
   isRequest?: boolean;
+  isLoading?: boolean;
 }
 
 interface Creation {
@@ -336,6 +340,7 @@ const getToolSettings = (tool: string) => {
 
 const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -349,8 +354,12 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [conversationId, setConversationId] = useState<string>(() => crypto.randomUUID());
+  const [isLoadingChat, setIsLoadingChat] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Resizable prompt box (both directions)
   const { height: chatInputHeight, width: chatInputWidth, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
@@ -392,15 +401,46 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     quality: 90,
   });
 
-  const [messages] = useState<Message[]>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'What do you think of this first storyboard frame? Would you like me to make any adjustments before we move on to the second frame?',
-      image: selectedImage,
+      content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
       isRequest: true,
     },
   ]);
+
+  // Scroll to bottom when new messages are added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Load chat history from Supabase
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('editor_chat_messages')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (data && data.length > 0) {
+        const loadedMessages: Message[] = data.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          image: msg.image_url,
+        }));
+        setMessages([messages[0], ...loadedMessages]);
+      }
+    };
+
+    loadChatHistory();
+  }, [conversationId]);
 
   // Sample creations with diverse real images - nature, cars, houses, animals, portraits
   const baseCreations: Creation[] = [
@@ -578,12 +618,152 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: 'delete', icon: <Trash2 className="w-4 h-4" />, tooltip: 'Delete' },
   ];
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim()) {
-      console.log('Sending:', inputValue);
-      setInputValue('');
+    if (!inputValue.trim() || isLoadingChat) return;
+
+    const userMessage = inputValue.trim();
+    setInputValue('');
+
+    // Add user message to chat
+    const userMsgId = crypto.randomUUID();
+    setMessages(prev => [...prev, {
+      id: userMsgId,
+      role: 'user',
+      content: userMessage,
+      image: selectedImage,
+    }]);
+
+    // Check if this is an image generation/edit request
+    const isImageRequest = userMessage.toLowerCase().includes('generate') || 
+                          userMessage.toLowerCase().includes('create') ||
+                          userMessage.toLowerCase().includes('make') ||
+                          userMessage.toLowerCase().includes('edit') ||
+                          userMessage.toLowerCase().includes('change') ||
+                          userMessage.toLowerCase().includes('add') ||
+                          userMessage.toLowerCase().includes('remove');
+
+    if (isImageRequest && selectedModel === 'Nano Banana') {
+      // Image generation/editing with Nano Banana
+      setIsGeneratingImage(true);
+      setMessages(prev => [...prev, {
+        id: `loading-${Date.now()}`,
+        role: 'assistant',
+        content: 'Generating image...',
+        isLoading: true,
+      }]);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('editor-generate-image', {
+          body: {
+            prompt: userMessage,
+            sourceImage: selectedImage,
+            editInstruction: userMessage,
+          }
+        });
+
+        // Remove loading message
+        setMessages(prev => prev.filter(m => !m.isLoading));
+
+        if (error) throw error;
+
+        if (data.imageUrl) {
+          // Add generated image to canvas
+          handleSelectFromModal(data.imageUrl);
+          
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: data.message || 'Here\'s your generated image!',
+            image: data.imageUrl,
+          }]);
+        } else {
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: data.message || 'I couldn\'t generate an image for that request.',
+          }]);
+        }
+      } catch (error: any) {
+        setMessages(prev => prev.filter(m => !m.isLoading));
+        console.error('Image generation error:', error);
+        toast({
+          title: 'Generation Failed',
+          description: error.message || 'Failed to generate image',
+          variant: 'destructive',
+        });
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: 'Sorry, I couldn\'t generate the image. Please try again.',
+        }]);
+      } finally {
+        setIsGeneratingImage(false);
+      }
+    } else {
+      // Regular chat with AI
+      setIsLoadingChat(true);
+      setMessages(prev => [...prev, {
+        id: `loading-${Date.now()}`,
+        role: 'assistant',
+        content: 'Thinking...',
+        isLoading: true,
+      }]);
+
+      try {
+        const chatHistory = messages.filter(m => !m.isLoading).map(m => ({
+          role: m.role,
+          content: m.content,
+          image: m.image,
+        }));
+        chatHistory.push({ role: 'user', content: userMessage, image: selectedImage });
+
+        const { data, error } = await supabase.functions.invoke('editor-chat', {
+          body: {
+            messages: chatHistory,
+            conversationId,
+            imageUrl: selectedImage,
+          }
+        });
+
+        // Remove loading message
+        setMessages(prev => prev.filter(m => !m.isLoading));
+
+        if (error) throw error;
+
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: data.message,
+        }]);
+      } catch (error: any) {
+        setMessages(prev => prev.filter(m => !m.isLoading));
+        console.error('Chat error:', error);
+        toast({
+          title: 'Chat Error',
+          description: error.message || 'Failed to get response',
+          variant: 'destructive',
+        });
+        setMessages(prev => [...prev, {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.',
+        }]);
+      } finally {
+        setIsLoadingChat(false);
+      }
     }
+  };
+
+  // Start new conversation
+  const handleNewChat = () => {
+    setConversationId(crypto.randomUUID());
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
+      isRequest: true,
+    }]);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -845,17 +1025,38 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
-                    <div className="relative">
-                      <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
-                        <span className="font-medium">{selectedModel}</span>
-                        <ChevronDown className="w-3 h-3" />
-                      </button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
+                          <span className="font-medium">{selectedModel}</span>
+                          <ChevronDown className="w-3 h-3" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="bg-white border border-slate-200 shadow-lg z-50">
+                        <DropdownMenuItem 
+                          onClick={() => setSelectedModel('Nano Banana')}
+                          className={selectedModel === 'Nano Banana' ? 'bg-emerald-50' : ''}
+                        >
+                          <Sparkles className="w-4 h-4 mr-2 text-emerald-500" />
+                          Nano Banana (Image Gen)
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setSelectedModel('Gemini Flash')}
+                          className={selectedModel === 'Gemini Flash' ? 'bg-emerald-50' : ''}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2 text-blue-500" />
+                          Gemini Flash (Chat)
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <div className="flex items-center gap-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button 
+                          onClick={handleNewChat}
+                          className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
                           <MessageCirclePlus className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
@@ -882,25 +1083,45 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {messages.map((message) => (
                     <div key={message.id}>
-                      {message.isRequest && (
-                        <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100">
+                      {message.role === 'assistant' ? (
+                        <div className={`bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100 ${message.isLoading ? 'animate-pulse' : ''}`}>
                           <div className="flex items-center gap-2">
-                            <Sparkles className="w-3 h-3 text-slate-400" />
-                            <span className="text-xs text-slate-400 font-medium">Request</span>
+                            {message.isLoading ? (
+                              <Loader2 className="w-3 h-3 text-emerald-500 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-3 h-3 text-emerald-500" />
+                            )}
+                            <span className="text-xs text-slate-500 font-medium">Cora</span>
+                          </div>
+                          <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
+                          {message.image && !message.isLoading && (
+                            <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
+                              <img src={message.image} alt="Generated" className="w-full h-auto" />
+                              <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
+                                <div className="w-2 h-2 bg-emerald-500 rounded-sm" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="bg-emerald-50 rounded-xl p-4 space-y-3 border border-emerald-100 ml-8">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                              <span className="text-[10px] text-white font-bold">U</span>
+                            </div>
+                            <span className="text-xs text-emerald-600 font-medium">You</span>
                           </div>
                           <p className="text-sm text-slate-700 leading-relaxed">{message.content}</p>
                           {message.image && (
-                            <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
-                              <img src={message.image} alt="Design" className="w-full h-auto" />
-                              <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
-                                <div className="w-2 h-2 bg-slate-800 rounded-sm" />
-                              </div>
+                            <div className="relative rounded-lg overflow-hidden border border-emerald-200 max-w-[180px]">
+                              <img src={message.image} alt="Attached" className="w-full h-auto" />
                             </div>
                           )}
                         </div>
                       )}
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* Input Area */}
@@ -910,8 +1131,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       <textarea
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Ask Cora to edit something..."
-                        className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none"
+                        placeholder={isLoadingChat || isGeneratingImage ? 'Please wait...' : 'Ask Cora to edit or generate images...'}
+                        disabled={isLoadingChat || isGeneratingImage}
+                        className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none disabled:opacity-50"
                       />
                       <div className="absolute right-2 top-3 flex items-center gap-0.5">
                         <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -923,13 +1145,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                         <button
                           type="submit"
                           className={`p-2 rounded-lg transition-all ${
-                            inputValue.trim()
+                            inputValue.trim() && !isLoadingChat && !isGeneratingImage
                               ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
                               : 'text-slate-300 cursor-not-allowed'
                           }`}
-                          disabled={!inputValue.trim()}
+                          disabled={!inputValue.trim() || isLoadingChat || isGeneratingImage}
                         >
-                          <Send className="w-4 h-4" />
+                          {isLoadingChat || isGeneratingImage ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                       <ResizeHandle 
