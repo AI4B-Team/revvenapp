@@ -216,8 +216,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Use a ref to track external frame so it persists across other useEffect resets
   const externalFrameRef = useRef<{ preview: string; name: string } | null>(null);
   
+  // Track if we've already processed this external frame
+  const processedExternalFrameRef = useRef<string | null>(null);
+  
   useEffect(() => {
-    if (externalStartingFrame && isVideoMode) {
+    // Only process if we have an external frame, we're in video mode, and we haven't already processed this frame
+    if (externalStartingFrame && isVideoMode && processedExternalFrameRef.current !== externalStartingFrame.preview) {
+      processedExternalFrameRef.current = externalStartingFrame.preview;
       externalFrameRef.current = externalStartingFrame;
       setVideoModeState(prev => {
         // If start frame already has an image, put new one in end frame
