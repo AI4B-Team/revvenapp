@@ -86,8 +86,65 @@ serve(async (req) => {
     }
 
     if (stream) {
-      // Return streaming response
-      return new Response(response.body, {
+      // Save user message to database before streaming
+      if (user && conversationId) {
+        const userMessage = messages[messages.length - 1];
+        await supabase.from('editor_chat_messages').insert({
+          user_id: user.id,
+          conversation_id: conversationId,
+          role: 'user',
+          content: userMessage.content,
+          image_url: userMessage.image || null
+        });
+      }
+
+      // Create a transform stream to capture the full response while streaming
+      let fullResponse = '';
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      
+      const stream = new ReadableStream({
+        async start(controller) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              // Save assistant message after stream completes
+              if (user && conversationId && fullResponse) {
+                await supabase.from('editor_chat_messages').insert({
+                  user_id: user.id,
+                  conversation_id: conversationId,
+                  role: 'assistant',
+                  content: fullResponse
+                });
+              }
+              controller.close();
+              break;
+            }
+            
+            // Pass through the chunk
+            controller.enqueue(value);
+            
+            // Parse SSE data to extract content
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  const content = data.choices?.[0]?.delta?.content;
+                  if (content) {
+                    fullResponse += content;
+                  }
+                } catch (e) {
+                  // Ignore parse errors for incomplete chunks
+                }
+              }
+            }
+          }
+        }
+      });
+
+      return new Response(stream, {
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'text/event-stream',
