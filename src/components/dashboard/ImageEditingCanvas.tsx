@@ -368,9 +368,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatConversation[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatAttachmentInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
   
   // Resizable prompt box (both directions)
   const { height: chatInputHeight, width: chatInputWidth, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
@@ -681,18 +685,20 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoadingChat) return;
+    if ((!inputValue.trim() && !attachedImage) || isLoadingChat) return;
 
     const userMessage = inputValue.trim();
+    const imageToSend = attachedImage || selectedImage;
     setInputValue('');
+    setAttachedImage(null); // Clear attached image after sending
 
     // Add user message to chat
     const userMsgId = crypto.randomUUID();
     setMessages(prev => [...prev, {
       id: userMsgId,
       role: 'user',
-      content: userMessage,
-      image: selectedImage,
+      content: userMessage || 'Image attached',
+      image: imageToSend,
     }]);
 
     // Check if this is an image generation/edit request
@@ -718,7 +724,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         const { data, error } = await supabase.functions.invoke('editor-generate-image', {
           body: {
             prompt: userMessage,
-            sourceImage: selectedImage,
+            sourceImage: imageToSend,
             editInstruction: userMessage,
           }
         });
@@ -730,7 +736,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
         if (data.imageUrl) {
           // Save generated image to database
-          await saveImageToDatabase(data.imageUrl, selectedImage ? 'edited' : 'creation', userMessage);
+          await saveImageToDatabase(data.imageUrl, imageToSend ? 'edited' : 'creation', userMessage);
           
           // Show generated image in chat only (don't auto-select on canvas)
           setMessages(prev => [...prev, {
@@ -781,7 +787,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           content: m.content,
           image: m.image,
         }));
-        chatHistory.push({ role: 'user', content: userMessage, image: selectedImage });
+        chatHistory.push({ role: 'user', content: userMessage || 'Image attached', image: imageToSend });
 
         const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/editor-chat`;
         
@@ -794,7 +800,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           body: JSON.stringify({
             messages: chatHistory,
             conversationId,
-            imageUrl: selectedImage,
+            imageUrl: imageToSend,
             stream: true,
           }),
         });
@@ -1001,6 +1007,93 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  // Handle chat attachment upload
+  const handleChatAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid File',
+          description: 'Please select an image file',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedImage(reader.result as string);
+        toast({
+          title: 'Image Attached',
+          description: 'Image ready to send with your message',
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input
+    if (chatAttachmentInputRef.current) {
+      chatAttachmentInputRef.current.value = '';
+    }
+  };
+
+  // Handle voice recording using Web Speech API
+  const handleVoiceRecording = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: 'Not Supported',
+        description: 'Voice recognition is not supported in your browser. Please use Chrome.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (isRecording) {
+      // Stop recording
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    // Start recording
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast({
+        title: 'Listening...',
+        description: 'Speak now. Click the mic again to stop.',
+      });
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      setInputValue(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsRecording(false);
+      toast({
+        title: 'Voice Error',
+        description: event.error === 'no-speech' ? 'No speech detected. Try again.' : 'Voice recognition failed.',
+        variant: 'destructive',
+      });
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
   };
 
   const handleClose = () => {
@@ -1418,7 +1511,31 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
                 {/* Input Area */}
                 <div className="p-4 border-t border-slate-200 bg-white">
+                  {/* Attached Image Preview */}
+                  {attachedImage && (
+                    <div className="mb-2 relative inline-block">
+                      <img 
+                        src={attachedImage} 
+                        alt="Attached" 
+                        className="h-16 w-16 object-cover rounded-lg border border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setAttachedImage(null)}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                   <form onSubmit={handleSendMessage}>
+                    <input
+                      type="file"
+                      ref={chatAttachmentInputRef}
+                      onChange={handleChatAttachment}
+                      accept="image/*"
+                      className="hidden"
+                    />
                     <div className="relative" style={{ height: chatInputHeight, ...(chatInputWidth && { width: chatInputWidth }) }}>
                       <textarea
                         value={inputValue}
@@ -1426,7 +1543,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            if (inputValue.trim() && !isLoadingChat && !isGeneratingImage) {
+                            if ((inputValue.trim() || attachedImage) && !isLoadingChat && !isGeneratingImage) {
                               handleSendMessage(e as any);
                             }
                           }
@@ -1436,20 +1553,28 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                         className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none disabled:opacity-50"
                       />
                       <div className="absolute right-2 top-3 flex items-center gap-0.5">
-                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button 
+                          type="button" 
+                          onClick={() => chatAttachmentInputRef.current?.click()}
+                          className={`p-2 transition-colors ${attachedImage ? 'text-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
                           <Paperclip className="w-4 h-4" />
                         </button>
-                        <button type="button" className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button 
+                          type="button" 
+                          onClick={handleVoiceRecording}
+                          className={`p-2 transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
                           <Mic className="w-4 h-4" />
                         </button>
                         <button
                           type="submit"
                           className={`p-2 rounded-lg transition-all ${
-                            inputValue.trim() && !isLoadingChat && !isGeneratingImage
+                            (inputValue.trim() || attachedImage) && !isLoadingChat && !isGeneratingImage
                               ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
                               : 'text-slate-300 cursor-not-allowed'
                           }`}
-                          disabled={!inputValue.trim() || isLoadingChat || isGeneratingImage}
+                          disabled={(!inputValue.trim() && !attachedImage) || isLoadingChat || isGeneratingImage}
                         >
                           {isLoadingChat || isGeneratingImage ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
