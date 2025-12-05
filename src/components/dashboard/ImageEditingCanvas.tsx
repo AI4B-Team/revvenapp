@@ -679,9 +679,10 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     e.preventDefault();
     e.stopPropagation();
     
-    // Use nativeEvent.offsetX/Y for coordinates relative to the target element
-    const x = e.nativeEvent.offsetX;
-    const y = e.nativeEvent.offsetY;
+    // Use clientX/Y - rect for consistent coordinate calculation
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
     setCropStart({ x, y });
     setCropEnd({ x, y });
@@ -1400,7 +1401,14 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
           const width = Math.round(displayW * scaleX);
           const height = Math.round(displayH * scaleY);
           
-          console.log('Crop coords:', { x, y, width, height, naturalWidth, naturalHeight });
+          console.log('Crop debug:', {
+            cropStart, cropEnd,
+            displayCoords: { displayX, displayY, displayW, displayH },
+            imgRect: { width: imgRect.width, height: imgRect.height },
+            natural: { naturalWidth, naturalHeight },
+            scale: { scaleX, scaleY },
+            finalCoords: { x, y, width, height }
+          });
           
           if (width > 5 && height > 5) {
             setIsProcessing(true);
