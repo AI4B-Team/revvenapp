@@ -1429,35 +1429,37 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           <History className="w-4 h-4" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-lg z-50 w-64 max-h-80 overflow-y-auto">
+                      <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-lg z-50 w-64">
                         <div className="px-3 py-2 border-b border-slate-100">
                           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Chat History</span>
                         </div>
-                        {isLoadingHistory ? (
-                          <div className="flex items-center justify-center py-4">
-                            <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                          </div>
-                        ) : chatHistory.length > 0 ? (
-                          chatHistory.map((conv) => (
-                            <DropdownMenuItem 
-                              key={conv.id}
-                              onClick={() => loadConversation(conv.id)}
-                              className={`flex flex-col items-start gap-1 py-2 cursor-pointer ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
-                            >
-                              <div className="flex items-center gap-2 w-full">
-                                <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                                <span className="text-xs text-slate-400">
-                                  {new Date(conv.created_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                              <span className="text-sm text-slate-700 truncate w-full">{conv.preview}</span>
-                            </DropdownMenuItem>
-                          ))
-                        ) : (
-                          <div className="px-3 py-4 text-center text-sm text-slate-400">
-                            No chat history yet
-                          </div>
-                        )}
+                        <div className="max-h-48 overflow-y-auto">
+                          {isLoadingHistory ? (
+                            <div className="flex items-center justify-center py-4">
+                              <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                            </div>
+                          ) : chatHistory.length > 0 ? (
+                            chatHistory.map((conv) => (
+                              <DropdownMenuItem 
+                                key={conv.id}
+                                onClick={() => loadConversation(conv.id)}
+                                className={`flex flex-col items-start gap-1 py-2 cursor-pointer ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
+                              >
+                                <div className="flex items-center gap-2 w-full">
+                                  <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                  <span className="text-xs text-slate-400">
+                                    {new Date(conv.created_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <span className="text-sm text-slate-700 truncate w-full">{conv.preview}</span>
+                              </DropdownMenuItem>
+                            ))
+                          ) : (
+                            <div className="px-3 py-4 text-center text-sm text-slate-400">
+                              No chat history yet
+                            </div>
+                          )}
+                        </div>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleNewChat} className="text-emerald-600">
                           <MessageCirclePlus className="w-4 h-4 mr-2" />
