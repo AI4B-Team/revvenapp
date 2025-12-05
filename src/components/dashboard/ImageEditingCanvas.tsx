@@ -671,7 +671,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     setIsDragging(false);
   };
 
-  // Crop mouse handlers
+  // Crop mouse handlers - using refs to track state for document listeners
+  const isCroppingRef = useRef(false);
+  
   const handleCropMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isCropMode || !imageRef.current) return;
     e.preventDefault();
@@ -683,10 +685,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     
     setCropStart({ x, y });
     setCropEnd({ x, y });
+    isCroppingRef.current = true;
+    
+    // Add document-level listeners for reliable tracking
+    document.addEventListener('mousemove', handleDocumentCropMouseMove);
+    document.addEventListener('mouseup', handleDocumentCropMouseUp);
   };
 
-  const handleCropMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isCropMode || !cropStart || !imageRef.current) return;
+  const handleDocumentCropMouseMove = useCallback((e: MouseEvent) => {
+    if (!isCroppingRef.current || !imageRef.current) return;
     e.preventDefault();
     
     const rect = imageRef.current.getBoundingClientRect();
@@ -694,11 +701,21 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
     
     setCropEnd({ x, y });
-  };
+  }, []);
 
-  const handleCropMouseUp = () => {
-    // Keep the selection visible, user will click crop button again to apply
-  };
+  const handleDocumentCropMouseUp = useCallback(() => {
+    isCroppingRef.current = false;
+    document.removeEventListener('mousemove', handleDocumentCropMouseMove);
+    document.removeEventListener('mouseup', handleDocumentCropMouseUp);
+  }, [handleDocumentCropMouseMove]);
+
+  // Cleanup document listeners on unmount
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleDocumentCropMouseMove);
+      document.removeEventListener('mouseup', handleDocumentCropMouseUp);
+    };
+  }, [handleDocumentCropMouseMove, handleDocumentCropMouseUp]);
 
   const canvasTools = [
     { id: 'select', icon: <MousePointer2 className="w-4 h-4" />, tooltip: 'Select' },
@@ -1982,8 +1999,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           setIsImageSelected(true);
                         }}
                         onMouseDown={isCropMode ? handleCropMouseDown : undefined}
-                        onMouseMove={isCropMode ? handleCropMouseMove : undefined}
-                        onMouseUp={isCropMode ? handleCropMouseUp : undefined}
                         style={{ cursor: isCropMode ? 'crosshair' : undefined }}
                       >
                         <img
