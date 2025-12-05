@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, conversationId, imageUrl } = await req.json();
+    const { messages, conversationId, imageUrl, stream = true } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');
@@ -31,7 +31,7 @@ serve(async (req) => {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    console.log('Processing chat request with', messages.length, 'messages');
+    console.log('Processing chat request with', messages.length, 'messages, streaming:', stream);
 
     // Build messages for AI
     const systemPrompt = `You are Cora, a professional AI design assistant specializing in image editing and enhancement. You help users edit their photos with suggestions and creative ideas. Be concise, friendly, and helpful. When users ask to edit images, describe what changes you would make. If they share an image, analyze it and suggest improvements.`;
@@ -61,7 +61,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: aiMessages,
-        max_tokens: 1000
+        max_tokens: 1000,
+        stream: stream
       }),
     });
 
@@ -84,39 +85,48 @@ serve(async (req) => {
       throw new Error(`AI request failed: ${response.status}`);
     }
 
-    const data = await response.json();
-    const assistantMessage = data.choices[0].message.content;
-
-    // Save messages to database if user is authenticated
-    if (user && conversationId) {
-      const userMessage = messages[messages.length - 1];
-      
-      // Save user message
-      await supabase.from('editor_chat_messages').insert({
-        user_id: user.id,
-        conversation_id: conversationId,
-        role: 'user',
-        content: userMessage.content,
-        image_url: userMessage.image || null
+    if (stream) {
+      // Return streaming response
+      return new Response(response.body, {
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        },
       });
+    } else {
+      // Non-streaming response
+      const data = await response.json();
+      const assistantMessage = data.choices[0].message.content;
 
-      // Save assistant response
-      await supabase.from('editor_chat_messages').insert({
-        user_id: user.id,
-        conversation_id: conversationId,
-        role: 'assistant',
-        content: assistantMessage
+      // Save messages to database if user is authenticated
+      if (user && conversationId) {
+        const userMessage = messages[messages.length - 1];
+        
+        await supabase.from('editor_chat_messages').insert({
+          user_id: user.id,
+          conversation_id: conversationId,
+          role: 'user',
+          content: userMessage.content,
+          image_url: userMessage.image || null
+        });
+
+        await supabase.from('editor_chat_messages').insert({
+          user_id: user.id,
+          conversation_id: conversationId,
+          role: 'assistant',
+          content: assistantMessage
+        });
+      }
+
+      return new Response(JSON.stringify({ 
+        message: assistantMessage,
+        conversationId 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    console.log('Chat response generated successfully');
-
-    return new Response(JSON.stringify({ 
-      message: assistantMessage,
-      conversationId 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error in editor-chat function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
