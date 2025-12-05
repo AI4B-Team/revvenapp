@@ -1080,11 +1080,31 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
       setIsRecording(false);
+      // Handle expected cases silently
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        if (event.error === 'no-speech') {
+          toast({
+            title: 'No Speech Detected',
+            description: 'Please try again and speak clearly.',
+          });
+        }
+        return;
+      }
+      // Handle permission denied
+      if (event.error === 'not-allowed') {
+        toast({
+          title: 'Microphone Access Denied',
+          description: 'Please allow microphone access to use voice input.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Log unexpected errors
+      console.warn('Speech recognition error:', event.error);
       toast({
         title: 'Voice Error',
-        description: event.error === 'no-speech' ? 'No speech detected. Try again.' : 'Voice recognition failed.',
+        description: 'Voice recognition failed. Please try again.',
         variant: 'destructive',
       });
     };
