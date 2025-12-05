@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import {
   Send,
   Paperclip,
@@ -41,6 +42,7 @@ import {
   Globe,
   ExternalLink,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -53,12 +55,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import ReferencesModal from './ReferencesModal';
 import { useResizableTextarea } from '@/hooks/useResizableTextarea';
 import ResizeHandle from '@/components/ui/ResizeHandle';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+interface ChatConversation {
+  id: string;
+  created_at: string;
+  preview: string;
+}
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -357,6 +366,8 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [conversationId, setConversationId] = useState<string>(() => crypto.randomUUID());
   const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatConversation[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -843,6 +854,90 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
       content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
       isRequest: true,
     }]);
+    toast({
+      title: 'New Chat Started',
+      description: 'Starting a fresh conversation with Cora',
+    });
+  };
+
+  // Load chat history
+  const loadChatHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get unique conversation IDs with their latest message
+      const { data, error } = await supabase
+        .from('editor_chat_messages')
+        .select('conversation_id, content, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by conversation_id and get first message as preview
+      const conversations = new Map<string, ChatConversation>();
+      data?.forEach((msg: any) => {
+        if (!conversations.has(msg.conversation_id)) {
+          conversations.set(msg.conversation_id, {
+            id: msg.conversation_id,
+            created_at: msg.created_at,
+            preview: msg.content.substring(0, 50) + (msg.content.length > 50 ? '...' : ''),
+          });
+        }
+      });
+
+      setChatHistory(Array.from(conversations.values()).slice(0, 10));
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // Load a specific conversation
+  const loadConversation = async (convId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('editor_chat_messages')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const loadedMessages: Message[] = data.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          image: msg.image_url,
+        }));
+        setConversationId(convId);
+        setMessages([{
+          id: 'welcome',
+          role: 'assistant',
+          content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
+          isRequest: true,
+        }, ...loadedMessages]);
+        toast({
+          title: 'Conversation Loaded',
+          description: 'Previous conversation restored',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load conversation',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1141,14 +1236,48 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                       </TooltipTrigger>
                       <TooltipContent className="bg-black text-white"><p>New Chat</p></TooltipContent>
                     </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+                    <DropdownMenu onOpenChange={(open) => open && loadChatHistory()}>
+                      <DropdownMenuTrigger asChild>
                         <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
                           <History className="w-4 h-4" />
                         </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white"><p>History</p></TooltipContent>
-                    </Tooltip>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-lg z-50 w-64 max-h-80 overflow-y-auto">
+                        <div className="px-3 py-2 border-b border-slate-100">
+                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Chat History</span>
+                        </div>
+                        {isLoadingHistory ? (
+                          <div className="flex items-center justify-center py-4">
+                            <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                          </div>
+                        ) : chatHistory.length > 0 ? (
+                          chatHistory.map((conv) => (
+                            <DropdownMenuItem 
+                              key={conv.id}
+                              onClick={() => loadConversation(conv.id)}
+                              className={`flex flex-col items-start gap-1 py-2 cursor-pointer ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
+                            >
+                              <div className="flex items-center gap-2 w-full">
+                                <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <span className="text-xs text-slate-400">
+                                  {new Date(conv.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <span className="text-sm text-slate-700 truncate w-full">{conv.preview}</span>
+                            </DropdownMenuItem>
+                          ))
+                        ) : (
+                          <div className="px-3 py-4 text-center text-sm text-slate-400">
+                            No chat history yet
+                          </div>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleNewChat} className="text-emerald-600">
+                          <MessageCirclePlus className="w-4 h-4 mr-2" />
+                          Start New Chat
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <button
                       onClick={() => setIsPanelCollapsed(true)}
                       className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1 relative z-10"
@@ -1175,12 +1304,16 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                               <span className="text-xs text-emerald-500">typing...</span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-                            {message.content || 'Thinking...'}
+                          <div className="text-sm text-slate-700 leading-relaxed prose prose-sm prose-slate max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-code:bg-slate-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-pre:bg-slate-800 prose-pre:text-slate-100 prose-headings:text-slate-800 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm">
+                            {message.content ? (
+                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                            ) : (
+                              'Thinking...'
+                            )}
                             {message.isLoading && message.content && (
                               <span className="inline-block w-1.5 h-4 bg-emerald-500 ml-0.5 animate-pulse" />
                             )}
-                          </p>
+                          </div>
                           {message.image && !message.isLoading && (
                             <div className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px]">
                               <img src={message.image} alt="Generated" className="w-full h-auto" />
