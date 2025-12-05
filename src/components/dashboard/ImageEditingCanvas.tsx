@@ -354,7 +354,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [inputValue, setInputValue] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(image);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [isImageSelected, setIsImageSelected] = useState(false);
   const [selectedModel, setSelectedModel] = useState('Nano Banana');
   const [showReferencesModal, setShowReferencesModal] = useState(false);
@@ -513,10 +513,11 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: '57', thumbnail: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200&h=200&fit=crop', title: 'Apartment' },
   ];
   
-  // Build creations list with current image first if exists
+  // Build creations list - no auto-selection
   const [creations, setCreations] = useState<Creation[]>(() => {
-    if (selectedImage) {
-      return [{ id: '1', thumbnail: selectedImage, title: 'Current', isActive: true }, ...baseCreations];
+    if (image) {
+      // Add current image to creations list but don't auto-select
+      return [{ id: '1', thumbnail: image, title: 'Current', isActive: false }, ...baseCreations];
     }
     return baseCreations;
   });
