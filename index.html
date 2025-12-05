@@ -2,10 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Revven - AI Content Creation Platform</title>
     <meta name="description" content="Create amazing AI-powered content with Revven - Your all-in-one platform for images, videos, audio, documents, and code generation" />
     <meta name="author" content="Revven" />
+    <link rel="icon" type="image/png" href="/favicon.ico" />
 
     <meta property="og:title" content="Revven - AI Content Creation Platform" />
     <meta property="og:description" content="Create amazing AI-powered content with Revven - Your all-in-one platform for images, videos, audio, documents, and code generation" />
@@ -15,10 +16,13 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Accessibility -->
+    <meta name="color-scheme" content="light dark" />
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root" role="application" aria-label="Revven AI Content Platform"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
