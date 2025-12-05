@@ -25,11 +25,18 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Client for auth verification
     const supabase = createClient(supabaseUrl, supabaseKey, {
       global: { headers: { Authorization: authHeader || '' } }
     });
+    
+    // Service role client for DB operations (bypasses RLS)
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('User authenticated:', user?.id);
 
     console.log('Processing chat request with', messages.length, 'messages, streaming:', stream);
 
@@ -89,13 +96,14 @@ serve(async (req) => {
       // Save user message to database before streaming
       if (user && conversationId) {
         const userMessage = messages[messages.length - 1];
-        await supabase.from('editor_chat_messages').insert({
+        const { error: insertError } = await supabaseAdmin.from('editor_chat_messages').insert({
           user_id: user.id,
           conversation_id: conversationId,
           role: 'user',
           content: userMessage.content,
           image_url: userMessage.image || null
         });
+        if (insertError) console.error('Failed to save user message:', insertError);
       }
 
       // Create a transform stream to capture the full response while streaming
@@ -110,12 +118,13 @@ serve(async (req) => {
             if (done) {
               // Save assistant message after stream completes
               if (user && conversationId && fullResponse) {
-                await supabase.from('editor_chat_messages').insert({
+                const { error: assistantError } = await supabaseAdmin.from('editor_chat_messages').insert({
                   user_id: user.id,
                   conversation_id: conversationId,
                   role: 'assistant',
                   content: fullResponse
                 });
+                if (assistantError) console.error('Failed to save assistant message:', assistantError);
               }
               controller.close();
               break;
@@ -161,7 +170,7 @@ serve(async (req) => {
       if (user && conversationId) {
         const userMessage = messages[messages.length - 1];
         
-        await supabase.from('editor_chat_messages').insert({
+        await supabaseAdmin.from('editor_chat_messages').insert({
           user_id: user.id,
           conversation_id: conversationId,
           role: 'user',
@@ -169,7 +178,7 @@ serve(async (req) => {
           image_url: userMessage.image || null
         });
 
-        await supabase.from('editor_chat_messages').insert({
+        await supabaseAdmin.from('editor_chat_messages').insert({
           user_id: user.id,
           conversation_id: conversationId,
           role: 'assistant',
