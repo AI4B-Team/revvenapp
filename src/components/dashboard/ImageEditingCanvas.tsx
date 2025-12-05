@@ -1384,34 +1384,55 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         // Apply crop if we have a selection
         if (cropStart && cropEnd && imageRef.current) {
           const imgRect = imageRef.current.getBoundingClientRect();
-          const scaleX = imageRef.current.naturalWidth / imgRect.width;
-          const scaleY = imageRef.current.naturalHeight / imgRect.height;
+          const naturalWidth = imageRef.current.naturalWidth;
+          const naturalHeight = imageRef.current.naturalHeight;
+          const scaleX = naturalWidth / imgRect.width;
+          const scaleY = naturalHeight / imgRect.height;
           
-          const x = Math.min(cropStart.x, cropEnd.x) * scaleX;
-          const y = Math.min(cropStart.y, cropEnd.y) * scaleY;
-          const width = Math.abs(cropEnd.x - cropStart.x) * scaleX;
-          const height = Math.abs(cropEnd.y - cropStart.y) * scaleY;
+          const displayX = Math.min(cropStart.x, cropEnd.x);
+          const displayY = Math.min(cropStart.y, cropEnd.y);
+          const displayW = Math.abs(cropEnd.x - cropStart.x);
+          const displayH = Math.abs(cropEnd.y - cropStart.y);
           
-          if (width > 10 && height > 10) {
+          const x = Math.round(displayX * scaleX);
+          const y = Math.round(displayY * scaleY);
+          const width = Math.round(displayW * scaleX);
+          const height = Math.round(displayH * scaleY);
+          
+          console.log('Crop coords:', { x, y, width, height, naturalWidth, naturalHeight });
+          
+          if (width > 5 && height > 5) {
             setIsProcessing(true);
             try {
               const croppedImage = await cropImage(selectedImage, { x, y, width, height });
               setSelectedImage(croppedImage);
-              await saveImageToDatabase(croppedImage, 'edited', 'Cropped image');
               toast({
                 title: 'Image Cropped!',
-                description: 'Cropped image saved to creations',
+                description: 'Crop applied successfully',
               });
-            } catch (error) {
+            } catch (error: any) {
+              console.error('Crop error:', error);
               toast({
                 title: 'Crop Failed',
-                description: 'Could not crop the image',
+                description: error.message || 'Could not crop the image',
                 variant: 'destructive',
               });
             } finally {
               setIsProcessing(false);
             }
+          } else {
+            toast({
+              title: 'Selection Too Small',
+              description: 'Please draw a larger crop area',
+              variant: 'destructive',
+            });
           }
+        } else {
+          toast({
+            title: 'No Selection',
+            description: 'Please draw a crop area on the image first',
+            variant: 'destructive',
+          });
         }
         setIsCropMode(false);
         setCropStart(null);
@@ -1424,7 +1445,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         setActiveTool('crop');
         toast({
           title: 'Crop Mode',
-          description: 'Click and drag on the image to select crop area, then click Crop again to apply',
+          description: 'Draw on the image to select crop area, then click Crop again',
         });
       }
     } else if (!selectedImage && ['download', 'save', 'upscale', 'publish', 'use', 'animate', 'removebg', 'crop'].includes(toolId)) {

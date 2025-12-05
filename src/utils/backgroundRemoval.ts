@@ -30,34 +30,59 @@ export const cropImage = async (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    
+    // Handle CORS for external URLs
+    if (!imageUrl.startsWith('data:')) {
+      img.crossOrigin = 'anonymous';
+    }
+    
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        reject(new Error('Could not get canvas context'));
-        return;
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        
+        // Ensure crop area is within bounds
+        const x = Math.max(0, Math.min(cropArea.x, img.naturalWidth));
+        const y = Math.max(0, Math.min(cropArea.y, img.naturalHeight));
+        const width = Math.min(cropArea.width, img.naturalWidth - x);
+        const height = Math.min(cropArea.height, img.naturalHeight - y);
+        
+        if (width <= 0 || height <= 0) {
+          reject(new Error('Invalid crop dimensions'));
+          return;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        ctx.drawImage(
+          img,
+          x,
+          y,
+          width,
+          height,
+          0,
+          0,
+          width,
+          height
+        );
+        
+        const result = canvas.toDataURL('image/png', 1.0);
+        resolve(result);
+      } catch (error) {
+        reject(new Error('Failed to process image: ' + (error as Error).message));
       }
-      
-      canvas.width = cropArea.width;
-      canvas.height = cropArea.height;
-      
-      ctx.drawImage(
-        img,
-        cropArea.x,
-        cropArea.y,
-        cropArea.width,
-        cropArea.height,
-        0,
-        0,
-        cropArea.width,
-        cropArea.height
-      );
-      
-      resolve(canvas.toDataURL('image/png', 1.0));
     };
-    img.onerror = reject;
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image. The image may have CORS restrictions.'));
+    };
+    
     img.src = imageUrl;
   });
 };
