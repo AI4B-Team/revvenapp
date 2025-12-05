@@ -1011,6 +1011,74 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     }
   };
 
+  // Delete a single conversation
+  const deleteConversation = async (convId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('editor_chat_messages')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('conversation_id', convId);
+
+      if (error) throw error;
+
+      // If deleting current conversation, start new chat
+      if (convId === conversationId) {
+        handleNewChat();
+      }
+
+      // Refresh history
+      await loadChatHistory();
+
+      toast({
+        title: 'Chat Deleted',
+        description: 'Conversation has been removed',
+      });
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete conversation',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Delete all conversations
+  const deleteAllConversations = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('editor_chat_messages')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Start fresh
+      handleNewChat();
+      setChatHistory([]);
+
+      toast({
+        title: 'All Chats Deleted',
+        description: 'All conversations have been removed',
+      });
+    } catch (error) {
+      console.error('Failed to delete all conversations:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete conversations',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -1441,19 +1509,29 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                             </div>
                           ) : chatHistory.length > 0 ? (
                             chatHistory.map((conv) => (
-                              <DropdownMenuItem 
+                              <div 
                                 key={conv.id}
-                                onClick={() => loadConversation(conv.id)}
-                                className={`flex flex-col items-start gap-1 py-2 cursor-pointer ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
+                                className={`flex items-center justify-between px-2 py-2 hover:bg-slate-50 cursor-pointer group ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
                               >
-                                <div className="flex items-center gap-2 w-full">
-                                  <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                                  <span className="text-xs text-slate-400">
-                                    {new Date(conv.created_at).toLocaleDateString()}
-                                  </span>
+                                <div 
+                                  className="flex-1 min-w-0"
+                                  onClick={() => loadConversation(conv.id)}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                    <span className="text-xs text-slate-400">
+                                      {new Date(conv.created_at).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <span className="text-sm text-slate-700 truncate block">{conv.preview}</span>
                                 </div>
-                                <span className="text-sm text-slate-700 truncate w-full">{conv.preview}</span>
-                              </DropdownMenuItem>
+                                <button
+                                  onClick={(e) => deleteConversation(conv.id, e)}
+                                  className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             ))
                           ) : (
                             <div className="px-3 py-4 text-center text-sm text-slate-400">
@@ -1466,6 +1544,15 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                           <MessageCirclePlus className="w-4 h-4 mr-2" />
                           Start New Chat
                         </DropdownMenuItem>
+                        {chatHistory.length > 0 && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={deleteAllConversations} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete All Chats
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <button
