@@ -74,6 +74,8 @@ const Create = () => {
     const imageUrl = state?.editImage || params.get('editImage');
     const animateUrl = state?.animateImage || params.get('animateImage');
     
+    console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl });
+    
     if (imageUrl) {
       setIsEditMode(true);
       setEditingImage(imageUrl);
@@ -81,6 +83,7 @@ const Create = () => {
     }
     
     if (animateUrl) {
+      console.log('Setting up video mode with animate URL:', animateUrl);
       setSelectedType('Video');
       setActiveTab('Video');
       setExternalStartingFrame({
@@ -133,9 +136,12 @@ const Create = () => {
   // Track if this is the initial mount
   const [hasInitialized, setHasInitialized] = useState(false);
   
-  // Reset states only on initial mount when navigating to /create without parameters
+  // Reset states only on initial mount when navigating to /create without parameters or state
   useEffect(() => {
-    if (!hasInitialized && location.pathname === '/create' && !location.search) {
+    const state = location.state as { editImage?: string; animateImage?: string } | null;
+    const hasNavigationState = state?.editImage || state?.animateImage;
+    
+    if (!hasInitialized && location.pathname === '/create' && !location.search && !hasNavigationState) {
       setActiveTab('');
       setSelectedType('');
       setActiveView('tools');
@@ -151,8 +157,11 @@ const Create = () => {
       setDesignCharacters([]);
       setDesignReferences([]);
       setHasInitialized(true);
+    } else if (!hasInitialized && hasNavigationState) {
+      // Mark as initialized if we have navigation state
+      setHasInitialized(true);
     }
-  }, [hasInitialized, location.pathname, location.search]);
+  }, [hasInitialized, location.pathname, location.search, location.state]);
 
   // Fetch and subscribe to generated images
   useEffect(() => {
