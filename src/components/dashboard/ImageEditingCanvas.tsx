@@ -1500,22 +1500,9 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
 
-          {/* Centered Media Type Tabs - properly centered */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
-            <button className="flex items-center gap-2 text-white font-medium text-sm">
-              <Image className="w-4 h-4" />
-              <span>Image</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-              <Video className="w-4 h-4" />
-              <span>Video</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
-              <Music className="w-4 h-4" />
-              <span>Audio</span>
-            </button>
+          {/* Editor Title - centered */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+            <span className="text-white font-medium text-sm">Image Editor</span>
           </div>
 
           {/* Right Actions - positioned far right */}
