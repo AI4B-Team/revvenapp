@@ -1,29 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Undo2,
-  Redo2,
-  Minus,
-  Plus,
-  Share2,
-  X,
+  Pencil,
+  Move,
+  RotateCcw,
+  RotateCw,
+  Crop,
+  FlipHorizontal,
+  Settings,
   Play,
   Pause,
   SkipBack,
   ChevronLeft,
   Circle,
   Scissors,
-  Move,
-  RotateCcw,
-  RotateCw,
-  Crop,
-  FlipHorizontal,
-  Pencil,
-  Square,
+  Minus,
+  Plus,
   Maximize2,
-  Settings,
   Clock,
-  ChevronDown,
+  Square,
 } from 'lucide-react';
 
 interface TimelineClip {
@@ -50,8 +45,8 @@ interface EditorState {
 
 interface VideoEditingCanvasProps {
   video?: string;
-  onClose: () => void;
-  onSave: () => void;
+  onClose?: () => void;
+  onSave?: () => void;
 }
 
 const sampleScript = `They can create content that never sleeps daily post. Reels and stories without you having to film a thing. They can model and showcase products, outfits, skincare, fitness gear, even digital products.
@@ -73,10 +68,10 @@ const sampleClips: TimelineClip[] = [
   { id: 't4', type: 'text', start: 95, duration: 63, content: "Different looks, different niches, different audiences...", track: 1 },
 ];
 
-const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose, onSave }) => {
+const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video }) => {
   const [showWrite, setShowWrite] = useState(true);
   const [script, setScript] = useState(sampleScript);
-  const [clips, setClips] = useState<TimelineClip[]>(sampleClips);
+  const [clips] = useState<TimelineClip[]>(sampleClips);
   const [editorState, setEditorState] = useState<EditorState>({
     currentTime: 134.4,
     duration: 238.6,
@@ -87,7 +82,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
     isMuted: false,
   });
   const [activePanel, setActivePanel] = useState<'position' | 'effects' | 'animation'>('position');
-  
+
   const timelineRef = useRef<HTMLDivElement>(null);
   const playheadPosition = (editorState.currentTime / editorState.duration) * 100;
 
@@ -105,8 +100,8 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
   const handleZoom = (direction: 'in' | 'out') => {
     setEditorState(prev => ({
       ...prev,
-      zoom: direction === 'in' 
-        ? Math.min(prev.zoom + 10, 200) 
+      zoom: direction === 'in'
+        ? Math.min(prev.zoom + 10, 200)
         : Math.max(prev.zoom - 10, 10)
     }));
   };
@@ -120,6 +115,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
     setEditorState(prev => ({ ...prev, currentTime: Math.max(0, Math.min(newTime, prev.duration)) }));
   };
 
+  // Playback simulation
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (editorState.isPlaying) {
@@ -136,69 +132,12 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
   }, [editorState.isPlaying]);
 
   return (
-    <div className="h-full flex flex-col bg-slate-50 overflow-hidden">
-      {/* Editor Toolbar */}
-      <div className="h-12 bg-white border-b border-slate-200 flex items-center px-4 gap-4 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-900 font-semibold">Editor</span>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium border border-emerald-200">
-            <Pencil className="w-3.5 h-3.5" />
-            Editing
-            <ChevronDown className="w-3 h-3" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1 ml-4">
-          <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-            <Undo2 className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-            <Redo2 className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-            <RotateCcw className="w-4 h-4" />
-          </button>
-          <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-            <RotateCw className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 ml-4">
-          <button className="p-1 hover:bg-slate-100 rounded text-slate-500">
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="text-sm text-slate-600 min-w-[48px] text-center">100%</span>
-          <button className="p-1 hover:bg-slate-100 rounded text-slate-500">
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center -space-x-2 ml-auto">
-          <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white" />
-          <div className="w-8 h-8 rounded-full bg-emerald-200 border-2 border-white" />
-          <div className="w-8 h-8 rounded-full bg-purple-200 border-2 border-white" />
-        </div>
-
-        <button 
-          onClick={onSave}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-all ml-2"
-        >
-          <Share2 className="w-4 h-4" />
-          Share
-        </button>
-
-        <button 
-          onClick={onClose}
-          className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Main Editor Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Script Panel */}
-        <div className="w-[420px] bg-white border-r border-slate-200 flex flex-col shrink-0">
+        <div className="w-[420px] bg-white border-r border-slate-200 flex flex-col">
+          {/* Panel Header */}
           <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-100">
             <button
               onClick={() => setShowWrite(true)}
@@ -219,6 +158,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </button>
           </div>
 
+          {/* Script Content */}
           <div className="flex-1 overflow-auto p-4">
             <textarea
               value={script}
@@ -231,6 +171,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
 
         {/* Video Preview */}
         <div className="flex-1 flex flex-col bg-slate-100">
+          {/* Preview Controls */}
           <div className="flex items-center justify-end gap-2 px-4 py-2">
             <button className="p-1.5 hover:bg-white rounded text-slate-500 transition-colors">
               <Move className="w-4 h-4" />
@@ -271,22 +212,28 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </button>
           </div>
 
+          {/* Video Canvas */}
           <div className="flex-1 flex items-center justify-center p-4">
             <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl" style={{ width: '560px', height: '315px' }}>
               {video ? (
-                <video 
-                  src={video} 
-                  className="w-full h-full object-cover"
+                <video
+                  src={video}
+                  className="w-full h-full object-contain"
                   controls={false}
                 />
               ) : (
+                /* Placeholder Video Preview */
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-900/80 via-amber-800/60 to-emerald-900/80">
+                  {/* Simulated video frame with AI avatar */}
                   <div className="absolute inset-0 flex">
+                    {/* Left side - ambient lighting */}
                     <div className="w-1/3 bg-gradient-to-r from-amber-500/30 to-transparent" />
+                    {/* Right side - avatar placeholder */}
                     <div className="w-2/3 flex items-end justify-center relative">
                       <div className="absolute top-4 right-4 left-4 bottom-4 rounded-lg overflow-hidden">
                         <div className="w-full h-full bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                       </div>
+                      {/* Avatar silhouette */}
                       <div className="relative z-10 w-48 h-64 mb-0">
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-gradient-to-t from-amber-200/80 to-amber-100/60 rounded-full blur-sm" />
                         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-amber-100/90 rounded-full" />
@@ -297,6 +244,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
                 </div>
               )}
 
+              {/* Play overlay */}
               {!editorState.isPlaying && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -318,7 +266,9 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
 
       {/* Timeline */}
       <div className="h-[200px] bg-slate-900 border-t border-slate-700 flex flex-col shrink-0">
+        {/* Timeline Header */}
         <div className="h-10 flex items-center px-4 border-b border-slate-700 gap-4">
+          {/* Transport Controls */}
           <div className="flex items-center gap-1">
             <button className="p-1.5 hover:bg-slate-700 rounded text-slate-400 transition-colors">
               <SkipBack className="w-4 h-4" />
@@ -328,6 +278,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </button>
           </div>
 
+          {/* Timecode */}
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-slate-500" />
             <span className="text-sm font-mono text-white">
@@ -335,6 +286,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </span>
           </div>
 
+          {/* Main Transport */}
           <div className="flex items-center gap-2 ml-4">
             <button className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all">
               <Circle className="w-3 h-3 fill-current" />
@@ -353,6 +305,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </button>
           </div>
 
+          {/* Right Controls */}
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={() => handleZoom('out')}
@@ -376,6 +329,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
           </div>
         </div>
 
+        {/* Time Ruler */}
         <div className="h-6 bg-slate-800 border-b border-slate-700 flex items-end px-4 relative">
           {Array.from({ length: Math.ceil(editorState.duration / 20) + 1 }).map((_, i) => (
             <div
@@ -387,6 +341,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
               <div className="w-px h-2 bg-slate-600" />
             </div>
           ))}
+          {/* Playhead */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
             style={{ left: `${playheadPosition}%` }}
@@ -395,11 +350,13 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
           </div>
         </div>
 
+        {/* Timeline Tracks */}
         <div
           ref={timelineRef}
           className="flex-1 overflow-x-auto overflow-y-auto relative"
           onClick={handleTimelineClick}
         >
+          {/* Video Track */}
           <div className="h-16 border-b border-slate-700 flex items-center px-4 relative">
             <div className="absolute inset-0 flex">
               {clips.filter(c => c.track === 0).map(clip => (
@@ -430,6 +387,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </div>
           </div>
 
+          {/* Text/Caption Track */}
           <div className="h-12 border-b border-slate-700 flex items-center px-4 relative">
             <div className="absolute inset-0 flex">
               {clips.filter(c => c.track === 1).map(clip => (
@@ -459,8 +417,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
             </div>
           </div>
 
+          {/* Additional empty track */}
           <div className="h-10 border-b border-slate-700/50" />
 
+          {/* Playhead line */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
             style={{ left: `${playheadPosition}%` }}
