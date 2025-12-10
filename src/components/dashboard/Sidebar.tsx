@@ -190,10 +190,17 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
+  const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);
   const [isCampaignsOpen, setIsCampaignsOpen] = useState(false);
   const [isAssetsOpen, setIsAssetsOpen] = useState(false);
   const [isRecentOpen, setIsRecentOpen] = useState(false);
+
+  const brandProfiles = [
+    { name: 'Xalina Voss', initial: 'X', bgColor: 'bg-brand-pink' },
+    { name: 'Lifestyle Brand', initial: 'L', bgColor: 'bg-brand-blue' },
+    { name: 'Fitness Pro', initial: 'F', bgColor: 'bg-brand-yellow' },
+  ];
   
   // Notify parent component when collapse state changes
   useEffect(() => {
@@ -331,6 +338,68 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             </button>
           </div>
         )}
+        </div>
+      )}
+
+      {/* Brands Dropdown */}
+      {!isCollapsed && (
+        <div className="px-4 mb-4 relative flex-shrink-0">
+          <button 
+            onClick={() => setIsBrandsDropdownOpen(!isBrandsDropdownOpen)}
+            className="w-full flex items-center gap-3 px-3 py-2 border-2 border-brand-green rounded-lg hover:bg-sidebar-hover transition"
+          >
+            <div className="w-8 h-8 bg-brand-pink rounded flex items-center justify-center text-sm font-bold text-white">
+              X
+            </div>
+            <span className="flex-1 text-left text-sm font-medium">Xalina Voss</span>
+            <ChevronDown size={16} className={`transition-transform text-sidebar-muted ${isBrandsDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+        
+          {isBrandsDropdownOpen && (
+            <div className="absolute top-full left-4 right-4 mt-2 bg-sidebar border border-border rounded-lg shadow-lg z-50 py-2">
+              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text border-b border-border mb-2">
+                <Search size={16} />
+                <span className="flex-1 text-left text-sm">Search Brands</span>
+              </button>
+              {brandProfiles.map((brand, idx) => (
+                <div
+                  key={idx}
+                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition text-sidebar-text group cursor-pointer"
+                >
+                  <div className={`w-8 h-8 ${brand.bgColor} rounded flex items-center justify-center text-sm font-bold text-white`}>
+                    {brand.initial}
+                  </div>
+                  <span className="flex-1 text-left text-sm">{brand.name}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-sidebar-active rounded"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical size={16} className="text-sidebar-muted" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-popover">
+                      <DropdownMenuItem>
+                        <Edit size={14} className="mr-2" />
+                        Edit Brand
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings size={14} className="mr-2" />
+                        Settings
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))}
+              <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-sidebar-hover transition mt-2 border-t border-border text-sidebar-text">
+                <div className="w-8 h-8 bg-brand-green rounded flex items-center justify-center text-sm font-bold text-primary">
+                  +
+                </div>
+                <span className="flex-1 text-left text-sm">Create New Brand</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
