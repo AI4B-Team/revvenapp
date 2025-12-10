@@ -72,6 +72,8 @@ interface ImageEditingCanvasProps {
   image?: string;
   onClose: () => void;
   onSave: () => void;
+  onTabChange?: (tab: 'image' | 'video' | 'audio') => void;
+  activeEditorTab?: 'image' | 'video' | 'audio';
 }
 
 interface Message {
@@ -337,7 +339,7 @@ const getToolSettings = (tool: string) => {
   }
 };
 
-const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave }) => {
+const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose, onSave, onTabChange, activeEditorTab }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTool, setActiveTool] = useState<string | null>(null);
@@ -1502,17 +1504,26 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
 
           {/* Centered Media Type Tabs - properly centered */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
-            <button className="flex items-center gap-2 text-white font-medium text-sm">
+            <button 
+              onClick={() => onTabChange?.('image')}
+              className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
               <Image className="w-4 h-4" />
               <span>Image</span>
             </button>
             <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+            <button 
+              onClick={() => onTabChange?.('video')}
+              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
               <Video className="w-4 h-4" />
               <span>Video</span>
             </button>
             <span className="text-slate-500">|</span>
-            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+            <button 
+              onClick={() => onTabChange?.('audio')}
+              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
               <Music className="w-4 h-4" />
               <span>Audio</span>
             </button>

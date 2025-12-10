@@ -22,7 +22,20 @@ import {
   Square,
   Clock,
   ChevronDown,
+  Image,
+  Video,
+  Music,
+  Cloud,
+  Check,
+  Share2,
+  X,
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface TimelineClip {
   id: string;
@@ -50,6 +63,8 @@ interface VideoEditingCanvasProps {
   video?: string;
   onClose?: () => void;
   onSave?: () => void;
+  onTabChange?: (tab: 'image' | 'video' | 'audio') => void;
+  activeEditorTab?: 'image' | 'video' | 'audio';
 }
 
 const sampleScript = `They can create content that never sleeps daily post. Reels and stories without you having to film a thing. They can model and showcase products, outfits, skincare, fitness gear, even digital products.
@@ -75,7 +90,7 @@ const sampleClips: TimelineClip[] = [
   { id: 't4', type: 'text', start: 95, duration: 63, content: "Different looks, different niches, different audiences...", track: 1 },
 ];
 
-const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose, onSave }) => {
+const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose, onSave, onTabChange, activeEditorTab }) => {
   const [showWrite, setShowWrite] = useState(true);
   const [script, setScript] = useState(sampleScript);
   const [clips, setClips] = useState<TimelineClip[]>(sampleClips);
@@ -137,8 +152,117 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
     return () => clearInterval(interval);
   }, [editorState.isPlaying]);
 
+  // Collaborator avatars
+  const collaborators = [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop',
+  ];
+
   return (
+    <TooltipProvider>
     <div className="h-full flex flex-col bg-slate-50 overflow-hidden">
+      {/* Full-width Editor Toolbar */}
+      <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold text-white">Editor</span>
+          <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
+            <Pencil className="w-3.5 h-3.5 text-violet-300" />
+            <span className="text-sm font-medium text-violet-200">Editing</span>
+            <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+          </div>
+        </div>
+
+        {/* Undo/Redo & Zoom */}
+        <div className="flex items-center gap-2 ml-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-black text-white"><p>Undo</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 text-slate-300 hover:text-white transition-colors">
+                <RotateCw className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-black text-white"><p>Redo</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors relative">
+                <Cloud className="w-4 h-4" />
+                <Check className="w-2 h-2 absolute bottom-1.5 right-1.5 stroke-[3]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-black text-white"><p>Saved To Cloud</p></TooltipContent>
+          </Tooltip>
+          <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
+            <button className="p-1 text-slate-400 hover:text-white transition-colors">
+              <Minus className="w-3 h-3" />
+            </button>
+            <span className="text-sm text-slate-200 min-w-[50px] text-center">100%</span>
+            <button className="p-1 text-slate-400 hover:text-white transition-colors">
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+
+        {/* Centered Media Type Tabs */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+          <button 
+            onClick={() => onTabChange?.('image')}
+            className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+          >
+            <Image className="w-4 h-4" />
+            <span>Image</span>
+          </button>
+          <span className="text-slate-500">|</span>
+          <button 
+            onClick={() => onTabChange?.('video')}
+            className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+          >
+            <Video className="w-4 h-4" />
+            <span>Video</span>
+          </button>
+          <span className="text-slate-500">|</span>
+          <button 
+            onClick={() => onTabChange?.('audio')}
+            className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+          >
+            <Music className="w-4 h-4" />
+            <span>Audio</span>
+          </button>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-3 ml-auto">
+          <div className="flex items-center -space-x-2">
+            {collaborators.map((avatar, index) => (
+              <img
+                key={index}
+                src={avatar}
+                alt={`Collaborator ${index + 1}`}
+                className="w-8 h-8 rounded-full border-2 border-[#2d4a54] object-cover"
+              />
+            ))}
+          </div>
+          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors">
+            <Share2 className="w-4 h-4" />
+            <span>Share</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-300 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
       {/* Main Editor Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Script Panel */}
@@ -428,6 +552,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({ video, onClose,
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 };
 
