@@ -37,7 +37,7 @@ const Edit = () => {
         {/* Editor Type Tabs */}
         <div className="h-12 bg-white border-b border-slate-200 flex items-center px-4 gap-2 shrink-0">
           <button
-            onClick={() => setEditorTab('image')}
+            onClick={() => { console.log('Switching to image'); setEditorTab('image'); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               editorTab === 'image' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-700'
             }`}
@@ -46,7 +46,7 @@ const Edit = () => {
             Image
           </button>
           <button
-            onClick={() => setEditorTab('video')}
+            onClick={() => { console.log('Switching to video'); setEditorTab('video'); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               editorTab === 'video' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-700'
             }`}
@@ -55,7 +55,7 @@ const Edit = () => {
             Video
           </button>
           <button
-            onClick={() => setEditorTab('audio')}
+            onClick={() => { console.log('Switching to audio'); setEditorTab('audio'); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               editorTab === 'audio' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-700'
             }`}
@@ -63,6 +63,7 @@ const Edit = () => {
             <Music className="w-4 h-4" />
             Audio
           </button>
+          <span className="ml-4 text-xs text-slate-400">Current: {editorTab}</span>
         </div>
         
         <main className="flex-1 overflow-hidden">
