@@ -27,6 +27,7 @@ serve(async (req) => {
     const { 
       prompt, 
       imageUrls, 
+      audioUrl,
       model = 'veo3_fast',
       aspectRatio = '16:9',
       duration = '10',
@@ -80,8 +81,57 @@ serve(async (req) => {
     let apiResponse;
     let taskId;
 
-    // Check if this is a Sora model
-    if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
+    // Check if this is a Wan Speech-to-Video model (for UGC)
+    if (model === 'wan-speech-to-video') {
+      console.log("Using Wan 2.2 Speech-to-Video API for UGC");
+
+      if (!imageUrls || imageUrls.length === 0) {
+        throw new Error("image_url is required for speech-to-video");
+      }
+      if (!audioUrl) {
+        throw new Error("audio_url is required for speech-to-video");
+      }
+
+      // Calculate num_frames based on duration (must be 40-120, multiple of 4)
+      // Default to 80 frames (~5 seconds at 16fps)
+      let numFrames = 80;
+      const durationNum = parseInt(duration) || 5;
+      if (durationNum <= 3) {
+        numFrames = 48; // ~3 seconds
+      } else if (durationNum <= 5) {
+        numFrames = 80; // ~5 seconds
+      } else if (durationNum <= 7) {
+        numFrames = 112; // ~7 seconds
+      } else {
+        numFrames = 120; // max ~7.5 seconds
+      }
+
+      const wanSpeechPayload: any = {
+        model: 'wan/2-2-a14b-speech-to-video-turbo',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt.substring(0, 5000),
+          image_url: imageUrls[0],
+          audio_url: audioUrl,
+          num_frames: numFrames,
+          frames_per_second: 16,
+          resolution: '720p',
+          enable_safety_checker: true
+        }
+      };
+
+      console.log("Wan Speech-to-Video API payload:", JSON.stringify(wanSpeechPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(wanSpeechPayload),
+      });
+
+    } else if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
       // Use the /api/v1/jobs/createTask endpoint for Sora 2 Pro
       console.log("Using Sora 2 Pro API");
 
