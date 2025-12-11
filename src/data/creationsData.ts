@@ -17,6 +17,8 @@ export interface GalleryItem {
   aspectRatio?: string;
   model?: string;
   errorMessage?: string;
+  referenceImage?: string;
+  referenceImages?: string[];
 }
 
 export const creationsData: GalleryItem[] = [

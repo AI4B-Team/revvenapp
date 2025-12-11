@@ -102,7 +102,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       };
 
-      const mappedImages: GalleryItem[] = imagesData?.map((img) => ({
+      const mappedImages: GalleryItem[] = imagesData?.map((img: any) => ({
         id: img.id,
         title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
         thumbnail: img.image_url || '/placeholder.svg',
@@ -123,6 +123,7 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         resolution: getResolutionFromAspectRatio(img.aspect_ratio),
         timestamp: formatTimestamp(img.created_at),
         referenceImage: img.reference_image_url || undefined,
+        referenceImages: img.reference_image_urls || undefined,
         errorMessage: img.error_message || undefined
       })) || [];
 

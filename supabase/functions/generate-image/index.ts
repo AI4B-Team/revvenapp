@@ -161,6 +161,7 @@ serve(async (req) => {
           aspect_ratio: aspectRatio,
           status: "pending",
           reference_image_url: effectiveReferenceImage || null,
+          reference_image_urls: effectiveReferenceImages.length > 0 ? effectiveReferenceImages : null,
         })
         .select()
         .single();
