@@ -1106,8 +1106,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only when frames exist */}
-        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && (
+        {/* Video Animation Frames - Show only when frames exist, hidden in UGC mode when character is selected */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
@@ -1267,7 +1267,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                             className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                : 'bg-muted hover:bg-muted/80'
+                                : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'
                             }`}
                           >
                             <User size={14} />
