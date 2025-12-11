@@ -10,13 +10,16 @@ import {
   FileAudio,
   Volume2,
   RotateCcw,
+  Loader2,
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 // ============================================
 // TYPES
 // ============================================
 
-interface AudioFile {
+export interface AudioFile {
   name: string;
   duration: number;
   url: string;
@@ -105,6 +108,51 @@ const AudioPlayer: React.FC<{
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(80);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (audio.url) {
+      audioRef.current = new Audio(audio.url);
+      audioRef.current.volume = volume / 100;
+      
+      audioRef.current.addEventListener('timeupdate', () => {
+        setCurrentTime(audioRef.current?.currentTime || 0);
+      });
+      
+      audioRef.current.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+      });
+      
+      audioRef.current.addEventListener('loadedmetadata', () => {
+        // Update duration if available
+      });
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [audio.url]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -112,29 +160,13 @@ const AudioPlayer: React.FC<{
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = (currentTime / audio.duration) * 100;
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          if (prev >= audio.duration) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 0.1;
-        });
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, audio.duration]);
+  const progress = audio.duration > 0 ? (currentTime / audio.duration) * 100 : 0;
 
   return (
     <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
       {/* Play/Pause Button */}
       <button
-        onClick={() => setIsPlaying(!isPlaying)}
+        onClick={togglePlay}
         className="w-10 h-10 bg-emerald-500 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
       >
         {isPlaying ? (
@@ -207,9 +239,11 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   onClose,
   onUseAudio,
 }) => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'upload' | 'record'>('upload');
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Recording state
@@ -217,7 +251,12 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const [recordingTime, setRecordingTime] = useState(0);
   const [hasRecording, setHasRecording] = useState(false);
   const [isPlayingRecording, setIsPlayingRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordedAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (isRecording) {
@@ -239,16 +278,77 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     };
   }, [isRecording]);
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    setHasRecording(false);
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        } 
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
+        setRecordedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setRecordedUrl(url);
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start(1000); // Collect data every second
+      setIsRecording(true);
+      setRecordingTime(0);
+      setHasRecording(false);
+      setRecordedBlob(null);
+      setRecordedUrl(null);
+      
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Microphone access denied",
+        description: "Please allow microphone access to record audio.",
+        variant: "destructive",
+      });
+    }
   };
 
   const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
     setIsRecording(false);
     if (recordingTime >= 5) {
       setHasRecording(true);
+    }
+  };
+
+  const playRecordedAudio = () => {
+    if (!recordedUrl) return;
+    
+    if (isPlayingRecording && recordedAudioRef.current) {
+      recordedAudioRef.current.pause();
+      setIsPlayingRecording(false);
+    } else {
+      recordedAudioRef.current = new Audio(recordedUrl);
+      recordedAudioRef.current.onended = () => setIsPlayingRecording(false);
+      recordedAudioRef.current.play();
+      setIsPlayingRecording(true);
     }
   };
 
@@ -258,11 +358,74 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const uploadToCloudinary = async (file: File | Blob, filename: string): Promise<AudioFile | null> => {
+    setIsUploading(true);
+    
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      const base64Data = await base64Promise;
+      
+      // Get audio duration
+      let duration = 0;
+      if (file instanceof File) {
+        const tempAudio = new Audio(URL.createObjectURL(file));
+        await new Promise<void>((resolve) => {
+          tempAudio.onloadedmetadata = () => {
+            duration = tempAudio.duration;
+            resolve();
+          };
+          tempAudio.onerror = () => resolve();
+        });
+      } else {
+        duration = recordingTime;
+      }
+      
+      // Upload via edge function
+      const { data, error } = await supabase.functions.invoke('upload-audio', {
+        body: {
+          audioData: base64Data,
+          filename: filename,
+          contentType: file.type || 'audio/webm',
+        },
+      });
+      
+      if (error) throw error;
+      if (!data?.url) throw new Error('No URL returned from upload');
+      
+      console.log('Audio uploaded successfully:', data.url);
+      
+      return {
+        name: filename,
+        duration: data.duration || duration,
+        url: data.url,
+        type: file instanceof File ? 'uploaded' : 'recorded',
+      };
+      
+    } catch (error) {
+      console.error('Error uploading audio:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload audio. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && (file.type === 'audio/mpeg' || file.type === 'audio/wav')) {
+    if (file && (file.type.startsWith('audio/'))) {
       handleFileSelect(file);
     }
   };
@@ -274,27 +437,26 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     }
   };
 
-  const handleFileSelect = (file: File) => {
-    // Create audio file object
-    const audio: AudioFile = {
-      name: file.name,
-      duration: 60, // Would be calculated from actual file
-      url: URL.createObjectURL(file),
-      type: 'uploaded',
-    };
-    setUploadedAudio(audio);
+  const handleFileSelect = async (file: File) => {
+    const audio = await uploadToCloudinary(file, file.name);
+    if (audio) {
+      setUploadedAudio(audio);
+      toast({
+        title: "Audio uploaded",
+        description: "Your audio file has been uploaded successfully.",
+      });
+    }
   };
 
-  const handleUseAudio = () => {
+  const handleUseAudio = async () => {
     if (activeTab === 'upload' && uploadedAudio) {
       onUseAudio(uploadedAudio);
-    } else if (activeTab === 'record' && hasRecording) {
-      onUseAudio({
-        name: 'Recorded Audio',
-        duration: recordingTime,
-        url: 'recorded-audio-url',
-        type: 'recorded',
-      });
+    } else if (activeTab === 'record' && hasRecording && recordedBlob) {
+      // Upload recorded audio to Cloudinary first
+      const audio = await uploadToCloudinary(recordedBlob, `recording_${Date.now()}.webm`);
+      if (audio) {
+        onUseAudio(audio);
+      }
     }
     resetAndClose();
   };
@@ -305,7 +467,15 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setRecordingTime(0);
     setHasRecording(false);
     setIsPlayingRecording(false);
+    setRecordedBlob(null);
+    setRecordedUrl(null);
     setActiveTab('upload');
+    
+    if (recordedAudioRef.current) {
+      recordedAudioRef.current.pause();
+      recordedAudioRef.current = null;
+    }
+    
     onClose();
   };
 
@@ -366,7 +536,12 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
           <div className="p-6">
             {activeTab === 'upload' ? (
               <>
-                {uploadedAudio ? (
+                {isUploading ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+                    <p className="mt-4 text-sm text-muted-foreground">Uploading audio...</p>
+                  </div>
+                ) : uploadedAudio ? (
                   <AudioPlayer
                     audio={uploadedAudio}
                     onRemove={() => setUploadedAudio(null)}
@@ -405,7 +580,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                       Upload Speech Audio
                     </h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Audio: MP3, WAV Up to 20MB
+                      Audio: MP3, WAV, WebM Up to 20MB
                     </p>
                     <p className="text-xs text-muted-foreground mt-3">
                       Drag and drop or click to browse
@@ -416,7 +591,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".mp3,.wav,audio/mpeg,audio/wav"
+                  accept="audio/*"
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -432,11 +607,12 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                     onClick={isRecording ? stopRecording : startRecording}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    disabled={isUploading}
                     className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
                       isRecording
                         ? 'bg-red-500 hover:bg-red-600'
                         : 'bg-emerald-500 hover:bg-emerald-600'
-                    }`}
+                    } disabled:opacity-50`}
                   >
                     {isRecording ? (
                       <Square className="w-6 h-6 text-white fill-white" />
@@ -464,8 +640,9 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                       <p className="text-sm font-medium text-foreground">Recording complete</p>
                       <p className="text-sm text-muted-foreground">{formatTime(recordingTime)}</p>
                       <button
-                        onClick={() => setIsPlayingRecording(!isPlayingRecording)}
-                        className="mt-2 flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors mx-auto"
+                        onClick={playRecordedAudio}
+                        disabled={isUploading}
+                        className="mt-2 flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors mx-auto disabled:opacity-50"
                       >
                         {isPlayingRecording ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                         {isPlayingRecording ? 'Pause' : 'Play'} preview
@@ -474,8 +651,11 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                         onClick={() => {
                           setHasRecording(false);
                           setRecordingTime(0);
+                          setRecordedBlob(null);
+                          setRecordedUrl(null);
                         }}
-                        className="mt-2 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto"
+                        disabled={isUploading}
+                        className="mt-2 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-50"
                       >
                         <RotateCcw className="w-4 h-4" />
                         Record again
@@ -499,17 +679,27 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
             <button
               onClick={handleUseAudio}
               disabled={
+                isUploading ||
                 (activeTab === 'upload' && !uploadedAudio) ||
                 (activeTab === 'record' && !hasRecording)
               }
-              className={`w-full py-3 rounded-xl font-medium transition-all ${
-                (activeTab === 'upload' && uploadedAudio) ||
-                (activeTab === 'record' && hasRecording)
+              className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                !isUploading && (
+                  (activeTab === 'upload' && uploadedAudio) ||
+                  (activeTab === 'record' && hasRecording)
+                )
                   ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
                   : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
             >
-              Use This Audio
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                'Use This Audio'
+              )}
             </button>
           </div>
         </motion.div>
