@@ -360,6 +360,50 @@ serve(async (req) => {
         body: JSON.stringify(soraPayload),
       });
 
+    } else if (model === 'sora-2-i2v') {
+      // Sora 2 Image-to-Video model
+      console.log("Using Sora 2 Image-to-Video API");
+
+      if (!imageUrls || imageUrls.length === 0) {
+        throw new Error("image_url is required for Sora 2 image-to-video");
+      }
+
+      // Convert aspect ratio to Sora format
+      let soraAspectRatio = 'landscape';
+      if (aspectRatio === '9:16') {
+        soraAspectRatio = 'portrait';
+      }
+
+      // Parse duration to valid n_frames value (10 or 15)
+      let nFrames = '10';
+      const durationNum = parseInt(duration) || 10;
+      if (durationNum > 10) {
+        nFrames = '15';
+      }
+
+      const sora2I2vPayload: any = {
+        model: 'sora-2-image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt.substring(0, 10000),
+          image_urls: imageUrls,
+          aspect_ratio: soraAspectRatio,
+          n_frames: nFrames,
+          remove_watermark: true
+        }
+      };
+
+      console.log("Sora 2 I2V API payload:", JSON.stringify(sora2I2vPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sora2I2vPayload),
+      });
+
     } else if (model === 'kling-2.5') {
       // Kling 2.5 supports both text-to-video and image-to-video
       const hasReferenceImage = imageUrls && imageUrls.length > 0;
