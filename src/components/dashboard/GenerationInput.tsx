@@ -81,9 +81,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [generatedContent, setGeneratedContent] = useState<any[]>([]);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   
-  // Animate mode dropdown state
+  // Animate mode dropdown state (Video)
   const [selectedAnimateMode, setSelectedAnimateMode] = useState('Animate');
   const [isAnimateModeDropdownOpen, setIsAnimateModeDropdownOpen] = useState(false);
+  
+  // Create mode dropdown state (Image)
+  const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
+  const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -97,12 +101,19 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Presentation', label: 'Presentation', icon: Presentation },
   ];
   
+  const createModes = [
+    { value: 'Create', label: 'Create', icon: Sparkles },
+    { value: 'Draw', label: 'Draw', icon: Pencil },
+    { value: 'Swap', label: 'Swap', icon: RefreshCw },
+    { value: 'Photoshoot', label: 'Photoshoot', icon: Image },
+  ];
+  
   // Resizable prompt box (both directions)
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
     minHeight: 80,
     maxHeight: 400,
     initialHeight: 100,
-    minWidth: 850,
+    minWidth: 920,
     maxWidth: 1600,
     resizeDirection: 'both',
   });
@@ -1119,11 +1130,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   {/* Animate Mode Dropdown */}
                   <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
                     <PopoverTrigger asChild>
-                      <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                        selectedAnimateMode !== 'Animate' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'bg-muted hover:bg-muted/80'
-                      }`}>
+                      <button className="px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-emerald-500 hover:bg-emerald-600 text-white">
                         {(() => {
                           const mode = animateModes.find(m => m.value === selectedAnimateMode);
                           const IconComponent = mode?.icon || Play;
@@ -1726,6 +1733,43 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             ) : (
               <>
                 {/* Image Mode Controls */}
+                {/* Create Mode Dropdown */}
+                <Popover open={isCreateModeDropdownOpen} onOpenChange={setIsCreateModeDropdownOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-emerald-500 hover:bg-emerald-600 text-white">
+                      {(() => {
+                        const mode = createModes.find(m => m.value === selectedCreateMode);
+                        const IconComponent = mode?.icon || Sparkles;
+                        return <IconComponent size={14} />;
+                      })()}
+                      {selectedCreateMode}
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
+                    <div className="space-y-1">
+                      {createModes.map((mode) => {
+                        const IconComponent = mode.icon;
+                        return (
+                          <button
+                            key={mode.value}
+                            onClick={() => {
+                              setSelectedCreateMode(mode.value);
+                              setIsCreateModeDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
+                              selectedCreateMode === mode.value ? 'bg-secondary' : ''
+                            }`}
+                          >
+                            <IconComponent size={16} />
+                            {mode.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
                     <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
