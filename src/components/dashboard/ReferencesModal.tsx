@@ -169,10 +169,11 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
       if (isSelected) {
         return prev.filter(img => img.id !== image.id);
       }
-      if (prev.length < 6) {
+      // Allow up to 14 images (max supported by Seedream)
+      if (prev.length < 14) {
         return [...prev, image];
       }
-      toast.error("Maximum 6 images allowed");
+      toast.error("Maximum 14 images allowed");
       return prev;
     });
   };
@@ -443,9 +444,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
           >
             {selectedImages.length > 0 ? (
               <div className="flex flex-col items-center justify-center">
-                <h3 className="text-lg font-semibold text-white mb-6 self-start">Selected Images ({selectedImages.length}/6)</h3>
-                <div className="grid grid-cols-2 gap-6 justify-items-center items-center">
-                  {selectedImages.slice(0, 6).map((image, index) => (
+                <h3 className="text-lg font-semibold text-white mb-6 self-start">Selected Images ({selectedImages.length}/14)</h3>
+                <div className="grid grid-cols-2 gap-6 justify-items-center items-center max-h-[400px] overflow-y-auto">
+                  {selectedImages.map((image, index) => (
                     <div
                       key={image.id}
                       className="relative rounded-lg overflow-hidden border-2 border-primary"
@@ -476,7 +477,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 </div>
                 
                 <h3 className="text-xl font-semibold text-white mb-3">
-                  {isDragging ? 'Drop Images Here' : 'Upload Up To 6 Images'}
+                  {isDragging ? 'Drop Images Here' : 'Upload Up To 14 Images'}
                 </h3>
                 <p className="text-gray-400 mb-2">
                   {isDragging 
