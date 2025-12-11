@@ -111,6 +111,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
   
+  // UGC product and style reference images
+  const [ugcProductImage, setUgcProductImage] = useState<{ url: string; name: string } | null>(null);
+  const [ugcStyleImage, setUgcStyleImage] = useState<{ url: string; name: string } | null>(null);
+  const [isUploadingUgcProduct, setIsUploadingUgcProduct] = useState(false);
+  const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
+  
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
@@ -948,6 +954,138 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   };
 
+  // UGC Product image upload handler
+  const handleUgcProductUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingUgcProduct(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        setUgcProductImage({
+          url: data?.referenceImage?.image_url,
+          name: file.name
+        });
+
+        toast({
+          title: "Success",
+          description: "Product image uploaded",
+        });
+        setIsUploadingUgcProduct(false);
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading product:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload product image",
+        variant: "destructive",
+      });
+      setIsUploadingUgcProduct(false);
+    }
+  };
+
+  // UGC Style reference image upload handler
+  const handleUgcStyleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingUgcStyle(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        setUgcStyleImage({
+          url: data?.referenceImage?.image_url,
+          name: file.name
+        });
+
+        toast({
+          title: "Success",
+          description: "Style reference uploaded",
+        });
+        setIsUploadingUgcStyle(false);
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading style:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload style reference",
+        variant: "destructive",
+      });
+      setIsUploadingUgcStyle(false);
+    }
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1152,7 +1290,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               }}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'Avatar Video') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : "Describe what you want to create..."}
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'Avatar Video') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
@@ -1547,27 +1685,101 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                         </TooltipContent>
                       </Tooltip>
 
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <Package size={14} />
-                        Product
-                      </button>
+                      {/* Product Image Upload */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            ugcProductImage 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {isUploadingUgcProduct ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Package size={14} />
+                            )}
+                            {ugcProductImage ? 'Product ✓' : 'Product'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Upload Product Image</p>
+                            {ugcProductImage ? (
+                              <div className="space-y-2">
+                                <div className="relative">
+                                  <img src={ugcProductImage.url} alt="Product" className="w-full h-24 object-cover rounded-md" />
+                                  <button 
+                                    onClick={() => setUgcProductImage(null)}
+                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                                <p className="text-xs text-muted-foreground truncate">{ugcProductImage.name}</p>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={20} className="text-muted-foreground mb-2" />
+                                <span className="text-xs text-muted-foreground">Click to upload product</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  className="hidden" 
+                                  onChange={handleUgcProductUpload}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
-                      <button
-                        onClick={() => onReferencesClick?.()}
-                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
-                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                            : 'bg-muted hover:bg-muted/80'
-                        }`}
-                      >
-                        <Upload size={14} />
-                        Reference
-                        {videoModeState.references.length > 0 && (
-                          <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs font-medium">
-                            {videoModeState.references.length}
-                          </span>
-                        )}
-                      </button>
+                      {/* Style Reference Upload */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            ugcStyleImage 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {isUploadingUgcStyle ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Upload size={14} />
+                            )}
+                            {ugcStyleImage ? 'Style ✓' : 'Style Ref'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Upload Style Reference</p>
+                            {ugcStyleImage ? (
+                              <div className="space-y-2">
+                                <div className="relative">
+                                  <img src={ugcStyleImage.url} alt="Style" className="w-full h-24 object-cover rounded-md" />
+                                  <button 
+                                    onClick={() => setUgcStyleImage(null)}
+                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                                <p className="text-xs text-muted-foreground truncate">{ugcStyleImage.name}</p>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={20} className="text-muted-foreground mb-2" />
+                                <span className="text-xs text-muted-foreground">Click to upload style reference</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  className="hidden" 
+                                  onChange={handleUgcStyleUpload}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       <Popover>
                         <PopoverTrigger asChild>
