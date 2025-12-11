@@ -115,6 +115,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
     { value: 'Talking', label: 'Talking', icon: MessageCircle },
+    { value: 'Avatar Video', label: 'Avatar Video', icon: User },
     { value: 'UGC', label: 'UGC', icon: Video },
     { value: 'Recast', label: 'Recast', icon: RefreshCw },
     { value: 'VSL', label: 'VSL', icon: Film },
@@ -473,8 +474,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
-    // In UGC mode, check ugcScriptText; otherwise check prompt
-    const effectivePrompt = (isVideoMode && selectedAnimateMode === 'UGC') ? ugcScriptText : prompt;
+    // In Avatar Video mode, check ugcScriptText; otherwise check prompt
+    const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
     if (!effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
@@ -494,13 +495,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       onGenerationStart?.();
       
       try {
-        // Check if UGC mode requires audio
-        // UGC mode requires character and script
-        if (selectedAnimateMode === 'UGC') {
+        // Check if Avatar Video mode requires audio
+        // Avatar Video mode requires character and script
+        if (selectedAnimateMode === 'Avatar Video') {
           if (!currentCharacters.length) {
             toast({
               title: "Character required",
-              description: "Please select a character for your UGC video",
+              description: "Please select a character for your Avatar Video",
               variant: "destructive",
             });
             setIsGenerating(false);
@@ -550,12 +551,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
         
-        // Use selected UGC model for UGC mode
-        const effectiveModel = selectedAnimateMode === 'UGC' ? ugcModel : videoModel;
+        // Use selected UGC model for Avatar Video mode
+        const effectiveModel = selectedAnimateMode === 'Avatar Video' ? ugcModel : videoModel;
 
         // Build request body
         const requestBody: any = { 
-          prompt: selectedAnimateMode === 'UGC' ? ugcScriptText.trim() : prompt.trim(),
+          prompt: selectedAnimateMode === 'Avatar Video' ? ugcScriptText.trim() : prompt.trim(),
           imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
           model: effectiveModel,
           aspectRatio: videoAspectRatio,
@@ -567,8 +568,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           characterImageUrl: primaryCharacter?.image_url || primaryCharacter?.image || ''
         };
 
-        // For UGC mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated or audio was uploaded)
-        if (selectedAnimateMode === 'UGC') {
+        // For Avatar Video mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated or audio was uploaded)
+        if (selectedAnimateMode === 'Avatar Video') {
           // Priority: 1. Uploaded/recorded audio, 2. Voice preview audio, 3. Auto-generate from voice settings
           if (uploadedAudio?.url) {
             // Use uploaded or recorded audio
@@ -593,13 +594,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         toast({
           title: "Video generating!",
-          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with ${ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : 'Wan Avatar'}. This may take a few minutes.`,
+          description: `Your ${selectedAnimateMode === 'Avatar Video' ? 'Avatar' : ''} video is being created with ${ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : 'Wan Avatar'}. This may take a few minutes.`,
         });
 
         console.log("Video generation started:", data);
         
-        // Clear UGC state after successful generation
-        if (selectedAnimateMode === 'UGC') {
+        // Clear Avatar Video state after successful generation
+        if (selectedAnimateMode === 'Avatar Video') {
           setUgcAudioUrl(null);
           setUploadedAudio(null);
         }
@@ -749,8 +750,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const handleAutoPrompt = async () => {
     setIsEnhancing(true);
     try {
-      // Check if we're in UGC mode
-      const isUGCMode = isVideoMode && selectedAnimateMode === 'UGC';
+      // Check if we're in Avatar Video mode
+      const isUGCMode = isVideoMode && selectedAnimateMode === 'Avatar Video';
       
       // Get active characters and references based on content type
       const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
@@ -788,7 +789,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           setUgcScriptText(data.suggestion);
           toast({
             title: "Script generated",
-            description: "A creative voice script has been generated for your UGC video.",
+            description: "A creative voice script has been generated for your Avatar Video.",
           });
         } else {
           setPrompt(data.suggestion);
@@ -1020,7 +1021,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
-                  selectedAnimateMode === 'UGC' ? (
+                  selectedAnimateMode === 'Avatar Video' ? (
                     <>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -1137,9 +1138,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             <textarea 
-              value={isVideoMode && selectedAnimateMode === 'UGC' ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) : prompt}
+              value={isVideoMode && selectedAnimateMode === 'Avatar Video' ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) : prompt}
               onChange={(e) => {
-                if (isVideoMode && selectedAnimateMode === 'UGC') {
+                if (isVideoMode && selectedAnimateMode === 'Avatar Video') {
                   if (selectedUGCButton === 'Scene') {
                     setUgcSceneText(e.target.value);
                   } else {
@@ -1151,7 +1152,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               }}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : "Describe what you want to create..."}
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'Avatar Video') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
@@ -1162,8 +1163,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* UGC Character Box - Show only in UGC mode when a character is selected */}
-        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && (
+        {/* UGC Character Box - Show only in Avatar Video mode when a character is selected */}
+        {isVideoMode && selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0 && (
           <UGCCharacterBox
             character={videoModeState.characters[0]}
             script={ugcScriptText}
@@ -1260,8 +1261,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only when frames exist, hidden in UGC mode when character is selected */}
-        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0) && (
+        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video mode when character is selected */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0) && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
@@ -1376,9 +1377,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     </PopoverContent>
                   </Popover>
 
-                  {selectedAnimateMode === 'UGC' ? (
+                  {selectedAnimateMode === 'Avatar Video' ? (
                     <>
-                      {/* UGC Mode Controls - Model dropdown for Wan/Kling Avatar */}
+                      {/* Avatar Video Mode Controls - Model dropdown for Wan/Kling Avatar */}
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
@@ -2948,7 +2949,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <TooltipTrigger asChild>
                   <button 
                     onClick={handleGenerate}
-                    disabled={isGenerating || (selectedAnimateMode === 'UGC' ? !ugcScriptText.trim() : !prompt.trim())}
+                    disabled={isGenerating || (selectedAnimateMode === 'Avatar Video' ? !ugcScriptText.trim() : !prompt.trim())}
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGenerating ? (
