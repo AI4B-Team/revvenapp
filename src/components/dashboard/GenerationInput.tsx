@@ -1005,7 +1005,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Write what you want your character to say...(e.g., "Hey there! This product changed my life")' : "Describe what you want to create..."}
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")' : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
