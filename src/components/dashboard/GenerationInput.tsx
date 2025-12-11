@@ -2893,7 +2893,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                 <TooltipTrigger asChild>
                   <button 
                     onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim()}
+                    disabled={isGenerating || (selectedAnimateMode === 'UGC' ? !ugcScriptText.trim() : !prompt.trim())}
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGenerating ? (
