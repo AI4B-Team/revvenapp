@@ -44,9 +44,9 @@ serve(async (req) => {
       throw new Error("prompt and userId are required");
     }
 
-    // For UGC mode (wan-speech-to-video or kling-ai-avatar), generate voice first if voiceSettings provided
+    // For UGC mode (wan-speech-to-video, kling-ai-avatar, or infinitalk), generate voice first if voiceSettings provided
     let finalAudioUrl = audioUrl;
-    if ((model === 'wan-speech-to-video' || model === 'kling-ai-avatar') && voiceSettings && !audioUrl) {
+    if ((model === 'wan-speech-to-video' || model === 'kling-ai-avatar' || model === 'infinitalk') && voiceSettings && !audioUrl) {
       console.log("UGC mode: Auto-generating voice with ElevenLabs...");
       
       const { voice = 'Rachel', text, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1, use_speaker_boost = true } = voiceSettings;
@@ -247,6 +247,39 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(klingAvatarPayload),
+      });
+
+    } else if (model === 'infinitalk') {
+      // Infinitalk model for Avatar Video
+      console.log("Using Infinitalk API for Avatar Video");
+
+      if (!imageUrls || imageUrls.length === 0) {
+        throw new Error("image_url is required for Infinitalk");
+      }
+      if (!finalAudioUrl) {
+        throw new Error("audio_url is required for Infinitalk");
+      }
+
+      const infinitalkPayload: any = {
+        model: 'infinitalk/from-audio',
+        callBackUrl: callbackUrl,
+        input: {
+          image_url: imageUrls[0],
+          audio_url: finalAudioUrl,
+          prompt: prompt.substring(0, 5000),
+          resolution: '720p'
+        }
+      };
+
+      console.log("Infinitalk API payload:", JSON.stringify(infinitalkPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(infinitalkPayload),
       });
 
     } else if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
