@@ -44,106 +44,12 @@ serve(async (req) => {
       throw new Error("prompt and userId are required");
     }
 
-    // For UGC mode (wan-speech-to-video, kling-ai-avatar, or infinitalk), generate voice first if voiceSettings provided
-    let finalAudioUrl = audioUrl;
-    if ((model === 'wan-speech-to-video' || model === 'kling-ai-avatar' || model === 'infinitalk') && voiceSettings && !audioUrl) {
-      console.log("UGC mode: Auto-generating voice with ElevenLabs...");
-      
-      const { voice = 'Rachel', text, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1, use_speaker_boost = true } = voiceSettings;
-      const clampedSpeed = Math.round(Math.max(0.7, Math.min(1.19, speed)) * 100) / 100;
-      
-      // Limit text to ~15 seconds of speech (approximately 150 words or 600 characters)
-      // Avatar video models have a 15-second audio limit
-      const MAX_CHARS_FOR_15_SEC = 600;
-      let ttsText = text || prompt;
-      if (ttsText.length > MAX_CHARS_FOR_15_SEC) {
-        console.log(`Truncating script from ${ttsText.length} to ${MAX_CHARS_FOR_15_SEC} chars for 15s audio limit`);
-        ttsText = ttsText.substring(0, MAX_CHARS_FOR_15_SEC).trim();
-        // Try to end at a sentence or word boundary
-        const lastSentence = ttsText.lastIndexOf('.');
-        const lastSpace = ttsText.lastIndexOf(' ');
-        if (lastSentence > MAX_CHARS_FOR_15_SEC * 0.7) {
-          ttsText = ttsText.substring(0, lastSentence + 1);
-        } else if (lastSpace > MAX_CHARS_FOR_15_SEC * 0.8) {
-          ttsText = ttsText.substring(0, lastSpace);
-        }
-      }
-      console.log(`Final TTS text length: ${ttsText.length} chars`);
-      
-      // Call KIE.AI TTS API to generate voice
-      const ttsResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${kieApiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'elevenlabs/text-to-speech-multilingual-v2',
-          input: {
-            text: ttsText,
-            voice,
-            stability,
-            similarity_boost,
-            style,
-            speed: clampedSpeed,
-            use_speaker_boost,
-            timestamps: false,
-          },
-        }),
-      });
-
-      if (!ttsResponse.ok) {
-        const errorText = await ttsResponse.text();
-        console.error('TTS API error:', errorText);
-        throw new Error(`Voice generation failed: ${ttsResponse.status}`);
-      }
-
-      const ttsResult = await ttsResponse.json();
-      console.log('TTS task created:', ttsResult);
-
-      if (ttsResult.code !== 200) {
-        throw new Error(ttsResult.message || 'Failed to create TTS task');
-      }
-
-      const ttsTaskId = ttsResult.data.taskId;
-
-      // Poll for TTS completion
-      let ttsAttempts = 0;
-      const maxTtsAttempts = 30;
-      
-      while (ttsAttempts < maxTtsAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const statusResponse = await fetch(
-          `https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${ttsTaskId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${kieApiKey}`,
-            },
-          }
-        );
-
-        const statusResult = await statusResponse.json();
-        console.log(`TTS poll attempt ${ttsAttempts + 1}, state: ${statusResult.data?.state}`);
-
-        if (statusResult.data?.state === 'success') {
-          const resultJson = JSON.parse(statusResult.data.resultJson);
-          finalAudioUrl = resultJson.resultUrls?.[0];
-          
-          if (finalAudioUrl) {
-            console.log("Voice generated successfully:", finalAudioUrl);
-            break;
-          }
-        } else if (statusResult.data?.state === 'fail') {
-          throw new Error(statusResult.data.failMsg || 'Voice generation failed');
-        }
-
-        ttsAttempts++;
-      }
-
-      if (!finalAudioUrl) {
-        throw new Error('Voice generation timed out');
-      }
+    // For UGC mode, we now just pass the prompt directly to Veo 3
+    // Redirect UGC models to use veo3_fast
+    let effectiveModel = model;
+    if (model === 'wan-speech-to-video' || model === 'kling-ai-avatar' || model === 'infinitalk') {
+      console.log(`UGC mode: Redirecting ${model} to veo3_fast with prompt`);
+      effectiveModel = 'veo3_fast';
     }
 
     console.log("Creating ai_videos record...");
@@ -185,122 +91,8 @@ serve(async (req) => {
     let apiResponse;
     let taskId;
 
-    // Check if this is a Wan Speech-to-Video model (for UGC)
-    if (model === 'wan-speech-to-video') {
-      console.log("Using Wan 2.2 Speech-to-Video API for UGC");
-
-      if (!imageUrls || imageUrls.length === 0) {
-        throw new Error("image_url is required for speech-to-video");
-      }
-      if (!finalAudioUrl) {
-        throw new Error("audio_url is required for speech-to-video");
-      }
-
-      // Calculate num_frames based on duration (must be 40-120, multiple of 4)
-      // Default to 80 frames (~5 seconds at 16fps)
-      let numFrames = 80;
-      const durationNum = parseInt(duration) || 5;
-      if (durationNum <= 3) {
-        numFrames = 48; // ~3 seconds
-      } else if (durationNum <= 5) {
-        numFrames = 80; // ~5 seconds
-      } else if (durationNum <= 7) {
-        numFrames = 112; // ~7 seconds
-      } else {
-        numFrames = 120; // max ~7.5 seconds
-      }
-
-      const wanSpeechPayload: any = {
-        model: 'wan/2-2-a14b-speech-to-video-turbo',
-        callBackUrl: callbackUrl,
-        input: {
-          prompt: prompt.substring(0, 5000),
-          image_url: imageUrls[0],
-          audio_url: finalAudioUrl,
-          num_frames: numFrames,
-          frames_per_second: 16,
-          resolution: '720p',
-          enable_safety_checker: true
-        }
-      };
-
-      console.log("Wan Speech-to-Video API payload:", JSON.stringify(wanSpeechPayload, null, 2));
-
-      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${kieApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(wanSpeechPayload),
-      });
-
-    } else if (model === 'kling-ai-avatar') {
-      // Kling Avatar Pro model for UGC
-      console.log("Using Kling Avatar Pro API for UGC");
-
-      if (!imageUrls || imageUrls.length === 0) {
-        throw new Error("image_url is required for Kling Avatar");
-      }
-      if (!finalAudioUrl) {
-        throw new Error("audio_url is required for Kling Avatar");
-      }
-
-      const klingAvatarPayload: any = {
-        model: 'kling/ai-avatar-v1-pro',
-        callBackUrl: callbackUrl,
-        input: {
-          image_url: imageUrls[0],
-          audio_url: finalAudioUrl,
-          prompt: prompt.substring(0, 5000)
-        }
-      };
-
-      console.log("Kling Avatar API payload:", JSON.stringify(klingAvatarPayload, null, 2));
-
-      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${kieApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(klingAvatarPayload),
-      });
-
-    } else if (model === 'infinitalk') {
-      // Infinitalk model for Avatar Video
-      console.log("Using Infinitalk API for Avatar Video");
-
-      if (!imageUrls || imageUrls.length === 0) {
-        throw new Error("image_url is required for Infinitalk");
-      }
-      if (!finalAudioUrl) {
-        throw new Error("audio_url is required for Infinitalk");
-      }
-
-      const infinitalkPayload: any = {
-        model: 'infinitalk/from-audio',
-        callBackUrl: callbackUrl,
-        input: {
-          image_url: imageUrls[0],
-          audio_url: finalAudioUrl,
-          prompt: prompt.substring(0, 5000),
-          resolution: '720p'
-        }
-      };
-
-      console.log("Infinitalk API payload:", JSON.stringify(infinitalkPayload, null, 2));
-
-      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${kieApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(infinitalkPayload),
-      });
-
-    } else if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
+    // UGC models are now redirected to veo3_fast via effectiveModel
+    if (effectiveModel === 'sora-2-pro' || effectiveModel === 'sora-2-pro-storyboard') {
       // Use the /api/v1/jobs/createTask endpoint for Sora 2 Pro
       console.log("Using Sora 2 Pro API");
 
@@ -360,7 +152,7 @@ serve(async (req) => {
         body: JSON.stringify(soraPayload),
       });
 
-    } else if (model === 'sora-2-i2v') {
+    } else if (effectiveModel === 'sora-2-i2v') {
       // Sora 2 Image-to-Video model
       console.log("Using Sora 2 Image-to-Video API");
 
@@ -404,7 +196,7 @@ serve(async (req) => {
         body: JSON.stringify(sora2I2vPayload),
       });
 
-    } else if (model === 'kling-2.5') {
+    } else if (effectiveModel === 'kling-2.5') {
       // Kling 2.5 supports both text-to-video and image-to-video
       const hasReferenceImage = imageUrls && imageUrls.length > 0;
       const klingModel = hasReferenceImage 
@@ -467,7 +259,7 @@ serve(async (req) => {
         body: JSON.stringify(klingPayload),
       });
 
-    } else if (model === 'kling-2.1') {
+    } else if (effectiveModel === 'kling-2.1') {
       // Use the /api/v1/jobs/createTask endpoint for Kling 2.1 (image-to-video)
       console.log("Using Kling 2.1 API");
 
@@ -506,7 +298,7 @@ serve(async (req) => {
         body: JSON.stringify(klingPayload),
       });
 
-    } else if (model === 'wan-2.5') {
+    } else if (effectiveModel === 'wan-2.5') {
       // Use the /api/v1/jobs/createTask endpoint for Wan 2.5 (image-to-video)
       console.log("Using Wan 2.5 API");
 
@@ -546,7 +338,7 @@ serve(async (req) => {
         body: JSON.stringify(wanPayload),
       });
 
-    } else if (model === 'wan-2.2') {
+    } else if (effectiveModel === 'wan-2.2') {
       // Wan 2.2 supports both text-to-video and image-to-video
       const hasReferenceImage = imageUrls && imageUrls.length > 0;
       const wanModel = hasReferenceImage 
@@ -594,7 +386,7 @@ serve(async (req) => {
         body: JSON.stringify(wanPayload),
       });
 
-    } else if (model === 'hailuo-2.3') {
+    } else if (effectiveModel === 'hailuo-2.3') {
       // Use the /api/v1/jobs/createTask endpoint for Hailuo 2.3 (image-to-video)
       console.log("Using Hailuo 2.3 API");
 
@@ -632,7 +424,7 @@ serve(async (req) => {
         body: JSON.stringify(hailuoPayload),
       });
 
-    } else if (model === 'bytedance-v1') {
+    } else if (effectiveModel === 'bytedance-v1') {
       // Use the /api/v1/jobs/createTask endpoint for Bytedance V1 Pro (image-to-video)
       console.log("Using Bytedance V1 Pro API");
 
@@ -676,7 +468,7 @@ serve(async (req) => {
 
       const veoPayload: any = {
         prompt,
-        model,
+        model: effectiveModel,
         aspectRatio,
         callBackUrl: callbackUrl,
         enableTranslation: true
