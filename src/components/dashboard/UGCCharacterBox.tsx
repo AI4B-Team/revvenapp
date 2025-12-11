@@ -563,40 +563,40 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
 
   return (
     <>
-      <div className="flex items-center gap-3 mt-4 mb-2">
-        <div className="relative flex items-center gap-3 p-2 bg-background border border-border rounded-xl flex-1">
+      <div className="flex items-center gap-2 mt-4 mb-2">
+        <div className="relative flex items-center gap-2 p-2 bg-background border border-border rounded-xl">
           {/* Avatar */}
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900 dark:to-cyan-900 flex items-center justify-center overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900 dark:to-cyan-900 flex items-center justify-center overflow-hidden flex-shrink-0">
             {characterImage ? (
               <img src={characterImage} alt={character.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-2xl">👩</span>
+              <span className="text-xl">👩</span>
             )}
           </div>
 
-          {/* Voice Selector */}
+          {/* Voice Selector with darker background */}
           <button
             onClick={() => setShowVoiceLibrary(true)}
-            className="flex items-center gap-2 px-3 py-1.5 hover:bg-muted rounded-lg transition-colors"
+            className="flex items-center gap-2 px-2 py-1 bg-muted/70 hover:bg-muted rounded-md transition-colors"
           >
-            <AudioLines className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">{selectedVoice.name}</span>
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <AudioLines className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-foreground">{selectedVoice.name}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-0.5">
             <button
               onClick={() => setShowVoiceSettings(!showVoiceSettings)}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-1.5 hover:bg-muted rounded-md transition-colors"
             >
-              <MoreVertical className="w-4 h-4 text-muted-foreground" />
+              <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
             <button
               onClick={onDelete}
-              className="p-2 hover:bg-destructive/10 rounded-lg transition-colors group"
+              className="p-1.5 hover:bg-destructive/10 rounded-md transition-colors group"
             >
-              <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
+              <Trash2 className="w-3.5 h-3.5 text-muted-foreground group-hover:text-destructive" />
             </button>
           </div>
 
@@ -621,7 +621,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={handlePlayAudio}
               disabled={isGeneratingAudio}
-              className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
+              className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all flex-shrink-0 ${
                 isGeneratingAudio || isPlayingPreview
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
                   : 'bg-emerald-500 hover:bg-emerald-600 text-white'
@@ -631,21 +631,21 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full"
+                  className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full"
                 />
               ) : isPlayingPreview ? (
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3].map((i) => (
                     <motion.div
                       key={i}
-                      animate={{ height: [4, 12, 4] }}
+                      animate={{ height: [3, 10, 3] }}
                       transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.1 }}
-                      className="w-1 bg-emerald-600 rounded-full"
+                      className="w-0.5 bg-emerald-600 rounded-full"
                     />
                   ))}
                 </div>
               ) : (
-                <Play className="w-5 h-5 ml-0.5" />
+                <Play className="w-4 h-4 ml-0.5" />
               )}
             </motion.button>
           )}
