@@ -572,7 +572,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
       const stability = voiceSettings.stability / 100;
       const similarity_boost = voiceSettings.clarity / 100;
       const style = voiceSettings.styleExaggeration / 100;
-      const speed = 0.7 + (voiceSettings.speed / 100) * 0.5; // Map 0-100 to 0.7-1.2
+      const speed = 0.7 + (voiceSettings.speed / 100) * 0.49; // Map 0-100 to 0.7-1.19
       const use_speaker_boost = voiceSettings.speakerBoost;
 
       const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
