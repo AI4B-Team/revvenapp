@@ -351,7 +351,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
             <div className="w-8 h-8 bg-brand-pink rounded flex items-center justify-center text-sm font-bold text-white">
               X
             </div>
-            <span className="flex-1 text-left text-sm font-medium">Xalina Voss</span>
+            <span className="flex-1 text-left text-sm font-medium">Digital Influencer</span>
             <ChevronDown size={16} className={`transition-transform text-sidebar-muted ${isBrandsDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
         
