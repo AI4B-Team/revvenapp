@@ -1605,12 +1605,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                             </button>
                           </div>
                         </PopoverContent>
-                      </Popover>
-
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <Captions size={14} />
-                        Captions
-                      </button>
+                        </Popover>
                     </>
                   ) : (
                     <>
