@@ -1,5 +1,6 @@
 import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
+import AudioUploadModal from './AudioUploadModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +93,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
+  
+  // Audio upload modal state
+  const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
+  const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -927,8 +932,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition">
-                            <AudioLines size={18} className="text-muted-foreground" />
+                          <button 
+                            onClick={() => setIsAudioUploadModalOpen(true)}
+                            className={`rounded-lg p-2 transition ${
+                              uploadedAudio 
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                : 'bg-muted hover:bg-muted/80'
+                            }`}
+                          >
+                            <AudioLines size={18} className={uploadedAudio ? 'text-white' : 'text-muted-foreground'} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -2901,6 +2913,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         onClose={() => setIsImageToPromptModalOpen(false)}
         onPromptGenerated={(generatedPrompt) => {
           setPrompt(generatedPrompt);
+        }}
+      />
+
+      {/* Audio Upload Modal */}
+      <AudioUploadModal
+        isOpen={isAudioUploadModalOpen}
+        onClose={() => setIsAudioUploadModalOpen(false)}
+        onUseAudio={(audio) => {
+          setUploadedAudio(audio);
+          setIsAudioUploadModalOpen(false);
         }}
       />
     </div>
