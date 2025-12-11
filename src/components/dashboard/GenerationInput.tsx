@@ -262,13 +262,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode]);
 
-  // Auto-select valid model when entering Swap or Photoshoot mode
+  // Auto-select valid model when entering Swap, Photoshoot, or Draw mode
   useEffect(() => {
     // Swap mode: allows nano-banana-pro and seedream-4
     // Photoshoot mode: only allows nano-banana-pro
+    // Draw mode: allows nano-banana-pro, nano-banana, seedream-4, seedream-4.5
+    const drawModeModels = ['nano-banana-pro', 'nano-banana', 'seedream-4', 'seedream-4.5'];
     if (selectedCreateMode === 'Swap' && !['nano-banana-pro', 'seedream-4'].includes(selectedModel)) {
       setSelectedModel('nano-banana-pro');
     } else if (selectedCreateMode === 'Photoshoot' && selectedModel !== 'nano-banana-pro') {
+      setSelectedModel('nano-banana-pro');
+    } else if (selectedCreateMode === 'Draw' && !drawModeModels.includes(selectedModel)) {
       setSelectedModel('nano-banana-pro');
     }
   }, [selectedCreateMode]);
@@ -2108,23 +2112,25 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50 max-h-[400px] overflow-y-auto" align="start">
                 <div className="space-y-1 p-2">
-                  {/* Swap/Photoshoot mode models - only Nano Banana Pro and Seedream 4.0 */}
-                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot') && (
+                  {/* Swap/Photoshoot/Draw mode models - restricted selection */}
+                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot' || selectedCreateMode === 'Draw') && (
                     <div className="px-4 py-2 bg-orange-500/10 rounded-lg mb-2">
-                      <p className="text-xs font-medium text-orange-600">{selectedCreateMode === 'Swap' ? 'Face Swap Mode' : 'Photoshoot Mode'}</p>
+                      <p className="text-xs font-medium text-orange-600">
+                        {selectedCreateMode === 'Swap' ? 'Face Swap Mode' : selectedCreateMode === 'Photoshoot' ? 'Photoshoot Mode' : 'Draw Mode'}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-0.5">Only compatible models are available</p>
                     </div>
                   )}
                   
-                  {(selectedReferences.length > 0 || selectedCharacters.length > 0) && selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && (
+                  {(selectedReferences.length > 0 || selectedCharacters.length > 0) && selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && (
                     <div className="px-4 py-2 bg-primary/10 rounded-lg mb-2">
                       <p className="text-xs font-medium text-primary">Image-to-Image Mode Active</p>
                       <p className="text-xs text-muted-foreground mt-0.5">Only models supporting img-to-img are shown</p>
                     </div>
                   )}
                   
-                  {/* Auto - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('auto')) && (
+                  {/* Auto - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('auto')) && (
                     <button 
                       onClick={() => {
                         handleModelChange('auto');
@@ -2150,8 +2156,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     </button>
                   )}
 
-                  {/* Flux Pro - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-pro')) && (
+                  {/* Flux Pro - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-pro')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-pro');
@@ -2176,8 +2182,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Flux Max - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-max')) && (
+                  {/* Flux Max - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('flux-max')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('flux-max');
@@ -2203,8 +2209,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* GPT-4o Image - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('gpt-4o-image')) && (
+                  {/* GPT-4o Image - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('gpt-4o-image')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('gpt-4o-image');
@@ -2233,8 +2239,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Seedream 4.0 - Available in Swap mode only (not Photoshoot) */}
-                  {(selectedCreateMode === 'Swap' || (selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream-4')))) && (
+                  {/* Seedream 4.0 - Available in Swap and Draw modes */}
+                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Draw' || (selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream-4')))) && (
                   <button
                     onClick={() => {
                       handleModelChange('seedream-4');
@@ -2261,8 +2267,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Seedream 4.5 - IMG2IMG only, requires reference image */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && (selectedReferences.length > 0 || selectedCharacters.length > 0) && (
+                  {/* Seedream 4.5 - Available in Draw mode or IMG2IMG with references */}
+                  {(selectedCreateMode === 'Draw' || (selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && (selectedReferences.length > 0 || selectedCharacters.length > 0))) && (
                   <button
                     onClick={() => {
                       handleModelChange('seedream-4.5');
@@ -2286,8 +2292,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Seedream 3.0 - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream')) && (
+                  {/* Seedream 3.0 - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('seedream');
@@ -2309,8 +2315,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Qwen Image - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('qwen')) && (
+                  {/* Qwen Image - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('qwen')) && (
                   <button 
                     onClick={() => {
                       handleModelChange('qwen');
@@ -2332,8 +2338,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Nano Banana - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana')) && (
+                  {/* Nano Banana - Available in Draw mode */}
+                  {(selectedCreateMode === 'Draw' || (selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana')))) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana');
@@ -2361,8 +2367,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Nano Banana Pro - Always visible, available in Swap/Photoshoot mode */}
-                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot' || ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana-pro'))) && (
+                  {/* Nano Banana Pro - Always visible, available in Swap/Photoshoot/Draw mode */}
+                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot' || selectedCreateMode === 'Draw' || ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('nano-banana-pro'))) && (
                   <button
                     onClick={() => {
                       handleModelChange('nano-banana-pro');
@@ -2383,8 +2389,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-foreground text-sm">Nano Banana Pro</span>
                           <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
-                          {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot') && (
-                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">{selectedCreateMode === 'Swap' ? 'SWAP' : 'PHOTO'}</Badge>
+                          {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot' || selectedCreateMode === 'Draw') && (
+                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">{selectedCreateMode === 'Swap' ? 'SWAP' : selectedCreateMode === 'Photoshoot' ? 'PHOTO' : 'DRAW'}</Badge>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">Advanced Gemini 2.5 Image Model</p>
@@ -2393,8 +2399,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Ideogram V3 Edit - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram')) && (
+                  {/* Ideogram V3 Edit - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram');
@@ -2419,8 +2425,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Ideogram Character - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram-character')) && (
+                  {/* Ideogram Character - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('ideogram-character')) && (
                   <button
                     onClick={() => {
                       handleModelChange('ideogram-character');
@@ -2445,8 +2451,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Grok Imagine - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('grok')) && (
+                  {/* Grok Imagine - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('grok')) && (
                   <button
                     onClick={() => {
                       handleModelChange('grok');
@@ -2468,8 +2474,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Imagen 4 Ultra - hidden in Swap/Photoshoot mode */}
-                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('imagen-ultra')) && (
+                  {/* Imagen 4 Ultra - hidden in Swap/Photoshoot/Draw mode */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('imagen-ultra')) && (
                   <button
                     onClick={() => {
                       handleModelChange('imagen-ultra');
