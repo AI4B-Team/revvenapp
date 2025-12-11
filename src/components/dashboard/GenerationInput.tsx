@@ -252,6 +252,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
 
+  // Reset animate mode to 'Animate' when entering video mode
+  useEffect(() => {
+    if (isVideoMode) {
+      setSelectedAnimateMode('Animate');
+    }
+  }, [isVideoMode]);
+
   // Handle external starting frame (e.g., from Animate button in modal)
   // Use a ref to track external frame so it persists across other useEffect resets
   const externalFrameRef = useRef<{ preview: string; name: string } | null>(null);
