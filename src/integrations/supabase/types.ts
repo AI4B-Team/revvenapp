@@ -155,6 +155,7 @@ export type Database = {
           model: string | null
           prompt: string
           reference_image_url: string | null
+          reference_image_urls: string[] | null
           status: string | null
           user_id: string
         }
@@ -170,6 +171,7 @@ export type Database = {
           model?: string | null
           prompt: string
           reference_image_url?: string | null
+          reference_image_urls?: string[] | null
           status?: string | null
           user_id: string
         }
@@ -185,6 +187,7 @@ export type Database = {
           model?: string | null
           prompt?: string
           reference_image_url?: string | null
+          reference_image_urls?: string[] | null
           status?: string | null
           user_id?: string
         }

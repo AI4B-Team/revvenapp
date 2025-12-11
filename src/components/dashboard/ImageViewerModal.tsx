@@ -24,6 +24,7 @@ interface ImageData {
   aspectRatio?: string;
   model?: string;
   referenceImage?: string;
+  referenceImages?: string[];
   timestamp?: string;
   resolution?: string;
 }
@@ -87,11 +88,17 @@ const ImageViewerModal = ({
     prompt: image.prompt || 'A stunning AI-generated creation showcasing beautiful composition and artistic vision.',
     aspectRatio: image.aspectRatio || '16:9',
     model: image.model || 'Nano Banana',
-    referenceImage: image.referenceImage || image.thumbnail,
+    referenceImage: image.referenceImage,
+    referenceImages: image.referenceImages,
     timestamp: image.timestamp || '2 weeks ago',
     resolution: image.resolution || '1344x768 px',
     ...image
   };
+  
+  // Get all reference images to display (prefer array, fallback to single)
+  const displayReferenceImages = imageData.referenceImages && imageData.referenceImages.length > 0 
+    ? imageData.referenceImages 
+    : (imageData.referenceImage ? [imageData.referenceImage] : []);
 
   const socialPlatforms = [
     { name: 'Twitter', icon: '𝕏', color: 'hover:bg-gray-900' },
@@ -378,16 +385,22 @@ const ImageViewerModal = ({
               </div>
             </div>
 
-            {/* Reference Image */}
-            {imageData.referenceImage && (
+            {/* Reference Images */}
+            {displayReferenceImages.length > 0 && (
               <div className="p-4 border-b border-gray-800">
-                <h3 className="text-white font-semibold mb-2 text-sm">Reference</h3>
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-800">
-                  <img
-                    src={imageData.referenceImage}
-                    alt="Reference"
-                    className="w-full h-full object-cover"
-                  />
+                <h3 className="text-white font-semibold mb-2 text-sm">
+                  Reference{displayReferenceImages.length > 1 ? `s (${displayReferenceImages.length})` : ''}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {displayReferenceImages.map((refImg, index) => (
+                    <div key={index} className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-800">
+                      <img
+                        src={refImg}
+                        alt={`Reference ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
