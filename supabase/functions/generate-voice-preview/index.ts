@@ -20,9 +20,9 @@ serve(async (req) => {
       );
     }
 
-    const KIE_API_KEY = Deno.env.get('KIE_API_KEY');
+    const KIE_API_KEY = Deno.env.get('KIE_AI_API_KEY');
     if (!KIE_API_KEY) {
-      throw new Error('KIE_API_KEY is not configured');
+      throw new Error('KIE_AI_API_KEY is not configured');
     }
 
     console.log(`Generating voice preview for voice: ${voice}, text length: ${text.length}`);
