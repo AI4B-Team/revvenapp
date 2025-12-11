@@ -13,8 +13,8 @@ serve(async (req) => {
   try {
     const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, speed: rawSpeed = 1, use_speaker_boost = true } = await req.json();
 
-    // Clamp speed to valid range (0.5 to 2.0) and round to 1 decimal place
-    const speed = Math.round(Math.max(0.5, Math.min(2.0, rawSpeed)) * 10) / 10;
+    // Clamp speed to valid range (0.7 to 1.2) and round to 2 decimal places
+    const speed = Math.round(Math.max(0.7, Math.min(1.2, rawSpeed)) * 100) / 100;
 
     if (!text || !voice) {
       return new Response(
