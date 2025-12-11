@@ -175,6 +175,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     'flux-max',
     'gpt-4o-image',
     'seedream-4',
+    'seedream-4.5',
     'nano-banana',
     'nano-banana-pro',
     'ideogram-character',
@@ -190,9 +191,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     'gpt-4o-image': ['1:1', '3:2', '2:3'], // Native support only
     'qwen': ['1:1', '16:9', '9:16', '4:3', '3:4'],
     'seedream-4': ['1:1', '16:9', '9:16', '4:3', '3:2', '21:9'],
+    'seedream-4.5': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'seedream': ['1:1', '16:9', '9:16', '4:3', '3:4'], // Seedream 3.0: square, square_hd, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9
     'grok': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'nano-banana': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
+    'nano-banana-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'imagen-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'ideogram': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'ideogram-character': ['1:1', '16:9', '9:16', '4:3']
@@ -2048,7 +2051,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       {(selectedModel === 'flux-pro' || selectedModel === 'flux-max') && (
                         <Sparkles size={14} className={selectedModel === 'flux-pro' ? 'text-purple-500' : 'text-indigo-600'} />
                       )}
-                      {(selectedModel === 'seedream-4' || selectedModel === 'seedream') && (
+                      {(selectedModel === 'seedream-4' || selectedModel === 'seedream' || selectedModel === 'seedream-4.5') && (
                         <div className="w-3.5 h-3.5 bg-gradient-to-br from-brand-red to-brand-yellow rounded flex items-center justify-center">
                           <span className="text-white font-bold text-[8px]">S</span>
                         </div>
@@ -2092,6 +2095,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       {selectedModel === 'flux-pro' && 'Flux Pro'}
                       {selectedModel === 'flux-max' && 'Flux Max'}
                       {selectedModel === 'seedream-4' && 'Seedream 4.0'}
+                      {selectedModel === 'seedream-4.5' && 'Seedream 4.5'}
                       {selectedModel === 'seedream' && 'Seedream 3.0'}
                       {selectedModel === 'qwen' && 'Qwen Image'}
                       {selectedModel === 'nano-banana' && 'Nano Banana'}
@@ -2252,6 +2256,31 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">ByteDance's next-gen 2K model</p>
+                      </div>
+                    </div>
+                  </button>
+                  )}
+
+                  {/* Seedream 4.5 - IMG2IMG only, requires reference image */}
+                  {selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && (selectedReferences.length > 0 || selectedCharacters.length > 0) && (
+                  <button
+                    onClick={() => {
+                      handleModelChange('seedream-4.5');
+                      setIsModelDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={16} className="text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Seedream 4.5</span>
+                          <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">ByteDance's 4K edit model (up to 12 refs)</p>
                       </div>
                     </div>
                   </button>

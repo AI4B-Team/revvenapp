@@ -44,6 +44,12 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     endpoint: '/api/v1/jobs/createTask',
     apiType: 'imagen'
   },
+  'seedream-4.5': {
+    model: 'seedream/4.5-edit',
+    name: 'Seedream 4.5',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'seedream-4.5'
+  },
   'seedream-4': {
     model: 'bytedance/seedream-v4-text-to-image',
     name: 'Seedream 4.0',
@@ -377,6 +383,27 @@ serve(async (req) => {
           requestBody.input.image_input = limitedImages;
           console.log(`Nano Banana Pro: Using ${limitedImages.length} reference images (max ${maxImages})`);
         }
+      } else if (modelConfig.apiType === 'seedream-4.5') {
+        // Seedream 4.5 Edit API format - supports image_urls array (max 12 images)
+        const maxImages = 12;
+        const limitedImages = effectiveReferenceImages.slice(0, maxImages);
+        
+        if (effectiveReferenceImages.length === 0) {
+          throw new Error("Seedream 4.5 requires at least one reference image");
+        }
+        
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            image_urls: limitedImages,
+            aspect_ratio: aspectRatio || "1:1",
+            quality: "basic"
+          }
+        };
+        
+        console.log(`Seedream 4.5: Using ${limitedImages.length} reference images (max ${maxImages})`);
       }
 
       // Add DB record ID to callback payload so webhook can identify which record to update
