@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, Volume2, Palette, Heart, Package, FileEdit, Clapperboard, Captions, RatioIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -113,7 +113,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     minHeight: 80,
     maxHeight: 400,
     initialHeight: 100,
-    minWidth: 920,
+    minWidth: 1100,
     maxWidth: 1600,
     resizeDirection: 'both',
   });
@@ -891,29 +891,72 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
-                  <>
-                    <button className="bg-muted/50 rounded-lg p-2">
-                      <Video size={18} className="text-muted-foreground" />
-                    </button>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleAutoPrompt}
-                          disabled={isEnhancing}
-                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isEnhancing ? (
-                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
-                          ) : (
-                            <Shuffle size={18} className="text-muted-foreground" />
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black">
-                        <p>Auto Prompt</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </>
+                  selectedAnimateMode === 'UGC' ? (
+                    <>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleAutoPrompt}
+                            disabled={isEnhancing}
+                            className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isEnhancing ? (
+                              <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                            ) : (
+                              <Shuffle size={18} className="text-muted-foreground" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Auto Prompt</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition">
+                            <Bot size={18} className="text-muted-foreground" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Script Agent</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition">
+                            <Volume2 size={18} className="text-muted-foreground" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Upload Audio</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </>
+                  ) : (
+                    <>
+                      <button className="bg-muted/50 rounded-lg p-2">
+                        <Video size={18} className="text-muted-foreground" />
+                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleAutoPrompt}
+                            disabled={isEnhancing}
+                            className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isEnhancing ? (
+                              <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                            ) : (
+                              <Shuffle size={18} className="text-muted-foreground" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Auto Prompt</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </>
+                  )
                 ) : isAudioMode ? (
                   <button className="bg-muted/50 rounded-lg p-2">
                     <Sparkles size={18} className="text-muted-foreground" />
@@ -962,7 +1005,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : "Describe what you want to create..."}
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Write what you want your character to say...(e.g., "Hey there! This product changed my life")' : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
@@ -1164,167 +1207,293 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                     </PopoverContent>
                   </Popover>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        videoModel !== 'veo3_fast' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'bg-muted hover:bg-muted/80'
-                      }`}>
-                        <Video size={14} />
-                        {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
-                        <ChevronDown size={14} />
+                  {selectedAnimateMode === 'UGC' ? (
+                    <>
+                      {/* UGC Mode Controls */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel !== 'veo3_fast' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            <Video size={14} />
+                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            {videoModels.map((model) => (
+                              <button 
+                                key={model.value}
+                                onClick={() => setVideoModel(model.value)}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                  videoModel === model.value ? 'bg-secondary' : ''
+                                }`}
+                              >
+                                <div className="font-medium">{model.label}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <Palette size={14} />
+                        Style
                       </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-56 bg-background border-border z-50">
-                      <div className="space-y-1">
-                        {videoModels.map((model) => (
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <button 
-                            key={model.value}
-                            onClick={() => setVideoModel(model.value)}
-                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                              videoModel === model.value ? 'bg-secondary' : ''
+                            onClick={() => onCharactersClick?.()}
+                            className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              videoModeState.characters.length > 0 
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                : 'bg-muted hover:bg-muted/80'
                             }`}
                           >
-                            <div className="font-medium">{model.label}</div>
-                            <div className="text-xs text-muted-foreground">{model.description}</div>
+                            <User size={14} />
+                            Character
                           </button>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Select Character</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <Heart size={14} />
+                        Emotion
+                      </button>
+
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <Package size={14} />
+                        Product
+                      </button>
+
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <FileEdit size={14} />
+                        Script
+                      </button>
+
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <Clapperboard size={14} />
+                        Scene
+                      </button>
+
+                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                        <Captions size={14} />
+                        Captions
+                      </button>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoAspectRatio !== '16:9' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            <RatioIcon size={14} />
+                            {videoAspectRatio}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoAspectRatio('16:9')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-5 h-3 border-2 border-current"></div>
+                              16:9 Landscape
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('9:16')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-3 h-5 border-2 border-current"></div>
+                              9:16 Portrait
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('Auto')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-4 h-4 border-2 border-current"></div>
+                              Auto
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </>
+                  ) : (
+                    <>
+                      {/* Standard Video Mode Controls */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel !== 'veo3_fast' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            <Video size={14} />
+                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            {videoModels.map((model) => (
+                              <button 
+                                key={model.value}
+                                onClick={() => setVideoModel(model.value)}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                  videoModel === model.value ? 'bg-secondary' : ''
+                                }`}
+                              >
+                                <div className="font-medium">{model.label}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => {
+                              // Open character selector and update video mode state
+                              onCharactersClick?.();
+                            }}
+                            className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              videoModeState.characters.length > 0 
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                                : 'bg-muted hover:bg-muted/80'
+                            }`}
+                          >
+                            <User size={14} />
+                            Character
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Select Character</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <button
                         onClick={() => {
-                          // Open character selector and update video mode state
-                          onCharactersClick?.();
+                          // Open reference selector and update video mode state
+                          onReferencesClick?.();
                         }}
                         className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          videoModeState.characters.length > 0 
+                          videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
                             ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                             : 'bg-muted hover:bg-muted/80'
                         }`}
                       >
-                        <User size={14} />
-                        Character
+                        <Upload size={14} />
+                        Reference
                       </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Select Character</p>
-                    </TooltipContent>
-                  </Tooltip>
 
-                  <button
-                    onClick={() => {
-                      // Open reference selector and update video mode state
-                      onReferencesClick?.();
-                    }}
-                    className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      videoModeState.references.length > 0 || videoModeState.startingFrame || videoModeState.endingFrame
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                        : 'bg-muted hover:bg-muted/80'
-                    }`}
-                  >
-                    <Upload size={14} />
-                    Reference
-                  </button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoAspectRatio !== '16:9' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {videoAspectRatio}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoAspectRatio('16:9')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-5 h-3 border-2 border-current"></div>
+                              16:9 Landscape
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('9:16')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-3 h-5 border-2 border-current"></div>
+                              9:16 Portrait
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('Auto')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-4 h-4 border-2 border-current"></div>
+                              Auto
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        videoAspectRatio !== '16:9' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'bg-muted hover:bg-muted/80'
-                      }`}>
-                        {videoAspectRatio}
-                        <ChevronDown size={14} />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-48 bg-background border-border z-50">
-                      <div className="space-y-1">
-                        <button 
-                          onClick={() => setVideoAspectRatio('16:9')}
-                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                        >
-                          <div className="w-5 h-3 border-2 border-current"></div>
-                          16:9 Landscape
-                        </button>
-                        <button 
-                          onClick={() => setVideoAspectRatio('9:16')}
-                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                        >
-                          <div className="w-3 h-5 border-2 border-current"></div>
-                          9:16 Portrait
-                        </button>
-                        <button 
-                          onClick={() => setVideoAspectRatio('Auto')}
-                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                        >
-                          <div className="w-4 h-4 border-2 border-current"></div>
-                          Auto
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoDuration !== '10' 
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                              : 'bg-muted hover:bg-muted/80'
+                          }`}>
+                            {videoDuration} sec
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoDuration('10')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '10' ? 'bg-secondary' : ''}`}
+                            >
+                              10 seconds
+                            </button>
+                            <button 
+                              onClick={() => setVideoDuration('15')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '15' ? 'bg-secondary' : ''}`}
+                            >
+                              15 seconds
+                            </button>
+                            <button 
+                              onClick={() => setVideoDuration('25')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '25' ? 'bg-secondary' : ''}`}
+                            >
+                              25 seconds
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        videoDuration !== '10' 
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                          : 'bg-muted hover:bg-muted/80'
-                      }`}>
-                        {videoDuration} sec
-                        <ChevronDown size={14} />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-48 bg-background border-border z-50">
-                      <div className="space-y-1">
-                        <button 
-                          onClick={() => setVideoDuration('10')}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '10' ? 'bg-secondary' : ''}`}
-                        >
-                          10 seconds
-                        </button>
-                        <button 
-                          onClick={() => setVideoDuration('15')}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '15' ? 'bg-secondary' : ''}`}
-                        >
-                          15 seconds
-                        </button>
-                        <button 
-                          onClick={() => setVideoDuration('25')}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${videoDuration === '25' ? 'bg-secondary' : ''}`}
-                        >
-                          25 seconds
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        1080p
-                        <ChevronDown size={14} />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-48 bg-background border-border z-50">
-                      <div className="space-y-1">
-                        <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                          1080p
-                        </button>
-                        <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                          720p
-                        </button>
-                        <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                          4K
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            1080p
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              1080p
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              720p
+                            </button>
+                            <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                              4K
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </>
+                  )}
                 </TooltipProvider>
 
                 <TooltipProvider>
