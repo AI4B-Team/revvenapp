@@ -34,6 +34,7 @@ interface Voice {
 }
 
 interface VoiceSettings {
+  speed: number;
   stability: number;
   clarity: number;
   styleExaggeration: number;
@@ -163,6 +164,7 @@ const VoiceSettingsPopup: React.FC<{
 }> = ({ settings, onChange, onClose }) => {
   const handleReset = () => {
     onChange({
+      speed: 50,
       stability: 60,
       clarity: 85,
       styleExaggeration: 25,
@@ -181,6 +183,17 @@ const VoiceSettingsPopup: React.FC<{
       <h3 className="text-base font-semibold text-foreground mb-4">Voice Settings</h3>
 
       <div className="space-y-4">
+        {/* Speed */}
+        <div>
+          <label className="text-sm font-medium text-foreground block mb-2">Speed</label>
+          <Slider
+            value={settings.speed}
+            onChange={(v) => onChange({ ...settings, speed: v })}
+            leftLabel="Slow"
+            rightLabel="Fast"
+          />
+        </div>
+
         {/* Stability */}
         <div>
           <div className="flex items-center gap-1 mb-2">
@@ -533,6 +546,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<Voice>(voiceLibrary[0]);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
+    speed: 50,
     stability: 60,
     clarity: 85,
     styleExaggeration: 25,
@@ -554,10 +568,11 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
     setIsGeneratingAudio(true);
     
     try {
-      // Convert voice settings to API parameters (0-1 scale)
+      // Convert voice settings to API parameters
       const stability = voiceSettings.stability / 100;
       const similarity_boost = voiceSettings.clarity / 100;
       const style = voiceSettings.styleExaggeration / 100;
+      const speed = 0.5 + (voiceSettings.speed / 100) * 1.5; // Map 0-100 to 0.5-2.0
       const use_speaker_boost = voiceSettings.speakerBoost;
 
       const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
@@ -567,6 +582,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
           stability,
           similarity_boost,
           style,
+          speed,
           use_speaker_boost,
         }
       });
