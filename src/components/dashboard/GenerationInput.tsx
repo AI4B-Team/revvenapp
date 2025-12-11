@@ -1,4 +1,5 @@
 import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
+import UGCCharacterBox from './UGCCharacterBox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -1018,6 +1019,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             {isResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
           </div>
         </div>
+
+        {/* UGC Character Box - Show only in UGC mode when a character is selected */}
+        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && (
+          <UGCCharacterBox
+            character={videoModeState.characters[0]}
+            script={prompt}
+            onDelete={() => {
+              onCharactersSelect?.([]);
+            }}
+          />
+        )}
 
         {/* Character & Reference Images Display - Hidden in video mode and certain content types */}
         {(shouldShowCharacters && activeCharacters.length > 0) || (shouldShowReferences && activeReferences.length > 0) || shouldShowReferences ? (
