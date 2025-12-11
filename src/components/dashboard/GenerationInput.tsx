@@ -1046,8 +1046,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* UGC Character Box - Show only in UGC mode when a character is selected and Scene is NOT selected */}
-        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && selectedUGCButton !== 'Scene' && (
+        {/* UGC Character Box - Show only in UGC mode when a character is selected */}
+        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && (
           <UGCCharacterBox
             character={videoModeState.characters[0]}
             script={ugcScriptText}
