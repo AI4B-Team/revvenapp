@@ -50,6 +50,7 @@ interface UGCCharacterBoxProps {
   };
   script: string;
   onDelete: () => void;
+  onAudioGenerated?: (audioUrl: string) => void;
 }
 
 // ============================================
@@ -539,6 +540,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   character,
   script,
   onDelete,
+  onAudioGenerated,
 }) => {
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
@@ -590,6 +592,9 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
       if (error) throw error;
 
       if (data.audioUrl) {
+        // Notify parent of generated audio URL for video generation
+        onAudioGenerated?.(data.audioUrl);
+        
         const audio = new Audio(data.audioUrl);
         audioRef.current = audio;
         

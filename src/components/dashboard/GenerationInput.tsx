@@ -98,6 +98,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [ugcScriptText, setUgcScriptText] = useState('');
   const [ugcSceneText, setUgcSceneText] = useState('');
   
+  // UGC audio URL for speech-to-video generation
+  const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
+  
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
@@ -483,7 +486,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       onGenerationStart?.();
       
       try {
-        console.log("Starting Veo 3.1 video generation...");
+        // Check if UGC mode requires audio
+        if (selectedAnimateMode === 'UGC' && !ugcAudioUrl) {
+          toast({
+            title: "Audio required",
+            description: "Please generate voice audio by clicking the play button in the character box first",
+            variant: "destructive",
+          });
+          setIsGenerating(false);
+          return;
+        }
+        
+        console.log("Starting video generation...");
         
         // Get the authenticated user
         const { data: { user } } = await supabase.auth.getUser();
@@ -515,12 +529,16 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
 
         const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
+        
+        // Use wan-speech-to-video model for UGC mode
+        const effectiveModel = selectedAnimateMode === 'UGC' ? 'wan-speech-to-video' : videoModel;
 
         const { data, error } = await supabase.functions.invoke('generate-veo-video', {
           body: { 
             prompt: prompt.trim(),
             imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-            model: videoModel,
+            audioUrl: selectedAnimateMode === 'UGC' ? ugcAudioUrl : undefined,
+            model: effectiveModel,
             aspectRatio: videoAspectRatio,
             duration: videoDuration,
             userId: user.id,
@@ -533,14 +551,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         if (error) throw error;
 
-        const modelLabel = videoModels.find(m => m.value === videoModel)?.label || 'AI';
+        const modelLabel = selectedAnimateMode === 'UGC' 
+          ? 'Wan Speech-to-Video' 
+          : (videoModels.find(m => m.value === videoModel)?.label || 'AI');
         toast({
           title: "Video generating!",
-          description: `Your video is being created with ${modelLabel}. This may take a few minutes.`,
+          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with ${modelLabel}. This may take a few minutes.`,
         });
 
         console.log("Video generation started:", data);
         
+        // Clear audio URL after successful UGC generation
+        if (selectedAnimateMode === 'UGC') {
+          setUgcAudioUrl(null);
+        }
       } catch (error) {
         console.error("Video generation error:", error);
         toast({
@@ -1092,6 +1116,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             script={ugcScriptText}
             onDelete={() => {
               onCharactersSelect?.([]);
+              setUgcAudioUrl(null); // Clear audio when character is deleted
+            }}
+            onAudioGenerated={(audioUrl) => {
+              setUgcAudioUrl(audioUrl);
+              toast({
+                title: "Audio ready",
+                description: "Voice audio generated. You can now generate the UGC video.",
+              });
             }}
           />
         )}
