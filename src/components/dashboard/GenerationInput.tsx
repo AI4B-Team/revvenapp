@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -81,13 +81,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [generatedContent, setGeneratedContent] = useState<any[]>([]);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   
+  // Animate mode dropdown state
+  const [selectedAnimateMode, setSelectedAnimateMode] = useState('Animate');
+  const [isAnimateModeDropdownOpen, setIsAnimateModeDropdownOpen] = useState(false);
+  
+  const animateModes = [
+    { value: 'Animate', label: 'Animate', icon: Play },
+    { value: 'Draw', label: 'Draw', icon: Pencil },
+    { value: 'Talking', label: 'Talking', icon: MessageCircle },
+    { value: 'UGC', label: 'UGC', icon: Video },
+    { value: 'Recast', label: 'Recast', icon: RefreshCw },
+    { value: 'VSL', label: 'VSL', icon: Film },
+    { value: 'Story', label: 'Story', icon: BookOpen },
+    { value: 'Podcast', label: 'Podcast', icon: Mic },
+    { value: 'Presentation', label: 'Presentation', icon: Presentation },
+  ];
+  
   // Resizable prompt box (both directions)
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
     minHeight: 80,
     maxHeight: 400,
     initialHeight: 100,
-    minWidth: 600,
-    maxWidth: 1400,
+    minWidth: 850,
+    maxWidth: 1600,
     resizeDirection: 'both',
   });
   
@@ -1668,6 +1684,47 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               </>
             ) : (
               <>
+                {/* Animate Mode Dropdown */}
+                <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
+                  <PopoverTrigger asChild>
+                    <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                      selectedAnimateMode !== 'Animate' 
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}>
+                      {(() => {
+                        const mode = animateModes.find(m => m.value === selectedAnimateMode);
+                        const IconComponent = mode?.icon || Play;
+                        return <IconComponent size={14} />;
+                      })()}
+                      {selectedAnimateMode}
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
+                    <div className="space-y-1">
+                      {animateModes.map((mode) => {
+                        const IconComponent = mode.icon;
+                        return (
+                          <button
+                            key={mode.value}
+                            onClick={() => {
+                              setSelectedAnimateMode(mode.value);
+                              setIsAnimateModeDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
+                              selectedAnimateMode === mode.value ? 'bg-secondary' : ''
+                            }`}
+                          >
+                            <IconComponent size={16} />
+                            {mode.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                
                 {/* Image Mode Controls */}
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
