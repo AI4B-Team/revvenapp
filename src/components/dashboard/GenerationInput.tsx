@@ -1804,12 +1804,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 Infinitalk
                                 <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">NEW</Badge>
                               </div>
-                              <div className="text-xs text-muted-foreground">From audio with high quality</div>
+                              <div className="text-xs text-muted-foreground">From audio with high quality (max 15s)</div>
                             </button>
                           </div>
                         </PopoverContent>
                       </Popover>
 
+                      {/* Audio duration warning for Infinitalk */}
+                      {ugcModel === 'infinitalk' && uploadedAudio?.duration && uploadedAudio.duration > 15 && (
+                        <span className="text-red-500 text-xs font-medium">
+                          ⚠️ Audio too long ({Math.round(uploadedAudio.duration)}s &gt; 15s)
+                        </span>
+                      )}
                       <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                         <Film size={14} />
                         Style
@@ -3562,7 +3568,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     disabled={
                       isGenerating || 
                       (isVideoMode && selectedAnimateMode === 'Avatar Video' 
-                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0)
+                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (ugcModel === 'infinitalk' && uploadedAudio?.duration && uploadedAudio.duration > 15))
                         : isVideoMode && selectedAnimateMode === 'UGC'
                           ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                           : !prompt.trim()
