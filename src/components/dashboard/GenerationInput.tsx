@@ -470,7 +470,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
-    if (!prompt.trim()) {
+    // In UGC mode, check ugcScriptText; otherwise check prompt
+    const effectivePrompt = (isVideoMode && selectedAnimateMode === 'UGC') ? ugcScriptText : prompt;
+    if (!effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
         description: "Please describe what you want to create",
