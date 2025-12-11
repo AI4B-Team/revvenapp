@@ -501,6 +501,153 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       onGenerationStart?.();
       
       try {
+        // UGC MODE: First create image with Nano Banana Pro (product + character), then generate video
+        if (selectedAnimateMode === 'UGC') {
+          // Validate required inputs for UGC mode
+          if (!currentCharacters.length) {
+            toast({
+              title: "Character required",
+              description: "Please select a character for your UGC video",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+          if (!ugcProductImage) {
+            toast({
+              title: "Product image required",
+              description: "Please upload a product image for your UGC video",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+          if (!prompt.trim()) {
+            toast({
+              title: "Prompt required",
+              description: "Please describe how you want to combine the product and character",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          console.log("UGC Mode: Starting image generation with Nano Banana Pro...");
+          
+          // Get the authenticated user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+
+          // Step 1: Generate image combining product + character using Nano Banana Pro
+          const primaryCharacter = currentCharacters[0];
+          const characterImageUrl = primaryCharacter?.image_url || primaryCharacter?.image;
+          
+          // Build reference images array: product image + character image + optional style reference
+          const referenceImages: string[] = [];
+          if (ugcProductImage?.url) referenceImages.push(ugcProductImage.url);
+          if (characterImageUrl) referenceImages.push(characterImageUrl);
+          if (ugcStyleImage?.url) referenceImages.push(ugcStyleImage.url);
+
+          toast({
+            title: "Step 1: Creating UGC image...",
+            description: "Combining product and character with AI",
+          });
+
+          const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-image', {
+            body: { 
+              prompt: prompt.trim(),
+              aspectRatio: videoAspectRatio === 'Auto' ? '16:9' : videoAspectRatio,
+              model: 'nano-banana-pro',
+              numberOfImages: 1,
+              referenceImages: referenceImages,
+              referenceImage: referenceImages[0] || null,
+              characterImage: characterImageUrl,
+            }
+          });
+
+          if (imageError) throw imageError;
+
+          console.log("UGC image generation started:", imageData);
+
+          // Wait for the image to be generated (poll for completion)
+          const imageId = imageData?.images?.[0]?.id;
+          if (!imageId) {
+            throw new Error("Failed to start image generation");
+          }
+
+          // Poll for image completion
+          let generatedImageUrl: string | null = null;
+          let pollAttempts = 0;
+          const maxPollAttempts = 60; // 60 attempts * 2 seconds = 2 minutes max
+
+          while (pollAttempts < maxPollAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const { data: imageStatus } = await supabase
+              .from('generated_images')
+              .select('status, image_url')
+              .eq('id', imageId)
+              .single();
+
+            if (imageStatus?.status === 'completed' && imageStatus?.image_url) {
+              generatedImageUrl = imageStatus.image_url;
+              break;
+            } else if (imageStatus?.status === 'error') {
+              throw new Error("Image generation failed");
+            }
+
+            pollAttempts++;
+          }
+
+          if (!generatedImageUrl) {
+            throw new Error("Image generation timed out");
+          }
+
+          console.log("UGC image generated successfully:", generatedImageUrl);
+
+          // Step 2: Use the generated image to create a video
+          toast({
+            title: "Step 2: Creating video...",
+            description: "Generating video from the combined image",
+          });
+
+          const videoRequestBody: any = { 
+            prompt: prompt.trim(),
+            imageUrls: [generatedImageUrl],
+            model: videoModel,
+            aspectRatio: videoAspectRatio,
+            duration: videoDuration,
+            userId: user.id,
+            characterId: primaryCharacter?.id || null,
+            characterName: primaryCharacter?.name || 'Unknown',
+            characterBio: primaryCharacter?.bio || '',
+            characterImageUrl: characterImageUrl || ''
+          };
+
+          const { data: videoData, error: videoError } = await supabase.functions.invoke('generate-veo-video', {
+            body: videoRequestBody
+          });
+
+          if (videoError) throw videoError;
+
+          toast({
+            title: "UGC video generating!",
+            description: "Your UGC video is being created. This may take a few minutes.",
+          });
+
+          console.log("UGC video generation started:", videoData);
+          
+          // Clear UGC state after successful generation
+          setUgcProductImage(null);
+          setUgcStyleImage(null);
+          setPrompt('');
+          
+          setIsGenerating(false);
+          return;
+        }
+
         // Check if Avatar Video mode requires audio
         // Avatar Video mode requires character and script
         if (selectedAnimateMode === 'Avatar Video') {
