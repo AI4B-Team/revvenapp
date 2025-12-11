@@ -555,9 +555,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             description: "Combining product and character with AI",
           });
 
+          // Build explicit combining prompt for UGC
+          const ugcCombiningPrompt = `Create a product showcase image that combines these elements: 
+Use the person/character from the character reference to appear in the image. 
+Feature the product from the product reference, having the person hold, display, or showcase it naturally. 
+${ugcStyleImage?.url ? 'Apply the visual style and aesthetic from the style reference.' : ''}
+Scene/style instructions: ${prompt.trim()}. 
+Make it look like a natural, professional product showcase or UGC-style promotional image with the character prominently featuring the product.`;
+
           const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-image', {
             body: { 
-              prompt: prompt.trim(),
+              prompt: ugcCombiningPrompt,
               aspectRatio: videoAspectRatio === 'Auto' ? '16:9' : videoAspectRatio,
               model: 'nano-banana-pro',
               numberOfImages: 1,
