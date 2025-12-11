@@ -1781,7 +1781,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               }`}
                             >
                               <div className="font-medium">Wan Avatar</div>
-                              <div className="text-xs text-muted-foreground">Speech-to-video with lip sync</div>
+                              <div className="text-xs text-muted-foreground">Speech-to-video with lip sync (max 15s)</div>
                             </button>
                             <button 
                               onClick={() => setUgcModel('kling-ai-avatar')}
@@ -1792,7 +1792,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <div className="font-medium flex items-center gap-2">
                                 Kling Avatar
                               </div>
-                              <div className="text-xs text-muted-foreground">Pro avatar with audio sync</div>
+                              <div className="text-xs text-muted-foreground">Pro avatar with audio sync (max 15s)</div>
                             </button>
                             <button 
                               onClick={() => setUgcModel('infinitalk')}
@@ -1810,8 +1810,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Audio duration warning for Infinitalk */}
-                      {ugcModel === 'infinitalk' && uploadedAudio?.duration && uploadedAudio.duration > 15 && (
+                      {/* Audio duration warning for all Avatar Video models */}
+                      {uploadedAudio?.duration && uploadedAudio.duration > 15 && (
                         <span className="text-red-500 text-xs font-medium">
                           ⚠️ Audio too long ({Math.round(uploadedAudio.duration)}s &gt; 15s)
                         </span>
@@ -3568,7 +3568,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     disabled={
                       isGenerating || 
                       (isVideoMode && selectedAnimateMode === 'Avatar Video' 
-                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (ugcModel === 'infinitalk' && uploadedAudio?.duration && uploadedAudio.duration > 15))
+                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15))
                         : isVideoMode && selectedAnimateMode === 'UGC'
                           ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                           : !prompt.trim()
