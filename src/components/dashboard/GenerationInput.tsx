@@ -112,10 +112,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
   
   // UGC product and style reference images
-  const [ugcProductImage, setUgcProductImage] = useState<{ url: string; name: string } | null>(null);
+  const [ugcProductImage, setUgcProductImage] = useState<{ url: string; name: string; id?: string } | null>(null);
   const [ugcStyleImage, setUgcStyleImage] = useState<{ url: string; name: string } | null>(null);
   const [isUploadingUgcProduct, setIsUploadingUgcProduct] = useState(false);
   const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
+  
+  // Product history
+  const [savedProducts, setSavedProducts] = useState<{ id: string; url: string; name: string }[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -270,6 +274,32 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
     }
   }, [selectedCharacters, selectedReferences, isVideoMode, isAudioMode, isDesignMode, isContentMode, isAppsMode, isDocumentMode]);
+
+  // Fetch saved products on mount
+  useEffect(() => {
+    const fetchSavedProducts = async () => {
+      setIsLoadingProducts(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await supabase
+          .from('user_products')
+          .select('id, url, name')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        setSavedProducts(data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    
+    fetchSavedProducts();
+  }, []);
 
   // Reset animate mode to 'Animate' when entering video mode
   useEffect(() => {
@@ -1141,6 +1171,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
     setIsUploadingUgcProduct(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       
@@ -1156,14 +1189,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         if (error) throw error;
 
+        const imageUrl = data?.referenceImage?.image_url;
+        const cloudinaryPublicId = data?.referenceImage?.cloudinary_public_id;
+
+        // Save to database
+        const { data: savedProduct, error: dbError } = await supabase
+          .from('user_products')
+          .insert({
+            user_id: user.id,
+            name: file.name,
+            url: imageUrl,
+            cloudinary_public_id: cloudinaryPublicId
+          })
+          .select()
+          .single();
+
+        if (dbError) throw dbError;
+
+        // Update local state
+        setSavedProducts(prev => [{ id: savedProduct.id, url: imageUrl, name: file.name }, ...prev]);
         setUgcProductImage({
-          url: data?.referenceImage?.image_url,
+          id: savedProduct.id,
+          url: imageUrl,
           name: file.name
         });
 
         toast({
           title: "Success",
-          description: "Product image uploaded",
+          description: "Product image saved",
         });
         setIsUploadingUgcProduct(false);
       };
@@ -1179,6 +1232,37 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         variant: "destructive",
       });
       setIsUploadingUgcProduct(false);
+    }
+  };
+
+  // Delete saved product
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw error;
+
+      setSavedProducts(prev => prev.filter(p => p.id !== productId));
+      
+      // Clear selection if deleted product was selected
+      if (ugcProductImage?.id === productId) {
+        setUgcProductImage(null);
+      }
+
+      toast({
+        title: "Deleted",
+        description: "Product removed from library",
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete product",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1847,7 +1931,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Product Image Upload */}
+                      {/* Product Image Upload with History */}
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
@@ -1863,13 +1947,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             {ugcProductImage ? 'Product ✓' : 'Product'}
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-64 bg-background border-border z-50">
+                        <PopoverContent className="w-72 bg-background border-border z-50">
                           <div className="space-y-3">
-                            <p className="text-sm font-medium">Upload Product Image</p>
-                            {ugcProductImage ? (
+                            {/* Current Selection */}
+                            {ugcProductImage && (
                               <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">Current Selection</p>
                                 <div className="relative">
-                                  <img src={ugcProductImage.url} alt="Product" className="w-full h-24 object-cover rounded-md" />
+                                  <img src={ugcProductImage.url} alt="Product" className="w-full h-20 object-cover rounded-md" />
                                   <button 
                                     onClick={() => setUgcProductImage(null)}
                                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
@@ -1877,12 +1962,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     <X size={12} />
                                   </button>
                                 </div>
-                                <p className="text-xs text-muted-foreground truncate">{ugcProductImage.name}</p>
                               </div>
-                            ) : (
-                              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                                <Upload size={20} className="text-muted-foreground mb-2" />
-                                <span className="text-xs text-muted-foreground">Click to upload product</span>
+                            )}
+                            
+                            {/* Upload New */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Upload New</p>
+                              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={16} className="text-muted-foreground mb-1" />
+                                <span className="text-xs text-muted-foreground">Click to upload</span>
                                 <input 
                                   type="file" 
                                   accept="image/*" 
@@ -1890,6 +1978,41 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   onChange={handleUgcProductUpload}
                                 />
                               </label>
+                            </div>
+
+                            {/* Saved Products */}
+                            {savedProducts.length > 0 && (
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-2">My Products</p>
+                                {isLoadingProducts ? (
+                                  <div className="flex justify-center py-2">
+                                    <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+                                    {savedProducts.map((product) => (
+                                      <div 
+                                        key={product.id} 
+                                        className={`relative group cursor-pointer rounded-md overflow-hidden ${
+                                          ugcProductImage?.id === product.id ? 'ring-2 ring-emerald-500' : ''
+                                        }`}
+                                        onClick={() => setUgcProductImage({ id: product.id, url: product.url, name: product.name })}
+                                      >
+                                        <img src={product.url} alt={product.name} className="w-full h-16 object-cover" />
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteProduct(product.id);
+                                          }}
+                                          className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                          <X size={10} />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         </PopoverContent>
