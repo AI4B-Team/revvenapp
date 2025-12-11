@@ -104,6 +104,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // UGC voice settings for auto-generation
   const [ugcVoiceSettings, setUgcVoiceSettings] = useState<{ voice: string; stability: number; similarity_boost: number; style: number; speed: number; use_speaker_boost: boolean } | null>(null);
   
+  // UGC model selection (Wan Avatar or Kling Avatar)
+  const [ugcModel, setUgcModel] = useState<'wan-speech-to-video' | 'kling-ai-avatar'>('wan-speech-to-video');
+  
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
@@ -547,8 +550,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
         
-        // Use wan-speech-to-video model for UGC mode
-        const effectiveModel = selectedAnimateMode === 'UGC' ? 'wan-speech-to-video' : videoModel;
+        // Use selected UGC model for UGC mode
+        const effectiveModel = selectedAnimateMode === 'UGC' ? ugcModel : videoModel;
 
         // Build request body
         const requestBody: any = { 
@@ -586,7 +589,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
         toast({
           title: "Video generating!",
-          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with Wan Avatar. This may take a few minutes.`,
+          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with ${ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : 'Wan Avatar'}. This may take a few minutes.`,
         });
 
         console.log("Video generation started:", data);
@@ -1355,11 +1358,41 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
                   {selectedAnimateMode === 'UGC' ? (
                     <>
-                      {/* UGC Mode Controls - Model is fixed to Wan Avatar */}
-                      <button className="px-4 py-1.5 bg-emerald-500 text-white rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap cursor-default">
-                        <Video size={14} />
-                        Wan Avatar
-                      </button>
+                      {/* UGC Mode Controls - Model dropdown for Wan/Kling Avatar */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                            <Video size={14} />
+                            {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : 'Wan Avatar'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setUgcModel('wan-speech-to-video')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                ugcModel === 'wan-speech-to-video' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Wan Avatar</div>
+                              <div className="text-xs text-muted-foreground">Speech-to-video with lip sync</div>
+                            </button>
+                            <button 
+                              onClick={() => setUgcModel('kling-ai-avatar')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                ugcModel === 'kling-ai-avatar' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium flex items-center gap-2">
+                                Kling Avatar
+                                <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                              </div>
+                              <div className="text-xs text-muted-foreground">Pro avatar with audio sync</div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                         <Film size={14} />

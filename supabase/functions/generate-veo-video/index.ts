@@ -44,9 +44,9 @@ serve(async (req) => {
       throw new Error("prompt and userId are required");
     }
 
-    // For UGC mode (wan-speech-to-video), generate voice first if voiceSettings provided
+    // For UGC mode (wan-speech-to-video or kling-ai-avatar), generate voice first if voiceSettings provided
     let finalAudioUrl = audioUrl;
-    if (model === 'wan-speech-to-video' && voiceSettings && !audioUrl) {
+    if ((model === 'wan-speech-to-video' || model === 'kling-ai-avatar') && voiceSettings && !audioUrl) {
       console.log("UGC mode: Auto-generating voice with ElevenLabs...");
       
       const { voice = 'Rachel', text, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1, use_speaker_boost = true } = voiceSettings;
@@ -215,6 +215,38 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(wanSpeechPayload),
+      });
+
+    } else if (model === 'kling-ai-avatar') {
+      // Kling Avatar Pro model for UGC
+      console.log("Using Kling Avatar Pro API for UGC");
+
+      if (!imageUrls || imageUrls.length === 0) {
+        throw new Error("image_url is required for Kling Avatar");
+      }
+      if (!finalAudioUrl) {
+        throw new Error("audio_url is required for Kling Avatar");
+      }
+
+      const klingAvatarPayload: any = {
+        model: 'kling/ai-avatar-v1-pro',
+        callBackUrl: callbackUrl,
+        input: {
+          image_url: imageUrls[0],
+          audio_url: finalAudioUrl,
+          prompt: prompt.substring(0, 5000)
+        }
+      };
+
+      console.log("Kling Avatar API payload:", JSON.stringify(klingAvatarPayload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(klingAvatarPayload),
       });
 
     } else if (model === 'sora-2-pro' || model === 'sora-2-pro-storyboard') {
