@@ -571,7 +571,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         .map(ref => ref.image_url || ref.thumbnail_url || ref.url || ref.preview)
         .filter(Boolean) as string[];
       
-      console.log('Reference images for generation:', referenceImageUrls.length, referenceImageUrls);
+      // Combine character images + reference images into single array
+      const characterImageUrls = currentCharacters
+        .map(char => char.image_url || char.image)
+        .filter(Boolean) as string[];
+      
+      const allReferenceImages = [...characterImageUrls, ...referenceImageUrls];
+      
+      console.log('Reference images for generation:', allReferenceImages.length, allReferenceImages);
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
@@ -584,14 +591,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             name: primaryCharacter.name,
             image: primaryCharacter.image_url || primaryCharacter.image
           } : null,
-          // Pass all reference images as array for models that support multiple
-          referenceImages: primaryCharacter 
-            ? [primaryCharacter.image_url || primaryCharacter.image].filter(Boolean)
-            : referenceImageUrls,
-          // Keep single referenceImage for backward compatibility
-          referenceImage: primaryCharacter 
-            ? (primaryCharacter.image_url || primaryCharacter.image)
-            : (referenceImageUrls.length > 0 ? referenceImageUrls[0] : null),
+          // Pass combined character + reference images as array
+          referenceImages: allReferenceImages,
+          // Keep single referenceImage for backward compatibility (first image from combined array)
+          referenceImage: allReferenceImages.length > 0 ? allReferenceImages[0] : null,
           characterImage: primaryCharacter ? (primaryCharacter.image_url || primaryCharacter.image) : null,
           maskImage: maskImage
         }
