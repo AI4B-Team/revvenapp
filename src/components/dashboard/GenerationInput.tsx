@@ -94,6 +94,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
+  // UGC separate text fields for script and scene
+  const [ugcScriptText, setUgcScriptText] = useState('');
+  const [ugcSceneText, setUgcSceneText] = useState('');
+  
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
@@ -1017,8 +1021,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             <textarea 
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              value={isVideoMode && selectedAnimateMode === 'UGC' ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) : prompt}
+              onChange={(e) => {
+                if (isVideoMode && selectedAnimateMode === 'UGC') {
+                  if (selectedUGCButton === 'Scene') {
+                    setUgcSceneText(e.target.value);
+                  } else {
+                    setUgcScriptText(e.target.value);
+                  }
+                } else {
+                  setPrompt(e.target.value);
+                }
+              }}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
               placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : "Describe what you want to create..."}
@@ -1032,11 +1046,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           </div>
         </div>
 
-        {/* UGC Character Box - Show only in UGC mode when a character is selected */}
-        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && (
+        {/* UGC Character Box - Show only in UGC mode when a character is selected and Scene is NOT selected */}
+        {isVideoMode && selectedAnimateMode === 'UGC' && videoModeState.characters.length > 0 && selectedUGCButton !== 'Scene' && (
           <UGCCharacterBox
             character={videoModeState.characters[0]}
-            script={prompt}
+            script={ugcScriptText}
             onDelete={() => {
               onCharactersSelect?.([]);
             }}
@@ -1304,7 +1318,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       <button 
                         onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
                         className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          selectedUGCButton === 'Scene' 
+                          ugcSceneText.trim().length > 0 
                             ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                             : 'bg-muted hover:bg-muted/80'
                         }`}
