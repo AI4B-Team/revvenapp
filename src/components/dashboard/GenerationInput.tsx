@@ -744,6 +744,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const handleAutoPrompt = async () => {
     setIsEnhancing(true);
     try {
+      // Check if we're in UGC mode
+      const isUGCMode = isVideoMode && selectedAnimateMode === 'UGC';
+      
       // Get active characters and references based on content type
       const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
       const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
@@ -753,7 +756,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       const referenceImages = currentReferences.map(ref => ref.image_url || ref.url || ref.preview).filter(Boolean);
 
       // If in video mode, also include frame images
-      if (isVideoMode) {
+      if (isVideoMode && !isUGCMode) {
         if (videoModeState.startingFrame?.preview) {
           referenceImages.push(videoModeState.startingFrame.preview);
         }
@@ -762,9 +765,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         }
       }
 
+      // Determine content type - use 'ugc' for UGC mode to generate voice scripts
+      const contentType = isUGCMode ? 'ugc' : selectedType;
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
-          contentType: selectedType,
+          contentType,
           characterImages,
           referenceImages
         }
@@ -772,14 +778,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
       if (error) throw error;
       if (data?.suggestion) {
-        setPrompt(data.suggestion);
-        const hasImages = characterImages.length > 0 || referenceImages.length > 0;
-        toast({
-          title: "Prompt generated",
-          description: hasImages 
-            ? "A creative prompt based on your selected images has been generated."
-            : "A creative prompt has been generated for you.",
-        });
+        // In UGC mode, populate the script text; otherwise populate the prompt
+        if (isUGCMode) {
+          setUgcScriptText(data.suggestion);
+          toast({
+            title: "Script generated",
+            description: "A creative voice script has been generated for your UGC video.",
+          });
+        } else {
+          setPrompt(data.suggestion);
+          const hasImages = characterImages.length > 0 || referenceImages.length > 0;
+          toast({
+            title: "Prompt generated",
+            description: hasImages 
+              ? "A creative prompt based on your selected images has been generated."
+              : "A creative prompt has been generated for you.",
+          });
+        }
       }
     } catch (error) {
       console.error('Error generating prompt:', error);
