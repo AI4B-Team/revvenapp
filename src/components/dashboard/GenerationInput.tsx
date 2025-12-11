@@ -1116,6 +1116,47 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               <>
                 {/* Video Mode Controls */}
                 <TooltipProvider>
+                  {/* Animate Mode Dropdown */}
+                  <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                        selectedAnimateMode !== 'Animate' 
+                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                          : 'bg-muted hover:bg-muted/80'
+                      }`}>
+                        {(() => {
+                          const mode = animateModes.find(m => m.value === selectedAnimateMode);
+                          const IconComponent = mode?.icon || Play;
+                          return <IconComponent size={14} />;
+                        })()}
+                        {selectedAnimateMode}
+                        <ChevronDown size={14} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
+                      <div className="space-y-1">
+                        {animateModes.map((mode) => {
+                          const IconComponent = mode.icon;
+                          return (
+                            <button
+                              key={mode.value}
+                              onClick={() => {
+                                setSelectedAnimateMode(mode.value);
+                                setIsAnimateModeDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
+                                selectedAnimateMode === mode.value ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <IconComponent size={16} />
+                              {mode.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
@@ -1684,47 +1725,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               </>
             ) : (
               <>
-                {/* Animate Mode Dropdown */}
-                <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                      selectedAnimateMode !== 'Animate' 
-                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                        : 'bg-muted hover:bg-muted/80'
-                    }`}>
-                      {(() => {
-                        const mode = animateModes.find(m => m.value === selectedAnimateMode);
-                        const IconComponent = mode?.icon || Play;
-                        return <IconComponent size={14} />;
-                      })()}
-                      {selectedAnimateMode}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-52 p-2 bg-background border-border z-50" align="start">
-                    <div className="space-y-1">
-                      {animateModes.map((mode) => {
-                        const IconComponent = mode.icon;
-                        return (
-                          <button
-                            key={mode.value}
-                            onClick={() => {
-                              setSelectedAnimateMode(mode.value);
-                              setIsAnimateModeDropdownOpen(false);
-                            }}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-secondary rounded-md transition flex items-center gap-2 ${
-                              selectedAnimateMode === mode.value ? 'bg-secondary' : ''
-                            }`}
-                          >
-                            <IconComponent size={16} />
-                            {mode.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                
                 {/* Image Mode Controls */}
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
