@@ -98,8 +98,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [ugcScriptText, setUgcScriptText] = useState('');
   const [ugcSceneText, setUgcSceneText] = useState('');
   
-  // UGC audio URL for speech-to-video generation
+  // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
+  
+  // UGC voice settings for auto-generation
+  const [ugcVoiceSettings, setUgcVoiceSettings] = useState<{ voice: string; stability: number; similarity_boost: number; style: number; speed: number; use_speaker_boost: boolean } | null>(null);
   
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
@@ -487,14 +490,26 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       
       try {
         // Check if UGC mode requires audio
-        if (selectedAnimateMode === 'UGC' && !ugcAudioUrl) {
-          toast({
-            title: "Audio required",
-            description: "Please generate voice audio by clicking the play button in the character box first",
-            variant: "destructive",
-          });
-          setIsGenerating(false);
-          return;
+        // UGC mode requires character and script
+        if (selectedAnimateMode === 'UGC') {
+          if (!currentCharacters.length) {
+            toast({
+              title: "Character required",
+              description: "Please select a character for your UGC video",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+          if (!ugcScriptText.trim()) {
+            toast({
+              title: "Script required",
+              description: "Please write what you want your character to say",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
         }
         
         console.log("Starting video generation...");
@@ -533,35 +548,48 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         // Use wan-speech-to-video model for UGC mode
         const effectiveModel = selectedAnimateMode === 'UGC' ? 'wan-speech-to-video' : videoModel;
 
-        const { data, error } = await supabase.functions.invoke('generate-veo-video', {
-          body: { 
-            prompt: prompt.trim(),
-            imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
-            audioUrl: selectedAnimateMode === 'UGC' ? ugcAudioUrl : undefined,
-            model: effectiveModel,
-            aspectRatio: videoAspectRatio,
-            duration: videoDuration,
-            userId: user.id,
-            characterId: primaryCharacter?.id || null,
-            characterName: primaryCharacter?.name || 'Unknown',
-            characterBio: primaryCharacter?.bio || '',
-            characterImageUrl: primaryCharacter?.image_url || primaryCharacter?.image || ''
+        // Build request body
+        const requestBody: any = { 
+          prompt: selectedAnimateMode === 'UGC' ? ugcScriptText.trim() : prompt.trim(),
+          imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+          model: effectiveModel,
+          aspectRatio: videoAspectRatio,
+          duration: videoDuration,
+          userId: user.id,
+          characterId: primaryCharacter?.id || null,
+          characterName: primaryCharacter?.name || 'Unknown',
+          characterBio: primaryCharacter?.bio || '',
+          characterImageUrl: primaryCharacter?.image_url || primaryCharacter?.image || ''
+        };
+
+        // For UGC mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated)
+        if (selectedAnimateMode === 'UGC') {
+          if (ugcAudioUrl) {
+            // Use pre-generated audio if available
+            requestBody.audioUrl = ugcAudioUrl;
+          } else if (ugcVoiceSettings) {
+            // Pass voice settings for backend to generate audio
+            requestBody.voiceSettings = {
+              ...ugcVoiceSettings,
+              text: ugcScriptText.trim()
+            };
           }
+        }
+
+        const { data, error } = await supabase.functions.invoke('generate-veo-video', {
+          body: requestBody
         });
 
         if (error) throw error;
 
-        const modelLabel = selectedAnimateMode === 'UGC' 
-          ? 'Wan Speech-to-Video' 
-          : (videoModels.find(m => m.value === videoModel)?.label || 'AI');
         toast({
           title: "Video generating!",
-          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with ${modelLabel}. This may take a few minutes.`,
+          description: `Your ${selectedAnimateMode === 'UGC' ? 'UGC' : ''} video is being created with Wan Avatar. This may take a few minutes.`,
         });
 
         console.log("Video generation started:", data);
         
-        // Clear audio URL after successful UGC generation
+        // Clear UGC state after successful generation
         if (selectedAnimateMode === 'UGC') {
           setUgcAudioUrl(null);
         }
@@ -1116,14 +1144,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             script={ugcScriptText}
             onDelete={() => {
               onCharactersSelect?.([]);
-              setUgcAudioUrl(null); // Clear audio when character is deleted
+              setUgcAudioUrl(null);
+              setUgcVoiceSettings(null);
             }}
             onAudioGenerated={(audioUrl) => {
               setUgcAudioUrl(audioUrl);
               toast({
-                title: "Audio ready",
-                description: "Voice audio generated. You can now generate the UGC video.",
+                title: "Audio preview ready",
+                description: "Voice preview generated. Click Generate to create your UGC video.",
               });
+            }}
+            onVoiceSettingsChange={(settings) => {
+              setUgcVoiceSettings(settings);
             }}
           />
         )}
