@@ -250,6 +250,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_products: {
+        Row: {
+          cloudinary_public_id: string | null
+          created_at: string
+          id: string
+          name: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_voices: {
         Row: {
           cloudinary_public_id: string | null
