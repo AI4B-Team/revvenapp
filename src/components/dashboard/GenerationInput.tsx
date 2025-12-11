@@ -568,8 +568,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       
       // Build reference images array from all selected references
       const referenceImageUrls = currentReferences
-        .map(ref => ref.image_url || ref.thumbnail_url)
+        .map(ref => ref.image_url || ref.thumbnail_url || ref.url || ref.preview)
         .filter(Boolean) as string[];
+      
+      console.log('Reference images for generation:', referenceImageUrls.length, referenceImageUrls);
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
@@ -1455,6 +1457,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       >
                         <Upload size={14} />
                         Reference
+                        {videoModeState.references.length > 0 && (
+                          <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs font-medium">
+                            {videoModeState.references.length}
+                          </span>
+                        )}
                       </button>
 
                       <Popover>
@@ -2468,6 +2475,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             >
               <Upload size={14} />
               Reference
+              {activeReferences.length > 0 && (
+                <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs font-medium">
+                  {activeReferences.length}
+                </span>
+              )}
             </button>
             
             {/* Mask Upload Button - Only show for Ideogram Edit when reference is selected */}
