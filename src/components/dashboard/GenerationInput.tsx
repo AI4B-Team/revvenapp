@@ -3559,7 +3559,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <TooltipTrigger asChild>
                   <button 
                     onClick={handleGenerate}
-                    disabled={isGenerating || (selectedAnimateMode === 'Avatar Video' ? !ugcScriptText.trim() : !prompt.trim())}
+                    disabled={
+                      isGenerating || 
+                      (isVideoMode && selectedAnimateMode === 'Avatar Video' 
+                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0)
+                        : isVideoMode && selectedAnimateMode === 'UGC'
+                          ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
+                          : !prompt.trim()
+                      )
+                    }
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isGenerating ? (
