@@ -227,7 +227,10 @@ serve(async (req) => {
           requestBody.filesUrl = [effectiveReferenceImage]; // Array of up to 5 images
         }
       } else if (modelConfig.apiType === 'seedream') {
-        // Seedream 3.0/4.0 API format - supports img-to-img with image_urls (multiple images)
+        // Seedream 3.0/4.0 API format - supports img-to-img with image_urls (up to 14 images)
+        const maxImages = 14;
+        const limitedImages = effectiveReferenceImages.slice(0, maxImages);
+        
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -245,9 +248,10 @@ serve(async (req) => {
           }
         };
         
-        // Add reference images if provided (img-to-img) - uses image_urls array (supports multiple)
-        if (effectiveReferenceImages.length > 0) {
-          requestBody.input.image_urls = effectiveReferenceImages;
+        // Add reference images if provided (img-to-img) - uses image_urls array (max 14 images)
+        if (limitedImages.length > 0) {
+          requestBody.input.image_urls = limitedImages;
+          console.log(`Seedream: Using ${limitedImages.length} reference images (max ${maxImages})`);
         }
       } else if (modelConfig.apiType === 'qwen') {
         // Qwen API format - supports img-to-img
@@ -288,17 +292,21 @@ serve(async (req) => {
           requestBody.input.image = effectiveReferenceImage;
         }
       } else if (modelConfig.apiType === 'nano-banana-edit') {
-        // Nano Banana Edit API format - requires image_urls array (supports up to 10 images)
+        // Nano Banana Edit API format - requires image_urls array (max 10 images)
         if (effectiveReferenceImages.length === 0) {
           throw new Error("Nano Banana Edit requires at least one reference image");
         }
+        
+        const maxImages = 10;
+        const limitedImages = effectiveReferenceImages.slice(0, maxImages);
+        console.log(`Nano Banana Edit: Using ${limitedImages.length} reference images (max ${maxImages})`);
         
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            image_urls: effectiveReferenceImages, // Array of up to 10 images
+            image_urls: limitedImages, // Array of up to 10 images
             output_format: "png",
             image_size: aspectRatio || "1:1"
           }
@@ -348,7 +356,10 @@ serve(async (req) => {
           }
         };
       } else if (modelConfig.apiType === 'nano-banana-pro') {
-        // Nano Banana Pro API format - supports optional img-to-img with image_input array (multiple images)
+        // Nano Banana Pro API format - supports optional img-to-img with image_input array (max 8 images)
+        const maxImages = 8;
+        const limitedImages = effectiveReferenceImages.slice(0, maxImages);
+        
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -360,9 +371,10 @@ serve(async (req) => {
           }
         };
         
-        // Add reference images if provided (img-to-img) - uses image_input array (supports multiple)
-        if (effectiveReferenceImages.length > 0) {
-          requestBody.input.image_input = effectiveReferenceImages;
+        // Add reference images if provided (img-to-img) - uses image_input array (max 8 images)
+        if (limitedImages.length > 0) {
+          requestBody.input.image_input = limitedImages;
+          console.log(`Nano Banana Pro: Using ${limitedImages.length} reference images (max ${maxImages})`);
         }
       }
 
