@@ -11,6 +11,8 @@ import {
   Volume2,
   RotateCcw,
   Loader2,
+  Clock,
+  Calendar,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +26,15 @@ export interface AudioFile {
   duration: number;
   url: string;
   type: 'uploaded' | 'recorded';
+}
+
+interface SavedVoice {
+  id: string;
+  name: string;
+  duration: number;
+  url: string;
+  type: string;
+  created_at: string;
 }
 
 interface AudioUploadModalProps {
@@ -123,10 +134,6 @@ const AudioPlayer: React.FC<{
         setIsPlaying(false);
         setCurrentTime(0);
       });
-      
-      audioRef.current.addEventListener('loadedmetadata', () => {
-        // Update duration if available
-      });
     }
     
     return () => {
@@ -164,7 +171,6 @@ const AudioPlayer: React.FC<{
 
   return (
     <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
-      {/* Play/Pause Button */}
       <button
         onClick={togglePlay}
         className="w-10 h-10 bg-emerald-500 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
@@ -176,14 +182,12 @@ const AudioPlayer: React.FC<{
         )}
       </button>
 
-      {/* Waveform / Progress */}
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground min-w-[40px]">
             {formatTime(currentTime)}
           </span>
 
-          {/* Waveform Visualization */}
           <div className="flex-1 h-10 flex items-center gap-[2px] relative">
             {Array.from({ length: 50 }).map((_, i) => {
               const height = Math.sin(i * 0.3) * 12 + 16;
@@ -211,7 +215,6 @@ const AudioPlayer: React.FC<{
         </div>
       </div>
 
-      {/* Volume */}
       <div className="flex items-center gap-2">
         <Volume2 className="w-4 h-4 text-muted-foreground" />
         <div className="w-16">
@@ -219,12 +222,105 @@ const AudioPlayer: React.FC<{
         </div>
       </div>
 
-      {/* Remove Button */}
       <button
         onClick={onRemove}
         className="p-2 hover:bg-destructive/10 rounded-lg transition-colors group"
       >
         <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
+      </button>
+    </div>
+  );
+};
+
+// ============================================
+// VOICE CARD COMPONENT
+// ============================================
+
+const VoiceCard: React.FC<{
+  voice: SavedVoice;
+  onSelect: () => void;
+  onDelete: () => void;
+  isDeleting: boolean;
+}> = ({ voice, onSelect, onDelete, isDeleting }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!audioRef.current) {
+      audioRef.current = new Audio(voice.url);
+      audioRef.current.onended = () => setIsPlaying(false);
+    }
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete();
+  };
+
+  return (
+    <div 
+      onClick={onSelect}
+      className="flex items-center gap-3 p-3 bg-muted/30 hover:bg-muted/50 rounded-xl cursor-pointer transition-colors group border border-transparent hover:border-emerald-500/30"
+    >
+      <button
+        onClick={togglePlay}
+        className="w-10 h-10 bg-emerald-500/20 hover:bg-emerald-500 rounded-full flex items-center justify-center transition-colors flex-shrink-0 group-hover:bg-emerald-500"
+      >
+        {isPlaying ? (
+          <Pause className="w-4 h-4 text-emerald-500 group-hover:text-white" />
+        ) : (
+          <Play className="w-4 h-4 text-emerald-500 group-hover:text-white ml-0.5" />
+        )}
+      </button>
+
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground truncate">{voice.name}</p>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {formatTime(voice.duration)}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            {formatDate(voice.created_at)}
+          </span>
+          <span className="capitalize px-1.5 py-0.5 bg-muted rounded text-[10px]">
+            {voice.type}
+          </span>
+        </div>
+      </div>
+
+      <button
+        onClick={handleDelete}
+        disabled={isDeleting}
+        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-lg transition-all"
+      >
+        {isDeleting ? (
+          <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+        ) : (
+          <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+        )}
       </button>
     </div>
   );
@@ -240,11 +336,17 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   onUseAudio,
 }) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'upload' | 'record'>('upload');
+  const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record'>('voices');
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // My Voices state
+  const [savedVoices, setSavedVoices] = useState<SavedVoice[]>([]);
+  const [isLoadingVoices, setIsLoadingVoices] = useState(false);
+  const [deletingVoiceId, setDeletingVoiceId] = useState<string | null>(null);
 
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -257,6 +359,97 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordedAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Load saved voices when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      loadSavedVoices();
+    }
+  }, [isOpen]);
+
+  const loadSavedVoices = async () => {
+    setIsLoadingVoices(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_voices')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedVoices(data || []);
+    } catch (error) {
+      console.error('Error loading voices:', error);
+    } finally {
+      setIsLoadingVoices(false);
+    }
+  };
+
+  const saveVoiceToDatabase = async (audio: AudioFile, cloudinaryPublicId?: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('user_voices')
+        .insert({
+          user_id: user.id,
+          name: audio.name,
+          duration: audio.duration,
+          url: audio.url,
+          type: audio.type,
+          cloudinary_public_id: cloudinaryPublicId || null,
+        });
+
+      if (error) throw error;
+      
+      // Refresh the voices list
+      await loadSavedVoices();
+      
+      toast({
+        title: "Voice saved",
+        description: "Your voice has been saved to My Voices.",
+      });
+    } catch (error) {
+      console.error('Error saving voice:', error);
+      toast({
+        title: "Save failed",
+        description: "Failed to save voice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteVoice = async (voiceId: string) => {
+    setDeletingVoiceId(voiceId);
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .delete()
+        .eq('id', voiceId);
+
+      if (error) throw error;
+      
+      setSavedVoices(prev => prev.filter(v => v.id !== voiceId));
+      
+      toast({
+        title: "Voice deleted",
+        description: "The voice has been removed.",
+      });
+    } catch (error) {
+      console.error('Error deleting voice:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete voice. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingVoiceId(null);
+    }
+  };
 
   useEffect(() => {
     if (isRecording) {
@@ -307,11 +500,10 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
         const url = URL.createObjectURL(blob);
         setRecordedUrl(url);
         
-        // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
       };
       
-      mediaRecorder.start(1000); // Collect data every second
+      mediaRecorder.start(1000);
       setIsRecording(true);
       setRecordingTime(0);
       setHasRecording(false);
@@ -358,11 +550,10 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const uploadToCloudinary = async (file: File | Blob, filename: string): Promise<AudioFile | null> => {
+  const uploadToCloudinary = async (file: File | Blob, filename: string): Promise<{ audio: AudioFile; publicId?: string } | null> => {
     setIsUploading(true);
     
     try {
-      // Convert file to base64
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
@@ -372,7 +563,6 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
       
       const base64Data = await base64Promise;
       
-      // Get audio duration
       let duration = 0;
       if (file instanceof File) {
         const tempAudio = new Audio(URL.createObjectURL(file));
@@ -387,7 +577,6 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
         duration = recordingTime;
       }
       
-      // Upload via edge function
       const { data, error } = await supabase.functions.invoke('upload-audio', {
         body: {
           audioData: base64Data,
@@ -402,10 +591,13 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
       console.log('Audio uploaded successfully:', data.url);
       
       return {
-        name: filename,
-        duration: data.duration || duration,
-        url: data.url,
-        type: file instanceof File ? 'uploaded' : 'recorded',
+        audio: {
+          name: filename,
+          duration: data.duration || duration,
+          url: data.url,
+          type: file instanceof File ? 'uploaded' : 'recorded',
+        },
+        publicId: data.publicId,
       };
       
     } catch (error) {
@@ -425,7 +617,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && (file.type.startsWith('audio/'))) {
+    if (file && file.type.startsWith('audio/')) {
       handleFileSelect(file);
     }
   };
@@ -438,12 +630,16 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   };
 
   const handleFileSelect = async (file: File) => {
-    const audio = await uploadToCloudinary(file, file.name);
-    if (audio) {
-      setUploadedAudio(audio);
+    const result = await uploadToCloudinary(file, file.name);
+    if (result) {
+      setUploadedAudio(result.audio);
+      // Save to database
+      setIsSaving(true);
+      await saveVoiceToDatabase(result.audio, result.publicId);
+      setIsSaving(false);
       toast({
         title: "Audio uploaded",
-        description: "Your audio file has been uploaded successfully.",
+        description: "Your audio file has been uploaded and saved.",
       });
     }
   };
@@ -452,12 +648,25 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     if (activeTab === 'upload' && uploadedAudio) {
       onUseAudio(uploadedAudio);
     } else if (activeTab === 'record' && hasRecording && recordedBlob) {
-      // Upload recorded audio to Cloudinary first
-      const audio = await uploadToCloudinary(recordedBlob, `recording_${Date.now()}.webm`);
-      if (audio) {
-        onUseAudio(audio);
+      setIsSaving(true);
+      const result = await uploadToCloudinary(recordedBlob, `recording_${Date.now()}.webm`);
+      if (result) {
+        // Save to database
+        await saveVoiceToDatabase(result.audio, result.publicId);
+        onUseAudio(result.audio);
       }
+      setIsSaving(false);
     }
+    resetAndClose();
+  };
+
+  const handleSelectSavedVoice = (voice: SavedVoice) => {
+    onUseAudio({
+      name: voice.name,
+      duration: voice.duration,
+      url: voice.url,
+      type: voice.type as 'uploaded' | 'recorded',
+    });
     resetAndClose();
   };
 
@@ -469,7 +678,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setIsPlayingRecording(false);
     setRecordedBlob(null);
     setRecordedUrl(null);
-    setActiveTab('upload');
+    setActiveTab('voices');
     
     if (recordedAudioRef.current) {
       recordedAudioRef.current.pause();
@@ -499,7 +708,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <h2 className="text-lg font-semibold text-foreground">Upload Audio</h2>
+            <h2 className="text-lg font-semibold text-foreground">Audio</h2>
             <button
               onClick={resetAndClose}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -511,6 +720,16 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
           {/* Tabs */}
           <div className="flex border-b border-border">
             <button
+              onClick={() => setActiveTab('voices')}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                activeTab === 'voices'
+                  ? 'text-foreground border-b-2 border-emerald-500'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              My Voices
+            </button>
+            <button
               onClick={() => setActiveTab('upload')}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'upload'
@@ -518,7 +737,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Upload File
+              Upload
             </button>
             <button
               onClick={() => setActiveTab('record')}
@@ -528,18 +747,65 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Record Audio
+              Record
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            {activeTab === 'upload' ? (
+          <div className="p-6 max-h-[400px] overflow-y-auto">
+            {activeTab === 'voices' ? (
               <>
-                {isUploading ? (
+                {isLoadingVoices ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                    <p className="mt-3 text-sm text-muted-foreground">Loading voices...</p>
+                  </div>
+                ) : savedVoices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                      <Mic className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-base font-medium text-foreground mb-1">No saved voices</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Upload or record your first voice to get started
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveTab('upload')}
+                        className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium text-foreground transition-colors"
+                      >
+                        Upload
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('record')}
+                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium text-white transition-colors"
+                      >
+                        Record
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {savedVoices.map((voice) => (
+                      <VoiceCard
+                        key={voice.id}
+                        voice={voice}
+                        onSelect={() => handleSelectSavedVoice(voice)}
+                        onDelete={() => deleteVoice(voice.id)}
+                        isDeleting={deletingVoiceId === voice.id}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : activeTab === 'upload' ? (
+              <>
+                {isUploading || isSaving ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
-                    <p className="mt-4 text-sm text-muted-foreground">Uploading audio...</p>
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      {isSaving ? 'Saving voice...' : 'Uploading audio...'}
+                    </p>
                   </div>
                 ) : uploadedAudio ? (
                   <AudioPlayer
@@ -607,7 +873,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                     onClick={isRecording ? stopRecording : startRecording}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    disabled={isUploading}
+                    disabled={isUploading || isSaving}
                     className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
                       isRecording
                         ? 'bg-red-500 hover:bg-red-600'
@@ -641,7 +907,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                       <p className="text-sm text-muted-foreground">{formatTime(recordingTime)}</p>
                       <button
                         onClick={playRecordedAudio}
-                        disabled={isUploading}
+                        disabled={isUploading || isSaving}
                         className="mt-2 flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors mx-auto disabled:opacity-50"
                       >
                         {isPlayingRecording ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
@@ -654,7 +920,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                           setRecordedBlob(null);
                           setRecordedUrl(null);
                         }}
-                        disabled={isUploading}
+                        disabled={isUploading || isSaving}
                         className="mt-2 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto disabled:opacity-50"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -674,34 +940,37 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
             )}
           </div>
 
-          {/* Footer */}
-          <div className="px-6 pb-6">
-            <button
-              onClick={handleUseAudio}
-              disabled={
-                isUploading ||
-                (activeTab === 'upload' && !uploadedAudio) ||
-                (activeTab === 'record' && !hasRecording)
-              }
-              className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                !isUploading && (
-                  (activeTab === 'upload' && uploadedAudio) ||
-                  (activeTab === 'record' && hasRecording)
-                )
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                  : 'bg-muted text-muted-foreground cursor-not-allowed'
-              }`}
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                'Use This Audio'
-              )}
-            </button>
-          </div>
+          {/* Footer - only show for upload/record tabs */}
+          {(activeTab === 'upload' || activeTab === 'record') && (
+            <div className="px-6 pb-6">
+              <button
+                onClick={handleUseAudio}
+                disabled={
+                  isUploading ||
+                  isSaving ||
+                  (activeTab === 'upload' && !uploadedAudio) ||
+                  (activeTab === 'record' && !hasRecording)
+                }
+                className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                  !isUploading && !isSaving && (
+                    (activeTab === 'upload' && uploadedAudio) ||
+                    (activeTab === 'record' && hasRecording)
+                  )
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                    : 'bg-muted text-muted-foreground cursor-not-allowed'
+                }`}
+              >
+                {isUploading || isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {isSaving ? 'Saving...' : 'Uploading...'}
+                  </>
+                ) : (
+                  'Use This Audio'
+                )}
+              </button>
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
