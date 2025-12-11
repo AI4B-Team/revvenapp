@@ -35,11 +35,97 @@ serve(async (req) => {
       characterId,
       characterName,
       characterBio,
-      characterImageUrl
+      characterImageUrl,
+      // Voice settings for UGC auto-generation
+      voiceSettings
     } = await req.json();
 
     if (!prompt || !userId) {
       throw new Error("prompt and userId are required");
+    }
+
+    // For UGC mode (wan-speech-to-video), generate voice first if voiceSettings provided
+    let finalAudioUrl = audioUrl;
+    if (model === 'wan-speech-to-video' && voiceSettings && !audioUrl) {
+      console.log("UGC mode: Auto-generating voice with ElevenLabs...");
+      
+      const { voice = 'Rachel', text, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1, use_speaker_boost = true } = voiceSettings;
+      const clampedSpeed = Math.round(Math.max(0.7, Math.min(1.19, speed)) * 100) / 100;
+      
+      // Call KIE.AI TTS API to generate voice
+      const ttsResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${kieApiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'elevenlabs/text-to-speech-multilingual-v2',
+          input: {
+            text: text || prompt,
+            voice,
+            stability,
+            similarity_boost,
+            style,
+            speed: clampedSpeed,
+            use_speaker_boost,
+            timestamps: false,
+          },
+        }),
+      });
+
+      if (!ttsResponse.ok) {
+        const errorText = await ttsResponse.text();
+        console.error('TTS API error:', errorText);
+        throw new Error(`Voice generation failed: ${ttsResponse.status}`);
+      }
+
+      const ttsResult = await ttsResponse.json();
+      console.log('TTS task created:', ttsResult);
+
+      if (ttsResult.code !== 200) {
+        throw new Error(ttsResult.message || 'Failed to create TTS task');
+      }
+
+      const ttsTaskId = ttsResult.data.taskId;
+
+      // Poll for TTS completion
+      let ttsAttempts = 0;
+      const maxTtsAttempts = 30;
+      
+      while (ttsAttempts < maxTtsAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const statusResponse = await fetch(
+          `https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${ttsTaskId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${kieApiKey}`,
+            },
+          }
+        );
+
+        const statusResult = await statusResponse.json();
+        console.log(`TTS poll attempt ${ttsAttempts + 1}, state: ${statusResult.data?.state}`);
+
+        if (statusResult.data?.state === 'success') {
+          const resultJson = JSON.parse(statusResult.data.resultJson);
+          finalAudioUrl = resultJson.resultUrls?.[0];
+          
+          if (finalAudioUrl) {
+            console.log("Voice generated successfully:", finalAudioUrl);
+            break;
+          }
+        } else if (statusResult.data?.state === 'fail') {
+          throw new Error(statusResult.data.failMsg || 'Voice generation failed');
+        }
+
+        ttsAttempts++;
+      }
+
+      if (!finalAudioUrl) {
+        throw new Error('Voice generation timed out');
+      }
     }
 
     console.log("Creating ai_videos record...");
@@ -88,7 +174,7 @@ serve(async (req) => {
       if (!imageUrls || imageUrls.length === 0) {
         throw new Error("image_url is required for speech-to-video");
       }
-      if (!audioUrl) {
+      if (!finalAudioUrl) {
         throw new Error("audio_url is required for speech-to-video");
       }
 
@@ -112,7 +198,7 @@ serve(async (req) => {
         input: {
           prompt: prompt.substring(0, 5000),
           image_url: imageUrls[0],
-          audio_url: audioUrl,
+          audio_url: finalAudioUrl,
           num_frames: numFrames,
           frames_per_second: 16,
           resolution: '720p',

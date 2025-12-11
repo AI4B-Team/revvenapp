@@ -51,6 +51,7 @@ interface UGCCharacterBoxProps {
   script: string;
   onDelete: () => void;
   onAudioGenerated?: (audioUrl: string) => void;
+  onVoiceSettingsChange?: (settings: { voice: string; stability: number; similarity_boost: number; style: number; speed: number; use_speaker_boost: boolean }) => void;
 }
 
 // ============================================
@@ -541,6 +542,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   script,
   onDelete,
   onAudioGenerated,
+  onVoiceSettingsChange,
 }) => {
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [showVoiceLibrary, setShowVoiceLibrary] = useState(false);
@@ -555,6 +557,24 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
     speakerBoost: true,
   });
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Notify parent of voice settings changes
+  useEffect(() => {
+    const stability = voiceSettings.stability / 100;
+    const similarity_boost = voiceSettings.clarity / 100;
+    const style = voiceSettings.styleExaggeration / 100;
+    const speed = 0.7 + (voiceSettings.speed / 100) * 0.49;
+    const use_speaker_boost = voiceSettings.speakerBoost;
+    
+    onVoiceSettingsChange?.({
+      voice: selectedVoice.id,
+      stability,
+      similarity_boost,
+      style,
+      speed,
+      use_speaker_boost,
+    });
+  }, [selectedVoice, voiceSettings, onVoiceSettingsChange]);
 
   const handlePlayAudio = async () => {
     if (!script.trim()) return;
