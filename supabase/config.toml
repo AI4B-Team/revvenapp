@@ -47,3 +47,9 @@ verify_jwt = true
 
 [functions.generate-voice-preview]
 verify_jwt = true
+
+[functions.upload-audio]
+verify_jwt = true
+
+[functions.remove-background]
+verify_jwt = true

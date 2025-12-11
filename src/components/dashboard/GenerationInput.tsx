@@ -567,10 +567,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           characterImageUrl: primaryCharacter?.image_url || primaryCharacter?.image || ''
         };
 
-        // For UGC mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated)
+        // For UGC mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated or audio was uploaded)
         if (selectedAnimateMode === 'UGC') {
-          if (ugcAudioUrl) {
-            // Use pre-generated audio if available
+          // Priority: 1. Uploaded/recorded audio, 2. Voice preview audio, 3. Auto-generate from voice settings
+          if (uploadedAudio?.url) {
+            // Use uploaded or recorded audio
+            requestBody.audioUrl = uploadedAudio.url;
+          } else if (ugcAudioUrl) {
+            // Use pre-generated voice preview audio
             requestBody.audioUrl = ugcAudioUrl;
           } else if (ugcVoiceSettings) {
             // Pass voice settings for backend to generate audio
@@ -597,6 +601,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         // Clear UGC state after successful generation
         if (selectedAnimateMode === 'UGC') {
           setUgcAudioUrl(null);
+          setUploadedAudio(null);
         }
       } catch (error) {
         console.error("Video generation error:", error);
