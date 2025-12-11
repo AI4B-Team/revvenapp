@@ -261,7 +261,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
   // Auto-select valid model when entering Swap or Photoshoot mode
   useEffect(() => {
-    if ((selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot') && !['nano-banana-pro', 'seedream-4'].includes(selectedModel)) {
+    // Swap mode: allows nano-banana-pro and seedream-4
+    // Photoshoot mode: only allows nano-banana-pro
+    if (selectedCreateMode === 'Swap' && !['nano-banana-pro', 'seedream-4'].includes(selectedModel)) {
+      setSelectedModel('nano-banana-pro');
+    } else if (selectedCreateMode === 'Photoshoot' && selectedModel !== 'nano-banana-pro') {
       setSelectedModel('nano-banana-pro');
     }
   }, [selectedCreateMode]);
@@ -2225,8 +2229,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                   </button>
                   )}
 
-                  {/* Seedream 4.0 - Always visible, available in Swap/Photoshoot mode */}
-                  {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot' || ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream-4'))) && (
+                  {/* Seedream 4.0 - Available in Swap mode only (not Photoshoot) */}
+                  {(selectedCreateMode === 'Swap' || (selectedCreateMode !== 'Photoshoot' && ((selectedReferences.length === 0 && selectedCharacters.length === 0) || img2imgModels.includes('seedream-4')))) && (
                   <button
                     onClick={() => {
                       handleModelChange('seedream-4');
@@ -2243,8 +2247,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                           <span className="font-semibold text-foreground text-sm">Seedream 4.0</span>
                           <Badge className="bg-brand-blue text-primary text-[10px] px-1.5 py-0 h-4">NEW</Badge>
                           <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
-                          {(selectedCreateMode === 'Swap' || selectedCreateMode === 'Photoshoot') && (
-                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">{selectedCreateMode === 'Swap' ? 'SWAP' : 'PHOTO'}</Badge>
+                          {selectedCreateMode === 'Swap' && (
+                            <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">SWAP</Badge>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">ByteDance's next-gen 2K model</p>
