@@ -52,6 +52,24 @@ serve(async (req) => {
       const { voice = 'Rachel', text, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1, use_speaker_boost = true } = voiceSettings;
       const clampedSpeed = Math.round(Math.max(0.7, Math.min(1.19, speed)) * 100) / 100;
       
+      // Limit text to ~15 seconds of speech (approximately 150 words or 600 characters)
+      // Avatar video models have a 15-second audio limit
+      const MAX_CHARS_FOR_15_SEC = 600;
+      let ttsText = text || prompt;
+      if (ttsText.length > MAX_CHARS_FOR_15_SEC) {
+        console.log(`Truncating script from ${ttsText.length} to ${MAX_CHARS_FOR_15_SEC} chars for 15s audio limit`);
+        ttsText = ttsText.substring(0, MAX_CHARS_FOR_15_SEC).trim();
+        // Try to end at a sentence or word boundary
+        const lastSentence = ttsText.lastIndexOf('.');
+        const lastSpace = ttsText.lastIndexOf(' ');
+        if (lastSentence > MAX_CHARS_FOR_15_SEC * 0.7) {
+          ttsText = ttsText.substring(0, lastSentence + 1);
+        } else if (lastSpace > MAX_CHARS_FOR_15_SEC * 0.8) {
+          ttsText = ttsText.substring(0, lastSpace);
+        }
+      }
+      console.log(`Final TTS text length: ${ttsText.length} chars`);
+      
       // Call KIE.AI TTS API to generate voice
       const ttsResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
         method: 'POST',
@@ -62,7 +80,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: 'elevenlabs/text-to-speech-multilingual-v2',
           input: {
-            text: text || prompt,
+            text: ttsText,
             voice,
             stability,
             similarity_boost,
