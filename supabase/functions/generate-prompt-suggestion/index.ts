@@ -20,6 +20,22 @@ serve(async (req) => {
 
     const hasImages = (characterImages && characterImages.length > 0) || (referenceImages && referenceImages.length > 0);
     const isVideo = contentType?.toLowerCase() === 'video';
+    const isUGC = contentType?.toLowerCase() === 'ugc';
+
+    // UGC-specific system prompt for voice scripts
+    const ugcPromptGuidance = `Create scripts for UGC (User-Generated Content) TALKING HEAD videos where a person speaks directly to camera.
+Generate natural, conversational scripts that sound authentic and engaging. The script should:
+- Be 30-60 seconds when spoken (approximately 75-150 words)
+- Sound natural and conversational, like someone genuinely sharing their experience
+- Include emotional hooks and relatable moments
+- Have a clear structure: hook, story/message, call-to-action
+- Avoid overly salesy or robotic language
+
+Example formats:
+- Product testimonial: "Okay so I've been using [product] for about 2 weeks now and I have to tell you..."
+- Life hack/tip: "So here's something nobody told me about [topic] that completely changed..."
+- Story time: "You guys won't believe what happened when I tried..."
+- Review/unboxing: "Alright let's see what all the hype is about with this..."`;
 
     // Different system prompts for video vs image
     const videoPromptGuidance = `Create prompts for VIDEO generation that describe:
@@ -40,7 +56,19 @@ Example style: "A stunning portrait of a woman in golden hour light, soft bokeh 
 
     let messages: any[] = [];
 
-    if (hasImages) {
+    if (isUGC) {
+      // UGC mode - generate voice scripts
+      const systemPrompt = `You are a creative scriptwriter specializing in authentic UGC (User-Generated Content) videos.
+${ugcPromptGuidance}
+
+Generate a single engaging UGC script that sounds natural and conversational.
+Return only the script text that the person will speak, nothing else. No stage directions, no quotation marks.`;
+
+      messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Generate a creative, authentic UGC video script for a talking head video. Make it sound natural and engaging, like a real person sharing their genuine thoughts or experience." }
+      ];
+    } else if (hasImages) {
       // Build a message with images for vision analysis
       const systemPrompt = isVideo
         ? `You are a creative AI assistant that generates inspiring and detailed prompts for VIDEO generation.
