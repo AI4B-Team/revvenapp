@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, Volume2, Palette, Heart, Package, FileEdit, Clapperboard, Captions, RatioIcon } from 'lucide-react';
+import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -88,6 +88,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Create mode dropdown state (Image)
   const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
+  
+  // UGC mode selected button state
+  const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -924,7 +927,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition">
-                            <Volume2 size={18} className="text-muted-foreground" />
+                            <AudioLines size={18} className="text-muted-foreground" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1005,7 +1008,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isGenerating}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")' : "Describe what you want to create..."}
+              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'UGC') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : "Describe what you want to create..."}
             />
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
@@ -1241,7 +1244,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       </Popover>
 
                       <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <Palette size={14} />
+                        <Film size={14} />
                         Style
                       </button>
 
@@ -1274,12 +1277,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                         Product
                       </button>
 
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <FileEdit size={14} />
-                        Script
-                      </button>
-
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      <button 
+                        onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
+                        className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedUGCButton === 'Scene' 
+                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                            : 'bg-muted hover:bg-muted/80'
+                        }`}
+                      >
                         <Clapperboard size={14} />
                         Scene
                       </button>
