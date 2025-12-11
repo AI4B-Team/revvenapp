@@ -250,6 +250,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_voices: {
+        Row: {
+          cloudinary_public_id: string | null
+          created_at: string
+          duration: number
+          id: string
+          name: string
+          type: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          duration?: number
+          id?: string
+          name: string
+          type?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          cloudinary_public_id?: string | null
+          created_at?: string
+          duration?: number
+          id?: string
+          name?: string
+          type?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
