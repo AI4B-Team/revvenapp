@@ -1321,7 +1321,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
                   {selectedAnimateMode === 'UGC' ? (
                     <>
-                      {/* UGC Mode Controls - Model is fixed to Wan Speech-to-Video */}
+                      {/* UGC Mode Controls - Model is fixed to Wan Avatar */}
+                      <button className="px-4 py-1.5 bg-emerald-500 text-white rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap cursor-default">
+                        <Video size={14} />
+                        Wan Avatar
+                      </button>
+
                       <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
                         <Film size={14} />
                         Style
