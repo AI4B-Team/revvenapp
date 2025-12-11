@@ -11,7 +11,10 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, use_speaker_boost = true } = await req.json();
+    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, speed: rawSpeed = 1, use_speaker_boost = true } = await req.json();
+
+    // Clamp speed to valid range (0.5 to 2.0) and round to 1 decimal place
+    const speed = Math.round(Math.max(0.5, Math.min(2.0, rawSpeed)) * 10) / 10;
 
     if (!text || !voice) {
       return new Response(
@@ -25,7 +28,7 @@ serve(async (req) => {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
 
-    console.log(`Generating voice preview for voice: ${voice}, text length: ${text.length}, settings: stability=${stability}, similarity_boost=${similarity_boost}, style=${style}, use_speaker_boost=${use_speaker_boost}`);
+    console.log(`Generating voice preview for voice: ${voice}, text length: ${text.length}, speed: ${speed}`);
 
     // Call KIE.AI TTS API
     const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
@@ -42,6 +45,7 @@ serve(async (req) => {
           stability,
           similarity_boost,
           style,
+          speed,
           use_speaker_boost,
           timestamps: false,
         },
