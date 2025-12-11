@@ -161,10 +161,10 @@ const VoiceSettingsPopup: React.FC<{
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      className="absolute bottom-full left-0 mb-2 w-72 bg-background rounded-xl shadow-2xl border border-border p-4 z-50"
+      initial={{ opacity: 0, x: -10, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: -10, scale: 0.95 }}
+      className="absolute left-full top-0 ml-2 w-72 bg-background rounded-xl shadow-2xl border border-border p-4 z-50"
       onClick={(e) => e.stopPropagation()}
     >
       <h3 className="text-base font-semibold text-foreground mb-4">Voice Settings</h3>
@@ -564,7 +564,7 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
   return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-2">
-        <div className="relative flex items-center gap-3 px-3 py-2.5 bg-background border border-border rounded-xl min-w-[280px]">
+        <div className="relative flex items-center gap-3 px-3 py-2.5 bg-background border-2 border-slate-400 dark:border-slate-500 rounded-xl min-w-[280px]">
           {/* Avatar */}
           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900 dark:to-cyan-900 flex items-center justify-center overflow-hidden flex-shrink-0">
             {characterImage ? (
