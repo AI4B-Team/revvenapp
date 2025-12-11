@@ -607,6 +607,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
           console.log("UGC image generated successfully:", generatedImageUrl);
 
+          // Show the generated image URL to the user
+          toast({
+            title: "Image generated!",
+            description: generatedImageUrl,
+            duration: 10000,
+          });
+
           // Step 2: Use the generated image to create a video
           toast({
             title: "Step 2: Creating video...",
