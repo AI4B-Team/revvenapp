@@ -6,6 +6,7 @@ import {
   MoreVertical,
   Trash2,
   Play,
+  Square,
   X,
   Search,
   Bookmark,
@@ -14,7 +15,10 @@ import {
   RotateCcw,
   Info,
   Check,
+  Loader2,
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // ============================================
 // TYPES
@@ -548,20 +552,65 @@ const UGCCharacterBox: React.FC<UGCCharacterBoxProps> = ({
     styleExaggeration: 25,
     speakerBoost: true,
   });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handlePlayAudio = async () => {
     if (!script.trim()) return;
-    
-    setIsGeneratingAudio(true);
-    // Simulate audio generation
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsGeneratingAudio(false);
-    setIsPlayingPreview(true);
-    
-    // Simulate audio playback duration
-    setTimeout(() => {
+
+    // If already playing, stop the audio
+    if (isPlayingPreview && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
       setIsPlayingPreview(false);
-    }, 3000);
+      return;
+    }
+
+    setIsGeneratingAudio(true);
+    
+    try {
+      // Convert voice settings to API parameters (0-1 scale)
+      const stability = voiceSettings.stability / 100;
+      const similarity_boost = voiceSettings.clarity / 100;
+      const style = voiceSettings.styleExaggeration / 100;
+      const speed = 0.7 + (voiceSettings.speed / 100) * 0.5; // Map 0-100 to 0.7-1.2
+
+      const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
+        body: {
+          text: script,
+          voice: selectedVoice.id,
+          stability,
+          similarity_boost,
+          style,
+          speed,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.audioUrl) {
+        const audio = new Audio(data.audioUrl);
+        audioRef.current = audio;
+        
+        audio.onended = () => {
+          setIsPlayingPreview(false);
+          audioRef.current = null;
+        };
+        
+        audio.onerror = () => {
+          toast.error('Failed to play audio');
+          setIsPlayingPreview(false);
+          audioRef.current = null;
+        };
+
+        await audio.play();
+        setIsPlayingPreview(true);
+      }
+    } catch (error) {
+      console.error('Error generating voice preview:', error);
+      toast.error('Failed to generate voice preview');
+    } finally {
+      setIsGeneratingAudio(false);
+    }
   };
 
   const handleVoiceSelect = (voice: Voice) => {
