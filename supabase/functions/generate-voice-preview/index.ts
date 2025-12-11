@@ -11,10 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, speed: rawSpeed = 1 } = await req.json();
-    
-    // Clamp speed to valid range (0.5 to 2.0 for KIE.AI)
-    const speed = Math.max(0.5, Math.min(2.0, rawSpeed));
+    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0 } = await req.json();
 
     if (!text || !voice) {
       return new Response(
@@ -30,7 +27,7 @@ serve(async (req) => {
 
     console.log(`Generating voice preview for voice: ${voice}, text length: ${text.length}`);
 
-    // Call KIE.AI TTS API
+    // Call KIE.AI TTS API (speed parameter not supported by this model)
     const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -45,7 +42,6 @@ serve(async (req) => {
           stability,
           similarity_boost,
           style,
-          speed,
           timestamps: false,
         },
       }),
