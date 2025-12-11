@@ -2035,53 +2035,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Style Reference Upload */}
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            ugcStyleImage 
-                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                              : 'bg-muted hover:bg-muted/80'
-                          }`}>
-                            {isUploadingUgcStyle ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Upload size={14} />
-                            )}
-                            {ugcStyleImage ? 'Style ✓' : 'Style Ref'}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-64 bg-background border-border z-50">
-                          <div className="space-y-3">
-                            <p className="text-sm font-medium">Upload Style Reference</p>
-                            {ugcStyleImage ? (
-                              <div className="space-y-2">
-                                <div className="relative">
-                                  <img src={ugcStyleImage.url} alt="Style" className="w-full h-24 object-cover rounded-md" />
-                                  <button 
-                                    onClick={() => setUgcStyleImage(null)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </div>
-                                <p className="text-xs text-muted-foreground truncate">{ugcStyleImage.name}</p>
-                              </div>
-                            ) : (
-                              <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                                <Upload size={20} className="text-muted-foreground mb-2" />
-                                <span className="text-xs text-muted-foreground">Click to upload style reference</span>
-                                <input 
-                                  type="file" 
-                                  accept="image/*" 
-                                  className="hidden" 
-                                  onChange={handleUgcStyleUpload}
-                                />
-                              </label>
-                            )}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
 
                       <Popover>
                         <PopoverTrigger asChild>
