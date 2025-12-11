@@ -94,7 +94,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage, characterImage, maskImage } = await req.json();
+    const { prompt, aspectRatio = "1:1", model = "auto", numberOfImages = 1, referenceImage, referenceImages, characterImage, maskImage } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
@@ -102,8 +102,14 @@ serve(async (req) => {
 
     // Use characterImage as the effective reference if provided, otherwise use referenceImage
     const effectiveReferenceImage = characterImage || referenceImage;
+    
+    // Build array of reference images for models that support multiple inputs
+    // Priority: referenceImages array > single effectiveReferenceImage
+    const effectiveReferenceImages: string[] = referenceImages && referenceImages.length > 0 
+      ? referenceImages 
+      : (effectiveReferenceImage ? [effectiveReferenceImage] : []);
 
-    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages, hasCharacter: !!characterImage, hasReference: !!referenceImage, effectiveReference: !!effectiveReferenceImage });
+    console.log("Generating images with KIE.AI:", { prompt, model, aspectRatio, numberOfImages, hasCharacter: !!characterImage, hasReference: !!referenceImage, referenceImagesCount: effectiveReferenceImages.length });
 
     // Get user from authorization header
     const authHeader = req.headers.get("authorization");
@@ -221,7 +227,7 @@ serve(async (req) => {
           requestBody.filesUrl = [effectiveReferenceImage]; // Array of up to 5 images
         }
       } else if (modelConfig.apiType === 'seedream') {
-        // Seedream 3.0/4.0 API format - supports img-to-img with image_urls
+        // Seedream 3.0/4.0 API format - supports img-to-img with image_urls (multiple images)
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -239,9 +245,9 @@ serve(async (req) => {
           }
         };
         
-        // Add reference image if provided (img-to-img) - uses image_urls array
-        if (effectiveReferenceImage) {
-          requestBody.input.image_urls = [effectiveReferenceImage];
+        // Add reference images if provided (img-to-img) - uses image_urls array (supports multiple)
+        if (effectiveReferenceImages.length > 0) {
+          requestBody.input.image_urls = effectiveReferenceImages;
         }
       } else if (modelConfig.apiType === 'qwen') {
         // Qwen API format - supports img-to-img
@@ -282,9 +288,9 @@ serve(async (req) => {
           requestBody.input.image = effectiveReferenceImage;
         }
       } else if (modelConfig.apiType === 'nano-banana-edit') {
-        // Nano Banana Edit API format - requires image_urls array
-        if (!effectiveReferenceImage) {
-          throw new Error("Nano Banana Edit requires a reference image");
+        // Nano Banana Edit API format - requires image_urls array (supports up to 10 images)
+        if (effectiveReferenceImages.length === 0) {
+          throw new Error("Nano Banana Edit requires at least one reference image");
         }
         
         requestBody = {
@@ -292,7 +298,7 @@ serve(async (req) => {
           callBackUrl: callbackUrl,
           input: {
             prompt: prompt,
-            image_urls: [effectiveReferenceImage], // Array of up to 10 images
+            image_urls: effectiveReferenceImages, // Array of up to 10 images
             output_format: "png",
             image_size: aspectRatio || "1:1"
           }
@@ -342,7 +348,7 @@ serve(async (req) => {
           }
         };
       } else if (modelConfig.apiType === 'nano-banana-pro') {
-        // Nano Banana Pro API format - supports optional img-to-img with image_input array
+        // Nano Banana Pro API format - supports optional img-to-img with image_input array (multiple images)
         requestBody = {
           model: modelConfig.model,
           callBackUrl: callbackUrl,
@@ -354,9 +360,9 @@ serve(async (req) => {
           }
         };
         
-        // Add reference image if provided (img-to-img) - uses image_input array
-        if (effectiveReferenceImage) {
-          requestBody.input.image_input = [effectiveReferenceImage];
+        // Add reference images if provided (img-to-img) - uses image_input array (supports multiple)
+        if (effectiveReferenceImages.length > 0) {
+          requestBody.input.image_input = effectiveReferenceImages;
         }
       }
 
