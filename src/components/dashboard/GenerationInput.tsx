@@ -1444,11 +1444,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                         Emotion
                       </button>
 
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <Package size={14} />
-                        Product
-                      </button>
-
                       <button 
                         onClick={() => setSelectedUGCButton(selectedUGCButton === 'Scene' ? null : 'Scene')}
                         className={`px-4 py-1.5 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap ${
@@ -1459,11 +1454,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
                       >
                         <Clapperboard size={14} />
                         Scene
-                      </button>
-
-                      <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                        <Captions size={14} />
-                        Captions
                       </button>
 
                       <Popover>
