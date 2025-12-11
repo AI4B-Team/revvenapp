@@ -105,7 +105,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [ugcVoiceSettings, setUgcVoiceSettings] = useState<{ voice: string; stability: number; similarity_boost: number; style: number; speed: number; use_speaker_boost: boolean } | null>(null);
   
   // UGC model selection (Wan Avatar or Kling Avatar)
-  const [ugcModel, setUgcModel] = useState<'wan-speech-to-video' | 'kling-ai-avatar'>('wan-speech-to-video');
+  const [ugcModel, setUgcModel] = useState<'wan-speech-to-video' | 'kling-ai-avatar'>('kling-ai-avatar');
   
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
