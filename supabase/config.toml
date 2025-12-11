@@ -44,3 +44,6 @@ verify_jwt = true
 
 [functions.editor-generate-image]
 verify_jwt = true
+
+[functions.generate-voice-preview]
+verify_jwt = true
