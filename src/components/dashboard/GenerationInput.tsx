@@ -566,6 +566,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       // Use first character if multiple are selected
       const primaryCharacter = currentCharacters.length > 0 ? currentCharacters[0] : null;
       
+      // Build reference images array from all selected references
+      const referenceImageUrls = currentReferences
+        .map(ref => ref.image_url || ref.thumbnail_url)
+        .filter(Boolean) as string[];
+      
       const { data, error } = await supabase.functions.invoke('generate-image', {
         body: { 
           prompt: prompt.trim(),
@@ -577,10 +582,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             name: primaryCharacter.name,
             image: primaryCharacter.image_url || primaryCharacter.image
           } : null,
-          // Use character image as reference if character is selected, otherwise use direct reference
+          // Pass all reference images as array for models that support multiple
+          referenceImages: primaryCharacter 
+            ? [primaryCharacter.image_url || primaryCharacter.image].filter(Boolean)
+            : referenceImageUrls,
+          // Keep single referenceImage for backward compatibility
           referenceImage: primaryCharacter 
             ? (primaryCharacter.image_url || primaryCharacter.image)
-            : (currentReferences.length > 0 ? currentReferences[0].image_url || currentReferences[0].thumbnail_url : null),
+            : (referenceImageUrls.length > 0 ? referenceImageUrls[0] : null),
           characterImage: primaryCharacter ? (primaryCharacter.image_url || primaryCharacter.image) : null,
           maskImage: maskImage
         }
