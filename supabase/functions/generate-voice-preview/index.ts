@@ -11,7 +11,10 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, speed = 1 } = await req.json();
+    const { text, voice, stability = 0.5, similarity_boost = 0.75, style = 0, speed: rawSpeed = 1 } = await req.json();
+    
+    // Clamp speed to valid range (0.5 to 2.0 for KIE.AI)
+    const speed = Math.max(0.5, Math.min(2.0, rawSpeed));
 
     if (!text || !voice) {
       return new Response(
