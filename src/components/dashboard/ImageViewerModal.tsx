@@ -10,6 +10,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+interface StoryScene {
+  scene: string;
+  duration: number;
+}
+
 interface ImageData {
   id: number | string;
   type: 'image' | 'video';
@@ -27,6 +32,7 @@ interface ImageData {
   referenceImages?: string[];
   timestamp?: string;
   resolution?: string;
+  scenes?: StoryScene[];
 }
 
 interface ImageViewerModalProps {
@@ -319,49 +325,67 @@ const ImageViewerModal = ({
 
             {/* Scrollable Middle Section */}
             <div className="flex-1 overflow-y-auto min-h-0">
-              <div className="p-4 border-b border-gray-800">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-white font-semibold text-sm">Prompt</h3>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={copyPrompt}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {copiedPrompt ? (
-                      <Check size={18} className="text-green-500" />
-                    ) : (
-                      <Copy size={18} />
+              {/* Scenes Section - For Story Mode Videos */}
+              {imageData.scenes && imageData.scenes.length > 0 ? (
+                <div className="p-4 border-b border-gray-800">
+                  <h3 className="text-white font-semibold text-sm mb-3">Scenes ({imageData.scenes.length})</h3>
+                  <div className="space-y-3">
+                    {imageData.scenes.map((scene, index) => (
+                      <div key={index} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-medium text-blue-400">Scene {index + 1}</span>
+                          <span className="text-xs text-gray-400">{scene.duration}s</span>
+                        </div>
+                        <p className="text-gray-300 text-sm leading-relaxed">{scene.scene}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 border-b border-gray-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-white font-semibold text-sm">Prompt</h3>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={copyPrompt}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          {copiedPrompt ? (
+                            <Check size={18} className="text-green-500" />
+                          ) : (
+                            <Copy size={18} />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div>
+                    <div className={`text-gray-300 text-sm leading-relaxed ${!promptExpanded ? 'line-clamp-3' : ''}`}>
+                      {imageData.prompt}
+                    </div>
+                    {!promptExpanded && imageData.prompt.length > 120 && (
+                      <button
+                        onClick={() => setPromptExpanded(true)}
+                        className="mt-1 text-blue-400 hover:text-blue-300 cursor-pointer font-medium text-sm"
+                      >
+                        see more
+                      </button>
                     )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Copy Prompt</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <div>
-              <div className={`text-gray-300 text-sm leading-relaxed ${!promptExpanded ? 'line-clamp-3' : ''}`}>
-                {imageData.prompt}
-              </div>
-              {!promptExpanded && imageData.prompt.length > 120 && (
-                <button
-                  onClick={() => setPromptExpanded(true)}
-                  className="mt-1 text-blue-400 hover:text-blue-300 cursor-pointer font-medium text-sm"
-                >
-                  see more
-                </button>
+                    {promptExpanded && (
+                      <button
+                        onClick={() => setPromptExpanded(false)}
+                        className="mt-2 text-blue-400 hover:text-blue-300 font-medium text-sm"
+                      >
+                        see less
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
-              {promptExpanded && (
-                <button
-                  onClick={() => setPromptExpanded(false)}
-                  className="mt-2 text-blue-400 hover:text-blue-300 font-medium text-sm"
-                >
-                  see less
-                </button>
-              )}
-            </div>
-            </div>
 
             {/* Image Details */}
             <div className="p-4 border-b border-gray-800">

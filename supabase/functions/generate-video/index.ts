@@ -58,7 +58,12 @@ serve(async (req) => {
       // Use only valid shots
       const shotsToProcess = validShots;
 
-      // Create a record in ai_videos table for tracking
+      // Create a record in ai_videos table for tracking (including scenes for display)
+      const scenesData = shotsToProcess.map((s: any) => ({
+        scene: s.Scene,
+        duration: s.duration || 5
+      }));
+      
       const { data: videoRecord, error: insertError } = await supabase
         .from('ai_videos')
         .insert({
@@ -69,7 +74,8 @@ serve(async (req) => {
           character_name: 'Story',
           character_bio: shotsToProcess.map((s: any, i: number) => `Scene ${i + 1}: ${s.Scene}`).join(' | '),
           character_image_url: imageUrls?.[0] || '',
-          status: 'processing'
+          status: 'processing',
+          scenes: scenesData
         })
         .select()
         .single();

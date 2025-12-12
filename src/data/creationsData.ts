@@ -1,3 +1,8 @@
+export interface StoryScene {
+  scene: string;
+  duration: number;
+}
+
 export interface GalleryItem {
   id: number | string;
   type: 'image' | 'video';
@@ -19,6 +24,7 @@ export interface GalleryItem {
   errorMessage?: string;
   referenceImage?: string;
   referenceImages?: string[];
+  scenes?: StoryScene[];
 }
 
 export const creationsData: GalleryItem[] = [
