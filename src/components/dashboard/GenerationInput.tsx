@@ -572,13 +572,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
-    // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; otherwise check prompt
+    // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; in Story mode, scenes can replace prompt
     const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
-    // Recast mode doesn't require a prompt text - only video and move image
-    if (selectedAnimateMode !== 'Recast' && !effectivePrompt.trim()) {
+    // Story mode: scenes can replace prompt requirement if image is present
+    const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
+    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || videoModeState.startingFrame);
+    const isStoryModeValid = selectedAnimateMode === 'Story' && hasValidStoryScenes && hasStoryImage;
+    // Recast mode doesn't require a prompt text - only video and character image
+    // Story mode: valid if (scenes + image) OR (prompt + image) OR (prompt only for single scene)
+    if (selectedAnimateMode !== 'Recast' && !isStoryModeValid && !effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
-        description: "Please describe what you want to create",
+        description: selectedAnimateMode === 'Story' 
+          ? "Please add scene descriptions or a prompt to create your video"
+          : "Please describe what you want to create",
         variant: "destructive",
       });
       return;
@@ -833,12 +840,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         // STORY MODE: Use sora-2-pro-storyboard model with shots array
         if (selectedAnimateMode === 'Story') {
-          // Validate at least one scene has content
+          // Validate: either scenes with content OR prompt for single-scene video
           const validScenes = storyScenes.filter(s => s.scene.trim().length > 0);
-          if (validScenes.length === 0) {
+          const hasCharacterImage = currentCharacters.length > 0 || videoModeState.startingFrame;
+          
+          // Case 1: Scenes + Image = valid (multi-scene storyboard)
+          // Case 2: Prompt + Image = valid (single scene from prompt)
+          // Case 3: Prompt only = valid (single scene video)
+          if (validScenes.length === 0 && !prompt.trim()) {
             toast({
-              title: "Scenes required",
-              description: "Please add at least one scene description",
+              title: "Content required",
+              description: "Please add scene descriptions or enter a prompt",
               variant: "destructive",
             });
             setIsGenerating(false);
@@ -856,13 +868,23 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           // Get character image URL if selected (optional reference)
           const characterImageUrl = currentCharacters.length > 0 
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
-            : null;
+            : videoModeState.startingFrame?.preview || null;
 
-          // Build shots array for API with custom durations
-          const shots = validScenes.map(s => ({
-            Scene: s.scene.trim(),
-            duration: s.duration
-          }));
+          // Build shots array: use scenes if available, otherwise use prompt as single scene
+          let shots;
+          if (validScenes.length > 0) {
+            // Multi-scene: use defined scenes with custom durations
+            shots = validScenes.map(s => ({
+              Scene: s.scene.trim(),
+              duration: s.duration
+            }));
+          } else {
+            // Single scene from prompt
+            shots = [{
+              Scene: prompt.trim(),
+              duration: parseInt(storyDuration)
+            }];
+          }
 
           // Call the generate-video edge function with Story-specific parameters
           const storyRequestBody = {
