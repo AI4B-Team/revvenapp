@@ -365,6 +365,21 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode]);
 
+  // Story mode: Auto-sync prompt to first scene description
+  useEffect(() => {
+    if (isVideoMode && selectedAnimateMode === 'Story' && prompt.trim()) {
+      setStoryScenes(prev => {
+        // Only update if the first scene is empty
+        if (prev.length > 0 && prev[0].scene === '') {
+          const updated = [...prev];
+          updated[0] = { ...updated[0], scene: prompt.trim() };
+          return updated;
+        }
+        return prev;
+      });
+    }
+  }, [prompt, isVideoMode, selectedAnimateMode]);
+
   // Auto-select valid model when entering Swap, Photoshoot, or Draw mode
   useEffect(() => {
     // Swap mode: allows nano-banana-pro and seedream-4
