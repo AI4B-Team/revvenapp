@@ -121,6 +121,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isUploadingUgcProduct, setIsUploadingUgcProduct] = useState(false);
   const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
   
+  // Recast mode state - requires video and move image
+  const [recastVideo, setRecastVideo] = useState<{ url: string; name: string } | null>(null);
+  const [recastMoveImage, setRecastMoveImage] = useState<{ url: string; name: string } | null>(null);
+  const [isUploadingRecastVideo, setIsUploadingRecastVideo] = useState(false);
+  const [isUploadingRecastMoveImage, setIsUploadingRecastMoveImage] = useState(false);
+  const [recastResolution, setRecastResolution] = useState<'480p' | '580p' | '720p'>('480p');
+  
   // Product history
   const [savedProducts, setSavedProducts] = useState<{ id: string; url: string; name: string }[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -523,9 +530,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
-    // In Avatar Video mode, check ugcScriptText; otherwise check prompt
+    // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; otherwise check prompt
     const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
-    if (!effectivePrompt.trim()) {
+    // Recast mode doesn't require a prompt text - only video and move image
+    if (selectedAnimateMode !== 'Recast' && !effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
         description: "Please describe what you want to create",
@@ -701,6 +709,67 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           setUgcProductImage(null);
           setUgcStyleImage(null);
           setPrompt('');
+          
+          setIsGenerating(false);
+          return;
+        }
+
+        // RECAST MODE: Use wan/2-2-animate-move model with video + move image
+        if (selectedAnimateMode === 'Recast') {
+          // Validate required inputs for Recast mode
+          if (!recastVideo) {
+            toast({
+              title: "Video required",
+              description: "Please upload a video for Recast",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+          if (!recastMoveImage) {
+            toast({
+              title: "Move image required",
+              description: "Please upload a move image for Recast",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          console.log("Recast Mode: Starting video generation with wan/2-2-animate-move...");
+          
+          // Get the authenticated user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+
+          // Call the generate-video edge function with Recast-specific parameters
+          const recastRequestBody = {
+            model: 'wan/2-2-animate-move',
+            videoUrl: recastVideo.url,
+            imageUrl: recastMoveImage.url,
+            resolution: recastResolution,
+            userId: user.id,
+            isRecast: true
+          };
+
+          const { data: recastData, error: recastError } = await supabase.functions.invoke('generate-video', {
+            body: recastRequestBody
+          });
+
+          if (recastError) throw recastError;
+
+          toast({
+            title: "Recast video generating!",
+            description: "Your Recast video is being created. This may take a few minutes.",
+          });
+
+          console.log("Recast video generation started:", recastData);
+          
+          // Clear Recast state after successful generation
+          setRecastVideo(null);
+          setRecastMoveImage(null);
           
           setIsGenerating(false);
           return;
@@ -1342,6 +1411,138 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         variant: "destructive",
       });
       setIsUploadingUgcStyle(false);
+    }
+  };
+
+  // Recast video upload handler
+  const handleRecastVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a video file (MP4, MOV, MKV)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Video size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingRecastVideo(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        setRecastVideo({
+          url: data?.referenceImage?.image_url,
+          name: file.name
+        });
+
+        toast({
+          title: "Success",
+          description: "Video uploaded for Recast",
+        });
+        setIsUploadingRecastVideo(false);
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading recast video:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload video",
+        variant: "destructive",
+      });
+      setIsUploadingRecastVideo(false);
+    }
+  };
+
+  // Recast move image upload handler
+  const handleRecastMoveImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Image size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingRecastMoveImage(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64,
+            filename: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        setRecastMoveImage({
+          url: data?.referenceImage?.image_url,
+          name: file.name
+        });
+
+        toast({
+          title: "Success",
+          description: "Move image uploaded for Recast",
+        });
+        setIsUploadingRecastMoveImage(false);
+      };
+
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+    } catch (error) {
+      console.error('Error uploading recast move image:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload move image",
+        variant: "destructive",
+      });
+      setIsUploadingRecastMoveImage(false);
     }
   };
 
@@ -2103,6 +2304,150 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </div>
                         </PopoverContent>
                         </Popover>
+                    </>
+                  ) : selectedAnimateMode === 'Recast' ? (
+                    <>
+                      {/* Recast Mode Controls - Video + Move Image */}
+                      <span className="px-3 py-1.5 rounded-full text-xs bg-pill-orange text-pill-orange-text">
+                        wan/2-2-animate-move
+                      </span>
+
+                      {/* Video Upload */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            recastVideo 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {isUploadingRecastVideo ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Video size={14} />
+                            )}
+                            {recastVideo ? 'Video ✓' : 'Video'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Upload Video</p>
+                            <p className="text-xs text-muted-foreground">MP4, MOV, or MKV • Max 10MB</p>
+                            
+                            {recastVideo && (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">Current Selection</p>
+                                <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
+                                  <Video size={16} className="text-muted-foreground" />
+                                  <span className="text-xs truncate flex-1">{recastVideo.name}</span>
+                                  <button 
+                                    onClick={() => setRecastVideo(null)}
+                                    className="bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                              <Upload size={20} className="text-muted-foreground mb-2" />
+                              <span className="text-sm text-muted-foreground">Click to upload video</span>
+                              <input 
+                                type="file" 
+                                accept="video/mp4,video/quicktime,video/x-matroska" 
+                                className="hidden" 
+                                onChange={handleRecastVideoUpload}
+                              />
+                            </label>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Move Image Upload */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            recastMoveImage 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {isUploadingRecastMoveImage ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Image size={14} />
+                            )}
+                            {recastMoveImage ? 'Move Img ✓' : 'Move Img'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72 bg-background border-border z-50">
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium">Upload Move Image</p>
+                            <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP • Max 10MB</p>
+                            
+                            {recastMoveImage && (
+                              <div className="space-y-2">
+                                <p className="text-xs text-muted-foreground">Current Selection</p>
+                                <div className="relative">
+                                  <img src={recastMoveImage.url} alt="Move" className="w-full h-20 object-cover rounded-md" />
+                                  <button 
+                                    onClick={() => setRecastMoveImage(null)}
+                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                              <Upload size={20} className="text-muted-foreground mb-2" />
+                              <span className="text-sm text-muted-foreground">Click to upload image</span>
+                              <input 
+                                type="file" 
+                                accept="image/jpeg,image/png,image/webp" 
+                                className="hidden" 
+                                onChange={handleRecastMoveImageUpload}
+                              />
+                            </label>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Resolution Selector */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            recastResolution !== '480p' 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {recastResolution}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setRecastResolution('480p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '480p' ? 'bg-secondary' : ''}`}
+                            >
+                              480p
+                            </button>
+                            <button 
+                              onClick={() => setRecastResolution('580p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '580p' ? 'bg-secondary' : ''}`}
+                            >
+                              580p
+                            </button>
+                            <button 
+                              onClick={() => setRecastResolution('720p')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastResolution === '720p' ? 'bg-secondary' : ''}`}
+                            >
+                              720p
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </>
                   ) : (
                     <>

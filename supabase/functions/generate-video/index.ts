@@ -18,14 +18,117 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const kieApiKey = Deno.env.get("KIE_API_KEY");
 
     if (!supabaseUrl || !supabaseKey) {
       throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables");
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const requestData = await req.json();
 
-    const { video_id, character, video } = await req.json();
+    // Check if this is a Recast mode request (KIE.AI wan/2-2-animate-move)
+    if (requestData.isRecast) {
+      console.log("Recast mode detected - using KIE.AI wan/2-2-animate-move");
+      
+      const { model, videoUrl, imageUrl, resolution, userId } = requestData;
+
+      if (!kieApiKey) {
+        throw new Error("KIE_API_KEY is not configured");
+      }
+
+      if (!videoUrl || !imageUrl) {
+        throw new Error("Both videoUrl and imageUrl are required for Recast mode");
+      }
+
+      // Create a record in ai_videos table for tracking
+      const { data: videoRecord, error: insertError } = await supabase
+        .from('ai_videos')
+        .insert({
+          user_id: userId,
+          video_topic: 'Recast Animation',
+          video_style: 'animate-move',
+          video_generation_model: model || 'wan/2-2-animate-move',
+          character_name: 'Recast',
+          character_bio: '',
+          character_image_url: imageUrl,
+          status: 'processing'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error creating video record:", insertError);
+        throw insertError;
+      }
+
+      console.log("Created video record:", videoRecord.id);
+
+      // Build callback URL for KIE.AI
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+
+      // Call KIE.AI API for Recast
+      const kieRequestBody = {
+        model: model || 'wan/2-2-animate-move',
+        callBackUrl: callbackUrl,
+        input: {
+          video_url: videoUrl,
+          image_url: imageUrl,
+          resolution: resolution || '480p'
+        }
+      };
+
+      console.log("Calling KIE.AI with body:", JSON.stringify(kieRequestBody));
+
+      const kieResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${kieApiKey}`
+        },
+        body: JSON.stringify(kieRequestBody)
+      });
+
+      const kieResult = await kieResponse.json();
+      console.log("KIE.AI response:", JSON.stringify(kieResult));
+
+      if (kieResult.code !== 200) {
+        // Update status to error
+        await supabase
+          .from('ai_videos')
+          .update({ 
+            status: 'error', 
+            error_message: kieResult.message || 'KIE.AI API error' 
+          })
+          .eq('id', videoRecord.id);
+        
+        throw new Error(kieResult.message || 'KIE.AI API error');
+      }
+
+      // Update record with task ID
+      await supabase
+        .from('ai_videos')
+        .update({ 
+          webhook_response: { taskId: kieResult.data?.taskId }
+        })
+        .eq('id', videoRecord.id);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Recast video generation started. You will be notified when it completes.",
+          videoId: videoRecord.id,
+          taskId: kieResult.data?.taskId
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
+    // Original n8n-based video generation flow
+    const { video_id, character, video } = requestData;
 
     if (!video_id) {
       throw new Error("video_id is required");
