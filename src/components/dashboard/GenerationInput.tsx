@@ -1548,9 +1548,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 }
               }}
               disabled={isGenerating}
+              maxLength={isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' ? 180 : undefined}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
               placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'Avatar Video') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' : "Describe what you want to create..."}
             />
+            {/* Character count warning for Avatar Video mode */}
+            {isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' && (
+              <div className={`absolute bottom-2 right-10 text-xs ${
+                ugcScriptText.length > 180 ? 'text-destructive font-medium' : 
+                ugcScriptText.length > 150 ? 'text-orange-500' : 'text-muted-foreground'
+              }`}>
+                {ugcScriptText.length}/180
+                {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
+              </div>
+            )}
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
               isResizing={isResizing}
@@ -3565,7 +3576,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     disabled={
                       isGenerating || 
                       (isVideoMode && selectedAnimateMode === 'Avatar Video' 
-                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15))
+                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
                         : isVideoMode && selectedAnimateMode === 'UGC'
                           ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                           : !prompt.trim()
