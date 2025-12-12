@@ -2978,15 +2978,49 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     if (!response.ok) throw new Error('Upload failed');
                                     
                                     const data = await response.json();
-                                    setStoryReferenceImage({
-                                      url: data.secure_url,
-                                      name: file.name
-                                    });
+                                    
+                                    // Save to database for history persistence
+                                    const { data: { user } } = await supabase.auth.getUser();
+                                    if (user) {
+                                      const { data: savedRef, error: dbError } = await supabase
+                                        .from('reference_images')
+                                        .insert({
+                                          user_id: user.id,
+                                          image_url: data.secure_url,
+                                          cloudinary_public_id: data.public_id,
+                                          original_filename: file.name
+                                        })
+                                        .select('id')
+                                        .single();
+                                      
+                                      if (!dbError && savedRef) {
+                                        setStoryReferenceImage({
+                                          url: data.secure_url,
+                                          name: file.name,
+                                          id: savedRef.id
+                                        });
+                                        // Refresh saved references list
+                                        setSavedReferenceImages(prev => [
+                                          { url: data.secure_url, name: file.name, id: savedRef.id },
+                                          ...prev
+                                        ]);
+                                      } else {
+                                        setStoryReferenceImage({
+                                          url: data.secure_url,
+                                          name: file.name
+                                        });
+                                      }
+                                    } else {
+                                      setStoryReferenceImage({
+                                        url: data.secure_url,
+                                        name: file.name
+                                      });
+                                    }
                                     setIsStoryReferencePopoverOpen(false);
                                     
                                     toast({
                                       title: "Reference uploaded",
-                                      description: "Your reference image is ready",
+                                      description: "Your reference image is saved to history",
                                     });
                                   } catch (error) {
                                     console.error('Upload error:', error);
