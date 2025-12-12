@@ -2308,26 +2308,32 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
 
                       {/* Character Selection for Recast */}
-                      <button 
-                        onClick={onCharactersClick}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          selectedCharacters.length > 0 
-                            ? 'bg-pill-green text-pill-green-text' 
-                            : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
-                      >
-                        {selectedCharacters.length > 0 ? (
-                          <>
-                            <User size={14} />
-                            <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
-                          </>
-                        ) : (
-                          <>
-                            <User size={14} />
-                            Character
-                          </>
-                        )}
-                      </button>
+                      {(() => {
+                        // Use videoModeState.characters for video mode
+                        const recastCharacters = isVideoMode ? videoModeState.characters : selectedCharacters;
+                        return (
+                          <button 
+                            onClick={onCharactersClick}
+                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              recastCharacters.length > 0 
+                                ? 'bg-pill-green text-pill-green-text' 
+                                : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}
+                          >
+                            {recastCharacters.length > 0 ? (
+                              <>
+                                <User size={14} />
+                                <span className="max-w-[80px] truncate">{recastCharacters[0].name}</span>
+                              </>
+                            ) : (
+                              <>
+                                <User size={14} />
+                                Character
+                              </>
+                            )}
+                          </button>
+                        );
+                      })()}
 
                       {/* Resolution Selector */}
                       <Popover>
