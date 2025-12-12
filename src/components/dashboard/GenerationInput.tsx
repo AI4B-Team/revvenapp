@@ -2496,31 +2496,50 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     <Loader2 size={16} className="animate-spin text-muted-foreground" />
                                   </div>
                                 ) : (
-                                  <div className="space-y-1 max-h-32 overflow-y-auto">
-                                    {savedVideos.map((video) => (
-                                      <div 
-                                        key={video.id} 
-                                        className={`relative group cursor-pointer rounded-md p-2 flex items-center gap-2 transition ${
-                                          recastVideo?.id === video.id ? 'bg-emerald-500/20 ring-1 ring-emerald-500' : 'hover:bg-muted'
-                                        }`}
-                                        onClick={() => setRecastVideo({ id: video.id, url: video.url, name: video.name, duration: video.duration })}
-                                      >
-                                        <Video size={14} className="text-muted-foreground flex-shrink-0" />
-                                        <span className="text-xs truncate flex-1">{video.name}</span>
-                                        {video.duration && (
-                                          <span className="text-xs text-muted-foreground">{video.duration}s</span>
-                                        )}
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteVideo(video.id);
-                                          }}
-                                          className="bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                                  <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                                    {savedVideos.map((video) => {
+                                      // Generate Cloudinary thumbnail from video URL
+                                      const thumbnailUrl = video.url
+                                        .replace('/video/upload/', '/video/upload/so_0,w_80,h_60,c_fill/')
+                                        .replace(/\.[^.]+$/, '.jpg');
+                                      
+                                      return (
+                                        <div 
+                                          key={video.id} 
+                                          className={`relative group cursor-pointer rounded-md overflow-hidden transition ${
+                                            recastVideo?.id === video.id ? 'ring-2 ring-emerald-500' : 'hover:ring-1 hover:ring-border'
+                                          }`}
+                                          onClick={() => setRecastVideo({ id: video.id, url: video.url, name: video.name, duration: video.duration })}
                                         >
-                                          <X size={10} />
-                                        </button>
-                                      </div>
-                                    ))}
+                                          <img 
+                                            src={thumbnailUrl} 
+                                            alt={video.name}
+                                            className="w-full h-12 object-cover bg-muted"
+                                            onError={(e) => {
+                                              e.currentTarget.style.display = 'none';
+                                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                            }}
+                                          />
+                                          <div className="hidden w-full h-12 bg-muted flex items-center justify-center">
+                                            <Video size={16} className="text-muted-foreground" />
+                                          </div>
+                                          {video.duration && (
+                                            <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-white text-[10px] px-1 rounded">
+                                              {video.duration}s
+                                            </span>
+                                          )}
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDeleteVideo(video.id);
+                                            }}
+                                            className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                                          >
+                                            <X size={10} />
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 )}
                               </div>
