@@ -57,6 +57,7 @@ export type Database = {
           created_at: string | null
           error_message: string | null
           id: string
+          scenes: Json | null
           status: string
           user_id: string
           video_generation_model: string
@@ -75,6 +76,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
+          scenes?: Json | null
           status?: string
           user_id: string
           video_generation_model?: string
@@ -93,6 +95,7 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           id?: string
+          scenes?: Json | null
           status?: string
           user_id?: string
           video_generation_model?: string

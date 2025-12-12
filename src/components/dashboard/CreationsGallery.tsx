@@ -127,30 +127,40 @@ const CreationsGallery = ({ type, columnsPerRow = 4, filters, onAnimate }: Galle
         errorMessage: img.error_message || undefined
       })) || [];
 
-      const mappedVideos: GalleryItem[] = videosData?.map((video) => ({
-        id: video.id,
-        title: video.video_topic.substring(0, 50) + (video.video_topic.length > 50 ? '...' : ''),
-        // Use character image as thumbnail, video_url for playback
-        thumbnail: video.character_image_url || '/placeholder.svg',
-        url: video.video_url || undefined,
-        type: 'video',
-        creator: {
-          name: 'You',
-          avatar: '/placeholder.svg'
-        },
-        likes: 0,
-        isEdited: false,
-        isUpscaled: false,
-        createdAt: video.created_at || new Date().toISOString(),
-        status: video.status as 'pending' | 'processing' | 'completed' | 'error',
-        prompt: video.video_topic,
-        model: video.video_generation_model || 'Veo 3.1',
-        aspectRatio: '16:9',
-        resolution: '1280x720 px',
-        timestamp: formatTimestamp(video.created_at),
-        referenceImage: video.character_image_url || undefined,
-        errorMessage: video.error_message || undefined
-      })) || [];
+      const mappedVideos: GalleryItem[] = videosData?.map((video) => {
+        // Parse scenes from the scenes JSONB column
+        let scenes = undefined;
+        const videoData = video as Record<string, unknown>;
+        if (videoData.scenes && Array.isArray(videoData.scenes)) {
+          scenes = videoData.scenes as { scene: string; duration: number }[];
+        }
+        
+        return {
+          id: video.id,
+          title: video.video_topic.substring(0, 50) + (video.video_topic.length > 50 ? '...' : ''),
+          // Use character image as thumbnail, video_url for playback
+          thumbnail: video.character_image_url || '/placeholder.svg',
+          url: video.video_url || undefined,
+          type: 'video',
+          creator: {
+            name: 'You',
+            avatar: '/placeholder.svg'
+          },
+          likes: 0,
+          isEdited: false,
+          isUpscaled: false,
+          createdAt: video.created_at || new Date().toISOString(),
+          status: video.status as 'pending' | 'processing' | 'completed' | 'error',
+          prompt: video.video_topic,
+          model: video.video_generation_model || 'Veo 3.1',
+          aspectRatio: '16:9',
+          resolution: '1280x720 px',
+          timestamp: formatTimestamp(video.created_at),
+          referenceImage: video.character_image_url || undefined,
+          errorMessage: video.error_message || undefined,
+          scenes
+        };
+      }) || [];
 
       // Combine and sort by creation date
       const allItems = [...mappedImages, ...mappedVideos].sort((a, b) => 
