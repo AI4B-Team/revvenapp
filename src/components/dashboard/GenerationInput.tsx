@@ -2318,7 +2318,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       >
                         {selectedCharacters.length > 0 ? (
                           <>
-                            <img src={selectedCharacters[0].avatar} alt={selectedCharacters[0].name} className="w-4 h-4 rounded-full object-cover" />
+                            <img src={selectedCharacters[0].avatar || selectedCharacters[0].image_url} alt={selectedCharacters[0].name} className="w-4 h-4 rounded-full object-cover" />
                             <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
                           </>
                         ) : (
