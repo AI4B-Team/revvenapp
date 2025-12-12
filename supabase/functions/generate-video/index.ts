@@ -26,12 +26,17 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const requestData = await req.json();
+    console.log("Request data:", JSON.stringify(requestData));
 
     // Check if this is a Story mode request (KIE.AI sora-2-pro-storyboard)
     if (requestData.isStory) {
       const { shots, nFrames, aspectRatio, imageUrls, userId } = requestData;
       
       console.log("Story mode detected - using KIE.AI sora-2-pro-storyboard");
+      console.log("Shots:", JSON.stringify(shots));
+      console.log("nFrames:", nFrames);
+      console.log("aspectRatio:", aspectRatio);
+      console.log("imageUrls:", JSON.stringify(imageUrls));
 
       if (!kieApiKey) {
         throw new Error("KIE_AI_API_KEY is not configured");
