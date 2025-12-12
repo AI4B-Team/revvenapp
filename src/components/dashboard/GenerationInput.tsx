@@ -2331,7 +2331,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <PopoverContent className="w-72 bg-background border-border z-50">
                           <div className="space-y-3">
                             <p className="text-sm font-medium">Upload Video</p>
-                            <p className="text-xs text-muted-foreground">MP4, MOV, or MKV • Max 10MB</p>
+                            <p className="text-xs text-muted-foreground">MP4, MOV, or MKV • Max 10MB • Max 25 sec</p>
                             
                             {recastVideo && (
                               <div className="space-y-2">
