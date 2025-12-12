@@ -22,20 +22,17 @@ serve(async (req) => {
     const isVideo = contentType?.toLowerCase() === 'video';
     const isUGC = contentType?.toLowerCase() === 'ugc';
 
-    // UGC-specific system prompt for voice scripts
-    const ugcPromptGuidance = `Create scripts for UGC (User-Generated Content) TALKING HEAD videos where a person speaks directly to camera.
-Generate natural, conversational scripts that sound authentic and engaging. The script should:
-- Be 30-60 seconds when spoken (approximately 75-150 words)
-- Sound natural and conversational, like someone genuinely sharing their experience
-- Include emotional hooks and relatable moments
-- Have a clear structure: hook, story/message, call-to-action
-- Avoid overly salesy or robotic language
+    // UGC-specific system prompt for voice scripts (Avatar Video - 180 chars max)
+    const ugcPromptGuidance = `Create SHORT scripts for Avatar Video TALKING HEAD videos.
+CRITICAL: Output MUST be 180 characters or less (including spaces and punctuation).
+The script should:
+- Be concise and punchy (max 180 characters total)
+- Sound natural and conversational
+- Have one clear hook or message
+- Avoid filler words
 
-Example formats:
-- Product testimonial: "Okay so I've been using [product] for about 2 weeks now and I have to tell you..."
-- Life hack/tip: "So here's something nobody told me about [topic] that completely changed..."
-- Story time: "You guys won't believe what happened when I tried..."
-- Review/unboxing: "Alright let's see what all the hype is about with this..."`;
+Example (under 180 chars):
+"I tried this product for 2 weeks and honestly? It changed everything. You need to see this for yourself."`;
 
     // Different system prompts for video vs image
     const videoPromptGuidance = `Create prompts for VIDEO generation that describe:
@@ -57,16 +54,16 @@ Example style: "A stunning portrait of a woman in golden hour light, soft bokeh 
     let messages: any[] = [];
 
     if (isUGC) {
-      // UGC mode - generate voice scripts
-      const systemPrompt = `You are a creative scriptwriter specializing in authentic UGC (User-Generated Content) videos.
+      // UGC mode - generate short voice scripts for avatar video (180 chars max)
+      const systemPrompt = `You are a creative scriptwriter for Avatar Video talking head content.
 ${ugcPromptGuidance}
 
-Generate a single engaging UGC script that sounds natural and conversational.
-Return only the script text that the person will speak, nothing else. No stage directions, no quotation marks.`;
+Generate a single engaging script that is UNDER 180 CHARACTERS TOTAL.
+Return only the script text, nothing else. No stage directions, no quotation marks.`;
 
       messages = [
         { role: "system", content: systemPrompt },
-        { role: "user", content: "Generate a creative, authentic UGC video script for a talking head video. Make it sound natural and engaging, like a real person sharing their genuine thoughts or experience." }
+        { role: "user", content: "Generate a short, punchy Avatar Video script. MUST be under 180 characters including spaces and punctuation." }
       ];
     } else if (hasImages) {
       // Build a message with images for vision analysis
