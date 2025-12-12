@@ -20,7 +20,132 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const contentType = req.headers.get('content-type') || '';
+    const url = new URL(req.url);
     
+    // Check if this is a KIE.AI callback (source=kie in query params)
+    const source = url.searchParams.get('source');
+    const videoIdFromQuery = url.searchParams.get('videoId') || url.searchParams.get('video_id');
+    
+    if (source === 'kie') {
+      console.log('KIE.AI callback detected');
+      
+      const payload = await req.json();
+      console.log('KIE.AI callback payload:', JSON.stringify(payload, null, 2));
+      
+      const videoId = videoIdFromQuery;
+      if (!videoId) {
+        throw new Error('videoId is required in query params for KIE.AI callbacks');
+      }
+
+      // KIE.AI success callback format
+      if (payload.code === 200 && payload.data?.state === 'success') {
+        // Parse resultJson to get the video URL
+        let videoUrl = null;
+        try {
+          const resultJson = JSON.parse(payload.data.resultJson || '{}');
+          videoUrl = resultJson.resultUrls?.[0];
+        } catch (e) {
+          console.error('Error parsing resultJson:', e);
+        }
+
+        if (!videoUrl) {
+          throw new Error('No video URL found in KIE.AI callback');
+        }
+
+        console.log('KIE.AI video URL:', videoUrl);
+
+        // Upload video to Cloudinary using URL-based upload (avoids memory issues)
+        const formData = new FormData();
+        formData.append('file', videoUrl);
+        formData.append('upload_preset', 'revven');
+        formData.append('resource_type', 'video');
+
+        console.log('Uploading video to Cloudinary from URL...');
+
+        const cloudinaryResponse = await fetch(
+          'https://api.cloudinary.com/v1_1/dszt275xv/video/upload',
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        let finalVideoUrl = videoUrl;
+        let cloudinaryPublicId = null;
+
+        if (cloudinaryResponse.ok) {
+          const cloudinaryData = await cloudinaryResponse.json();
+          console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
+          finalVideoUrl = cloudinaryData.secure_url;
+          cloudinaryPublicId = cloudinaryData.public_id;
+        } else {
+          console.warn('Cloudinary upload failed, using original KIE.AI URL');
+        }
+
+        // Update database with video URL
+        const { error: updateError } = await supabase
+          .from('ai_videos')
+          .update({
+            video_url: finalVideoUrl,
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            webhook_response: {
+              ...payload.data,
+              cloudinary_public_id: cloudinaryPublicId,
+              source: 'kie'
+            },
+          })
+          .eq('id', videoId);
+
+        if (updateError) {
+          console.error('Database update error:', updateError);
+          throw updateError;
+        }
+
+        console.log('KIE.AI video status updated successfully:', videoId);
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'KIE.AI video processed successfully',
+            videoId 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
+
+      // KIE.AI failure callback
+      if (payload.code !== 200 || payload.data?.state === 'fail') {
+        const errorMessage = payload.data?.failMsg || payload.msg || 'KIE.AI generation failed';
+        console.error('KIE.AI generation failed:', errorMessage);
+
+        await supabase
+          .from('ai_videos')
+          .update({
+            status: 'error',
+            error_message: errorMessage,
+            webhook_response: payload.data || payload,
+          })
+          .eq('id', videoId);
+
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: errorMessage,
+            videoId 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 // Return 200 to acknowledge receipt
+          }
+        );
+      }
+    }
+
+    // Original n8n webhook flow
     let video_id: string;
     let videoBlob: Blob | null = null;
 
@@ -29,8 +154,7 @@ serve(async (req) => {
       console.log('Received binary video data');
       
       // Extract video_id from URL query params
-      const url = new URL(req.url);
-      video_id = url.searchParams.get('video_id') || '';
+      video_id = videoIdFromQuery || '';
       
       if (!video_id) {
         throw new Error('video_id is required in query params when sending binary data');
