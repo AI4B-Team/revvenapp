@@ -385,6 +385,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   useEffect(() => {
     if (!isVideoMode) return;
     
+    // Skip frame auto-population in Recast mode - character is only for API, not frames
+    if (selectedAnimateMode === 'Recast') {
+      return;
+    }
+    
     const totalImages = selectedCharacters.length + selectedReferences.length;
     
     setVideoModeState(prev => {
