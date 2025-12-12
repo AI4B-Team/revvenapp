@@ -107,7 +107,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [selectedStoryButton, setSelectedStoryButton] = useState<string | null>(null);
   
   // Story mode multi-scene support with custom duration per scene
-  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 5 }]);
+  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 10 }]);
   const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('10');
   
   // Story mode reference image (mutually exclusive with character)
@@ -3074,18 +3074,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <p className="text-sm font-medium">Story Scenes</p>
                               <button
                                 onClick={() => {
-                                  const currentTotal = storyScenes.reduce((sum, s) => sum + s.duration, 0);
                                   const maxDuration = parseInt(storyDuration);
-                                  const remaining = maxDuration - currentTotal;
-                                  if (remaining >= 1) {
-                                    setStoryScenes([...storyScenes, { scene: '', duration: Math.min(5, remaining) }]);
-                                  } else {
-                                    toast({
-                                      title: "Duration limit reached",
-                                      description: `Total cannot exceed ${maxDuration}s. Adjust existing scenes first.`,
-                                      variant: "destructive",
-                                    });
-                                  }
+                                  const newSceneCount = storyScenes.length + 1;
+                                  const splitDuration = parseFloat((maxDuration / newSceneCount).toFixed(1));
+                                  // Redistribute duration evenly across all scenes
+                                  const updatedScenes = storyScenes.map(s => ({ ...s, duration: splitDuration }));
+                                  updatedScenes.push({ scene: '', duration: splitDuration });
+                                  setStoryScenes(updatedScenes);
                                 }}
                                 className="flex items-center gap-1 text-xs text-primary hover:underline"
                               >
