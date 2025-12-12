@@ -2011,7 +2011,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   setPrompt(e.target.value);
                 }
               }}
-              disabled={isGenerating}
+              disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
               maxLength={isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' ? 180 : undefined}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
               placeholder={
@@ -2020,7 +2020,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   : (isVideoMode && selectedAnimateMode === 'Avatar Video') 
                     ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
                     : (isVideoMode && selectedAnimateMode === 'Story')
-                      ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : 'Write the story narrative or describe what happens...')
+                      ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : '⬇️ Add scenes below using the + button to build your storyboard')
                       : (isVideoMode && selectedAnimateMode === 'UGC') 
                         ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
                         : "Describe what you want to create..."
