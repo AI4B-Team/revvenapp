@@ -1428,7 +1428,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     }
   };
 
-  // Recast video upload handler
+  // Recast video upload handler with duration validation
   const handleRecastVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -1451,47 +1451,78 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       return;
     }
 
-    setIsUploadingRecastVideo(true);
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
+    // Check video duration (max 25 seconds)
+    const videoUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = async () => {
+      URL.revokeObjectURL(videoUrl);
+      const duration = video.duration;
       
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-
-        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
-          body: {
-            image: base64,
-            filename: file.name
-          }
-        });
-
-        if (error) throw error;
-
-        setRecastVideo({
-          url: data?.referenceImage?.image_url,
-          name: file.name
-        });
-
+      if (duration > 25) {
         toast({
-          title: "Success",
-          description: "Video uploaded for Recast",
+          title: "Video too long",
+          description: `Video duration is ${Math.round(duration)}s. Maximum allowed is 25 seconds.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Duration is valid, proceed with upload
+      setIsUploadingRecastVideo(true);
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+
+          const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+            body: {
+              image: base64,
+              filename: file.name
+            }
+          });
+
+          if (error) throw error;
+
+          setRecastVideo({
+            url: data?.referenceImage?.image_url,
+            name: file.name
+          });
+
+          toast({
+            title: "Success",
+            description: `Video uploaded (${Math.round(duration)}s)`,
+          });
+          setIsUploadingRecastVideo(false);
+        };
+
+        reader.onerror = () => {
+          throw new Error('Failed to read file');
+        };
+      } catch (error) {
+        console.error('Error uploading recast video:', error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload video",
+          variant: "destructive",
         });
         setIsUploadingRecastVideo(false);
-      };
+      }
+    };
 
-      reader.onerror = () => {
-        throw new Error('Failed to read file');
-      };
-    } catch (error) {
-      console.error('Error uploading recast video:', error);
+    video.onerror = () => {
+      URL.revokeObjectURL(videoUrl);
       toast({
-        title: "Upload failed",
-        description: "Failed to upload video",
+        title: "Invalid video",
+        description: "Could not read video file",
         variant: "destructive",
       });
-      setIsUploadingRecastVideo(false);
-    }
+    };
+
+    video.src = videoUrl;
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
