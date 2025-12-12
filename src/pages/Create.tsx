@@ -1023,7 +1023,8 @@ const Create = () => {
             setImageCharacters(prev => [...prev, character]);
           }
           else if (effectiveType === 'Video') {
-            setVideoCharacters(prev => [...prev, character]);
+            // Replace character instead of adding for Video mode (Recast uses single character)
+            setVideoCharacters([character]);
           }
           else if (effectiveType === 'Audio') setAudioCharacters(prev => [...prev, character]);
           else if (effectiveType === 'Design') setDesignCharacters(prev => [...prev, character]);
