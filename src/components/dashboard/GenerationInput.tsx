@@ -952,15 +952,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
             : storyReferenceImage?.url || videoModeState.startingFrame?.preview || null;
 
-          // Build shots array: prompt auto-added as first scene, then additional scenes
+          // Build shots array: prompt auto-added as first scene if valid, then additional scenes
           let shots: { Scene: string; duration: number }[] = [];
+          const isPromptValid = prompt.trim().length >= 10;
           
-          // Auto-add prompt as first scene if provided
-          if (prompt.trim()) {
-            const firstSceneDuration = validScenes.length > 0 ? 5 : parseInt(storyDuration);
+          // Auto-add prompt as first scene if it's valid (>= 10 chars)
+          if (isPromptValid) {
+            // If prompt is the ONLY content (no manual scenes), it gets the full duration
+            // If there are additional scenes, prompt gets 5 seconds
+            const promptDuration = validScenes.length > 0 ? 5 : parseInt(storyDuration);
             shots.push({
               Scene: prompt.trim(),
-              duration: firstSceneDuration
+              duration: promptDuration
             });
           }
           
