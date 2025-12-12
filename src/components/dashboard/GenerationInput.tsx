@@ -121,11 +121,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isUploadingUgcProduct, setIsUploadingUgcProduct] = useState(false);
   const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
   
-  // Recast mode state - requires video and move image
+  // Recast mode state - requires video and character
   const [recastVideo, setRecastVideo] = useState<{ url: string; name: string } | null>(null);
-  const [recastMoveImage, setRecastMoveImage] = useState<{ url: string; name: string } | null>(null);
   const [isUploadingRecastVideo, setIsUploadingRecastVideo] = useState(false);
-  const [isUploadingRecastMoveImage, setIsUploadingRecastMoveImage] = useState(false);
   const [recastResolution, setRecastResolution] = useState<'480p' | '580p' | '720p'>('480p');
   
   // Product history
@@ -714,7 +712,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           return;
         }
 
-        // RECAST MODE: Use wan/2-2-animate-move model with video + move image
+        // RECAST MODE: Use wan/2-2-animate-move model with video + character image
         if (selectedAnimateMode === 'Recast') {
           // Validate required inputs for Recast mode
           if (!recastVideo) {
@@ -726,10 +724,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             setIsGenerating(false);
             return;
           }
-          if (!recastMoveImage) {
+          if (!currentCharacters.length) {
             toast({
-              title: "Move image required",
-              description: "Please upload a move image for Recast",
+              title: "Character required",
+              description: "Please select a character for Recast",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          // Get character image URL
+          const characterImageUrl = currentCharacters[0].avatar || currentCharacters[0].image_url;
+          if (!characterImageUrl) {
+            toast({
+              title: "Character image required",
+              description: "Selected character must have an image",
               variant: "destructive",
             });
             setIsGenerating(false);
@@ -748,7 +758,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           const recastRequestBody = {
             model: 'wan/2-2-animate-move',
             videoUrl: recastVideo.url,
-            imageUrl: recastMoveImage.url,
+            imageUrl: characterImageUrl,
             resolution: recastResolution,
             userId: user.id,
             isRecast: true
@@ -769,7 +779,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           // Clear Recast state after successful generation
           setRecastVideo(null);
-          setRecastMoveImage(null);
           
           setIsGenerating(false);
           return;
@@ -1477,72 +1486,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         variant: "destructive",
       });
       setIsUploadingRecastVideo(false);
-    }
-  };
-
-  // Recast move image upload handler
-  const handleRecastMoveImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Image size must be less than 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUploadingRecastMoveImage(true);
-    try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-
-        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
-          body: {
-            image: base64,
-            filename: file.name
-          }
-        });
-
-        if (error) throw error;
-
-        setRecastMoveImage({
-          url: data?.referenceImage?.image_url,
-          name: file.name
-        });
-
-        toast({
-          title: "Success",
-          description: "Move image uploaded for Recast",
-        });
-        setIsUploadingRecastMoveImage(false);
-      };
-
-      reader.onerror = () => {
-        throw new Error('Failed to read file');
-      };
-    } catch (error) {
-      console.error('Error uploading recast move image:', error);
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload move image",
-        variant: "destructive",
-      });
-      setIsUploadingRecastMoveImage(false);
     }
   };
 
@@ -2364,55 +2307,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverContent>
                       </Popover>
 
-                      {/* Move Image Upload */}
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            recastMoveImage 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            {isUploadingRecastMoveImage ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Image size={14} />
-                            )}
-                            {recastMoveImage ? 'Move Img ✓' : 'Move Img'}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-72 bg-background border-border z-50">
-                          <div className="space-y-3">
-                            <p className="text-sm font-medium">Upload Move Image</p>
-                            <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP • Max 10MB</p>
-                            
-                            {recastMoveImage && (
-                              <div className="space-y-2">
-                                <p className="text-xs text-muted-foreground">Current Selection</p>
-                                <div className="relative">
-                                  <img src={recastMoveImage.url} alt="Move" className="w-full h-20 object-cover rounded-md" />
-                                  <button 
-                                    onClick={() => setRecastMoveImage(null)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                            
-                            <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                              <Upload size={20} className="text-muted-foreground mb-2" />
-                              <span className="text-sm text-muted-foreground">Click to upload image</span>
-                              <input 
-                                type="file" 
-                                accept="image/jpeg,image/png,image/webp" 
-                                className="hidden" 
-                                onChange={handleRecastMoveImageUpload}
-                              />
-                            </label>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      {/* Character Selection for Recast */}
+                      <button 
+                        onClick={onCharactersClick}
+                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedCharacters.length > 0 
+                            ? 'bg-pill-green text-pill-green-text' 
+                            : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}
+                      >
+                        {selectedCharacters.length > 0 ? (
+                          <>
+                            <img src={selectedCharacters[0].avatar} alt={selectedCharacters[0].name} className="w-4 h-4 rounded-full object-cover" />
+                            <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
+                          </>
+                        ) : (
+                          <>
+                            <User size={14} />
+                            Character
+                          </>
+                        )}
+                      </button>
 
                       {/* Resolution Selector */}
                       <Popover>
