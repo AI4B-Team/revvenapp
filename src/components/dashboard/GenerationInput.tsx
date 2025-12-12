@@ -2791,15 +2791,33 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <div className="flex items-center justify-between">
                               <p className="text-sm font-medium">Story Scenes</p>
                               <button
-                                onClick={() => setStoryScenes([...storyScenes, { scene: '', duration: 5 }])}
+                                onClick={() => {
+                                  const currentTotal = storyScenes.reduce((sum, s) => sum + s.duration, 0);
+                                  const maxDuration = parseInt(storyDuration);
+                                  const remaining = maxDuration - currentTotal;
+                                  if (remaining >= 1) {
+                                    setStoryScenes([...storyScenes, { scene: '', duration: Math.min(5, remaining) }]);
+                                  } else {
+                                    toast({
+                                      title: "Duration limit reached",
+                                      description: `Total cannot exceed ${maxDuration}s. Adjust existing scenes first.`,
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
                                 className="flex items-center gap-1 text-xs text-primary hover:underline"
                               >
                                 <Plus size={12} />
                                 Add Scene
                               </button>
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                              Total: {storyScenes.reduce((sum, s) => sum + s.duration, 0).toFixed(1)}s
+                            <p className={`text-xs ${
+                              storyScenes.reduce((sum, s) => sum + s.duration, 0) > parseInt(storyDuration)
+                                ? 'text-destructive font-medium'
+                                : 'text-muted-foreground'
+                            }`}>
+                              Total: {storyScenes.reduce((sum, s) => sum + s.duration, 0).toFixed(1)}s / {storyDuration}s
+                              {storyScenes.reduce((sum, s) => sum + s.duration, 0) > parseInt(storyDuration) && ' ⚠️ Exceeds limit'}
                             </p>
                             {storyScenes.map((scene, index) => (
                               <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
@@ -2830,12 +2848,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     type="number"
                                     value={scene.duration}
                                     onChange={(e) => {
+                                      const newDuration = Math.max(1, parseFloat(e.target.value) || 1);
+                                      const otherScenesDuration = storyScenes.reduce((sum, s, i) => i === index ? sum : sum + s.duration, 0);
+                                      const maxAllowed = parseInt(storyDuration) - otherScenesDuration;
                                       const updated = [...storyScenes];
-                                      updated[index].duration = Math.max(1, Math.min(25, parseFloat(e.target.value) || 1));
+                                      updated[index].duration = Math.min(newDuration, Math.max(1, maxAllowed));
                                       setStoryScenes(updated);
                                     }}
                                     min={1}
-                                    max={25}
+                                    max={parseInt(storyDuration) - storyScenes.reduce((sum, s, i) => i === index ? sum : sum + s.duration, 0)}
                                     step={0.5}
                                     className="w-16 text-sm p-1 rounded-md border border-border bg-background"
                                   />
