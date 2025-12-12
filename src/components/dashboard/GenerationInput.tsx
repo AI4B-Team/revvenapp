@@ -107,8 +107,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [selectedStoryButton, setSelectedStoryButton] = useState<string | null>(null);
   
   // Story mode multi-scene support with custom duration per scene
-  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 7.5 }]);
-  const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('15');
+  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 5 }]);
+  const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('10');
   
   // Story mode reference image (mutually exclusive with character)
   const [storyReferenceImage, setStoryReferenceImage] = useState<{ url: string; name: string; id?: string } | null>(null);
