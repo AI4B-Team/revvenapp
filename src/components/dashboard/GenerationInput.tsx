@@ -889,20 +889,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
             : videoModeState.startingFrame?.preview || null;
 
-          // Build shots array: use scenes if available, otherwise use prompt as single scene
-          let shots;
+          // Build shots array: prompt auto-added as first scene, then additional scenes
+          let shots: { Scene: string; duration: number }[] = [];
+          
+          // Auto-add prompt as first scene if provided
+          if (prompt.trim()) {
+            const firstSceneDuration = validScenes.length > 0 ? 5 : parseInt(storyDuration);
+            shots.push({
+              Scene: prompt.trim(),
+              duration: firstSceneDuration
+            });
+          }
+          
+          // Add additional scenes from the scene inputs
           if (validScenes.length > 0) {
-            // Multi-scene: use defined scenes with custom durations
-            shots = validScenes.map(s => ({
+            shots = shots.concat(validScenes.map(s => ({
               Scene: s.scene.trim(),
               duration: s.duration
-            }));
-          } else {
-            // Single scene from prompt
-            shots = [{
-              Scene: prompt.trim(),
-              duration: parseInt(storyDuration)
-            }];
+            })));
           }
 
           // Call the generate-video edge function with Story-specific parameters
