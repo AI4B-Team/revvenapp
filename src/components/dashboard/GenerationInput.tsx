@@ -106,8 +106,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [storySceneText, setStorySceneText] = useState('');
   const [selectedStoryButton, setSelectedStoryButton] = useState<string | null>(null);
   
-  // Story mode multi-scene support (duration auto-calculated from total)
-  const [storyScenes, setStoryScenes] = useState<string[]>(['']);
+  // Story mode multi-scene support with custom duration per scene
+  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 7.5 }]);
   const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('15');
   
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
@@ -834,7 +834,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         // STORY MODE: Use sora-2-pro-storyboard model with shots array
         if (selectedAnimateMode === 'Story') {
           // Validate at least one scene has content
-          const validScenes = storyScenes.filter(s => s.trim().length > 0);
+          const validScenes = storyScenes.filter(s => s.scene.trim().length > 0);
           if (validScenes.length === 0) {
             toast({
               title: "Scenes required",
@@ -858,14 +858,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
             : null;
 
-          // Auto-calculate duration: total duration split equally across all scenes
-          const totalDuration = parseInt(storyDuration);
-          const durationPerScene = totalDuration / validScenes.length;
-
-          // Build shots array for API with auto-calculated durations
-          const shots = validScenes.map(sceneText => ({
-            Scene: sceneText.trim(),
-            duration: durationPerScene
+          // Build shots array for API with custom durations
+          const shots = validScenes.map(s => ({
+            Scene: s.scene.trim(),
+            duration: s.duration
           }));
 
           // Call the generate-video edge function with Story-specific parameters
@@ -892,7 +888,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           console.log("Story video generation started:", storyData);
           
           // Clear Story state after successful generation
-          setStoryScenes(['']);
+          setStoryScenes([{ scene: '', duration: 7.5 }]);
           
           setIsGenerating(false);
           return;
@@ -2781,7 +2777,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            storyScenes.some(s => s.trim().length > 0)
+                            storyScenes.some(s => s.scene.trim().length > 0)
                               ? 'bg-pill-green text-pill-green-text' 
                               : 'bg-pill-gray text-pill-gray-text'
                           } hover:opacity-80`}>
@@ -2795,7 +2791,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <div className="flex items-center justify-between">
                               <p className="text-sm font-medium">Story Scenes</p>
                               <button
-                                onClick={() => setStoryScenes([...storyScenes, ''])}
+                                onClick={() => setStoryScenes([...storyScenes, { scene: '', duration: 5 }])}
                                 className="flex items-center gap-1 text-xs text-primary hover:underline"
                               >
                                 <Plus size={12} />
@@ -2803,7 +2799,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               </button>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              {storyDuration}s total, split equally ({(parseInt(storyDuration) / storyScenes.filter(s => s.trim()).length || parseInt(storyDuration)).toFixed(1)}s per scene)
+                              Total: {storyScenes.reduce((sum, s) => sum + s.duration, 0).toFixed(1)}s
                             </p>
                             {storyScenes.map((scene, index) => (
                               <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
@@ -2819,15 +2815,32 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   )}
                                 </div>
                                 <textarea
-                                  value={scene}
+                                  value={scene.scene}
                                   onChange={(e) => {
                                     const updated = [...storyScenes];
-                                    updated[index] = e.target.value;
+                                    updated[index].scene = e.target.value;
                                     setStoryScenes(updated);
                                   }}
                                   placeholder="Describe this scene..."
                                   className="w-full h-16 text-sm p-2 rounded-md border border-border bg-background resize-none"
                                 />
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Duration:</span>
+                                  <input
+                                    type="number"
+                                    value={scene.duration}
+                                    onChange={(e) => {
+                                      const updated = [...storyScenes];
+                                      updated[index].duration = Math.max(1, Math.min(25, parseFloat(e.target.value) || 1));
+                                      setStoryScenes(updated);
+                                    }}
+                                    min={1}
+                                    max={25}
+                                    step={0.5}
+                                    className="w-16 text-sm p-1 rounded-md border border-border bg-background"
+                                  />
+                                  <span className="text-xs text-muted-foreground">sec</span>
+                                </div>
                               </div>
                             ))}
                           </div>
