@@ -75,11 +75,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   ];
 
   const videoNavItems = [
-    { icon: <Film size={18} />, label: 'Video Editor', color: 'text-brand-green' },
-    { icon: <Video size={18} />, label: 'Lip-Sync', color: 'text-brand-blue' },
-    { icon: <Move size={18} />, label: 'Motion-Sync', color: 'text-brand-yellow' },
-    { icon: <ArrowUpCircle size={18} />, label: 'Upscale', color: 'text-brand-green' },
-    { icon: <Maximize2 size={18} />, label: 'Resize', color: 'text-brand-red' },
+    { icon: <Film size={18} />, label: 'Editor', color: 'text-brand-green', link: '/edit', editorTab: 'video' },
   ];
 
   const audioNavItems = [
@@ -641,16 +637,21 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
                 )}
               </div>
             ) : item.link ? (
-              <NavLink
+              <button
                 key={idx}
-                to={item.link}
+                onClick={() => {
+                  if ((item as any).editorTab) {
+                    navigate(item.link, { state: { editorTab: (item as any).editorTab } });
+                  } else {
+                    navigate(item.link);
+                  }
+                }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition hover:bg-sidebar-hover`}
-                activeClassName="bg-sidebar-active"
                 title={item.label}
               >
                 <span className={item.color}>{item.icon}</span>
                 {!isCollapsed && <span className="flex-1 text-left text-sm">{item.label}</span>}
-              </NavLink>
+              </button>
             ) : (
               <button
                 key={idx}
