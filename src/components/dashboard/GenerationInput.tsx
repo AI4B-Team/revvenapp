@@ -2323,7 +2323,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       >
                         {selectedCharacters.length > 0 ? (
                           <>
-                            <User size={14} />
+                            <img 
+                              src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar} 
+                              alt={selectedCharacters[0].name} 
+                              className="w-5 h-5 rounded-full object-cover" 
+                            />
                             <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
                           </>
                         ) : (
