@@ -952,27 +952,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
             : storyReferenceImage?.url || videoModeState.startingFrame?.preview || null;
 
-          // Build shots array: prompt auto-added as first scene if valid, then additional scenes
+          // Build shots array from scene inputs or prompt
           let shots: { Scene: string; duration: number }[] = [];
           const isPromptValid = prompt.trim().length >= 10;
           
-          // Auto-add prompt as first scene if it's valid (>= 10 chars)
-          if (isPromptValid) {
-            // If prompt is the ONLY content (no manual scenes), it gets the full duration
-            // If there are additional scenes, prompt gets 5 seconds
-            const promptDuration = validScenes.length > 0 ? 5 : parseInt(storyDuration);
-            shots.push({
-              Scene: prompt.trim(),
-              duration: promptDuration
-            });
-          }
-          
-          // Add additional scenes from the scene inputs
+          // If there are valid scenes from the scene inputs, use those
           if (validScenes.length > 0) {
-            shots = shots.concat(validScenes.map(s => ({
+            shots = validScenes.map(s => ({
               Scene: s.scene.trim(),
               duration: s.duration
-            })));
+            }));
+          } else if (isPromptValid) {
+            // No valid scenes - use prompt as the single scene with FULL duration
+            shots.push({
+              Scene: prompt.trim(),
+              duration: parseInt(storyDuration)
+            });
           }
 
           // Call the generate-video edge function with Story-specific parameters
