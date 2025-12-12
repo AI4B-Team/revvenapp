@@ -507,7 +507,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         references: selectedReferences
       };
     });
-  }, [isVideoMode, selectedCharacters, selectedReferences]);
+  }, [isVideoMode, selectedCharacters, selectedReferences, selectedAnimateMode]);
   
   const handleGenerate = async () => {
     // Handle social content generation
