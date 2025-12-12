@@ -125,6 +125,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [recastVideo, setRecastVideo] = useState<{ url: string; name: string; id?: string; duration?: number } | null>(null);
   const [isUploadingRecastVideo, setIsUploadingRecastVideo] = useState(false);
   const [recastResolution, setRecastResolution] = useState<'480p' | '580p' | '720p'>('480p');
+  const [recastModel, setRecastModel] = useState<'animate-move' | 'animate-replace'>('animate-replace');
   
   // Video history for Recast
   const [savedVideos, setSavedVideos] = useState<{ id: string; url: string; name: string; duration?: number }[]>([]);
@@ -794,10 +795,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
           // Call the generate-video edge function with Recast-specific parameters
           const recastRequestBody = {
-            model: 'wan/2-2-animate-move',
             videoUrl: recastVideo.url,
             imageUrl: characterImageUrl,
             resolution: recastResolution,
+            recastModel: recastModel,
             userId: user.id,
             isRecast: true
           };
@@ -2426,11 +2427,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : selectedAnimateMode === 'Recast' ? (
                     <>
-                      {/* Recast Mode Controls - Video + Move Image */}
-                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text cursor-default">
-                        <Video size={14} />
-                        Animate Move
-                      </button>
+                      {/* Recast Mode Controls - Model Selector */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
+                            <Video size={14} />
+                            {recastModel === 'animate-move' ? 'Animate Move' : 'Animate Replace'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setRecastModel('animate-move')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-move' ? 'bg-secondary' : ''}`}
+                            >
+                              <div className="font-medium">Animate Move</div>
+                              <div className="text-xs text-muted-foreground">Move/animate elements in video</div>
+                            </button>
+                            <button 
+                              onClick={() => setRecastModel('animate-replace')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${recastModel === 'animate-replace' ? 'bg-secondary' : ''}`}
+                            >
+                              <div className="font-medium">Animate Replace</div>
+                              <div className="text-xs text-muted-foreground">Replace character with image</div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Video Upload */}
                       <Popover>
