@@ -89,6 +89,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Create mode dropdown state (Image)
   const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
+  
+  // Audio mode dropdown state
+  const [selectedAudioMode, setSelectedAudioMode] = useState('Voiceover');
+  const [isAudioModeDropdownOpen, setIsAudioModeDropdownOpen] = useState(false);
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   
   // UGC mode selected button state
@@ -139,6 +143,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Draw', label: 'Draw', icon: Pencil },
     { value: 'Swap', label: 'Swap', icon: RefreshCw },
     { value: 'Photoshoot', label: 'Photoshoot', icon: Image },
+  ];
+  
+  const audioModes = [
+    { value: 'Voiceover', label: 'Voiceover', icon: Mic },
+    { value: 'Clone', label: 'Clone', icon: User },
+    { value: 'Revoice', label: 'Revoice', icon: RefreshCw },
+    { value: 'Transcribe', label: 'Transcribe', icon: Captions },
+    { value: 'Music', label: 'Music', icon: AudioLines },
   ];
   
   // Resizable prompt box (both directions)
@@ -2264,6 +2276,37 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isAudioMode ? (
               <>
                 {/* Audio Mode Controls */}
+                {/* Audio Mode Dropdown */}
+                <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80`}>
+                      {(() => {
+                        const mode = audioModes.find(m => m.value === selectedAudioMode);
+                        const Icon = mode?.icon || Mic;
+                        return <Icon size={14} />;
+                      })()}
+                      {selectedAudioMode}
+                      <ChevronDown size={14} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-48 bg-background border-border z-50">
+                    {audioModes.map((mode) => (
+                      <DropdownMenuItem
+                        key={mode.value}
+                        onClick={() => {
+                          setSelectedAudioMode(mode.value);
+                          setIsAudioModeDropdownOpen(false);
+                        }}
+                        className={`flex items-center gap-2 ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
+                      >
+                        <mode.icon size={16} />
+                        {mode.label}
+                        {selectedAudioMode === mode.value && <Check size={14} className="ml-auto" />}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
