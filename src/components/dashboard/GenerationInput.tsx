@@ -3089,12 +3089,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               </button>
                             </div>
                             <p className={`text-xs ${
-                              storyScenes.reduce((sum, s) => sum + s.duration, 0) > parseInt(storyDuration)
+                              Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5
                                 ? 'text-destructive font-medium'
                                 : 'text-muted-foreground'
                             }`}>
                               Total: {storyScenes.reduce((sum, s) => sum + s.duration, 0).toFixed(1)}s / {storyDuration}s
-                              {storyScenes.reduce((sum, s) => sum + s.duration, 0) > parseInt(storyDuration) && ' ⚠️ Exceeds limit'}
+                              {Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5 && ' ⚠️ Must equal total'}
                             </p>
                             {storyScenes.map((scene, index) => (
                               <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
@@ -4696,7 +4696,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         : isVideoMode && selectedAnimateMode === 'UGC'
                           ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                           : isVideoMode && selectedAnimateMode === 'Story'
-                            ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage))
+                            ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
                             : !prompt.trim()
                       )
                     }
