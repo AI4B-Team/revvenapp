@@ -46,6 +46,18 @@ serve(async (req) => {
         throw new Error("At least one scene/shot is required for Story mode");
       }
 
+      // Validate each shot has meaningful content (minimum 10 characters)
+      const validShots = shots.filter((s: any) => s.Scene && s.Scene.trim().length >= 10);
+      if (validShots.length === 0) {
+        throw new Error("Each scene description must be at least 10 characters long");
+      }
+
+      // Log validation results
+      console.log(`Validated shots: ${validShots.length} of ${shots.length} passed (min 10 chars)`);
+      
+      // Use only valid shots
+      const shotsToProcess = validShots;
+
       // Create a record in ai_videos table for tracking
       const { data: videoRecord, error: insertError } = await supabase
         .from('ai_videos')
@@ -55,7 +67,7 @@ serve(async (req) => {
           video_style: 'storyboard',
           video_generation_model: 'sora-2-pro-storyboard',
           character_name: 'Story',
-          character_bio: shots.map((s: any, i: number) => `Scene ${i + 1}: ${s.Scene}`).join(' | '),
+          character_bio: shotsToProcess.map((s: any, i: number) => `Scene ${i + 1}: ${s.Scene}`).join(' | '),
           character_image_url: imageUrls?.[0] || '',
           status: 'processing'
         })
@@ -68,17 +80,18 @@ serve(async (req) => {
       }
 
       console.log("Created Story video record:", videoRecord.id);
+      console.log("Image URLs to use:", JSON.stringify(imageUrls));
 
       // Build callback URL for KIE.AI
       const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
 
       // Normalize shot durations to sum exactly to nFrames (required by KIE.AI)
       const targetDuration = parseInt(nFrames || "15");
-      const totalShotDuration = shots.reduce((sum: number, s: any) => sum + (s.duration || 5), 0);
+      const totalShotDuration = shotsToProcess.reduce((sum: number, s: any) => sum + (s.duration || 5), 0);
       
       // Scale shot durations proportionally if they don't match target
-      const normalizedShots = shots.map((s: any) => ({
-        Scene: s.Scene,
+      const normalizedShots = shotsToProcess.map((s: any) => ({
+        Scene: s.Scene.trim(),
         duration: Math.round((s.duration / totalShotDuration) * targetDuration * 10) / 10
       }));
       
