@@ -110,6 +110,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([{ scene: '', duration: 7.5 }]);
   const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('15');
   
+  // Story mode reference image (mutually exclusive with character)
+  const [storyReferenceImage, setStoryReferenceImage] = useState<{ url: string; name: string; id?: string } | null>(null);
+  const [isUploadingStoryReference, setIsUploadingStoryReference] = useState(false);
+  
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
   
@@ -589,18 +593,18 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
     // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; in Story mode, scenes can replace prompt
     const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
-    // Story mode: requires image + (scenes OR prompt)
+    // Story mode: requires image (character OR reference) + (scenes OR prompt)
     const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
-    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || videoModeState.startingFrame);
+    const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame);
     const hasStoryContent = hasValidStoryScenes || prompt.trim().length > 0;
     const isStoryModeValid = selectedAnimateMode === 'Story' && hasStoryImage && hasStoryContent;
     
-    // Story mode validation: must have image + (scenes OR prompt)
+    // Story mode validation: must have image (character OR reference) + (scenes OR prompt)
     if (selectedAnimateMode === 'Story') {
       if (!hasStoryImage) {
         toast({
           title: "Image required",
-          description: "Please select a character or add a starting frame for your Story video",
+          description: "Please select a character or upload a reference image for your Story video",
           variant: "destructive",
         });
         return;
@@ -899,10 +903,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             throw new Error("User not authenticated");
           }
 
-          // Get character image URL if selected (optional reference)
-          const characterImageUrl = currentCharacters.length > 0 
+          // Get image URL: character OR reference image (mutually exclusive)
+          const storyImageUrl = currentCharacters.length > 0 
             ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
-            : videoModeState.startingFrame?.preview || null;
+            : storyReferenceImage?.url || videoModeState.startingFrame?.preview || null;
 
           // Build shots array: prompt auto-added as first scene, then additional scenes
           let shots: { Scene: string; duration: number }[] = [];
@@ -931,7 +935,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             shots: shots,
             nFrames: storyDuration,
             aspectRatio: videoAspectRatio === 'portrait' ? 'portrait' : 'landscape',
-            imageUrls: characterImageUrl ? [characterImageUrl] : undefined
+            imageUrls: storyImageUrl ? [storyImageUrl] : undefined
           };
 
           const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-video', {
@@ -2815,14 +2819,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         Sora Storyboard
                       </button>
 
+                      {/* Character button - disabled if reference is selected */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
-                            onClick={() => onCharactersClick?.()}
+                            onClick={() => {
+                              if (storyReferenceImage) {
+                                toast({
+                                  title: "Clear reference first",
+                                  description: "You can use either a character OR a reference image, not both.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              onCharactersClick?.();
+                            }}
                             className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
                               videoModeState.characters.length > 0 
                                 ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
+                                : storyReferenceImage
+                                  ? 'bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed'
+                                  : 'bg-pill-gray text-pill-gray-text'
                             } hover:opacity-80`}
                           >
                             <User size={14} />
@@ -2830,9 +2847,113 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Character (Optional Reference)</p>
+                          <p>{storyReferenceImage ? 'Clear reference to select character' : 'Select Character'}</p>
                         </TooltipContent>
                       </Tooltip>
+
+                      {/* Reference button - disabled if character is selected */}
+                      {videoModeState.characters.length > 0 ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed hover:opacity-80"
+                            >
+                              <ImageIcon size={14} />
+                              Reference
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Clear character to use reference image</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : storyReferenceImage ? (
+                        <button 
+                          onClick={() => setStoryReferenceImage(null)}
+                          className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80"
+                        >
+                          <img 
+                            src={storyReferenceImage.url} 
+                            alt={storyReferenceImage.name} 
+                            className="w-5 h-5 rounded object-cover"
+                          />
+                          <span className="max-w-20 truncate">{storyReferenceImage.name}</span>
+                          <X size={14} />
+                        </button>
+                      ) : (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
+                              <ImageIcon size={14} />
+                              Reference
+                              <ChevronDown size={14} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64 bg-background border-border z-50">
+                            <div className="space-y-3">
+                              <p className="text-sm font-medium">Upload Reference Image</p>
+                              <p className="text-xs text-muted-foreground">Single image only (use character OR reference)</p>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                id="story-reference-upload"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  
+                                  setIsUploadingStoryReference(true);
+                                  try {
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    formData.append('upload_preset', 'revven');
+                                    
+                                    const response = await fetch('https://api.cloudinary.com/v1_1/dszt275xv/upload', {
+                                      method: 'POST',
+                                      body: formData
+                                    });
+                                    
+                                    if (!response.ok) throw new Error('Upload failed');
+                                    
+                                    const data = await response.json();
+                                    setStoryReferenceImage({
+                                      url: data.secure_url,
+                                      name: file.name
+                                    });
+                                    
+                                    toast({
+                                      title: "Reference uploaded",
+                                      description: "Your reference image is ready",
+                                    });
+                                  } catch (error) {
+                                    console.error('Upload error:', error);
+                                    toast({
+                                      title: "Upload failed",
+                                      description: "Failed to upload reference image",
+                                      variant: "destructive",
+                                    });
+                                  } finally {
+                                    setIsUploadingStoryReference(false);
+                                    e.target.value = '';
+                                  }
+                                }}
+                              />
+                              <label 
+                                htmlFor="story-reference-upload"
+                                className="flex items-center gap-2 p-3 border border-dashed border-border rounded-lg cursor-pointer hover:bg-secondary/50 transition"
+                              >
+                                {isUploadingStoryReference ? (
+                                  <Loader2 size={20} className="animate-spin text-muted-foreground" />
+                                ) : (
+                                  <Upload size={20} className="text-muted-foreground" />
+                                )}
+                                <span className="text-sm text-muted-foreground">
+                                  {isUploadingStoryReference ? 'Uploading...' : 'Click to upload'}
+                                </span>
+                              </label>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
 
                       <Popover>
                         <PopoverTrigger asChild>
