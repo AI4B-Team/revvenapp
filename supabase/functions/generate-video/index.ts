@@ -72,6 +72,25 @@ serve(async (req) => {
       // Build callback URL for KIE.AI
       const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
 
+      // Normalize shot durations to sum exactly to nFrames (required by KIE.AI)
+      const targetDuration = parseInt(nFrames || "15");
+      const totalShotDuration = shots.reduce((sum: number, s: any) => sum + (s.duration || 5), 0);
+      
+      // Scale shot durations proportionally if they don't match target
+      const normalizedShots = shots.map((s: any) => ({
+        Scene: s.Scene,
+        duration: Math.round((s.duration / totalShotDuration) * targetDuration * 10) / 10
+      }));
+      
+      // Adjust last shot to ensure exact total (handle rounding errors)
+      const normalizedTotal = normalizedShots.reduce((sum: number, s: any) => sum + s.duration, 0);
+      if (normalizedTotal !== targetDuration && normalizedShots.length > 0) {
+        normalizedShots[normalizedShots.length - 1].duration += (targetDuration - normalizedTotal);
+        normalizedShots[normalizedShots.length - 1].duration = Math.round(normalizedShots[normalizedShots.length - 1].duration * 10) / 10;
+      }
+      
+      console.log("Normalized shots:", JSON.stringify(normalizedShots), "Target:", targetDuration);
+
       // Call KIE.AI API for Story/Storyboard
       const kieRequestBody: any = {
         model: "sora-2-pro-storyboard",
@@ -79,7 +98,7 @@ serve(async (req) => {
         input: {
           n_frames: nFrames || "15",
           aspect_ratio: aspectRatio || "landscape",
-          shots: shots
+          shots: normalizedShots
         }
       };
 
