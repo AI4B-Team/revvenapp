@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2 } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -155,7 +155,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
-    { value: 'Talking', label: 'Talking', icon: MessageCircle },
+    { value: 'Lip-Sync', label: 'Lip-Sync', icon: MessageCircle },
+    { value: 'Motion-Sync', label: 'Motion-Sync', icon: Move },
     { value: 'Avatar Video', label: 'Avatar Video', icon: User },
     { value: 'UGC', label: 'UGC', icon: Video },
     { value: 'Recast', label: 'Recast', icon: RefreshCw },

@@ -11,9 +11,10 @@ const Edit = () => {
   const navigate = useNavigate();
   const image = location.state?.imageUrl || undefined;
   const videoUrl = location.state?.videoUrl || undefined;
+  const initialEditorTab = location.state?.editorTab || 'image';
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('Edit');
-  const [editorTab, setEditorTab] = useState<'image' | 'video' | 'audio'>('image');
+  const [editorTab, setEditorTab] = useState<'image' | 'video' | 'audio'>(initialEditorTab);
 
   const handleClose = () => {
     navigate(-1);
