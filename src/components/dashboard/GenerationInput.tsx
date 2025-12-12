@@ -574,18 +574,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
 
     // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; in Story mode, scenes can replace prompt
     const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
-    // Story mode: scenes can replace prompt requirement if image is present
+    // Story mode: requires image + (scenes OR prompt)
     const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
     const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || videoModeState.startingFrame);
-    const isStoryModeValid = selectedAnimateMode === 'Story' && hasValidStoryScenes && hasStoryImage;
+    const hasStoryContent = hasValidStoryScenes || prompt.trim().length > 0;
+    const isStoryModeValid = selectedAnimateMode === 'Story' && hasStoryImage && hasStoryContent;
+    
+    // Story mode validation: must have image + (scenes OR prompt)
+    if (selectedAnimateMode === 'Story') {
+      if (!hasStoryImage) {
+        toast({
+          title: "Image required",
+          description: "Please select a character or add a starting frame for your Story video",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!hasStoryContent) {
+        toast({
+          title: "Content required",
+          description: "Please add scene descriptions or enter a prompt",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     // Recast mode doesn't require a prompt text - only video and character image
-    // Story mode: valid if (scenes + image) OR (prompt + image) OR (prompt only for single scene)
-    if (selectedAnimateMode !== 'Recast' && !isStoryModeValid && !effectivePrompt.trim()) {
+    if (selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'Story' && !effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
-        description: selectedAnimateMode === 'Story' 
-          ? "Please add scene descriptions or a prompt to create your video"
-          : "Please describe what you want to create",
+        description: "Please describe what you want to create",
         variant: "destructive",
       });
       return;
