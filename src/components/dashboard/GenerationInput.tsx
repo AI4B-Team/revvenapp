@@ -122,9 +122,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isUploadingUgcStyle, setIsUploadingUgcStyle] = useState(false);
   
   // Recast mode state - requires video and character
-  const [recastVideo, setRecastVideo] = useState<{ url: string; name: string } | null>(null);
+  const [recastVideo, setRecastVideo] = useState<{ url: string; name: string; id?: string; duration?: number } | null>(null);
   const [isUploadingRecastVideo, setIsUploadingRecastVideo] = useState(false);
   const [recastResolution, setRecastResolution] = useState<'480p' | '580p' | '720p'>('480p');
+  
+  // Video history for Recast
+  const [savedVideos, setSavedVideos] = useState<{ id: string; url: string; name: string; duration?: number }[]>([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
   
   // Product history
   const [savedProducts, setSavedProducts] = useState<{ id: string; url: string; name: string }[]>([]);
@@ -317,6 +321,32 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     };
     
     fetchSavedProducts();
+  }, []);
+
+  // Fetch saved videos for Recast on mount
+  useEffect(() => {
+    const fetchSavedVideos = async () => {
+      setIsLoadingVideos(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await supabase
+          .from('user_videos')
+          .select('id, url, name, duration')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        setSavedVideos(data || []);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      } finally {
+        setIsLoadingVideos(false);
+      }
+    };
+    
+    fetchSavedVideos();
   }, []);
 
   // Reset animate mode to 'Animate' when entering video mode
@@ -1428,6 +1458,37 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     }
   };
 
+  // Delete video from Recast history
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_videos')
+        .delete()
+        .eq('id', videoId);
+        
+      if (error) throw error;
+      
+      setSavedVideos(prev => prev.filter(v => v.id !== videoId));
+      
+      // Clear selection if deleted video was selected
+      if (recastVideo?.id === videoId) {
+        setRecastVideo(null);
+      }
+      
+      toast({
+        title: "Video deleted",
+        description: "Video removed from history",
+      });
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete video",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Recast video upload handler with duration validation
   const handleRecastVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -1472,6 +1533,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       // Duration is valid, proceed with upload
       setIsUploadingRecastVideo(true);
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
         
@@ -1487,9 +1551,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
           if (error) throw error;
 
+          const videoUrl = data?.referenceImage?.image_url;
+          const cloudinaryPublicId = data?.referenceImage?.cloudinary_public_id;
+
+          // Save to user_videos table
+          const { data: savedVideo, error: saveError } = await supabase
+            .from('user_videos')
+            .insert({
+              user_id: user.id,
+              name: file.name,
+              url: videoUrl,
+              cloudinary_public_id: cloudinaryPublicId,
+              duration: Math.round(duration)
+            })
+            .select()
+            .single();
+
+          if (saveError) {
+            console.error('Error saving video to history:', saveError);
+          } else {
+            // Add to local state
+            setSavedVideos(prev => [{ id: savedVideo.id, url: videoUrl, name: file.name, duration: Math.round(duration) }, ...prev]);
+          }
+
           setRecastVideo({
-            url: data?.referenceImage?.image_url,
-            name: file.name
+            id: savedVideo?.id,
+            url: videoUrl,
+            name: file.name,
+            duration: Math.round(duration)
           });
 
           toast({
@@ -2365,6 +2454,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 <div className="relative flex items-center gap-2 p-2 bg-muted rounded-md">
                                   <Video size={16} className="text-muted-foreground" />
                                   <span className="text-xs truncate flex-1">{recastVideo.name}</span>
+                                  {recastVideo.duration && (
+                                    <span className="text-xs text-muted-foreground">{recastVideo.duration}s</span>
+                                  )}
                                   <button 
                                     onClick={() => setRecastVideo(null)}
                                     className="bg-red-500 text-white rounded-full p-1"
@@ -2375,16 +2467,59 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               </div>
                             )}
                             
-                            <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                              <Upload size={20} className="text-muted-foreground mb-2" />
-                              <span className="text-sm text-muted-foreground">Click to upload video</span>
-                              <input 
-                                type="file" 
-                                accept="video/mp4,video/quicktime,video/x-matroska" 
-                                className="hidden" 
-                                onChange={handleRecastVideoUpload}
-                              />
-                            </label>
+                            {/* Upload New */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Upload New</p>
+                              <label className="flex flex-col items-center justify-center p-3 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                                <Upload size={16} className="text-muted-foreground mb-1" />
+                                <span className="text-xs text-muted-foreground">Click to upload</span>
+                                <input 
+                                  type="file" 
+                                  accept="video/mp4,video/quicktime,video/x-matroska" 
+                                  className="hidden" 
+                                  onChange={handleRecastVideoUpload}
+                                />
+                              </label>
+                            </div>
+
+                            {/* Saved Videos */}
+                            {savedVideos.length > 0 && (
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-2">My Videos</p>
+                                {isLoadingVideos ? (
+                                  <div className="flex justify-center py-2">
+                                    <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                                    {savedVideos.map((video) => (
+                                      <div 
+                                        key={video.id} 
+                                        className={`relative group cursor-pointer rounded-md p-2 flex items-center gap-2 transition ${
+                                          recastVideo?.id === video.id ? 'bg-emerald-500/20 ring-1 ring-emerald-500' : 'hover:bg-muted'
+                                        }`}
+                                        onClick={() => setRecastVideo({ id: video.id, url: video.url, name: video.name, duration: video.duration })}
+                                      >
+                                        <Video size={14} className="text-muted-foreground flex-shrink-0" />
+                                        <span className="text-xs truncate flex-1">{video.name}</span>
+                                        {video.duration && (
+                                          <span className="text-xs text-muted-foreground">{video.duration}s</span>
+                                        )}
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteVideo(video.id);
+                                          }}
+                                          className="bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                          <X size={10} />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </PopoverContent>
                       </Popover>
