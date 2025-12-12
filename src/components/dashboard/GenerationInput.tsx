@@ -913,17 +913,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         // STORY MODE: Use sora-2-pro-storyboard model with shots array
         if (selectedAnimateMode === 'Story') {
-          // Validate: either scenes with content OR prompt for single-scene video
-          const validScenes = storyScenes.filter(s => s.scene.trim().length > 0);
-          const hasCharacterImage = currentCharacters.length > 0 || videoModeState.startingFrame;
+          // Validate: scenes must have meaningful content (at least 10 characters)
+          const validScenes = storyScenes.filter(s => s.scene.trim().length >= 10);
+          const shortScenes = storyScenes.filter(s => s.scene.trim().length > 0 && s.scene.trim().length < 10);
+          
+          // Warn about short scenes that will be ignored
+          if (shortScenes.length > 0) {
+            toast({
+              title: "Short scenes ignored",
+              description: "Scene descriptions must be at least 10 characters. Short scenes were removed.",
+              variant: "default",
+            });
+          }
           
           // Case 1: Scenes + Image = valid (multi-scene storyboard)
           // Case 2: Prompt + Image = valid (single scene from prompt)
           // Case 3: Prompt only = valid (single scene video)
-          if (validScenes.length === 0 && !prompt.trim()) {
+          if (validScenes.length === 0 && (!prompt.trim() || prompt.trim().length < 10)) {
             toast({
               title: "Content required",
-              description: "Please add scene descriptions or enter a prompt",
+              description: "Please add scene descriptions (min 10 characters) or enter a detailed prompt",
               variant: "destructive",
             });
             setIsGenerating(false);
