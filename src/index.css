@@ -58,6 +58,16 @@ All colors MUST be HSL.
     --tool-bg-gray: 0 0% 96%;
     --tool-bg-pink: 330 100% 97%;
     --tool-bg-green: 142 71% 95%;
+
+    /* Prompt box pill button colors */
+    --pill-blue: 210 100% 95%;
+    --pill-blue-text: 210 100% 45%;
+    --pill-orange: 30 100% 94%;
+    --pill-orange-text: 30 80% 45%;
+    --pill-green: 142 70% 92%;
+    --pill-green-text: 142 70% 35%;
+    --pill-gray: 220 13% 95%;
+    --pill-gray-text: 220 9% 40%;
   }
 }
 
