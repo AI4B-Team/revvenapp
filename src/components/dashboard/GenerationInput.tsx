@@ -102,6 +102,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [ugcScriptText, setUgcScriptText] = useState('');
   const [ugcSceneText, setUgcSceneText] = useState('');
   
+  // Story mode separate text field for scene
+  const [storySceneText, setStorySceneText] = useState('');
+  const [selectedStoryButton, setSelectedStoryButton] = useState<string | null>(null);
+  
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
   
@@ -1810,13 +1814,25 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             <textarea 
-              value={isVideoMode && selectedAnimateMode === 'Avatar Video' ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) : prompt}
+              value={
+                isVideoMode && selectedAnimateMode === 'Avatar Video' 
+                  ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) 
+                  : isVideoMode && selectedAnimateMode === 'Story'
+                    ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
+                    : prompt
+              }
               onChange={(e) => {
                 if (isVideoMode && selectedAnimateMode === 'Avatar Video') {
                   if (selectedUGCButton === 'Scene') {
                     setUgcSceneText(e.target.value);
                   } else {
                     setUgcScriptText(e.target.value);
+                  }
+                } else if (isVideoMode && selectedAnimateMode === 'Story') {
+                  if (selectedStoryButton === 'Scene') {
+                    setStorySceneText(e.target.value);
+                  } else {
+                    setPrompt(e.target.value);
                   }
                 } else {
                   setPrompt(e.target.value);
@@ -1825,7 +1841,17 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               disabled={isGenerating}
               maxLength={isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' ? 180 : undefined}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
-              placeholder={isContentMode ? "Describe the theme or topic for your content plan..." : (isVideoMode && selectedAnimateMode === 'Avatar Video') ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') : (isVideoMode && selectedAnimateMode === 'UGC') ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' : "Describe what you want to create..."}
+              placeholder={
+                isContentMode 
+                  ? "Describe the theme or topic for your content plan..." 
+                  : (isVideoMode && selectedAnimateMode === 'Avatar Video') 
+                    ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
+                    : (isVideoMode && selectedAnimateMode === 'Story')
+                      ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : 'Write the story narrative or describe what happens...')
+                      : (isVideoMode && selectedAnimateMode === 'UGC') 
+                        ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
+                        : "Describe what you want to create..."
+              }
             />
             {/* Character count warning for Avatar Video mode */}
             {isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' && (
@@ -2653,6 +2679,115 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <p>Select Frame Image</p>
                         </TooltipContent>
                       </Tooltip>
+                    </>
+                  ) : selectedAnimateMode === 'Story' ? (
+                    <>
+                      {/* Story Mode Controls */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoModel === 'veo3' 
+                              ? 'bg-pill-orange text-pill-orange-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            <Video size={14} />
+                            {videoModel === 'veo3' ? 'Veo 3.1 Quality' : 'Veo 3.1 Fast'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoModel('veo3_fast')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                videoModel === 'veo3_fast' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Veo 3.1 Fast</div>
+                              <div className="text-xs text-muted-foreground">Quick video generation</div>
+                            </button>
+                            <button 
+                              onClick={() => setVideoModel('veo3')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                videoModel === 'veo3' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Veo 3.1 Quality</div>
+                              <div className="text-xs text-muted-foreground">Higher quality output</div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => onCharactersClick?.()}
+                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              videoModeState.characters.length > 0 
+                                ? 'bg-pill-green text-pill-green-text' 
+                                : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}
+                          >
+                            <User size={14} />
+                            Character
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Select Character</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <button 
+                        onClick={() => setSelectedStoryButton(selectedStoryButton === 'Scene' ? null : 'Scene')}
+                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          storySceneText.trim().length > 0 
+                            ? 'bg-pill-green text-pill-green-text' 
+                            : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}
+                      >
+                        <Clapperboard size={14} />
+                        Scene
+                      </button>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoAspectRatio !== '16:9' 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            <RatioIcon size={14} />
+                            {videoAspectRatio}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setVideoAspectRatio('16:9')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-5 h-3 border-2 border-current"></div>
+                              16:9 Landscape
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('9:16')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-3 h-5 border-2 border-current"></div>
+                              9:16 Portrait
+                            </button>
+                            <button 
+                              onClick={() => setVideoAspectRatio('Auto')}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                            >
+                              <div className="w-4 h-4 border-2 border-current"></div>
+                              Auto
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </>
                   ) : (
                     <>
