@@ -1849,8 +1849,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video mode when character is selected */}
-        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0) && (
+        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video and Recast modes */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0) && selectedAnimateMode !== 'Recast' && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
