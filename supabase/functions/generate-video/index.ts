@@ -27,14 +27,14 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const requestData = await req.json();
 
-    // Check if this is a Recast mode request (KIE.AI wan/2-2-animate-move)
+    // Check if this is a Recast mode request (KIE.AI wan/2-2-animate-replace)
     if (requestData.isRecast) {
-      console.log("Recast mode detected - using KIE.AI wan/2-2-animate-move");
+      console.log("Recast mode detected - using KIE.AI wan/2-2-animate-replace");
       
-      const { model, videoUrl, imageUrl, resolution, userId } = requestData;
+      const { videoUrl, imageUrl, resolution, userId } = requestData;
 
       if (!kieApiKey) {
-        throw new Error("KIE_API_KEY is not configured");
+        throw new Error("KIE_AI_API_KEY is not configured");
       }
 
       if (!videoUrl || !imageUrl) {
@@ -47,8 +47,8 @@ serve(async (req) => {
         .insert({
           user_id: userId,
           video_topic: 'Recast Animation',
-          video_style: 'animate-move',
-          video_generation_model: model || 'wan/2-2-animate-move',
+          video_style: 'animate-replace',
+          video_generation_model: 'wan/2-2-animate-replace',
           character_name: 'Recast',
           character_bio: '',
           character_image_url: imageUrl,
@@ -69,7 +69,7 @@ serve(async (req) => {
 
       // Call KIE.AI API for Recast
       const kieRequestBody = {
-        model: model || 'wan/2-2-animate-move',
+        model: 'wan/2-2-animate-replace',
         callBackUrl: callbackUrl,
         input: {
           video_url: videoUrl,
