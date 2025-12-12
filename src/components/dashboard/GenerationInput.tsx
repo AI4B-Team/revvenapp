@@ -724,7 +724,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             setIsGenerating(false);
             return;
           }
-          if (!currentCharacters.length) {
+          if (!selectedCharacters.length) {
             toast({
               title: "Character required",
               description: "Please select a character for Recast",
@@ -734,8 +734,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             return;
           }
 
-          // Get character image URL
-          const characterImageUrl = currentCharacters[0].avatar || currentCharacters[0].image_url;
+          // Get character image URL - use selectedCharacters prop directly
+          const characterImageUrl = selectedCharacters[0].avatar || selectedCharacters[0].image_url;
           if (!characterImageUrl) {
             toast({
               title: "Character image required",
@@ -2308,32 +2308,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
 
                       {/* Character Selection for Recast */}
-                      {(() => {
-                        // Use videoModeState.characters for video mode
-                        const recastCharacters = isVideoMode ? videoModeState.characters : selectedCharacters;
-                        return (
-                          <button 
-                            onClick={onCharactersClick}
-                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                              recastCharacters.length > 0 
-                                ? 'bg-pill-green text-pill-green-text' 
-                                : 'bg-pill-gray text-pill-gray-text'
-                            } hover:opacity-80`}
-                          >
-                            {recastCharacters.length > 0 ? (
-                              <>
-                                <User size={14} />
-                                <span className="max-w-[80px] truncate">{recastCharacters[0].name}</span>
-                              </>
-                            ) : (
-                              <>
-                                <User size={14} />
-                                Character
-                              </>
-                            )}
-                          </button>
-                        );
-                      })()}
+                      <button 
+                        onClick={onCharactersClick}
+                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedCharacters.length > 0 
+                            ? 'bg-pill-green text-pill-green-text' 
+                            : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}
+                      >
+                        {selectedCharacters.length > 0 ? (
+                          <>
+                            <User size={14} />
+                            <span className="max-w-[80px] truncate">{selectedCharacters[0].name}</span>
+                          </>
+                        ) : (
+                          <>
+                            <User size={14} />
+                            Character
+                          </>
+                        )}
+                      </button>
 
                       {/* Resolution Selector */}
                       <Popover>
