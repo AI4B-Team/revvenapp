@@ -2308,9 +2308,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : selectedAnimateMode === 'Recast' ? (
                     <>
                       {/* Recast Mode Controls - Video + Move Image */}
-                      <span className="px-3 py-1.5 rounded-full text-xs bg-pill-orange text-pill-orange-text">
-                        wan/2-2-animate-move
-                      </span>
+                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text cursor-default">
+                        <Video size={14} />
+                        Animate Move
+                      </button>
 
                       {/* Video Upload */}
                       <Popover>
