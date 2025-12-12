@@ -1926,29 +1926,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            videoModel !== 'veo3_fast' 
+                            videoModel === 'veo3' 
                               ? 'bg-pill-orange text-pill-orange-text' 
                               : 'bg-pill-gray text-pill-gray-text'
                           } hover:opacity-80`}>
                             <Video size={14} />
-                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
+                            {videoModel === 'veo3' ? 'Veo 3.1 Quality' : 'Veo 3.1 Fast'}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-56 bg-background border-border z-50">
                           <div className="space-y-1">
-                            {videoModels.map((model) => (
-                              <button 
-                                key={model.value}
-                                onClick={() => setVideoModel(model.value)}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  videoModel === model.value ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <div className="font-medium">{model.label}</div>
-                                <div className="text-xs text-muted-foreground">{model.description}</div>
-                              </button>
-                            ))}
+                            <button 
+                              onClick={() => setVideoModel('veo3_fast')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                videoModel === 'veo3_fast' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Veo 3.1 Fast</div>
+                              <div className="text-xs text-muted-foreground">Quick video generation</div>
+                            </button>
+                            <button 
+                              onClick={() => setVideoModel('veo3')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                videoModel === 'veo3' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Veo 3.1 Quality</div>
+                              <div className="text-xs text-muted-foreground">Higher quality output</div>
+                            </button>
                           </div>
                         </PopoverContent>
                       </Popover>
