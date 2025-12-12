@@ -67,6 +67,16 @@ export default {
           gray: "hsl(var(--tool-bg-gray))",
           pink: "hsl(var(--tool-bg-pink))",
         },
+        pill: {
+          blue: "hsl(var(--pill-blue))",
+          "blue-text": "hsl(var(--pill-blue-text))",
+          orange: "hsl(var(--pill-orange))",
+          "orange-text": "hsl(var(--pill-orange-text))",
+          green: "hsl(var(--pill-green))",
+          "green-text": "hsl(var(--pill-green-text))",
+          gray: "hsl(var(--pill-gray))",
+          "gray-text": "hsl(var(--pill-gray-text))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
