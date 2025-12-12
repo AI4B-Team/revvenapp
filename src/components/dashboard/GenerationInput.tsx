@@ -147,6 +147,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [savedProducts, setSavedProducts] = useState<{ id: string; url: string; name: string }[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   
+  // Reference image history for Story mode
+  const [savedReferenceImages, setSavedReferenceImages] = useState<{ id: string; url: string; name: string }[]>([]);
+  const [isLoadingReferenceImages, setIsLoadingReferenceImages] = useState(false);
+  
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
@@ -360,6 +364,37 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     };
     
     fetchSavedVideos();
+  }, []);
+
+  // Fetch saved reference images on mount
+  useEffect(() => {
+    const fetchSavedReferenceImages = async () => {
+      setIsLoadingReferenceImages(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await supabase
+          .from('reference_images')
+          .select('id, image_url, original_filename')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+          
+        if (error) throw error;
+        setSavedReferenceImages((data || []).map(img => ({
+          id: img.id,
+          url: img.image_url,
+          name: img.original_filename || 'Reference'
+        })));
+      } catch (error) {
+        console.error('Error fetching reference images:', error);
+      } finally {
+        setIsLoadingReferenceImages(false);
+      }
+    };
+    
+    fetchSavedReferenceImages();
   }, []);
 
   // Reset animate mode to 'Animate' when entering video mode
@@ -2888,10 +2923,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <ChevronDown size={14} />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-64 bg-background border-border z-50">
+                          <PopoverContent className="w-72 bg-background border-border z-50 max-h-80 overflow-y-auto">
                             <div className="space-y-3">
-                              <p className="text-sm font-medium">Upload Reference Image</p>
+                              <p className="text-sm font-medium">Reference Image</p>
                               <p className="text-xs text-muted-foreground">Single image only (use character OR reference)</p>
+                              
+                              {/* Upload section */}
                               <input
                                 type="file"
                                 accept="image/*"
@@ -2947,9 +2984,44 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   <Upload size={20} className="text-muted-foreground" />
                                 )}
                                 <span className="text-sm text-muted-foreground">
-                                  {isUploadingStoryReference ? 'Uploading...' : 'Click to upload'}
+                                  {isUploadingStoryReference ? 'Uploading...' : 'Click to upload new'}
                                 </span>
                               </label>
+                              
+                              {/* Reference image history */}
+                              {savedReferenceImages.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-xs font-medium text-muted-foreground">My References</p>
+                                  <div className="grid grid-cols-4 gap-2">
+                                    {isLoadingReferenceImages ? (
+                                      <div className="col-span-4 flex justify-center py-2">
+                                        <Loader2 size={16} className="animate-spin text-muted-foreground" />
+                                      </div>
+                                    ) : (
+                                      savedReferenceImages.map((ref) => (
+                                        <button
+                                          key={ref.id}
+                                          onClick={() => {
+                                            setStoryReferenceImage({
+                                              url: ref.url,
+                                              name: ref.name,
+                                              id: ref.id
+                                            });
+                                          }}
+                                          className="relative aspect-square rounded-md overflow-hidden border border-border hover:border-primary transition group"
+                                        >
+                                          <img 
+                                            src={ref.url} 
+                                            alt={ref.name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition" />
+                                        </button>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </PopoverContent>
                         </Popover>
