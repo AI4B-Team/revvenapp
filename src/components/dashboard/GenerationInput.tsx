@@ -2498,10 +2498,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 ) : (
                                   <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                                     {savedVideos.map((video) => {
-                                      // Generate Cloudinary thumbnail from video URL
+                                      // Generate Cloudinary video thumbnail URL
+                                      // Format: /video/upload/so_0,w_80,h_60,c_fill,f_jpg/...
                                       const thumbnailUrl = video.url
-                                        .replace('/video/upload/', '/video/upload/so_0,w_80,h_60,c_fill/')
-                                        .replace(/\.[^.]+$/, '.jpg');
+                                        .replace('/video/upload/', '/video/upload/so_0,w_80,h_60,c_fill,f_jpg/')
                                       
                                       return (
                                         <div 
