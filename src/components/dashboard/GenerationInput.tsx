@@ -150,6 +150,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Reference image history for Story mode
   const [savedReferenceImages, setSavedReferenceImages] = useState<{ id: string; url: string; name: string }[]>([]);
   const [isLoadingReferenceImages, setIsLoadingReferenceImages] = useState(false);
+  const [isStoryReferencePopoverOpen, setIsStoryReferencePopoverOpen] = useState(false);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -396,6 +397,24 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     
     fetchSavedReferenceImages();
   }, []);
+
+  // Debug Story mode state
+  useEffect(() => {
+    if (isVideoMode && selectedAnimateMode === 'Story') {
+      const hasValidScene = storyScenes.some(s => s.scene.trim().length >= 10);
+      const hasCharacter = videoModeState.characters.length > 0;
+      const hasRefImage = !!storyReferenceImage;
+      console.log('Story Mode Debug:', {
+        storyScenes: storyScenes.map(s => ({ scene: s.scene, length: s.scene.trim().length })),
+        hasValidScene,
+        hasCharacter,
+        hasRefImage,
+        storyReferenceImage,
+        videoModeCharacters: videoModeState.characters,
+        isDisabled: !hasValidScene || (!hasCharacter && !hasRefImage)
+      });
+    }
+  }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, storyReferenceImage]);
 
   // Reset animate mode to 'Animate' when entering video mode
   useEffect(() => {
@@ -2922,7 +2941,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <X size={14} />
                         </button>
                       ) : (
-                        <Popover>
+                        <Popover open={isStoryReferencePopoverOpen} onOpenChange={setIsStoryReferencePopoverOpen}>
                           <PopoverTrigger asChild>
                             <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
                               <ImageIcon size={14} />
@@ -2963,6 +2982,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                       url: data.secure_url,
                                       name: file.name
                                     });
+                                    setIsStoryReferencePopoverOpen(false);
                                     
                                     toast({
                                       title: "Reference uploaded",
@@ -3009,11 +3029,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                         <button
                                           key={ref.id}
                                           onClick={() => {
+                                            console.log('Story mode: Selecting reference image:', ref);
                                             setStoryReferenceImage({
                                               url: ref.url,
                                               name: ref.name,
                                               id: ref.id
                                             });
+                                            setIsStoryReferencePopoverOpen(false);
                                           }}
                                           className="relative aspect-square rounded-md overflow-hidden border border-border hover:border-primary transition group"
                                         >
