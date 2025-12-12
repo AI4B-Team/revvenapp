@@ -759,7 +759,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             setIsGenerating(false);
             return;
           }
-          if (!selectedCharacters.length) {
+          
+          // Use selectedCharacters prop directly for Recast mode character validation
+          const recastCharacters = selectedCharacters.length > 0 ? selectedCharacters : currentCharacters;
+          if (!recastCharacters.length) {
             toast({
               title: "Character required",
               description: "Please select a character for Recast",
@@ -769,8 +772,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             return;
           }
 
-          // Get character image URL - use selectedCharacters prop directly
-          const characterImageUrl = selectedCharacters[0].avatar || selectedCharacters[0].image_url;
+          // Get character image URL from the selected character
+          const characterImageUrl = recastCharacters[0].avatar || recastCharacters[0].image_url || recastCharacters[0].image;
           if (!characterImageUrl) {
             toast({
               title: "Character image required",
