@@ -1927,7 +1927,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <div className="mb-6 mt-6">
             <div className="flex items-center gap-4">
               <div className="flex flex-col items-center gap-2">
-                <span className="text-xs text-muted-foreground font-medium">Frame to Apply</span>
+                <span className="text-xs text-muted-foreground font-medium">Character</span>
                 <div 
                   onClick={onCharactersClick}
                   className={`w-32 h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all ${
