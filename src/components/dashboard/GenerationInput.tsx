@@ -1,4 +1,4 @@
-import { Image, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -1922,6 +1922,52 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
+        {/* Recast Mode Frame Display - Shows selected character as the frame to apply */}
+        {isVideoMode && selectedAnimateMode === 'Recast' && (
+          <div className="mb-6 mt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">Frame to Apply</span>
+                <div 
+                  onClick={onCharactersClick}
+                  className={`w-32 h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all ${
+                    selectedCharacters && selectedCharacters.length > 0 
+                      ? 'border-emerald-500 bg-emerald-500/10' 
+                      : 'border-muted-foreground/30 hover:border-primary/50 bg-muted/20'
+                  }`}
+                >
+                  {selectedCharacters && selectedCharacters.length > 0 ? (
+                    <div className="relative w-full h-full">
+                      <img 
+                        src={selectedCharacters[0].image || selectedCharacters[0].image_url || selectedCharacters[0].avatar}
+                        alt={selectedCharacters[0].name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onCharactersSelect?.([]);
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                      >
+                        <X size={12} />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 rounded-b-lg">
+                        <span className="text-xs text-white font-medium truncate block">{selectedCharacters[0].name}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <ImageIcon size={24} className="text-muted-foreground mb-2" />
+                      <span className="text-xs text-muted-foreground text-center px-2">Click to select character</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-nowrap">
             {isVideoMode ? (
@@ -2404,6 +2450,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </div>
                         </PopoverContent>
                       </Popover>
+
+                      {/* Frame Button - Shows selected character as frame */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={onCharactersClick}
+                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              selectedCharacters.length > 0 
+                                ? 'bg-pill-green text-pill-green-text' 
+                                : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}
+                          >
+                            <ImageIcon size={14} />
+                            Frame
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Select Frame Image</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </>
                   ) : (
                     <>
