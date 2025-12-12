@@ -27,6 +27,111 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const requestData = await req.json();
 
+    // Check if this is a Story mode request (KIE.AI sora-2-pro-storyboard)
+    if (requestData.isStory) {
+      const { shots, nFrames, aspectRatio, imageUrls, userId } = requestData;
+      
+      console.log("Story mode detected - using KIE.AI sora-2-pro-storyboard");
+
+      if (!kieApiKey) {
+        throw new Error("KIE_AI_API_KEY is not configured");
+      }
+
+      if (!shots || shots.length === 0) {
+        throw new Error("At least one scene/shot is required for Story mode");
+      }
+
+      // Create a record in ai_videos table for tracking
+      const { data: videoRecord, error: insertError } = await supabase
+        .from('ai_videos')
+        .insert({
+          user_id: userId,
+          video_topic: 'Story Video',
+          video_style: 'storyboard',
+          video_generation_model: 'sora-2-pro-storyboard',
+          character_name: 'Story',
+          character_bio: shots.map((s: any, i: number) => `Scene ${i + 1}: ${s.Scene}`).join(' | '),
+          character_image_url: imageUrls?.[0] || '',
+          status: 'processing'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error creating video record:", insertError);
+        throw insertError;
+      }
+
+      console.log("Created Story video record:", videoRecord.id);
+
+      // Build callback URL for KIE.AI
+      const callbackUrl = `${supabaseUrl}/functions/v1/video-webhook-callback?videoId=${videoRecord.id}&source=kie`;
+
+      // Call KIE.AI API for Story/Storyboard
+      const kieRequestBody: any = {
+        model: "sora-2-pro-storyboard",
+        callBackUrl: callbackUrl,
+        input: {
+          n_frames: nFrames || "15",
+          aspect_ratio: aspectRatio || "landscape",
+          shots: shots
+        }
+      };
+
+      // Add reference image if provided
+      if (imageUrls && imageUrls.length > 0) {
+        kieRequestBody.input.image_urls = imageUrls;
+      }
+
+      console.log("Calling KIE.AI with body:", JSON.stringify(kieRequestBody));
+
+      const kieResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${kieApiKey}`
+        },
+        body: JSON.stringify(kieRequestBody)
+      });
+
+      const kieResult = await kieResponse.json();
+      console.log("KIE.AI response:", JSON.stringify(kieResult));
+
+      if (kieResult.code !== 200) {
+        // Update status to error
+        await supabase
+          .from('ai_videos')
+          .update({ 
+            status: 'error', 
+            error_message: kieResult.message || 'KIE.AI API error' 
+          })
+          .eq('id', videoRecord.id);
+        
+        throw new Error(kieResult.message || 'KIE.AI API error');
+      }
+
+      // Update record with task ID
+      await supabase
+        .from('ai_videos')
+        .update({ 
+          webhook_response: { taskId: kieResult.data?.taskId }
+        })
+        .eq('id', videoRecord.id);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Story video generation started. You will be notified when it completes.",
+          videoId: videoRecord.id,
+          taskId: kieResult.data?.taskId
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     // Check if this is a Recast mode request (KIE.AI wan/2-2-animate-move or wan/2-2-animate-replace)
     if (requestData.isRecast) {
       const { videoUrl, imageUrl, resolution, userId, recastModel } = requestData;

@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2 } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -105,6 +105,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Story mode separate text field for scene
   const [storySceneText, setStorySceneText] = useState('');
   const [selectedStoryButton, setSelectedStoryButton] = useState<string | null>(null);
+  
+  // Story mode multi-scene support
+  const [storyScenes, setStoryScenes] = useState<{ scene: string; duration: number }[]>([
+    { scene: '', duration: 7.5 }
+  ]);
+  const [storyDuration, setStoryDuration] = useState<'10' | '15' | '25'>('15');
   
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
@@ -822,6 +828,69 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           // Clear Recast state after successful generation
           setRecastVideo(null);
+          
+          setIsGenerating(false);
+          return;
+        }
+
+        // STORY MODE: Use sora-2-pro-storyboard model with shots array
+        if (selectedAnimateMode === 'Story') {
+          // Validate at least one scene has content
+          const validScenes = storyScenes.filter(s => s.scene.trim().length > 0);
+          if (validScenes.length === 0) {
+            toast({
+              title: "Scenes required",
+              description: "Please add at least one scene description",
+              variant: "destructive",
+            });
+            setIsGenerating(false);
+            return;
+          }
+
+          console.log("Story Mode: Starting video generation with sora-2-pro-storyboard...");
+          
+          // Get the authenticated user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            throw new Error("User not authenticated");
+          }
+
+          // Get character image URL if selected (optional reference)
+          const characterImageUrl = currentCharacters.length > 0 
+            ? (currentCharacters[0].avatar || currentCharacters[0].image_url || currentCharacters[0].image)
+            : null;
+
+          // Build shots array for API
+          const shots = validScenes.map(s => ({
+            Scene: s.scene.trim(),
+            duration: s.duration
+          }));
+
+          // Call the generate-video edge function with Story-specific parameters
+          const storyRequestBody = {
+            isStory: true,
+            userId: user.id,
+            shots: shots,
+            nFrames: storyDuration,
+            aspectRatio: videoAspectRatio === 'portrait' ? 'portrait' : 'landscape',
+            imageUrls: characterImageUrl ? [characterImageUrl] : undefined
+          };
+
+          const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-video', {
+            body: storyRequestBody
+          });
+
+          if (storyError) throw storyError;
+
+          toast({
+            title: "Story video generating!",
+            description: "Your storyboard video is being created. This may take a few minutes.",
+          });
+
+          console.log("Story video generation started:", storyData);
+          
+          // Clear Story state after successful generation
+          setStoryScenes([{ scene: '', duration: 7.5 }]);
           
           setIsGenerating(false);
           return;
@@ -2682,42 +2751,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : selectedAnimateMode === 'Story' ? (
                     <>
-                      {/* Story Mode Controls */}
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            videoModel === 'veo3' 
-                              ? 'bg-pill-orange text-pill-orange-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <Video size={14} />
-                            {videoModel === 'veo3' ? 'Veo 3.1 Quality' : 'Veo 3.1 Fast'}
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56 bg-background border-border z-50">
-                          <div className="space-y-1">
-                            <button 
-                              onClick={() => setVideoModel('veo3_fast')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                videoModel === 'veo3_fast' ? 'bg-secondary' : ''
-                              }`}
-                            >
-                              <div className="font-medium">Veo 3.1 Fast</div>
-                              <div className="text-xs text-muted-foreground">Quick video generation</div>
-                            </button>
-                            <button 
-                              onClick={() => setVideoModel('veo3')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                videoModel === 'veo3' ? 'bg-secondary' : ''
-                              }`}
-                            >
-                              <div className="font-medium">Veo 3.1 Quality</div>
-                              <div className="text-xs text-muted-foreground">Higher quality output</div>
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                      {/* Story Mode Controls - uses sora-2-pro-storyboard */}
+                      <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
+                        <Video size={14} />
+                        Sora Storyboard
+                      </button>
 
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -2734,56 +2772,141 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Select Character</p>
+                          <p>Select Character (Optional Reference)</p>
                         </TooltipContent>
                       </Tooltip>
-
-                      <button 
-                        onClick={() => setSelectedStoryButton(selectedStoryButton === 'Scene' ? null : 'Scene')}
-                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          storySceneText.trim().length > 0 
-                            ? 'bg-pill-green text-pill-green-text' 
-                            : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}
-                      >
-                        <Clapperboard size={14} />
-                        Scene
-                      </button>
 
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            videoAspectRatio !== '16:9' 
+                            storyScenes.some(s => s.scene.trim().length > 0)
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            <Clapperboard size={14} />
+                            Scenes ({storyScenes.length})
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-96 bg-background border-border z-50 max-h-[400px] overflow-y-auto">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium">Story Scenes</p>
+                              <button
+                                onClick={() => setStoryScenes([...storyScenes, { scene: '', duration: 7.5 }])}
+                                className="flex items-center gap-1 text-xs text-primary hover:underline"
+                              >
+                                <Plus size={12} />
+                                Add Scene
+                              </button>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Each scene describes a shot in your storyboard video. Total duration: {storyDuration}s
+                            </p>
+                            {storyScenes.map((scene, index) => (
+                              <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-muted-foreground">Scene {index + 1}</span>
+                                  {storyScenes.length > 1 && (
+                                    <button
+                                      onClick={() => setStoryScenes(storyScenes.filter((_, i) => i !== index))}
+                                      className="text-destructive hover:text-destructive/80"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  )}
+                                </div>
+                                <textarea
+                                  value={scene.scene}
+                                  onChange={(e) => {
+                                    const updated = [...storyScenes];
+                                    updated[index].scene = e.target.value;
+                                    setStoryScenes(updated);
+                                  }}
+                                  placeholder="Describe this scene..."
+                                  className="w-full h-16 text-sm p-2 rounded-md border border-border bg-background resize-none"
+                                />
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Duration:</span>
+                                  <input
+                                    type="number"
+                                    value={scene.duration}
+                                    onChange={(e) => {
+                                      const updated = [...storyScenes];
+                                      updated[index].duration = parseFloat(e.target.value) || 5;
+                                      setStoryScenes(updated);
+                                    }}
+                                    min={2}
+                                    max={15}
+                                    step={0.5}
+                                    className="w-16 text-sm p-1 rounded-md border border-border bg-background"
+                                  />
+                                  <span className="text-xs text-muted-foreground">seconds</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
+                            {storyDuration}s
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-36 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setStoryDuration('10')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '10' ? 'bg-secondary' : ''}`}
+                            >
+                              10 seconds
+                            </button>
+                            <button 
+                              onClick={() => setStoryDuration('15')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '15' ? 'bg-secondary' : ''}`}
+                            >
+                              15 seconds
+                            </button>
+                            <button 
+                              onClick={() => setStoryDuration('25')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${storyDuration === '25' ? 'bg-secondary' : ''}`}
+                            >
+                              25 seconds
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            videoAspectRatio !== 'landscape' 
                               ? 'bg-pill-green text-pill-green-text' 
                               : 'bg-pill-gray text-pill-gray-text'
                           } hover:opacity-80`}>
                             <RatioIcon size={14} />
-                            {videoAspectRatio}
+                            {videoAspectRatio === 'portrait' ? 'Portrait' : 'Landscape'}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-48 bg-background border-border z-50">
                           <div className="space-y-1">
                             <button 
-                              onClick={() => setVideoAspectRatio('16:9')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio('landscape')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'landscape' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-5 h-3 border-2 border-current"></div>
-                              16:9 Landscape
+                              Landscape
                             </button>
                             <button 
-                              onClick={() => setVideoAspectRatio('9:16')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
+                              onClick={() => setVideoAspectRatio('portrait')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2 ${videoAspectRatio === 'portrait' ? 'bg-secondary' : ''}`}
                             >
                               <div className="w-3 h-5 border-2 border-current"></div>
-                              9:16 Portrait
-                            </button>
-                            <button 
-                              onClick={() => setVideoAspectRatio('Auto')}
-                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2"
-                            >
-                              <div className="w-4 h-4 border-2 border-current"></div>
-                              Auto
+                              Portrait
                             </button>
                           </div>
                         </PopoverContent>
