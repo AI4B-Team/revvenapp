@@ -1542,17 +1542,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         reader.onload = async () => {
           const base64 = reader.result as string;
 
-          const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          // Use dedicated video upload function (not image upload)
+          const { data, error } = await supabase.functions.invoke('upload-video', {
             body: {
-              image: base64,
-              filename: file.name
+              video: base64,
+              filename: file.name,
+              duration: Math.round(duration)
             }
           });
 
           if (error) throw error;
 
-          const videoUrl = data?.referenceImage?.image_url;
-          const cloudinaryPublicId = data?.referenceImage?.cloudinary_public_id;
+          const uploadedVideoUrl = data?.video?.url;
+          const cloudinaryPublicId = data?.video?.cloudinary_public_id;
 
           // Save to user_videos table
           const { data: savedVideo, error: saveError } = await supabase
@@ -1560,7 +1562,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             .insert({
               user_id: user.id,
               name: file.name,
-              url: videoUrl,
+              url: uploadedVideoUrl,
               cloudinary_public_id: cloudinaryPublicId,
               duration: Math.round(duration)
             })
@@ -1571,12 +1573,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             console.error('Error saving video to history:', saveError);
           } else {
             // Add to local state
-            setSavedVideos(prev => [{ id: savedVideo.id, url: videoUrl, name: file.name, duration: Math.round(duration) }, ...prev]);
+            setSavedVideos(prev => [{ id: savedVideo.id, url: uploadedVideoUrl, name: file.name, duration: Math.round(duration) }, ...prev]);
           }
 
           setRecastVideo({
             id: savedVideo?.id,
-            url: videoUrl,
+            url: uploadedVideoUrl,
             name: file.name,
             duration: Math.round(duration)
           });
