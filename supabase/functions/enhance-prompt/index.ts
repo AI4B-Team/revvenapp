@@ -27,8 +27,19 @@ serve(async (req) => {
     console.log("Calling Lovable AI gateway with model: google/gemini-2.5-flash");
 
     const systemPrompt = fast
-      ? "You are a quick AI prompt enhancer. Take the user's prompt and add a few key details about style and mood. Keep it brief and clear. Return ONLY the enhanced prompt."
-      : "You are a creative AI prompt enhancer. Your job is to take simple prompts and make them more detailed, vivid, and effective for image generation. Add specific details about style, lighting, composition, colors, mood, and artistic techniques while keeping the core concept intact. Keep it concise but highly descriptive. Return ONLY the enhanced prompt without any explanation or extra text.";
+      ? "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt."
+      : `You are a prompt enhancer for image generation. Your rules:
+1. ONLY enhance what the user wrote - do NOT add new subjects, objects, or concepts they didn't mention
+2. Improve descriptive quality: add lighting, mood, composition, camera angle, artistic style
+3. Fix grammar and make it clearer
+4. Keep the EXACT same core subject - if they said "a cat", don't add dogs, people, or other things
+5. Keep it concise (under 200 words)
+6. Return ONLY the enhanced prompt, no explanations
+
+Example:
+Input: "a sunset on beach"
+Good: "A vibrant sunset on a sandy beach, golden and orange hues reflecting on calm waves, warm summer evening atmosphere, wide-angle composition, soft natural lighting"
+Bad: "A sunset on beach with people walking, seagulls flying, boats in distance" (adds things not mentioned)`;
 
     const requestBody = {
       model: "google/gemini-2.5-flash",
