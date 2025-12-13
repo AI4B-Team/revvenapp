@@ -259,6 +259,43 @@ serve(async (req) => {
         body: JSON.stringify(klingPayload),
       });
 
+    } else if (effectiveModel === 'kling-2.6') {
+      // Kling 2.6 image-to-video with sound support
+      console.log("Using Kling 2.6 API");
+
+      if (!imageUrls || imageUrls.length === 0) {
+        throw new Error("image_url is required for Kling 2.6 image-to-video");
+      }
+
+      // Kling 2.6 uses 5 or 10 second durations
+      let klingDuration = '5';
+      const durationNum = parseInt(duration) || 5;
+      if (durationNum > 5) {
+        klingDuration = '10';
+      }
+
+      const kling26Payload: any = {
+        model: 'kling-2.6/image-to-video',
+        callBackUrl: callbackUrl,
+        input: {
+          prompt: prompt.substring(0, 1000), // Kling 2.6 has 1000 char limit
+          image_urls: imageUrls,
+          sound: true, // Enable sound for podcast mode
+          duration: klingDuration
+        }
+      };
+
+      console.log("Kling 2.6 API payload:", JSON.stringify(kling26Payload, null, 2));
+
+      apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${kieApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(kling26Payload),
+      });
+
     } else if (effectiveModel === 'kling-2.1') {
       // Use the /api/v1/jobs/createTask endpoint for Kling 2.1 (image-to-video)
       console.log("Using Kling 2.1 API");
