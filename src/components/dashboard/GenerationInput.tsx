@@ -690,9 +690,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
     const currentReferences = isVideoMode ? videoModeState.references : activeReferences;
 
-    // VIDEO MODE: Generate video using Veo 3.1
+    // VIDEO MODE: Generate video
     if (isVideoMode) {
-      setIsGenerating(true);
+      // For UGC mode, do not lock the Generate button with a spinner
+      if (selectedAnimateMode !== 'UGC') {
+        setIsGenerating(true);
+      }
       onGenerationStart?.();
       
       try {
