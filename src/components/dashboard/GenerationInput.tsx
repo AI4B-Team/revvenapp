@@ -1298,12 +1298,32 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         }
       }
 
-      // Determine content type - use 'ugc' for UGC mode to generate voice scripts
-      const contentType = isUGCMode ? 'ugc' : selectedType;
+      // Determine content type with specific mode for better prompt generation
+      let contentType = selectedType;
+      let specificMode = '';
+      
+      if (isVideoMode) {
+        contentType = 'video';
+        specificMode = selectedAnimateMode || 'Animate';
+        if (isUGCMode) {
+          contentType = 'ugc';
+        }
+      } else if (selectedType === 'Image') {
+        contentType = 'image';
+        specificMode = selectedCreateMode || 'Create';
+      } else if (selectedType === 'Audio') {
+        contentType = 'audio';
+        specificMode = selectedAudioMode || 'Voiceover';
+      } else if (selectedType === 'Design') {
+        contentType = 'design';
+      } else if (selectedType === 'Content') {
+        contentType = 'content';
+      }
 
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
           contentType,
+          specificMode,
           characterImages,
           referenceImages
         }
