@@ -184,6 +184,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Clone', label: 'Clone', icon: User },
     { value: 'Revoice', label: 'Revoice', icon: RefreshCw },
     { value: 'Transcribe', label: 'Transcribe', icon: Captions },
+    { value: 'Sound Effects', label: 'Sound Effects', icon: AudioLines },
     { value: 'Music', label: 'Music', icon: AudioLines },
   ];
   
