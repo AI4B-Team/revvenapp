@@ -3293,9 +3293,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 if (selectedAnimateMode === 'Draw') {
                                   return ['veo3', 'veo3_fast'].includes(model.value);
                                 }
-                                // UGC mode: only Veo 3 models
+                                // UGC mode: Veo 3 and Kling 2.6
                                 if (selectedAnimateMode === 'UGC') {
-                                  return ['veo3', 'veo3_fast'].includes(model.value);
+                                  return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
                                 }
                                 // Story mode: only Sora 2 Pro
                                 if (selectedAnimateMode === 'Story') {
