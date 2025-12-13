@@ -2489,12 +2489,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            videoModel === 'veo3' 
+                            videoModel !== 'veo3_fast'
                               ? 'bg-pill-orange text-pill-orange-text' 
                               : 'bg-pill-gray text-pill-gray-text'
                           } hover:opacity-80`}>
                             <Video size={14} />
-                            {videoModel === 'veo3' ? 'Veo 3.1 Quality' : 'Veo 3.1 Fast'}
+                            {videoModel === 'veo3'
+                              ? 'Veo 3.1 Quality'
+                              : videoModel === 'kling-2.6'
+                                ? 'Kling 2.6'
+                                : 'Veo 3.1 Fast'}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
@@ -2517,6 +2521,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             >
                               <div className="font-medium">Veo 3.1 Quality</div>
                               <div className="text-xs text-muted-foreground">Higher quality output</div>
+                            </button>
+                            <button 
+                              onClick={() => setVideoModel('kling-2.6')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                videoModel === 'kling-2.6' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Kling 2.6</div>
+                              <div className="text-xs text-muted-foreground">Image-to-video with sound</div>
                             </button>
                           </div>
                         </PopoverContent>
