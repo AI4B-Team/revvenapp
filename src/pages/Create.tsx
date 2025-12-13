@@ -1034,12 +1034,19 @@ const Create = () => {
       <ReferencesModal
         isOpen={referencesModalOpen}
         onClose={() => setReferencesModalOpen(false)}
+        initialSelectedImages={
+          (selectedType === 'Image' || selectedType === '') ? imageReferences :
+          selectedType === 'Video' ? videoReferences :
+          selectedType === 'Audio' ? audioReferences :
+          selectedType === 'Design' ? designReferences : []
+        }
         onImagesSelect={(images) => {
           const effectiveType = selectedType || 'Image';
-          if (effectiveType === 'Image') setImageReferences(prev => [...prev, ...images]);
-          else if (effectiveType === 'Video') setVideoReferences(prev => [...prev, ...images]);
-          else if (effectiveType === 'Audio') setAudioReferences(prev => [...prev, ...images]);
-          else if (effectiveType === 'Design') setDesignReferences(prev => [...prev, ...images]);
+          // Replace with the full selection from modal (modal handles appending internally)
+          if (effectiveType === 'Image') setImageReferences(images);
+          else if (effectiveType === 'Video') setVideoReferences(images);
+          else if (effectiveType === 'Audio') setAudioReferences(images);
+          else if (effectiveType === 'Design') setDesignReferences(images);
           setIsCharacterReference(true);
         }}
       />
