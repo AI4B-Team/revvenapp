@@ -3283,7 +3283,36 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverTrigger>
                         <PopoverContent className="w-64 bg-background border-border z-50 max-h-80 overflow-y-auto">
                           <div className="space-y-1">
-                            {videoModels.map((model) => (
+                            {videoModels
+                              .filter((model) => {
+                                // Podcast mode: only Veo 3 and Kling 2.6
+                                if (selectedAnimateMode === 'Podcast') {
+                                  return ['veo3', 'veo3_fast', 'kling-2.6'].includes(model.value);
+                                }
+                                // Draw mode: only Veo 3 models
+                                if (selectedAnimateMode === 'Draw') {
+                                  return ['veo3', 'veo3_fast'].includes(model.value);
+                                }
+                                // UGC mode: only Veo 3 models
+                                if (selectedAnimateMode === 'UGC') {
+                                  return ['veo3', 'veo3_fast'].includes(model.value);
+                                }
+                                // Story mode: only Sora 2 Pro
+                                if (selectedAnimateMode === 'Story') {
+                                  return model.value === 'sora-2-pro';
+                                }
+                                // Recast mode: only Wan models
+                                if (selectedAnimateMode === 'Recast') {
+                                  return ['wan-2.5', 'wan-2.2'].includes(model.value);
+                                }
+                                // Avatar Video: Kling Avatar and Wan Avatar are handled separately
+                                if (selectedAnimateMode === 'Avatar Video') {
+                                  return false; // Avatar Video has its own model selector
+                                }
+                                // All other modes: show all models
+                                return true;
+                              })
+                              .map((model) => (
                               <button 
                                 key={model.value}
                                 onClick={() => setVideoModel(model.value)}
