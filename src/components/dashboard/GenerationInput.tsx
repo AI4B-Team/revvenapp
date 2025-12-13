@@ -3276,41 +3276,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               : 'bg-pill-gray text-pill-gray-text'
                           } hover:opacity-80`}>
                             <Video size={14} />
-                            {videoModel === 'veo3' ? 'Veo 3.1 Quality' : videoModel === 'kling-2.6' ? 'Kling 2.6' : 'Veo 3.1 Fast'}
+                            {videoModels.find(m => m.value === videoModel)?.label || 'Veo 3.1 Fast'}
                             <ChevronDown size={14} />
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-56 bg-background border-border z-50">
+                        <PopoverContent className="w-64 bg-background border-border z-50 max-h-80 overflow-y-auto">
                           <div className="space-y-1">
-                            <button 
-                              onClick={() => setVideoModel('veo3_fast')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                videoModel === 'veo3_fast' ? 'bg-secondary' : ''
-                              }`}
-                            >
-                              <div className="font-medium">Veo 3.1 Fast</div>
-                              <div className="text-xs text-muted-foreground">Quick video generation</div>
-                            </button>
-                            <button 
-                              onClick={() => setVideoModel('veo3')}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                videoModel === 'veo3' ? 'bg-secondary' : ''
-                              }`}
-                            >
-                              <div className="font-medium">Veo 3.1 Quality</div>
-                              <div className="text-xs text-muted-foreground">Higher quality output</div>
-                            </button>
-                            {selectedAnimateMode === 'Podcast' && (
+                            {videoModels.map((model) => (
                               <button 
-                                onClick={() => setVideoModel('kling-2.6')}
+                                key={model.value}
+                                onClick={() => setVideoModel(model.value)}
                                 className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  videoModel === 'kling-2.6' ? 'bg-secondary' : ''
+                                  videoModel === model.value ? 'bg-secondary' : ''
                                 }`}
                               >
-                                <div className="font-medium">Kling 2.6</div>
-                                <div className="text-xs text-muted-foreground">Image-to-video with sound</div>
+                                <div className="font-medium">{model.label}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
                               </button>
-                            )}
+                            ))}
                           </div>
                         </PopoverContent>
                       </Popover>
