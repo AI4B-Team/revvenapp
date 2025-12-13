@@ -648,8 +648,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       return;
     }
 
-    // In Avatar Video mode, check ugcScriptText; in Recast mode, no prompt required; in Story mode, scenes can replace prompt
-    const effectivePrompt = (isVideoMode && selectedAnimateMode === 'Avatar Video') ? ugcScriptText : prompt;
+    // In Avatar Video or Lip-Sync mode, check ugcScriptText; in Recast mode, no prompt required; in Story mode, scenes can replace prompt
+    const isAvatarOrLipSync = isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync');
+    const effectivePrompt = isAvatarOrLipSync ? ugcScriptText : prompt;
     // Story mode: requires image (character OR reference) + (scenes OR prompt)
     const hasValidStoryScenes = storyScenes.some(s => s.scene.trim().length > 0);
     const hasStoryImage = isVideoMode && (videoModeState.characters.length > 0 || storyReferenceImage || videoModeState.startingFrame);
@@ -959,13 +960,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           return;
         }
 
-        // Check if Avatar Video mode requires audio
-        // Avatar Video mode requires character and script
-        if (selectedAnimateMode === 'Avatar Video') {
+        // Check if Avatar Video or Lip-Sync mode requires audio
+        // Avatar Video and Lip-Sync modes require character and script
+        if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
           if (!currentCharacters.length) {
             toast({
               title: "Character required",
-              description: "Please select a character for your Avatar Video",
+              description: `Please select a character for your ${selectedAnimateMode}`,
               variant: "destructive",
             });
             setIsGenerating(false);
@@ -1033,7 +1034,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         };
 
         // For Avatar Video mode, pass voice settings for auto-generation (or use existing audioUrl if preview was generated or audio was uploaded)
-        if (selectedAnimateMode === 'Avatar Video') {
+        if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
           // Priority: 1. Uploaded/recorded audio, 2. Voice preview audio, 3. Auto-generate from voice settings
           if (uploadedAudio?.url) {
             // Use uploaded or recorded audio
@@ -1215,7 +1216,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     setIsEnhancing(true);
     try {
       // Check if we're in Avatar Video mode
-      const isUGCMode = isVideoMode && selectedAnimateMode === 'Avatar Video';
+      const isUGCMode = isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync');
       
       // Get active characters and references based on content type
       const currentCharacters = isVideoMode ? videoModeState.characters : activeCharacters;
@@ -1968,14 +1969,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             <textarea 
               value={
-                isVideoMode && selectedAnimateMode === 'Avatar Video' 
+                isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
                   ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) 
                   : isVideoMode && selectedAnimateMode === 'Story'
                     ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
                     : prompt
               }
               onChange={(e) => {
-                if (isVideoMode && selectedAnimateMode === 'Avatar Video') {
+                if (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')) {
                   if (selectedUGCButton === 'Scene') {
                     setUgcSceneText(e.target.value);
                   } else {
@@ -1992,12 +1993,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 }
               }}
               disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
-              maxLength={isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' ? 180 : undefined}
+              maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
               className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
               placeholder={
                 isContentMode 
                   ? "Describe the theme or topic for your content plan..." 
-                  : (isVideoMode && selectedAnimateMode === 'Avatar Video') 
+                  : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
                     ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
                     : (isVideoMode && selectedAnimateMode === 'Story')
                       ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : '⬇️ Add scenes below using the + button to build your storyboard')
@@ -2006,8 +2007,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         : "Describe what you want to create..."
               }
             />
-            {/* Character count warning for Avatar Video mode */}
-            {isVideoMode && selectedAnimateMode === 'Avatar Video' && selectedUGCButton !== 'Scene' && (
+            {/* Character count warning for Avatar Video and Lip-Sync mode */}
+            {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' && (
               <div className={`absolute bottom-2 right-10 text-xs ${
                 ugcScriptText.length > 180 ? 'text-destructive font-medium' : 
                 ugcScriptText.length > 150 ? 'text-orange-500' : 'text-muted-foreground'
@@ -2025,8 +2026,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
 
-        {/* UGC Character Box - Show only in Avatar Video mode when a character is selected */}
-        {isVideoMode && selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0 && (
+        {/* UGC Character Box - Show in Avatar Video and Lip-Sync mode when a character is selected */}
+        {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0 && (
           <UGCCharacterBox
             character={videoModeState.characters[0]}
             script={ugcScriptText}
@@ -2123,8 +2124,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video and Recast modes */}
-        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !(selectedAnimateMode === 'Avatar Video' && videoModeState.characters.length > 0) && selectedAnimateMode !== 'Recast' && (
+        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video, Lip-Sync, and Recast modes */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !((selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0) && selectedAnimateMode !== 'Recast' && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
@@ -2285,7 +2286,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </PopoverContent>
                   </Popover>
 
-                  {selectedAnimateMode === 'Avatar Video' ? (
+                  {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
                       {/* Avatar Video Mode Controls - Model dropdown for Wan/Kling Avatar */}
                       <Popover>
@@ -3255,9 +3256,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 if (selectedAnimateMode === 'Recast') {
                                   return ['wan-2.5', 'wan-2.2'].includes(model.value);
                                 }
-                                // Avatar Video: Kling Avatar and Wan Avatar are handled separately
-                                if (selectedAnimateMode === 'Avatar Video') {
-                                  return false; // Avatar Video has its own model selector
+                                // Avatar Video and Lip-Sync: Kling Avatar and Wan Avatar are handled separately
+                                if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') {
+                                  return false; // Avatar Video/Lip-Sync has its own model selector
                                 }
                                 // All other modes: show all models
                                 return true;
@@ -4722,7 +4723,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     onClick={handleGenerate}
                     disabled={
                       isGenerating || 
-                      (isVideoMode && selectedAnimateMode === 'Avatar Video' 
+                      (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
                         ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
                         : isVideoMode && selectedAnimateMode === 'UGC'
                           ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)

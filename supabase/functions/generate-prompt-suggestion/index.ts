@@ -36,8 +36,9 @@ serve(async (req) => {
       if (isVideo || isUGC) {
         switch (mode) {
           case 'avatar video':
+          case 'lip-sync':
             return {
-              guidance: `Create SHORT scripts for Avatar Video TALKING HEAD videos.
+              guidance: `Create SHORT scripts for ${mode === 'lip-sync' ? 'Lip-Sync' : 'Avatar Video'} TALKING HEAD videos.
 CRITICAL: Output MUST be 180 characters or less (including spaces and punctuation).
 The script should be concise, punchy, natural and conversational with one clear hook.`,
               example: "I tried this product for 2 weeks and honestly? It changed everything. You need to see this for yourself.",
