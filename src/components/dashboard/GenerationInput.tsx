@@ -1167,11 +1167,32 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     }
   };
 
+  // Get current text to enhance based on mode
+  const getCurrentTextToEnhance = (): { text: string; setter: (text: string) => void; maxLength?: number } => {
+    const isAvatarOrLipSync = isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync');
+    const isStoryMode = isVideoMode && selectedAnimateMode === 'Story';
+    
+    if (isAvatarOrLipSync) {
+      if (selectedUGCButton === 'Scene') {
+        return { text: ugcSceneText, setter: setUgcSceneText };
+      }
+      return { text: ugcScriptText, setter: setUgcScriptText, maxLength: 180 };
+    }
+    
+    if (isStoryMode && selectedStoryButton === 'Scene') {
+      return { text: storySceneText, setter: setStorySceneText };
+    }
+    
+    return { text: prompt, setter: setPrompt };
+  };
+
   const handleEnhancePrompt = async (fast = false) => {
-    if (!prompt.trim()) {
+    const { text, setter, maxLength } = getCurrentTextToEnhance();
+    
+    if (!text.trim()) {
       toast({
-        title: "Prompt required",
-        description: "Please enter a prompt to enhance",
+        title: "Text required",
+        description: "Please enter text to enhance",
         variant: "destructive",
       });
       return;
@@ -1180,31 +1201,37 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     setIsEnhancing(true);
     
     try {
-      console.log("Enhancing prompt...");
+      console.log("Enhancing text...");
       
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
-          prompt: prompt.trim(),
-          fast: fast
+          prompt: text.trim(),
+          fast: fast,
+          maxLength: maxLength
         }
       });
 
       if (error) throw error;
 
       if (data.enhancedPrompt) {
-        setPrompt(data.enhancedPrompt);
+        let enhanced = data.enhancedPrompt;
+        // Respect max length if specified
+        if (maxLength && enhanced.length > maxLength) {
+          enhanced = enhanced.substring(0, maxLength);
+        }
+        setter(enhanced);
         toast({
-          title: "Prompt enhanced!",
-          description: fast ? "Quick enhancement complete" : "Your prompt has been improved with AI",
+          title: "Text enhanced!",
+          description: fast ? "Quick enhancement complete" : "Your text has been improved with AI",
         });
-        console.log("Enhanced prompt:", data.enhancedPrompt);
+        console.log("Enhanced text:", enhanced);
       }
       
     } catch (error) {
       console.error("Enhancement error:", error);
       toast({
         title: "Enhancement failed",
-        description: error.message || "Failed to enhance prompt",
+        description: error.message || "Failed to enhance text",
         variant: "destructive",
       });
     } finally {
@@ -4676,7 +4703,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <Popover>
                     <PopoverTrigger asChild>
                       <button 
-                        disabled={isEnhancing || !prompt.trim()}
+                        disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
                         className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isEnhancing ? (
@@ -4692,7 +4719,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <div className="space-y-1">
                         <button 
                           onClick={() => handleEnhancePrompt(true)}
-                          disabled={isEnhancing || !prompt.trim()}
+                          disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
                           className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="flex items-center gap-2">
@@ -4705,7 +4732,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </button>
                         <button 
                           onClick={() => handleEnhancePrompt(false)}
-                          disabled={isEnhancing || !prompt.trim()}
+                          disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
                           className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <div className="flex items-center gap-2">
