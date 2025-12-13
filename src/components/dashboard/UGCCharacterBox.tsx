@@ -19,6 +19,13 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // ============================================
 // TYPES
@@ -81,6 +88,15 @@ const voiceLibrary: Voice[] = [
   { id: 'Lily', name: 'Lily', gender: 'Female', age: 'Adult', accent: 'British English accent' },
   { id: 'Bill', name: 'Bill', gender: 'Male', age: 'Adult', accent: 'American English accent' },
 ];
+
+const LANGUAGE_OPTIONS = ['All', 'English'];
+const ACCENT_OPTIONS = [
+  'All',
+  'American English accent',
+  'British English accent',
+  'Australian English accent',
+];
+const GENDER_OPTIONS = ['All', 'Female', 'Male'];
 
 // ============================================
 // SLIDER COMPONENT
@@ -285,15 +301,31 @@ const VoiceLibraryModal: React.FC<{
   const [activeTab, setActiveTab] = useState<'library' | 'my' | 'imported'>('library');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVoice, setSelectedVoice] = useState<Voice>(currentVoice);
-  const [languageFilter, setLanguageFilter] = useState('English');
+  const [languageFilter, setLanguageFilter] = useState('All');
+  const [accentFilter, setAccentFilter] = useState('All');
+  const [genderFilter, setGenderFilter] = useState('All');
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [isLoadingVoice, setIsLoadingVoice] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const filteredVoices = voiceLibrary.filter(voice => {
+  const filteredVoices = voiceLibrary.filter((voice) => {
     if (searchQuery && !voice.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
+
+    if (languageFilter !== 'All') {
+      const voiceLanguage = 'English';
+      if (voiceLanguage !== languageFilter) return false;
+    }
+
+    if (accentFilter !== 'All' && voice.accent !== accentFilter) {
+      return false;
+    }
+
+    if (genderFilter !== 'All' && voice.gender !== genderFilter) {
+      return false;
+    }
+
     return true;
   });
 
@@ -484,20 +516,44 @@ const VoiceLibraryModal: React.FC<{
                   />
                 </div>
 
-                <button className="flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted/80 transition-colors">
-                  {languageFilter}
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Select value={languageFilter} onValueChange={setLanguageFilter}>
+                  <SelectTrigger className="w-[120px] h-9 text-xs">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGE_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                <button className="flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted/80 transition-colors">
-                  Accents
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Select value={accentFilter} onValueChange={setAccentFilter}>
+                  <SelectTrigger className="w-[150px] h-9 text-xs">
+                    <SelectValue placeholder="Accents" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ACCENT_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                <button className="flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted/80 transition-colors">
-                  Gender
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <Select value={genderFilter} onValueChange={setGenderFilter}>
+                  <SelectTrigger className="w-[120px] h-9 text-xs">
+                    <SelectValue placeholder="Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GENDER_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   <Bookmark className="w-4 h-4" />
