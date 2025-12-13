@@ -12,9 +12,10 @@ interface ReferencesModalProps {
   onSelectReference?: (reference: any) => void;
   onImagesSelect?: (images: any[]) => void;
   selectedReference?: any;
+  initialSelectedImages?: any[];
 }
 
-const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, selectedReference }: ReferencesModalProps) => {
+const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, selectedReference, initialSelectedImages = [] }: ReferencesModalProps) => {
   const [activeTab, setActiveTab] = useState('history');
   const [references, setReferences] = useState<any[]>([]);
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
@@ -28,11 +29,13 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   useEffect(() => {
     if (isOpen) {
       fetchReferences();
+      // Initialize with existing selected images
+      setSelectedImages(initialSelectedImages);
     } else {
       // Clear selections when modal closes
       setSelectedImages([]);
     }
-  }, [isOpen]);
+  }, [isOpen, initialSelectedImages]);
 
   const fetchReferences = async () => {
     setIsLoading(true);

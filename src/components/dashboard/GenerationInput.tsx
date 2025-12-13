@@ -1408,9 +1408,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           description: "Reference image uploaded successfully",
         });
 
-        // Auto-select the uploaded reference
+        // Append the uploaded reference to existing references
         if (onReferencesSelect && data?.referenceImage) {
-          onReferencesSelect([data.referenceImage]);
+          const currentRefs = selectedReferences || [];
+          onReferencesSelect([...currentRefs, data.referenceImage]);
         }
       };
 
