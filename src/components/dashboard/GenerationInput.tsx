@@ -1890,7 +1890,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   };
   
   return (
-    <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
+    <div className="w-fit min-w-[1100px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
       <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-2xl">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
@@ -3641,6 +3641,53 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isDesignMode ? (
               <>
                 {/* Design Mode Controls */}
+                {/* Type Dropdown - First */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
+                      Type
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 bg-background border-border z-50">
+                    <div className="space-y-1">
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <BookOpen size={16} className="text-brand-blue" />
+                        Brochure
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <ImageIcon size={16} className="text-brand-green" />
+                        Cover
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <FileText size={16} className="text-brand-yellow" />
+                        Flyer
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <LayoutList size={16} className="text-brand-red" />
+                        Infographic
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Gift size={16} className="text-brand-pink" />
+                        Invitation
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Sparkles size={16} className="text-brand-blue" />
+                        Logo
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Presentation size={16} className="text-brand-green" />
+                        Poster
+                      </button>
+                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center gap-2">
+                        <Film size={16} className="text-brand-red" />
+                        Thumbnail
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Model Dropdown */}
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm font-medium transition flex items-center gap-2 whitespace-nowrap">
@@ -3654,9 +3701,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[420px] p-0 bg-white border-sidebar-hover z-50" align="start">
+                  <PopoverContent className="w-[420px] p-0 bg-background border-border z-50" align="start">
                     <div className="space-y-1 p-2">
-                      <button className="w-full text-left px-4 py-3 hover:bg-sidebar-hover rounded-lg transition group">
+                      <button className="w-full text-left px-4 py-3 hover:bg-secondary rounded-lg transition group">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gradient-to-br from-brand-blue to-brand-yellow rounded-lg flex items-center justify-center flex-shrink-0">
                             <Zap size={16} className="text-white" />
@@ -3673,44 +3720,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </PopoverContent>
                 </Popover>
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
-                      Type
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Brochure
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Cover
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Flyer
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Infographic
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Invitation
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Logo
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Poster
-                      </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
-                        Thumbnail
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
 
+                {/* Create Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="px-4 py-1.5 bg-muted hover:bg-muted/80 rounded-md text-sm transition flex items-center gap-2 whitespace-nowrap">
