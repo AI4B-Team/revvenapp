@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -13,9 +13,18 @@ import {
   Loader2,
   Clock,
   Calendar,
+  ChevronDown,
+  Filter,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // ============================================
 // TYPES
@@ -35,6 +44,9 @@ interface SavedVoice {
   url: string;
   type: string;
   created_at: string;
+  language?: string;
+  accent?: string;
+  gender?: string;
 }
 
 interface AudioUploadModalProps {
@@ -42,6 +54,11 @@ interface AudioUploadModalProps {
   onClose: () => void;
   onUseAudio: (audio: AudioFile) => void;
 }
+
+// Filter options
+const LANGUAGES = ['All', 'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'];
+const ACCENTS = ['All', 'American', 'British', 'Australian', 'Indian', 'Irish', 'Scottish', 'Canadian', 'South African', 'Neutral'];
+const GENDERS = ['All', 'Male', 'Female', 'Non-binary'];
 
 // ============================================
 // SLIDER COMPONENT
@@ -347,6 +364,21 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const [savedVoices, setSavedVoices] = useState<SavedVoice[]>([]);
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
   const [deletingVoiceId, setDeletingVoiceId] = useState<string | null>(null);
+  
+  // Filter state
+  const [languageFilter, setLanguageFilter] = useState('All');
+  const [accentFilter, setAccentFilter] = useState('All');
+  const [genderFilter, setGenderFilter] = useState('All');
+  
+  // Filtered voices
+  const filteredVoices = useMemo(() => {
+    return savedVoices.filter(voice => {
+      const matchesLanguage = languageFilter === 'All' || voice.language === languageFilter;
+      const matchesAccent = accentFilter === 'All' || voice.accent === accentFilter;
+      const matchesGender = genderFilter === 'All' || voice.gender === genderFilter;
+      return matchesLanguage && matchesAccent && matchesGender;
+    });
+  }, [savedVoices, languageFilter, accentFilter, genderFilter]);
 
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -755,38 +787,100 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
           <div className="p-6 max-h-[400px] overflow-y-auto">
             {activeTab === 'voices' ? (
               <>
+                {/* Filter Controls */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Select value={languageFilter} onValueChange={setLanguageFilter}>
+                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                      <SelectValue placeholder="Language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGES.map(lang => (
+                        <SelectItem key={lang} value={lang} className="text-xs">
+                          {lang}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={accentFilter} onValueChange={setAccentFilter}>
+                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                      <SelectValue placeholder="Accent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ACCENTS.map(accent => (
+                        <SelectItem key={accent} value={accent} className="text-xs">
+                          {accent}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={genderFilter} onValueChange={setGenderFilter}>
+                    <SelectTrigger className="w-[110px] h-8 text-xs">
+                      <SelectValue placeholder="Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GENDERS.map(gender => (
+                        <SelectItem key={gender} value={gender} className="text-xs">
+                          {gender}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {(languageFilter !== 'All' || accentFilter !== 'All' || genderFilter !== 'All') && (
+                    <button
+                      onClick={() => {
+                        setLanguageFilter('All');
+                        setAccentFilter('All');
+                        setGenderFilter('All');
+                      }}
+                      className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+
                 {isLoadingVoices ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                     <p className="mt-3 text-sm text-muted-foreground">Loading voices...</p>
                   </div>
-                ) : savedVoices.length === 0 ? (
+                ) : filteredVoices.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                       <Mic className="w-8 h-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-base font-medium text-foreground mb-1">No saved voices</h3>
+                    <h3 className="text-base font-medium text-foreground mb-1">
+                      {savedVoices.length === 0 ? 'No saved voices' : 'No voices match filters'}
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Upload or record your first voice to get started
+                      {savedVoices.length === 0 
+                        ? 'Upload or record your first voice to get started'
+                        : 'Try adjusting your filter criteria'}
                     </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setActiveTab('upload')}
-                        className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium text-foreground transition-colors"
-                      >
-                        Upload
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('record')}
-                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium text-white transition-colors"
-                      >
-                        Record
-                      </button>
-                    </div>
+                    {savedVoices.length === 0 && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setActiveTab('upload')}
+                          className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium text-foreground transition-colors"
+                        >
+                          Upload
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('record')}
+                          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium text-white transition-colors"
+                        >
+                          Record
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {savedVoices.map((voice) => (
+                    {filteredVoices.map((voice) => (
                       <VoiceCard
                         key={voice.id}
                         voice={voice}
