@@ -1898,12 +1898,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <button 
                             onClick={handleAutoPrompt}
                             disabled={isEnhancing}
-                            className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isEnhancing ? (
-                              <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                              <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
                             ) : (
-                              <Shuffle size={18} className="text-muted-foreground" />
+                              <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -1913,8 +1913,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition">
-                            <Bot size={18} className="text-muted-foreground" />
+                          <button className="p-1.5 transition hover:opacity-70">
+                            <Bot size={20} strokeWidth={2.5} className="text-foreground" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1925,13 +1925,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => setIsAudioUploadModalOpen(true)}
-                            className={`rounded-lg p-2 transition ${
-                              uploadedAudio 
-                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                                : 'bg-muted hover:bg-muted/80'
+                            className={`p-1.5 transition hover:opacity-70 ${
+                              uploadedAudio ? 'text-emerald-500' : ''
                             }`}
                           >
-                            <AudioLines size={18} className={uploadedAudio ? 'text-white' : 'text-muted-foreground'} />
+                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-foreground'} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1941,20 +1939,20 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : (
                     <>
-                      <button className="bg-muted/50 rounded-lg p-2">
-                        <Video size={18} className="text-muted-foreground" />
+                    <button className="p-1.5">
+                        <Video size={20} strokeWidth={2.5} className="text-foreground opacity-50" />
                       </button>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
                             onClick={handleAutoPrompt}
                             disabled={isEnhancing}
-                            className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isEnhancing ? (
-                              <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                              <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
                             ) : (
-                              <Shuffle size={18} className="text-muted-foreground" />
+                              <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -1965,8 +1963,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   )
                 ) : isAudioMode ? (
-                  <button className="bg-muted/50 rounded-lg p-2">
-                    <Sparkles size={18} className="text-muted-foreground" />
+                  <button className="p-1.5">
+                    <Sparkles size={20} strokeWidth={2.5} className="text-foreground opacity-50" />
                   </button>
                 ) : (
                   <>
@@ -1974,9 +1972,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <TooltipTrigger asChild>
                         <button 
                           onClick={() => setIsImageToPromptModalOpen(true)}
-                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+                          className="p-1.5 transition hover:opacity-70"
                         >
-                          <Image size={18} className="text-muted-foreground" />
+                          <Image size={20} strokeWidth={2.5} className="text-foreground" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
@@ -1988,12 +1986,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <button 
                           onClick={handleAutoPrompt}
                           disabled={isEnhancing}
-                          className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isEnhancing ? (
-                            <Loader2 size={18} className="text-muted-foreground animate-spin" />
+                            <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
                           ) : (
-                            <Shuffle size={18} className="text-muted-foreground" />
+                            <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
                           )}
                         </button>
                       </TooltipTrigger>
