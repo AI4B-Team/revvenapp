@@ -2316,61 +2316,40 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
                   {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') ? (
                     <>
-                      {/* Avatar Video / Lip-Sync Mode Controls - Model dropdown */}
-                      {selectedAnimateMode === 'Lip-Sync' ? (
-                        /* Lip-Sync: Only Kling Avatar */
-                        <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
-                          <Video size={14} />
-                          Kling Avatar
-                        </button>
-                      ) : (
-                        /* Avatar Video: Multiple model options */
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
-                              <Video size={14} />
-                              {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : ugcModel === 'infinitalk' ? 'Infinitalk' : 'Wan Avatar'}
-                              <ChevronDown size={14} />
+                      {/* Avatar Video / Lip-Sync Mode Controls - Same model dropdown for both */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-orange text-pill-orange-text hover:opacity-80">
+                            <Video size={14} />
+                            {ugcModel === 'kling-ai-avatar' ? 'Kling Avatar' : ugcModel === 'infinitalk' ? 'Infinitalk' : 'Wan Avatar'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50">
+                          <div className="space-y-1">
+                            <button 
+                              onClick={() => setUgcModel('wan-speech-to-video')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                ugcModel === 'wan-speech-to-video' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium">Wan Avatar</div>
+                              <div className="text-xs text-muted-foreground">Speech-to-video with lip sync (max 15s)</div>
                             </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-64 bg-background border-border z-50">
-                            <div className="space-y-1">
-                              <button 
-                                onClick={() => setUgcModel('wan-speech-to-video')}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  ugcModel === 'wan-speech-to-video' ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <div className="font-medium">Wan Avatar</div>
-                                <div className="text-xs text-muted-foreground">Speech-to-video with lip sync (max 15s)</div>
-                              </button>
-                              <button 
-                                onClick={() => setUgcModel('kling-ai-avatar')}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  ugcModel === 'kling-ai-avatar' ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <div className="font-medium flex items-center gap-2">
-                                  Kling Avatar
-                                </div>
-                                <div className="text-xs text-muted-foreground">Pro avatar with audio sync (max 15s)</div>
-                              </button>
-                              <button 
-                                onClick={() => setUgcModel('infinitalk')}
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
-                                  ugcModel === 'infinitalk' ? 'bg-secondary' : ''
-                                }`}
-                              >
-                                <div className="font-medium flex items-center gap-2">
-                                  Infinitalk
-                                  <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0 h-4">NEW</Badge>
-                                </div>
-                                <div className="text-xs text-muted-foreground">From audio with high quality (max 15s)</div>
-                              </button>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      )}
+                            <button 
+                              onClick={() => setUgcModel('kling-ai-avatar')}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition ${
+                                ugcModel === 'kling-ai-avatar' ? 'bg-secondary' : ''
+                              }`}
+                            >
+                              <div className="font-medium flex items-center gap-2">
+                                Kling Avatar
+                              </div>
+                              <div className="text-xs text-muted-foreground">Pro avatar with audio sync (max 15s)</div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Audio duration warning for all Avatar Video models */}
                       {uploadedAudio?.duration && uploadedAudio.duration > 15 && (
