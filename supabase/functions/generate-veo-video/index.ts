@@ -173,7 +173,29 @@ serve(async (req) => {
 
       const cloudinaryData = await cloudinaryResponse.json();
       const generatedImageUrl = cloudinaryData.secure_url;
+      const cloudinaryPublicId = cloudinaryData.public_id;
       console.log("UGC image uploaded to Cloudinary:", generatedImageUrl);
+
+      // Save the generated image to the generated_images table so it appears in Creations
+      const { error: imageInsertError } = await supabase
+        .from('generated_images')
+        .insert({
+          user_id: userId,
+          prompt: imageGenPrompt,
+          model: 'nano-banana-pro',
+          image_url: generatedImageUrl,
+          cloudinary_public_id: cloudinaryPublicId,
+          aspect_ratio: aspectRatio,
+          status: 'completed',
+          category: 'ugc',
+          reference_image_urls: referenceImages
+        });
+
+      if (imageInsertError) {
+        console.error("Failed to save UGC image to generated_images:", imageInsertError);
+      } else {
+        console.log("UGC image saved to generated_images table");
+      }
 
       // Step 2: Generate video using the selected model with the generated image
       console.log("UGC Step 2: Generating video with model:", effectiveModel);
