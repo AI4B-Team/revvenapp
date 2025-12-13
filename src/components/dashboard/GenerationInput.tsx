@@ -1901,9 +1901,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isEnhancing ? (
-                              <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
+                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
                             ) : (
-                              <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
+                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -1914,7 +1914,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-1.5 transition hover:opacity-70">
-                            <Bot size={20} strokeWidth={2.5} className="text-foreground" />
+                            <Bot size={20} strokeWidth={2.5} className="text-violet-500" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1929,7 +1929,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               uploadedAudio ? 'text-emerald-500' : ''
                             }`}
                           >
-                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-foreground'} />
+                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-muted-foreground'} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1940,7 +1940,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   ) : (
                     <>
                     <button className="p-1.5">
-                        <Video size={20} strokeWidth={2.5} className="text-foreground opacity-50" />
+                        <Video size={20} strokeWidth={2.5} className="text-muted-foreground" />
                       </button>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -1950,9 +1950,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isEnhancing ? (
-                              <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
+                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
                             ) : (
-                              <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
+                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -1964,7 +1964,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )
                 ) : isAudioMode ? (
                   <button className="p-1.5">
-                    <Sparkles size={20} strokeWidth={2.5} className="text-foreground opacity-50" />
+                    <Sparkles size={20} strokeWidth={2.5} className="text-amber-500" />
                   </button>
                 ) : (
                   <>
@@ -1974,7 +1974,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           onClick={() => setIsImageToPromptModalOpen(true)}
                           className="p-1.5 transition hover:opacity-70"
                         >
-                          <Image size={20} strokeWidth={2.5} className="text-foreground" />
+                          <Image size={20} strokeWidth={2.5} className="text-muted-foreground" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
@@ -1989,9 +1989,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isEnhancing ? (
-                            <Loader2 size={20} strokeWidth={2.5} className="text-foreground animate-spin" />
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
                           ) : (
-                            <Shuffle size={20} strokeWidth={2.5} className="text-foreground" />
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
                           )}
                         </button>
                       </TooltipTrigger>
