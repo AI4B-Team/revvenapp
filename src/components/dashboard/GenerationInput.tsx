@@ -261,7 +261,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     'nano-banana-pro': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'imagen-ultra': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
     'ideogram': ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9'],
-    'ideogram-character': ['1:1', '16:9', '9:16', '4:3']
+    'ideogram-character': ['1:1', '16:9', '9:16', '4:3'],
+    'z-image': ['1:1', '4:3', '3:4', '16:9', '9:16']
   };
   
   // Get available aspect ratios for the selected model
@@ -4010,6 +4011,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {selectedModel === 'ideogram' && 'Ideogram V3 Edit'}
                       {selectedModel === 'ideogram-character' && 'Ideogram Character'}
                       {selectedModel === 'imagen-ultra' && 'Imagen 4 Ultra'}
+                      {selectedModel === 'z-image' && 'Z-Image'}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
@@ -4402,6 +4404,29 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">IMG2IMG</Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">Google's most advanced image model</p>
+                      </div>
+                    </div>
+                  </button>
+                  )}
+                  
+                  {/* Z-Image - text-to-image only, hidden when reference/character selected */}
+                  {!hasImageReference && selectedCreateMode !== 'Swap' && selectedCreateMode !== 'Photoshoot' && selectedCreateMode !== 'Draw' && (
+                  <button
+                    onClick={() => { setSelectedModel('z-image'); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left ${
+                      selectedModel === 'z-image' ? 'bg-brand-green/10' : 'hover:bg-secondary/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-xs">Z</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-foreground text-sm">Z-Image</span>
+                          <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] px-1.5 py-0 h-4">NEW</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Hyper-realistic text-to-image generation</p>
                       </div>
                     </div>
                   </button>

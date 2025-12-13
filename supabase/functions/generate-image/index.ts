@@ -91,6 +91,12 @@ const MODEL_CONFIGS: Record<string, { model: string; name: string; endpoint: str
     name: 'Ideogram Character',
     endpoint: '/api/v1/jobs/createTask',
     apiType: 'ideogram-character'
+  },
+  'z-image': {
+    model: 'z-image',
+    name: 'Z-Image',
+    endpoint: '/api/v1/jobs/createTask',
+    apiType: 'z-image'
   }
 };
 
@@ -404,6 +410,16 @@ serve(async (req) => {
         };
         
         console.log(`Seedream 4.5: Using ${limitedImages.length} reference images (max ${maxImages})`);
+      } else if (modelConfig.apiType === 'z-image') {
+        // Z-Image API format - text-to-image only
+        requestBody = {
+          model: modelConfig.model,
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt,
+            aspect_ratio: aspectRatio || "1:1"
+          }
+        };
       }
 
       // Add DB record ID to callback payload so webhook can identify which record to update
