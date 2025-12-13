@@ -1,6 +1,7 @@
 import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
+import VideoToVideoModal from './VideoToVideoModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -126,6 +127,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Audio upload modal state
   const [isAudioUploadModalOpen, setIsAudioUploadModalOpen] = useState(false);
   const [uploadedAudio, setUploadedAudio] = useState<{ name: string; duration: number; url: string; type: 'uploaded' | 'recorded' } | null>(null);
+  
+  // Video-To-Video modal state
+  const [isVideoToVideoModalOpen, setIsVideoToVideoModalOpen] = useState(false);
+  const [selectedV2VVideo, setSelectedV2VVideo] = useState<{ url: string; name: string; duration?: number } | null>(null);
   
   // UGC product and style reference images
   const [ugcProductImage, setUgcProductImage] = useState<{ url: string; name: string; id?: string } | null>(null);
@@ -1925,11 +1930,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => setIsAudioUploadModalOpen(true)}
-                            className={`p-1.5 transition hover:opacity-70 ${
-                              uploadedAudio ? 'text-emerald-500' : ''
-                            }`}
+                            className="p-1.5 transition hover:opacity-70"
                           >
-                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-muted-foreground'} />
+                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-orange-500'} />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
@@ -1939,9 +1942,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   ) : (
                     <>
-                    <button className="p-1.5">
-                        <Video size={20} strokeWidth={2.5} className="text-muted-foreground" />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setIsVideoToVideoModalOpen(true)}
+                            className="p-1.5 transition hover:opacity-70"
+                          >
+                            <Video size={20} strokeWidth={2.5} className="text-rose-500" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Video-To-Video</p>
+                        </TooltipContent>
+                      </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
@@ -1974,7 +1987,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           onClick={() => setIsImageToPromptModalOpen(true)}
                           className="p-1.5 transition hover:opacity-70"
                         >
-                          <Image size={20} strokeWidth={2.5} className="text-muted-foreground" />
+                          <Image size={20} strokeWidth={2.5} className="text-sky-500" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black">
@@ -4957,6 +4970,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         onUseAudio={(audio) => {
           setUploadedAudio(audio);
           setIsAudioUploadModalOpen(false);
+        }}
+      />
+
+      {/* Video-To-Video Modal */}
+      <VideoToVideoModal
+        isOpen={isVideoToVideoModalOpen}
+        onClose={() => setIsVideoToVideoModalOpen(false)}
+        onVideoSelect={(video) => {
+          setSelectedV2VVideo(video);
+          toast({
+            title: "Video selected",
+            description: `${video.name} selected for Video-To-Video generation`,
+          });
         }}
       />
     </div>
