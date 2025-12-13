@@ -37,7 +37,11 @@ serve(async (req) => {
       characterBio,
       characterImageUrl,
       // Voice settings for UGC auto-generation
-      voiceSettings
+      voiceSettings,
+      // UGC mode specific params
+      isUgcMode,
+      ugcPrompt,
+      referenceImages
     } = await req.json();
 
     if (!prompt || !userId) {
@@ -91,8 +95,140 @@ serve(async (req) => {
     let apiResponse;
     let taskId;
 
-    // UGC models are now redirected to veo3_fast via effectiveModel
-    if (effectiveModel === 'sora-2-pro' || effectiveModel === 'sora-2-pro-storyboard') {
+    // UGC MODE: Generate image first, then create video
+    if (isUgcMode && referenceImages && referenceImages.length > 0) {
+      console.log("UGC Mode: Starting image-first workflow...");
+      
+      const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!lovableApiKey) {
+        throw new Error("LOVABLE_API_KEY is not configured for UGC mode");
+      }
+
+      // Step 1: Generate combined image using Nano Banana Pro
+      console.log("UGC Step 1: Generating combined image with Nano Banana Pro...");
+      
+      const imageGenPrompt = ugcPrompt || prompt;
+
+      const imageGenResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${lovableApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image-preview",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: imageGenPrompt },
+                ...referenceImages.map((url: string) => ({
+                  type: "image_url",
+                  image_url: { url }
+                }))
+              ]
+            }
+          ],
+          modalities: ["image", "text"]
+        }),
+      });
+
+      if (!imageGenResponse.ok) {
+        const errorText = await imageGenResponse.text();
+        console.error("UGC image generation failed:", errorText);
+        await supabase.from('ai_videos').update({ status: 'error', error_message: 'Image generation failed' }).eq('id', videoRecord.id);
+        throw new Error("Failed to generate image for UGC mode");
+      }
+
+      const imageGenData = await imageGenResponse.json();
+      const generatedImageBase64 = imageGenData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+      if (!generatedImageBase64) {
+        console.error("No image generated for UGC mode");
+        await supabase.from('ai_videos').update({ status: 'error', error_message: 'No image generated' }).eq('id', videoRecord.id);
+        throw new Error("Failed to generate image for UGC mode");
+      }
+
+      console.log("UGC Step 1 Complete: Image generated");
+
+      // Upload to Cloudinary
+      const cloudinaryCloudName = "dszt275xv";
+      const cloudinaryUploadPreset = "revven";
+      const cloudinaryFormData = new FormData();
+      cloudinaryFormData.append("file", generatedImageBase64);
+      cloudinaryFormData.append("upload_preset", cloudinaryUploadPreset);
+      cloudinaryFormData.append("folder", "ugc_images");
+
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
+        { method: "POST", body: cloudinaryFormData }
+      );
+
+      if (!cloudinaryResponse.ok) {
+        const cloudinaryError = await cloudinaryResponse.text();
+        console.error("Cloudinary upload failed:", cloudinaryError);
+        await supabase.from('ai_videos').update({ status: 'error', error_message: 'Image upload failed' }).eq('id', videoRecord.id);
+        throw new Error("Failed to upload generated image");
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      const generatedImageUrl = cloudinaryData.secure_url;
+      console.log("UGC image uploaded to Cloudinary:", generatedImageUrl);
+
+      // Step 2: Generate video using the selected model with the generated image
+      console.log("UGC Step 2: Generating video with model:", effectiveModel);
+
+      // For Kling 2.6, use direct image-to-video (no additional image generation)
+      if (effectiveModel === 'kling-2.6') {
+        let klingDuration = '5';
+        const durationNum = parseInt(duration) || 5;
+        if (durationNum > 5) klingDuration = '10';
+
+        const kling26Payload = {
+          model: 'kling-2.6/image-to-video',
+          callBackUrl: callbackUrl,
+          input: {
+            prompt: prompt.substring(0, 1000),
+            image_urls: [generatedImageUrl],
+            sound: true,
+            duration: klingDuration
+          }
+        };
+
+        console.log("Kling 2.6 UGC payload:", JSON.stringify(kling26Payload, null, 2));
+
+        apiResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${kieApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(kling26Payload),
+        });
+      } else {
+        // Use Veo 3 for other UGC models
+        const veoPayload = {
+          prompt,
+          model: effectiveModel,
+          aspectRatio,
+          callBackUrl: callbackUrl,
+          enableTranslation: true,
+          imageUrls: [generatedImageUrl],
+          generationType: 'IMAGE_2_VIDEO'
+        };
+
+        console.log("Veo UGC payload:", JSON.stringify(veoPayload, null, 2));
+
+        apiResponse = await fetch("https://api.kie.ai/api/v1/veo/generate", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${kieApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(veoPayload),
+        });
+      }
+    } else if (effectiveModel === 'sora-2-pro' || effectiveModel === 'sora-2-pro-storyboard') {
       // Use the /api/v1/jobs/createTask endpoint for Sora 2 Pro
       console.log("Using Sora 2 Pro API");
 

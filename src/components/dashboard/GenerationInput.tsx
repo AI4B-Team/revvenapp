@@ -727,7 +727,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             return;
           }
 
-          console.log("UGC Mode: Starting image generation with Nano Banana Pro...");
+          console.log("UGC Mode: Starting async video generation...");
           
           // Get the authenticated user
           const { data: { user } } = await supabase.auth.getUser();
@@ -735,7 +735,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
             throw new Error("User not authenticated");
           }
 
-          // Step 1: Generate image combining product + character using Nano Banana Pro
+          // Get character details
           const primaryCharacter = currentCharacters[0];
           const characterImageUrl = primaryCharacter?.image_url || primaryCharacter?.image;
           
@@ -745,11 +745,6 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
           if (characterImageUrl) referenceImages.push(characterImageUrl);
           if (ugcStyleImage?.url) referenceImages.push(ugcStyleImage.url);
 
-          toast({
-            title: "Step 1: Creating UGC image...",
-            description: "Combining product and character with AI",
-          });
-
           // Build explicit combining prompt for UGC
           const ugcCombiningPrompt = `Create a product showcase image that combines these elements: 
 Use the person/character from the character reference to appear in the image. 
@@ -758,82 +753,21 @@ ${ugcStyleImage?.url ? 'Apply the visual style and aesthetic from the style refe
 Scene/style instructions: ${prompt.trim()}. 
 Make it look like a natural, professional product showcase or UGC-style promotional image with the character prominently featuring the product.`;
 
-          const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-image', {
-            body: { 
-              prompt: ugcCombiningPrompt,
-              aspectRatio: videoAspectRatio === 'Auto' ? '16:9' : videoAspectRatio,
-              model: 'nano-banana-pro',
-              numberOfImages: 1,
-              referenceImages: referenceImages,
-              referenceImage: referenceImages[0] || null,
-              characterImage: characterImageUrl,
-            }
-          });
-
-          if (imageError) throw imageError;
-
-          console.log("UGC image generation started:", imageData);
-
-          // Wait for the image to be generated (poll for completion)
-          const imageId = imageData?.images?.[0]?.id;
-          if (!imageId) {
-            throw new Error("Failed to start image generation");
-          }
-
-          // Poll for image completion
-          let generatedImageUrl: string | null = null;
-          let pollAttempts = 0;
-          const maxPollAttempts = 60; // 60 attempts * 2 seconds = 2 minutes max
-
-          while (pollAttempts < maxPollAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            const { data: imageStatus } = await supabase
-              .from('generated_images')
-              .select('status, image_url')
-              .eq('id', imageId)
-              .single();
-
-            if (imageStatus?.status === 'completed' && imageStatus?.image_url) {
-              generatedImageUrl = imageStatus.image_url;
-              break;
-            } else if (imageStatus?.status === 'error') {
-              throw new Error("Image generation failed");
-            }
-
-            pollAttempts++;
-          }
-
-          if (!generatedImageUrl) {
-            throw new Error("Image generation timed out");
-          }
-
-          console.log("UGC image generated successfully:", generatedImageUrl);
-
-          // Show the generated image URL to the user
-          toast({
-            title: "Image generated!",
-            description: generatedImageUrl,
-            duration: 10000,
-          });
-
-          // Step 2: Use the generated image to create a video
-          toast({
-            title: "Step 2: Creating video...",
-            description: "Generating video from the combined image",
-          });
-
+          // Start UGC video generation in the backend (async - no polling)
+          // The backend will handle the image generation and video creation
           const videoRequestBody: any = { 
             prompt: prompt.trim(),
-            imageUrls: [generatedImageUrl],
+            ugcPrompt: ugcCombiningPrompt,
+            referenceImages: referenceImages,
             model: videoModel,
-            aspectRatio: videoAspectRatio,
+            aspectRatio: videoAspectRatio === 'Auto' ? '16:9' : videoAspectRatio,
             duration: videoDuration,
             userId: user.id,
             characterId: primaryCharacter?.id || null,
             characterName: primaryCharacter?.name || 'Unknown',
             characterBio: primaryCharacter?.bio || '',
-            characterImageUrl: characterImageUrl || ''
+            characterImageUrl: characterImageUrl || '',
+            isUgcMode: true, // Flag for backend to handle UGC workflow
           };
 
           const { data: videoData, error: videoError } = await supabase.functions.invoke('generate-veo-video', {
@@ -844,12 +778,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
           toast({
             title: "UGC video generating!",
-            description: "Your UGC video is being created. This may take a few minutes.",
+            description: "Your video is being created. Check Creations to see progress.",
           });
 
           console.log("UGC video generation started:", videoData);
           
-          // Clear UGC state after successful generation
+          // Clear UGC state after successful generation start
           setUgcProductImage(null);
           setUgcStyleImage(null);
           setPrompt('');
