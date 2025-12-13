@@ -260,12 +260,99 @@ serve(async (req) => {
       });
 
     } else if (effectiveModel === 'kling-2.6') {
-      // Kling 2.6 image-to-video with sound support
-      console.log("Using Kling 2.6 API");
+      // Kling 2.6 Podcast mode: First generate image with Nano Banana Pro, then create video
+      console.log("Using Kling 2.6 Podcast Mode - Two-step workflow");
 
       if (!imageUrls || imageUrls.length === 0) {
-        throw new Error("image_url is required for Kling 2.6 image-to-video");
+        throw new Error("Reference image is required for Podcast mode");
       }
+
+      // Step 1: Generate a new image using Nano Banana Pro with user prompt + reference image
+      console.log("Step 1: Generating image with Nano Banana Pro...");
+      
+      const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!lovableApiKey) {
+        throw new Error("LOVABLE_API_KEY is not configured for Podcast mode image generation");
+      }
+
+      const imageGenPrompt = `Create a visually striking podcast-style image based on this concept: ${prompt}. The image should be suitable for video animation with clear subjects and good composition.`;
+
+      const imageGenResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${lovableApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image-preview",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: imageGenPrompt
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: imageUrls[0]
+                  }
+                }
+              ]
+            }
+          ],
+          modalities: ["image", "text"]
+        }),
+      });
+
+      if (!imageGenResponse.ok) {
+        const errorText = await imageGenResponse.text();
+        console.error("Nano Banana Pro image generation failed:", errorText);
+        throw new Error("Failed to generate image for Podcast mode");
+      }
+
+      const imageGenData = await imageGenResponse.json();
+      const generatedImageBase64 = imageGenData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+      if (!generatedImageBase64) {
+        console.error("No image generated from Nano Banana Pro");
+        throw new Error("Failed to generate image for Podcast mode");
+      }
+
+      console.log("Step 1 Complete: Image generated with Nano Banana Pro");
+
+      // Upload the generated image to Cloudinary for use with Kling 2.6
+      const cloudinaryCloudName = "dszt275xv";
+      const cloudinaryUploadPreset = "revven";
+
+      // Convert base64 to Cloudinary upload
+      const cloudinaryFormData = new FormData();
+      cloudinaryFormData.append("file", generatedImageBase64);
+      cloudinaryFormData.append("upload_preset", cloudinaryUploadPreset);
+      cloudinaryFormData.append("folder", "podcast_images");
+
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
+        {
+          method: "POST",
+          body: cloudinaryFormData,
+        }
+      );
+
+      if (!cloudinaryResponse.ok) {
+        const cloudinaryError = await cloudinaryResponse.text();
+        console.error("Cloudinary upload failed:", cloudinaryError);
+        throw new Error("Failed to upload generated image for Podcast mode");
+      }
+
+      const cloudinaryData = await cloudinaryResponse.json();
+      const generatedImageUrl = cloudinaryData.secure_url;
+
+      console.log("Generated image uploaded to Cloudinary:", generatedImageUrl);
+
+      // Step 2: Use the generated image with Kling 2.6 for video generation
+      console.log("Step 2: Generating video with Kling 2.6...");
 
       // Kling 2.6 uses 5 or 10 second durations
       let klingDuration = '5';
@@ -279,7 +366,7 @@ serve(async (req) => {
         callBackUrl: callbackUrl,
         input: {
           prompt: prompt.substring(0, 1000), // Kling 2.6 has 1000 char limit
-          image_urls: imageUrls,
+          image_urls: [generatedImageUrl],
           sound: true, // Enable sound for podcast mode
           duration: klingDuration
         }
