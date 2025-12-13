@@ -287,6 +287,8 @@ const VoiceLibraryModal: React.FC<{
   const [selectedVoice, setSelectedVoice] = useState<Voice>(currentVoice);
   const [languageFilter, setLanguageFilter] = useState('English');
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const [isLoadingVoice, setIsLoadingVoice] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const filteredVoices = voiceLibrary.filter(voice => {
     if (searchQuery && !voice.name.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -297,15 +299,83 @@ const VoiceLibraryModal: React.FC<{
 
   const handleUseVoice = () => {
     onSelectVoice(selectedVoice);
+    // Stop any playing audio when closing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlaying(null);
     onClose();
   };
 
-  const playVoicePreview = (voiceId: string) => {
+  const handleClose = () => {
+    // Stop any playing audio when closing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlaying(null);
+    onClose();
+  };
+
+  const playVoicePreview = async (voiceId: string) => {
+    // If clicking the same voice that's playing, stop it
     if (isPlaying === voiceId) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       setIsPlaying(null);
-    } else {
-      setIsPlaying(voiceId);
-      setTimeout(() => setIsPlaying(null), 2000);
+      return;
+    }
+
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsPlaying(null);
+
+    setIsLoadingVoice(voiceId);
+
+    try {
+      const previewText = "Hello! This is a preview of my voice. I hope you like how I sound.";
+      
+      const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
+        body: {
+          text: previewText,
+          voice: voiceId,
+          stability: 0.5,
+          similarity_boost: 0.75,
+          style: 0,
+          speed: 1,
+          use_speaker_boost: true,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.audioUrl) {
+        const audio = new Audio(data.audioUrl);
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          setIsPlaying(null);
+          audioRef.current = null;
+        };
+
+        audio.onerror = () => {
+          setIsPlaying(null);
+          audioRef.current = null;
+        };
+
+        await audio.play();
+        setIsPlaying(voiceId);
+      }
+    } catch (error) {
+      console.error('Error generating voice preview:', error);
+    } finally {
+      setIsLoadingVoice(null);
     }
   };
 
@@ -340,7 +410,7 @@ const VoiceLibraryModal: React.FC<{
                 New Voice
               </button>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-muted-foreground" />
@@ -463,9 +533,12 @@ const VoiceLibraryModal: React.FC<{
                             e.stopPropagation();
                             playVoicePreview(voice.id);
                           }}
-                          className="flex-shrink-0 w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors"
+                          className={`flex-shrink-0 w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors ${isLoadingVoice === voice.id ? 'opacity-50 cursor-wait' : ''}`}
+                          disabled={isLoadingVoice !== null}
                         >
-                          {isPlaying === voice.id ? (
+                          {isLoadingVoice === voice.id ? (
+                            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                          ) : isPlaying === voice.id ? (
                             <div className="flex items-center gap-0.5">
                               {[1, 2, 3].map((i) => (
                                 <motion.div
