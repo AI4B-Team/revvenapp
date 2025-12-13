@@ -28,94 +28,92 @@ serve(async (req) => {
     const isDesign = contentType?.toLowerCase() === 'design';
     const isContent = contentType?.toLowerCase() === 'content';
 
-    // Mode-specific prompt guidance
-    const getModeGuidance = () => {
+    // Mode-specific prompt guidance with examples
+    const getModeConfig = () => {
       const mode = specificMode?.toLowerCase() || '';
 
       // VIDEO MODES
       if (isVideo || isUGC) {
         switch (mode) {
           case 'avatar video':
-            return `Create SHORT scripts for Avatar Video TALKING HEAD videos.
+            return {
+              guidance: `Create SHORT scripts for Avatar Video TALKING HEAD videos.
 CRITICAL: Output MUST be 180 characters or less (including spaces and punctuation).
-The script should:
-- Be concise and punchy (max 180 characters total)
-- Sound natural and conversational
-- Have one clear hook or message
-- Avoid filler words
-Example: "I tried this product for 2 weeks and honestly? It changed everything. You need to see this for yourself."`;
+The script should be concise, punchy, natural and conversational with one clear hook.`,
+              example: "I tried this product for 2 weeks and honestly? It changed everything. You need to see this for yourself.",
+              type: "avatar_script"
+            };
 
           case 'ugc':
-            return `Create prompts for UGC product showcase videos.
-Focus on:
-- Product presentation and features
-- Natural, authentic feel
-- Clear product benefits
-- Engaging call-to-action
-Example: "Showcase this skincare product with smooth camera movement, highlighting the sleek packaging and creamy texture"`;
+            return {
+              guidance: `Create prompts for UGC (User Generated Content) product showcase videos.
+Focus on: authentic product presentation, natural lighting, lifestyle context, real-world usage scenarios.
+The video should feel organic and relatable, not overly polished or commercial.`,
+              example: "Close-up of hands unboxing a new skincare product on a bathroom counter, morning light streaming through window, genuine reaction to first application",
+              type: "ugc_video"
+            };
 
           case 'podcast':
-            return `Create prompts for PODCAST style videos with talking heads.
-Focus on:
-- Conversational atmosphere
-- Professional but relaxed setting
-- Natural gestures and expressions
-- Engaging discussion topics
-Example: "Two hosts in a modern studio setting discussing the latest trends, animated hand gestures, warm studio lighting"`;
+            return {
+              guidance: `Create prompts for PODCAST-STYLE talking head videos.
+MUST include: Two or more people in conversation, studio/home office setting, microphones visible, engaged discussion.
+Focus on: natural dialogue, hand gestures, nodding, eye contact between speakers, casual professional atmosphere.`,
+              example: "Two hosts seated at a modern podcast desk with microphones, animated discussion about tech trends, one gestures enthusiastically while the other nods in agreement, warm studio lighting",
+              type: "podcast_video"
+            };
 
           case 'vsl':
-            return `Create prompts for Video Sales Letter (VSL) content.
-Focus on:
-- Compelling hook in first 3 seconds
-- Problem-solution narrative
-- Emotional connection
-- Strong call-to-action
-Example: "Dynamic text overlays revealing shocking statistics, followed by testimonial-style talking head with confident expression"`;
+            return {
+              guidance: `Create prompts for Video Sales Letter (VSL) content.
+MUST include: compelling hook, problem-solution narrative, emotional connection, urgency.
+Focus on: direct camera address, text overlays, before/after visuals, testimonial-style delivery.`,
+              example: "Speaker looks directly at camera with concerned expression, text overlay appears 'Are you struggling with...', scene transitions to relieved smile showing solution",
+              type: "vsl_video"
+            };
 
           case 'story':
-            return `Create prompts for STORY-based videos with multiple scenes.
-Focus on:
-- Scene-by-scene narrative
-- Character development
-- Visual storytelling
-- Emotional arc
-Example: "Opening shot of sunrise over city, character wakes up determined, montage of preparation, triumphant finale"`;
+            return {
+              guidance: `Create prompts for STORY-based narrative videos with scene progression.
+MUST include: clear beginning-middle-end, character journey, emotional arc.
+Focus on: establishing shots, character actions, mood transitions, visual storytelling without dialogue.`,
+              example: "Scene 1: Woman wakes up stressed, checks phone anxiously. Scene 2: Takes a deep breath, begins morning routine. Scene 3: Leaves house with confident smile, city awaits",
+              type: "story_video"
+            };
 
           case 'recast':
-            return `Create prompts for character RECAST videos where a character is applied to existing footage.
-Focus on:
-- Character consistency
-- Natural movements
-- Facial expressions
-- Scene integration
-Example: "Apply character seamlessly to the walking sequence, maintaining natural gait and expression changes"`;
+            return {
+              guidance: `Create prompts for character RECAST videos where a new character is applied to existing footage.
+Focus on: how the character should move, facial expressions to maintain, scene integration, natural blending.`,
+              example: "Character walks confidently through busy street, maintaining natural gait, occasional glances at surroundings, seamless integration with crowd",
+              type: "recast_video"
+            };
 
           case 'draw':
-            return `Create prompts for ANIMATED/DRAWN style videos.
-Focus on:
-- Art style (cartoon, anime, sketch)
-- Animation fluidity
-- Creative visual effects
-- Stylized movements
-Example: "Watercolor animation of flowers blooming, soft brush strokes transitioning between frames, dreamy atmosphere"`;
+            return {
+              guidance: `Create prompts for ANIMATED/ARTISTIC style videos.
+MUST include: specific art style (watercolor, anime, sketch, 3D), animation technique, visual effects.
+Focus on: stylized movements, creative transitions, artistic interpretation.`,
+              example: "Watercolor animation of cherry blossoms falling, soft brush strokes animate petals drifting, ink wash background gradually reveals mountain landscape",
+              type: "draw_video"
+            };
 
           case 'presentation':
-            return `Create prompts for PRESENTATION style videos.
-Focus on:
-- Clear information hierarchy
-- Professional visuals
-- Smooth transitions
-- Data visualization
-Example: "Corporate presentation with sleek animations, key points appearing with subtle motion graphics, clean modern design"`;
+            return {
+              guidance: `Create prompts for PRESENTATION/EXPLAINER style videos.
+MUST include: information hierarchy, motion graphics, data visualization, clean transitions.
+Focus on: professional aesthetics, clear messaging, branded elements.`,
+              example: "Sleek animated infographic showing statistics appearing one by one, smooth transitions between data points, minimalist design with accent colors",
+              type: "presentation_video"
+            };
 
           default: // Animate and general video
-            return `Create prompts for VIDEO generation that describe:
-- Camera movements (pan, zoom, tracking shot, crane shot)
-- Action and motion (what moves, how it moves, speed)
-- Scene transitions or progression over time
-- Lighting changes or time of day shifts
-- Character actions and expressions
-Example: "Slow zoom into a woman's face as she turns to look at the camera, golden hour sunlight streaming through her hair, soft wind blowing"`;
+            return {
+              guidance: `Create prompts for cinematic VIDEO generation.
+MUST include: specific camera movements (pan, zoom, tracking, crane), action/motion description, lighting.
+Focus on: dynamic movement, scene progression, atmospheric details.`,
+              example: "Slow motion tracking shot following a runner through misty forest at dawn, camera rises above treeline revealing mountain vista, golden hour light breaks through clouds",
+              type: "animate_video"
+            };
         }
       }
 
@@ -123,40 +121,40 @@ Example: "Slow zoom into a woman's face as she turns to look at the camera, gold
       if (isImage) {
         switch (mode) {
           case 'photoshoot':
-            return `Create prompts for professional PHOTOSHOOT images.
-Focus on:
-- Professional studio/location setting
-- Model poses and expressions
-- Fashion and styling details
-- High-end photography techniques
-Example: "Fashion editorial shot of model in designer outfit, dramatic side lighting, minimalist white studio, confident pose with hand on hip"`;
+            return {
+              guidance: `Create prompts for professional PHOTOSHOOT images.
+MUST include: specific pose, lighting setup (studio/natural), fashion/styling details, camera angle.
+Focus on: high-end photography techniques, editorial quality, model direction.`,
+              example: "Fashion editorial: model in tailored blazer, dramatic side lighting with soft fill, minimalist white cyc wall, three-quarter turn with direct eye contact, 85mm lens",
+              type: "photoshoot_image"
+            };
 
           case 'swap':
-            return `Create prompts for FACE/OUTFIT SWAP images.
-Focus on:
-- Seamless integration
-- Matching lighting and style
-- Natural appearance
-- Specific swap details
-Example: "Swap the subject's outfit to a elegant red evening gown, maintaining the same pose and lighting conditions"`;
+            return {
+              guidance: `Create prompts for FACE or OUTFIT SWAP images.
+MUST include: specific swap details (what to change), matching instructions for lighting/style.
+Focus on: seamless integration, consistent quality, natural appearance.`,
+              example: "Swap outfit to elegant burgundy evening gown with subtle sequin details, maintain current lighting and pose, ensure fabric drapes naturally",
+              type: "swap_image"
+            };
 
           case 'draw':
-            return `Create prompts for ARTISTIC/DRAWN images.
-Focus on:
-- Art style (watercolor, oil painting, digital art, sketch)
-- Artistic techniques
-- Color palettes
-- Creative interpretations
-Example: "Impressionist oil painting style portrait with visible brush strokes, soft pastel colors, dreamy atmospheric quality"`;
+            return {
+              guidance: `Create prompts for ARTISTIC/ILLUSTRATED images.
+MUST include: specific art style (watercolor, oil painting, digital art, anime, sketch), technique details.
+Focus on: artistic interpretation, color palette, unique visual style.`,
+              example: "Studio Ghibli-inspired illustration of cozy coffee shop interior, warm color palette, soft hand-painted textures, magical afternoon light through windows",
+              type: "draw_image"
+            };
 
           default: // Create and general image
-            return `Create prompts for IMAGE/PHOTO generation that describe:
-- Composition and framing (close-up, wide shot, portrait)
-- Lighting and mood (dramatic, soft, cinematic)
-- Style and aesthetic (photorealistic, artistic, vintage)
-- Details and textures
-- Color palette and atmosphere
-Example: "A stunning portrait of a woman in golden hour light, soft bokeh background, cinematic color grading, 85mm lens"`;
+            return {
+              guidance: `Create prompts for stunning PHOTOREALISTIC images.
+MUST include: subject description, composition (close-up, wide, portrait), lighting mood, style/aesthetic.
+Focus on: visual impact, technical quality, artistic direction.`,
+              example: "Cinematic portrait of woman in golden hour light, shallow depth of field, soft bokeh background of autumn leaves, warm color grading, contemplative expression",
+              type: "create_image"
+            };
         }
       }
 
@@ -164,153 +162,161 @@ Example: "A stunning portrait of a woman in golden hour light, soft bokeh backgr
       if (isAudio) {
         switch (mode) {
           case 'voiceover':
-            return `Create scripts for professional VOICEOVER narration.
-Focus on:
-- Clear, engaging narration
-- Appropriate pacing
-- Emotional tone matching content
-- Professional delivery style
-Example: "Warm, conversational tone introducing a new product feature, building excitement with each benefit revealed"`;
+            return {
+              guidance: `Create scripts for professional VOICEOVER narration.
+MUST include: clear pacing markers, emotional tone, natural pauses.
+Focus on: engaging delivery, appropriate energy level, clear articulation.`,
+              example: "Welcome to the future of productivity. [pause] What if I told you... that everything you thought you knew about time management was wrong?",
+              type: "voiceover_audio"
+            };
 
           case 'clone':
-            return `Create text for VOICE CLONING that will sound natural.
-Focus on:
-- Natural speech patterns
-- Appropriate pauses
-- Conversational flow
-- Clear pronunciation
-Example: "Hey everyone, I wanted to share something really exciting with you today. You're going to love this."`;
+            return {
+              guidance: `Create natural-sounding text for VOICE CLONING.
+MUST include: conversational flow, natural contractions, realistic speech patterns.
+Focus on: authenticity, natural pacing, avoiding robotic phrasing.`,
+              example: "Hey, so I've been meaning to tell you about this thing I discovered last week. You're gonna love it, seriously.",
+              type: "clone_audio"
+            };
 
           case 'revoice':
-            return `Create text for REVOICING existing audio content.
-Focus on:
-- Matching original pacing
-- Maintaining emotional intent
-- Clear articulation
-- Synced delivery
-Example: "Reimagine this dialogue with more energy and enthusiasm, keeping the same timing as the original"`;
+            return {
+              guidance: `Create text for REVOICING/DUBBING existing content.
+MUST include: matching original pacing, emotional intent, sync points.
+Focus on: lip-sync friendly phrasing, maintaining original meaning.`,
+              example: "The moment has arrived. Everything we've worked for comes down to this single decision.",
+              type: "revoice_audio"
+            };
 
           case 'music':
-            return `Create prompts for AI MUSIC generation.
-Focus on:
-- Genre and style
-- Mood and tempo
-- Instrumentation
-- Song structure
-Example: "Upbeat indie pop track with acoustic guitar, light percussion, and cheerful synth pads, 120 BPM, verse-chorus structure"`;
+            return {
+              guidance: `Create prompts for AI MUSIC generation.
+MUST include: genre, tempo (BPM), mood, instrumentation, structure.
+Focus on: specific musical elements, emotional quality, production style.`,
+              example: "Upbeat indie pop, 118 BPM, cheerful summer vibe, acoustic guitar lead with synth pads, light percussion, verse-chorus-bridge structure",
+              type: "music_audio"
+            };
 
           default:
-            return `Create prompts for AUDIO content generation.
-Focus on:
-- Tone and delivery style
-- Pacing and rhythm
-- Emotional resonance
-- Clear messaging`;
+            return {
+              guidance: `Create prompts for AUDIO content.
+Include: tone, style, pacing, emotional quality.`,
+              example: "Warm, friendly narration with gentle pacing and natural pauses for emphasis",
+              type: "general_audio"
+            };
         }
       }
 
       // DESIGN MODE
       if (isDesign) {
-        return `Create prompts for DESIGN projects.
-Focus on:
-- Visual hierarchy
-- Brand consistency
-- Color schemes
-- Typography choices
-- Layout composition
-Example: "Modern minimalist logo design with geometric shapes, bold sans-serif typography, gradient blue-purple color scheme"`;
+        return {
+          guidance: `Create prompts for GRAPHIC DESIGN projects.
+MUST include: design type (logo, banner, card), style direction, color scheme, typography hints.
+Focus on: visual hierarchy, brand personality, modern aesthetics.`,
+          example: "Minimalist tech startup logo, geometric sans-serif wordmark, gradient from electric blue to teal, clean negative space, scalable for app icon",
+          type: "design"
+        };
       }
 
-      // CONTENT MODE
+      // CONTENT MODE (Social Media)
       if (isContent) {
-        return `Create prompts for SOCIAL MEDIA content.
-Focus on:
-- Platform-specific formatting
-- Engaging hooks
-- Call-to-action
-- Hashtag strategy
-- Visual content ideas
-Example: "Carousel post about productivity tips, each slide with bold headline, supporting visual, and actionable takeaway"`;
+        return {
+          guidance: `Create prompts for SOCIAL MEDIA content.
+MUST include: platform context, content format (carousel, reel, story), hook, call-to-action.
+Focus on: engagement, shareability, trend awareness.`,
+          example: "Instagram carousel: 5 productivity hacks for remote workers, bold text overlays, minimalist illustrations, swipe prompt on each slide, save-worthy value",
+          type: "social_content"
+        };
       }
 
       // Default fallback
-      return `Create inspiring and detailed creative prompts.
-Focus on:
-- Clear subject and concept
-- Visual details and style
-- Mood and atmosphere
-- Technical specifications
-Return only the prompt text, nothing else.`;
+      return {
+        guidance: `Create inspiring and detailed creative prompts.
+Focus on: clear subject, visual style, mood, technical details.`,
+        example: "A stunning visual composition with dramatic lighting and professional quality",
+        type: "general"
+      };
     };
 
     let messages: any[] = [];
-    const modeGuidance = getModeGuidance();
+    const modeConfig = getModeConfig();
+
+    console.log("Mode config type:", modeConfig.type);
 
     if (isUGC || specificMode?.toLowerCase() === 'avatar video') {
       // UGC/Avatar Video mode - generate short voice scripts (180 chars max)
-      const systemPrompt = `You are a creative scriptwriter for Avatar Video talking head content.
-${modeGuidance}
+      messages = [
+        { 
+          role: "system", 
+          content: `You are a creative scriptwriter for Avatar Video talking head content.
+${modeConfig.guidance}
+
+EXAMPLE OUTPUT: "${modeConfig.example}"
 
 Generate a single engaging script that is UNDER 180 CHARACTERS TOTAL.
-Return only the script text, nothing else. No stage directions, no quotation marks.`;
-
-      messages = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: "Generate a short, punchy Avatar Video script. MUST be under 180 characters including spaces and punctuation." }
+Return ONLY the script text. No quotes, no stage directions, no explanations.`
+        },
+        { 
+          role: "user", 
+          content: "Generate a short, punchy Avatar Video script. MUST be under 180 characters." 
+        }
       ];
     } else if (hasImages) {
-      // Build a message with images for vision analysis
-      const contextType = isVideo ? 'VIDEO' : isAudio ? 'AUDIO' : isDesign ? 'DESIGN' : isContent ? 'CONTENT' : 'IMAGE';
-      
-      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contextType} generation.
-${modeGuidance}
-
-Based on the provided character and reference images, create a completely NEW creative scenario that FEATURES these characters/elements.
-${isVideo ? 'Focus on what ACTIONS occur, how the camera MOVES, and how the scene PROGRESSES over time.' : ''}
-DO NOT describe what you see in the images. Instead, imagine these characters in a new creative setting.
-Return only the creative prompt text, nothing else.`;
-
+      // With images - vision analysis
       const content: any[] = [
-        { type: "text", text: `Look at these character/reference images and create a NEW creative ${contextType} prompt${specificMode ? ` for ${specificMode} mode` : ''} featuring them:` }
+        { 
+          type: "text", 
+          text: `Create a NEW creative prompt for ${modeConfig.type.replace('_', ' ')} featuring these images.
+
+REQUIREMENTS:
+${modeConfig.guidance}
+
+EXAMPLE FORMAT: "${modeConfig.example}"
+
+Look at the images and create ONE detailed prompt following the requirements above. Return ONLY the prompt.`
+        }
       ];
 
       // Add character images
       if (characterImages && characterImages.length > 0) {
         characterImages.forEach((url: string) => {
-          content.push({
-            type: "image_url",
-            image_url: { url }
-          });
+          content.push({ type: "image_url", image_url: { url } });
         });
       }
 
       // Add reference images
       if (referenceImages && referenceImages.length > 0) {
         referenceImages.forEach((url: string) => {
-          content.push({
-            type: "image_url",
-            image_url: { url }
-          });
+          content.push({ type: "image_url", image_url: { url } });
         });
       }
 
       messages = [
-        { role: "system", content: systemPrompt },
+        { 
+          role: "system", 
+          content: `You are a creative prompt generator. Generate prompts that EXACTLY match the specified mode requirements. Do not deviate from the format.`
+        },
         { role: "user", content }
       ];
     } else {
-      // No images, generate a random creative prompt
-      const contextType = isVideo ? 'VIDEO' : isAudio ? 'AUDIO' : isDesign ? 'DESIGN' : isContent ? 'CONTENT' : 'IMAGE';
-      
-      const systemPrompt = `You are a creative AI assistant that generates inspiring and detailed prompts for ${contextType} generation.
-${modeGuidance}
-
-Generate a single creative, detailed prompt that would create a stunning result.
-Return only the prompt text, nothing else.`;
-
+      // No images - random creative prompt
       messages = [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Generate a creative ${contextType} prompt idea${specificMode ? ` for ${specificMode} mode` : ''}` }
+        { 
+          role: "system", 
+          content: `You are a creative prompt generator for ${modeConfig.type.replace('_', ' ')}.
+
+STRICT REQUIREMENTS - Your prompt MUST follow this guidance:
+${modeConfig.guidance}
+
+EXAMPLE OUTPUT FORMAT: "${modeConfig.example}"
+
+Generate ONE creative prompt that follows the exact same style and structure as the example.
+Return ONLY the prompt text. No explanations, no alternatives.`
+        },
+        { 
+          role: "user", 
+          content: `Generate a creative ${modeConfig.type.replace('_', ' ')} prompt. Follow the requirements exactly.`
+        }
       ];
     }
 
@@ -345,9 +351,9 @@ Return only the prompt text, nothing else.`;
     }
 
     const data = await response.json();
-    const suggestion = data.choices[0]?.message?.content || "";
+    const suggestion = data.choices[0]?.message?.content?.trim() || "";
 
-    console.log("Generated suggestion for", contentType, specificMode, ":", suggestion.substring(0, 100));
+    console.log("Generated", modeConfig.type, "suggestion:", suggestion.substring(0, 100));
 
     return new Response(JSON.stringify({ suggestion }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
