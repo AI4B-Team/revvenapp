@@ -175,7 +175,7 @@ const VideoToVideoModal = ({ isOpen, onClose, onVideoSelect }: VideoToVideoModal
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Video className="text-rose-500" size={22} />
+            <Video className="text-red-500" size={22} />
             Video-To-Video
           </DialogTitle>
         </DialogHeader>
