@@ -498,11 +498,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Video mode: Track which frame to populate next
   const framePopulateIntentRef = useRef<'start' | 'end' | null>(null);
   
+  // Sync characters for Avatar Video, Lip-Sync, and Recast modes (no frame population)
+  useEffect(() => {
+    if (!isVideoMode) return;
+    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast') {
+      setVideoModeState(prev => ({
+        ...prev,
+        characters: selectedCharacters,
+        references: selectedReferences
+      }));
+    }
+  }, [isVideoMode, selectedAnimateMode, selectedCharacters, selectedReferences]);
+
   useEffect(() => {
     if (!isVideoMode) return;
     
-    // Skip frame auto-population in Recast mode - character is only for API, not frames
-    if (selectedAnimateMode === 'Recast') {
+    // Skip frame auto-population in Avatar Video, Lip-Sync, and Recast modes - character is only for API, not frames
+    if (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || selectedAnimateMode === 'Recast') {
       return;
     }
     
