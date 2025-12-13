@@ -58,7 +58,7 @@ interface AudioUploadModalProps {
 // Filter options
 const LANGUAGES = ['All', 'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'];
 const ACCENTS = ['All', 'American', 'British', 'Australian', 'Indian', 'Irish', 'Scottish', 'Canadian', 'South African', 'Neutral'];
-const GENDERS = ['All', 'Male', 'Female', 'Non-binary'];
+const GENDERS = ['All', 'Male', 'Female', 'Neutral', 'Non-binary'];
 
 // ============================================
 // SLIDER COMPONENT
@@ -412,7 +412,15 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSavedVoices(data || []);
+
+      const enhancedVoices: SavedVoice[] = (data || []).map((voice: any) => ({
+        ...voice,
+        language: voice.language ?? 'English',
+        accent: voice.accent ?? 'Neutral',
+        gender: voice.gender ?? 'Neutral',
+      }));
+
+      setSavedVoices(enhancedVoices);
     } catch (error) {
       console.error('Error loading voices:', error);
     } finally {
