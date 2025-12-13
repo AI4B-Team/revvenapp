@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
+import { useReferenceImages } from '@/hooks/useReferenceImages';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import ContentTypeSelector from '@/components/dashboard/ContentTypeSelector';
@@ -55,14 +56,27 @@ const Create = () => {
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   // Separate state for each content type
   const [imageCharacters, setImageCharacters] = useState<any[]>([]);
-  const [imageReferences, setImageReferences] = useState<any[]>([]);
   const [videoCharacters, setVideoCharacters] = useState<any[]>([]);
-  const [videoReferences, setVideoReferences] = useState<any[]>([]);
   const [audioCharacters, setAudioCharacters] = useState<any[]>([]);
-  const [audioReferences, setAudioReferences] = useState<any[]>([]);
   const [designCharacters, setDesignCharacters] = useState<any[]>([]);
-  const [designReferences, setDesignReferences] = useState<any[]>([]);
-  const [referencesModalOpen, setReferencesModalOpen] = useState(false);
+  
+  // Use the useReferenceImages hook for each content type
+  const imageRefs = useReferenceImages();
+  const videoRefs = useReferenceImages();
+  const audioRefs = useReferenceImages();
+  const designRefs = useReferenceImages();
+  
+  // Get current refs based on selected type
+  const getCurrentRefs = () => {
+    const effectiveType = selectedType || 'Image';
+    if (effectiveType === 'Image') return imageRefs;
+    if (effectiveType === 'Video') return videoRefs;
+    if (effectiveType === 'Audio') return audioRefs;
+    if (effectiveType === 'Design') return designRefs;
+    return imageRefs;
+  };
+  
+  const currentRefs = getCurrentRefs();
   const [isCharacterReference, setIsCharacterReference] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
@@ -149,13 +163,13 @@ const Create = () => {
       setEditingImage(null);
       // Clear all content type states
       setImageCharacters([]);
-      setImageReferences([]);
+      imageRefs.clearAll();
       setVideoCharacters([]);
-      setVideoReferences([]);
+      videoRefs.clearAll();
       setAudioCharacters([]);
-      setAudioReferences([]);
+      audioRefs.clearAll();
       setDesignCharacters([]);
-      setDesignReferences([]);
+      designRefs.clearAll();
       setHasInitialized(true);
     } else if (!hasInitialized && hasNavigationState) {
       // Mark as initialized if we have navigation state
@@ -508,20 +522,11 @@ const Create = () => {
                 selectedType === 'Audio' ? audioCharacters :
                 selectedType === 'Design' ? designCharacters : imageCharacters
               }
-              onReferencesClick={() => setReferencesModalOpen(true)}
+              onReferencesClick={() => currentRefs.openModal()}
               onReferencesSelect={(references) => {
-                const effectiveType = selectedType || 'Image';
-                if (effectiveType === 'Image') setImageReferences(references);
-                else if (effectiveType === 'Video') setVideoReferences(references);
-                else if (effectiveType === 'Audio') setAudioReferences(references);
-                else if (effectiveType === 'Design') setDesignReferences(references);
+                currentRefs.handleImagesSelect(references);
               }}
-              selectedReferences={
-                (selectedType === 'Image' || selectedType === '') ? imageReferences :
-                selectedType === 'Video' ? videoReferences :
-                selectedType === 'Audio' ? audioReferences :
-                selectedType === 'Design' ? designReferences : imageReferences
-              }
+              selectedReferences={currentRefs.selectedImages}
               isCharacterReference={isCharacterReference}
               onGenerationStart={() => setActiveView('creations')}
               externalStartingFrame={externalStartingFrame}
@@ -1032,21 +1037,11 @@ const Create = () => {
       />
 
       <ReferencesModal
-        isOpen={referencesModalOpen}
-        onClose={() => setReferencesModalOpen(false)}
-        initialSelectedImages={
-          (selectedType === 'Image' || selectedType === '') ? imageReferences :
-          selectedType === 'Video' ? videoReferences :
-          selectedType === 'Audio' ? audioReferences :
-          selectedType === 'Design' ? designReferences : []
-        }
+        isOpen={currentRefs.isModalOpen}
+        onClose={() => currentRefs.closeModal()}
+        initialSelectedImages={currentRefs.selectedImages}
         onImagesSelect={(images) => {
-          const effectiveType = selectedType || 'Image';
-          // Replace with the full selection from modal (modal handles appending internally)
-          if (effectiveType === 'Image') setImageReferences(images);
-          else if (effectiveType === 'Video') setVideoReferences(images);
-          else if (effectiveType === 'Audio') setAudioReferences(images);
-          else if (effectiveType === 'Design') setDesignReferences(images);
+          currentRefs.handleImagesSelect(images);
           setIsCharacterReference(true);
         }}
       />

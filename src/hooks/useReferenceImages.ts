@@ -29,11 +29,20 @@ export const useReferenceImages = () => {
     setIsModalOpen(false);
   }, []);
 
-  // Handle selected images from modal
+  // Handle selected images from modal - replaces current selection
   const handleImagesSelect = useCallback((images: ReferenceImage[]) => {
     setSelectedImages(images);
     closeModal();
   }, [closeModal]);
+
+  // Add images to the existing selection (appends without closing modal)
+  const addImages = useCallback((newImages: ReferenceImage[]) => {
+    setSelectedImages(prev => {
+      const existingIds = new Set(prev.map(img => img.id));
+      const uniqueNewImages = newImages.filter(img => !existingIds.has(img.id));
+      return [...prev, ...uniqueNewImages];
+    });
+  }, []);
 
   // Remove a specific image
   const removeImage = useCallback((imageId: string) => {
@@ -62,10 +71,12 @@ export const useReferenceImages = () => {
 
   return {
     selectedImages,
+    setSelectedImages,
     isModalOpen,
     openModal,
     closeModal,
     handleImagesSelect,
+    addImages,
     removeImage,
     clearAll,
     getImageUrls,
