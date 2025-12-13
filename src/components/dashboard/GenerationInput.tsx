@@ -1948,7 +1948,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             onClick={() => setIsVideoToVideoModalOpen(true)}
                             className="p-1.5 transition hover:opacity-70"
                           >
-                            <Video size={20} strokeWidth={2.5} className="text-rose-500" />
+                            <Video size={20} strokeWidth={2.5} className="text-red-500" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-black border-black">
