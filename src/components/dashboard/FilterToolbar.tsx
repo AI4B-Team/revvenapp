@@ -52,13 +52,13 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const contentTypes = [
-    { name: 'All', icon: Layers },
-    { name: 'Image', icon: Image },
-    { name: 'Video', icon: Video },
-    { name: 'Audio', icon: Headphones },
-    { name: 'Design', icon: Palette },
-    { name: 'Content', icon: FileText },
-    { name: 'Apps', icon: Grid3x3 }
+    { name: 'All', icon: Layers, color: '' },
+    { name: 'Image', icon: Image, color: 'text-brand-blue' },
+    { name: 'Video', icon: Video, color: 'text-brand-red' },
+    { name: 'Audio', icon: Headphones, color: 'text-brand-green' },
+    { name: 'Design', icon: Palette, color: 'text-brand-yellow' },
+    { name: 'Content', icon: FileText, color: 'text-brand-blue' },
+    { name: 'Apps', icon: Grid3x3, color: 'text-brand-green' }
   ];
 
   // Focus search input when expanded
@@ -114,7 +114,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
                     selectedContentType === type.name ? 'bg-gray-100 font-semibold' : ''
                   }`}
                 >
-                  <Icon size={16} />
+                  <Icon size={16} className={type.color} />
                   {type.name}
                 </button>
               );
