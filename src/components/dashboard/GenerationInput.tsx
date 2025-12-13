@@ -4736,10 +4736,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
 
           <div className="flex items-center gap-3 ml-12">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Popover>
+            <Popover>
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
                     <PopoverTrigger asChild>
                       <button 
                         disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
@@ -4754,43 +4754,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <ChevronDown size={14} />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-56 bg-background border-border z-50">
-                      <div className="space-y-1">
-                        <button 
-                          onClick={() => handleEnhancePrompt(true)}
-                          disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
-                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Zap size={14} className="text-brand-yellow" />
-                            <div>
-                              <div className="font-medium">Fast Enhance</div>
-                              <div className="text-xs text-muted-foreground">Quick improvement</div>
-                            </div>
-                          </div>
-                        </button>
-                        <button 
-                          onClick={() => handleEnhancePrompt(false)}
-                          disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
-                          className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-brand-purple" />
-                            <div>
-                              <div className="font-medium">Deep Enhance</div>
-                              <div className="text-xs text-muted-foreground">Detailed refinement</div>
-                            </div>
-                          </div>
-                        </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="bg-black border-black">
+                    <p>Enhance Prompt</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <PopoverContent className="w-56 bg-background border-border z-50">
+                <div className="space-y-1">
+                  <button 
+                    onClick={() => handleEnhancePrompt(true)}
+                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Zap size={14} className="text-brand-yellow" />
+                      <div>
+                        <div className="font-medium">Fast Enhance</div>
+                        <div className="text-xs text-muted-foreground">Quick improvement</div>
                       </div>
-                    </PopoverContent>
-                  </Popover>
-                </TooltipTrigger>
-                <TooltipContent className="bg-black border-black">
-                  <p>Enhance Prompt</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                    </div>
+                  </button>
+                  <button 
+                    onClick={() => handleEnhancePrompt(false)}
+                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
+                    className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={14} className="text-brand-purple" />
+                      <div>
+                        <div className="font-medium">Deep Enhance</div>
+                        <div className="text-xs text-muted-foreground">Detailed refinement</div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
