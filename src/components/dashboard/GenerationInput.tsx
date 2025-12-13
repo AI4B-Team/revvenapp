@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music2 } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
@@ -185,7 +185,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Revoice', label: 'Revoice', icon: RefreshCw },
     { value: 'Transcribe', label: 'Transcribe', icon: Captions },
     { value: 'Sound Effects', label: 'Sound Effects', icon: AudioLines },
-    { value: 'Music', label: 'Music', icon: AudioLines },
+    { value: 'Music', label: 'Music', icon: Music2 },
   ];
   
   // Resizable prompt box (both directions)
