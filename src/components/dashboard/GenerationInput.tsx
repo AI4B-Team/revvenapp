@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -168,6 +168,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   const createModes = [
     { value: 'Create', label: 'Create', icon: Sparkles },
+    { value: 'Batch', label: 'Batch', icon: Layers },
     { value: 'Draw', label: 'Draw', icon: Pencil },
     { value: 'Swap', label: 'Swap', icon: RefreshCw },
     { value: 'Photoshoot', label: 'Photoshoot', icon: Image },
