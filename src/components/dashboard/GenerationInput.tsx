@@ -97,7 +97,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   
   // Audio voiceover voice selection state
-  const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('CwhRBWXzGAHq8TQ4Fs17');
+  const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('Roger');
   const [selectedVoiceoverName, setSelectedVoiceoverName] = useState<string>('Roger');
   const [isVoiceoverPlaying, setIsVoiceoverPlaying] = useState(false);
   const [isVoiceoverLoading, setIsVoiceoverLoading] = useState(false);
@@ -196,26 +196,29 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Music', label: 'Music', icon: Music },
   ];
   
-  // Voice library for Audio Voiceover mode
+  // Voice library for Audio Voiceover mode (using KIE.AI voice names, not ElevenLabs UUIDs)
   const voiceoverLibrary = [
-    { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger', gender: 'Male' },
-    { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', gender: 'Female' },
-    { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', gender: 'Female' },
-    { id: 'IKne3meq5aSn9XLyUdCD', name: 'Charlie', gender: 'Male' },
-    { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', gender: 'Male' },
-    { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', gender: 'Male' },
-    { id: 'SAz9YHcvj6GT2YYXdXww', name: 'River', gender: 'Neutral' },
-    { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', gender: 'Male' },
-    { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', gender: 'Female' },
-    { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', gender: 'Female' },
-    { id: 'bIHbv24MWmeRgasZH58o', name: 'Will', gender: 'Male' },
-    { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica', gender: 'Female' },
-    { id: 'cjVigY5qzO86Huf0OWal', name: 'Eric', gender: 'Male' },
-    { id: 'iP95p4xoKVk53GoZ742B', name: 'Chris', gender: 'Male' },
-    { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', gender: 'Male' },
-    { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'Male' },
-    { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female' },
-    { id: 'pqHfZKP75CvOlQylNhV4', name: 'Bill', gender: 'Male' },
+    { id: 'Rachel', name: 'Rachel', gender: 'Female' },
+    { id: 'Aria', name: 'Aria', gender: 'Female' },
+    { id: 'Roger', name: 'Roger', gender: 'Male' },
+    { id: 'Sarah', name: 'Sarah', gender: 'Female' },
+    { id: 'Laura', name: 'Laura', gender: 'Female' },
+    { id: 'Charlie', name: 'Charlie', gender: 'Male' },
+    { id: 'George', name: 'George', gender: 'Male' },
+    { id: 'Callum', name: 'Callum', gender: 'Male' },
+    { id: 'River', name: 'River', gender: 'Neutral' },
+    { id: 'Liam', name: 'Liam', gender: 'Male' },
+    { id: 'Charlotte', name: 'Charlotte', gender: 'Female' },
+    { id: 'Alice', name: 'Alice', gender: 'Female' },
+    { id: 'Matilda', name: 'Matilda', gender: 'Female' },
+    { id: 'Will', name: 'Will', gender: 'Male' },
+    { id: 'Jessica', name: 'Jessica', gender: 'Female' },
+    { id: 'Eric', name: 'Eric', gender: 'Male' },
+    { id: 'Chris', name: 'Chris', gender: 'Male' },
+    { id: 'Brian', name: 'Brian', gender: 'Male' },
+    { id: 'Daniel', name: 'Daniel', gender: 'Male' },
+    { id: 'Lily', name: 'Lily', gender: 'Female' },
+    { id: 'Bill', name: 'Bill', gender: 'Male' },
   ];
   
   // Resizable prompt box (both directions)
