@@ -104,6 +104,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isVoiceoverPopoverOpen, setIsVoiceoverPopoverOpen] = useState(false);
   const voiceoverAudioRef = useRef<HTMLAudioElement | null>(null);
   
+  // Audio model selection state
+  const [selectedAudioModel, setSelectedAudioModel] = useState('eleven_turbo_v2_5');
+  const [isAudioModelPopoverOpen, setIsAudioModelPopoverOpen] = useState(false);
+  
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
@@ -3674,20 +3678,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Popover>
+                <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
-                      Model
+                    <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                      {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
                       <ChevronDown size={14} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-64 bg-background border-border z-50">
                     <div className="space-y-1">
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => {
+                          setSelectedAudioModel('eleven_turbo_v2_5');
+                          setIsAudioModelPopoverOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                      >
                         Eleven Turbo v2.5
+                        {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
                       </button>
-                      <button className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition">
+                      <button 
+                        onClick={() => {
+                          setSelectedAudioModel('eleven_multilingual_v2');
+                          setIsAudioModelPopoverOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                      >
                         Eleven Multilingual v2
+                        {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
                       </button>
                     </div>
                   </PopoverContent>
