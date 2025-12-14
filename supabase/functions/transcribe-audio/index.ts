@@ -102,7 +102,7 @@ serve(async (req) => {
     // Step 3: Poll for task completion
     let transcribedText = "";
     let attempts = 0;
-    const maxAttempts = 60; // 60 seconds max wait
+    const maxAttempts = 180; // wait up to 3 minutes
     
     while (attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
@@ -115,15 +115,23 @@ serve(async (req) => {
       });
 
       if (!statusResponse.ok) {
-        console.error("Status check error:", statusResponse.status);
+        console.error("Status check error:", statusResponse.status, await statusResponse.text());
         attempts++;
         continue;
       }
 
       const statusResult = await statusResponse.json();
-      console.log("Task status:", statusResult.data?.state);
+      console.log("Task status response:", JSON.stringify(statusResult));
 
-      if (statusResult.data?.state === "success") {
+      if (statusResult.code && statusResult.code !== 200) {
+        const msg = statusResult.msg || statusResult.message || JSON.stringify(statusResult);
+        throw new Error(`Transcription failed: ${msg}`);
+      }
+
+      const state = statusResult.data?.state;
+      console.log("Task state:", state);
+
+      if (state === "success") {
         // Parse the resultJson
         const resultJson = statusResult.data.resultJson;
         if (resultJson) {
@@ -137,7 +145,7 @@ serve(async (req) => {
           }
         }
         break;
-      } else if (statusResult.data?.state === "fail") {
+      } else if (state === "fail") {
         throw new Error(`Transcription failed: ${statusResult.data.failMsg || "Unknown error"}`);
       }
 
