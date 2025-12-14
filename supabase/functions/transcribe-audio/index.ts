@@ -58,8 +58,9 @@ serve(async (req) => {
     }
 
     const cloudinaryData = await cloudinaryResponse.json();
-    const audioUrl = cloudinaryData.secure_url;
-    console.log("Audio uploaded to Cloudinary:", audioUrl);
+    // Convert to mp3 format via Cloudinary URL transformation (webm not supported by KIE.AI)
+    const audioUrl = cloudinaryData.secure_url.replace(/\.(webm|wav|ogg)$/, '.mp3');
+    console.log("Audio uploaded to Cloudinary (converted to mp3):", audioUrl);
 
     // Step 2: Create transcription task using KIE.AI jobs API
     console.log("Creating transcription task...");
