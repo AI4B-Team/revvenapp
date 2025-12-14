@@ -34,10 +34,11 @@ serve(async (req) => {
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
-    const audioBlob = new Blob([bytes], { type: contentType || 'audio/webm' });
+    // Use mp3 mime type for upload so KIE.AI accepts it
+    const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
     
     const cloudinaryFormData = new FormData();
-    cloudinaryFormData.append("file", audioBlob, filename || "audio.webm");
+    cloudinaryFormData.append("file", audioBlob, "audio.mp3");
     cloudinaryFormData.append("upload_preset", uploadPreset);
     cloudinaryFormData.append("resource_type", "video");
     cloudinaryFormData.append("folder", "transcribe-audio");
@@ -58,8 +59,10 @@ serve(async (req) => {
     }
 
     const cloudinaryData = await cloudinaryResponse.json();
-    const audioUrl: string = cloudinaryData.secure_url;
-    console.log("Audio uploaded to Cloudinary:", audioUrl);
+    const originalUrl: string = cloudinaryData.secure_url;
+    // Use Cloudinary's on-the-fly transcoding to deliver as mp3
+    const audioUrl = originalUrl.replace("/upload/", "/upload/f_mp3/").replace(/\.\w+$/, ".mp3");
+    console.log("Audio URL for KIE.AI:", audioUrl);
 
     // Step 2: Create transcription task using KIE.AI jobs API
     console.log("Creating transcription task...");
