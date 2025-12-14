@@ -1245,7 +1245,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             body: {
               audioBase64: transcribeAudio.base64,
               filename: transcribeAudio.name,
-              contentType: 'audio/webm',
+              contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
             }
           });
 
@@ -3903,7 +3903,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   // Start recording
                                   try {
                                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                                    const mediaRecorder = new MediaRecorder(stream);
+
+                                    const preferredMimeType =
+                                      MediaRecorder.isTypeSupported('audio/mp4')
+                                        ? 'audio/mp4'
+                                        : MediaRecorder.isTypeSupported('audio/ogg')
+                                          ? 'audio/ogg'
+                                          : 'audio/webm';
+
+                                    const mediaRecorder = new MediaRecorder(stream, { mimeType: preferredMimeType });
                                     mediaRecorderRef.current = mediaRecorder;
                                     audioChunksRef.current = [];
                                     
@@ -3914,7 +3922,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     };
                                     
                                     mediaRecorder.onstop = () => {
-                                      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                                      const mimeType = mediaRecorder.mimeType || preferredMimeType;
+                                      const extension = mimeType.includes('mp4')
+                                        ? 'mp4'
+                                        : mimeType.includes('ogg')
+                                          ? 'ogg'
+                                          : 'webm';
+
+                                      const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
                                       const reader = new FileReader();
                                       reader.onload = (event) => {
                                         const base64 = event.target?.result as string;
@@ -3922,7 +3937,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                         audio.src = URL.createObjectURL(audioBlob);
                                         audio.onloadedmetadata = () => {
                                           setTranscribeAudio({
-                                            name: `Recording_${Date.now()}.webm`,
+                                            name: `Recording_${Date.now()}.${extension}`,
                                             duration: Math.round(audio.duration),
                                             url: URL.createObjectURL(audioBlob),
                                             base64: base64,
