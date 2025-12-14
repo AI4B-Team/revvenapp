@@ -3839,7 +3839,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <div className="space-y-2">
                             <input
                               type="file"
-                              accept="audio/*"
+                              accept="audio/mpeg,audio/mp3,audio/mp4,audio/wav,audio/ogg,audio/webm,audio/*"
                               id="transcribe-audio-upload"
                               className="hidden"
                               onChange={async (e) => {
@@ -3885,7 +3885,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-brand-green transition"
                             >
                               <Upload size={18} className="text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">Click to upload audio file</span>
+                              <span className="text-sm text-muted-foreground">Click to upload MP3 or audio file</span>
                             </label>
                           </div>
                           
