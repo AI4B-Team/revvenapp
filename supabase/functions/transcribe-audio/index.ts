@@ -24,11 +24,7 @@ serve(async (req) => {
 
     console.log("Transcribing audio:", filename, contentType);
 
-    // Step 1: Upload audio to Cloudinary to get a URL
-    const cloudName = "dszt275xv";
-    const uploadPreset = "revven";
-    
-    // Convert base64 to blob
+    // Convert base64 to blob for multipart upload
     const base64Data = audioBase64.split(',')[1] || audioBase64;
     const binaryString = atob(base64Data);
     const bytes = new Uint8Array(binaryString.length);
@@ -36,44 +32,23 @@ serve(async (req) => {
       bytes[i] = binaryString.charCodeAt(i);
     }
     const audioBlob = new Blob([bytes], { type: contentType || 'audio/webm' });
-    
-    const cloudinaryFormData = new FormData();
-    cloudinaryFormData.append("file", audioBlob, filename || "audio.webm");
-    cloudinaryFormData.append("upload_preset", uploadPreset);
-    cloudinaryFormData.append("resource_type", "video"); // Cloudinary uses 'video' for audio
-    cloudinaryFormData.append("folder", "transcribe-audio");
 
-    console.log("Uploading audio to Cloudinary...");
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
-      {
-        method: "POST",
-        body: cloudinaryFormData,
-      }
-    );
+    // Prepare form data for KIE.AI ElevenLabs Speech-to-Text API (batch mode)
+    // This mirrors ElevenLabs' /v1/speech-to-text multipart format
+    const formData = new FormData();
+    formData.append("file", audioBlob, filename || "audio.webm");
+    formData.append("model_id", "scribe_v1");
+    formData.append("tag_audio_events", "false");
+    formData.append("diarize", "false");
+    formData.append("language_code", "eng");
 
-    if (!cloudinaryResponse.ok) {
-      const errorText = await cloudinaryResponse.text();
-      console.error("Cloudinary upload error:", errorText);
-      throw new Error(`Failed to upload audio: ${errorText}`);
-    }
-
-    const cloudinaryData = await cloudinaryResponse.json();
-    const audioUrl = cloudinaryData.secure_url;
-    console.log("Audio uploaded to Cloudinary:", audioUrl);
-
-    // Step 2: Call KIE.AI ElevenLabs Speech-to-Text API
-    console.log("Calling KIE.AI Speech-to-Text API...");
+    console.log("Calling KIE.AI Speech-to-Text API (multipart)...");
     const sttResponse = await fetch("https://api.kie.ai/api/v1/elevenlabs/speech-to-text", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${KIE_AI_API_KEY}`,
-        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        audio_url: audioUrl,
-        language_code: "en",
-      }),
+      body: formData,
     });
 
     if (!sttResponse.ok) {
@@ -85,7 +60,7 @@ serve(async (req) => {
     const sttResult = await sttResponse.json();
     console.log("KIE.AI STT response:", JSON.stringify(sttResult).substring(0, 200));
 
-    // Extract text from response - KIE.AI may return text in different formats
+    // Extract text from response - KIE.AI/ElevenLabs may return text in different formats
     let transcribedText = "";
     if (sttResult.text) {
       transcribedText = sttResult.text;
@@ -93,7 +68,7 @@ serve(async (req) => {
       transcribedText = sttResult.data.text;
     } else if (sttResult.transcript) {
       transcribedText = sttResult.transcript;
-    } else if (typeof sttResult === 'string') {
+    } else if (typeof sttResult === "string") {
       transcribedText = sttResult;
     }
 
