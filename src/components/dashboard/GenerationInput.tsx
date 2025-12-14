@@ -99,8 +99,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Audio voiceover voice selection state
   const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('Roger');
   const [selectedVoiceoverName, setSelectedVoiceoverName] = useState<string>('Roger');
-  const [isVoiceoverPlaying, setIsVoiceoverPlaying] = useState(false);
-  const [isVoiceoverLoading, setIsVoiceoverLoading] = useState(false);
+  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
+  const [loadingVoiceId, setLoadingVoiceId] = useState<string | null>(null);
   const [isVoiceoverPopoverOpen, setIsVoiceoverPopoverOpen] = useState(false);
   const voiceoverAudioRef = useRef<HTMLAudioElement | null>(null);
   
@@ -693,10 +693,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Voice preview function for Audio Voiceover mode
   const playVoiceoverPreview = async (voiceId: string) => {
     // If clicking the same voice that's playing, stop it
-    if (isVoiceoverPlaying && voiceoverAudioRef.current) {
+    if (playingVoiceId === voiceId && voiceoverAudioRef.current) {
       voiceoverAudioRef.current.pause();
       voiceoverAudioRef.current = null;
-      setIsVoiceoverPlaying(false);
+      setPlayingVoiceId(null);
       return;
     }
 
@@ -705,8 +705,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       voiceoverAudioRef.current.pause();
       voiceoverAudioRef.current = null;
     }
-    setIsVoiceoverPlaying(false);
-    setIsVoiceoverLoading(true);
+    setPlayingVoiceId(null);
+    setLoadingVoiceId(voiceId);
 
     try {
       // Find the voice name from the voiceover library
@@ -733,17 +733,17 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         voiceoverAudioRef.current = audio;
 
         audio.onended = () => {
-          setIsVoiceoverPlaying(false);
+          setPlayingVoiceId(null);
           voiceoverAudioRef.current = null;
         };
 
         audio.onerror = () => {
-          setIsVoiceoverPlaying(false);
+          setPlayingVoiceId(null);
           voiceoverAudioRef.current = null;
         };
 
         await audio.play();
-        setIsVoiceoverPlaying(true);
+        setPlayingVoiceId(voiceId);
       }
     } catch (error) {
       console.error('Error generating voice preview:', error);
@@ -753,7 +753,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         variant: "destructive",
       });
     } finally {
-      setIsVoiceoverLoading(false);
+      setLoadingVoiceId(null);
     }
   };
   
@@ -3847,12 +3847,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               e.stopPropagation();
                               playVoiceoverPreview(voice.id);
                             }}
-                            disabled={isVoiceoverLoading}
+                            disabled={loadingVoiceId !== null}
                             className="p-1.5 rounded-full hover:bg-secondary transition"
                           >
-                            {isVoiceoverLoading ? (
+                            {loadingVoiceId === voice.id ? (
                               <Loader2 size={14} className="animate-spin text-muted-foreground" />
-                            ) : isVoiceoverPlaying && selectedVoiceoverId === voice.id ? (
+                            ) : playingVoiceId === voice.id ? (
                               <div className="w-3 h-3 rounded-sm bg-brand-red" />
                             ) : (
                               <Play size={14} className="text-brand-green" />
