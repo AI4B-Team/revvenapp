@@ -9,6 +9,7 @@ import GenerationInput from '@/components/dashboard/GenerationInput';
 import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
+import AudioCreationsGallery from '@/components/dashboard/AudioCreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import ReferencesModal from '@/components/dashboard/ReferencesModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
@@ -543,7 +544,9 @@ const Create = () => {
             {activeView === 'creations' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">CREATIONS</h2>
+                  <h2 className="text-2xl font-bold">
+                    {selectedType === 'Audio' ? 'AUDIO CREATIONS' : 'CREATIONS'}
+                  </h2>
                   <FilterToolbar 
                     zoom={zoom} 
                     onZoomChange={setZoom}
@@ -551,19 +554,23 @@ const Create = () => {
                     selectedContentType={filters.contentType}
                   />
                 </div>
-                <CreationsGallery 
-                  type="creations" 
-                  columnsPerRow={zoomLevel}
-                  filters={filters}
-                  onAnimate={(imageUrl) => {
-                    setSelectedType('Video');
-                    setExternalStartingFrame({
-                      preview: imageUrl,
-                      name: 'animated-image.jpg'
-                    });
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                />
+                {selectedType === 'Audio' ? (
+                  <AudioCreationsGallery columnsPerRow={zoomLevel} />
+                ) : (
+                  <CreationsGallery 
+                    type="creations" 
+                    columnsPerRow={zoomLevel}
+                    filters={filters}
+                    onAnimate={(imageUrl) => {
+                      setSelectedType('Video');
+                      setExternalStartingFrame({
+                        preview: imageUrl,
+                        name: 'animated-image.jpg'
+                      });
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  />
+                )}
               </div>
             )}
             
