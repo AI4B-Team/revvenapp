@@ -105,7 +105,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const voiceoverAudioRef = useRef<HTMLAudioElement | null>(null);
   
   // Audio model selection state
-  const [selectedAudioModel, setSelectedAudioModel] = useState('eleven_turbo_v2_5');
+  const [selectedAudioModel, setSelectedAudioModel] = useState('eleven_multilingual_v2');
   const [isAudioModelPopoverOpen, setIsAudioModelPopoverOpen] = useState(false);
   
   // Audio voiceover settings state
