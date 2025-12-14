@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
@@ -2124,6 +2124,43 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   {videoModeState.characters[0].name}
                 </p>
               </div>
+            )}
+
+            {/* Swap Button - Only show when both character and product are selected */}
+            {videoModeState.characters.length > 0 && ugcProductImage && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      // Swap character and product by converting product to character and vice versa
+                      const currentCharacter = videoModeState.characters[0];
+                      const currentProduct = ugcProductImage;
+                      
+                      // Set product image as character
+                      onCharactersSelect?.([{
+                        id: currentProduct.id || 'product-as-character',
+                        name: currentProduct.name || 'Product',
+                        image_url: currentProduct.url,
+                        image: currentProduct.url,
+                        bio: ''
+                      }]);
+                      
+                      // Set character as product
+                      setUgcProductImage({
+                        url: currentCharacter.image_url || currentCharacter.image,
+                        name: currentCharacter.name,
+                        id: currentCharacter.id
+                      });
+                    }}
+                    className="bg-muted hover:bg-muted/80 rounded-lg p-2 transition"
+                  >
+                    <ArrowRightLeft size={16} className="text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Swap</p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
             {/* Product Image */}
