@@ -96,6 +96,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isAudioModeDropdownOpen, setIsAudioModeDropdownOpen] = useState(false);
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
   
+  // Audio voiceover voice selection state
+  const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('CwhRBWXzGAHq8TQ4Fs17');
+  const [selectedVoiceoverName, setSelectedVoiceoverName] = useState<string>('Roger');
+  const [isVoiceoverPlaying, setIsVoiceoverPlaying] = useState(false);
+  const [isVoiceoverLoading, setIsVoiceoverLoading] = useState(false);
+  const [isVoiceoverPopoverOpen, setIsVoiceoverPopoverOpen] = useState(false);
+  const voiceoverAudioRef = useRef<HTMLAudioElement | null>(null);
+  
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
@@ -186,6 +194,28 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     { value: 'Transcribe', label: 'Transcribe', icon: Captions },
     { value: 'Sound Effects', label: 'Sound Effects', icon: AudioLines },
     { value: 'Music', label: 'Music', icon: Music },
+  ];
+  
+  // Voice library for Audio Voiceover mode
+  const voiceoverLibrary = [
+    { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger', gender: 'Male' },
+    { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', gender: 'Female' },
+    { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', gender: 'Female' },
+    { id: 'IKne3meq5aSn9XLyUdCD', name: 'Charlie', gender: 'Male' },
+    { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', gender: 'Male' },
+    { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', gender: 'Male' },
+    { id: 'SAz9YHcvj6GT2YYXdXww', name: 'River', gender: 'Neutral' },
+    { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', gender: 'Male' },
+    { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', gender: 'Female' },
+    { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', gender: 'Female' },
+    { id: 'bIHbv24MWmeRgasZH58o', name: 'Will', gender: 'Male' },
+    { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica', gender: 'Female' },
+    { id: 'cjVigY5qzO86Huf0OWal', name: 'Eric', gender: 'Male' },
+    { id: 'iP95p4xoKVk53GoZ742B', name: 'Chris', gender: 'Male' },
+    { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', gender: 'Male' },
+    { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'Male' },
+    { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female' },
+    { id: 'pqHfZKP75CvOlQylNhV4', name: 'Bill', gender: 'Male' },
   ];
   
   // Resizable prompt box (both directions)
@@ -642,6 +672,70 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       };
     });
   }, [isVideoMode, selectedCharacters, selectedReferences, selectedAnimateMode]);
+  
+  // Voice preview function for Audio Voiceover mode
+  const playVoiceoverPreview = async (voiceId: string) => {
+    // If clicking the same voice that's playing, stop it
+    if (isVoiceoverPlaying && voiceoverAudioRef.current) {
+      voiceoverAudioRef.current.pause();
+      voiceoverAudioRef.current = null;
+      setIsVoiceoverPlaying(false);
+      return;
+    }
+
+    // Stop any currently playing audio
+    if (voiceoverAudioRef.current) {
+      voiceoverAudioRef.current.pause();
+      voiceoverAudioRef.current = null;
+    }
+    setIsVoiceoverPlaying(false);
+    setIsVoiceoverLoading(true);
+
+    try {
+      const previewText = "Hello! This is a preview of my voice. I hope you like how I sound.";
+      
+      const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
+        body: {
+          text: previewText,
+          voice: voiceId,
+          stability: 0.5,
+          similarity_boost: 0.75,
+          style: 0,
+          speed: 1,
+          use_speaker_boost: true,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.audioUrl) {
+        const audio = new Audio(data.audioUrl);
+        voiceoverAudioRef.current = audio;
+
+        audio.onended = () => {
+          setIsVoiceoverPlaying(false);
+          voiceoverAudioRef.current = null;
+        };
+
+        audio.onerror = () => {
+          setIsVoiceoverPlaying(false);
+          voiceoverAudioRef.current = null;
+        };
+
+        await audio.play();
+        setIsVoiceoverPlaying(true);
+      }
+    } catch (error) {
+      console.error('Error generating voice preview:', error);
+      toast({
+        title: "Preview failed",
+        description: "Could not generate voice preview",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVoiceoverLoading(false);
+    }
+  };
   
   const handleGenerate = async () => {
     // Handle social content generation
@@ -3596,17 +3690,65 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
-                <button 
-                  onClick={onCharactersClick}
-                  className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                    selectedCharacters.length > 0 
-                      ? 'bg-pill-green text-pill-green-text' 
-                      : 'bg-pill-gray text-pill-gray-text'
-                  } hover:opacity-80`}
-                >
-                  <User size={14} />
-                  Character
-                </button>
+                <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <button 
+                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        selectedVoiceoverId 
+                          ? 'bg-pill-green text-pill-green-text' 
+                          : 'bg-pill-gray text-pill-gray-text'
+                      } hover:opacity-80`}
+                    >
+                      <Mic size={14} />
+                      {selectedVoiceoverName || 'Voice'}
+                      <ChevronDown size={14} />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
+                      {voiceoverLibrary.map((voice) => (
+                        <div 
+                          key={voice.id}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
+                            selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
+                          }`}
+                          onClick={() => {
+                            setSelectedVoiceoverId(voice.id);
+                            setSelectedVoiceoverName(voice.name);
+                            setIsVoiceoverPopoverOpen(false);
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center">
+                              <User size={14} className="text-foreground" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{voice.name}</p>
+                              <p className="text-xs text-muted-foreground">{voice.gender}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playVoiceoverPreview(voice.id);
+                            }}
+                            disabled={isVoiceoverLoading}
+                            className="p-1.5 rounded-full hover:bg-secondary transition"
+                          >
+                            {isVoiceoverLoading ? (
+                              <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                            ) : isVoiceoverPlaying && selectedVoiceoverId === voice.id ? (
+                              <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                            ) : (
+                              <Play size={14} className="text-brand-green" />
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
                 <Popover>
                   <PopoverTrigger asChild>
