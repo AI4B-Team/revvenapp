@@ -2104,28 +2104,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         {/* UGC Mode - Display Product and Character Images side by side */}
         {isVideoMode && selectedAnimateMode === 'UGC' && (ugcProductImage || videoModeState.characters.length > 0) && (
           <div className="mb-6 flex items-center gap-4 flex-wrap">
-            {/* Product Image */}
-            {ugcProductImage && (
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-brand-yellow">
-                  <img 
-                    src={ugcProductImage.url} 
-                    alt={ugcProductImage.name || "Product"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <button
-                  onClick={() => setUgcProductImage(null)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
-                >
-                  <X size={14} />
-                </button>
-                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
-                  Product
-                </p>
-              </div>
-            )}
-
             {/* Character Image */}
             {videoModeState.characters.length > 0 && (
               <div className="relative group">
@@ -2144,6 +2122,28 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </button>
                 <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
                   {videoModeState.characters[0].name}
+                </p>
+              </div>
+            )}
+
+            {/* Product Image */}
+            {ugcProductImage && (
+              <div className="relative group">
+                <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-brand-yellow">
+                  <img 
+                    src={ugcProductImage.url} 
+                    alt={ugcProductImage.name || "Product"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <button
+                  onClick={() => setUgcProductImage(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive/90"
+                >
+                  <X size={14} />
+                </button>
+                <p className="text-xs text-center mt-1 text-muted-foreground truncate max-w-[128px]">
+                  Product
                 </p>
               </div>
             )}
