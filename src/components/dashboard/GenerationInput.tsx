@@ -1215,7 +1215,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       return;
     }
 
-    // AUDIO MODE: Generate voiceover
+    // AUDIO MODE: Generate voiceover (non-blocking)
     if (isAudioMode) {
       if (!prompt.trim()) {
         toast({
@@ -1226,11 +1226,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         return;
       }
 
-      setIsGenerating(true);
       onGenerationStart?.();
+      const promptText = prompt.trim();
+      
+      // Clear prompt immediately for next generation
+      setPrompt('');
 
       try {
-        console.log("Starting audio generation...");
+        console.log("Starting async audio generation...");
         
         // Map speed setting to numeric value
         const speedMap: Record<string, number> = {
@@ -1242,10 +1245,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         };
         const speed = speedMap[voiceoverSpeed] || 1.0;
 
-        const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
+        // Call async generation - returns immediately
+        const { data, error } = await supabase.functions.invoke('generate-voiceover', {
           body: {
-            text: prompt.trim(),
+            text: promptText,
             voice: selectedVoiceoverId,
+            voiceName: selectedVoiceoverName,
             stability: 0.5,
             similarity_boost: 0.75,
             style: 0,
@@ -1256,41 +1261,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         if (error) throw error;
 
-        if (data.audioUrl) {
-          // Save to user_voices table
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) throw new Error('Not authenticated');
-
-          // Calculate approximate duration (rough estimate: 150 words per minute)
-          const wordCount = prompt.trim().split(/\s+/).length;
-          const estimatedDuration = Math.max(1, Math.round((wordCount / 150) * 60));
-
-          await supabase.from('user_voices').insert({
-            user_id: user.id,
-            name: `${selectedVoiceoverName} - ${prompt.trim().substring(0, 30)}...`,
-            duration: estimatedDuration,
-            url: data.audioUrl,
-            type: 'voiceover',
-            cloudinary_public_id: null,
-          });
-
-          toast({
-            title: "Voiceover generated!",
-            description: "Your audio has been created and saved to your library",
-          });
-          
-          // Clear prompt after successful generation
-          setPrompt('');
-        }
+        toast({
+          title: "Voiceover generating!",
+          description: "Your audio is being created and will appear in the gallery",
+        });
+        
       } catch (error: any) {
         console.error("Audio generation error:", error);
         toast({
           title: "Generation failed",
-          description: error.message || "Failed to generate audio. Please try again.",
+          description: error.message || "Failed to start audio generation. Please try again.",
           variant: "destructive",
         });
-      } finally {
-        setIsGenerating(false);
       }
       return;
     }

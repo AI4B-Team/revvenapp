@@ -317,6 +317,8 @@ export type Database = {
           duration: number
           id: string
           name: string
+          prompt: string | null
+          status: string
           type: string
           url: string
           user_id: string
@@ -327,6 +329,8 @@ export type Database = {
           duration?: number
           id?: string
           name: string
+          prompt?: string | null
+          status?: string
           type?: string
           url: string
           user_id: string
@@ -337,6 +341,8 @@ export type Database = {
           duration?: number
           id?: string
           name?: string
+          prompt?: string | null
+          status?: string
           type?: string
           url?: string
           user_id?: string
