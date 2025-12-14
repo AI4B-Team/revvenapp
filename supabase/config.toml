@@ -53,3 +53,9 @@ verify_jwt = true
 
 [functions.remove-background]
 verify_jwt = true
+
+[functions.generate-voiceover]
+verify_jwt = true
+
+[functions.transcribe-audio]
+verify_jwt = true
