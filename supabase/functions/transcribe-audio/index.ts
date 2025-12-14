@@ -108,7 +108,7 @@ serve(async (req) => {
     while (attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
       
-      const statusResponse = await fetch(`https://api.kie.ai/api/v1/jobs/task/${taskId}`, {
+      const statusResponse = await fetch(`https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${taskId}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${KIE_AI_API_KEY}`,
