@@ -58,10 +58,11 @@ serve(async (req) => {
     }
 
     const cloudinaryData = await cloudinaryResponse.json();
-    const originalUrl = cloudinaryData.secure_url;
-    // Request mp3-transcoded version from Cloudinary via URL transformation so KIE.AI gets audio/mpeg
-    const audioUrl = originalUrl.replace("/upload/", "/upload/f_mp3/");
-    console.log("Audio uploaded to Cloudinary (mp3 transform URL):", audioUrl);
+    const originalUrl: string = cloudinaryData.secure_url;
+    // Request mp3-transcoded version from Cloudinary and ensure .mp3 extension so KIE.AI accepts the type
+    const transformedUrl = originalUrl.replace("/upload/", "/upload/f_mp3/");
+    const audioUrl = transformedUrl.replace(/\.(webm|wav|ogg|mp4)$/i, ".mp3");
+    console.log("Audio uploaded to Cloudinary (mp3 URL):", audioUrl);
 
     // Step 2: Create transcription task using KIE.AI jobs API
     console.log("Creating transcription task...");
