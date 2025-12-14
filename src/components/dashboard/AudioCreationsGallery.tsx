@@ -27,6 +27,8 @@ interface AudioItem {
   created_at: string;
   cloudinary_public_id?: string | null;
   user_id?: string;
+  status?: string;
+  prompt?: string;
 }
 
 interface AudioCreationsGalleryProps {
@@ -258,47 +260,72 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
         >
           {/* Waveform/Visual Area */}
           <div 
-            className="relative h-32 bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center cursor-pointer"
-            onClick={() => handlePlay(item)}
+            className={`relative h-32 bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center ${
+              item.status === 'processing' || item.status === 'error' ? '' : 'cursor-pointer'
+            }`}
+            onClick={() => item.status !== 'processing' && item.status !== 'error' && handlePlay(item)}
           >
-            {/* Waveform visualization placeholder */}
-            <div className="flex items-center gap-0.5 h-12">
-              {Array.from({ length: 32 }).map((_, i) => (
-                <div 
-                  key={i}
-                  className={`w-1 rounded-full transition-all ${
-                    playingId === item.id 
-                      ? 'bg-brand-green animate-pulse' 
-                      : 'bg-brand-green/40'
-                  }`}
-                  style={{ 
-                    height: `${Math.random() * 100}%`,
-                    animationDelay: `${i * 50}ms`
-                  }}
-                />
-              ))}
-            </div>
+            {/* Processing state */}
+            {item.status === 'processing' ? (
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="h-10 w-10 animate-spin text-brand-green" />
+                <p className="text-sm text-muted-foreground">Generating...</p>
+              </div>
+            ) : item.status === 'error' ? (
+              <div className="flex flex-col items-center gap-2 text-destructive">
+                <Mic className="h-8 w-8" />
+                <p className="text-sm">Generation failed</p>
+              </div>
+            ) : (
+              <>
+                {/* Waveform visualization placeholder */}
+                <div className="flex items-center gap-0.5 h-12">
+                  {Array.from({ length: 32 }).map((_, i) => (
+                    <div 
+                      key={i}
+                      className={`w-1 rounded-full transition-all ${
+                        playingId === item.id 
+                          ? 'bg-brand-green animate-pulse' 
+                          : 'bg-brand-green/40'
+                      }`}
+                      style={{ 
+                        height: `${Math.random() * 100}%`,
+                        animationDelay: `${i * 50}ms`
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Play/Pause overlay */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                  <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+                    {playingId === item.id ? (
+                      <Pause className="h-5 w-5 text-brand-green" />
+                    ) : (
+                      <Play className="h-5 w-5 text-brand-green ml-0.5" />
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
             
-            {/* Play/Pause overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-              <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                {playingId === item.id ? (
-                  <Pause className="h-5 w-5 text-brand-green" />
-                ) : (
-                  <Play className="h-5 w-5 text-brand-green ml-0.5" />
-                )}
-              </button>
-            </div>
+            {/* Duration badge - only show for completed */}
+            {item.status !== 'processing' && item.status !== 'error' && (
+              <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 rounded text-white text-xs flex items-center gap-1">
+                <Clock size={10} />
+                {formatDuration(item.duration)}
+              </div>
+            )}
             
-            {/* Duration badge */}
-            <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 rounded text-white text-xs flex items-center gap-1">
-              <Clock size={10} />
-              {formatDuration(item.duration)}
-            </div>
-            
-            {/* Type badge */}
-            <div className="absolute top-2 left-2 px-2 py-0.5 bg-brand-green/80 rounded text-white text-xs capitalize">
-              {item.type || 'voiceover'}
+            {/* Status badge */}
+            <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs capitalize ${
+              item.status === 'processing' ? 'bg-amber-500' : 
+              item.status === 'error' ? 'bg-destructive' : 
+              'bg-brand-green/80'
+            }`}>
+              {item.status === 'processing' ? 'Processing' : 
+               item.status === 'error' ? 'Error' : 
+               item.type || 'voiceover'}
             </div>
           </div>
           
