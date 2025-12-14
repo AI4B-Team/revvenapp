@@ -118,6 +118,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isSpeedPopoverOpen, setIsSpeedPopoverOpen] = useState(false);
   const [isTonePopoverOpen, setIsTonePopoverOpen] = useState(false);
   
+  // Transcribe mode state
+  const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
@@ -1215,8 +1222,62 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       return;
     }
 
-    // AUDIO MODE: Generate voiceover (non-blocking)
+    // AUDIO MODE: Handle different audio modes
     if (isAudioMode) {
+      // TRANSCRIBE MODE: Transcribe audio to text
+      if (selectedAudioMode === 'Transcribe') {
+        if (!transcribeAudio) {
+          toast({
+            title: "Audio required",
+            description: "Please upload or record audio to transcribe",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setIsTranscribing(true);
+        onGenerationStart?.();
+
+        try {
+          console.log("Starting transcription...");
+          
+          const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+            body: {
+              audioBase64: transcribeAudio.base64,
+              filename: transcribeAudio.name,
+              contentType: 'audio/webm',
+            }
+          });
+
+          if (error) throw error;
+
+          if (data?.text) {
+            setPrompt(data.text);
+            toast({
+              title: "Transcription complete!",
+              description: "The text has been added to the prompt box",
+            });
+          } else {
+            throw new Error("No transcription text received");
+          }
+          
+          // Clear the audio after successful transcription
+          setTranscribeAudio(null);
+          
+        } catch (error: any) {
+          console.error("Transcription error:", error);
+          toast({
+            title: "Transcription failed",
+            description: error.message || "Failed to transcribe audio. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsTranscribing(false);
+        }
+        return;
+      }
+
+      // VOICEOVER MODE: Generate voiceover (non-blocking)
       if (!prompt.trim()) {
         toast({
           title: "Script required",
@@ -3753,210 +3814,397 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
-                      {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      <button 
-                        onClick={() => {
-                          setSelectedAudioModel('eleven_turbo_v2_5');
-                          setIsAudioModelPopoverOpen(false);
-                        }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                      >
-                        Eleven Turbo v2.5
-                        {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setSelectedAudioModel('eleven_multilingual_v2');
-                          setIsAudioModelPopoverOpen(false);
-                        }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
-                      >
-                        Eleven Multilingual v2
-                        {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
-                      </button>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        selectedVoiceoverId 
-                          ? 'bg-pill-green text-pill-green-text' 
-                          : 'bg-pill-gray text-pill-gray-text'
-                      } hover:opacity-80`}
-                    >
-                      <Mic size={14} />
-                      {selectedVoiceoverName || 'Voice'}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
-                      {voiceoverLibrary.map((voice) => (
-                        <div 
-                          key={voice.id}
-                          className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
-                            selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
-                          }`}
-                          onClick={() => {
-                            setSelectedVoiceoverId(voice.id);
-                            setSelectedVoiceoverName(voice.name);
-                            setIsVoiceoverPopoverOpen(false);
-                          }}
+                {/* Transcribe Mode Controls */}
+                {selectedAudioMode === 'Transcribe' ? (
+                  <>
+                    {/* Upload Audio Button */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button 
+                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            transcribeAudio 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center">
-                              <User size={14} className="text-foreground" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">{voice.name}</p>
-                              <p className="text-xs text-muted-foreground">{voice.gender}</p>
-                            </div>
+                          <Upload size={14} />
+                          {transcribeAudio ? transcribeAudio.name.substring(0, 15) + (transcribeAudio.name.length > 15 ? '...' : '') : 'Upload Audio'}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 bg-background border-border z-50 p-4">
+                        <div className="space-y-4">
+                          <p className="text-sm font-medium">Upload audio to transcribe</p>
+                          
+                          {/* File Upload */}
+                          <div className="space-y-2">
+                            <input
+                              type="file"
+                              accept="audio/*"
+                              id="transcribe-audio-upload"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                
+                                // Validate file size (max 25MB)
+                                if (file.size > 25 * 1024 * 1024) {
+                                  toast({
+                                    title: "File too large",
+                                    description: "Please upload an audio file smaller than 25MB",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                
+                                // Convert to base64
+                                const reader = new FileReader();
+                                reader.onload = async (event) => {
+                                  const base64 = event.target?.result as string;
+                                  
+                                  // Get audio duration
+                                  const audio = new Audio();
+                                  audio.src = URL.createObjectURL(file);
+                                  audio.onloadedmetadata = () => {
+                                    setTranscribeAudio({
+                                      name: file.name,
+                                      duration: Math.round(audio.duration),
+                                      url: URL.createObjectURL(file),
+                                      base64: base64,
+                                    });
+                                    toast({
+                                      title: "Audio uploaded",
+                                      description: `${file.name} (${Math.round(audio.duration)}s)`,
+                                    });
+                                  };
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                            <label
+                              htmlFor="transcribe-audio-upload"
+                              className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-brand-green transition"
+                            >
+                              <Upload size={18} className="text-muted-foreground" />
+                              <span className="text-sm text-muted-foreground">Click to upload audio file</span>
+                            </label>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playVoiceoverPreview(voice.id);
+                          
+                          {/* Record Button */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={async () => {
+                                if (isRecording) {
+                                  // Stop recording
+                                  if (mediaRecorderRef.current) {
+                                    mediaRecorderRef.current.stop();
+                                    setIsRecording(false);
+                                  }
+                                } else {
+                                  // Start recording
+                                  try {
+                                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                                    const mediaRecorder = new MediaRecorder(stream);
+                                    mediaRecorderRef.current = mediaRecorder;
+                                    audioChunksRef.current = [];
+                                    
+                                    mediaRecorder.ondataavailable = (event) => {
+                                      if (event.data.size > 0) {
+                                        audioChunksRef.current.push(event.data);
+                                      }
+                                    };
+                                    
+                                    mediaRecorder.onstop = () => {
+                                      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        const base64 = event.target?.result as string;
+                                        const audio = new Audio();
+                                        audio.src = URL.createObjectURL(audioBlob);
+                                        audio.onloadedmetadata = () => {
+                                          setTranscribeAudio({
+                                            name: `Recording_${Date.now()}.webm`,
+                                            duration: Math.round(audio.duration),
+                                            url: URL.createObjectURL(audioBlob),
+                                            base64: base64,
+                                          });
+                                          toast({
+                                            title: "Recording complete",
+                                            description: `Duration: ${Math.round(audio.duration)}s`,
+                                          });
+                                        };
+                                      };
+                                      reader.readAsDataURL(audioBlob);
+                                      stream.getTracks().forEach(track => track.stop());
+                                    };
+                                    
+                                    mediaRecorder.start();
+                                    setIsRecording(true);
+                                  } catch (error) {
+                                    toast({
+                                      title: "Microphone access denied",
+                                      description: "Please allow microphone access to record audio",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }
+                              }}
+                              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                                isRecording 
+                                  ? 'bg-brand-red text-white animate-pulse' 
+                                  : 'bg-secondary hover:bg-secondary/80'
+                              }`}
+                            >
+                              {isRecording ? (
+                                <>
+                                  <div className="w-2 h-2 rounded-full bg-white" />
+                                  Stop Recording
+                                </>
+                              ) : (
+                                <>
+                                  <Mic size={16} />
+                                  Record Audio
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          
+                          {/* Selected Audio Preview */}
+                          {transcribeAudio && (
+                            <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                              <div className="flex items-center gap-2">
+                                <AudioLines size={16} className="text-brand-green" />
+                                <div>
+                                  <p className="text-sm font-medium truncate max-w-[150px]">{transcribeAudio.name}</p>
+                                  <p className="text-xs text-muted-foreground">{transcribeAudio.duration}s</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => setTranscribeAudio(null)}
+                                className="p-1 hover:bg-background rounded-full transition"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Whisper Model Indicator */}
+                    <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text cursor-default">
+                      <Captions size={14} />
+                      Whisper v3
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {/* Voiceover Mode Controls */}
+                    <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                          {selectedAudioModel === 'eleven_turbo_v2_5' ? 'Eleven Turbo v2.5' : 'Eleven Multilingual v2'}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => {
+                              setSelectedAudioModel('eleven_turbo_v2_5');
+                              setIsAudioModelPopoverOpen(false);
                             }}
-                            disabled={loadingVoiceId !== null}
-                            className="p-1.5 rounded-full hover:bg-secondary transition"
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_turbo_v2_5' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
                           >
-                            {loadingVoiceId === voice.id ? (
-                              <Loader2 size={14} className="animate-spin text-muted-foreground" />
-                            ) : playingVoiceId === voice.id ? (
-                              <div className="w-3 h-3 rounded-sm bg-brand-red" />
-                            ) : (
-                              <Play size={14} className="text-brand-green" />
-                            )}
+                            Eleven Turbo v2.5
+                            {selectedAudioModel === 'eleven_turbo_v2_5' && <Check size={14} className="text-brand-green" />}
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setSelectedAudioModel('eleven_multilingual_v2');
+                              setIsAudioModelPopoverOpen(false);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${selectedAudioModel === 'eleven_multilingual_v2' ? 'bg-brand-green/10 text-foreground font-medium' : ''}`}
+                          >
+                            Eleven Multilingual v2
+                            {selectedAudioModel === 'eleven_multilingual_v2' && <Check size={14} className="text-brand-green" />}
                           </button>
                         </div>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </PopoverContent>
+                    </Popover>
 
-                <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      voiceoverLanguage !== 'English' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                    } hover:opacity-80`}>
-                      {voiceoverLanguage}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      {['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'].map((lang) => (
+                    <Popover open={isVoiceoverPopoverOpen} onOpenChange={setIsVoiceoverPopoverOpen}>
+                      <PopoverTrigger asChild>
                         <button 
-                          key={lang}
-                          onClick={() => {
-                            setVoiceoverLanguage(lang);
-                            setIsLanguagePopoverOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverLanguage === lang ? 'bg-brand-green/10 font-medium' : ''}`}
+                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            selectedVoiceoverId 
+                              ? 'bg-pill-green text-pill-green-text' 
+                              : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}
                         >
-                          {lang}
-                          {voiceoverLanguage === lang && <Check size={14} className="text-brand-green" />}
+                          <Mic size={14} />
+                          {selectedVoiceoverName || 'Voice'}
+                          <ChevronDown size={14} />
                         </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
+                          {voiceoverLibrary.map((voice) => (
+                            <div 
+                              key={voice.id}
+                              className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
+                                selectedVoiceoverId === voice.id ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-secondary'
+                              }`}
+                              onClick={() => {
+                                setSelectedVoiceoverId(voice.id);
+                                setSelectedVoiceoverName(voice.name);
+                                setIsVoiceoverPopoverOpen(false);
+                              }}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center">
+                                  <User size={14} className="text-foreground" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{voice.name}</p>
+                                  <p className="text-xs text-muted-foreground">{voice.gender}</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  playVoiceoverPreview(voice.id);
+                                }}
+                                disabled={loadingVoiceId !== null}
+                                className="p-1.5 rounded-full hover:bg-secondary transition"
+                              >
+                                {loadingVoiceId === voice.id ? (
+                                  <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                ) : playingVoiceId === voice.id ? (
+                                  <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                                ) : (
+                                  <Play size={14} className="text-brand-green" />
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
-                <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      voiceoverAccent !== 'American' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                    } hover:opacity-80`}>
-                      {voiceoverAccent}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      {['American', 'British', 'Australian', 'Irish', 'Scottish', 'Indian', 'South African', 'Neutral'].map((accent) => (
-                        <button 
-                          key={accent}
-                          onClick={() => {
-                            setVoiceoverAccent(accent);
-                            setIsAccentPopoverOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverAccent === accent ? 'bg-brand-green/10 font-medium' : ''}`}
-                        >
-                          {accent}
-                          {voiceoverAccent === accent && <Check size={14} className="text-brand-green" />}
+                    <Popover open={isLanguagePopoverOpen} onOpenChange={setIsLanguagePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          voiceoverLanguage !== 'English' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {voiceoverLanguage}
+                          <ChevronDown size={14} />
                         </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          {['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'].map((lang) => (
+                            <button 
+                              key={lang}
+                              onClick={() => {
+                                setVoiceoverLanguage(lang);
+                                setIsLanguagePopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverLanguage === lang ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {lang}
+                              {voiceoverLanguage === lang && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
-                <Popover open={isSpeedPopoverOpen} onOpenChange={setIsSpeedPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      voiceoverSpeed !== 'Normal' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                    } hover:opacity-80`}>
-                      {voiceoverSpeed}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      {['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'].map((speed) => (
-                        <button 
-                          key={speed}
-                          onClick={() => {
-                            setVoiceoverSpeed(speed);
-                            setIsSpeedPopoverOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverSpeed === speed ? 'bg-brand-green/10 font-medium' : ''}`}
-                        >
-                          {speed}
-                          {voiceoverSpeed === speed && <Check size={14} className="text-brand-green" />}
+                    <Popover open={isAccentPopoverOpen} onOpenChange={setIsAccentPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          voiceoverAccent !== 'American' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {voiceoverAccent}
+                          <ChevronDown size={14} />
                         </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          {['American', 'British', 'Australian', 'Irish', 'Scottish', 'Indian', 'South African', 'Neutral'].map((accent) => (
+                            <button 
+                              key={accent}
+                              onClick={() => {
+                                setVoiceoverAccent(accent);
+                                setIsAccentPopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverAccent === accent ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {accent}
+                              {voiceoverAccent === accent && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
-                <Popover open={isTonePopoverOpen} onOpenChange={setIsTonePopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                      voiceoverTone !== 'Neutral' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                    } hover:opacity-80`}>
-                      {voiceoverTone}
-                      <ChevronDown size={14} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-48 bg-background border-border z-50">
-                    <div className="space-y-1">
-                      {['Neutral', 'Friendly', 'Professional', 'Enthusiastic', 'Calm', 'Serious', 'Playful'].map((tone) => (
-                        <button 
-                          key={tone}
-                          onClick={() => {
-                            setVoiceoverTone(tone);
-                            setIsTonePopoverOpen(false);
-                          }}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverTone === tone ? 'bg-brand-green/10 font-medium' : ''}`}
-                        >
-                          {tone}
-                          {voiceoverTone === tone && <Check size={14} className="text-brand-green" />}
+                    <Popover open={isSpeedPopoverOpen} onOpenChange={setIsSpeedPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          voiceoverSpeed !== 'Normal' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {voiceoverSpeed}
+                          <ChevronDown size={14} />
                         </button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          {['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'].map((speed) => (
+                            <button 
+                              key={speed}
+                              onClick={() => {
+                                setVoiceoverSpeed(speed);
+                                setIsSpeedPopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverSpeed === speed ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {speed}
+                              {voiceoverSpeed === speed && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    <Popover open={isTonePopoverOpen} onOpenChange={setIsTonePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          voiceoverTone !== 'Neutral' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {voiceoverTone}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          {['Neutral', 'Friendly', 'Professional', 'Enthusiastic', 'Calm', 'Serious', 'Playful'].map((tone) => (
+                            <button 
+                              key={tone}
+                              onClick={() => {
+                                setVoiceoverTone(tone);
+                                setIsTonePopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${voiceoverTone === tone ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {tone}
+                              {voiceoverTone === tone && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </>
+                )}
 
                 <TooltipProvider>
                   <Tooltip>
@@ -5130,23 +5378,27 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <button 
                     onClick={handleGenerate}
                     disabled={
-                      isGenerating || 
-                      (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
-                        ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
-                        : isVideoMode && selectedAnimateMode === 'UGC'
-                          ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
-                          : isVideoMode && selectedAnimateMode === 'Story'
-                            ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
-                            : !prompt.trim()
+                      isGenerating || isTranscribing ||
+                      (isAudioMode && selectedAudioMode === 'Transcribe'
+                        ? !transcribeAudio
+                        : isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
+                          ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
+                          : isVideoMode && selectedAnimateMode === 'UGC'
+                            ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
+                            : isVideoMode && selectedAnimateMode === 'Story'
+                              ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
+                              : !prompt.trim()
                       )
                     }
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isGenerating ? (
+                    {isGenerating || isTranscribing ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating...
+                        {isTranscribing ? 'Transcribing...' : 'Generating...'}
                       </>
+                    ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
+                      "Transcribe"
                     ) : (
                       "Generate For Free!"
                     )}
