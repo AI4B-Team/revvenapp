@@ -371,7 +371,10 @@ const VoiceLibraryModal: React.FC<{
     setIsLoadingVoice(voiceId);
 
     try {
-      const previewText = "Hello! This is a preview of my voice. I hope you like how I sound.";
+      // Find the voice name from the voice library
+      const voice = voiceLibrary.find(v => v.id === voiceId);
+      const voiceName = voice?.name || voiceId;
+      const previewText = `Hi, I am ${voiceName}, welcome to Revven.`;
       
       const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
         body: {

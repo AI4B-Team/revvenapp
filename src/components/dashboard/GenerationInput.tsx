@@ -709,7 +709,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     setIsVoiceoverLoading(true);
 
     try {
-      const previewText = "Hello! This is a preview of my voice. I hope you like how I sound.";
+      // Find the voice name from the voiceover library
+      const voice = voiceoverLibrary.find(v => v.id === voiceId);
+      const voiceName = voice?.name || voiceId;
+      const previewText = `Hi, I am ${voiceName}, welcome to Revven.`;
       
       const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
         body: {
@@ -1204,6 +1207,86 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         toast({
           title: "Generation failed",
           description: error.message || "Failed to generate video",
+          variant: "destructive",
+        });
+      } finally {
+        setIsGenerating(false);
+      }
+      return;
+    }
+
+    // AUDIO MODE: Generate voiceover
+    if (isAudioMode) {
+      if (!prompt.trim()) {
+        toast({
+          title: "Script required",
+          description: "Please enter the text you want to convert to speech",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsGenerating(true);
+      onGenerationStart?.();
+
+      try {
+        console.log("Starting audio generation...");
+        
+        // Map speed setting to numeric value
+        const speedMap: Record<string, number> = {
+          'Very Slow': 0.7,
+          'Slow': 0.85,
+          'Normal': 1.0,
+          'Fast': 1.1,
+          'Very Fast': 1.19
+        };
+        const speed = speedMap[voiceoverSpeed] || 1.0;
+
+        const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
+          body: {
+            text: prompt.trim(),
+            voice: selectedVoiceoverId,
+            stability: 0.5,
+            similarity_boost: 0.75,
+            style: 0,
+            speed,
+            use_speaker_boost: true,
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.audioUrl) {
+          // Save to user_voices table
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error('Not authenticated');
+
+          // Calculate approximate duration (rough estimate: 150 words per minute)
+          const wordCount = prompt.trim().split(/\s+/).length;
+          const estimatedDuration = Math.max(1, Math.round((wordCount / 150) * 60));
+
+          await supabase.from('user_voices').insert({
+            user_id: user.id,
+            name: `${selectedVoiceoverName} - ${prompt.trim().substring(0, 30)}...`,
+            duration: estimatedDuration,
+            url: data.audioUrl,
+            type: 'voiceover',
+            cloudinary_public_id: null,
+          });
+
+          toast({
+            title: "Voiceover generated!",
+            description: "Your audio has been created and saved to your library",
+          });
+          
+          // Clear prompt after successful generation
+          setPrompt('');
+        }
+      } catch (error: any) {
+        console.error("Audio generation error:", error);
+        toast({
+          title: "Generation failed",
+          description: error.message || "Failed to generate audio. Please try again.",
           variant: "destructive",
         });
       } finally {
