@@ -58,9 +58,10 @@ serve(async (req) => {
     }
 
     const cloudinaryData = await cloudinaryResponse.json();
-    // Convert to mp3 format via Cloudinary URL transformation (webm not supported by KIE.AI)
-    const audioUrl = cloudinaryData.secure_url.replace(/\.(webm|wav|ogg)$/, '.mp3');
-    console.log("Audio uploaded to Cloudinary (converted to mp3):", audioUrl);
+    const originalUrl = cloudinaryData.secure_url;
+    // Request mp3-transcoded version from Cloudinary via URL transformation so KIE.AI gets audio/mpeg
+    const audioUrl = originalUrl.replace("/upload/", "/upload/f_mp3/");
+    console.log("Audio uploaded to Cloudinary (mp3 transform URL):", audioUrl);
 
     // Step 2: Create transcription task using KIE.AI jobs API
     console.log("Creating transcription task...");
@@ -91,7 +92,8 @@ serve(async (req) => {
     console.log("Task created:", JSON.stringify(createTaskResult));
 
     if (createTaskResult.code !== 200 || !createTaskResult.data?.taskId) {
-      throw new Error(`Task creation failed: ${createTaskResult.message || "Unknown error"}`);
+      const msg = createTaskResult.message || createTaskResult.msg || JSON.stringify(createTaskResult);
+      throw new Error(`Task creation failed: ${msg}`);
     }
 
     const taskId = createTaskResult.data.taskId;
