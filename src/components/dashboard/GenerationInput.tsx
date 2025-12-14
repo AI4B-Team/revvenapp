@@ -2599,21 +2599,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverTrigger>
                         <PopoverContent className="w-72 bg-background border-border z-50">
                           <div className="space-y-3">
-                            {/* Current Selection */}
-                            {ugcProductImage && (
-                              <div className="space-y-2">
-                                <p className="text-xs text-muted-foreground">Current Selection</p>
-                                <div className="relative">
-                                  <img src={ugcProductImage.url} alt="Product" className="w-full h-20 object-cover rounded-md" />
-                                  <button 
-                                    onClick={() => setUgcProductImage(null)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </div>
-                              </div>
-                            )}
                             
                             {/* Upload New */}
                             <div>
