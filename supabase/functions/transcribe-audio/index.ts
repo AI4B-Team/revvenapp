@@ -17,156 +17,62 @@ serve(async (req) => {
       throw new Error("No audio data provided");
     }
 
-    const KIE_AI_API_KEY = Deno.env.get("KIE_AI_API_KEY");
-    if (!KIE_AI_API_KEY) {
-      throw new Error("KIE_AI_API_KEY is not configured");
+    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+    if (!ELEVENLABS_API_KEY) {
+      throw new Error("ELEVENLABS_API_KEY is not configured");
     }
 
-    console.log("Transcribing audio:", filename, contentType);
+    console.log("Transcribing audio with ElevenLabs:", filename, contentType);
 
-    // Step 1: Upload audio to Cloudinary to get a URL
-    const cloudName = "dszt275xv";
-    const uploadPreset = "revven";
-    
+    // Convert base64 to binary
     const base64Data = audioBase64.split(',')[1] || audioBase64;
     const binaryString = atob(base64Data);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
-    // Use mp3 mime type for upload so KIE.AI accepts it
-    const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
     
-    const cloudinaryFormData = new FormData();
-    cloudinaryFormData.append("file", audioBlob, "audio.mp3");
-    cloudinaryFormData.append("upload_preset", uploadPreset);
-    cloudinaryFormData.append("resource_type", "video");
-    cloudinaryFormData.append("folder", "transcribe-audio");
+    // Create blob with appropriate mime type
+    const mimeType = contentType || 'audio/mpeg';
+    const audioBlob = new Blob([bytes], { type: mimeType });
+    
+    // Prepare form data for ElevenLabs
+    const formData = new FormData();
+    formData.append("file", audioBlob, filename || "audio.mp3");
+    formData.append("model_id", "scribe_v1");
+    formData.append("tag_audio_events", "false");
+    formData.append("diarize", "false");
 
-    console.log("Uploading audio to Cloudinary...");
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
-      {
-        method: "POST",
-        body: cloudinaryFormData,
-      }
-    );
-
-    if (!cloudinaryResponse.ok) {
-      const errorText = await cloudinaryResponse.text();
-      console.error("Cloudinary upload error:", errorText);
-      throw new Error(`Failed to upload audio: ${errorText}`);
-    }
-
-    const cloudinaryData = await cloudinaryResponse.json();
-    const originalUrl: string = cloudinaryData.secure_url;
-    // Use Cloudinary's on-the-fly transcoding to deliver as mp3
-    const audioUrl = originalUrl.replace("/upload/", "/upload/f_mp3/").replace(/\.\w+$/, ".mp3");
-    console.log("Audio URL for KIE.AI:", audioUrl);
-
-    // Step 2: Create transcription task using KIE.AI jobs API
-    console.log("Creating transcription task...");
-    const createTaskResponse = await fetch("https://api.kie.ai/api/v1/jobs/createTask", {
+    console.log("Sending to ElevenLabs Speech-to-Text API...");
+    
+    const response = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${KIE_AI_API_KEY}`,
-        "Content-Type": "application/json",
+        "xi-api-key": ELEVENLABS_API_KEY,
       },
-      body: JSON.stringify({
-        model: "elevenlabs/speech-to-text",
-        input: {
-          audio_url: audioUrl,
-          language_code: "eng",
-          tag_audio_events: false,
-          diarize: false,
-        },
-      }),
+      body: formData,
     });
 
-    if (!createTaskResponse.ok) {
-      const errorText = await createTaskResponse.text();
-      console.error("KIE.AI createTask error:", createTaskResponse.status, errorText);
-      throw new Error(`Failed to create transcription task: ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("ElevenLabs API error:", response.status, errorText);
+      throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
     }
 
-    const createTaskResult = await createTaskResponse.json();
-    console.log("Task created:", JSON.stringify(createTaskResult));
-
-    if (createTaskResult.code !== 200 || !createTaskResult.data?.taskId) {
-      const msg = createTaskResult.message || createTaskResult.msg || JSON.stringify(createTaskResult);
-      throw new Error(`Task creation failed: ${msg}`);
-    }
-
-    const taskId = createTaskResult.data.taskId;
-    console.log("Task ID:", taskId);
-
-    // Step 3: Poll for task completion
-    let transcribedText = "";
-    let attempts = 0;
-    const maxAttempts = 180; // wait up to 3 minutes
-    
-    while (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-      
-      const statusResponse = await fetch(`https://api.kie.ai/api/v1/jobs/recordInfo?taskId=${taskId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${KIE_AI_API_KEY}`,
-        },
-      });
-
-      if (!statusResponse.ok) {
-        console.error("Status check error:", statusResponse.status, await statusResponse.text());
-        attempts++;
-        continue;
-      }
-
-      const statusResult = await statusResponse.json();
-      console.log("Task status response:", JSON.stringify(statusResult));
-
-      if (statusResult.code && statusResult.code !== 200) {
-        const msg = statusResult.msg || statusResult.message || JSON.stringify(statusResult);
-        throw new Error(`Transcription failed: ${msg}`);
-      }
-
-      const state = statusResult.data?.state;
-      console.log("Task state:", state);
-
-      if (state === "success") {
-        // Parse the resultJson
-        const resultJson = statusResult.data.resultJson;
-        if (resultJson) {
-          try {
-            const parsed = typeof resultJson === "string" ? JSON.parse(resultJson) : resultJson;
-            transcribedText = parsed.resultObject?.text || parsed.text || "";
-            console.log("Transcription complete:", transcribedText.substring(0, 100));
-          } catch (e) {
-            console.error("Failed to parse resultJson:", e);
-            transcribedText = resultJson;
-          }
-        }
-        break;
-      } else if (state === "fail") {
-        throw new Error(`Transcription failed: ${statusResult.data.failMsg || "Unknown error"}`);
-      }
-
-      attempts++;
-    }
-
-    if (attempts >= maxAttempts) {
-      throw new Error("Transcription timed out");
-    }
+    const result = await response.json();
+    console.log("Transcription complete:", result.text?.substring(0, 100));
 
     return new Response(
       JSON.stringify({
         success: true,
-        text: transcribedText,
+        text: result.text || "",
+        words: result.words || [],
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error transcribing audio:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
