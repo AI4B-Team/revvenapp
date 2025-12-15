@@ -322,11 +322,13 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
               item.status === 'processing' ? 'bg-amber-500' : 
               item.status === 'error' ? 'bg-destructive' : 
               item.type === 'sound_effect' ? 'bg-brand-blue/80' :
+              item.type === 'music' ? 'bg-purple-500/80' :
               'bg-brand-green/80'
             }`}>
               {item.status === 'processing' ? 'Processing' : 
                item.status === 'error' ? 'Error' : 
                item.type === 'sound_effect' ? 'Sound Effect' :
+               item.type === 'music' ? 'Music' :
                item.type === 'voiceover' ? 'Voiceover' :
                item.type || 'Voiceover'}
             </div>
