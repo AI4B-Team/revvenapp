@@ -1303,56 +1303,91 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         // Clear prompt immediately for next generation
         setPrompt('');
 
-        try {
-          console.log("Starting sound effect generation...");
-          
-          const { data, error } = await supabase.functions.invoke('generate-sound-effect', {
-            body: {
-              text: promptText,
-              duration_seconds: sfxDuration,
-              loop: sfxLoop,
-              prompt_influence: sfxPromptInfluence,
-              output_format: sfxOutputFormat,
-            }
-          });
-
-          if (error) throw error;
-
-          if (data?.audioUrl) {
-            // Save to user_voices table
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              const { error: insertError } = await supabase.from('user_voices').insert({
-                user_id: user.id,
-                name: promptText.substring(0, 50) + (promptText.length > 50 ? '...' : ''),
-                url: data.audioUrl,
-                duration: sfxDuration || 5,
-                type: 'sound_effect',
-                status: 'completed',
-                prompt: promptText,
-              });
-              
-              if (insertError) {
-                console.error("Error saving sound effect:", insertError);
-              }
-            }
-            
-            toast({
-              title: "Sound effect generated!",
-              description: "Your audio is ready and saved to gallery",
-            });
-          } else {
-            throw new Error("No audio URL received");
-          }
-          
-        } catch (error: any) {
-          console.error("Sound effect generation error:", error);
+        // Get user first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
           toast({
-            title: "Generation failed",
-            description: error.message || "Failed to generate sound effect. Please try again.",
+            title: "Authentication required",
+            description: "Please log in to generate sound effects",
             variant: "destructive",
           });
+          return;
         }
+
+        // Insert processing record immediately so it appears in gallery
+        const { data: pendingRecord, error: insertError } = await supabase.from('user_voices').insert({
+          user_id: user.id,
+          name: promptText.substring(0, 50) + (promptText.length > 50 ? '...' : ''),
+          url: '',
+          duration: sfxDuration || 5,
+          type: 'sound_effect',
+          status: 'processing',
+          prompt: promptText,
+        }).select().single();
+
+        if (insertError) {
+          console.error("Error creating pending record:", insertError);
+          toast({
+            title: "Error",
+            description: "Failed to start sound effect generation",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Generate sound effect asynchronously (non-blocking)
+        (async () => {
+          try {
+            console.log("Starting sound effect generation...");
+            
+            const { data, error } = await supabase.functions.invoke('generate-sound-effect', {
+              body: {
+                text: promptText,
+                duration_seconds: sfxDuration,
+                loop: sfxLoop,
+                prompt_influence: sfxPromptInfluence,
+                output_format: sfxOutputFormat,
+              }
+            });
+
+            if (error) throw error;
+
+            if (data?.audioUrl) {
+              // Update the record with completed status and URL
+              const { error: updateError } = await supabase.from('user_voices')
+                .update({
+                  url: data.audioUrl,
+                  status: 'completed',
+                })
+                .eq('id', pendingRecord.id);
+              
+              if (updateError) {
+                console.error("Error updating sound effect:", updateError);
+              }
+              
+              toast({
+                title: "Sound effect generated!",
+                description: "Your audio is ready and saved to gallery",
+              });
+            } else {
+              throw new Error("No audio URL received");
+            }
+            
+          } catch (error: any) {
+            console.error("Sound effect generation error:", error);
+            // Update record to error status
+            await supabase.from('user_voices')
+              .update({ status: 'error' })
+              .eq('id', pendingRecord.id);
+            
+            toast({
+              title: "Generation failed",
+              description: error.message || "Failed to generate sound effect. Please try again.",
+              variant: "destructive",
+            });
+          }
+        })();
+
         return;
       }
 
