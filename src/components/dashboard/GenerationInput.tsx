@@ -1319,11 +1319,28 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           if (error) throw error;
 
           if (data?.audioUrl) {
+            // Save to user_voices table
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const { error: insertError } = await supabase.from('user_voices').insert({
+                user_id: user.id,
+                name: promptText.substring(0, 50) + (promptText.length > 50 ? '...' : ''),
+                url: data.audioUrl,
+                duration: sfxDuration || 5,
+                type: 'sound_effect',
+                status: 'completed',
+                prompt: promptText,
+              });
+              
+              if (insertError) {
+                console.error("Error saving sound effect:", insertError);
+              }
+            }
+            
             toast({
               title: "Sound effect generated!",
-              description: "Your audio is ready",
+              description: "Your audio is ready and saved to gallery",
             });
-            // TODO: Add to gallery or play
           } else {
             throw new Error("No audio URL received");
           }
