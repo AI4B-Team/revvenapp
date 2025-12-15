@@ -208,6 +208,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [clonedVoices, setClonedVoices] = useState<{ id: string; name: string; elevenlabs_voice_id: string }[]>([]);
   const [isLoadingClonedVoices, setIsLoadingClonedVoices] = useState(false);
   const [selectedClonedVoice, setSelectedClonedVoice] = useState<{ id: string; name: string; elevenlabs_voice_id: string } | null>(null);
+  const [deletingClonedVoiceId, setDeletingClonedVoiceId] = useState<string | null>(null);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -517,7 +518,39 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     fetchClonedVoices();
   }, []);
 
-  // Debug Story mode state
+  // Delete cloned voice handler
+  const handleDeleteClonedVoice = async (voiceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDeletingClonedVoiceId(voiceId);
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .delete()
+        .eq('id', voiceId);
+
+      if (error) throw error;
+      
+      setClonedVoices(prev => prev.filter(v => v.id !== voiceId));
+      if (selectedClonedVoice?.id === voiceId) {
+        setSelectedClonedVoice(null);
+      }
+      
+      toast({
+        title: "Voice deleted",
+        description: "The cloned voice has been removed.",
+      });
+    } catch (error) {
+      console.error('Error deleting cloned voice:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete the voice. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingClonedVoiceId(null);
+    }
+  };
+
   useEffect(() => {
     if (isVideoMode && selectedAnimateMode === 'Story') {
       const hasValidScene = storyScenes.some(s => s.scene.trim().length >= 10);
@@ -4762,22 +4795,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     )}
                                     <span className="text-sm font-medium">{voice.name}</span>
                                   </div>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      playVoiceoverPreview(voice.elevenlabs_voice_id);
-                                    }}
-                                    disabled={loadingVoiceId !== null}
-                                    className="p-2 rounded-full hover:bg-violet-500/20 transition"
-                                  >
-                                    {loadingVoiceId === voice.elevenlabs_voice_id ? (
-                                      <Loader2 size={14} className="animate-spin text-muted-foreground" />
-                                    ) : playingVoiceId === voice.elevenlabs_voice_id ? (
-                                      <div className="w-3 h-3 rounded-sm bg-brand-red" />
-                                    ) : (
-                                      <Play size={14} className="text-violet-500" />
-                                    )}
-                                  </button>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        playVoiceoverPreview(voice.elevenlabs_voice_id);
+                                      }}
+                                      disabled={loadingVoiceId !== null}
+                                      className="p-2 rounded-full hover:bg-violet-500/20 transition"
+                                    >
+                                      {loadingVoiceId === voice.elevenlabs_voice_id ? (
+                                        <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                      ) : playingVoiceId === voice.elevenlabs_voice_id ? (
+                                        <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                                      ) : (
+                                        <Play size={14} className="text-violet-500" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={(e) => handleDeleteClonedVoice(voice.id, e)}
+                                      disabled={deletingClonedVoiceId === voice.id}
+                                      className="p-2 rounded-full hover:bg-red-500/20 transition"
+                                    >
+                                      {deletingClonedVoiceId === voice.id ? (
+                                        <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                      ) : (
+                                        <Trash2 size={14} className="text-red-500" />
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
