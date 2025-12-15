@@ -5185,7 +5185,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                   try {
                                     const response = await supabase.functions.invoke('generate-voice-preview', {
                                       body: {
-                                        text: "Hello! This is a preview of my voice. I hope you like how I sound.",
+                                        text: `Hi, I am ${voice.name}. Welcome to Revven.`,
                                         voice: voice.id,
                                         stability: 0.5,
                                         similarity_boost: 0.75,
