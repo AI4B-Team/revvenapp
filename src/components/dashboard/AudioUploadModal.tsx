@@ -1323,6 +1323,32 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
               </div>
             ) : activeTab === 'clone' ? (
               <div className="flex flex-col">
+                {/* My Cloned Voices Section */}
+                {(() => {
+                  const clonedVoices = savedVoices.filter(v => v.type === 'cloned');
+                  if (clonedVoices.length > 0) {
+                    return (
+                      <div className="mb-6">
+                        <h3 className="text-sm font-medium text-foreground mb-3">My Cloned Voices</h3>
+                        <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                          {clonedVoices.map((voice) => (
+                            <VoiceCard
+                              key={voice.id}
+                              voice={voice}
+                              onSelect={() => handleSelectSavedVoice(voice)}
+                              onDelete={() => deleteVoice(voice.id)}
+                              isDeleting={deletingVoiceId === voice.id}
+                            />
+                          ))}
+                        </div>
+                        <div className="border-t border-border my-4" />
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                
+                {/* Clone New Voice Section */}
                 <div className="mb-4 text-center">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 rounded-full mb-3">
                     <Wand2 className="w-4 h-4 text-violet-500" />
