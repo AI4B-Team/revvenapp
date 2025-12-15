@@ -1286,6 +1286,59 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         return;
       }
 
+      // SOUND EFFECTS MODE: Generate sound effect
+      if (selectedAudioMode === 'Sound Effects') {
+        if (!prompt.trim()) {
+          toast({
+            title: "Description required",
+            description: "Please describe the sound effect you want to generate",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        onGenerationStart?.();
+        const promptText = prompt.trim();
+        
+        // Clear prompt immediately for next generation
+        setPrompt('');
+
+        try {
+          console.log("Starting sound effect generation...");
+          
+          const { data, error } = await supabase.functions.invoke('generate-sound-effect', {
+            body: {
+              text: promptText,
+              duration_seconds: sfxDuration,
+              loop: sfxLoop,
+              prompt_influence: sfxPromptInfluence,
+              output_format: sfxOutputFormat,
+            }
+          });
+
+          if (error) throw error;
+
+          if (data?.audioUrl) {
+            toast({
+              title: "Sound effect generated!",
+              description: "Your audio is ready",
+            });
+            // TODO: Add to gallery or play
+          } else {
+            throw new Error("No audio URL received");
+          }
+          
+        } catch (error: any) {
+          console.error("Sound effect generation error:", error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate sound effect. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       // VOICEOVER MODE: Generate voiceover (non-blocking)
       if (!prompt.trim()) {
         toast({
