@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.clone-voice]
 verify_jwt = true
+
+[functions.revoice-audio]
+verify_jwt = true
