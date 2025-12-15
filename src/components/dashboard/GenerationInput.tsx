@@ -2556,52 +2556,38 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             {/* Transcribe mode - Show transcription output area instead of prompt input */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
-              <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
+              <div className="w-full h-full flex flex-col p-4">
                 {prompt ? (
-                  <div className="w-full h-full overflow-auto">
-                    <p className="text-lg text-violet-400 leading-relaxed whitespace-pre-wrap text-left">{prompt}</p>
-                    <div className="flex items-center justify-center gap-2 mt-4">
-                      <TooltipProvider delayDuration={0}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(prompt);
-                                toast({
-                                  title: "Copied!",
-                                  description: "Transcribed text copied to clipboard",
-                                });
-                              }}
-                              className="p-2 rounded-md bg-secondary hover:bg-secondary/80 transition text-foreground flex items-center gap-2"
-                            >
-                              <Copy size={16} />
-                              <span className="text-sm">Copy</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Copy transcribed text</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => setPrompt('')}
-                              className="p-2 rounded-md bg-destructive/10 hover:bg-destructive/20 transition text-destructive flex items-center gap-2"
-                            >
-                              <Trash2 size={16} />
-                              <span className="text-sm">Clear</span>
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Clear transcribed text</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                  <>
+                    <div className="flex-1 overflow-auto">
+                      <p className="text-lg text-violet-400 leading-relaxed whitespace-pre-wrap text-left">{prompt}</p>
                     </div>
-                  </div>
+                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(prompt);
+                          toast({
+                            title: "Copied!",
+                            description: "Transcribed text copied to clipboard",
+                          });
+                        }}
+                        className="px-3 py-1.5 rounded-md bg-secondary hover:bg-secondary/80 transition text-foreground text-sm flex items-center gap-2"
+                      >
+                        <Copy size={14} />
+                        Copy
+                      </button>
+                      <button
+                        onClick={() => setPrompt('')}
+                        className="px-3 py-1.5 rounded-md bg-destructive/10 hover:bg-destructive/20 transition text-destructive text-sm flex items-center gap-2"
+                      >
+                        <Trash2 size={14} />
+                        Clear
+                      </button>
+                    </div>
+                  </>
                 ) : (
-                  <div className="text-muted-foreground">
-                    <Mic size={48} className="mx-auto mb-4 opacity-50" />
+                  <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground">
+                    <Mic size={48} className="mb-4 opacity-50" />
                     <p className="text-lg font-medium">Upload or record audio to transcribe</p>
                     <p className="text-sm mt-2 opacity-70">Transcribed text will appear here</p>
                   </div>
