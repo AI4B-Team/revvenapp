@@ -4604,7 +4604,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Popover>
                     )}
                   </>
-                ) : (
+                ) : selectedAudioMode === 'Clone' ? (
+                  <>
+                    {/* Clone Mode - Show button to open Audio Modal */}
+                    <button
+                      onClick={() => setIsAudioUploadModalOpen(true)}
+                      className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-violet-500 text-white hover:bg-violet-600"
+                    >
+                      <Mic size={14} />
+                      Clone Voice
+                    </button>
+                    <p className="text-sm text-muted-foreground">Click to upload a voice sample and clone it</p>
+                  </>
+                ) : selectedAudioMode === 'Voiceover' || selectedAudioMode === 'Revoice' ? (
                   <>
                     {/* Voiceover Mode Controls */}
                     <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
@@ -4812,7 +4824,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
                   </>
-                )}
+                ) : null}
 
                 <TooltipProvider>
                   <Tooltip>
