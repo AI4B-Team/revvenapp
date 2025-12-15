@@ -28,23 +28,24 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // The callback has three stages: text, first, complete
-    // We care about 'first' (first track complete) or 'complete' (all tracks complete)
-    const stage = payload.stage || payload.data?.stage;
-    const taskId = payload.taskId || payload.data?.taskId;
+    // KIE.AI music callback structure:
+    // { code: 200, msg: "...", data: { callbackType: "text|first|complete", data: [...clips], task_id: "..." } }
+    const callbackType = payload.data?.callbackType;
+    const taskId = payload.data?.task_id;
+    const clips = payload.data?.data || [];
     
-    console.log('Webhook stage:', stage, 'taskId:', taskId);
+    console.log('Callback type:', callbackType, 'taskId:', taskId);
+    console.log('Clips count:', clips.length);
 
-    // Check if we have audio URLs
-    // Music generation returns multiple clips
-    const clips = payload.data?.clips || payload.clips || [];
-    const audioUrl = clips[0]?.audioUrl || clips[0]?.audio_url;
-    const imageUrl = clips[0]?.imageUrl || clips[0]?.image_url;
-    const title = clips[0]?.title;
-    const duration = clips[0]?.duration;
+    // Find the first clip with an audio URL
+    const clipWithAudio = clips.find((c: any) => c.audio_url);
+    const audioUrl = clipWithAudio?.audio_url;
+    const imageUrl = clipWithAudio?.image_url;
+    const title = clipWithAudio?.title;
+    const duration = clipWithAudio?.duration;
 
     console.log('Audio URL:', audioUrl);
-    console.log('Clips count:', clips.length);
+    console.log('Duration:', duration);
 
     if (!recordId) {
       console.log('No recordId provided, skipping database update');
@@ -53,27 +54,32 @@ serve(async (req) => {
       });
     }
 
-    if (stage === 'complete' || stage === 'first' || audioUrl) {
-      if (audioUrl) {
-        // Update database record with completed status and URL
-        const { error: updateError } = await supabase.from('user_voices')
-          .update({
-            url: audioUrl,
-            status: 'completed',
-            duration: duration || 30,
-          })
-          .eq('id', recordId);
-
-        if (updateError) {
-          console.error('Error updating record:', updateError);
-          throw updateError;
-        }
-
-        console.log('Record updated successfully with audio URL');
-      } else {
-        console.log('Stage complete but no audio URL found');
+    // Update on 'complete' or 'first' if we have an audio URL
+    if ((callbackType === 'complete' || callbackType === 'first') && audioUrl) {
+      // Update database record with completed status and URL
+      const updateData: Record<string, any> = {
+        url: audioUrl,
+        status: 'completed',
+      };
+      
+      if (duration) {
+        updateData.duration = duration;
       }
-    } else if (stage === 'fail' || payload.status === 'failed') {
+      if (title) {
+        updateData.name = title;
+      }
+      
+      const { error: updateError } = await supabase.from('user_voices')
+        .update(updateData)
+        .eq('id', recordId);
+
+      if (updateError) {
+        console.error('Error updating record:', updateError);
+        throw updateError;
+      }
+
+      console.log('Record updated successfully with audio URL:', audioUrl);
+    } else if (payload.code !== 200 || callbackType === 'fail') {
       // Update with error status
       const { error: updateError } = await supabase.from('user_voices')
         .update({ status: 'error' })
@@ -83,6 +89,8 @@ serve(async (req) => {
         console.error('Error updating record to error status:', updateError);
       }
       console.log('Record updated with error status');
+    } else {
+      console.log('Callback type:', callbackType, '- waiting for audio URL');
     }
 
     return new Response(JSON.stringify({ success: true }), {
