@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
@@ -165,6 +165,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isLoadingRevoiceAudio, setIsLoadingRevoiceAudio] = useState(false);
   const [isRevoiceAudioPopoverOpen, setIsRevoiceAudioPopoverOpen] = useState(false);
   const [isUploadingRevoiceAudio, setIsUploadingRevoiceAudio] = useState(false);
+  const [playingRevoiceHistoryId, setPlayingRevoiceHistoryId] = useState<string | null>(null);
+  const revoiceHistoryAudioRef = useRef<HTMLAudioElement | null>(null);
   
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
@@ -638,7 +640,43 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   };
 
-  // Upload and save revoice audio to history
+  // Play/pause revoice audio from history
+  const handlePlayRevoiceHistory = (audio: { id: string; url: string; name: string }, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (playingRevoiceHistoryId === audio.id) {
+      // Stop playing
+      if (revoiceHistoryAudioRef.current) {
+        revoiceHistoryAudioRef.current.pause();
+        revoiceHistoryAudioRef.current.currentTime = 0;
+      }
+      setPlayingRevoiceHistoryId(null);
+    } else {
+      // Stop any currently playing audio
+      if (revoiceHistoryAudioRef.current) {
+        revoiceHistoryAudioRef.current.pause();
+      }
+      
+      // Play new audio
+      const audioElement = new Audio(audio.url);
+      audioElement.onended = () => {
+        setPlayingRevoiceHistoryId(null);
+        revoiceHistoryAudioRef.current = null;
+      };
+      audioElement.onerror = () => {
+        toast({
+          title: "Playback error",
+          description: "Could not play this audio file",
+          variant: "destructive",
+        });
+        setPlayingRevoiceHistoryId(null);
+        revoiceHistoryAudioRef.current = null;
+      };
+      audioElement.play();
+      revoiceHistoryAudioRef.current = audioElement;
+      setPlayingRevoiceHistoryId(audio.id);
+    }
+  };
   const handleRevoiceAudioUpload = async (file: File, duration?: number) => {
     setIsUploadingRevoiceAudio(true);
     try {
@@ -5279,7 +5317,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                     className="flex items-center justify-between p-3 rounded-lg cursor-pointer transition bg-secondary/50 hover:bg-secondary"
                                   >
                                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                                      <AudioLines size={14} className="text-brand-green flex-shrink-0" />
+                                      <button
+                                        onClick={(e) => handlePlayRevoiceHistory(audio, e)}
+                                        className="p-1.5 rounded-full bg-brand-green/20 hover:bg-brand-green/30 transition flex-shrink-0"
+                                      >
+                                        {playingRevoiceHistoryId === audio.id ? (
+                                          <Pause size={12} className="text-brand-green" />
+                                        ) : (
+                                          <Play size={12} className="text-brand-green ml-0.5" />
+                                        )}
+                                      </button>
                                       <div className="min-w-0">
                                         <p className="text-sm font-medium truncate">{audio.name}</p>
                                         {audio.duration && (
