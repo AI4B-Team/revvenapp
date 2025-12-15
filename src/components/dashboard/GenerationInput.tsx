@@ -1299,9 +1299,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         onGenerationStart?.();
         const promptText = prompt.trim();
-        
-        // Clear prompt immediately for next generation
-        setPrompt('');
 
         // Get user first
         const { data: { user } } = await supabase.auth.getUser();
