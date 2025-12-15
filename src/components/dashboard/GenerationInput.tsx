@@ -153,6 +153,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isRevoiceRecording, setIsRevoiceRecording] = useState(false);
   const revoiceMediaRecorderRef = useRef<MediaRecorder | null>(null);
   const revoiceAudioChunksRef = useRef<Blob[]>([]);
+  // Revoice voice selection state
+  const [revoiceVoiceId, setRevoiceVoiceId] = useState<string>('Roger');
+  const [revoiceVoiceName, setRevoiceVoiceName] = useState<string>('Roger');
+  const [isRevoiceVoicePopoverOpen, setIsRevoiceVoicePopoverOpen] = useState(false);
+  const [revoicePreviewLoading, setRevoicePreviewLoading] = useState<string | null>(null);
+  const [revoicePreviewPlaying, setRevoicePreviewPlaying] = useState<string | null>(null);
+  const revoicePreviewAudioRef = useRef<HTMLAudioElement | null>(null);
   
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
@@ -5109,6 +5116,117 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               {lang}
                               {revoiceTargetLanguage === lang && <Check size={14} className="text-brand-green" />}
                             </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Voice Selection with Preview */}
+                    <Popover open={isRevoiceVoicePopoverOpen} onOpenChange={setIsRevoiceVoicePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                          <User size={14} />
+                          Voice: {revoiceVoiceName}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 bg-background border-border z-50">
+                        <div className="space-y-1 max-h-72 overflow-y-auto">
+                          <p className="px-3 py-1 text-xs text-muted-foreground font-medium">Select Voice</p>
+                          {[
+                            { id: 'Roger', name: 'Roger', gender: 'Male' },
+                            { id: 'Sarah', name: 'Sarah', gender: 'Female' },
+                            { id: 'Laura', name: 'Laura', gender: 'Female' },
+                            { id: 'Charlie', name: 'Charlie', gender: 'Male' },
+                            { id: 'George', name: 'George', gender: 'Male' },
+                            { id: 'Callum', name: 'Callum', gender: 'Male' },
+                            { id: 'River', name: 'River', gender: 'Neutral' },
+                            { id: 'Liam', name: 'Liam', gender: 'Male' },
+                            { id: 'Alice', name: 'Alice', gender: 'Female' },
+                            { id: 'Matilda', name: 'Matilda', gender: 'Female' },
+                            { id: 'Jessica', name: 'Jessica', gender: 'Female' },
+                            { id: 'Eric', name: 'Eric', gender: 'Male' },
+                            { id: 'Chris', name: 'Chris', gender: 'Male' },
+                            { id: 'Brian', name: 'Brian', gender: 'Male' },
+                            { id: 'Daniel', name: 'Daniel', gender: 'Male' },
+                            { id: 'Lily', name: 'Lily', gender: 'Female' },
+                          ].map((voice) => (
+                            <div 
+                              key={voice.id}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${revoiceVoiceId === voice.id ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              <button
+                                onClick={() => {
+                                  setRevoiceVoiceId(voice.id);
+                                  setRevoiceVoiceName(voice.name);
+                                  setIsRevoiceVoicePopoverOpen(false);
+                                }}
+                                className="flex-1 text-left flex items-center gap-2"
+                              >
+                                <span>{voice.name}</span>
+                                <span className="text-xs text-muted-foreground">({voice.gender})</span>
+                                {revoiceVoiceId === voice.id && <Check size={14} className="text-brand-green ml-auto" />}
+                              </button>
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  // Stop any currently playing preview
+                                  if (revoicePreviewAudioRef.current) {
+                                    revoicePreviewAudioRef.current.pause();
+                                    revoicePreviewAudioRef.current = null;
+                                  }
+                                  
+                                  if (revoicePreviewPlaying === voice.id) {
+                                    setRevoicePreviewPlaying(null);
+                                    return;
+                                  }
+                                  
+                                  setRevoicePreviewLoading(voice.id);
+                                  try {
+                                    const response = await supabase.functions.invoke('generate-voice-preview', {
+                                      body: {
+                                        text: "Hello! This is a preview of my voice. I hope you like how I sound.",
+                                        voice: voice.id,
+                                        stability: 0.5,
+                                        similarity_boost: 0.75,
+                                      }
+                                    });
+                                    
+                                    if (response.error || !response.data?.audioUrl) {
+                                      throw new Error('Failed to generate preview');
+                                    }
+                                    
+                                    const audio = new Audio(response.data.audioUrl);
+                                    revoicePreviewAudioRef.current = audio;
+                                    audio.onended = () => {
+                                      setRevoicePreviewPlaying(null);
+                                      revoicePreviewAudioRef.current = null;
+                                    };
+                                    await audio.play();
+                                    setRevoicePreviewPlaying(voice.id);
+                                  } catch (error) {
+                                    console.error('Voice preview error:', error);
+                                    toast({
+                                      title: "Preview failed",
+                                      description: "Could not generate voice preview",
+                                      variant: "destructive",
+                                    });
+                                  } finally {
+                                    setRevoicePreviewLoading(null);
+                                  }
+                                }}
+                                className="p-1.5 rounded-full hover:bg-muted transition ml-2"
+                                disabled={revoicePreviewLoading === voice.id}
+                              >
+                                {revoicePreviewLoading === voice.id ? (
+                                  <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                ) : revoicePreviewPlaying === voice.id ? (
+                                  <X size={14} className="text-brand-red" />
+                                ) : (
+                                  <Play size={14} className="text-brand-green" />
+                                )}
+                              </button>
+                            </div>
                           ))}
                         </div>
                       </PopoverContent>
