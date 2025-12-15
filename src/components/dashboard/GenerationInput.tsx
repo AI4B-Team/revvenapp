@@ -1697,11 +1697,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
     try {
       console.log("Enhancing text...");
       
+      // Determine mode for the enhancer
+      const isMusicMode = selectedType === 'Audio' && selectedAudioMode === 'Music';
+      
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
           prompt: text.trim(),
           fast: fast,
-          maxLength: maxLength
+          maxLength: maxLength,
+          mode: isMusicMode ? 'music' : 'image'
         }
       });
 

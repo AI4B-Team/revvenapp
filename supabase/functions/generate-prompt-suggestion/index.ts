@@ -191,10 +191,42 @@ Focus on: lip-sync friendly phrasing, maintaining original meaning.`,
 
           case 'music':
             return {
-              guidance: `Create prompts for AI MUSIC generation.
-MUST include: genre, tempo (BPM), mood, instrumentation, structure.
-Focus on: specific musical elements, emotional quality, production style.`,
-              example: "Upbeat indie pop, 118 BPM, cheerful summer vibe, acoustic guitar lead with synth pads, light percussion, verse-chorus-bridge structure",
+              guidance: `Create STRUCTURED music prompts following this EXACT format:
+
+Genre: [specific genre like Pop, Rock, Jazz, EDM, Classical, etc.]
+Mood: [2-3 emotional descriptors]
+Tempo: [Slow/Medium/Fast or specific BPM]
+Instruments: [list of 3-5 instruments]
+Vocals: [Male/Female/None for instrumental]
+Language: [English or other language, skip if instrumental]
+Theme: [main lyrical theme or concept]
+Style: [production style descriptors]
+
+Lyrics (only if vocals are included):
+[Verse]
+[2-4 lines of verse lyrics]
+
+[Chorus]
+[2-4 lines of chorus lyrics]
+
+Be creative with genre combinations and themes. Include emotional depth in lyrics.`,
+              example: `Genre: Pop
+Mood: Emotional, hopeful
+Tempo: Medium
+Instruments: Piano, soft drums, ambient synth
+Vocals: Female
+Language: English
+Theme: Self-belief and new beginnings
+Style: Modern pop, cinematic
+
+Lyrics:
+[Verse]
+I was lost in the noise of yesterday
+Shadows talking, pulling me away
+
+[Chorus]
+Now I'm standing in the light I found
+Every scar turned strength somehow`,
               type: "music_audio"
             };
 
