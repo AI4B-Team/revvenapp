@@ -4658,41 +4658,64 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       Clone Voice
                     </button>
                     
-                    {/* My Cloned Voices Section */}
-                    {isLoadingClonedVoices ? (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 size={14} className="animate-spin" />
-                        Loading voices...
-                      </div>
-                    ) : clonedVoices.length > 0 ? (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-medium text-violet-500">My Cloned Voices:</span>
-                        {clonedVoices.map((voice) => (
-                          <div 
-                            key={voice.id}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30"
-                          >
-                            <Copy size={12} className="text-violet-500" />
-                            <span className="text-sm font-medium">{voice.name}</span>
-                            <button
-                              onClick={() => playVoiceoverPreview(voice.elevenlabs_voice_id)}
-                              disabled={loadingVoiceId !== null}
-                              className="p-1 rounded-full hover:bg-violet-500/20 transition"
-                            >
-                              {loadingVoiceId === voice.elevenlabs_voice_id ? (
-                                <Loader2 size={12} className="animate-spin text-muted-foreground" />
-                              ) : playingVoiceId === voice.elevenlabs_voice_id ? (
-                                <div className="w-2.5 h-2.5 rounded-sm bg-brand-red" />
-                              ) : (
-                                <Play size={12} className="text-violet-500" />
-                              )}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Click to upload a voice sample and clone it</p>
-                    )}
+                    {/* My Cloned Voices Button with Popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-violet-500/10 border border-violet-500/30 text-violet-500 hover:bg-violet-500/20">
+                          <Copy size={14} />
+                          My Cloned Voices
+                          {clonedVoices.length > 0 && (
+                            <span className="bg-violet-500 text-white text-xs px-1.5 py-0.5 rounded-full">{clonedVoices.length}</span>
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 bg-background border-border z-50 p-0">
+                        <div className="p-4 border-b border-border">
+                          <h3 className="font-semibold text-sm">My Cloned Voices</h3>
+                          <p className="text-xs text-muted-foreground mt-1">Your AI-cloned voice library</p>
+                        </div>
+                        <div className="p-3 max-h-64 overflow-y-auto">
+                          {isLoadingClonedVoices ? (
+                            <div className="flex items-center justify-center py-8">
+                              <Loader2 size={20} className="animate-spin text-muted-foreground" />
+                            </div>
+                          ) : clonedVoices.length > 0 ? (
+                            <div className="space-y-2">
+                              {clonedVoices.map((voice) => (
+                                <div 
+                                  key={voice.id}
+                                  className="flex items-center justify-between p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 hover:bg-violet-500/10 transition"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Copy size={14} className="text-violet-500" />
+                                    <span className="text-sm font-medium">{voice.name}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => playVoiceoverPreview(voice.elevenlabs_voice_id)}
+                                    disabled={loadingVoiceId !== null}
+                                    className="p-2 rounded-full hover:bg-violet-500/20 transition"
+                                  >
+                                    {loadingVoiceId === voice.elevenlabs_voice_id ? (
+                                      <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                    ) : playingVoiceId === voice.elevenlabs_voice_id ? (
+                                      <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                                    ) : (
+                                      <Play size={14} className="text-violet-500" />
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <Copy size={24} className="mx-auto text-muted-foreground mb-2" />
+                              <p className="text-sm text-muted-foreground">No cloned voices yet</p>
+                              <p className="text-xs text-muted-foreground mt-1">Clone a voice to see it here</p>
+                            </div>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </>
                 ) : selectedAudioMode === 'Voiceover' || selectedAudioMode === 'Revoice' ? (
                   <>
