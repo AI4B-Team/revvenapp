@@ -15,6 +15,9 @@ import {
   Calendar,
   ChevronDown,
   Filter,
+  Copy,
+  Upload,
+  Wand2,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -353,7 +356,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   onUseAudio,
 }) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record'>('voices');
+  const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record' | 'clone'>('voices');
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -391,6 +394,13 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordedAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Clone voice state
+  const [cloneVoiceName, setCloneVoiceName] = useState('');
+  const [cloneAudioFile, setCloneAudioFile] = useState<File | null>(null);
+  const [cloneAudioUrl, setCloneAudioUrl] = useState<string | null>(null);
+  const [isCloning, setIsCloning] = useState(false);
+  const cloneFileInputRef = useRef<HTMLInputElement>(null);
 
   // Load saved voices when modal opens
   useEffect(() => {
@@ -719,6 +729,9 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setRecordedBlob(null);
     setRecordedUrl(null);
     setActiveTab('voices');
+    setCloneVoiceName('');
+    setCloneAudioFile(null);
+    setCloneAudioUrl(null);
     
     if (recordedAudioRef.current) {
       recordedAudioRef.current.pause();
@@ -726,6 +739,110 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     }
     
     onClose();
+  };
+
+  const handleCloneFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('audio/')) {
+      setCloneAudioFile(file);
+      setCloneAudioUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleCloneVoice = async () => {
+    if (!cloneAudioFile || !cloneVoiceName.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide a name and upload an audio file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCloning(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', cloneVoiceName.trim());
+      formData.append('description', `Cloned voice - ${cloneVoiceName.trim()}`);
+      formData.append('audio', cloneAudioFile);
+
+      const { data, error } = await supabase.functions.invoke('clone-voice', {
+        body: formData,
+      });
+
+      if (error) throw error;
+      if (!data?.voice_id) throw new Error('Failed to clone voice');
+
+      console.log('Voice cloned successfully:', data);
+
+      // Upload the original audio to Cloudinary for storage
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(cloneAudioFile);
+      });
+      
+      const base64Data = await base64Promise;
+      
+      // Get audio duration
+      let duration = 0;
+      const tempAudio = new Audio(URL.createObjectURL(cloneAudioFile));
+      await new Promise<void>((resolve) => {
+        tempAudio.onloadedmetadata = () => {
+          duration = tempAudio.duration;
+          resolve();
+        };
+        tempAudio.onerror = () => resolve();
+      });
+      
+      const uploadResult = await supabase.functions.invoke('upload-audio', {
+        body: {
+          audioData: base64Data,
+          filename: `cloned_${cloneVoiceName.trim()}_${Date.now()}.mp3`,
+          contentType: cloneAudioFile.type,
+        },
+      });
+
+      if (uploadResult.error) throw uploadResult.error;
+
+      // Save to user_voices with type 'cloned'
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      await supabase
+        .from('user_voices')
+        .insert({
+          user_id: user.id,
+          name: cloneVoiceName.trim(),
+          duration: duration,
+          url: uploadResult.data?.url || cloneAudioUrl,
+          type: 'cloned',
+          cloudinary_public_id: uploadResult.data?.publicId || null,
+        });
+
+      toast({
+        title: "Voice cloned!",
+        description: `${cloneVoiceName} has been cloned and saved to My Voices.`,
+      });
+
+      // Reset and refresh
+      setCloneVoiceName('');
+      setCloneAudioFile(null);
+      setCloneAudioUrl(null);
+      setActiveTab('voices');
+      await loadSavedVoices();
+
+    } catch (error) {
+      console.error('Error cloning voice:', error);
+      toast({
+        title: "Clone failed",
+        description: error instanceof Error ? error.message : "Failed to clone voice. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCloning(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -788,6 +905,16 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
               }`}
             >
               Record
+            </button>
+            <button
+              onClick={() => setActiveTab('clone')}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                activeTab === 'clone'
+                  ? 'text-foreground border-b-2 border-violet-500'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Clone
             </button>
           </div>
 
@@ -964,7 +1091,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   className="hidden"
                 />
               </>
-            ) : (
+            ) : activeTab === 'record' ? (
               <div className="flex flex-col items-center">
                 <p className="text-sm text-muted-foreground mb-6 text-center">
                   Please record in a quiet environment. Your Avatar will perfectly match your accent, pitch, and emotions.
@@ -1039,38 +1166,148 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   )}
                 </div>
               </div>
-            )}
+            ) : activeTab === 'clone' ? (
+              <div className="flex flex-col">
+                <div className="mb-4 text-center">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 rounded-full mb-3">
+                    <Wand2 className="w-4 h-4 text-violet-500" />
+                    <span className="text-xs font-medium text-violet-500">AI Voice Cloning</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Upload a voice sample and we'll clone it using AI. The cloned voice will be saved to My Voices.
+                  </p>
+                </div>
+
+                {/* Voice Name Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Voice Name
+                  </label>
+                  <input
+                    type="text"
+                    value={cloneVoiceName}
+                    onChange={(e) => setCloneVoiceName(e.target.value)}
+                    placeholder="e.g., My Voice Clone"
+                    className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500"
+                    maxLength={50}
+                  />
+                </div>
+
+                {/* Audio Upload */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Voice Sample
+                  </label>
+                  
+                  {cloneAudioFile ? (
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl border border-border">
+                      <div className="w-10 h-10 bg-violet-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FileAudio className="w-5 h-5 text-violet-500" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{cloneAudioFile.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(cloneAudioFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCloneAudioFile(null);
+                          setCloneAudioUrl(null);
+                        }}
+                        className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => cloneFileInputRef.current?.click()}
+                      className="cursor-pointer border-2 border-dashed border-border hover:border-violet-500/50 rounded-xl p-6 flex flex-col items-center transition-colors"
+                    >
+                      <div className="w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mb-3">
+                        <Upload className="w-6 h-6 text-violet-500" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground">Upload Voice Sample</p>
+                      <p className="text-xs text-muted-foreground mt-1">MP3, WAV, WebM (5-60 seconds recommended)</p>
+                    </div>
+                  )}
+
+                  <input
+                    ref={cloneFileInputRef}
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleCloneFileChange}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Tips */}
+                <div className="bg-muted/30 rounded-lg p-3 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">Tips for best results:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    <li>Use a clear recording with minimal background noise</li>
+                    <li>Speak naturally at a consistent volume</li>
+                    <li>5-60 seconds of audio works best</li>
+                  </ul>
+                </div>
+              </div>
+            ) : null}
           </div>
 
-          {/* Footer - only show for upload/record tabs */}
-          {(activeTab === 'upload' || activeTab === 'record') && (
+          {/* Footer - show for upload/record/clone tabs */}
+          {(activeTab === 'upload' || activeTab === 'record' || activeTab === 'clone') && (
             <div className="px-6 pb-6">
-              <button
-                onClick={handleUseAudio}
-                disabled={
-                  isUploading ||
-                  isSaving ||
-                  (activeTab === 'upload' && !uploadedAudio) ||
-                  (activeTab === 'record' && !hasRecording)
-                }
-                className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                  !isUploading && !isSaving && (
-                    (activeTab === 'upload' && uploadedAudio) ||
-                    (activeTab === 'record' && hasRecording)
-                  )
-                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                }`}
-              >
-                {isUploading || isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {isSaving ? 'Saving...' : 'Uploading...'}
-                  </>
-                ) : (
-                  'Use This Audio'
-                )}
-              </button>
+              {activeTab === 'clone' ? (
+                <button
+                  onClick={handleCloneVoice}
+                  disabled={isCloning || !cloneAudioFile || !cloneVoiceName.trim()}
+                  className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                    !isCloning && cloneAudioFile && cloneVoiceName.trim()
+                      ? 'bg-violet-500 hover:bg-violet-600 text-white'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  }`}
+                >
+                  {isCloning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Cloning Voice...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      Clone Voice
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={handleUseAudio}
+                  disabled={
+                    isUploading ||
+                    isSaving ||
+                    (activeTab === 'upload' && !uploadedAudio) ||
+                    (activeTab === 'record' && !hasRecording)
+                  }
+                  className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                    !isUploading && !isSaving && (
+                      (activeTab === 'upload' && uploadedAudio) ||
+                      (activeTab === 'record' && hasRecording)
+                    )
+                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
+                  }`}
+                >
+                  {isUploading || isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {isSaving ? 'Saving...' : 'Uploading...'}
+                    </>
+                  ) : (
+                    'Use This Audio'
+                  )}
+                </button>
+              )}
             </div>
           )}
         </motion.div>
