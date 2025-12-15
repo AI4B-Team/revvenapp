@@ -6,26 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Map voice names to ElevenLabs voice IDs
-const VOICE_ID_MAP: Record<string, string> = {
-  'Roger': 'CwhRBWXzGAHq8TQ4Fs17',
-  'Sarah': 'EXAVITQu4vr4xnSDxMaL',
-  'Laura': 'FGY2WhTYpPnrIDTdsKH5',
-  'Charlie': 'IKne3meq5aSn9XLyUdCD',
-  'George': 'JBFqnCBsd6RMkjVDRZzb',
-  'Callum': 'N2lVS1w4EtoT3dr4eOWO',
-  'River': 'SAz9YHcvj6GT2YYXdXww',
-  'Liam': 'TX3LPaxmHKxFdv7VOQHJ',
-  'Alice': 'Xb7hH8MSUJpSbSDYk0k2',
-  'Matilda': 'XrExE9yKIg1WjnnlVkGX',
-  'Jessica': 'cgSgspJ2msm6clMCkdW9',
-  'Eric': 'cjVigY5qzO86Huf0OWal',
-  'Chris': 'iP95p4xoKVk53GoZ742B',
-  'Brian': 'nPczCjzI2devNBz1zQrb',
-  'Daniel': 'onwK4e9ZLuTAKqWW03F9',
-  'Lily': 'pFZP5JQG7iQjIQuC4Bku',
-};
-
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -41,7 +21,6 @@ serve(async (req) => {
     const formData = await req.formData();
     const audioFile = formData.get('audio') as File;
     const targetLanguage = formData.get('target_language') as string;
-    const voiceName = formData.get('voice_id') as string;
     const sourceLang = formData.get('source_language') as string || 'auto';
     const name = formData.get('name') as string || 'Revoiced Audio';
 
@@ -53,17 +32,11 @@ serve(async (req) => {
       throw new Error('Target language is required');
     }
 
-    // Get ElevenLabs voice ID from voice name
-    const elevenLabsVoiceId = voiceName ? VOICE_ID_MAP[voiceName] : null;
-
     console.log('Starting revoice process:', {
       targetLanguage,
-      voiceName,
-      elevenLabsVoiceId,
       sourceLang,
       fileName: audioFile.name,
       fileSize: audioFile.size,
-      useVoiceChange: !!elevenLabsVoiceId,
     });
 
     // Get user and create processing record immediately
@@ -84,12 +57,12 @@ serve(async (req) => {
         // Insert processing record immediately so it shows in gallery
         const { data: insertedRecord, error: insertError } = await supabaseClient.from('user_voices').insert({
           user_id: userData.user.id,
-          name: `${name} (${voiceName || targetLanguage})`,
+          name: `${name} (${targetLanguage})`,
           url: 'processing',
           duration: 0,
           type: 'revoice',
           status: 'processing',
-          prompt: elevenLabsVoiceId ? `Voice: ${voiceName}` : `Translating to ${targetLanguage}...`,
+          prompt: `Translating to ${targetLanguage}...`,
         }).select().single();
         
         if (insertError) {
@@ -139,133 +112,101 @@ serve(async (req) => {
       mp3Blob = new Blob([mp3Buffer], { type: 'audio/mpeg' });
     }
 
-    let finalAudioBuffer: ArrayBuffer;
+    // Use Dubbing API for translation
+    console.log('Using Dubbing API for translation to:', targetLanguage);
+    
+    const dubbingFormData = new FormData();
+    dubbingFormData.append('file', mp3Blob, 'audio.mp3');
+    dubbingFormData.append('target_lang', targetLanguage);
+    dubbingFormData.append('name', name);
+    
+    if (sourceLang !== 'auto') {
+      dubbingFormData.append('source_lang', sourceLang);
+    }
+    
+    dubbingFormData.append('highest_resolution', 'true');
+    dubbingFormData.append('drop_background_audio', 'false');
 
-    // If a voice is selected, use Speech-to-Speech API
-    if (elevenLabsVoiceId) {
-      console.log('Using Speech-to-Speech API with voice:', voiceName, elevenLabsVoiceId);
+    const dubbingResponse = await fetch('https://api.elevenlabs.io/v1/dubbing', {
+      method: 'POST',
+      headers: {
+        'xi-api-key': ELEVENLABS_API_KEY,
+      },
+      body: dubbingFormData,
+    });
+
+    if (!dubbingResponse.ok) {
+      const errorText = await dubbingResponse.text();
+      console.error('ElevenLabs dubbing API error:', dubbingResponse.status, errorText);
+      throw new Error(`Dubbing API error: ${dubbingResponse.status} - ${errorText}`);
+    }
+
+    const dubbingResult = await dubbingResponse.json();
+    console.log('Dubbing project created:', dubbingResult);
+
+    const dubbingId = dubbingResult.dubbing_id;
+    if (!dubbingId) {
+      throw new Error('No dubbing_id received from ElevenLabs');
+    }
+
+    // Poll for completion
+    let attempts = 0;
+    const maxAttempts = 60;
+    let dubbingStatus = 'dubbing';
+
+    while (dubbingStatus === 'dubbing' && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
-      const stsFormData = new FormData();
-      stsFormData.append('audio', mp3Blob, 'audio.mp3');
-      stsFormData.append('model_id', 'eleven_english_sts_v2');
-      stsFormData.append('output_format', 'mp3_44100_128');
-
-      const stsResponse = await fetch(
-        `https://api.elevenlabs.io/v1/speech-to-speech/${elevenLabsVoiceId}`,
-        {
-          method: 'POST',
-          headers: {
-            'xi-api-key': ELEVENLABS_API_KEY,
-          },
-          body: stsFormData,
-        }
-      );
-
-      if (!stsResponse.ok) {
-        const errorText = await stsResponse.text();
-        console.error('ElevenLabs STS API error:', stsResponse.status, errorText);
-        throw new Error(`Speech-to-Speech API error: ${stsResponse.status} - ${errorText}`);
-      }
-
-      finalAudioBuffer = await stsResponse.arrayBuffer();
-      console.log('Speech-to-Speech completed, audio size:', finalAudioBuffer.byteLength);
-    } else {
-      // Use Dubbing API for translation without voice change
-      console.log('Using Dubbing API for translation to:', targetLanguage);
-      
-      const dubbingFormData = new FormData();
-      dubbingFormData.append('file', mp3Blob, 'audio.mp3');
-      dubbingFormData.append('target_lang', targetLanguage);
-      dubbingFormData.append('name', name);
-      
-      if (sourceLang !== 'auto') {
-        dubbingFormData.append('source_lang', sourceLang);
-      }
-      
-      dubbingFormData.append('highest_resolution', 'true');
-      dubbingFormData.append('drop_background_audio', 'false');
-
-      const dubbingResponse = await fetch('https://api.elevenlabs.io/v1/dubbing', {
-        method: 'POST',
-        headers: {
-          'xi-api-key': ELEVENLABS_API_KEY,
-        },
-        body: dubbingFormData,
+      const statusResponse = await fetch(`https://api.elevenlabs.io/v1/dubbing/${dubbingId}`, {
+        headers: { 'xi-api-key': ELEVENLABS_API_KEY },
       });
 
-      if (!dubbingResponse.ok) {
-        const errorText = await dubbingResponse.text();
-        console.error('ElevenLabs dubbing API error:', dubbingResponse.status, errorText);
-        throw new Error(`Dubbing API error: ${dubbingResponse.status} - ${errorText}`);
+      if (!statusResponse.ok) {
+        throw new Error(`Status check failed: ${statusResponse.status}`);
       }
 
-      const dubbingResult = await dubbingResponse.json();
-      console.log('Dubbing project created:', dubbingResult);
-
-      const dubbingId = dubbingResult.dubbing_id;
-      if (!dubbingId) {
-        throw new Error('No dubbing_id received from ElevenLabs');
+      const statusResult = await statusResponse.json();
+      dubbingStatus = statusResult.status;
+      console.log(`Dubbing status (attempt ${attempts + 1}):`, dubbingStatus);
+      
+      if (statusResult.error) {
+        throw new Error(`Dubbing failed: ${statusResult.error}`);
       }
+      
+      attempts++;
+    }
 
-      // Poll for completion
-      let attempts = 0;
-      const maxAttempts = 60;
-      let dubbingStatus = 'dubbing';
+    if (dubbingStatus !== 'dubbed') {
+      throw new Error(`Dubbing did not complete in time. Status: ${dubbingStatus}`);
+    }
 
-      while (dubbingStatus === 'dubbing' && attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        
-        const statusResponse = await fetch(`https://api.elevenlabs.io/v1/dubbing/${dubbingId}`, {
-          headers: { 'xi-api-key': ELEVENLABS_API_KEY },
-        });
+    // Get the dubbed audio
+    const audioResponse = await fetch(
+      `https://api.elevenlabs.io/v1/dubbing/${dubbingId}/audio/${targetLanguage}`,
+      { headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
+    );
 
-        if (!statusResponse.ok) {
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
+    if (!audioResponse.ok) {
+      throw new Error(`Failed to download dubbed audio: ${audioResponse.status}`);
+    }
 
-        const statusResult = await statusResponse.json();
-        dubbingStatus = statusResult.status;
-        console.log(`Dubbing status (attempt ${attempts + 1}):`, dubbingStatus);
-        
-        if (statusResult.error) {
-          throw new Error(`Dubbing failed: ${statusResult.error}`);
-        }
-        
-        attempts++;
-      }
+    const finalAudioBuffer = await audioResponse.arrayBuffer();
 
-      if (dubbingStatus !== 'dubbed') {
-        throw new Error(`Dubbing did not complete in time. Status: ${dubbingStatus}`);
-      }
-
-      // Get the dubbed audio
-      const audioResponse = await fetch(
-        `https://api.elevenlabs.io/v1/dubbing/${dubbingId}/audio/${targetLanguage}`,
-        { headers: { 'xi-api-key': ELEVENLABS_API_KEY } }
-      );
-
-      if (!audioResponse.ok) {
-        throw new Error(`Failed to download dubbed audio: ${audioResponse.status}`);
-      }
-
-      finalAudioBuffer = await audioResponse.arrayBuffer();
-
-      // Delete the dubbing project
-      try {
-        await fetch(`https://api.elevenlabs.io/v1/dubbing/${dubbingId}`, {
-          method: 'DELETE',
-          headers: { 'xi-api-key': ELEVENLABS_API_KEY },
-        });
-        console.log('Dubbing project deleted');
-      } catch (deleteError) {
-        console.warn('Failed to delete dubbing project:', deleteError);
-      }
+    // Delete the dubbing project
+    try {
+      await fetch(`https://api.elevenlabs.io/v1/dubbing/${dubbingId}`, {
+        method: 'DELETE',
+        headers: { 'xi-api-key': ELEVENLABS_API_KEY },
+      });
+      console.log('Dubbing project deleted');
+    } catch (deleteError) {
+      console.warn('Failed to delete dubbing project:', deleteError);
     }
 
     // Upload final audio to Cloudinary
     const cloudinaryFormData = new FormData();
     const finalAudioBlob = new Blob([finalAudioBuffer], { type: 'audio/mpeg' });
-    cloudinaryFormData.append('file', finalAudioBlob, `revoiced-${voiceName || targetLanguage}.mp3`);
+    cloudinaryFormData.append('file', finalAudioBlob, `revoiced-${targetLanguage}.mp3`);
     cloudinaryFormData.append('upload_preset', 'revven');
     cloudinaryFormData.append('resource_type', 'video');
     cloudinaryFormData.append('folder', 'revoiced-audio');
@@ -288,7 +229,7 @@ serve(async (req) => {
         url: cloudinaryResult.secure_url,
         duration: cloudinaryResult.duration || 0,
         status: 'completed',
-        prompt: elevenLabsVoiceId ? `Voice: ${voiceName}` : `Translated to ${targetLanguage}`,
+        prompt: `Translated to ${targetLanguage}`,
         cloudinary_public_id: cloudinaryResult.public_id,
       }).eq('id', processingRecordId);
       console.log('Updated processing record to completed:', processingRecordId);
