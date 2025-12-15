@@ -150,6 +150,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isRevoicing, setIsRevoicing] = useState(false);
   const [isTargetLanguagePopoverOpen, setIsTargetLanguagePopoverOpen] = useState(false);
   const [isSourceLanguagePopoverOpen, setIsSourceLanguagePopoverOpen] = useState(false);
+  const [isRevoiceRecording, setIsRevoiceRecording] = useState(false);
+  const revoiceMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const revoiceAudioChunksRef = useRef<Blob[]>([]);
   
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
@@ -4910,9 +4913,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </>
                 ) : selectedAudioMode === 'Revoice' ? (
                   <>
-                    {/* Revoice Mode Controls - Upload audio and select target language */}
+                {/* Revoice Mode Controls - Upload audio, record, and select target language */}
                     
-                    {/* Upload Audio Button */}
+                    {/* Upload Audio or Recorded Audio Display */}
                     {revoiceAudio ? (
                       <button 
                         onClick={() => setRevoiceAudio(null)}
@@ -4923,38 +4926,125 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <X size={14} />
                       </button>
                     ) : (
-                      <label className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80 cursor-pointer">
-                        <Upload size={14} />
-                        Upload Audio
-                        <input 
-                          type="file" 
-                          accept="audio/*,video/mp4" 
-                          className="hidden" 
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              // Get audio duration
-                              const audio = new Audio();
-                              audio.src = URL.createObjectURL(file);
-                              audio.onloadedmetadata = () => {
-                                setRevoiceAudio({
-                                  name: file.name,
-                                  file: file,
-                                  duration: Math.round(audio.duration),
+                      <>
+                        {/* Upload Audio Button */}
+                        <label className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80 cursor-pointer">
+                          <Upload size={14} />
+                          Upload
+                          <input 
+                            type="file" 
+                            accept="audio/*,video/mp4" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                // Get audio duration
+                                const audio = new Audio();
+                                audio.src = URL.createObjectURL(file);
+                                audio.onloadedmetadata = () => {
+                                  setRevoiceAudio({
+                                    name: file.name,
+                                    file: file,
+                                    duration: Math.round(audio.duration),
+                                  });
+                                  URL.revokeObjectURL(audio.src);
+                                };
+                                audio.onerror = () => {
+                                  // For video files, duration might not load
+                                  setRevoiceAudio({
+                                    name: file.name,
+                                    file: file,
+                                  });
+                                };
+                              }
+                            }}
+                          />
+                        </label>
+
+                        {/* Record Voice Button */}
+                        <button
+                          onClick={async () => {
+                            if (isRevoiceRecording) {
+                              // Stop recording
+                              if (revoiceMediaRecorderRef.current) {
+                                revoiceMediaRecorderRef.current.stop();
+                                setIsRevoiceRecording(false);
+                              }
+                            } else {
+                              // Start recording
+                              try {
+                                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                                const preferredMimeType =
+                                  MediaRecorder.isTypeSupported('audio/mp4')
+                                    ? 'audio/mp4'
+                                    : MediaRecorder.isTypeSupported('audio/ogg')
+                                      ? 'audio/ogg'
+                                      : 'audio/webm';
+
+                                const mediaRecorder = new MediaRecorder(stream, { mimeType: preferredMimeType });
+                                revoiceMediaRecorderRef.current = mediaRecorder;
+                                revoiceAudioChunksRef.current = [];
+                                
+                                mediaRecorder.ondataavailable = (event) => {
+                                  if (event.data.size > 0) {
+                                    revoiceAudioChunksRef.current.push(event.data);
+                                  }
+                                };
+                                
+                                mediaRecorder.onstop = () => {
+                                  const mimeType = mediaRecorder.mimeType || preferredMimeType;
+                                  const extension = mimeType.includes('mp4')
+                                    ? 'mp4'
+                                    : mimeType.includes('ogg')
+                                      ? 'ogg'
+                                      : 'webm';
+                                  
+                                  const audioBlob = new Blob(revoiceAudioChunksRef.current, { type: mimeType });
+                                  const audioFile = new File([audioBlob], `recording.${extension}`, { type: mimeType });
+                                  
+                                  // Get duration
+                                  const audioUrl = URL.createObjectURL(audioBlob);
+                                  const audio = new Audio(audioUrl);
+                                  audio.onloadedmetadata = () => {
+                                    setRevoiceAudio({
+                                      name: `Recording (${new Date().toLocaleTimeString()})`,
+                                      file: audioFile,
+                                      duration: Math.round(audio.duration),
+                                    });
+                                    URL.revokeObjectURL(audioUrl);
+                                  };
+                                  audio.onerror = () => {
+                                    setRevoiceAudio({
+                                      name: `Recording (${new Date().toLocaleTimeString()})`,
+                                      file: audioFile,
+                                    });
+                                  };
+                                  
+                                  // Stop all tracks
+                                  stream.getTracks().forEach(track => track.stop());
+                                };
+                                
+                                mediaRecorder.start();
+                                setIsRevoiceRecording(true);
+                              } catch (error) {
+                                console.error('Error accessing microphone:', error);
+                                toast({
+                                  title: "Microphone access denied",
+                                  description: "Please allow microphone access to record audio",
+                                  variant: "destructive",
                                 });
-                                URL.revokeObjectURL(audio.src);
-                              };
-                              audio.onerror = () => {
-                                // For video files, duration might not load
-                                setRevoiceAudio({
-                                  name: file.name,
-                                  file: file,
-                                });
-                              };
+                              }
                             }
                           }}
-                        />
-                      </label>
+                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            isRevoiceRecording ? 'bg-brand-red text-white animate-pulse' : 'bg-pill-gray text-pill-gray-text hover:opacity-80'
+                          }`}
+                        >
+                          <Mic size={14} />
+                          {isRevoiceRecording ? 'Stop' : 'Record'}
+                        </button>
+                      </>
                     )}
 
                     {/* Source Language */}
