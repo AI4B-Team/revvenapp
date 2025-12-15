@@ -400,6 +400,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const [cloneAudioFile, setCloneAudioFile] = useState<File | null>(null);
   const [cloneAudioUrl, setCloneAudioUrl] = useState<string | null>(null);
   const [cloneAudioDuration, setCloneAudioDuration] = useState<number>(0);
+  const [cloneRemoveNoise, setCloneRemoveNoise] = useState(true);
   const [isCloning, setIsCloning] = useState(false);
   const [isPlayingClonePreview, setIsPlayingClonePreview] = useState(false);
   const cloneFileInputRef = useRef<HTMLInputElement>(null);
@@ -736,6 +737,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setCloneAudioFile(null);
     setCloneAudioUrl(null);
     setCloneAudioDuration(0);
+    setCloneRemoveNoise(true);
     setIsPlayingClonePreview(false);
     
     if (cloneAudioRef.current) {
@@ -813,6 +815,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
       formData.append('name', cloneVoiceName.trim());
       formData.append('description', `Cloned voice - ${cloneVoiceName.trim()}`);
       formData.append('audio', cloneAudioFile);
+      formData.append('remove_background_noise', cloneRemoveNoise ? 'true' : 'false');
 
       const { data, error } = await supabase.functions.invoke('clone-voice', {
         body: formData,
@@ -833,16 +836,8 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
       
       const base64Data = await base64Promise;
       
-      // Get audio duration
-      let duration = 0;
-      const tempAudio = new Audio(URL.createObjectURL(cloneAudioFile));
-      await new Promise<void>((resolve) => {
-        tempAudio.onloadedmetadata = () => {
-          duration = tempAudio.duration;
-          resolve();
-        };
-        tempAudio.onerror = () => resolve();
-      });
+      // Use already captured duration
+      const duration = cloneAudioDuration || 0;
       
       const uploadResult = await supabase.functions.invoke('upload-audio', {
         body: {
@@ -854,7 +849,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
 
       if (uploadResult.error) throw uploadResult.error;
 
-      // Save to user_voices with type 'cloned'
+      // Save to user_voices with type 'cloned' and ElevenLabs voice_id
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -867,7 +862,8 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
           url: uploadResult.data?.url || cloneAudioUrl,
           type: 'cloned',
           cloudinary_public_id: uploadResult.data?.publicId || null,
-        });
+          elevenlabs_voice_id: data.voice_id, // Store ElevenLabs voice ID for TTS
+        } as any);
 
       toast({
         title: "Voice cloned!",
@@ -1316,6 +1312,26 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                     onChange={handleCloneFileChange}
                     className="hidden"
                   />
+                </div>
+
+                {/* Noise Removal Toggle */}
+                <div className="mb-4 flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Remove Background Noise</p>
+                    <p className="text-xs text-muted-foreground">AI will isolate your voice from background sounds</p>
+                  </div>
+                  <button
+                    onClick={() => setCloneRemoveNoise(!cloneRemoveNoise)}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${
+                      cloneRemoveNoise ? 'bg-violet-500' : 'bg-muted-foreground/30'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        cloneRemoveNoise ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
 
                 {/* Tips */}

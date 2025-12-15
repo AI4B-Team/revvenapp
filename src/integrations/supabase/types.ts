@@ -315,6 +315,7 @@ export type Database = {
           cloudinary_public_id: string | null
           created_at: string
           duration: number
+          elevenlabs_voice_id: string | null
           id: string
           name: string
           prompt: string | null
@@ -327,6 +328,7 @@ export type Database = {
           cloudinary_public_id?: string | null
           created_at?: string
           duration?: number
+          elevenlabs_voice_id?: string | null
           id?: string
           name: string
           prompt?: string | null
@@ -339,6 +341,7 @@ export type Database = {
           cloudinary_public_id?: string | null
           created_at?: string
           duration?: number
+          elevenlabs_voice_id?: string | null
           id?: string
           name?: string
           prompt?: string | null
