@@ -934,7 +934,8 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     // Recast mode doesn't require a prompt text - only video and character image
     // Skip prompt validation for Recast, Story, and Transcribe modes
     const isTranscribeMode = isAudioMode && selectedAudioMode === 'Transcribe';
-    if (selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'Story' && !isTranscribeMode && !effectivePrompt.trim()) {
+    const isRevoiceMode = isAudioMode && selectedAudioMode === 'Revoice';
+    if (selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'Story' && !isTranscribeMode && !isRevoiceMode && !effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
         description: "Please describe what you want to create",
@@ -6658,8 +6659,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </>
                     ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
                       "Transcribe"
-                    ) : isAudioMode && selectedAudioMode === 'Revoice' ? (
-                      "Translate Audio"
                     ) : (
                       "Generate For Free!"
                     )}
