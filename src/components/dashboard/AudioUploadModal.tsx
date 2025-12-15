@@ -399,8 +399,11 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const [cloneVoiceName, setCloneVoiceName] = useState('');
   const [cloneAudioFile, setCloneAudioFile] = useState<File | null>(null);
   const [cloneAudioUrl, setCloneAudioUrl] = useState<string | null>(null);
+  const [cloneAudioDuration, setCloneAudioDuration] = useState<number>(0);
   const [isCloning, setIsCloning] = useState(false);
+  const [isPlayingClonePreview, setIsPlayingClonePreview] = useState(false);
   const cloneFileInputRef = useRef<HTMLInputElement>(null);
+  const cloneAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load saved voices when modal opens
   useEffect(() => {
@@ -732,6 +735,13 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setCloneVoiceName('');
     setCloneAudioFile(null);
     setCloneAudioUrl(null);
+    setCloneAudioDuration(0);
+    setIsPlayingClonePreview(false);
+    
+    if (cloneAudioRef.current) {
+      cloneAudioRef.current.pause();
+      cloneAudioRef.current = null;
+    }
     
     if (recordedAudioRef.current) {
       recordedAudioRef.current.pause();
@@ -741,13 +751,51 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     onClose();
   };
 
-  const handleCloneFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCloneFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('audio/')) {
+      const url = URL.createObjectURL(file);
       setCloneAudioFile(file);
-      setCloneAudioUrl(URL.createObjectURL(file));
+      setCloneAudioUrl(url);
+      
+      // Get audio duration
+      const tempAudio = new Audio(url);
+      tempAudio.onloadedmetadata = () => {
+        setCloneAudioDuration(tempAudio.duration);
+      };
     }
   };
+
+  const playClonePreview = () => {
+    if (!cloneAudioUrl) return;
+    
+    if (isPlayingClonePreview && cloneAudioRef.current) {
+      cloneAudioRef.current.pause();
+      cloneAudioRef.current.currentTime = 0;
+      setIsPlayingClonePreview(false);
+    } else {
+      cloneAudioRef.current = new Audio(cloneAudioUrl);
+      cloneAudioRef.current.onended = () => setIsPlayingClonePreview(false);
+      cloneAudioRef.current.play();
+      setIsPlayingClonePreview(true);
+    }
+  };
+
+  const stopClonePreview = () => {
+    if (cloneAudioRef.current) {
+      cloneAudioRef.current.pause();
+      cloneAudioRef.current.currentTime = 0;
+      setIsPlayingClonePreview(false);
+    }
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const isCloneDurationValid = cloneAudioDuration >= 5 && cloneAudioDuration <= 300; // 5 sec to 5 min
 
   const handleCloneVoice = async () => {
     if (!cloneAudioFile || !cloneVoiceName.trim()) {
@@ -1174,7 +1222,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                     <span className="text-xs font-medium text-violet-500">AI Voice Cloning</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Upload a voice sample and we'll clone it using AI. The cloned voice will be saved to My Voices.
+                    Upload a voice sample (1-5 minutes recommended) and we'll clone it using AI.
                   </p>
                 </div>
 
@@ -1196,29 +1244,57 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                 {/* Audio Upload */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Voice Sample
+                    Voice Sample <span className="text-muted-foreground font-normal">(1-5 minutes)</span>
                   </label>
                   
                   {cloneAudioFile ? (
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl border border-border">
-                      <div className="w-10 h-10 bg-violet-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <FileAudio className="w-5 h-5 text-violet-500" />
+                    <div className="bg-muted/50 rounded-xl border border-border overflow-hidden">
+                      {/* Audio info and controls */}
+                      <div className="flex items-center gap-3 p-3">
+                        <button
+                          onClick={playClonePreview}
+                          className="w-10 h-10 bg-violet-500 hover:bg-violet-600 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+                        >
+                          {isPlayingClonePreview ? (
+                            <Pause className="w-5 h-5 text-white" />
+                          ) : (
+                            <Play className="w-5 h-5 text-white ml-0.5" />
+                          )}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{cloneAudioFile.name}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{(cloneAudioFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                            <span>•</span>
+                            <span className={cloneAudioDuration > 0 ? (isCloneDurationValid ? 'text-emerald-500' : 'text-amber-500') : ''}>
+                              {cloneAudioDuration > 0 ? formatDuration(cloneAudioDuration) : 'Loading...'}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            stopClonePreview();
+                            setCloneAudioFile(null);
+                            setCloneAudioUrl(null);
+                            setCloneAudioDuration(0);
+                          }}
+                          className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                        </button>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{cloneAudioFile.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(cloneAudioFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setCloneAudioFile(null);
-                          setCloneAudioUrl(null);
-                        }}
-                        className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                      </button>
+                      
+                      {/* Duration warning */}
+                      {cloneAudioDuration > 0 && !isCloneDurationValid && (
+                        <div className="px-3 pb-3">
+                          <div className="flex items-center gap-2 text-xs text-amber-500 bg-amber-500/10 rounded-lg px-3 py-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            {cloneAudioDuration < 5 
+                              ? 'Audio too short. Minimum 5 seconds required for best results.'
+                              : 'Audio exceeds 5 minutes. Consider trimming for optimal cloning.'}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div
@@ -1229,7 +1305,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                         <Upload className="w-6 h-6 text-violet-500" />
                       </div>
                       <p className="text-sm font-medium text-foreground">Upload Voice Sample</p>
-                      <p className="text-xs text-muted-foreground mt-1">MP3, WAV, WebM (5-60 seconds recommended)</p>
+                      <p className="text-xs text-muted-foreground mt-1">MP3, WAV, WebM • 1-5 minutes recommended</p>
                     </div>
                   )}
 
@@ -1248,7 +1324,8 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   <ul className="list-disc list-inside space-y-0.5">
                     <li>Use a clear recording with minimal background noise</li>
                     <li>Speak naturally at a consistent volume</li>
-                    <li>5-60 seconds of audio works best</li>
+                    <li>1-5 minutes of audio works best for accurate cloning</li>
+                    <li>Avoid music or other voices in the background</li>
                   </ul>
                 </div>
               </div>
@@ -1259,27 +1336,34 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
           {(activeTab === 'upload' || activeTab === 'record' || activeTab === 'clone') && (
             <div className="px-6 pb-6">
               {activeTab === 'clone' ? (
-                <button
-                  onClick={handleCloneVoice}
-                  disabled={isCloning || !cloneAudioFile || !cloneVoiceName.trim()}
-                  className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
-                    !isCloning && cloneAudioFile && cloneVoiceName.trim()
-                      ? 'bg-violet-500 hover:bg-violet-600 text-white'
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }`}
-                >
-                  {isCloning ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Cloning Voice...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4" />
-                      Clone Voice
-                    </>
+                <>
+                  <button
+                    onClick={handleCloneVoice}
+                    disabled={isCloning || !cloneAudioFile || !cloneVoiceName.trim() || (cloneAudioDuration > 0 && cloneAudioDuration < 5)}
+                    className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                      !isCloning && cloneAudioFile && cloneVoiceName.trim() && (cloneAudioDuration === 0 || cloneAudioDuration >= 5)
+                        ? 'bg-violet-500 hover:bg-violet-600 text-white'
+                        : 'bg-muted text-muted-foreground cursor-not-allowed'
+                    }`}
+                  >
+                    {isCloning ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Cloning Voice...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-4 h-4" />
+                        Clone Voice
+                      </>
+                    )}
+                  </button>
+                  {cloneAudioDuration > 0 && cloneAudioDuration < 5 && (
+                    <p className="text-xs text-amber-500 text-center mt-2">
+                      Audio must be at least 5 seconds long
+                    </p>
                   )}
-                </button>
+                </>
               ) : (
                 <button
                   onClick={handleUseAudio}
