@@ -11,13 +11,13 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, fast = false } = await req.json();
+    const { prompt, fast = false, mode = 'image' } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
     }
 
-    console.log("Enhancing prompt:", prompt, "Fast mode:", fast);
+    console.log("Enhancing prompt:", prompt, "Fast mode:", fast, "Mode:", mode);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -26,9 +26,38 @@ serve(async (req) => {
 
     console.log("Calling Lovable AI gateway with model: google/gemini-2.5-flash");
 
-    const systemPrompt = fast
-      ? "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt."
-      : `You are a prompt enhancer for image generation. Your rules:
+    let systemPrompt: string;
+    
+    if (mode === 'music') {
+      systemPrompt = `You are a music prompt enhancer. Transform the user's music idea into a STRUCTURED format.
+
+OUTPUT FORMAT (use EXACTLY this structure):
+Genre: [specific genre]
+Mood: [2-3 emotional descriptors]
+Tempo: [Slow/Medium/Fast]
+Instruments: [list 3-5 instruments]
+Vocals: [Male/Female/None]
+Language: [English or language, skip if instrumental]
+Theme: [main theme based on user input]
+Style: [production style]
+
+Lyrics (if vocals included):
+[Verse]
+[2-4 lines]
+
+[Chorus]
+[2-4 lines]
+
+RULES:
+1. ONLY enhance what the user mentioned - don't change the core theme/subject
+2. If user mentions specific genre/mood/instruments, keep them
+3. Create lyrics that match the user's theme exactly
+4. Keep lyrics emotionally resonant and concise
+5. Return ONLY the structured format, no explanations`;
+    } else if (fast) {
+      systemPrompt = "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt.";
+    } else {
+      systemPrompt = `You are a prompt enhancer for image generation. Your rules:
 1. ONLY enhance what the user wrote - do NOT add new subjects, objects, or concepts they didn't mention
 2. Improve descriptive quality: add lighting, mood, composition, camera angle, artistic style
 3. Fix grammar and make it clearer
@@ -40,6 +69,7 @@ Example:
 Input: "a sunset on beach"
 Good: "A vibrant sunset on a sandy beach, golden and orange hues reflecting on calm waves, warm summer evening atmosphere, wide-angle composition, soft natural lighting"
 Bad: "A sunset on beach with people walking, seagulls flying, boats in distance" (adds things not mentioned)`;
+    }
 
     const requestBody = {
       model: "google/gemini-2.5-flash",
@@ -50,7 +80,9 @@ Bad: "A sunset on beach with people walking, seagulls flying, boats in distance"
         },
         {
           role: "user",
-          content: `Enhance this image generation prompt: "${prompt}"`,
+          content: mode === 'music' 
+            ? `Transform this into a structured music prompt: "${prompt}"`
+            : `Enhance this image generation prompt: "${prompt}"`,
         },
       ],
     };
