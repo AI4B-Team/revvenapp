@@ -68,3 +68,6 @@ verify_jwt = true
 
 [functions.music-webhook-callback]
 verify_jwt = false
+
+[functions.clone-voice]
+verify_jwt = true
