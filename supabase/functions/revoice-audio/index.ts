@@ -42,6 +42,40 @@ serve(async (req) => {
       fileType: audioFile.type,
     });
 
+    // Get user and create processing record immediately
+    const authHeader = req.headers.get('Authorization');
+    let supabaseClient = null;
+    let userId = null;
+    let processingRecordId = null;
+    
+    if (authHeader) {
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        userId = user.id;
+        // Insert processing record immediately so it shows in gallery
+        const { data: insertedRecord, error: insertError } = await supabaseClient.from('user_voices').insert({
+          user_id: user.id,
+          name: `${name} (${targetLanguage})`,
+          url: '', // Will be updated after completion
+          duration: 0,
+          type: 'revoice',
+          status: 'processing',
+          prompt: `Translating to ${targetLanguage}...`,
+        }).select().single();
+        
+        if (!insertError && insertedRecord) {
+          processingRecordId = insertedRecord.id;
+          console.log('Created processing record:', processingRecordId);
+        }
+      }
+    }
+
     // Upload audio to Cloudinary directly as a file blob
     const cloudinaryUploadFormData = new FormData();
     cloudinaryUploadFormData.append('file', audioFile, 'audio.mp4');
@@ -196,28 +230,16 @@ serve(async (req) => {
     const cloudinaryResult = await cloudinaryResponse.json();
     console.log('Audio uploaded to Cloudinary:', cloudinaryResult.secure_url);
 
-    // Get user and save to database
-    const authHeader = req.headers.get('Authorization');
-    if (authHeader) {
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-        { global: { headers: { Authorization: authHeader } } }
-      );
-
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        await supabaseClient.from('user_voices').insert({
-          user_id: user.id,
-          name: `${name} (${targetLanguage})`,
-          url: cloudinaryResult.secure_url,
-          duration: cloudinaryResult.duration || 0,
-          type: 'revoice',
-          status: 'completed',
-          prompt: `Translated to ${targetLanguage}`,
-          cloudinary_public_id: cloudinaryResult.public_id,
-        });
-      }
+    // Update the processing record with completed status
+    if (supabaseClient && processingRecordId) {
+      await supabaseClient.from('user_voices').update({
+        url: cloudinaryResult.secure_url,
+        duration: cloudinaryResult.duration || 0,
+        status: 'completed',
+        prompt: `Translated to ${targetLanguage}`,
+        cloudinary_public_id: cloudinaryResult.public_id,
+      }).eq('id', processingRecordId);
+      console.log('Updated processing record to completed:', processingRecordId);
     }
 
     // Delete the dubbing project to free resources
@@ -247,6 +269,33 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Revoice error:', error);
+    
+    // Try to update the processing record to error status
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader) {
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          // Find and update any recent processing revoice records
+          await supabaseClient.from('user_voices')
+            .update({ 
+              status: 'error',
+              prompt: error instanceof Error ? error.message : 'Unknown error'
+            })
+            .eq('user_id', user.id)
+            .eq('status', 'processing')
+            .eq('type', 'revoice');
+        }
+      } catch (updateError) {
+        console.error('Failed to update error status:', updateError);
+      }
+    }
+    
     return new Response(
       JSON.stringify({
         success: false,
