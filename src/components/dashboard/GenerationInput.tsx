@@ -2460,7 +2460,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     <TooltipTrigger asChild>
                       <button 
                         onClick={handleAutoPrompt}
-                        disabled={isEnhancing}
+                        disabled={isEnhancing || selectedAudioMode === 'Transcribe'}
                         className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isEnhancing ? (
@@ -5847,7 +5847,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <TooltipTrigger asChild>
                     <PopoverTrigger asChild>
                       <button 
-                        disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
+                        disabled={isEnhancing || !getCurrentTextToEnhance().text.trim() || (isAudioMode && selectedAudioMode === 'Transcribe')}
                         className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg font-medium flex items-center gap-2 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isEnhancing ? (
@@ -5869,7 +5869,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 <div className="space-y-1">
                   <button 
                     onClick={() => handleEnhancePrompt(true)}
-                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
+                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim() || (isAudioMode && selectedAudioMode === 'Transcribe')}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center gap-2">
@@ -5882,7 +5882,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </button>
                   <button 
                     onClick={() => handleEnhancePrompt(false)}
-                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim()}
+                    disabled={isEnhancing || !getCurrentTextToEnhance().text.trim() || (isAudioMode && selectedAudioMode === 'Transcribe')}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center gap-2">
