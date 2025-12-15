@@ -2556,13 +2556,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
             {/* Transcribe mode - Show transcription output area instead of prompt input */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
-              <div className="w-full h-full flex flex-col p-4">
+              <div className="w-full h-full flex flex-col p-4 min-h-[100px]">
                 {prompt ? (
                   <>
-                    <div className="flex-1 overflow-auto">
-                      <p className="text-lg text-violet-400 leading-relaxed whitespace-pre-wrap text-left">{prompt}</p>
+                    <div className="flex-1 overflow-auto min-h-[60px] mb-3">
+                      <p className="text-base text-foreground leading-relaxed whitespace-pre-wrap text-left">{prompt}</p>
                     </div>
-                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border">
+                    <div className="flex items-center gap-3 pt-3 border-t border-border shrink-0">
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(prompt);
