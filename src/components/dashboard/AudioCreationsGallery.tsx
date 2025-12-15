@@ -58,7 +58,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
         .from('user_voices')
         .select('*')
         .eq('user_id', session.session.user.id)
-        .not('type', 'in', '("uploaded","recorded")')
+        .not('type', 'in', '("uploaded","recorded","cloned")')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -84,8 +84,8 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newItem = payload.new as AudioItem;
-            // Filter out uploaded/recorded types from realtime updates
-            if (newItem.type !== 'uploaded' && newItem.type !== 'recorded') {
+            // Filter out uploaded/recorded/cloned types from realtime updates
+            if (newItem.type !== 'uploaded' && newItem.type !== 'recorded' && newItem.type !== 'cloned') {
               setAudioItems(prev => [newItem, ...prev]);
             }
           } else if (payload.eventType === 'DELETE') {
