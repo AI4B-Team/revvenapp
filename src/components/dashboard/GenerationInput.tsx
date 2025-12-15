@@ -1616,7 +1616,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
         onGenerationStart?.();
         const promptText = prompt.trim();
-        setPrompt('');
 
         try {
           console.log("Starting TTS with cloned voice:", selectedClonedVoice.name);
@@ -1673,9 +1672,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       onGenerationStart?.();
       const promptText = prompt.trim();
-      
-      // Clear prompt immediately for next generation
-      setPrompt('');
 
       try {
         console.log("Starting async audio generation...");
