@@ -56,6 +56,7 @@ interface AudioUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUseAudio: (audio: AudioFile) => void;
+  mode?: 'all' | 'clone'; // 'clone' shows only Clone tab
 }
 
 // Filter options
@@ -354,9 +355,10 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   isOpen,
   onClose,
   onUseAudio,
+  mode = 'all',
 }) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record' | 'clone'>('voices');
+  const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record' | 'clone'>(mode === 'clone' ? 'clone' : 'voices');
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -1027,36 +1029,40 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
 
           {/* Tabs */}
           <div className="flex border-b border-border">
-            <button
-              onClick={() => setActiveTab('voices')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                activeTab === 'voices'
-                  ? 'text-foreground border-b-2 border-emerald-500'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              My Voices
-            </button>
-            <button
-              onClick={() => setActiveTab('upload')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                activeTab === 'upload'
-                  ? 'text-foreground border-b-2 border-emerald-500'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Upload
-            </button>
-            <button
-              onClick={() => setActiveTab('record')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                activeTab === 'record'
-                  ? 'text-foreground border-b-2 border-emerald-500'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Record
-            </button>
+            {mode !== 'clone' && (
+              <>
+                <button
+                  onClick={() => setActiveTab('voices')}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'voices'
+                      ? 'text-foreground border-b-2 border-emerald-500'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  My Voices
+                </button>
+                <button
+                  onClick={() => setActiveTab('upload')}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'upload'
+                      ? 'text-foreground border-b-2 border-emerald-500'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Upload
+                </button>
+                <button
+                  onClick={() => setActiveTab('record')}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeTab === 'record'
+                      ? 'text-foreground border-b-2 border-emerald-500'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Record
+                </button>
+              </>
+            )}
             <button
               onClick={() => setActiveTab('clone')}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
