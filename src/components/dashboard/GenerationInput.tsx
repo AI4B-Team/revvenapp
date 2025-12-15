@@ -6309,6 +6309,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           setUploadedAudio(audio);
           setIsAudioUploadModalOpen(false);
         }}
+        mode={selectedAudioMode === 'Clone' ? 'clone' : 'all'}
       />
 
       {/* Video-To-Video Modal */}
