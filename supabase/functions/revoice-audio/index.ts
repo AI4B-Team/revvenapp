@@ -42,8 +42,7 @@ serve(async (req) => {
       fileType: audioFile.type,
     });
 
-    // Convert audio to a supported format (MP3) using Cloudinary
-    // First upload to Cloudinary which will handle format conversion
+    // Upload audio to Cloudinary first (without format conversion - unsigned uploads don't allow it)
     const audioBuffer = await audioFile.arrayBuffer();
     const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
     
@@ -52,7 +51,6 @@ serve(async (req) => {
     cloudinaryUploadFormData.append('upload_preset', 'revven');
     cloudinaryUploadFormData.append('resource_type', 'video');
     cloudinaryUploadFormData.append('folder', 'temp-audio');
-    cloudinaryUploadFormData.append('format', 'mp3'); // Convert to MP3
     
     const cloudinaryUploadResponse = await fetch('https://api.cloudinary.com/v1_1/dszt275xv/video/upload', {
       method: 'POST',
@@ -62,19 +60,33 @@ serve(async (req) => {
     if (!cloudinaryUploadResponse.ok) {
       const errorText = await cloudinaryUploadResponse.text();
       console.error('Cloudinary temp upload error:', cloudinaryUploadResponse.status, errorText);
-      throw new Error(`Failed to convert audio format: ${cloudinaryUploadResponse.status}`);
+      throw new Error(`Failed to upload audio: ${cloudinaryUploadResponse.status}`);
     }
 
     const cloudinaryUploadResult = await cloudinaryUploadResponse.json();
-    console.log('Audio converted to MP3:', cloudinaryUploadResult.secure_url);
+    console.log('Audio uploaded to Cloudinary:', cloudinaryUploadResult.secure_url);
+
+    // Use Cloudinary URL transformation to convert to MP3
+    // Replace the file extension with .mp3 in the URL
+    const originalUrl = cloudinaryUploadResult.secure_url as string;
+    const mp3Url = originalUrl.replace(/\.[^/.]+$/, '.mp3');
+    console.log('Converting to MP3 via URL transformation:', mp3Url);
 
     // Download the converted MP3 from Cloudinary
-    const mp3Response = await fetch(cloudinaryUploadResult.secure_url);
+    const mp3Response = await fetch(mp3Url);
     if (!mp3Response.ok) {
-      throw new Error('Failed to download converted audio');
+      console.error('MP3 conversion failed, trying original file');
+      // If MP3 conversion fails, try using the original file
+      const originalResponse = await fetch(originalUrl);
+      if (!originalResponse.ok) {
+        throw new Error('Failed to download audio');
+      }
+      const originalBuffer = await originalResponse.arrayBuffer();
+      var mp3Blob = new Blob([originalBuffer], { type: 'audio/mpeg' });
+    } else {
+      const mp3Buffer = await mp3Response.arrayBuffer();
+      var mp3Blob = new Blob([mp3Buffer], { type: 'audio/mpeg' });
     }
-    const mp3Buffer = await mp3Response.arrayBuffer();
-    const mp3Blob = new Blob([mp3Buffer], { type: 'audio/mpeg' });
 
     // Create dubbing project using ElevenLabs Dubbing API with converted MP3
     const dubbingFormData = new FormData();
