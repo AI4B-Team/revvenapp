@@ -1738,6 +1738,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           formData.append('target_language', revoiceTargetLanguage.toLowerCase().slice(0, 2)); // Convert to ISO code
           formData.append('source_language', revoiceSourceLanguage === 'auto' ? 'auto' : revoiceSourceLanguage.toLowerCase().slice(0, 2));
           formData.append('name', revoiceAudio.name.replace(/\.[^/.]+$/, '')); // Remove extension
+          formData.append('voice_id', revoiceVoiceId); // Pass selected voice ID
 
           // Get user session for auth
           const { data: { session } } = await supabase.auth.getSession();
