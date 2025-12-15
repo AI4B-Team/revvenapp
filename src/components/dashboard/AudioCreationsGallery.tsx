@@ -331,6 +331,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
               item.type === 'recorded' ? 'bg-orange-500/80' :
               item.type === 'uploaded' ? 'bg-cyan-500/80' :
               item.type === 'transcription' ? 'bg-violet-500/80' :
+              item.type === 'revoice' ? 'bg-rose-500/80' :
               'bg-brand-green/80'
             }`}>
               {item.status === 'processing' ? 'Processing' : 
@@ -341,6 +342,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
                item.type === 'recorded' ? 'Recorded' :
                item.type === 'uploaded' ? 'Uploaded' :
                item.type === 'transcription' ? 'Transcription' :
+               item.type === 'revoice' ? 'Revoice' :
                item.type || 'Voiceover'}
             </div>
           </div>
