@@ -843,7 +843,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
     
     // Recast mode doesn't require a prompt text - only video and character image
-    if (selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'Story' && !effectivePrompt.trim()) {
+    // Skip prompt validation for Recast, Story, and Transcribe modes
+    const isTranscribeMode = isAudioMode && selectedAudioMode === 'Transcribe';
+    if (selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'Story' && !isTranscribeMode && !effectivePrompt.trim()) {
       toast({
         title: "Prompt required",
         description: "Please describe what you want to create",
