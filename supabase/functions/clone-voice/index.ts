@@ -22,20 +22,35 @@ serve(async (req) => {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string || '';
     const audioFile = formData.get('audio') as File;
+    const removeBackgroundNoise = formData.get('remove_background_noise') === 'true';
 
     if (!name || !audioFile) {
       throw new Error('Name and audio file are required');
     }
 
-    console.log('Cloning voice:', { name, description, audioFileName: audioFile.name });
+    console.log('Cloning voice:', { 
+      name, 
+      description, 
+      audioFileName: audioFile.name,
+      audioSize: audioFile.size,
+      removeBackgroundNoise 
+    });
 
     // Prepare form data for ElevenLabs
+    // API: POST https://api.elevenlabs.io/v1/voices/add
+    // Required: name, files (audio samples 1-5 minutes recommended)
+    // Optional: description, remove_background_noise
     const elevenLabsFormData = new FormData();
     elevenLabsFormData.append('name', name);
     elevenLabsFormData.append('description', description);
     elevenLabsFormData.append('files', audioFile);
+    
+    // Enable background noise removal for cleaner voice cloning
+    if (removeBackgroundNoise) {
+      elevenLabsFormData.append('remove_background_noise', 'true');
+    }
 
-    // Call ElevenLabs voice cloning API
+    // Call ElevenLabs voice cloning API (Instant Voice Clone)
     const response = await fetch('https://api.elevenlabs.io/v1/voices/add', {
       method: 'POST',
       headers: {
@@ -47,7 +62,21 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('ElevenLabs API error:', response.status, errorText);
-      throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+      
+      // Parse error for better user feedback
+      let userMessage = 'Failed to clone voice';
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.detail?.message) {
+          userMessage = errorData.detail.message;
+        } else if (errorData.detail) {
+          userMessage = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+        }
+      } catch {
+        userMessage = `ElevenLabs error: ${response.status}`;
+      }
+      
+      throw new Error(userMessage);
     }
 
     const result = await response.json();
