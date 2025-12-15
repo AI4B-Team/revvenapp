@@ -207,6 +207,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Cloned voices for voiceover
   const [clonedVoices, setClonedVoices] = useState<{ id: string; name: string; elevenlabs_voice_id: string }[]>([]);
   const [isLoadingClonedVoices, setIsLoadingClonedVoices] = useState(false);
+  const [selectedClonedVoice, setSelectedClonedVoice] = useState<{ id: string; name: string; elevenlabs_voice_id: string } | null>(null);
   
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
@@ -1593,9 +1594,70 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         return;
       }
 
-      // CLONE MODE: Open modal instead of generating
+      // CLONE MODE: Generate TTS using selected cloned voice
       if (selectedAudioMode === 'Clone') {
-        setIsAudioUploadModalOpen(true);
+        if (!selectedClonedVoice) {
+          toast({
+            title: "Voice required",
+            description: "Please select a cloned voice from My Cloned Voices",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        if (!prompt.trim()) {
+          toast({
+            title: "Script required",
+            description: "Please enter the text you want to convert to speech",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        onGenerationStart?.();
+        const promptText = prompt.trim();
+        setPrompt('');
+
+        try {
+          console.log("Starting TTS with cloned voice:", selectedClonedVoice.name);
+          
+          const speedMap: Record<string, number> = {
+            'Very Slow': 0.7,
+            'Slow': 0.85,
+            'Normal': 1.0,
+            'Fast': 1.1,
+            'Very Fast': 1.19
+          };
+          const speed = speedMap[voiceoverSpeed] || 1.0;
+
+          const { data, error } = await supabase.functions.invoke('generate-voiceover', {
+            body: {
+              text: promptText,
+              voice: selectedClonedVoice.elevenlabs_voice_id,
+              voiceName: selectedClonedVoice.name,
+              stability: 0.5,
+              similarity_boost: 0.75,
+              style: 0,
+              speed,
+              use_speaker_boost: true,
+            }
+          });
+
+          if (error) throw error;
+
+          toast({
+            title: "Voiceover generating!",
+            description: `Using your cloned voice "${selectedClonedVoice.name}"`,
+          });
+          
+        } catch (error: any) {
+          console.error("Clone voice TTS error:", error);
+          toast({
+            title: "Generation failed",
+            description: error.message || "Failed to generate audio. Please try again.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -4658,21 +4720,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       Clone Voice
                     </button>
                     
-                    {/* My Cloned Voices Button with Popover */}
+                    {/* My Cloned Voices Button with Popover - for selection */}
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-violet-500/10 border border-violet-500/30 text-violet-500 hover:bg-violet-500/20">
+                        <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
+                          selectedClonedVoice 
+                            ? 'bg-violet-500 text-white' 
+                            : 'bg-violet-500/10 border border-violet-500/30 text-violet-500 hover:bg-violet-500/20'
+                        }`}>
                           <Copy size={14} />
-                          My Cloned Voices
-                          {clonedVoices.length > 0 && (
+                          {selectedClonedVoice ? selectedClonedVoice.name : 'Select Voice'}
+                          {!selectedClonedVoice && clonedVoices.length > 0 && (
                             <span className="bg-violet-500 text-white text-xs px-1.5 py-0.5 rounded-full">{clonedVoices.length}</span>
                           )}
+                          <ChevronDown size={14} />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-80 bg-background border-border z-50 p-0">
                         <div className="p-4 border-b border-border">
                           <h3 className="font-semibold text-sm">My Cloned Voices</h3>
-                          <p className="text-xs text-muted-foreground mt-1">Your AI-cloned voice library</p>
+                          <p className="text-xs text-muted-foreground mt-1">Select a voice for TTS generation</p>
                         </div>
                         <div className="p-3 max-h-64 overflow-y-auto">
                           {isLoadingClonedVoices ? (
@@ -4684,14 +4751,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               {clonedVoices.map((voice) => (
                                 <div 
                                   key={voice.id}
-                                  className="flex items-center justify-between p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 hover:bg-violet-500/10 transition"
+                                  onClick={() => setSelectedClonedVoice(voice)}
+                                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition ${
+                                    selectedClonedVoice?.id === voice.id 
+                                      ? 'bg-violet-500/20 border border-violet-500' 
+                                      : 'bg-violet-500/5 border border-violet-500/20 hover:bg-violet-500/10'
+                                  }`}
                                 >
                                   <div className="flex items-center gap-2">
-                                    <Copy size={14} className="text-violet-500" />
+                                    {selectedClonedVoice?.id === voice.id ? (
+                                      <Check size={14} className="text-violet-500" />
+                                    ) : (
+                                      <Copy size={14} className="text-violet-500" />
+                                    )}
                                     <span className="text-sm font-medium">{voice.name}</span>
                                   </div>
                                   <button
-                                    onClick={() => playVoiceoverPreview(voice.elevenlabs_voice_id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      playVoiceoverPreview(voice.elevenlabs_voice_id);
+                                    }}
                                     disabled={loadingVoiceId !== null}
                                     className="p-2 rounded-full hover:bg-violet-500/20 transition"
                                   >
@@ -4710,7 +4789,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <div className="text-center py-8">
                               <Copy size={24} className="mx-auto text-muted-foreground mb-2" />
                               <p className="text-sm text-muted-foreground">No cloned voices yet</p>
-                              <p className="text-xs text-muted-foreground mt-1">Clone a voice to see it here</p>
+                              <p className="text-xs text-muted-foreground mt-1">Clone a voice first</p>
                             </div>
                           )}
                         </div>
@@ -6134,8 +6213,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </>
                     ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
                       "Transcribe"
-                    ) : isAudioMode && selectedAudioMode === 'Clone' ? (
-                      "Clone Voice"
                     ) : (
                       "Generate For Free!"
                     )}
