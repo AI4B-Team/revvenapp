@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Play, Pause, Bookmark, Heart, Download, Edit, 
-  Share2, Trash2, MoreVertical, Mic, Clock, Loader2
+  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText
 } from 'lucide-react';
 import {
   Tooltip,
@@ -345,6 +345,12 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-sm truncate">{item.name}</h3>
+                {/* Show transcribed text preview for transcription items */}
+                {item.type === 'transcription' && item.prompt && (
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2 bg-secondary/50 rounded px-2 py-1">
+                    "{item.prompt}"
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {formatTimestamp(item.created_at)}
                 </p>
@@ -352,6 +358,29 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
               
               {/* Actions */}
               <div className="flex items-center gap-1">
+                {/* Copy Text button for transcriptions */}
+                {item.type === 'transcription' && item.prompt && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.prompt || '');
+                            toast({
+                              title: "Copied!",
+                              description: "Transcribed text copied to clipboard",
+                            });
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                        >
+                          <Copy size={14} className="text-violet-400" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy Text</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -390,6 +419,18 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-background border-border">
+                    {item.type === 'transcription' && item.prompt && (
+                      <DropdownMenuItem onClick={() => {
+                        navigator.clipboard.writeText(item.prompt || '');
+                        toast({
+                          title: "Copied!",
+                          description: "Transcribed text copied to clipboard",
+                        });
+                      }}>
+                        <FileText size={14} className="mr-2" />
+                        Copy Full Text
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => toggleSave(item.id)}>
                       <Bookmark size={14} className="mr-2" />
                       {savedItems.has(item.id) ? 'Unsave' : 'Save'}
