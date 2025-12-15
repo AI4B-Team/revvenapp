@@ -127,6 +127,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isSfxFormatPopoverOpen, setIsSfxFormatPopoverOpen] = useState(false);
   const [isSfxInfluencePopoverOpen, setIsSfxInfluencePopoverOpen] = useState(false);
   
+  // Music mode state
+  const [musicModel, setMusicModel] = useState<'V4' | 'V4_5' | 'V4_5PLUS' | 'V4_5ALL' | 'V5'>('V4');
+  const [musicCustomMode, setMusicCustomMode] = useState(false);
+  const [musicInstrumental, setMusicInstrumental] = useState(true);
+  const [musicStyle, setMusicStyle] = useState('');
+  const [musicTitle, setMusicTitle] = useState('');
+  const [isMusicModelPopoverOpen, setIsMusicModelPopoverOpen] = useState(false);
+  
   // Transcribe mode state
   const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -1380,6 +1388,125 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             toast({
               title: "Generation failed",
               description: error.message || "Failed to generate sound effect. Please try again.",
+              variant: "destructive",
+            });
+          }
+        })();
+
+        return;
+      }
+
+      // MUSIC MODE: Generate music (non-blocking with webhook callback)
+      if (selectedAudioMode === 'Music') {
+        if (!prompt.trim()) {
+          toast({
+            title: "Description required",
+            description: "Please describe the music you want to generate",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Validate custom mode requirements
+        if (musicCustomMode) {
+          if (!musicStyle.trim()) {
+            toast({
+              title: "Style required",
+              description: "Please enter a music style (e.g., Jazz, Classical, Electronic)",
+              variant: "destructive",
+            });
+            return;
+          }
+          if (!musicTitle.trim()) {
+            toast({
+              title: "Title required",
+              description: "Please enter a title for your music track",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+
+        onGenerationStart?.();
+        const promptText = prompt.trim();
+
+        // Get user first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: "Authentication required",
+            description: "Please log in to generate music",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Insert processing record immediately so it appears in gallery
+        const { data: pendingRecord, error: insertError } = await supabase.from('user_voices').insert({
+          user_id: user.id,
+          name: musicCustomMode && musicTitle ? musicTitle.substring(0, 50) : promptText.substring(0, 50) + (promptText.length > 50 ? '...' : ''),
+          url: '',
+          duration: 30, // Default estimate
+          type: 'music',
+          status: 'processing',
+          prompt: promptText,
+        }).select().single();
+
+        if (insertError) {
+          console.error("Error creating pending record:", insertError);
+          toast({
+            title: "Error",
+            description: "Failed to start music generation",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Music generation started",
+          description: "Your track is being created. This may take a few minutes.",
+        });
+
+        // Generate music asynchronously (non-blocking)
+        (async () => {
+          try {
+            console.log("Starting music generation...");
+            
+            const requestBody: Record<string, unknown> = {
+              prompt: promptText,
+              customMode: musicCustomMode,
+              instrumental: musicInstrumental,
+              model: musicModel,
+              recordId: pendingRecord.id,
+            };
+
+            if (musicCustomMode) {
+              requestBody.style = musicStyle;
+              requestBody.title = musicTitle;
+            }
+
+            const { data, error } = await supabase.functions.invoke('generate-music', {
+              body: requestBody,
+            });
+
+            if (error) throw error;
+
+            if (!data?.success) {
+              throw new Error(data?.error || "Music generation failed");
+            }
+
+            console.log("Music generation task created:", data.taskId);
+            
+          } catch (error: any) {
+            console.error("Music generation error:", error);
+            // Update record to error status
+            await supabase.from('user_voices')
+              .update({ status: 'error' })
+              .eq('id', pendingRecord.id);
+            
+            toast({
+              title: "Generation failed",
+              description: error.message || "Failed to generate music. Please try again.",
               variant: "destructive",
             });
           }
@@ -4247,6 +4374,130 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </div>
                       </PopoverContent>
                     </Popover>
+                  </>
+                ) : selectedAudioMode === 'Music' ? (
+                  <>
+                    {/* Music Mode Controls */}
+                    {/* Model Selector */}
+                    <Popover open={isMusicModelPopoverOpen} onOpenChange={setIsMusicModelPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                          <Music size={14} />
+                          {musicModel}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 bg-background border-border z-50">
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground mb-2 px-2">Model Version</p>
+                          {(['V5', 'V4_5PLUS', 'V4_5ALL', 'V4_5', 'V4'] as const).map((model) => (
+                            <button 
+                              key={model}
+                              onClick={() => {
+                                setMusicModel(model);
+                                setIsMusicModelPopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${musicModel === model ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              <span>
+                                {model === 'V5' && 'V5 (Best)'}
+                                {model === 'V4_5PLUS' && 'V4.5+ (Rich)'}
+                                {model === 'V4_5ALL' && 'V4.5 All'}
+                                {model === 'V4_5' && 'V4.5 (Fast)'}
+                                {model === 'V4' && 'V4 (Basic)'}
+                              </span>
+                              {musicModel === model && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Instrumental Toggle */}
+                    <button
+                      onClick={() => setMusicInstrumental(!musicInstrumental)}
+                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        musicInstrumental ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                      } hover:opacity-80`}
+                    >
+                      {musicInstrumental ? '🎹 Instrumental' : '🎤 With Vocals'}
+                    </button>
+
+                    {/* Custom Mode Toggle */}
+                    <button
+                      onClick={() => setMusicCustomMode(!musicCustomMode)}
+                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        musicCustomMode ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                      } hover:opacity-80`}
+                    >
+                      {musicCustomMode ? '⚙️ Custom Mode' : 'Custom Mode'}
+                    </button>
+
+                    {/* Style input (only in custom mode) */}
+                    {musicCustomMode && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            musicStyle ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {musicStyle || 'Style'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50 p-3">
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground">Music Style (e.g., Jazz, Classical, Electronic)</p>
+                            <input
+                              type="text"
+                              value={musicStyle}
+                              onChange={(e) => setMusicStyle(e.target.value)}
+                              placeholder="Enter style..."
+                              className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none"
+                              maxLength={musicModel === 'V4' ? 200 : 1000}
+                            />
+                            <div className="flex flex-wrap gap-1">
+                              {['Jazz', 'Classical', 'Electronic', 'Pop', 'Rock', 'Hip-hop', 'Ambient', 'Cinematic'].map((s) => (
+                                <button
+                                  key={s}
+                                  onClick={() => setMusicStyle(s)}
+                                  className="px-2 py-1 text-xs bg-secondary hover:bg-secondary/80 rounded-md transition"
+                                >
+                                  {s}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+
+                    {/* Title input (only in custom mode) */}
+                    {musicCustomMode && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            musicTitle ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {musicTitle ? musicTitle.substring(0, 15) + (musicTitle.length > 15 ? '...' : '') : 'Title'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50 p-3">
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground">Track Title (max 80 characters)</p>
+                            <input
+                              type="text"
+                              value={musicTitle}
+                              onChange={(e) => setMusicTitle(e.target.value)}
+                              placeholder="Enter title..."
+                              className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none"
+                              maxLength={80}
+                            />
+                            <p className="text-xs text-muted-foreground text-right">{musicTitle.length}/80</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </>
                 ) : (
                   <>
