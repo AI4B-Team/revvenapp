@@ -2522,96 +2522,112 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             </TooltipProvider>
           </div>
           <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
-            <textarea 
-              value={
-                isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
-                  ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) 
-                  : isVideoMode && selectedAnimateMode === 'Story'
-                    ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
-                    : prompt
-              }
-              onChange={(e) => {
-                if (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')) {
-                  if (selectedUGCButton === 'Scene') {
-                    setUgcSceneText(e.target.value);
-                  } else {
-                    setUgcScriptText(e.target.value);
-                  }
-                } else if (isVideoMode && selectedAnimateMode === 'Story') {
-                  if (selectedStoryButton === 'Scene') {
-                    setStorySceneText(e.target.value);
-                  } else {
-                    setPrompt(e.target.value);
-                  }
-                } else {
-                  setPrompt(e.target.value);
-                }
-              }}
-              disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene') || (isAudioMode && selectedAudioMode === 'Transcribe')}
-              maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
-              className={`w-full h-full text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8 ${isTranscribedText && prompt ? 'text-violet-400' : 'text-foreground'}`}
-              placeholder={
-                isAudioMode && selectedAudioMode === 'Transcribe'
-                  ? "Transcribed text will appear here..."
-                  : isContentMode 
-                    ? "Describe the theme or topic for your content plan..." 
-                    : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
-                      ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
-                      : (isVideoMode && selectedAnimateMode === 'Story')
-                        ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : '⬇️ Add scenes below using the + button to build your storyboard')
-                        : (isVideoMode && selectedAnimateMode === 'UGC') 
-                          ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
-                          : "Describe what you want to create..."
-              }
-            />
-            {/* Character count warning for Avatar Video and Lip-Sync mode */}
-            {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' && (
-              <div className={`absolute bottom-2 right-10 text-xs ${
-                ugcScriptText.length > 180 ? 'text-destructive font-medium' : 
-                ugcScriptText.length > 150 ? 'text-orange-500' : 'text-muted-foreground'
-              }`}>
-                {ugcScriptText.length}/180
-                {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
+            {/* Transcribe mode - Show transcription output area instead of prompt input */}
+            {isAudioMode && selectedAudioMode === 'Transcribe' ? (
+              <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
+                {prompt ? (
+                  <div className="w-full h-full overflow-auto">
+                    <p className="text-lg text-violet-400 leading-relaxed whitespace-pre-wrap text-left">{prompt}</p>
+                    <div className="flex items-center justify-center gap-2 mt-4">
+                      <TooltipProvider delayDuration={0}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(prompt);
+                                toast({
+                                  title: "Copied!",
+                                  description: "Transcribed text copied to clipboard",
+                                });
+                              }}
+                              className="p-2 rounded-md bg-secondary hover:bg-secondary/80 transition text-foreground flex items-center gap-2"
+                            >
+                              <Copy size={16} />
+                              <span className="text-sm">Copy</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy transcribed text</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => setPrompt('')}
+                              className="p-2 rounded-md bg-destructive/10 hover:bg-destructive/20 transition text-destructive flex items-center gap-2"
+                            >
+                              <Trash2 size={16} />
+                              <span className="text-sm">Clear</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Clear transcribed text</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground">
+                    <Mic size={48} className="mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-medium">Upload or record audio to transcribe</p>
+                    <p className="text-sm mt-2 opacity-70">Transcribed text will appear here</p>
+                  </div>
+                )}
               </div>
-            )}
-            {/* Copy and Delete buttons for Transcribe mode */}
-            {isAudioMode && selectedAudioMode === 'Transcribe' && prompt && (
-              <div className="absolute top-2 right-2 flex items-center gap-1">
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(prompt);
-                          toast({
-                            title: "Copied!",
-                            description: "Transcribed text copied to clipboard",
-                          });
-                        }}
-                        className="p-1.5 rounded-md hover:bg-secondary transition text-muted-foreground hover:text-foreground"
-                      >
-                        <Copy size={16} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Copy text</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setPrompt('')}
-                        className="p-1.5 rounded-md hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Clear text</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+            ) : (
+              <>
+                <textarea 
+                  value={
+                    isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
+                      ? (selectedUGCButton === 'Scene' ? ugcSceneText : ugcScriptText) 
+                      : isVideoMode && selectedAnimateMode === 'Story'
+                        ? (selectedStoryButton === 'Scene' ? storySceneText : prompt)
+                        : prompt
+                  }
+                  onChange={(e) => {
+                    if (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')) {
+                      if (selectedUGCButton === 'Scene') {
+                        setUgcSceneText(e.target.value);
+                      } else {
+                        setUgcScriptText(e.target.value);
+                      }
+                    } else if (isVideoMode && selectedAnimateMode === 'Story') {
+                      if (selectedStoryButton === 'Scene') {
+                        setStorySceneText(e.target.value);
+                      } else {
+                        setPrompt(e.target.value);
+                      }
+                    } else {
+                      setPrompt(e.target.value);
+                    }
+                  }}
+                  disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene')}
+                  maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
+                  className={`w-full h-full text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8 ${isTranscribedText && prompt ? 'text-violet-400' : 'text-foreground'}`}
+                  placeholder={
+                    isContentMode 
+                      ? "Describe the theme or topic for your content plan..." 
+                      : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
+                        ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
+                        : (isVideoMode && selectedAnimateMode === 'Story')
+                          ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : '⬇️ Add scenes below using the + button to build your storyboard')
+                          : (isVideoMode && selectedAnimateMode === 'UGC') 
+                            ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
+                            : "Describe what you want to create..."
+                  }
+                />
+                {/* Character count warning for Avatar Video and Lip-Sync mode */}
+                {isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' && (
+                  <div className={`absolute bottom-2 right-10 text-xs ${
+                    ugcScriptText.length > 180 ? 'text-destructive font-medium' : 
+                    ugcScriptText.length > 150 ? 'text-orange-500' : 'text-muted-foreground'
+                  }`}>
+                    {ugcScriptText.length}/180
+                    {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
+                  </div>
+                )}
+              </>
             )}
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
