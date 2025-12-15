@@ -359,6 +359,13 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'voices' | 'upload' | 'record' | 'clone'>(mode === 'clone' ? 'clone' : 'voices');
+  
+  // Sync activeTab with mode when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(mode === 'clone' ? 'clone' : 'voices');
+    }
+  }, [isOpen, mode]);
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
