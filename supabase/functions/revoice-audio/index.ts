@@ -42,12 +42,9 @@ serve(async (req) => {
       fileType: audioFile.type,
     });
 
-    // Upload audio to Cloudinary first (without format conversion - unsigned uploads don't allow it)
-    const audioBuffer = await audioFile.arrayBuffer();
-    const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-    
+    // Upload audio to Cloudinary directly as a file blob
     const cloudinaryUploadFormData = new FormData();
-    cloudinaryUploadFormData.append('file', `data:${audioFile.type};base64,${audioBase64}`);
+    cloudinaryUploadFormData.append('file', audioFile, 'audio.mp4');
     cloudinaryUploadFormData.append('upload_preset', 'revven');
     cloudinaryUploadFormData.append('resource_type', 'video');
     cloudinaryUploadFormData.append('folder', 'temp-audio');
