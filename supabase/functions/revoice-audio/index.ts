@@ -44,9 +44,11 @@ serve(async (req) => {
 
     // Get user and create processing record immediately
     const authHeader = req.headers.get('Authorization');
-    let supabaseClient = null;
-    let userId = null;
-    let processingRecordId = null;
+    let supabaseClient: any = null;
+    let userId: string | null = null;
+    let processingRecordId: string | null = null;
+    
+    console.log('Auth header present:', !!authHeader);
     
     if (authHeader) {
       supabaseClient = createClient(
@@ -55,12 +57,16 @@ serve(async (req) => {
         { global: { headers: { Authorization: authHeader } } }
       );
 
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        userId = user.id;
+      const { data: userData, error: authError } = await supabaseClient.auth.getUser();
+      console.log('Auth result:', { hasUser: !!userData?.user, authError });
+      
+      if (userData?.user) {
+        userId = userData.user.id;
+        console.log('Creating processing record for user:', userId);
+        
         // Insert processing record immediately so it shows in gallery
         const { data: insertedRecord, error: insertError } = await supabaseClient.from('user_voices').insert({
-          user_id: user.id,
+          user_id: userData.user.id,
           name: `${name} (${targetLanguage})`,
           url: 'processing', // Placeholder URL - required field, will be updated after completion
           duration: 0,
@@ -70,12 +76,14 @@ serve(async (req) => {
         }).select().single();
         
         if (insertError) {
-          console.error('Failed to create processing record:', insertError);
+          console.error('Failed to create processing record:', JSON.stringify(insertError));
         } else if (insertedRecord) {
           processingRecordId = insertedRecord.id;
           console.log('Created processing record:', processingRecordId);
         }
       }
+    } else {
+      console.log('No auth header - cannot create processing record');
     }
 
     // Upload audio to Cloudinary directly as a file blob
