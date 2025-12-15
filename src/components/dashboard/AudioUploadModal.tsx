@@ -817,12 +817,25 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
       formData.append('audio', cloneAudioFile);
       formData.append('remove_background_noise', cloneRemoveNoise ? 'true' : 'false');
 
-      const { data, error } = await supabase.functions.invoke('clone-voice', {
-        body: formData,
-      });
+      // Use direct fetch for FormData file uploads (supabase.functions.invoke doesn't handle FormData properly)
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/clone-voice`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: formData,
+        }
+      );
 
-      if (error) throw error;
-      if (!data?.voice_id) throw new Error('Failed to clone voice');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Clone failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (!data?.voice_id) throw new Error('Failed to clone voice - no voice ID returned');
 
       console.log('Voice cloned successfully:', data);
 
