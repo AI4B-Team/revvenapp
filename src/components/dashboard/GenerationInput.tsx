@@ -139,6 +139,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribedText, setIsTranscribedText] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
@@ -503,6 +504,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       setSelectedAnimateMode('Animate');
     }
   }, [isVideoMode]);
+
+  // Clear transcribed text highlight when switching away from Transcribe mode
+  useEffect(() => {
+    if (!(isAudioMode && selectedAudioMode === 'Transcribe')) {
+      setIsTranscribedText(false);
+    }
+  }, [isAudioMode, selectedAudioMode]);
 
   // Story mode: Auto-sync prompt to first scene description
   useEffect(() => {
@@ -1270,6 +1278,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
           if (data?.text) {
             setPrompt(data.text);
+            setIsTranscribedText(true);
             toast({
               title: "Transcription complete!",
               description: "The text has been added to the prompt box",
@@ -2540,7 +2549,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               }}
               disabled={isGenerating || (isVideoMode && selectedAnimateMode === 'Story' && selectedStoryButton !== 'Scene') || (isAudioMode && selectedAudioMode === 'Transcribe')}
               maxLength={isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && selectedUGCButton !== 'Scene' ? 180 : undefined}
-              className="w-full h-full text-foreground text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8"
+              className={`w-full h-full text-lg leading-relaxed bg-transparent border-none outline-none resize-none placeholder:text-muted-foreground disabled:opacity-50 pr-8 ${isTranscribedText && prompt ? 'text-violet-400' : 'text-foreground'}`}
               placeholder={
                 isAudioMode && selectedAudioMode === 'Transcribe'
                   ? "Transcribed text will appear here..."
