@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 declare const EdgeRuntime: {
   waitUntil(promise: Promise<unknown>): void;
@@ -8,6 +9,13 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Standard KIE.AI voice names
+const STANDARD_VOICES = [
+  'Rachel', 'Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George', 
+  'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda', 'Will', 
+  'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill'
+];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,10 +35,8 @@ serve(async (req) => {
       );
     }
 
-    const KIE_API_KEY = Deno.env.get('KIE_AI_API_KEY');
-    if (!KIE_API_KEY) {
-      throw new Error('KIE_AI_API_KEY is not configured');
-    }
+    // Check if this is a cloned voice (ElevenLabs ID) or standard voice
+    const isClonedVoice = !STANDARD_VOICES.includes(voice);
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -80,12 +86,67 @@ serve(async (req) => {
       throw new Error('Failed to create voice record');
     }
 
-    console.log(`Created pending voice record: ${voiceRecord.id}`);
+    console.log(`Created pending voice record: ${voiceRecord.id}, isClonedVoice: ${isClonedVoice}`);
 
     // Start background task for actual generation
     EdgeRuntime.waitUntil((async () => {
       try {
-        console.log(`Starting voice generation for record ${voiceRecord.id}, voice: ${voice}, text length: ${text.length}`);
+        console.log(`Starting voice generation for record ${voiceRecord.id}, voice: ${voice}, text length: ${text.length}, isCloned: ${isClonedVoice}`);
+
+        if (isClonedVoice) {
+          // Use ElevenLabs API directly for cloned voices
+          const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
+          if (!ELEVENLABS_API_KEY) {
+            throw new Error('ELEVENLABS_API_KEY is not configured');
+          }
+
+          const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'xi-api-key': ELEVENLABS_API_KEY,
+            },
+            body: JSON.stringify({
+              text,
+              model_id: 'eleven_multilingual_v2',
+              voice_settings: {
+                stability,
+                similarity_boost,
+                style,
+                use_speaker_boost,
+              },
+            }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('ElevenLabs API error:', errorText);
+            throw new Error(`ElevenLabs API error: ${response.status}`);
+          }
+
+          // Get audio as array buffer and convert to base64
+          const audioBuffer = await response.arrayBuffer();
+          const base64Audio = base64Encode(audioBuffer);
+          const audioDataUrl = `data:audio/mpeg;base64,${base64Audio}`;
+
+          // Update record with completed audio
+          await supabase
+            .from('user_voices')
+            .update({ 
+              url: audioDataUrl,
+              status: 'completed'
+            })
+            .eq('id', voiceRecord.id);
+          
+          console.log(`ElevenLabs voice generation completed for record ${voiceRecord.id}`);
+          return;
+        }
+
+        // Use KIE.AI for standard voices
+        const KIE_API_KEY = Deno.env.get('KIE_AI_API_KEY');
+        if (!KIE_API_KEY) {
+          throw new Error('KIE_AI_API_KEY is not configured');
+        }
 
         // Call KIE.AI TTS API
         const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
