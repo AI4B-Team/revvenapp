@@ -62,14 +62,16 @@ serve(async (req) => {
         const { data: insertedRecord, error: insertError } = await supabaseClient.from('user_voices').insert({
           user_id: user.id,
           name: `${name} (${targetLanguage})`,
-          url: '', // Will be updated after completion
+          url: 'processing', // Placeholder URL - required field, will be updated after completion
           duration: 0,
           type: 'revoice',
           status: 'processing',
           prompt: `Translating to ${targetLanguage}...`,
         }).select().single();
         
-        if (!insertError && insertedRecord) {
+        if (insertError) {
+          console.error('Failed to create processing record:', insertError);
+        } else if (insertedRecord) {
           processingRecordId = insertedRecord.id;
           console.log('Created processing record:', processingRecordId);
         }
