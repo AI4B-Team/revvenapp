@@ -403,8 +403,15 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
   const [cloneRemoveNoise, setCloneRemoveNoise] = useState(true);
   const [isCloning, setIsCloning] = useState(false);
   const [isPlayingClonePreview, setIsPlayingClonePreview] = useState(false);
+  const [cloneInputMode, setCloneInputMode] = useState<'upload' | 'record'>('upload');
+  const [isCloneRecording, setIsCloneRecording] = useState(false);
+  const [cloneRecordingTime, setCloneRecordingTime] = useState(0);
+  const [cloneRecordedBlob, setCloneRecordedBlob] = useState<Blob | null>(null);
   const cloneFileInputRef = useRef<HTMLInputElement>(null);
   const cloneAudioRef = useRef<HTMLAudioElement | null>(null);
+  const cloneMediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const cloneAudioChunksRef = useRef<Blob[]>([]);
+  const cloneRecordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load saved voices when modal opens
   useEffect(() => {
@@ -739,6 +746,15 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
     setCloneAudioDuration(0);
     setCloneRemoveNoise(true);
     setIsPlayingClonePreview(false);
+    setCloneInputMode('upload');
+    setIsCloneRecording(false);
+    setCloneRecordingTime(0);
+    setCloneRecordedBlob(null);
+    
+    if (cloneRecordingIntervalRef.current) {
+      clearInterval(cloneRecordingIntervalRef.current);
+      cloneRecordingIntervalRef.current = null;
+    }
     
     if (cloneAudioRef.current) {
       cloneAudioRef.current.pause();
@@ -799,11 +815,89 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
 
   const isCloneDurationValid = cloneAudioDuration >= 5 && cloneAudioDuration <= 300; // 5 sec to 5 min
 
+  // Clone recording functions
+  const startCloneRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        } 
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
+      });
+      
+      cloneMediaRecorderRef.current = mediaRecorder;
+      cloneAudioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          cloneAudioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(cloneAudioChunksRef.current, { type: mediaRecorder.mimeType });
+        setCloneRecordedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setCloneAudioUrl(url);
+        setCloneAudioDuration(cloneRecordingTime);
+        
+        // Create a File from the Blob for the clone API
+        const file = new File([blob], `clone_recording_${Date.now()}.webm`, { type: blob.type });
+        setCloneAudioFile(file);
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start(1000);
+      setIsCloneRecording(true);
+      setCloneRecordingTime(0);
+      setCloneRecordedBlob(null);
+      setCloneAudioFile(null);
+      setCloneAudioUrl(null);
+      setCloneAudioDuration(0);
+      
+      // Start timer
+      cloneRecordingIntervalRef.current = setInterval(() => {
+        setCloneRecordingTime((prev) => {
+          if (prev >= 300) { // Max 5 minutes
+            stopCloneRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error starting clone recording:', error);
+      toast({
+        title: "Microphone access denied",
+        description: "Please allow microphone access to record audio.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopCloneRecording = () => {
+    if (cloneMediaRecorderRef.current && cloneMediaRecorderRef.current.state !== 'inactive') {
+      cloneMediaRecorderRef.current.stop();
+    }
+    if (cloneRecordingIntervalRef.current) {
+      clearInterval(cloneRecordingIntervalRef.current);
+      cloneRecordingIntervalRef.current = null;
+    }
+    setIsCloneRecording(false);
+  };
+
   const handleCloneVoice = async () => {
     if (!cloneAudioFile || !cloneVoiceName.trim()) {
       toast({
         title: "Missing information",
-        description: "Please provide a name and upload an audio file.",
+        description: "Please provide a name and upload or record an audio file.",
         variant: "destructive",
       });
       return;
@@ -1250,11 +1344,39 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                   />
                 </div>
 
-                {/* Audio Upload */}
+                {/* Upload/Record Toggle */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Voice Sample <span className="text-muted-foreground font-normal">(1-5 minutes)</span>
                   </label>
+                  
+                  {/* Mode Toggle */}
+                  {!cloneAudioFile && !isCloneRecording && (
+                    <div className="flex gap-2 mb-3">
+                      <button
+                        onClick={() => setCloneInputMode('upload')}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          cloneInputMode === 'upload'
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload
+                      </button>
+                      <button
+                        onClick={() => setCloneInputMode('record')}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                          cloneInputMode === 'record'
+                            ? 'bg-violet-500 text-white'
+                            : 'bg-muted text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        <Mic className="w-4 h-4" />
+                        Record
+                      </button>
+                    </div>
+                  )}
                   
                   {cloneAudioFile ? (
                     <div className="bg-muted/50 rounded-xl border border-border overflow-hidden">
@@ -1271,7 +1393,9 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                           )}
                         </button>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{cloneAudioFile.name}</p>
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {cloneRecordedBlob ? 'Recorded Audio' : cloneAudioFile.name}
+                          </p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>{(cloneAudioFile.size / 1024 / 1024).toFixed(2)} MB</span>
                             <span>•</span>
@@ -1286,6 +1410,7 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                             setCloneAudioFile(null);
                             setCloneAudioUrl(null);
                             setCloneAudioDuration(0);
+                            setCloneRecordedBlob(null);
                           }}
                           className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                         >
@@ -1305,7 +1430,56 @@ const AudioUploadModal: React.FC<AudioUploadModalProps> = ({
                         </div>
                       )}
                     </div>
+                  ) : isCloneRecording ? (
+                    /* Recording UI */
+                    <div className="bg-muted/50 rounded-xl p-6 flex flex-col items-center">
+                      <motion.button
+                        onClick={stopCloneRecording}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-16 h-16 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 transition-colors"
+                      >
+                        <Square className="w-6 h-6 text-white fill-white" />
+                      </motion.button>
+                      
+                      <div className="mt-4 text-center">
+                        <div className="flex items-center gap-2 justify-center">
+                          <motion.div
+                            animate={{ opacity: [1, 0.5, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            className="w-2 h-2 bg-red-500 rounded-full"
+                          />
+                          <span className="text-lg font-medium text-foreground">
+                            {formatDuration(cloneRecordingTime)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Recording... Click to stop</p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {cloneRecordingTime < 60 ? 'Keep going! 1-5 minutes recommended.' : 'Good duration for cloning.'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : cloneInputMode === 'record' ? (
+                    /* Start Recording UI */
+                    <div className="bg-muted/50 rounded-xl p-6 flex flex-col items-center">
+                      <motion.button
+                        onClick={startCloneRecording}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-16 h-16 rounded-full flex items-center justify-center bg-violet-500 hover:bg-violet-600 transition-colors"
+                      >
+                        <Mic className="w-7 h-7 text-white" />
+                      </motion.button>
+                      
+                      <div className="mt-4 text-center">
+                        <p className="text-sm font-medium text-foreground">Start recording</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Record 1-5 minutes of clear speech
+                        </p>
+                      </div>
+                    </div>
                   ) : (
+                    /* Upload UI */
                     <div
                       onClick={() => cloneFileInputRef.current?.click()}
                       className="cursor-pointer border-2 border-dashed border-border hover:border-violet-500/50 rounded-xl p-6 flex flex-col items-center transition-colors"
