@@ -39,11 +39,46 @@ serve(async (req) => {
       sourceLang,
       fileName: audioFile.name,
       fileSize: audioFile.size,
+      fileType: audioFile.type,
     });
 
-    // Create dubbing project using ElevenLabs Dubbing API
+    // Convert audio to a supported format (MP3) using Cloudinary
+    // First upload to Cloudinary which will handle format conversion
+    const audioBuffer = await audioFile.arrayBuffer();
+    const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+    
+    const cloudinaryUploadFormData = new FormData();
+    cloudinaryUploadFormData.append('file', `data:${audioFile.type};base64,${audioBase64}`);
+    cloudinaryUploadFormData.append('upload_preset', 'revven');
+    cloudinaryUploadFormData.append('resource_type', 'video');
+    cloudinaryUploadFormData.append('folder', 'temp-audio');
+    cloudinaryUploadFormData.append('format', 'mp3'); // Convert to MP3
+    
+    const cloudinaryUploadResponse = await fetch('https://api.cloudinary.com/v1_1/dszt275xv/video/upload', {
+      method: 'POST',
+      body: cloudinaryUploadFormData,
+    });
+
+    if (!cloudinaryUploadResponse.ok) {
+      const errorText = await cloudinaryUploadResponse.text();
+      console.error('Cloudinary temp upload error:', cloudinaryUploadResponse.status, errorText);
+      throw new Error(`Failed to convert audio format: ${cloudinaryUploadResponse.status}`);
+    }
+
+    const cloudinaryUploadResult = await cloudinaryUploadResponse.json();
+    console.log('Audio converted to MP3:', cloudinaryUploadResult.secure_url);
+
+    // Download the converted MP3 from Cloudinary
+    const mp3Response = await fetch(cloudinaryUploadResult.secure_url);
+    if (!mp3Response.ok) {
+      throw new Error('Failed to download converted audio');
+    }
+    const mp3Buffer = await mp3Response.arrayBuffer();
+    const mp3Blob = new Blob([mp3Buffer], { type: 'audio/mpeg' });
+
+    // Create dubbing project using ElevenLabs Dubbing API with converted MP3
     const dubbingFormData = new FormData();
-    dubbingFormData.append('file', audioFile);
+    dubbingFormData.append('file', mp3Blob, 'audio.mp3');
     dubbingFormData.append('target_lang', targetLanguage);
     dubbingFormData.append('name', name);
     
@@ -128,13 +163,12 @@ serve(async (req) => {
       throw new Error(`Failed to download dubbed audio: ${audioResponse.status}`);
     }
 
-    const audioBuffer = await audioResponse.arrayBuffer();
-    const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+    const dubbedAudioBuffer = await audioResponse.arrayBuffer();
 
     // Upload to Cloudinary
     const cloudinaryFormData = new FormData();
-    const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
-    cloudinaryFormData.append('file', audioBlob, `revoiced-${targetLanguage}.mp3`);
+    const dubbedAudioBlob = new Blob([dubbedAudioBuffer], { type: 'audio/mpeg' });
+    cloudinaryFormData.append('file', dubbedAudioBlob, `revoiced-${targetLanguage}.mp3`);
     cloudinaryFormData.append('upload_preset', 'revven');
     cloudinaryFormData.append('resource_type', 'video'); // Cloudinary uses 'video' for audio
     cloudinaryFormData.append('folder', 'revoiced-audio');
