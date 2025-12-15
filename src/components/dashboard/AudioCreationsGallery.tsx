@@ -321,11 +321,14 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
             <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-white text-xs capitalize ${
               item.status === 'processing' ? 'bg-amber-500' : 
               item.status === 'error' ? 'bg-destructive' : 
+              item.type === 'sound_effect' ? 'bg-brand-blue/80' :
               'bg-brand-green/80'
             }`}>
               {item.status === 'processing' ? 'Processing' : 
                item.status === 'error' ? 'Error' : 
-               item.type || 'voiceover'}
+               item.type === 'sound_effect' ? 'Sound Effect' :
+               item.type === 'voiceover' ? 'Voiceover' :
+               item.type || 'Voiceover'}
             </div>
           </div>
           
