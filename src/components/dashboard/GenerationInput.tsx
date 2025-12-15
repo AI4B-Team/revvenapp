@@ -118,6 +118,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isSpeedPopoverOpen, setIsSpeedPopoverOpen] = useState(false);
   const [isTonePopoverOpen, setIsTonePopoverOpen] = useState(false);
   
+  // Sound Effects mode state
+  const [sfxDuration, setSfxDuration] = useState<number | undefined>(undefined);
+  const [sfxLoop, setSfxLoop] = useState(false);
+  const [sfxPromptInfluence, setSfxPromptInfluence] = useState(0.3);
+  const [sfxOutputFormat, setSfxOutputFormat] = useState('mp3_44100_128');
+  const [isSfxDurationPopoverOpen, setIsSfxDurationPopoverOpen] = useState(false);
+  const [isSfxFormatPopoverOpen, setIsSfxFormatPopoverOpen] = useState(false);
+  const [isSfxInfluencePopoverOpen, setIsSfxInfluencePopoverOpen] = useState(false);
+  
   // Transcribe mode state
   const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -4010,6 +4019,132 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <Captions size={14} />
                       Whisper v3
                     </button>
+                  </>
+                ) : selectedAudioMode === 'Sound Effects' ? (
+                  <>
+                    {/* Sound Effects Mode Controls */}
+                    {/* Duration Selector */}
+                    <Popover open={isSfxDurationPopoverOpen} onOpenChange={setIsSfxDurationPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          sfxDuration !== undefined ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {sfxDuration !== undefined ? `${sfxDuration}s` : 'Duration'}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 bg-background border-border z-50 p-3">
+                        <div className="space-y-3">
+                          <p className="text-xs text-muted-foreground">Duration (0.5-22 seconds)</p>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min="0.5"
+                              max="22"
+                              step="0.5"
+                              value={sfxDuration ?? 5}
+                              onChange={(e) => setSfxDuration(parseFloat(e.target.value))}
+                              className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
+                            />
+                            <span className="text-sm font-medium w-12 text-right">{sfxDuration ?? 'Auto'}s</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSfxDuration(undefined);
+                              setIsSfxDurationPopoverOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
+                          >
+                            Auto (optimal)
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Loop Toggle */}
+                    <button
+                      onClick={() => setSfxLoop(!sfxLoop)}
+                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        sfxLoop ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                      } hover:opacity-80`}
+                    >
+                      <RefreshCw size={14} />
+                      {sfxLoop ? 'Loop On' : 'Loop'}
+                    </button>
+
+                    {/* Prompt Influence */}
+                    <Popover open={isSfxInfluencePopoverOpen} onOpenChange={setIsSfxInfluencePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          sfxPromptInfluence !== 0.3 ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          Influence: {Math.round(sfxPromptInfluence * 100)}%
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 bg-background border-border z-50 p-3">
+                        <div className="space-y-3">
+                          <p className="text-xs text-muted-foreground">How closely to follow the prompt (0-100%)</p>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.05"
+                              value={sfxPromptInfluence}
+                              onChange={(e) => setSfxPromptInfluence(parseFloat(e.target.value))}
+                              className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
+                            />
+                            <span className="text-sm font-medium w-12 text-right">{Math.round(sfxPromptInfluence * 100)}%</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>More variation</span>
+                            <span>More precise</span>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Output Format */}
+                    <Popover open={isSfxFormatPopoverOpen} onOpenChange={setIsSfxFormatPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          sfxOutputFormat !== 'mp3_44100_128' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          {sfxOutputFormat.split('_')[0].toUpperCase()}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 bg-background border-border z-50 max-h-72 overflow-y-auto">
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground mb-2 px-2">Output Format</p>
+                          {[
+                            { value: 'mp3_44100_128', label: 'MP3 128kbps (Default)' },
+                            { value: 'mp3_44100_192', label: 'MP3 192kbps (High Quality)' },
+                            { value: 'mp3_44100_64', label: 'MP3 64kbps' },
+                            { value: 'mp3_44100_32', label: 'MP3 32kbps' },
+                            { value: 'wav_44100', label: 'WAV 44.1kHz' },
+                            { value: 'pcm_44100', label: 'PCM 44.1kHz' },
+                            { value: 'pcm_24000', label: 'PCM 24kHz' },
+                            { value: 'pcm_16000', label: 'PCM 16kHz' },
+                            { value: 'opus_48000_128', label: 'Opus 128kbps' },
+                            { value: 'opus_48000_64', label: 'Opus 64kbps' },
+                          ].map((format) => (
+                            <button 
+                              key={format.value}
+                              onClick={() => {
+                                setSfxOutputFormat(format.value);
+                                setIsSfxFormatPopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${sfxOutputFormat === format.value ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {format.label}
+                              {sfxOutputFormat === format.value && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </>
                 ) : (
                   <>
