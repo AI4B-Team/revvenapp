@@ -5,6 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Standard KIE.AI voice names
+const STANDARD_VOICES = [
+  'Rachel', 'Aria', 'Roger', 'Sarah', 'Laura', 'Charlie', 'George', 
+  'Callum', 'River', 'Liam', 'Charlotte', 'Alice', 'Matilda', 'Will', 
+  'Jessica', 'Eric', 'Chris', 'Brian', 'Daniel', 'Lily', 'Bill'
+];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -23,12 +30,58 @@ serve(async (req) => {
       );
     }
 
+    // Check if this is a cloned voice (ElevenLabs ID) or standard voice
+    const isClonedVoice = !STANDARD_VOICES.includes(voice);
+    
+    console.log(`Generating voice preview for voice: ${voice}, isCloned: ${isClonedVoice}, text length: ${text.length}, speed: ${speed}`);
+
+    if (isClonedVoice) {
+      // Use ElevenLabs API directly for cloned voices
+      const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
+      if (!ELEVENLABS_API_KEY) {
+        throw new Error('ELEVENLABS_API_KEY is not configured');
+      }
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': ELEVENLABS_API_KEY,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability,
+            similarity_boost,
+            style,
+            use_speaker_boost,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ElevenLabs API error:', errorText);
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      // Get audio as array buffer and convert to base64
+      const audioBuffer = await response.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+      
+      // Return as data URL that can be played directly
+      return new Response(
+        JSON.stringify({ audioUrl: `data:audio/mpeg;base64,${base64Audio}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use KIE.AI for standard voices
     const KIE_API_KEY = Deno.env.get('KIE_AI_API_KEY');
     if (!KIE_API_KEY) {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
-
-    console.log(`Generating voice preview for voice: ${voice}, text length: ${text.length}, speed: ${speed}`);
 
     // Call KIE.AI TTS API
     const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
