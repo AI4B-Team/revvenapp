@@ -2456,9 +2456,24 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </>
                   )
                 ) : isAudioMode ? (
-                  <button className="p-1.5">
-                    <Sparkles size={20} strokeWidth={2.5} className="text-amber-500" />
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleAutoPrompt}
+                        disabled={isEnhancing}
+                        className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isEnhancing ? (
+                          <Loader2 size={20} strokeWidth={2.5} className="text-amber-500 animate-spin" />
+                        ) : (
+                          <Sparkles size={20} strokeWidth={2.5} className="text-amber-500" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-black border-black">
+                      <p>Auto Prompt</p>
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
                   <>
                     <Tooltip>
