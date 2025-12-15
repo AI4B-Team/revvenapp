@@ -1739,10 +1739,14 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           formData.append('source_language', revoiceSourceLanguage === 'auto' ? 'auto' : revoiceSourceLanguage.toLowerCase().slice(0, 2));
           formData.append('name', revoiceAudio.name.replace(/\.[^/.]+$/, '')); // Remove extension
 
+          // Get user session for auth
+          const { data: { session } } = await supabase.auth.getSession();
+          const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
           const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/revoice-audio`, {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              'Authorization': `Bearer ${authToken}`,
             },
             body: formData,
           });
