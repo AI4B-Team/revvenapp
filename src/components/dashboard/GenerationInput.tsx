@@ -1277,10 +1277,40 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           });
 
           if (error) throw error;
-
+ 
           if (data?.text) {
             setPrompt(data.text);
             setIsTranscribedText(true);
+ 
+            try {
+              // Save transcribed audio to history
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user && transcribeAudio?.base64) {
+                // Upload audio file to Cloudinary via edge function
+                const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+                  body: {
+                    audioData: transcribeAudio.base64,
+                    filename: transcribeAudio.name,
+                    contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
+                  },
+                });
+ 
+                if (!uploadError && uploadData?.url) {
+                  await supabase.from('user_voices').insert({
+                    user_id: user.id,
+                    name: transcribeAudio.name || 'Transcription',
+                    duration: transcribeAudio.duration || uploadData.duration || 0,
+                    url: uploadData.url,
+                    type: 'transcription',
+                    status: 'completed',
+                    prompt: data.text,
+                  });
+                }
+              }
+            } catch (historyError) {
+              console.error('Failed to save transcription history:', historyError);
+            }
+ 
             toast({
               title: "Transcription complete!",
               description: "The text has been added to the prompt box",
