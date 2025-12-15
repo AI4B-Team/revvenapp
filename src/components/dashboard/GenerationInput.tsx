@@ -1733,10 +1733,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             fileName: revoiceAudio.name,
           });
           
+          // Map language names to ISO codes for ElevenLabs
+          const languageCodeMap: Record<string, string> = {
+            'English': 'en', 'Spanish': 'es', 'French': 'fr', 'German': 'de',
+            'Italian': 'it', 'Portuguese': 'pt', 'Polish': 'pl', 'Turkish': 'tr',
+            'Russian': 'ru', 'Dutch': 'nl', 'Czech': 'cs', 'Arabic': 'ar',
+            'Chinese': 'zh', 'Japanese': 'ja', 'Hindi': 'hi', 'Korean': 'ko',
+            'Indonesian': 'id', 'Filipino': 'fil', 'Malay': 'ms', 'Tamil': 'ta',
+            'Vietnamese': 'vi', 'Thai': 'th', 'Swedish': 'sv', 'Norwegian': 'no',
+            'Danish': 'da', 'Finnish': 'fi', 'Romanian': 'ro', 'Hungarian': 'hu',
+            'Greek': 'el', 'Hebrew': 'he', 'Ukrainian': 'uk', 'Croatian': 'hr',
+            'Slovak': 'sk', 'Bulgarian': 'bg',
+          };
+          
+          const targetCode = languageCodeMap[revoiceTargetLanguage] || revoiceTargetLanguage.toLowerCase().slice(0, 2);
+          const sourceCode = revoiceSourceLanguage === 'auto' ? 'auto' : (languageCodeMap[revoiceSourceLanguage] || revoiceSourceLanguage.toLowerCase().slice(0, 2));
+          
           const formData = new FormData();
           formData.append('audio', revoiceAudio.file);
-          formData.append('target_language', revoiceTargetLanguage.toLowerCase().slice(0, 2)); // Convert to ISO code
-          formData.append('source_language', revoiceSourceLanguage === 'auto' ? 'auto' : revoiceSourceLanguage.toLowerCase().slice(0, 2));
+          formData.append('target_language', targetCode);
+          formData.append('source_language', sourceCode);
           formData.append('name', revoiceAudio.name.replace(/\.[^/.]+$/, '')); // Remove extension
           
 
