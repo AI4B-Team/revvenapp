@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
@@ -2565,6 +2565,45 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {ugcScriptText.length > 180 && <span className="ml-1">⚠️ Limit exceeded</span>}
               </div>
             )}
+            {/* Copy and Delete buttons for Transcribe mode */}
+            {isAudioMode && selectedAudioMode === 'Transcribe' && prompt && (
+              <div className="absolute top-2 right-2 flex items-center gap-1">
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(prompt);
+                          toast({
+                            title: "Copied!",
+                            description: "Transcribed text copied to clipboard",
+                          });
+                        }}
+                        className="p-1.5 rounded-md hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+                      >
+                        <Copy size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copy text</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setPrompt('')}
+                        className="p-1.5 rounded-md hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Clear text</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
             <ResizeHandle 
               onResizeStart={handleResizeStart} 
               isResizing={isResizing}
@@ -5049,6 +5088,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </PopoverContent>
                 </Popover>
 
+            {/* Model Dropdown - Show "11 Labs" static pill in Transcribe mode */}
+            {isAudioMode && selectedAudioMode === 'Transcribe' ? (
+              <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-violet-500/20 text-violet-600">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-violet-500">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                11 Labs
+              </div>
+            ) : (
             <Popover open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
               <PopoverTrigger asChild>
                     <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap ${
@@ -5553,6 +5601,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </div>
               </PopoverContent>
             </Popover>
+            )}
             
             <button
               onClick={() => setIsStylesModalOpen(true)}
