@@ -143,6 +143,14 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
+  // Revoice mode state
+  const [revoiceAudio, setRevoiceAudio] = useState<{ name: string; file: File; duration?: number } | null>(null);
+  const [revoiceTargetLanguage, setRevoiceTargetLanguage] = useState('Spanish');
+  const [revoiceSourceLanguage, setRevoiceSourceLanguage] = useState('auto');
+  const [isRevoicing, setIsRevoicing] = useState(false);
+  const [isTargetLanguagePopoverOpen, setIsTargetLanguagePopoverOpen] = useState(false);
+  const [isSourceLanguagePopoverOpen, setIsSourceLanguagePopoverOpen] = useState(false);
+  
   // UGC mode selected button state
   const [selectedUGCButton, setSelectedUGCButton] = useState<string | null>(null);
   
@@ -1689,6 +1697,68 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             description: error.message || "Failed to generate audio. Please try again.",
             variant: "destructive",
           });
+        }
+        return;
+      }
+
+      // REVOICE MODE: Translate audio to another language
+      if (selectedAudioMode === 'Revoice') {
+        if (!revoiceAudio) {
+          toast({
+            title: "Audio required",
+            description: "Please upload an audio file to translate",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setIsRevoicing(true);
+        onGenerationStart?.();
+
+        try {
+          console.log("Starting revoice/dubbing...", {
+            targetLanguage: revoiceTargetLanguage,
+            sourceLanguage: revoiceSourceLanguage,
+            fileName: revoiceAudio.name,
+          });
+          
+          const formData = new FormData();
+          formData.append('audio', revoiceAudio.file);
+          formData.append('target_language', revoiceTargetLanguage.toLowerCase().slice(0, 2)); // Convert to ISO code
+          formData.append('source_language', revoiceSourceLanguage === 'auto' ? 'auto' : revoiceSourceLanguage.toLowerCase().slice(0, 2));
+          formData.append('name', revoiceAudio.name.replace(/\.[^/.]+$/, '')); // Remove extension
+
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/revoice-audio`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Revoice failed');
+          }
+
+          toast({
+            title: "Audio translated!",
+            description: `Your audio has been translated to ${revoiceTargetLanguage}`,
+          });
+
+          // Clear the audio after success
+          setRevoiceAudio(null);
+          
+        } catch (error: any) {
+          console.error("Revoice error:", error);
+          toast({
+            title: "Translation failed",
+            description: error.message || "Failed to translate audio. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsRevoicing(false);
         }
         return;
       }
@@ -4838,7 +4908,130 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </PopoverContent>
                     </Popover>
                   </>
-                ) : selectedAudioMode === 'Voiceover' || selectedAudioMode === 'Revoice' ? (
+                ) : selectedAudioMode === 'Revoice' ? (
+                  <>
+                    {/* Revoice Mode Controls - Upload audio and select target language */}
+                    
+                    {/* Upload Audio Button */}
+                    {revoiceAudio ? (
+                      <button 
+                        onClick={() => setRevoiceAudio(null)}
+                        className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80"
+                      >
+                        <AudioLines size={14} />
+                        <span className="max-w-24 truncate">{revoiceAudio.name}</span>
+                        <X size={14} />
+                      </button>
+                    ) : (
+                      <label className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80 cursor-pointer">
+                        <Upload size={14} />
+                        Upload Audio
+                        <input 
+                          type="file" 
+                          accept="audio/*,video/mp4" 
+                          className="hidden" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // Get audio duration
+                              const audio = new Audio();
+                              audio.src = URL.createObjectURL(file);
+                              audio.onloadedmetadata = () => {
+                                setRevoiceAudio({
+                                  name: file.name,
+                                  file: file,
+                                  duration: Math.round(audio.duration),
+                                });
+                                URL.revokeObjectURL(audio.src);
+                              };
+                              audio.onerror = () => {
+                                // For video files, duration might not load
+                                setRevoiceAudio({
+                                  name: file.name,
+                                  file: file,
+                                });
+                              };
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+
+                    {/* Source Language */}
+                    <Popover open={isSourceLanguagePopoverOpen} onOpenChange={setIsSourceLanguagePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          revoiceSourceLanguage !== 'auto' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}>
+                          From: {revoiceSourceLanguage === 'auto' ? 'Auto' : revoiceSourceLanguage}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1 max-h-60 overflow-y-auto">
+                          <button 
+                            onClick={() => {
+                              setRevoiceSourceLanguage('auto');
+                              setIsSourceLanguagePopoverOpen(false);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${revoiceSourceLanguage === 'auto' ? 'bg-brand-green/10 font-medium' : ''}`}
+                          >
+                            Auto Detect
+                            {revoiceSourceLanguage === 'auto' && <Check size={14} className="text-brand-green" />}
+                          </button>
+                          {['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi', 'Russian', 'Dutch', 'Polish', 'Turkish'].map((lang) => (
+                            <button 
+                              key={lang}
+                              onClick={() => {
+                                setRevoiceSourceLanguage(lang);
+                                setIsSourceLanguagePopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${revoiceSourceLanguage === lang ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {lang}
+                              {revoiceSourceLanguage === lang && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Target Language */}
+                    <Popover open={isTargetLanguagePopoverOpen} onOpenChange={setIsTargetLanguagePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
+                          <ArrowRightLeft size={14} />
+                          To: {revoiceTargetLanguage}
+                          <ChevronDown size={14} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 bg-background border-border z-50">
+                        <div className="space-y-1 max-h-60 overflow-y-auto">
+                          {['Spanish', 'English', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi', 'Russian', 'Dutch', 'Polish', 'Turkish', 'Vietnamese', 'Thai', 'Indonesian'].map((lang) => (
+                            <button 
+                              key={lang}
+                              onClick={() => {
+                                setRevoiceTargetLanguage(lang);
+                                setIsTargetLanguagePopoverOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${revoiceTargetLanguage === lang ? 'bg-brand-green/10 font-medium' : ''}`}
+                            >
+                              {lang}
+                              {revoiceTargetLanguage === lang && <Check size={14} className="text-brand-green" />}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Duration indicator */}
+                    {revoiceAudio?.duration && (
+                      <span className="px-3 py-1.5 rounded-full text-xs bg-muted text-muted-foreground">
+                        {revoiceAudio.duration}s
+                      </span>
+                    )}
+                  </>
+                ) : selectedAudioMode === 'Voiceover' ? (
                   <>
                     {/* Voiceover Mode Controls */}
                     <Popover open={isAudioModelPopoverOpen} onOpenChange={setIsAudioModelPopoverOpen}>
@@ -6232,11 +6425,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   <button 
                     onClick={handleGenerate}
                     disabled={
-                      isGenerating || isTranscribing ||
+                      isGenerating || isTranscribing || isRevoicing ||
                       (isAudioMode && selectedAudioMode === 'Transcribe'
                         ? !transcribeAudio
                         : isAudioMode && selectedAudioMode === 'Clone'
                           ? false // Clone mode opens modal, no validation needed
+                          : isAudioMode && selectedAudioMode === 'Revoice'
+                            ? !revoiceAudio
                           : isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
                             ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
                             : isVideoMode && selectedAnimateMode === 'UGC'
@@ -6248,13 +6443,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     }
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isGenerating || isTranscribing ? (
+                    {isGenerating || isTranscribing || isRevoicing ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        {isTranscribing ? 'Transcribing...' : 'Generating...'}
+                        {isTranscribing ? 'Transcribing...' : isRevoicing ? 'Translating...' : 'Generating...'}
                       </>
                     ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
                       "Transcribe"
+                    ) : isAudioMode && selectedAudioMode === 'Revoice' ? (
+                      "Translate Audio"
                     ) : (
                       "Generate For Free!"
                     )}
