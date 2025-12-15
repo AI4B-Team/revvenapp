@@ -204,6 +204,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isLoadingReferenceImages, setIsLoadingReferenceImages] = useState(false);
   const [isStoryReferencePopoverOpen, setIsStoryReferencePopoverOpen] = useState(false);
   
+  // Cloned voices for voiceover
+  const [clonedVoices, setClonedVoices] = useState<{ id: string; name: string; elevenlabs_voice_id: string }[]>([]);
+  const [isLoadingClonedVoices, setIsLoadingClonedVoices] = useState(false);
+  
   const animateModes = [
     { value: 'Animate', label: 'Animate', icon: Play },
     { value: 'Draw', label: 'Draw', icon: Pencil },
@@ -478,6 +482,38 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     };
     
     fetchSavedReferenceImages();
+  }, []);
+
+  // Fetch cloned voices on mount
+  useEffect(() => {
+    const fetchClonedVoices = async () => {
+      setIsLoadingClonedVoices(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data, error } = await supabase
+          .from('user_voices')
+          .select('id, name, elevenlabs_voice_id')
+          .eq('user_id', user.id)
+          .eq('type', 'cloned')
+          .not('elevenlabs_voice_id', 'is', null)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        setClonedVoices((data || []).map(v => ({
+          id: v.id,
+          name: v.name,
+          elevenlabs_voice_id: v.elevenlabs_voice_id || ''
+        })));
+      } catch (error) {
+        console.error('Error fetching cloned voices:', error);
+      } finally {
+        setIsLoadingClonedVoices(false);
+      }
+    };
+    
+    fetchClonedVoices();
   }, []);
 
   // Debug Story mode state
@@ -1553,6 +1589,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           }
         })();
 
+        return;
+      }
+
+      // CLONE MODE: Open modal instead of generating
+      if (selectedAudioMode === 'Clone') {
+        setIsAudioUploadModalOpen(true);
         return;
       }
 
@@ -4669,6 +4711,58 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       <PopoverContent className="w-72 bg-background border-border z-50 p-3 max-h-80 overflow-y-auto">
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground mb-2">Select a voice for your voiceover</p>
+                          
+                          {/* Cloned Voices Section */}
+                          {clonedVoices.length > 0 && (
+                            <>
+                              <p className="text-xs font-medium text-violet-500 mt-3 mb-1">My Cloned Voices</p>
+                              {clonedVoices.map((voice) => (
+                                <div 
+                                  key={voice.id}
+                                  className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition ${
+                                    selectedVoiceoverId === voice.elevenlabs_voice_id ? 'bg-violet-500/10 border border-violet-500/30' : 'hover:bg-secondary'
+                                  }`}
+                                  onClick={() => {
+                                    setSelectedVoiceoverId(voice.elevenlabs_voice_id);
+                                    setSelectedVoiceoverName(voice.name);
+                                    setIsVoiceoverPopoverOpen(false);
+                                  }}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+                                      <Copy size={14} className="text-violet-500" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <p className="text-sm font-medium">{voice.name}</p>
+                                        <Badge className="bg-violet-500 text-white text-[9px] px-1 py-0 h-4">CLONED</Badge>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">Custom voice</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      playVoiceoverPreview(voice.elevenlabs_voice_id);
+                                    }}
+                                    disabled={loadingVoiceId !== null}
+                                    className="p-1.5 rounded-full hover:bg-secondary transition"
+                                  >
+                                    {loadingVoiceId === voice.elevenlabs_voice_id ? (
+                                      <Loader2 size={14} className="animate-spin text-muted-foreground" />
+                                    ) : playingVoiceId === voice.elevenlabs_voice_id ? (
+                                      <div className="w-3 h-3 rounded-sm bg-brand-red" />
+                                    ) : (
+                                      <Play size={14} className="text-violet-500" />
+                                    )}
+                                  </button>
+                                </div>
+                              ))}
+                              <p className="text-xs font-medium text-muted-foreground mt-3 mb-1">Standard Voices</p>
+                            </>
+                          )}
+                          
+                          {/* Standard Voices */}
                           {voiceoverLibrary.map((voice) => (
                             <div 
                               key={voice.id}
@@ -6011,13 +6105,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       isGenerating || isTranscribing ||
                       (isAudioMode && selectedAudioMode === 'Transcribe'
                         ? !transcribeAudio
-                        : isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
-                          ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
-                          : isVideoMode && selectedAnimateMode === 'UGC'
-                            ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
-                            : isVideoMode && selectedAnimateMode === 'Story'
-                              ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
-                              : !prompt.trim()
+                        : isAudioMode && selectedAudioMode === 'Clone'
+                          ? false // Clone mode opens modal, no validation needed
+                          : isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync')
+                            ? (!ugcScriptText.trim() || selectedCharacters.length === 0 || (uploadedAudio?.duration && uploadedAudio.duration > 15) || ugcScriptText.length > 180)
+                            : isVideoMode && selectedAnimateMode === 'UGC'
+                              ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
+                              : isVideoMode && selectedAnimateMode === 'Story'
+                                ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
+                                : !prompt.trim()
                       )
                     }
                     className="px-6 py-2.5 bg-brand-green hover:opacity-90 text-primary rounded-lg font-semibold flex items-center gap-2 transition whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
@@ -6029,6 +6125,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </>
                     ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
                       "Transcribe"
+                    ) : isAudioMode && selectedAudioMode === 'Clone' ? (
+                      "Clone Voice"
                     ) : (
                       "Generate For Free!"
                     )}
@@ -6193,7 +6291,34 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {/* Audio Upload Modal */}
       <AudioUploadModal
         isOpen={isAudioUploadModalOpen}
-        onClose={() => setIsAudioUploadModalOpen(false)}
+        onClose={() => {
+          setIsAudioUploadModalOpen(false);
+          // Refresh cloned voices after closing modal (user may have cloned a new voice)
+          (async () => {
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
+              
+              const { data, error } = await supabase
+                .from('user_voices')
+                .select('id, name, elevenlabs_voice_id')
+                .eq('user_id', user.id)
+                .eq('type', 'cloned')
+                .not('elevenlabs_voice_id', 'is', null)
+                .order('created_at', { ascending: false });
+                
+              if (!error && data) {
+                setClonedVoices(data.map(v => ({
+                  id: v.id,
+                  name: v.name,
+                  elevenlabs_voice_id: v.elevenlabs_voice_id || ''
+                })));
+              }
+            } catch (error) {
+              console.error('Error refreshing cloned voices:', error);
+            }
+          })();
+        }}
         onUseAudio={(audio) => {
           setUploadedAudio(audio);
           setIsAudioUploadModalOpen(false);
