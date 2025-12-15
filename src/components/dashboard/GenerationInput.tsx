@@ -777,9 +777,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     setLoadingVoiceId(voiceId);
 
     try {
-      // Find the voice name from the voiceover library
-      const voice = voiceoverLibrary.find(v => v.id === voiceId);
-      const voiceName = voice?.name || voiceId;
+      // Find the voice name from the voiceover library or cloned voices
+      const standardVoice = voiceoverLibrary.find(v => v.id === voiceId);
+      const clonedVoice = clonedVoices.find(v => v.elevenlabs_voice_id === voiceId);
+      const voiceName = standardVoice?.name || clonedVoice?.name || voiceId;
       const previewText = `Hi, I am ${voiceName}, welcome to Revven.`;
       
       const { data, error } = await supabase.functions.invoke('generate-voice-preview', {
