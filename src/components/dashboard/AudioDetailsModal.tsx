@@ -610,8 +610,8 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
               </div>
               
               {/* Language Tabs */}
-              {selectedLanguage && (
-                <div className="flex gap-2 mt-4">
+              {Object.keys(translatedText).length > 0 && (
+                <div className="flex gap-2 mt-4 flex-wrap">
                   <button
                     onClick={() => setActiveTab('original')}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -622,17 +622,20 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                   >
                     Original
                   </button>
-                  <button
-                    onClick={() => setActiveTab(selectedLanguage)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                      activeTab === selectedLanguage 
-                        ? 'bg-gray-900 text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {LANGUAGES.find(l => l.code === selectedLanguage)?.name}
-                    {isTranslating && <Loader2 size={14} className="animate-spin" />}
-                  </button>
+                  {Object.keys(translatedText).map((langCode) => (
+                    <button
+                      key={langCode}
+                      onClick={() => setActiveTab(langCode)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                        activeTab === langCode 
+                          ? 'bg-gray-900 text-white' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {LANGUAGES.find(l => l.code === langCode)?.name || langCode}
+                      {isTranslating && selectedLanguage === langCode && <Loader2 size={14} className="animate-spin" />}
+                    </button>
+                  ))}
                 </div>
               )}
             </DialogHeader>
