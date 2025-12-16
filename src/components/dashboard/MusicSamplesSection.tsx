@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Play, Pause, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface MusicSample {
   id: string;
@@ -15,58 +16,66 @@ const musicSamples: MusicSample[] = [
     id: '1',
     genre: 'R&B',
     coverImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    promptText: 'Create a song that blends modern R&B, pop, and trap styles, with a confident and bold emotional vibe, perfect for clubs, parties, or workout sessions. The female lead vocalist should have a bright and agile voice, with pitch correction (Auto-Tune) and melisma, accompanied by rich harmonies.',
+    audioUrl: '/audio/samples/rnb.mp3',
+    promptText:
+      'Create a song that blends modern R&B, pop, and trap styles, with a confident and bold emotional vibe, perfect for clubs, parties, or workout sessions. The female lead vocalist should have a bright and agile voice, with pitch correction (Auto-Tune) and melisma, accompanied by rich harmonies.',
     isNew: true,
   },
   {
     id: '2',
     genre: 'POP',
     coverImage: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-    promptText: 'This song blends EDM, Pop-Dance, and Progressive House styles, creating an uplifting, anthemic, and emotionally charged track perfect for a night out, a music festival, or even a high-energy workout. The lyrics are designed to evoke feelings of hope, yearning, and strength, with a male vocalist delivering a melodic, smooth, and emotionally rich performance.',
+    audioUrl: '/audio/samples/pop.mp3',
+    promptText:
+      'This song blends EDM, Pop-Dance, and Progressive House styles, creating an uplifting, anthemic, and emotionally charged track perfect for a night out, a music festival, or even a high-energy workout. The lyrics are designed to evoke feelings of hope, yearning, and strength, with a male vocalist delivering a melodic, smooth, and emotionally rich performance.',
   },
   {
     id: '3',
     genre: 'Jazz',
     coverImage: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-    promptText: 'Create a vocal jazz and swing song with joyful, romantic, and lighthearted vibes, perfect for a lively jazz club or romantic evening. The female lead vocalist should have a clear, bright voice with a playful, scat-influenced style. The arrangement includes piano and upright bass for a warm, jazz feel.',
+    audioUrl: '/audio/samples/jazz.mp3',
+    promptText:
+      'Create a vocal jazz and swing song with joyful, romantic, and lighthearted vibes, perfect for a lively jazz club or romantic evening. The female lead vocalist should have a clear, bright voice with a playful, scat-influenced style. The arrangement includes piano and upright bass for a warm, jazz feel.',
   },
   {
     id: '4',
     genre: 'Country',
     coverImage: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-    promptText: "Create a folk-style song with warm, nostalgic emotions, perfect for New Year's Eve or farewell gatherings. The female lead has a clear, gentle voice, with simple guitar accompaniment.",
+    audioUrl: '/audio/samples/country.mp3',
+    promptText:
+      "Create a folk-style song with warm, nostalgic emotions, perfect for New Year's Eve or farewell gatherings. The female lead has a clear, gentle voice, with simple guitar accompaniment.",
   },
   {
     id: '5',
     genre: 'Blues',
     coverImage: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-    promptText: 'Create a lively and upbeat Jump Blues/Early Rock and Roll song, perfect for dancing and retro parties. The female lead has a bright, playful voice. The arrangement includes piano, drums, bass, saxophone, and guitar, with a BPM of 98.',
+    audioUrl: '/audio/samples/blues.mp3',
+    promptText:
+      'Create a lively and upbeat Jump Blues/Early Rock and Roll song, perfect for dancing and retro parties. The female lead has a bright, playful voice. The arrangement includes piano, drums, bass, saxophone, and guitar, with a BPM of 98.',
   },
   {
     id: '6',
     genre: 'Hip-Hop',
     coverImage: 'https://images.unsplash.com/photo-1546427660-eb346c344ba5?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-    promptText: 'Create a hard-hitting hip-hop track with heavy 808 bass, punchy drums, and aggressive synth stabs. The male rapper delivers confident, rapid-fire verses with an assertive flow. Perfect for workout playlists, sports highlights, or high-energy content.',
+    audioUrl: '/audio/samples/hiphop.mp3',
+    promptText:
+      'Create a hard-hitting hip-hop track with heavy 808 bass, punchy drums, and aggressive synth stabs. The male rapper delivers confident, rapid-fire verses with an assertive flow. Perfect for workout playlists, sports highlights, or high-energy content.',
   },
   {
     id: '7',
     genre: 'Electronic',
     coverImage: 'https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
-    promptText: 'Create an energetic electronic dance track with pulsing synthesizers, driving four-on-the-floor beats, and atmospheric pads. Build tension with rising arpeggios before dropping into a euphoric chorus. Perfect for clubs, festivals, and high-energy content.',
+    audioUrl: '/audio/samples/electronic.mp3',
+    promptText:
+      'Create an energetic electronic dance track with pulsing synthesizers, driving four-on-the-floor beats, and atmospheric pads. Build tension with rising arpeggios before dropping into a euphoric chorus. Perfect for clubs, festivals, and high-energy content.',
   },
   {
     id: '8',
     genre: 'Classical',
     coverImage: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    promptText: 'Create a song in a pop-ballad style with melancholic, yearning, heartfelt, and reflective emotions, perfect for breakup contemplation, rainy-day moods, or introspective moments. The male lead vocalist should have a warm, breathy tone in softer passages, emotionally expressive, with a sincere delivery. The arrangement features piano as the core instrument.',
+    audioUrl: '/audio/samples/classical.mp3',
+    promptText:
+      'Compose a classical orchestral piece with a graceful, cinematic build: a delicate string-and-piano introduction, warm woodwinds, then a triumphant full-orchestra swell. Keep it elegant, emotional, and timeless.',
   },
 ];
 
@@ -114,12 +123,14 @@ const MusicSampleCard: React.FC<MusicSampleCardProps> = ({
       >
         <img
           src={sample.coverImage}
-          alt={sample.genre}
-          className={`
-            w-full h-full object-cover
-            transition-all duration-500 ease-out
-            ${isHovered ? 'scale-110 brightness-75' : 'scale-100 brightness-100'}
-          `}
+          alt={`Royalty-free ${sample.genre} music sample cover`}
+          className={
+            `
+              w-full h-full object-cover
+              transition-all duration-500 ease-out
+              ${isHovered ? 'scale-110 brightness-75' : 'scale-100 brightness-100'}
+            `
+          }
         />
 
         <div
@@ -225,13 +236,14 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoplayToastShownRef = useRef(false);
 
   // Initialize audio element on mount
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'auto';
     audio.volume = 0;
-    audio.muted = true; // improves autoplay success across browsers
+    audio.muted = false;
     // @ts-expect-error - playsInline exists on HTMLMediaElement in many browsers
     audio.playsInline = true;
 
@@ -258,26 +270,39 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
       setHoveredSample(sample);
       
       if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = sample.audioUrl;
-        audioRef.current.volume = 0;
-        audioRef.current.currentTime = 0;
-        
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          let vol = 0;
-          const fadeIn = setInterval(() => {
-            if (audioRef.current && vol < 0.5) {
-              vol += 0.05;
-              audioRef.current.volume = Math.min(vol, 0.5);
-            } else {
-              clearInterval(fadeIn);
+        const audio = audioRef.current;
+        audio.pause();
+        audio.src = sample.audioUrl;
+        audio.load();
+        audio.volume = 0;
+        audio.muted = false;
+        audio.currentTime = 0;
+
+        audio
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+            let vol = 0;
+            const fadeIn = setInterval(() => {
+              if (audioRef.current && vol < 0.5) {
+                vol += 0.05;
+                audioRef.current.volume = Math.min(vol, 0.5);
+              } else {
+                clearInterval(fadeIn);
+              }
+            }, 50);
+          })
+          .catch((e) => {
+            if (!autoplayToastShownRef.current) {
+              autoplayToastShownRef.current = true;
+              toast('Enable audio previews', {
+                description: 'Click anywhere once, then hover a sample to preview audio.',
+                duration: 4000,
+              });
             }
-          }, 50);
-        }).catch((e) => {
-          console.log('Audio autoplay prevented:', e);
-          setIsPlaying(false);
-        });
+            console.log('Audio play failed:', e);
+            setIsPlaying(false);
+          });
       }
     } else {
       if (audioRef.current && isPlaying) {
