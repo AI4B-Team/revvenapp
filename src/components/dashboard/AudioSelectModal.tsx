@@ -19,6 +19,8 @@ import {
   Calendar,
   Square,
   FileAudio,
+  Pencil,
+  Check,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -423,9 +425,93 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
     setRecordedUrl(null);
   };
 
+  // Editing state
+  const [editingAudioId, setEditingAudioId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [editingRightPanelName, setEditingRightPanelName] = useState(false);
+  const [rightPanelEditName, setRightPanelEditName] = useState('');
+
+  const handleStartEditName = (audio: AudioItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingAudioId(audio.id);
+    setEditingName(audio.name);
+  };
+
+  const handleSaveEditName = async (audioId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!editingName.trim()) return;
+    
+    setIsSavingName(true);
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ name: editingName.trim() })
+        .eq('id', audioId);
+
+      if (error) throw error;
+      
+      setAudioHistory(prev => prev.map(a => 
+        a.id === audioId ? { ...a, name: editingName.trim() } : a
+      ));
+      if (selectedAudio?.id === audioId) {
+        setSelectedAudio(prev => prev ? { ...prev, name: editingName.trim() } : null);
+      }
+      toast({ title: "Name updated" });
+    } catch (error) {
+      console.error('Error updating name:', error);
+      toast({ title: "Failed to update name", variant: "destructive" });
+    } finally {
+      setIsSavingName(false);
+      setEditingAudioId(null);
+    }
+  };
+
+  const handleCancelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingAudioId(null);
+    setEditingName('');
+  };
+
+  const handleStartRightPanelEdit = () => {
+    const currentName = selectedAudio?.name || uploadedFile?.name || `Recording_${Date.now()}.webm`;
+    setRightPanelEditName(currentName);
+    setEditingRightPanelName(true);
+  };
+
+  const handleSaveRightPanelEdit = async () => {
+    if (!rightPanelEditName.trim()) return;
+    
+    if (selectedAudio) {
+      setIsSavingName(true);
+      try {
+        const { error } = await supabase
+          .from('user_voices')
+          .update({ name: rightPanelEditName.trim() })
+          .eq('id', selectedAudio.id);
+
+        if (error) throw error;
+        
+        setSelectedAudio(prev => prev ? { ...prev, name: rightPanelEditName.trim() } : null);
+        setAudioHistory(prev => prev.map(a => 
+          a.id === selectedAudio.id ? { ...a, name: rightPanelEditName.trim() } : a
+        ));
+        toast({ title: "Name updated" });
+      } catch (error) {
+        console.error('Error updating name:', error);
+        toast({ title: "Failed to update name", variant: "destructive" });
+      } finally {
+        setIsSavingName(false);
+      }
+    } else if (uploadedFile) {
+      setUploadedFile(prev => prev ? { ...prev, name: rightPanelEditName.trim() } : null);
+    }
+    setEditingRightPanelName(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl p-0 bg-white dark:bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px] [&>button]:hidden">
+      <DialogContent className="max-w-6xl p-0 bg-white dark:bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px] [&>button]:hidden">
         {/* Close button outside modal */}
         <button
           onClick={onClose}
@@ -458,7 +544,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-6 border-b border-gray-200">
+              <div className="flex gap-6 border-b border-gray-200 mt-4">
                 <button
                   onClick={() => setActiveTab('creations')}
                   className={`pb-3 text-sm font-medium flex items-center gap-2 transition border-b-2 ${
@@ -525,7 +611,46 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                       </button>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
+                        <div className="flex items-center gap-2">
+                          {editingAudioId === audio.id ? (
+                            <div className="flex items-center gap-1 flex-1" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type="text"
+                                value={editingName}
+                                onChange={(e) => setEditingName(e.target.value)}
+                                className="flex-1 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                autoFocus
+                              />
+                              <button
+                                onClick={(e) => handleSaveEditName(audio.id, e)}
+                                disabled={isSavingName}
+                                className="p-1 hover:bg-emerald-100 rounded transition"
+                              >
+                                {isSavingName ? (
+                                  <Loader2 size={12} className="text-emerald-600 animate-spin" />
+                                ) : (
+                                  <Check size={12} className="text-emerald-600" />
+                                )}
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="p-1 hover:bg-gray-100 rounded transition"
+                              >
+                                <X size={12} className="text-gray-500" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
+                              <button
+                                onClick={(e) => handleStartEditName(audio, e)}
+                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded transition flex-shrink-0"
+                              >
+                                <Pencil size={12} className="text-gray-400" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                         <div className="flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Clock size={12} />
@@ -562,8 +687,8 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
             </div>
           </div>
 
-          {/* Right Panel - Upload/Record/Preview (Dark) */}
-          <div className="w-80 flex flex-col bg-[hsl(215,28%,14%)]">
+          {/* Right Panel - Upload/Record/Preview (White) */}
+          <div className="w-96 flex flex-col bg-white">
             <div className="flex-1 p-6 flex flex-col">
               {hasSelection ? (
                 // Preview selected/uploaded/recorded audio
@@ -593,11 +718,50 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                     </button>
                   </div>
                   
-                  <p className="font-medium text-white text-center mb-1">
-                    {selectedAudio?.name || uploadedFile?.name || `Recording_${Date.now()}.webm`}
-                  </p>
+                  <div className="flex items-center gap-2 mb-1">
+                    {editingRightPanelName ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="text"
+                          value={rightPanelEditName}
+                          onChange={(e) => setRightPanelEditName(e.target.value)}
+                          className="text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleSaveRightPanelEdit}
+                          disabled={isSavingName}
+                          className="p-1 hover:bg-emerald-100 rounded transition"
+                        >
+                          {isSavingName ? (
+                            <Loader2 size={12} className="text-emerald-600 animate-spin" />
+                          ) : (
+                            <Check size={12} className="text-emerald-600" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setEditingRightPanelName(false)}
+                          className="p-1 hover:bg-gray-100 rounded transition"
+                        >
+                          <X size={12} className="text-gray-500" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="font-medium text-gray-900 text-center">
+                          {selectedAudio?.name || uploadedFile?.name || `Recording_${Date.now()}.webm`}
+                        </p>
+                        <button
+                          onClick={handleStartRightPanelEdit}
+                          className="p-1 hover:bg-gray-100 rounded transition"
+                        >
+                          <Pencil size={12} className="text-gray-400" />
+                        </button>
+                      </>
+                    )}
+                  </div>
                   
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-500">
                     {formatTime(selectedAudio?.duration || uploadedFile?.duration || recordingTime)}
                   </p>
                 </div>
@@ -605,12 +769,12 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                 // Upload or Record options
                 <div className="flex-1 flex flex-col gap-4">
                   {/* Upload Box */}
-                  <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-500/5 transition group">
-                    <div className="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition">
+                  <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition group">
+                    <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition">
                       <AudioLines size={28} className="text-blue-500" />
                     </div>
-                    <p className="font-medium text-white">Upload Audio</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="font-medium text-gray-900">Upload Audio</p>
+                    <p className="text-xs text-gray-500 mt-1">
                       Audio: MP3, WAV Up to 20MB
                     </p>
                     <input
@@ -622,21 +786,21 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                     />
                   </label>
 
-                  <div className="text-center text-sm text-gray-500">- or -</div>
+                  <div className="text-center text-sm text-gray-400">- or -</div>
 
                   {/* Record Box */}
                   <div
                     onClick={isRecording ? stopRecording : startRecording}
                     className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition group ${
                       isRecording
-                        ? 'border-red-400 bg-red-500/10'
-                        : 'border-gray-600 hover:border-blue-400 hover:bg-blue-500/5'
+                        ? 'border-red-400 bg-red-50'
+                        : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
                     <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-3 transition ${
                       isRecording
-                        ? 'bg-red-500/20 animate-pulse'
-                        : 'bg-blue-500/20 group-hover:scale-105'
+                        ? 'bg-red-100 animate-pulse'
+                        : 'bg-blue-100 group-hover:scale-105'
                     }`}>
                       {isRecording ? (
                         <Square size={28} className="text-red-500" />
@@ -644,7 +808,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                         <Mic size={28} className="text-blue-500" />
                       )}
                     </div>
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-gray-900">
                       {isRecording ? 'Stop Recording' : 'Record Audio'}
                     </p>
                     {isRecording && (
@@ -653,8 +817,8 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                       </p>
                     )}
                     {!isRecording && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Click to start recording
+                      <p className="text-xs text-gray-500 mt-1">
+                        Click To Start Recording
                       </p>
                     )}
                   </div>
@@ -663,7 +827,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
             </div>
 
             {/* Bottom Button - Only Use */}
-            <div className="p-4 border-t border-white/10">
+            <div className="p-4 border-t border-gray-200">
               <Button
                 onClick={handleUseAudio}
                 disabled={!hasSelection || isUploading}
