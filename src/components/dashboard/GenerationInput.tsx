@@ -3037,13 +3037,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </button>
                     </div>
                   </>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground">
-                    <Mic size={48} className="mb-4 opacity-50" />
-                    <p className="text-lg font-medium">Upload or record audio to transcribe</p>
-                    <p className="text-sm mt-2 opacity-70">Transcribed text will appear here</p>
-                  </div>
-                )}
+                ) : null}
               </div>
             ) : (
               <>
@@ -5532,18 +5526,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   </>
                 ) : null}
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="text-muted-foreground hover:text-foreground transition bg-muted/50 rounded-lg p-2">
-                        <MoreVertical size={20} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Enhance Prompt</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </>
             ) : isDesignMode ? (
               <>
