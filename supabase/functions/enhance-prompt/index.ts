@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, fast = false, mode = 'image' } = await req.json();
+    const { prompt, fast = false, mode = 'image', musicWithVocals = false } = await req.json();
     
     if (!prompt) {
       throw new Error("Prompt is required");
@@ -109,23 +109,30 @@ RULES:
 6. Reformat into the standard structure above
 7. Return ONLY the improved lyrics in the format above, no explanations`;
     } else if (mode === 'music') {
-      // Instrumental-only mode - no vocals or lyrics
-      systemPrompt = `You are a music prompt enhancer for INSTRUMENTAL music. Transform the user's music idea into a STRUCTURED format.
+      // Generate prose-style music description for BOTH instrumental and vocal modes
+      const vocalDescription = musicWithVocals 
+        ? 'Include vocalist description (male/female), vocal style (melodic, raspy, smooth, powerful), and what emotions the lyrics evoke.'
+        : 'This is for instrumental music - do NOT mention vocals, singers, or lyrics.';
+      
+      systemPrompt = `You are a music prompt enhancer. Transform the user's music idea into a flowing, descriptive prose paragraph.
 
-OUTPUT FORMAT (use EXACTLY this structure):
-Genre: [specific genre like Ambient, Classical, Jazz, Electronic, Cinematic, etc.]
-Mood: [2-3 emotional descriptors]
-Tempo: [Slow/Medium/Fast or specific BPM]
-Instruments: [list 3-5 instruments]
-Style: [production style descriptors]
-Theme: [main musical theme or concept]
+OUTPUT FORMAT (write as a single cohesive paragraph, like this example):
+"This song blends EDM, Pop-Dance, and Progressive House styles, creating an uplifting, anthemic, and emotionally charged track perfect for a night out, a music festival, or even a high-energy workout. The lyrics are designed to evoke feelings of hope, yearning, and strength, with a male vocalist delivering a melodic, smooth, and emotionally rich performance."
+
+MUST INCLUDE in your prose description:
+- Genre blend (2-3 specific genres)
+- Mood/atmosphere descriptors (uplifting, melancholic, energetic, etc.)
+- Ideal use cases or settings (workout, relaxation, party, etc.)
+- Instrumentation hints woven naturally into the description
+${musicWithVocals ? '- Vocalist gender and vocal style\n- Emotional themes the lyrics convey' : ''}
+
+${vocalDescription}
 
 RULES:
-1. This is for INSTRUMENTAL music only - NO vocals or lyrics
-2. ONLY enhance what the user mentioned - don't change the core theme/subject
-3. If user mentions specific genre/mood/instruments, keep them
-4. Focus on musical arrangement, instrumentation, and atmosphere
-5. Return ONLY the structured format above, no explanations`;
+1. Write as ONE flowing paragraph, NOT a list or structured format
+2. Keep the user's core theme/mood - enhance, don't change
+3. Be vivid and evocative in your descriptions
+4. Return ONLY the prose description, no explanations`;
     } else if (fast) {
       systemPrompt = "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt.";
     } else {
