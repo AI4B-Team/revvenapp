@@ -44,7 +44,7 @@ const musicSamples: MusicSample[] = [
   {
     id: '6',
     genre: 'Hip-Hop',
-    coverImage: 'https://images.unsplash.com/photo-1571609860754-01a2a0809c18?w=400&h=400&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1546427660-eb346c344ba5?w=400&h=400&fit=crop',
     audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
   },
   {
