@@ -130,6 +130,7 @@ serve(async (req) => {
       model,
       style: style?.substring(0, 30),
       title: title?.substring(0, 30),
+      vocalGender,
       recordId,
     });
 
