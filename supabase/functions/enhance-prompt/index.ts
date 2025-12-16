@@ -29,127 +29,164 @@ serve(async (req) => {
     let systemPrompt: string;
     
     if (mode === 'lyrics') {
-      systemPrompt = `You are a professional songwriter and lyricist. Generate complete, emotionally resonant song lyrics in a structured format.
+      systemPrompt = `You are a professional songwriter and lyricist. Generate complete, emotionally resonant song lyrics.
 
-OUTPUT FORMAT - FOLLOW THIS EXACT STRUCTURE:
+OUTPUT FORMAT - Use EXACTLY this spacing pattern:
 
 🎵 Song Title: "[Creative title]"
 
+
 Verse 1
 
-[4 lines of lyrics - setting up the story/theme, use vivid imagery]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Pre-Chorus
 
-[2-4 lines building emotional tension toward the chorus]
+[Line 1]
+[Line 2]
+
 
 Chorus
 
-[4 lines - the emotional/melodic hook, most memorable part]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
 
 Verse 2
 
-[4 lines developing the story further, new perspective or progression]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Pre-Chorus
 
-[2-4 lines building emotional tension]
+[Line 1]
+[Line 2]
+
 
 Chorus
 
-[4 lines - repeat or slight variation of the hook]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
 
 Bridge
 
-[4 lines - emotional peak, different melodic feel, reflection or turning point]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Final Chorus
 
-[4 lines - powerful conclusion, may have slight variations for impact]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Outro
 
-[2-3 short, evocative lines fading out, ellipsis allowed]
-
-EXAMPLE OUTPUT:
-
-🎵 Song Title: "Fading Hues of Echoes"
-
-Verse 1
-
-Rain streaks down the pane, a silver, whispered blur
-Each drop a memory, I'm not sure what to infer
-From the ghost of your laughter, a melody I knew
-Fading with the daylight, a melancholic hue
-
-Pre-Chorus
-
-The same old streetlights glow, through the mist and the haze
-Caught in this reverie, lost in forgotten days
-
-Chorus
-
-Oh, these fading hues of echoes, a beauty bittersweet
-Every fragile moment, I can almost complete
-If only for a second, to hold it in my hand
-A fragile, shimmering starlight, across a barren land
+[Line 1]
+[Line 2]
+[Line 3]
 
 RULES:
-1. Create lyrics that match the user's theme/mood exactly
-2. Use vivid imagery, metaphors, and emotional language
-3. Maintain consistent rhyme scheme where appropriate
-4. Each section should have a BLANK LINE after the section name
-5. Return ONLY the lyrics in the format above, no explanations`;
+1. Two blank lines after Song Title
+2. One blank line between section name and lyrics
+3. Two blank lines between most sections (see pattern above)
+4. Each lyric line on its own line
+5. Use vivid imagery, metaphors, emotional language
+6. Maintain consistent rhyme schemes
+7. Return ONLY the lyrics, no explanations`;
     } else if (mode === 'lyrics-enhance') {
-      systemPrompt = `You are a professional songwriter. Improve the given lyrics and reformat them into the standard song structure.
+      systemPrompt = `You are a professional songwriter. Improve the given lyrics and reformat them.
 
-OUTPUT FORMAT - FOLLOW THIS EXACT STRUCTURE:
+OUTPUT FORMAT - Use EXACTLY this spacing pattern:
 
-🎵 Song Title: "[Extract or create title from lyrics]"
+🎵 Song Title: "[Title from lyrics]"
+
 
 Verse 1
 
-[4 lines of improved lyrics - vivid imagery, better word choices]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Pre-Chorus
 
-[2-4 lines building emotional tension]
+[Line 1]
+[Line 2]
+
 
 Chorus
 
-[4 lines - the emotional/melodic hook]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
 
 Verse 2
 
-[4 lines developing the story further]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Pre-Chorus
 
-[2-4 lines building emotional tension]
+[Line 1]
+[Line 2]
+
 
 Chorus
 
-[4 lines - repeat or variation of the hook]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
 
 Bridge
 
-[4 lines - emotional peak, different perspective]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Final Chorus
 
-[4 lines - powerful conclusion]
+[Line 1]
+[Line 2]
+[Line 3]
+[Line 4]
+
 
 Outro
 
-[2-3 short lines fading out, ellipsis allowed]
+[Line 1]
+[Line 2]
+[Line 3]
 
 RULES:
-1. Keep the SAME theme and core message from the original
-2. Improve word choices for more vivid imagery
-3. Enhance rhyme schemes where possible
-4. Make emotional moments more impactful
-5. Each section should have a BLANK LINE after the section name
-6. Return ONLY the improved lyrics in the format above, no explanations`;
+1. Keep the SAME theme and core message
+2. Two blank lines after Song Title
+3. One blank line between section name and lyrics
+4. Two blank lines between most sections
+5. Improve word choices, enhance rhymes
+6. Return ONLY the improved lyrics, no explanations`;
     } else if (mode === 'music') {
       // Generate prose-style music description for BOTH instrumental and vocal modes
       const vocalDescription = musicWithVocals 
