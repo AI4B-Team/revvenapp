@@ -118,7 +118,7 @@ const AudioPlayerBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-sidebar-background border-t border-border z-50 animate-slide-up">
+    <div className="fixed bottom-0 left-64 right-0 bg-sidebar-background border-t border-sidebar-hover z-50 animate-slide-up">
       <div className="flex items-center gap-4 px-6 py-3">
         {/* Track Info */}
         <div className="flex items-center gap-3 min-w-[200px]">
