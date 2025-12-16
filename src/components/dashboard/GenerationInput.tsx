@@ -3047,7 +3047,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )
                 ) : isAudioMode ? (
                   <>
-                    {selectedAudioMode !== 'Music' && (
+                    {selectedAudioMode === 'Transcribe' && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
