@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
-  ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
-  Heart, Calendar, Layers, Image, Video, Headphones, 
-  Palette, FileText, Grid3x3
+  Sliders, Search, ZoomIn, ZoomOut, 
+  Heart, Calendar
 } from 'lucide-react';
 import {
   Tooltip,
@@ -28,11 +27,9 @@ interface FilterToolbarProps {
   selectedContentType?: string;
 }
 
-const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType: externalContentType }: FilterToolbarProps) => {
-  const [allDropdownOpen, setAllDropdownOpen] = useState(false);
+const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType = 'All' }: FilterToolbarProps) => {
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const [selectedContentType, setSelectedContentType] = useState(externalContentType || 'All');
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     likes: false,
@@ -41,25 +38,8 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
     startDate: '',
     endDate: ''
   });
-
-  // Sync with external content type changes
-  useEffect(() => {
-    if (externalContentType && externalContentType !== selectedContentType) {
-      setSelectedContentType(externalContentType);
-    }
-  }, [externalContentType]);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const contentTypes = [
-    { name: 'All', icon: Layers, color: '' },
-    { name: 'Image', icon: Image, color: 'text-brand-blue' },
-    { name: 'Video', icon: Video, color: 'text-brand-red' },
-    { name: 'Audio', icon: Headphones, color: 'text-brand-green' },
-    { name: 'Design', icon: Palette, color: 'text-brand-yellow' },
-    { name: 'Content', icon: FileText, color: 'text-brand-blue' },
-    { name: 'Apps', icon: Grid3x3, color: 'text-brand-green' }
-  ];
 
   // Focus search input when expanded
   useEffect(() => {
@@ -73,7 +53,6 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.dropdown-container')) {
-        setAllDropdownOpen(false);
         setFilterDropdownOpen(false);
       }
     };
@@ -83,45 +62,6 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
 
   return (
     <div className="flex items-center gap-3">
-      
-      {/* All Dropdown */}
-      <div className="relative dropdown-container">
-        <button
-          onClick={() => setAllDropdownOpen(!allDropdownOpen)}
-          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
-        >
-          <span className="text-sm font-medium">{selectedContentType}</span>
-          <ChevronDown size={16} />
-        </button>
-
-        {allDropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-            {contentTypes.map((type) => {
-              const Icon = type.icon;
-              return (
-                <button
-                  key={type.name}
-                  onClick={() => {
-                    setSelectedContentType(type.name);
-                    setAllDropdownOpen(false);
-                    onFiltersChange?.({
-                      contentType: type.name,
-                      ...filters,
-                      searchQuery
-                    });
-                  }}
-                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
-                    selectedContentType === type.name ? 'bg-gray-100 font-semibold' : ''
-                  }`}
-                >
-                  <Icon size={16} className={type.color} />
-                  {type.name}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
       {/* Filter Dropdown */}
       <div className="relative dropdown-container">
