@@ -15,6 +15,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface AudioTrack {
   id: string;
@@ -156,218 +162,270 @@ const AudioPlayerBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-64 right-0 z-50 animate-slide-up" style={{ backgroundColor: 'hsl(215, 28%, 17%)' }}>
-      <div className="flex items-center gap-4 px-6 py-4">
-        {/* Track Info */}
-        <div className="flex items-center gap-3 min-w-[200px]">
-          {/* Animated equalizer when playing */}
-          <div className="flex items-end gap-0.5 h-10 w-10">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`w-1.5 bg-brand-green rounded-full ${
-                  isPlaying ? 'animate-equalizer' : 'h-1'
-                }`}
-                style={{
-                  animationDelay: `${i * 0.1}s`,
-                  animationDuration: `${0.4 + i * 0.1}s`,
-                  height: isPlaying ? undefined : '4px'
-                }}
-              />
-            ))}
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-sidebar-text truncate max-w-[150px]">
-              {track.name}
-            </span>
-            <span className={`text-xs px-1.5 py-0.5 rounded w-fit ${getTypeBadgeColor(track.type)} text-white`}>
-              {getTypeLabel(track.type)}
-            </span>
-          </div>
-        </div>
-
-        {/* Playback Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onPrevious}
-            disabled={currentIndex === 0}
-            className="p-2 rounded-full hover:bg-sidebar-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <SkipBack size={20} className="text-sidebar-text" />
-          </button>
-          <button
-            onClick={togglePlay}
-            className="p-4 rounded-full bg-brand-green hover:bg-brand-green/90 transition-colors"
-          >
-            {isPlaying ? (
-              <Pause size={24} className="text-white" />
-            ) : (
-              <Play size={24} className="text-white ml-0.5" />
-            )}
-          </button>
-          <button
-            onClick={onNext}
-            disabled={currentIndex === tracks.length - 1}
-            className="p-2 rounded-full hover:bg-sidebar-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <SkipForward size={20} className="text-sidebar-text" />
-          </button>
-        </div>
-
-        {/* Progress Bar with Time */}
-        <div className="flex-1 flex items-center gap-3">
-          <span className="text-xs text-sidebar-text-muted w-10 text-right font-mono">
-            {formatTime(currentTime)}
-          </span>
-          <Slider
-            value={[currentTime]}
-            max={track.duration || 100}
-            step={0.1}
-            onValueChange={handleSeek}
-            className="flex-1"
-          />
-          <span className="text-xs text-sidebar-text-muted w-10 font-mono">
-            {formatTime(track.duration)}
-          </span>
-        </div>
-
-        {/* Action Icons */}
-        <div className="flex items-center gap-1">
-          {/* Info/Details */}
-          <button
-            onClick={() => onShowDetails?.(track)}
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-            title="View details"
-          >
-            <Info size={18} className="text-sidebar-text" />
-          </button>
-
-          {/* Heart/Like */}
-          <button
-            onClick={() => setIsLiked(!isLiked)}
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-            title="Like"
-          >
-            <Heart 
-              size={18} 
-              className={isLiked ? 'text-brand-red fill-brand-red' : 'text-sidebar-text'} 
-            />
-          </button>
-
-          {/* Remix */}
-          <button
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-            title="Remix"
-          >
-            <RefreshCw size={18} className="text-sidebar-text" />
-          </button>
-
-          {/* Download */}
-          <button
-            onClick={handleDownload}
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-            title="Download"
-          >
-            <Download size={18} className="text-sidebar-text" />
-          </button>
-
-          {/* Share */}
-          <button
-            onClick={handleShare}
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-            title="Share"
-          >
-            <Share2 size={18} className="text-sidebar-text" />
-          </button>
-
-          {/* Vertical Volume Control */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-                title="Volume"
-              >
-                {isMuted || volume === 0 ? (
-                  <VolumeX size={18} className="text-sidebar-text" />
-                ) : (
-                  <Volume2 size={18} className="text-sidebar-text" />
-                )}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent 
-              side="top" 
-              className="w-10 p-2 bg-sidebar-background border-sidebar-hover"
-              align="center"
-            >
-              <div className="h-24 flex justify-center">
-                <Slider
-                  orientation="vertical"
-                  value={[isMuted ? 0 : volume]}
-                  max={100}
-                  step={1}
-                  onValueChange={(v) => {
-                    setVolume(v[0]);
-                    setIsMuted(false);
+    <TooltipProvider delayDuration={300}>
+      <div className="fixed bottom-0 left-64 right-0 z-50 animate-slide-up" style={{ backgroundColor: 'hsl(215, 28%, 17%)' }}>
+        <div className="flex items-center gap-4 px-6 py-4">
+          {/* Track Info */}
+          <div className="flex items-center gap-3 min-w-[200px]">
+            {/* Animated equalizer when playing */}
+            <div className="flex items-end gap-0.5 h-10 w-10">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 bg-brand-green rounded-full ${
+                    isPlaying ? 'animate-equalizer' : 'h-1'
+                  }`}
+                  style={{
+                    animationDelay: `${i * 0.1}s`,
+                    animationDuration: `${0.4 + i * 0.1}s`,
+                    height: isPlaying ? undefined : '4px'
                   }}
-                  className="h-full"
                 />
-              </div>
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="w-full mt-2 p-1 rounded hover:bg-sidebar-hover transition-colors flex justify-center"
-              >
-                {isMuted ? (
-                  <VolumeX size={14} className="text-sidebar-text" />
-                ) : (
-                  <Volume2 size={14} className="text-sidebar-text" />
-                )}
-              </button>
-            </PopoverContent>
-          </Popover>
+              ))}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-sidebar-text truncate max-w-[150px]">
+                {track.name}
+              </span>
+              <span className={`text-xs px-1.5 py-0.5 rounded w-fit ${getTypeBadgeColor(track.type)} text-white`}>
+                {getTypeLabel(track.type)}
+              </span>
+            </div>
+          </div>
 
-          {/* More Options Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
-                title="More options"
-              >
-                <MoreVertical size={18} className="text-sidebar-text" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="bg-sidebar-background border-sidebar-hover"
-            >
-              <DropdownMenuItem onClick={() => onShowDetails?.(track)}>
-                <Info size={14} className="mr-2" />
-                View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDownload}>
-                <Download size={14} className="mr-2" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleShare}>
-                <Share2 size={14} className="mr-2" />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <RefreshCw size={14} className="mr-2" />
-                Remix
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Playback Controls */}
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onPrevious}
+                  disabled={currentIndex === 0}
+                  className="p-2 rounded-full hover:bg-sidebar-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <SkipBack size={20} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Previous</TooltipContent>
+            </Tooltip>
 
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-sidebar-hover transition-colors ml-2"
-          >
-            <X size={18} className="text-sidebar-text" />
-          </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={togglePlay}
+                  className="p-4 rounded-full bg-brand-green hover:bg-brand-green/90 transition-colors"
+                >
+                  {isPlaying ? (
+                    <Pause size={24} className="text-white" />
+                  ) : (
+                    <Play size={24} className="text-white ml-0.5" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">{isPlaying ? 'Pause' : 'Play'}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onNext}
+                  disabled={currentIndex === tracks.length - 1}
+                  className="p-2 rounded-full hover:bg-sidebar-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <SkipForward size={20} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Next</TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Progress Bar with Time */}
+          <div className="flex-1 flex items-center gap-3">
+            <span className="text-sm text-white w-12 text-right font-mono">
+              {formatTime(currentTime)}
+            </span>
+            <Slider
+              value={[currentTime]}
+              max={track.duration || 100}
+              step={0.1}
+              onValueChange={handleSeek}
+              className="flex-1"
+            />
+            <span className="text-sm text-white w-12 font-mono">
+              {formatTime(track.duration)}
+            </span>
+          </div>
+
+          {/* Action Icons */}
+          <div className="flex items-center gap-1">
+            {/* Info/Details */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => onShowDetails?.(track)}
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                >
+                  <Info size={18} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">View Details</TooltipContent>
+            </Tooltip>
+
+            {/* Heart/Like */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsLiked(!isLiked)}
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                >
+                  <Heart 
+                    size={18} 
+                    className={isLiked ? 'text-brand-red fill-brand-red' : 'text-sidebar-text'} 
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">{isLiked ? 'Unlike' : 'Like'}</TooltipContent>
+            </Tooltip>
+
+            {/* Remix */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                >
+                  <RefreshCw size={18} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Remix</TooltipContent>
+            </Tooltip>
+
+            {/* Download */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleDownload}
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                >
+                  <Download size={18} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Download</TooltipContent>
+            </Tooltip>
+
+            {/* Share */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleShare}
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                >
+                  <Share2 size={18} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Share</TooltipContent>
+            </Tooltip>
+
+            {/* Vertical Volume Control */}
+            <Popover>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                    >
+                      {isMuted || volume === 0 ? (
+                        <VolumeX size={18} className="text-sidebar-text" />
+                      ) : (
+                        <Volume2 size={18} className="text-sidebar-text" />
+                      )}
+                    </button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="top">Volume</TooltipContent>
+              </Tooltip>
+              <PopoverContent 
+                side="top" 
+                className="w-10 p-2 bg-sidebar-background border-sidebar-hover"
+                align="center"
+              >
+                <div className="h-24 flex justify-center">
+                  <Slider
+                    orientation="vertical"
+                    value={[isMuted ? 0 : volume]}
+                    max={100}
+                    step={1}
+                    onValueChange={(v) => {
+                      setVolume(v[0]);
+                      setIsMuted(false);
+                    }}
+                    className="h-full"
+                  />
+                </div>
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="w-full mt-2 p-1 rounded hover:bg-sidebar-hover transition-colors flex justify-center"
+                >
+                  {isMuted ? (
+                    <VolumeX size={14} className="text-sidebar-text" />
+                  ) : (
+                    <Volume2 size={14} className="text-sidebar-text" />
+                  )}
+                </button>
+              </PopoverContent>
+            </Popover>
+
+            {/* More Options Menu */}
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="p-2 rounded-full hover:bg-sidebar-hover transition-colors"
+                    >
+                      <MoreVertical size={18} className="text-sidebar-text" />
+                    </button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="top">More Options</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent 
+                align="end" 
+                className="bg-sidebar-background border-sidebar-hover"
+              >
+                <DropdownMenuItem onClick={() => onShowDetails?.(track)}>
+                  <Info size={14} className="mr-2" />
+                  View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownload}>
+                  <Download size={14} className="mr-2" />
+                  Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share2 size={14} className="mr-2" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <RefreshCw size={14} className="mr-2" />
+                  Remix
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Close Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-full hover:bg-sidebar-hover transition-colors ml-2"
+                >
+                  <X size={18} className="text-sidebar-text" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Close Player</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
