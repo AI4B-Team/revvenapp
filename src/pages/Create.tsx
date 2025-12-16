@@ -557,7 +557,7 @@ const Create = () => {
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">
-                    {selectedType === 'Audio' ? 'AUDIO CREATIONS' : 'CREATIONS'}
+                    {filters.contentType === 'Audio' ? 'AUDIO CREATIONS' : 'CREATIONS'}
                   </h2>
                   <FilterToolbar 
                     zoom={zoom} 
@@ -567,7 +567,7 @@ const Create = () => {
                     onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
                   />
                 </div>
-                {selectedType === 'Audio' ? (
+                {filters.contentType === 'Audio' ? (
                   <AudioCreationsGallery 
                     columnsPerRow={zoomLevel}
                     onTrackSelect={(track, index, tracks) => {
