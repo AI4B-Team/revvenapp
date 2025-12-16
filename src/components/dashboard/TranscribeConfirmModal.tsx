@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Trash2, AudioLines, ChevronDown, Loader2 } from 'lucide-react';
+import { X, Trash2, AudioLines, Loader2, Pencil, Check } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ interface TranscribeConfirmModalProps {
     url: string;
     base64?: string;
   } | null;
-  onTranscribe: (numSpeakers: number) => void;
+  onTranscribe: (numSpeakers: number, fileName?: string) => void;
   onRemoveAudio: () => void;
   isTranscribing?: boolean;
 }
@@ -33,6 +33,14 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
   isTranscribing = false,
 }) => {
   const [numSpeakers, setNumSpeakers] = useState(1);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+
+  useEffect(() => {
+    if (audioFile) {
+      setEditedName(audioFile.name);
+    }
+  }, [audioFile]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -49,11 +57,15 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
     return `${(estimatedBytes / 1024).toFixed(2)} KB`;
   };
 
+  const handleSaveName = () => {
+    setIsEditingName(false);
+  };
+
   if (!audioFile) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg p-0 bg-white dark:bg-background border-0 rounded-2xl overflow-hidden">
+      <DialogContent className="max-w-2xl p-0 bg-white dark:bg-background border-0 rounded-2xl overflow-hidden">
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between">
@@ -62,7 +74,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
                 Transcribe Audio
               </h2>
               <p className="text-sm text-gray-500 dark:text-muted-foreground mt-1">
-                Generate a transcript using our cutting-edge, AI transcription tech.
+                Instantly convert your recording into an accurate, AI-generated transcript.
               </p>
             </div>
             <button
@@ -78,15 +90,50 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
         <div className="px-6 pb-4">
           <div className="flex items-center gap-4 p-4 bg-gray-100 dark:bg-secondary/50 rounded-xl">
             {/* Waveform Icon */}
-            <div className="w-24 h-16 bg-gradient-to-br from-violet-500/20 to-violet-600/30 rounded-lg flex items-center justify-center">
+            <div className="w-24 h-16 bg-gradient-to-br from-violet-500/20 to-violet-600/30 rounded-lg flex items-center justify-center flex-shrink-0">
               <AudioLines size={32} className="text-violet-500" />
             </div>
             
             {/* File Info */}
-            <div className="flex-1">
-              <p className="font-medium text-gray-900 dark:text-foreground">
-                {audioFile.name}
-              </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="flex-1 px-2 py-1 bg-white dark:bg-background border border-gray-300 dark:border-border rounded text-sm font-medium text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveName();
+                        if (e.key === 'Escape') {
+                          setEditedName(audioFile.name);
+                          setIsEditingName(false);
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={handleSaveName}
+                      className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded transition"
+                    >
+                      <Check size={16} className="text-emerald-500" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="font-medium text-gray-900 dark:text-foreground truncate">
+                      {editedName}
+                    </p>
+                    <button
+                      onClick={() => setIsEditingName(true)}
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-secondary rounded transition flex-shrink-0"
+                    >
+                      <Pencil size={14} className="text-gray-500 dark:text-muted-foreground" />
+                    </button>
+                  </>
+                )}
+              </div>
               <p className="text-sm text-gray-500 dark:text-muted-foreground">
                 {formatFileSize(audioFile.duration)} - {formatDuration(audioFile.duration)}
               </p>
@@ -98,7 +145,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
                 onRemoveAudio();
                 onClose();
               }}
-              className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition"
+              className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition flex-shrink-0"
             >
               <Trash2 size={18} className="text-gray-500 dark:text-muted-foreground" />
             </button>
@@ -107,26 +154,26 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
 
         {/* Speakers Selector */}
         <div className="px-6 pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <p className="font-medium text-gray-900 dark:text-foreground">
-                How many speakers?
+                How Many Speakers?
               </p>
               <p className="text-sm text-gray-500 dark:text-muted-foreground">
-                You'll get separate audio tracks per speaker for more powerful editing.
+                Automatically separates each voice into its own track for easier editing.
               </p>
             </div>
             <Select
               value={numSpeakers.toString()}
               onValueChange={(value) => setNumSpeakers(parseInt(value))}
             >
-              <SelectTrigger className="w-36 bg-gray-100 dark:bg-secondary border-0">
-                <SelectValue placeholder="1 speaker" />
+              <SelectTrigger className="w-36 bg-gray-100 dark:bg-secondary border-0 flex-shrink-0">
+                <SelectValue placeholder="1 Speaker" />
               </SelectTrigger>
               <SelectContent className="bg-white dark:bg-background border-border">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                   <SelectItem key={num} value={num.toString()}>
-                    {num} speaker{num > 1 ? 's' : ''}
+                    {num} Speaker{num > 1 ? 's' : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -137,7 +184,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
         {/* Transcribe Button */}
         <div className="px-6 pb-6">
           <Button
-            onClick={() => onTranscribe(numSpeakers)}
+            onClick={() => onTranscribe(numSpeakers, editedName)}
             disabled={isTranscribing}
             className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-base rounded-xl"
           >
