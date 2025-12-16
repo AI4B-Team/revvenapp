@@ -4,6 +4,7 @@ import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
 import TranscribeConfirmModal from './TranscribeConfirmModal';
 import AudioSelectModal from './AudioSelectModal';
+import MusicSamplesSection from './MusicSamplesSection';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -136,6 +137,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [musicStyle, setMusicStyle] = useState('');
   const [musicTitle, setMusicTitle] = useState('');
   const [isMusicModelPopoverOpen, setIsMusicModelPopoverOpen] = useState(false);
+  const [selectedMusicSample, setSelectedMusicSample] = useState<{ id: string; genre: string } | null>(null);
   
   // Transcribe mode state
   const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
@@ -6763,6 +6765,18 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
       </div>
+
+      {/* Music Samples Section - Only visible when Music is selected in Audio mode */}
+      {isAudioMode && selectedAudioMode === 'Music' && (
+        <MusicSamplesSection 
+          isVisible={true}
+          onSampleSelect={(sample) => {
+            setSelectedMusicSample({ id: sample.id, genre: sample.genre });
+            setMusicStyle(sample.genre);
+          }}
+          selectedSampleId={selectedMusicSample?.id}
+        />
+      )}
 
       {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
       {isContentMode && showSocialButtons && (
