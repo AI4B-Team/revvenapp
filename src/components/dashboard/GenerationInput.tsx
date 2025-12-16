@@ -137,6 +137,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [musicStyle, setMusicStyle] = useState('');
   const [musicTitle, setMusicTitle] = useState('');
   const [musicLyrics, setMusicLyrics] = useState('');
+  const [vocalGender, setVocalGender] = useState<'m' | 'f'>('f');
   const [isMusicModelPopoverOpen, setIsMusicModelPopoverOpen] = useState(false);
   const [selectedMusicSample, setSelectedMusicSample] = useState<{ id: string; genre: string } | null>(null);
   
@@ -1847,6 +1848,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             if (musicCustomMode) {
               requestBody.style = musicStyle;
               requestBody.title = musicTitle;
+            }
+
+            // Add vocal gender when not instrumental
+            if (!musicInstrumental) {
+              requestBody.vocalGender = vocalGender;
             }
 
             const { data, error } = await supabase.functions.invoke('generate-music', {
@@ -4888,42 +4894,65 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {musicInstrumental ? '🎹 Instrumental' : '🎤 With Vocals'}
                     </button>
 
-                    {/* Lyrics input (only when With Vocals is selected) */}
+                    {/* Vocal Gender & Lyrics (only when With Vocals is selected) */}
                     {!musicInstrumental && (
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            musicLyrics ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <FileText size={14} />
-                            {musicLyrics ? 'Lyrics ✓' : 'Add Lyrics'}
-                            <ChevronDown size={14} />
+                      <>
+                        {/* Vocal Gender Selector */}
+                        <div className="flex items-center gap-1 bg-pill-gray rounded-full p-0.5">
+                          <button
+                            onClick={() => setVocalGender('f')}
+                            className={`px-3 py-1 rounded-full text-sm transition whitespace-nowrap ${
+                              vocalGender === 'f' ? 'bg-pill-green text-pill-green-text' : 'text-pill-gray-text hover:text-foreground'
+                            }`}
+                          >
+                            👩 Female
                           </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 bg-background border-border z-50 p-3">
-                          <div className="space-y-3">
-                            <p className="text-xs text-muted-foreground">Enter your song lyrics (max {musicModel === 'V4' ? '3000' : '5000'} characters)</p>
-                            <textarea
-                              value={musicLyrics}
-                              onChange={(e) => setMusicLyrics(e.target.value)}
-                              placeholder="Write your lyrics here..."
-                              className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none resize-none min-h-[150px]"
-                              maxLength={musicModel === 'V4' ? 3000 : 5000}
-                            />
-                            <div className="flex justify-between items-center">
-                              <p className="text-xs text-muted-foreground">{musicLyrics.length}/{musicModel === 'V4' ? '3000' : '5000'}</p>
-                              {musicLyrics && (
-                                <button
-                                  onClick={() => setMusicLyrics('')}
-                                  className="text-xs text-red-400 hover:text-red-300"
-                                >
-                                  Clear
-                                </button>
-                              )}
+                          <button
+                            onClick={() => setVocalGender('m')}
+                            className={`px-3 py-1 rounded-full text-sm transition whitespace-nowrap ${
+                              vocalGender === 'm' ? 'bg-pill-green text-pill-green-text' : 'text-pill-gray-text hover:text-foreground'
+                            }`}
+                          >
+                            👨 Male
+                          </button>
+                        </div>
+
+                        {/* Lyrics Input */}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              musicLyrics ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}>
+                              <FileText size={14} />
+                              {musicLyrics ? 'Lyrics ✓' : 'Add Lyrics'}
+                              <ChevronDown size={14} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 bg-background border-border z-50 p-3">
+                            <div className="space-y-3">
+                              <p className="text-xs text-muted-foreground">Enter your song lyrics (max {musicModel === 'V4' ? '3000' : '5000'} characters)</p>
+                              <textarea
+                                value={musicLyrics}
+                                onChange={(e) => setMusicLyrics(e.target.value)}
+                                placeholder="Write your lyrics here..."
+                                className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none resize-none min-h-[150px]"
+                                maxLength={musicModel === 'V4' ? 3000 : 5000}
+                              />
+                              <div className="flex justify-between items-center">
+                                <p className="text-xs text-muted-foreground">{musicLyrics.length}/{musicModel === 'V4' ? '3000' : '5000'}</p>
+                                {musicLyrics && (
+                                  <button
+                                    onClick={() => setMusicLyrics('')}
+                                    className="text-xs text-red-400 hover:text-red-300"
+                                  >
+                                    Clear
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                          </PopoverContent>
+                        </Popover>
+                      </>
                     )}
 
                     {/* Custom Mode Toggle */}
