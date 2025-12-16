@@ -425,35 +425,36 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl p-0 bg-white dark:bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px]">
+      <DialogContent className="max-w-5xl p-0 bg-white dark:bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px] [&>button]:hidden">
+        {/* Close button outside modal */}
+        <button
+          onClick={onClose}
+          className="absolute -top-3 -right-3 w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition z-50 shadow-lg"
+        >
+          <X size={16} className="text-white" />
+        </button>
+        
         <div className="flex h-full">
           {/* Left Panel - Audio Library (White) */}
           <div className="flex-1 flex flex-col border-r border-gray-200 dark:border-border/30 bg-white dark:bg-white">
             {/* Header */}
             <div className="p-6 pb-4">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Audio Library</h2>
                   <p className="text-sm text-gray-500 mt-1">Upload or Select Audio</p>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-full transition"
-                >
-                  <X size={20} className="text-gray-400" />
-                </button>
-              </div>
-
-              {/* Search */}
-              <div className="relative mb-4">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search Audio"
-                  className="w-full pl-9 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                />
+                {/* Search */}
+                <div className="relative flex-1 max-w-xs">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Audio"
+                    className="w-full pl-9 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  />
+                </div>
               </div>
 
               {/* Tabs */}
