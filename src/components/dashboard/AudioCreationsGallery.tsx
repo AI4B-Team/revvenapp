@@ -412,109 +412,109 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
           
           {/* Info Area */}
           <div className="p-3">
-            <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm truncate">{item.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {formatTimestamp(item.created_at)}
-                </p>
-              </div>
+            {/* Row 1: Title */}
+            <h3 className="font-medium text-sm truncate">{item.name}</h3>
+            
+            {/* Row 2: Date/time */}
+            <p className="text-xs text-muted-foreground mt-1">
+              {formatTimestamp(item.created_at)}
+            </p>
+            
+            {/* Row 3: Icons */}
+            <div className="flex items-center gap-1 mt-2 flex-wrap">
+              {/* Copy Text button for transcriptions */}
+              {item.type === 'transcription' && item.prompt && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(item.prompt || '');
+                          toast({
+                            title: "Copied!",
+                            description: "Transcribed text copied to clipboard",
+                          });
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        <Copy size={14} className="text-violet-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Copy Text</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               
-              {/* Actions */}
-              <div className="flex items-center gap-1">
-                {/* Copy Text button for transcriptions */}
-                {item.type === 'transcription' && item.prompt && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText(item.prompt || '');
-                            toast({
-                              title: "Copied!",
-                              description: "Transcribed text copied to clipboard",
-                            });
-                          }}
-                          className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                        >
-                          <Copy size={14} className="text-violet-400" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Copy Text</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-                
-                {/* Details button for transcription and music */}
-                {(item.type === 'transcription' || item.type === 'music') && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={() => {
-                            setSelectedAudioItem(item);
-                            setDetailsModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                        >
-                          <Info size={14} className="text-muted-foreground" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Details</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-                
+              {/* Details button for transcription and music */}
+              {(item.type === 'transcription' || item.type === 'music') && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        onClick={() => toggleLike(item.id)}
+                        onClick={() => {
+                          setSelectedAudioItem(item);
+                          setDetailsModalOpen(true);
+                        }}
                         className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
                       >
-                        <Heart 
-                          size={14} 
-                          className={likedItems.has(item.id) ? 'fill-brand-red text-brand-red' : 'text-muted-foreground'} 
-                        />
+                        <Info size={14} className="text-muted-foreground" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>Like</TooltipContent>
+                    <TooltipContent>Details</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                      >
-                        <RefreshCw size={14} className="text-muted-foreground" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Remix</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => handleDownload(item)}
-                        className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
-                      >
-                        <Download size={14} className="text-muted-foreground" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Download</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
-                      <MoreVertical size={14} className="text-muted-foreground" />
+              )}
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toggleLike(item.id)}
+                      className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                    >
+                      <Heart 
+                        size={14} 
+                        className={likedItems.has(item.id) ? 'fill-brand-red text-brand-red' : 'text-muted-foreground'} 
+                      />
                     </button>
-                  </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Like</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                    >
+                      <RefreshCw size={14} className="text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remix</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => handleDownload(item)}
+                      className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                    >
+                      <Download size={14} className="text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-1.5 rounded-lg hover:bg-secondary transition-colors">
+                    <MoreVertical size={14} className="text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-background border-border">
                     {item.type === 'transcription' && item.prompt && (
                       <DropdownMenuItem onClick={() => {
@@ -549,7 +549,6 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
             </div>
           </div>
         </div>
