@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Play, Pause, Check } from 'lucide-react';
 
 interface MusicSample {
@@ -15,7 +15,7 @@ const musicSamples: MusicSample[] = [
     id: '1',
     genre: 'R&B',
     coverImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2024/11/04/audio_3a33e25949.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     promptText: 'Create a song that blends modern R&B, pop, and trap styles, with a confident and bold emotional vibe, perfect for clubs, parties, or workout sessions. The female lead vocalist should have a bright and agile voice, with pitch correction (Auto-Tune) and melisma, accompanied by rich harmonies.',
     isNew: true,
   },
@@ -23,49 +23,49 @@ const musicSamples: MusicSample[] = [
     id: '2',
     genre: 'POP',
     coverImage: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2024/09/17/audio_6e5d7d1c21.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     promptText: 'This song blends EDM, Pop-Dance, and Progressive House styles, creating an uplifting, anthemic, and emotionally charged track perfect for a night out, a music festival, or even a high-energy workout. The lyrics are designed to evoke feelings of hope, yearning, and strength, with a male vocalist delivering a melodic, smooth, and emotionally rich performance.',
   },
   {
     id: '3',
     genre: 'Jazz',
     coverImage: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2022/08/04/audio_2dae70d6d8.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     promptText: 'Create a vocal jazz and swing song with joyful, romantic, and lighthearted vibes, perfect for a lively jazz club or romantic evening. The female lead vocalist should have a clear, bright voice with a playful, scat-influenced style. The arrangement includes piano and upright bass for a warm, jazz feel.',
   },
   {
     id: '4',
     genre: 'Country',
     coverImage: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2022/03/15/audio_115ff0ad10.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     promptText: "Create a folk-style song with warm, nostalgic emotions, perfect for New Year's Eve or farewell gatherings. The female lead has a clear, gentle voice, with simple guitar accompaniment.",
   },
   {
     id: '5',
     genre: 'Blues',
     coverImage: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2023/07/03/audio_e8d5aa58e0.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
     promptText: 'Create a lively and upbeat Jump Blues/Early Rock and Roll song, perfect for dancing and retro parties. The female lead has a bright, playful voice. The arrangement includes piano, drums, bass, saxophone, and guitar, with a BPM of 98.',
   },
   {
     id: '6',
     genre: 'Hip-Hop',
     coverImage: 'https://images.unsplash.com/photo-1546427660-eb346c344ba5?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2024/04/02/audio_6fdf649b46.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
     promptText: 'Create a hard-hitting hip-hop track with heavy 808 bass, punchy drums, and aggressive synth stabs. The male rapper delivers confident, rapid-fire verses with an assertive flow. Perfect for workout playlists, sports highlights, or high-energy content.',
   },
   {
     id: '7',
     genre: 'Electronic',
     coverImage: 'https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2022/10/18/audio_69d3dc5cfa.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
     promptText: 'Create an energetic electronic dance track with pulsing synthesizers, driving four-on-the-floor beats, and atmospheric pads. Build tension with rising arpeggios before dropping into a euphoric chorus. Perfect for clubs, festivals, and high-energy content.',
   },
   {
     id: '8',
     genre: 'Classical',
     coverImage: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=400&fit=crop',
-    audioUrl: 'https://cdn.pixabay.com/audio/2024/02/14/audio_08c0146cad.mp3',
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
     promptText: 'Create a song in a pop-ballad style with melancholic, yearning, heartfelt, and reflective emotions, perfect for breakup contemplation, rainy-day moods, or introspective moments. The male lead vocalist should have a warm, breathy tone in softer passages, emotionally expressive, with a sincere delivery. The arrangement features piano as the core instrument.',
   },
 ];
@@ -226,6 +226,19 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Initialize audio element on mount
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.crossOrigin = 'anonymous';
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   const selectedSample = selectedSampleId 
     ? musicSamples.find(s => s.id === selectedSampleId) || internalSelectedSample
     : internalSelectedSample;
@@ -294,7 +307,6 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 mt-6">
-      <audio ref={audioRef} preload="none" />
       
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
