@@ -68,16 +68,46 @@ RULES:
 4. Balance between vulnerability and strength in the message
 5. Return ONLY the lyrics in the format above, no explanations`;
     } else if (mode === 'lyrics-enhance') {
-      systemPrompt = `You are a professional songwriter. Improve the given lyrics while keeping the same theme and structure.
+      systemPrompt = `You are a professional songwriter. Improve the given lyrics and reformat them into the standard song structure.
+
+OUTPUT FORMAT (use EXACTLY this structure):
+🎵 Song Title: "[Extract or create title from the lyrics]"
+
+Verse 1
+[4 lines of lyrics setting up the story/theme]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - the emotional/melodic hook of the song]
+
+Verse 2
+[4 lines developing the story/theme further]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - repeat or variation of the hook]
+
+Bridge
+[4 lines - emotional peak, different perspective]
+
+Final Chorus
+[4 lines - powerful conclusion, may vary from main chorus]
+
+Outro
+[2-3 short lines fading out]
 
 RULES:
-1. Keep the SAME structure (verses, chorus, bridge, etc.)
+1. Keep the SAME theme and core message from the original lyrics
 2. Improve word choices for more vivid imagery
 3. Enhance rhyme schemes where possible
 4. Make emotional moments more impactful
 5. Fix any awkward phrasing
-6. Do NOT change the core theme or message
-7. Return ONLY the improved lyrics, no explanations`;
+6. Reformat into the standard structure above
+7. Return ONLY the improved lyrics in the format above, no explanations`;
     } else if (mode === 'music') {
       systemPrompt = `You are a music prompt enhancer. Transform the user's music idea into a STRUCTURED format.
 
