@@ -74,3 +74,6 @@ verify_jwt = true
 
 [functions.revoice-audio]
 verify_jwt = true
+
+[functions.translate-text]
+verify_jwt = true

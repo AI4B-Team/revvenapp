@@ -148,18 +148,16 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
     setSelectedLanguage(langCode);
     
     try {
-      const response = await supabase.functions.invoke('editor-chat', {
+      const response = await supabase.functions.invoke('translate-text', {
         body: {
-          messages: [{
-            role: 'user',
-            content: `Translate the following text to ${langName}. Return ONLY the translated text, no explanations:\n\n${audioItem.prompt}`
-          }]
+          text: audioItem.prompt,
+          targetLanguage: langName
         }
       });
       
       if (response.error) throw response.error;
       
-      const translated = response.data?.content || response.data?.message || '';
+      const translated = response.data?.translatedText || '';
       setTranslatedText(prev => ({ ...prev, [langCode]: translated }));
       setActiveTab(langCode);
     } catch (error) {
