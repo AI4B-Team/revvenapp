@@ -39,6 +39,7 @@ const LANGUAGES = [
   { code: 'ko', name: 'Korean' },
   { code: 'ar', name: 'Arabic' },
   { code: 'hi', name: 'Hindi' },
+  { code: 'bn', name: 'Bengali' },
   { code: 'ru', name: 'Russian' },
 ];
 
