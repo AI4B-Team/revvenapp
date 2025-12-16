@@ -296,7 +296,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl w-[90vw] h-[85vh] bg-white text-foreground p-0 overflow-hidden">
+      <DialogContent className="max-w-5xl w-[90vw] max-h-[85vh] bg-white text-foreground p-0 flex flex-col overflow-hidden">
         <audio
           ref={audioRef}
           src={audioItem.url}
@@ -304,11 +304,11 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
           onEnded={handleEnded}
         />
         
-        <div className="flex h-full">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Left Side - Audio Visual & Controls */}
-          <div className="w-[45%] p-8 flex flex-col border-r border-gray-200">
+          <div className="w-[45%] p-8 flex flex-col border-r border-gray-200 overflow-y-auto">
             {/* Cover Image or Waveform */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex flex-col">
               <div className="relative aspect-square bg-gradient-to-br from-brand-green/20 to-brand-blue/20 rounded-xl overflow-hidden flex items-center justify-center mb-6">
                 {isMusic && audioItem.cover_image_url ? (
                   <img 
@@ -534,7 +534,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
           </div>
           
           {/* Right Side - Transcript/Lyrics */}
-          <div className="w-[55%] flex flex-col h-full min-h-0">
+          <div className="w-[55%] flex flex-col min-h-0">
             <DialogHeader className="px-8 py-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-2xl font-bold text-gray-900">
