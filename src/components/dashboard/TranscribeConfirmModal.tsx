@@ -96,59 +96,59 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
             
             {/* File Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                {isEditingName ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <input
-                      type="text"
-                      value={editedName}
-                      onChange={(e) => setEditedName(e.target.value)}
-                      className="flex-1 px-2 py-1 bg-white dark:bg-background border border-gray-300 dark:border-border rounded text-sm font-medium text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveName();
-                        if (e.key === 'Escape') {
-                          setEditedName(audioFile.name);
-                          setIsEditingName(false);
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={handleSaveName}
-                      className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded transition"
-                    >
-                      <Check size={16} className="text-emerald-500" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <p className="font-medium text-gray-900 dark:text-foreground truncate">
-                      {editedName}
-                    </p>
-                    <button
-                      onClick={() => setIsEditingName(true)}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-secondary rounded transition flex-shrink-0"
-                    >
-                      <Pencil size={14} className="text-gray-500 dark:text-muted-foreground" />
-                    </button>
-                  </>
-                )}
-              </div>
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="flex-1 px-2 py-1 bg-white dark:bg-background border border-gray-300 dark:border-border rounded text-sm font-medium text-gray-900 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveName();
+                      if (e.key === 'Escape') {
+                        setEditedName(audioFile.name);
+                        setIsEditingName(false);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded transition"
+                  >
+                    <Check size={16} className="text-emerald-500" />
+                  </button>
+                </div>
+              ) : (
+                <p className="font-medium text-gray-900 dark:text-foreground truncate">
+                  {editedName}
+                </p>
+              )}
               <p className="text-sm text-gray-500 dark:text-muted-foreground">
                 {formatFileSize(audioFile.duration)} - {formatDuration(audioFile.duration)}
               </p>
             </div>
 
-            {/* Delete Button */}
-            <button
-              onClick={() => {
-                onRemoveAudio();
-                onClose();
-              }}
-              className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition flex-shrink-0"
-            >
-              <Trash2 size={18} className="text-gray-500 dark:text-muted-foreground" />
-            </button>
+            {/* Edit & Delete Buttons */}
+            {!isEditingName && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition"
+                >
+                  <Pencil size={18} className="text-gray-500 dark:text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => {
+                    onRemoveAudio();
+                    onClose();
+                  }}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition"
+                >
+                  <Trash2 size={18} className="text-gray-500 dark:text-muted-foreground" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
