@@ -655,7 +655,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                         <button
                           onClick={(e) => handleStartEditName(audio, e)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition"
