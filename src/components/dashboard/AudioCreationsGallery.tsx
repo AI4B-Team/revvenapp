@@ -76,7 +76,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
         .from('user_voices')
         .select('*')
         .eq('user_id', session.session.user.id)
-        .not('type', 'in', '("uploaded","recorded","cloned","revoice_source")')
+        .not('type', 'in', '("uploaded","recorded","revoice_source")')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -151,6 +151,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
       case 'Music': return 'music';
       case 'Transcribe': return 'transcription';
       case 'Revoice': return 'revoice';
+      case 'Clone': return 'cloned';
       default: return null;
     }
   };
