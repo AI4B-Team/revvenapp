@@ -126,6 +126,7 @@ const Create = () => {
   const [audioDetailsModalOpen, setAudioDetailsModalOpen] = useState(false);
   const [audioDetailsItem, setAudioDetailsItem] = useState<any>(null);
   const toggleAudioPlayRef = useRef<(() => void) | null>(null);
+  const [selectedAudioMode, setSelectedAudioMode] = useState('Voiceover');
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -542,6 +543,7 @@ const Create = () => {
               onGenerationStart={() => setActiveView('creations')}
               externalStartingFrame={externalStartingFrame}
               onContentTypeChange={(type) => setSelectedType(type)}
+              onAudioModeChange={setSelectedAudioMode}
             />
             
             <ActionButtons 
@@ -576,6 +578,7 @@ const Create = () => {
                     onPauseToggle={() => toggleAudioPlayRef.current?.()}
                     currentPlayingId={selectedAudioTrack?.id}
                     isAudioPlaying={isAudioPlaying}
+                    audioModeFilter={selectedAudioMode}
                   />
                 ) : (
                   <CreationsGallery 

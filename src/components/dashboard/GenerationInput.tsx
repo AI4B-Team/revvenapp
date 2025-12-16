@@ -35,6 +35,7 @@ interface GenerationInputProps {
   externalStartingFrame?: { preview: string; name: string } | null;
   onContentTypeChange?: (type: string) => void;
   onSocialGenerate?: (platforms: string[], prompt: string) => void;
+  onAudioModeChange?: (mode: string) => void;
 }
 
 // Separate state containers for each content type
@@ -58,7 +59,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -95,9 +96,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [selectedCreateMode, setSelectedCreateMode] = useState('Create');
   
   // Audio mode dropdown state
-  const [selectedAudioMode, setSelectedAudioMode] = useState('Voiceover');
+  const [selectedAudioMode, setSelectedAudioModeInternal] = useState('Voiceover');
   const [isAudioModeDropdownOpen, setIsAudioModeDropdownOpen] = useState(false);
   const [isCreateModeDropdownOpen, setIsCreateModeDropdownOpen] = useState(false);
+  
+  // Wrapper to notify parent of audio mode changes
+  const setSelectedAudioMode = (mode: string) => {
+    setSelectedAudioModeInternal(mode);
+    onAudioModeChange?.(mode);
+  };
   
   // Audio voiceover voice selection state
   const [selectedVoiceoverId, setSelectedVoiceoverId] = useState<string>('Roger');
