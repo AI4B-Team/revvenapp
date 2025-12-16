@@ -18,6 +18,14 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+export interface AudioTrack {
+  id: string;
+  name: string;
+  url: string;
+  duration: number;
+  type: string;
+}
+
 interface AudioItem {
   id: string;
   name: string;
@@ -33,9 +41,11 @@ interface AudioItem {
 
 interface AudioCreationsGalleryProps {
   columnsPerRow?: number;
+  onTrackSelect?: (track: AudioTrack, index: number, allTracks: AudioTrack[]) => void;
+  currentPlayingId?: string | null;
 }
 
-const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps) => {
+const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayingId }: AudioCreationsGalleryProps) => {
   const [audioItems, setAudioItems] = useState<AudioItem[]>([]);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useState(new Set<string>());
@@ -125,38 +135,50 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
     return date.toLocaleDateString();
   };
 
-  const handlePlay = (item: AudioItem) => {
-    if (playingId === item.id) {
-      // Stop playing
-      if (audioRef) {
-        audioRef.pause();
-        audioRef.currentTime = 0;
-      }
-      setPlayingId(null);
+  const handlePlay = (item: AudioItem, index: number) => {
+    // Stop any currently playing audio in this component
+    if (audioRef) {
+      audioRef.pause();
+      audioRef.currentTime = 0;
+    }
+    setPlayingId(null);
+    setAudioRef(null);
+    
+    // If onTrackSelect is provided, use the player bar instead
+    if (onTrackSelect) {
+      const completedItems = audioItems.filter(i => i.status !== 'processing' && i.status !== 'error');
+      const tracks: AudioTrack[] = completedItems.map(i => ({
+        id: i.id,
+        name: i.name,
+        url: i.url,
+        duration: i.duration,
+        type: i.type
+      }));
+      const trackIndex = completedItems.findIndex(i => i.id === item.id);
+      onTrackSelect(tracks[trackIndex], trackIndex, tracks);
     } else {
-      // Stop any currently playing audio
-      if (audioRef) {
-        audioRef.pause();
+      // Fallback to inline playback
+      if (playingId === item.id) {
+        setPlayingId(null);
+      } else {
+        const audio = new Audio(item.url);
+        audio.onended = () => {
+          setPlayingId(null);
+          setAudioRef(null);
+        };
+        audio.onerror = () => {
+          toast({
+            title: "Playback error",
+            description: "Could not play this audio file",
+            variant: "destructive",
+          });
+          setPlayingId(null);
+          setAudioRef(null);
+        };
+        audio.play();
+        setAudioRef(audio);
+        setPlayingId(item.id);
       }
-      
-      // Play new audio
-      const audio = new Audio(item.url);
-      audio.onended = () => {
-        setPlayingId(null);
-        setAudioRef(null);
-      };
-      audio.onerror = () => {
-        toast({
-          title: "Playback error",
-          description: "Could not play this audio file",
-          variant: "destructive",
-        });
-        setPlayingId(null);
-        setAudioRef(null);
-      };
-      audio.play();
-      setAudioRef(audio);
-      setPlayingId(item.id);
     }
   };
 
@@ -268,7 +290,13 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
             className={`relative h-32 bg-gradient-to-br from-brand-green/20 to-brand-blue/20 flex items-center justify-center ${
               item.status === 'processing' || item.status === 'error' ? '' : 'cursor-pointer'
             }`}
-            onClick={() => item.status !== 'processing' && item.status !== 'error' && handlePlay(item)}
+            onClick={() => {
+              if (item.status !== 'processing' && item.status !== 'error') {
+                const completedItems = audioItems.filter(i => i.status !== 'processing' && i.status !== 'error');
+                const index = completedItems.findIndex(i => i.id === item.id);
+                handlePlay(item, index);
+              }
+            }}
           >
             {/* Processing state */}
             {item.status === 'processing' ? (
@@ -283,22 +311,33 @@ const AudioCreationsGallery = ({ columnsPerRow = 4 }: AudioCreationsGalleryProps
               </div>
             ) : (
               <>
-                {/* Waveform visualization placeholder */}
+                {/* NOW PLAYING badge */}
+                {(currentPlayingId === item.id || playingId === item.id) && (
+                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-brand-green rounded text-white text-xs font-medium animate-pulse z-10">
+                    NOW PLAYING
+                  </div>
+                )}
+                {/* Animated waveform visualization */}
                 <div className="flex items-center gap-0.5 h-12">
-                  {Array.from({ length: 32 }).map((_, i) => (
-                    <div 
-                      key={i}
-                      className={`w-1 rounded-full transition-all ${
-                        playingId === item.id 
-                          ? 'bg-brand-green animate-pulse' 
-                          : 'bg-brand-green/40'
-                      }`}
-                      style={{ 
-                        height: `${Math.random() * 100}%`,
-                        animationDelay: `${i * 50}ms`
-                      }}
-                    />
-                  ))}
+                  {Array.from({ length: 32 }).map((_, i) => {
+                    const isPlaying = currentPlayingId === item.id || playingId === item.id;
+                    const baseHeight = 20 + Math.sin(i * 0.5) * 30 + Math.random() * 30;
+                    return (
+                      <div 
+                        key={i}
+                        className={`w-1 rounded-full origin-bottom ${
+                          isPlaying 
+                            ? 'bg-brand-green animate-waveform' 
+                            : 'bg-brand-green/40'
+                        }`}
+                        style={{ 
+                          height: `${baseHeight}%`,
+                          animationDelay: `${i * 0.05}s`,
+                          animationDuration: `${0.3 + (i % 5) * 0.1}s`
+                        }}
+                      />
+                    );
+                  })}
                 </div>
                 
                 {/* Play/Pause overlay */}

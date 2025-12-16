@@ -10,6 +10,8 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import AudioCreationsGallery from '@/components/dashboard/AudioCreationsGallery';
+import AudioPlayerBar from '@/components/dashboard/AudioPlayerBar';
+import type { AudioTrack } from '@/components/dashboard/AudioCreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import ReferencesModal from '@/components/dashboard/ReferencesModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
@@ -116,6 +118,9 @@ const Create = () => {
   const [socialGeneratedContent, setSocialGeneratedContent] = useState<any[]>([]);
   const [isSocialGenerating, setIsSocialGenerating] = useState(false);
   const [showSocialCalendar, setShowSocialCalendar] = useState(false);
+  const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -555,7 +560,15 @@ const Create = () => {
                   />
                 </div>
                 {selectedType === 'Audio' ? (
-                  <AudioCreationsGallery columnsPerRow={zoomLevel} />
+                  <AudioCreationsGallery 
+                    columnsPerRow={zoomLevel}
+                    onTrackSelect={(track, index, tracks) => {
+                      setSelectedAudioTrack(track);
+                      setCurrentTrackIndex(index);
+                      setAudioTracks(tracks);
+                    }}
+                    currentPlayingId={selectedAudioTrack?.id}
+                  />
                 ) : (
                   <CreationsGallery 
                     type="creations" 
@@ -1052,6 +1065,32 @@ const Create = () => {
           setIsCharacterReference(true);
         }}
       />
+
+      {/* Audio Player Bar */}
+      {selectedAudioTrack && (
+        <AudioPlayerBar 
+          track={selectedAudioTrack}
+          tracks={audioTracks}
+          currentIndex={currentTrackIndex}
+          onNext={() => {
+            if (audioTracks.length === 0) return;
+            const nextIndex = (currentTrackIndex + 1) % audioTracks.length;
+            setSelectedAudioTrack(audioTracks[nextIndex]);
+            setCurrentTrackIndex(nextIndex);
+          }}
+          onPrevious={() => {
+            if (audioTracks.length === 0) return;
+            const prevIndex = currentTrackIndex === 0 ? audioTracks.length - 1 : currentTrackIndex - 1;
+            setSelectedAudioTrack(audioTracks[prevIndex]);
+            setCurrentTrackIndex(prevIndex);
+          }}
+          onClose={() => setSelectedAudioTrack(null)}
+          onTrackChange={(index) => {
+            setSelectedAudioTrack(audioTracks[index]);
+            setCurrentTrackIndex(index);
+          }}
+        />
+      )}
     </div>
   );
 };
