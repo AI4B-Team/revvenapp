@@ -565,6 +565,8 @@ const Create = () => {
                     onFiltersChange={setFilters}
                     selectedContentType={filters.contentType}
                     onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
+                    audioModeFilter={selectedAudioMode}
+                    onAudioModeChange={setSelectedAudioMode}
                   />
                 </div>
                 {filters.contentType === 'Audio' ? (

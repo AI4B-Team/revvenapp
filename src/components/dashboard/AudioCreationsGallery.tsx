@@ -145,7 +145,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
 
   // Map audio mode to type filter
   const getTypeFromMode = (mode: string | undefined): string | null => {
-    if (!mode) return null;
+    if (!mode || mode === 'All') return null; // 'All' shows everything
     const modeMap: Record<string, string> = {
       'Voiceover': 'voiceover',
       'Sound Effects': 'sound_effect',
@@ -160,7 +160,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
   // Filter items based on audio mode - strict filtering
   const filteredItems = useMemo(() => {
     const typeFilter = getTypeFromMode(audioModeFilter);
-    // Always filter if we have a valid mode, show all only if no mode specified
+    // Show all if 'All' mode selected or no mode specified
     if (!typeFilter) return audioItems;
     return audioItems.filter(item => item.type === typeFilter);
   }, [audioItems, audioModeFilter]);
