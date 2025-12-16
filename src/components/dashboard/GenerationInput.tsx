@@ -6600,55 +6600,57 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
 
           <div className="flex items-center gap-3 ml-12">
-            {/* Transcribe Audio Preview - Shows right above button */}
+            {/* Transcribe Audio Preview - Shows in left corner above button */}
             {isAudioMode && selectedAudioMode === 'Transcribe' && transcribeAudio && (
               <div 
-                className="relative"
+                className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-2 group relative"
                 onMouseEnter={() => setIsHoveringAudioIcon(true)}
                 onMouseLeave={() => setIsHoveringAudioIcon(false)}
               >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center cursor-pointer transition ${
-                  isHoveringAudioIcon ? 'bg-blue-600' : 'bg-blue-500'
-                }`}>
-                  {isHoveringAudioIcon ? (
-                    <button
-                      onClick={() => {
-                        if (isPlayingTranscribePreview) {
-                          transcribePreviewAudioRef.current?.pause();
-                          setIsPlayingTranscribePreview(false);
-                        } else {
-                          if (!transcribePreviewAudioRef.current) {
-                            transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
-                            transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
-                          }
-                          transcribePreviewAudioRef.current.play();
-                          setIsPlayingTranscribePreview(true);
-                        }
-                      }}
-                      className="p-1 hover:bg-white/20 rounded transition"
-                    >
-                      {isPlayingTranscribePreview ? (
-                        <Pause size={20} className="text-white" />
-                      ) : (
-                        <Play size={20} className="text-white" />
-                      )}
-                    </button>
-                  ) : (
-                    <FileAudio size={24} className="text-white" />
-                  )}
-                </div>
-                {isHoveringAudioIcon && (
-                  <button
-                    onClick={() => {
+                {/* Audio Icon with Play/Pause overlay */}
+                <div 
+                  className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden"
+                  onClick={() => {
+                    if (isPlayingTranscribePreview) {
                       transcribePreviewAudioRef.current?.pause();
                       setIsPlayingTranscribePreview(false);
-                      setTranscribeAudio(null);
-                    }}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition"
-                  >
-                    <X size={12} className="text-white" />
-                  </button>
-                )}
+                    } else {
+                      if (!transcribePreviewAudioRef.current) {
+                        transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
+                        transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
+                      }
+                      transcribePreviewAudioRef.current.play();
+                      setIsPlayingTranscribePreview(true);
+                    }
+                  }}
+                >
+                  <FileAudio size={18} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
+                  {/* Play/Pause overlay on hover */}
+                  <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
+                    {isPlayingTranscribePreview ? (
+                      <Pause size={18} className="text-white" />
+                    ) : (
+                      <Play size={18} className="text-white ml-0.5" />
+                    )}
+                  </div>
+                </div>
+                
+                {/* File name */}
+                <span className="text-sm font-medium text-foreground max-w-32 truncate">
+                  {transcribeAudio.name}
+                </span>
+                
+                {/* Delete button */}
+                <button
+                  onClick={() => {
+                    transcribePreviewAudioRef.current?.pause();
+                    setIsPlayingTranscribePreview(false);
+                    setTranscribeAudio(null);
+                  }}
+                  className="p-1.5 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
+                >
+                  <X size={14} className="text-muted-foreground hover:text-red-500" />
+                </button>
               </div>
             )}
             <Popover>
