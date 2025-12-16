@@ -703,9 +703,10 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                   ) : (
                     (() => {
                       const sections = parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]);
-                      const totalDuration = audioItem.duration || 180; // Use actual duration or default 3 mins
+                      const totalDuration = audioItem.duration || 180;
                       const sectionCount = sections.filter(s => s.type).length || 1;
-                      const timePerSection = totalDuration / sectionCount;
+                      // Spread sections across full duration (last section starts near end)
+                      const timePerSection = sectionCount > 1 ? totalDuration / (sectionCount - 1) : totalDuration;
                       
                       const formatTimestamp = (seconds: number) => {
                         const mins = Math.floor(seconds / 60);
