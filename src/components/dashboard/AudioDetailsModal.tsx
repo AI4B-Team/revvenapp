@@ -623,18 +623,43 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                     Original
                   </button>
                   {Object.keys(translatedText).map((langCode) => (
-                    <button
-                      key={langCode}
-                      onClick={() => setActiveTab(langCode)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        activeTab === langCode 
-                          ? 'bg-gray-900 text-white' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {LANGUAGES.find(l => l.code === langCode)?.name || langCode}
-                      {isTranslating && selectedLanguage === langCode && <Loader2 size={14} className="animate-spin" />}
-                    </button>
+                    <div key={langCode} className="relative group">
+                      <button
+                        onClick={() => setActiveTab(langCode)}
+                        className={`px-3 py-1.5 pr-7 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                          activeTab === langCode 
+                            ? 'bg-gray-900 text-white' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {LANGUAGES.find(l => l.code === langCode)?.name || langCode}
+                        {isTranslating && selectedLanguage === langCode && <Loader2 size={14} className="animate-spin" />}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newTranslations = { ...translatedText };
+                          delete newTranslations[langCode];
+                          setTranslatedText(newTranslations);
+                          if (audioItem) {
+                            if (Object.keys(newTranslations).length === 0) {
+                              localStorage.removeItem(`translations_${audioItem.id}`);
+                            } else {
+                              localStorage.setItem(`translations_${audioItem.id}`, JSON.stringify(newTranslations));
+                            }
+                          }
+                          if (activeTab === langCode) {
+                            setActiveTab('original');
+                          }
+                          toast({ title: "Translation deleted" });
+                        }}
+                        className={`absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-black/20 ${
+                          activeTab === langCode ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-600'
+                        }`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
