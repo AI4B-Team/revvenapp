@@ -407,7 +407,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
               )}
             </DialogHeader>
             
-            <ScrollArea className="flex-1 px-8 py-6">
+            <ScrollArea className="flex-1 px-8 py-6 h-[calc(100%-80px)]">
               {isTranscription && audioItem.prompt ? (
                 <div className="space-y-4">
                   <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
@@ -415,7 +415,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
                   </h4>
                   {parseTranscript(audioItem.prompt).map((segment, index) => (
                     <div key={index} className="flex gap-4 group hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors">
-                      <span className="text-xs text-brand-green font-mono w-12 flex-shrink-0 pt-0.5">
+                      <span className="text-xs text-gray-900 font-mono w-12 flex-shrink-0 pt-0.5">
                         {segment.time}
                       </span>
                       <p className="text-gray-700 leading-relaxed">{segment.text}</p>

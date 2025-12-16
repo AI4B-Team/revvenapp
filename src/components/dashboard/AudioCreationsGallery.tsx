@@ -25,6 +25,8 @@ export interface AudioTrack {
   url: string;
   duration: number;
   type: string;
+  prompt?: string;
+  created_at?: string;
 }
 
 interface AudioItem {
@@ -43,11 +45,12 @@ interface AudioItem {
 interface AudioCreationsGalleryProps {
   columnsPerRow?: number;
   onTrackSelect?: (track: AudioTrack, index: number, allTracks: AudioTrack[]) => void;
+  onPauseToggle?: () => void;
   currentPlayingId?: string | null;
   isAudioPlaying?: boolean;
 }
 
-const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayingId, isAudioPlaying = false }: AudioCreationsGalleryProps) => {
+const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle, currentPlayingId, isAudioPlaying = false }: AudioCreationsGalleryProps) => {
   const [audioItems, setAudioItems] = useState<AudioItem[]>([]);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useState(new Set<string>());
@@ -140,6 +143,12 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
   };
 
   const handlePlay = (item: AudioItem, index: number) => {
+    // If this track is already playing and we have a pause toggle, use it
+    if (currentPlayingId === item.id && isAudioPlaying && onPauseToggle) {
+      onPauseToggle();
+      return;
+    }
+    
     // Stop any currently playing audio in this component
     if (audioRef) {
       audioRef.pause();
@@ -156,10 +165,18 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
         name: i.name,
         url: i.url,
         duration: i.duration,
-        type: i.type
+        type: i.type,
+        prompt: i.prompt,
+        created_at: i.created_at
       }));
       const trackIndex = completedItems.findIndex(i => i.id === item.id);
-      onTrackSelect(tracks[trackIndex], trackIndex, tracks);
+      
+      // If it's the same track that's paused, resume it
+      if (currentPlayingId === item.id && !isAudioPlaying) {
+        onPauseToggle?.();
+      } else {
+        onTrackSelect(tracks[trackIndex], trackIndex, tracks);
+      }
     } else {
       // Fallback to inline playback
       if (playingId === item.id) {
@@ -350,7 +367,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
                 {/* Play/Pause overlay */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                   <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
-                    {playingId === item.id ? (
+                    {(currentPlayingId === item.id && isAudioPlaying) || playingId === item.id ? (
                       <Pause className="h-5 w-5 text-brand-green" />
                     ) : (
                       <Play className="h-5 w-5 text-brand-green ml-0.5" />
