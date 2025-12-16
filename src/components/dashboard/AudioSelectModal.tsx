@@ -390,22 +390,55 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
     audio.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Preview audio playback state
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handlePreviewPlay = () => {
+    const audioUrl = selectedAudio?.url || uploadedFile?.url || recordedUrl;
+    if (!audioUrl) return;
+
+    if (isPreviewPlaying) {
+      previewAudioRef.current?.pause();
+      setIsPreviewPlaying(false);
+    } else {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
+      }
+      previewAudioRef.current = new Audio(audioUrl);
+      previewAudioRef.current.onended = () => setIsPreviewPlaying(false);
+      previewAudioRef.current.play();
+      setIsPreviewPlaying(true);
+    }
+  };
+
+  const handleDeleteSelection = () => {
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+    }
+    setIsPreviewPlaying(false);
+    setUploadedFile(null);
+    setSelectedAudio(null);
+    setRecordedBlob(null);
+    setRecordedUrl(null);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl p-0 bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px]">
+      <DialogContent className="max-w-5xl p-0 bg-white dark:bg-[hsl(215,28%,17%)] border-0 rounded-2xl overflow-hidden h-[80vh] max-h-[700px]">
         <div className="flex h-full">
-          {/* Left Panel - Audio Library */}
-          <div className="flex-1 flex flex-col border-r border-border/30">
+          {/* Left Panel - Audio Library (White) */}
+          <div className="flex-1 flex flex-col border-r border-gray-200 dark:border-border/30 bg-white dark:bg-white">
             {/* Header */}
             <div className="p-6 pb-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Audio Library</h2>
-                  <p className="text-sm text-gray-400 mt-1">Upload or Select Audio</p>
+                  <h2 className="text-xl font-bold text-gray-900">Audio Library</h2>
+                  <p className="text-sm text-gray-500 mt-1">Upload or Select Audio</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-white/10 rounded-full transition"
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
                 >
                   <X size={20} className="text-gray-400" />
                 </button>
@@ -419,18 +452,18 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search Audio"
-                  className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full pl-9 pr-4 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 />
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-6 border-b border-white/10">
+              <div className="flex gap-6 border-b border-gray-200">
                 <button
                   onClick={() => setActiveTab('creations')}
                   className={`pb-3 text-sm font-medium flex items-center gap-2 transition border-b-2 ${
                     activeTab === 'creations'
-                      ? 'text-white border-white'
-                      : 'text-gray-400 border-transparent hover:text-gray-300'
+                      ? 'text-gray-900 border-gray-900'
+                      : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
                   <History size={16} />
@@ -440,8 +473,8 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                   onClick={() => setActiveTab('stock')}
                   className={`pb-3 text-sm font-medium flex items-center gap-2 transition border-b-2 ${
                     activeTab === 'stock'
-                      ? 'text-white border-white'
-                      : 'text-gray-400 border-transparent hover:text-gray-300'
+                      ? 'text-gray-900 border-gray-900'
+                      : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
                   <ImageIcon size={16} />
@@ -451,8 +484,8 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                   onClick={() => setActiveTab('community')}
                   className={`pb-3 text-sm font-medium flex items-center gap-2 transition border-b-2 ${
                     activeTab === 'community'
-                      ? 'text-white border-white'
-                      : 'text-gray-400 border-transparent hover:text-gray-300'
+                      ? 'text-gray-900 border-gray-900'
+                      : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
                   <Users size={16} />
@@ -475,24 +508,24 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                       onClick={() => handleSelectFromHistory(audio)}
                       className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition group ${
                         selectedAudio?.id === audio.id
-                          ? 'bg-blue-500/20 border border-blue-500'
-                          : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                          ? 'bg-emerald-50 border border-emerald-500'
+                          : 'bg-gray-50 hover:bg-gray-100 border border-transparent'
                       }`}
                     >
                       <button
                         onClick={(e) => handlePlayAudio(audio, e)}
-                        className="w-10 h-10 bg-blue-500/20 hover:bg-blue-500 rounded-full flex items-center justify-center transition flex-shrink-0"
+                        className="w-10 h-10 bg-emerald-100 hover:bg-emerald-500 rounded-full flex items-center justify-center transition flex-shrink-0 group/play"
                       >
                         {playingAudioId === audio.id ? (
-                          <Pause size={16} className="text-blue-400 group-hover:text-white" />
+                          <Pause size={16} className="text-emerald-600 group-hover/play:text-white" />
                         ) : (
-                          <Play size={16} className="text-blue-400 group-hover:text-white ml-0.5" />
+                          <Play size={16} className="text-emerald-600 group-hover/play:text-white ml-0.5" />
                         )}
                       </button>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{audio.name}</p>
-                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                        <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Clock size={12} />
                             {formatTime(audio.duration)}
@@ -507,12 +540,12 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                       <button
                         onClick={(e) => handleDeleteAudio(audio.id, e)}
                         disabled={deletingAudioId === audio.id}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition"
+                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-100 rounded-lg transition"
                       >
                         {deletingAudioId === audio.id ? (
                           <Loader2 size={14} className="text-gray-400 animate-spin" />
                         ) : (
-                          <Trash2 size={14} className="text-gray-400 hover:text-red-400" />
+                          <Trash2 size={14} className="text-gray-400 hover:text-red-500" />
                         )}
                       </button>
                     </div>
@@ -520,49 +553,63 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <AudioLines size={32} className="mx-auto text-gray-500 mb-3" />
-                  <p className="text-gray-400">No audio files yet</p>
-                  <p className="text-sm text-gray-500 mt-1">Upload or record to get started</p>
+                  <AudioLines size={32} className="mx-auto text-gray-400 mb-3" />
+                  <p className="text-gray-600">No audio files yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Upload or record to get started</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right Panel - Upload/Record/Preview */}
-          <div className="w-80 flex flex-col bg-gray-50 dark:bg-[hsl(215,28%,14%)]">
+          {/* Right Panel - Upload/Record/Preview (Dark) */}
+          <div className="w-80 flex flex-col bg-[hsl(215,28%,14%)]">
             <div className="flex-1 p-6 flex flex-col">
               {hasSelection ? (
                 // Preview selected/uploaded/recorded audio
                 <div className="flex-1 flex flex-col items-center justify-center">
-                  <div className="w-24 h-24 bg-blue-500 rounded-xl flex items-center justify-center mb-4 relative">
-                    <AudioLines size={40} className="text-white" />
-                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                      <FileAudio size={12} className="text-blue-500" />
+                  <div 
+                    className="w-24 h-24 bg-blue-500 rounded-xl flex items-center justify-center mb-4 relative cursor-pointer group"
+                    onClick={handlePreviewPlay}
+                  >
+                    <AudioLines size={40} className="text-white group-hover:opacity-30 transition" />
+                    {/* Play/Pause overlay on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      {isPreviewPlaying ? (
+                        <Pause size={32} className="text-white" />
+                      ) : (
+                        <Play size={32} className="text-white ml-1" />
+                      )}
                     </div>
+                    {/* Delete X button at top right */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteSelection();
+                      }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md hover:bg-red-600 transition"
+                    >
+                      <X size={12} className="text-white" />
+                    </button>
                   </div>
                   
-                  <p className="font-medium text-gray-900 dark:text-white text-center mb-1">
+                  <p className="font-medium text-white text-center mb-1">
                     {selectedAudio?.name || uploadedFile?.name || `Recording_${Date.now()}.webm`}
                   </p>
                   
-                  <button
-                    onClick={handleReupload}
-                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 mt-2"
-                  >
-                    <RefreshCw size={14} />
-                    Reupload
-                  </button>
+                  <p className="text-sm text-gray-400">
+                    {formatTime(selectedAudio?.duration || uploadedFile?.duration || recordingTime)}
+                  </p>
                 </div>
               ) : (
                 // Upload or Record options
                 <div className="flex-1 flex flex-col gap-4">
                   {/* Upload Box */}
-                  <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition group">
-                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition">
+                  <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-500/5 transition group">
+                    <div className="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition">
                       <AudioLines size={28} className="text-blue-500" />
                     </div>
-                    <p className="font-medium text-gray-900 dark:text-white">Upload Audio</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="font-medium text-white">Upload Audio</p>
+                    <p className="text-xs text-gray-400 mt-1">
                       Audio: MP3, WAV Up to 20MB
                     </p>
                     <input
@@ -574,21 +621,21 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                     />
                   </label>
 
-                  <div className="text-center text-sm text-gray-400">- or -</div>
+                  <div className="text-center text-sm text-gray-500">- or -</div>
 
                   {/* Record Box */}
                   <div
                     onClick={isRecording ? stopRecording : startRecording}
                     className={`flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition group ${
                       isRecording
-                        ? 'border-red-400 bg-red-50/50 dark:bg-red-500/10'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-500/5'
+                        ? 'border-red-400 bg-red-500/10'
+                        : 'border-gray-600 hover:border-blue-400 hover:bg-blue-500/5'
                     }`}
                   >
                     <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-3 transition ${
                       isRecording
-                        ? 'bg-red-100 dark:bg-red-500/20 animate-pulse'
-                        : 'bg-blue-100 dark:bg-blue-500/20 group-hover:scale-105'
+                        ? 'bg-red-500/20 animate-pulse'
+                        : 'bg-blue-500/20 group-hover:scale-105'
                     }`}>
                       {isRecording ? (
                         <Square size={28} className="text-red-500" />
@@ -596,7 +643,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                         <Mic size={28} className="text-blue-500" />
                       )}
                     </div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-medium text-white">
                       {isRecording ? 'Stop Recording' : 'Record Audio'}
                     </p>
                     {isRecording && (
@@ -605,7 +652,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                       </p>
                     )}
                     {!isRecording && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs text-gray-400 mt-1">
                         Click to start recording
                       </p>
                     )}
@@ -614,19 +661,12 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
               )}
             </div>
 
-            {/* Bottom Buttons */}
-            <div className="p-4 border-t border-gray-200 dark:border-white/10 space-y-2">
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                variant="outline"
-                className="w-full border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-white/5"
-              >
-                Upload
-              </Button>
+            {/* Bottom Button - Only Use */}
+            <div className="p-4 border-t border-white/10">
               <Button
                 onClick={handleUseAudio}
                 disabled={!hasSelection || isUploading}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50"
               >
                 {isUploading ? (
                   <>
