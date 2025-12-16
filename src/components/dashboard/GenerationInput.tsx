@@ -4644,60 +4644,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
                     </button>
                     
-                    {/* Audio Icon in Prompt Box with Playback */}
-                    {transcribeAudio && (
-                      <div 
-                        className="relative"
-                        onMouseEnter={() => setIsHoveringAudioIcon(true)}
-                        onMouseLeave={() => setIsHoveringAudioIcon(false)}
-                      >
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition ${
-                          isHoveringAudioIcon ? 'bg-blue-600' : 'bg-blue-500'
-                        }`}>
-                          {isHoveringAudioIcon ? (
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => {
-                                  if (isPlayingTranscribePreview) {
-                                    transcribePreviewAudioRef.current?.pause();
-                                    setIsPlayingTranscribePreview(false);
-                                  } else {
-                                    if (!transcribePreviewAudioRef.current) {
-                                      transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
-                                      transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
-                                    }
-                                    transcribePreviewAudioRef.current.play();
-                                    setIsPlayingTranscribePreview(true);
-                                  }
-                                }}
-                                className="p-1 hover:bg-white/20 rounded transition"
-                              >
-                                {isPlayingTranscribePreview ? (
-                                  <Pause size={14} className="text-white" />
-                                ) : (
-                                  <Play size={14} className="text-white" />
-                                )}
-                              </button>
-                            </div>
-                          ) : (
-                            <FileAudio size={18} className="text-white" />
-                          )}
-                        </div>
-                        {isHoveringAudioIcon && (
-                          <button
-                            onClick={() => {
-                              transcribePreviewAudioRef.current?.pause();
-                              setIsPlayingTranscribePreview(false);
-                              setTranscribeAudio(null);
-                            }}
-                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition"
-                          >
-                            <X size={12} className="text-white" />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    
                     {/* Menu Icon */}
                     <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
                       <MoreVertical size={16} />
@@ -6654,6 +6600,57 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
 
           <div className="flex items-center gap-3 ml-12">
+            {/* Transcribe Audio Preview - Shows right above button */}
+            {isAudioMode && selectedAudioMode === 'Transcribe' && transcribeAudio && (
+              <div 
+                className="relative"
+                onMouseEnter={() => setIsHoveringAudioIcon(true)}
+                onMouseLeave={() => setIsHoveringAudioIcon(false)}
+              >
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center cursor-pointer transition ${
+                  isHoveringAudioIcon ? 'bg-blue-600' : 'bg-blue-500'
+                }`}>
+                  {isHoveringAudioIcon ? (
+                    <button
+                      onClick={() => {
+                        if (isPlayingTranscribePreview) {
+                          transcribePreviewAudioRef.current?.pause();
+                          setIsPlayingTranscribePreview(false);
+                        } else {
+                          if (!transcribePreviewAudioRef.current) {
+                            transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
+                            transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
+                          }
+                          transcribePreviewAudioRef.current.play();
+                          setIsPlayingTranscribePreview(true);
+                        }
+                      }}
+                      className="p-1 hover:bg-white/20 rounded transition"
+                    >
+                      {isPlayingTranscribePreview ? (
+                        <Pause size={20} className="text-white" />
+                      ) : (
+                        <Play size={20} className="text-white" />
+                      )}
+                    </button>
+                  ) : (
+                    <FileAudio size={24} className="text-white" />
+                  )}
+                </div>
+                {isHoveringAudioIcon && (
+                  <button
+                    onClick={() => {
+                      transcribePreviewAudioRef.current?.pause();
+                      setIsPlayingTranscribePreview(false);
+                      setTranscribeAudio(null);
+                    }}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                  >
+                    <X size={12} className="text-white" />
+                  </button>
+                )}
+              </div>
+            )}
             <Popover>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
