@@ -534,7 +534,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
           </div>
           
           {/* Right Side - Transcript/Lyrics */}
-          <div className="w-[55%] flex flex-col h-full min-h-0 overflow-hidden">
+          <div className="w-[55%] flex flex-col h-full min-h-0">
             <DialogHeader className="px-8 py-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-2xl font-bold text-gray-900">
