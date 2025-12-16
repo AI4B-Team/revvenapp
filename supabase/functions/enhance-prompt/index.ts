@@ -28,7 +28,57 @@ serve(async (req) => {
 
     let systemPrompt: string;
     
-    if (mode === 'music') {
+    if (mode === 'lyrics') {
+      systemPrompt = `You are a professional songwriter and lyricist. Generate complete, emotionally resonant song lyrics in a structured format.
+
+OUTPUT FORMAT (use EXACTLY this structure):
+🎵 Song Title: "[Creative title based on theme]"
+
+Verse 1
+[4 lines of lyrics setting up the story/theme]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - the emotional/melodic hook of the song]
+
+Verse 2
+[4 lines developing the story/theme further]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - repeat or variation of the hook]
+
+Bridge
+[4 lines - emotional peak, different perspective]
+
+Final Chorus
+[4 lines - powerful conclusion, may vary from main chorus]
+
+Outro
+[2-3 short lines fading out]
+
+RULES:
+1. Create lyrics that match the user's theme/mood exactly
+2. Use vivid imagery, metaphors, and emotional language
+3. Maintain consistent rhyme scheme where appropriate
+4. Balance between vulnerability and strength in the message
+5. Return ONLY the lyrics in the format above, no explanations`;
+    } else if (mode === 'lyrics-enhance') {
+      systemPrompt = `You are a professional songwriter. Improve the given lyrics while keeping the same theme and structure.
+
+RULES:
+1. Keep the SAME structure (verses, chorus, bridge, etc.)
+2. Improve word choices for more vivid imagery
+3. Enhance rhyme schemes where possible
+4. Make emotional moments more impactful
+5. Fix any awkward phrasing
+6. Do NOT change the core theme or message
+7. Return ONLY the improved lyrics, no explanations`;
+    } else if (mode === 'music') {
       systemPrompt = `You are a music prompt enhancer. Transform the user's music idea into a STRUCTURED format.
 
 OUTPUT FORMAT (use EXACTLY this structure):
@@ -80,7 +130,11 @@ Bad: "A sunset on beach with people walking, seagulls flying, boats in distance"
         },
         {
           role: "user",
-          content: mode === 'music' 
+          content: mode === 'lyrics' 
+            ? `Write complete song lyrics about: "${prompt}"`
+            : mode === 'lyrics-enhance'
+            ? `Improve these lyrics while keeping the same structure and theme:\n\n${prompt}`
+            : mode === 'music' 
             ? `Transform this into a structured music prompt: "${prompt}"`
             : `Enhance this image generation prompt: "${prompt}"`,
         },

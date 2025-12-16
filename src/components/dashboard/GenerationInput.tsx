@@ -140,6 +140,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [vocalGender, setVocalGender] = useState<'m' | 'f'>('f');
   const [isMusicModelPopoverOpen, setIsMusicModelPopoverOpen] = useState(false);
   const [selectedMusicSample, setSelectedMusicSample] = useState<{ id: string; genre: string } | null>(null);
+  const [isEnhancingLyrics, setIsEnhancingLyrics] = useState(false);
   
   // Transcribe mode state
   const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
@@ -2247,6 +2248,58 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       });
     } finally {
       setIsEnhancing(false);
+    }
+  };
+
+  const handleLyricsEnhance = async (isAutoPrompt = false) => {
+    setIsEnhancingLyrics(true);
+    
+    try {
+      const themePrompt = isAutoPrompt 
+        ? (prompt.trim() || 'an inspirational song about rising above challenges and finding inner strength')
+        : musicLyrics;
+      
+      if (!themePrompt.trim()) {
+        toast({
+          title: isAutoPrompt ? "Theme required" : "Lyrics required",
+          description: isAutoPrompt ? "Please enter a theme or description for the lyrics" : "Please enter lyrics to enhance",
+          variant: "destructive",
+        });
+        setIsEnhancingLyrics(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('enhance-prompt', {
+        body: { 
+          prompt: themePrompt.trim(),
+          mode: isAutoPrompt ? 'lyrics' : 'lyrics-enhance'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.enhancedPrompt) {
+        const maxLength = musicModel === 'V4' ? 3000 : 5000;
+        let enhanced = data.enhancedPrompt;
+        if (enhanced.length > maxLength) {
+          enhanced = enhanced.substring(0, maxLength);
+        }
+        setMusicLyrics(enhanced);
+        toast({
+          title: isAutoPrompt ? "Lyrics generated!" : "Lyrics enhanced!",
+          description: isAutoPrompt ? "AI has created lyrics based on your theme" : "Your lyrics have been improved",
+        });
+      }
+      
+    } catch (error) {
+      console.error("Lyrics enhancement error:", error);
+      toast({
+        title: "Enhancement failed",
+        description: error.message || "Failed to process lyrics",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancingLyrics(false);
     }
   };
 
@@ -4928,14 +4981,50 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               <ChevronDown size={14} />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-80 bg-background border-border z-50 p-3">
+                          <PopoverContent className="w-96 bg-background border-border z-50 p-3">
                             <div className="space-y-3">
-                              <p className="text-xs text-muted-foreground">Enter your song lyrics (max {musicModel === 'V4' ? '3000' : '5000'} characters)</p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs text-muted-foreground">Enter your song lyrics (max {musicModel === 'V4' ? '3000' : '5000'} characters)</p>
+                                <div className="flex items-center gap-1">
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => handleLyricsEnhance(true)}
+                                          disabled={isEnhancingLyrics}
+                                          className="p-1.5 rounded-md bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 transition disabled:opacity-50"
+                                        >
+                                          {isEnhancingLyrics ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Auto-generate lyrics from theme</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => handleLyricsEnhance(false)}
+                                          disabled={isEnhancingLyrics || !musicLyrics.trim()}
+                                          className="p-1.5 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 transition disabled:opacity-50"
+                                        >
+                                          {isEnhancingLyrics ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Enhance existing lyrics</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              </div>
                               <textarea
                                 value={musicLyrics}
                                 onChange={(e) => setMusicLyrics(e.target.value)}
-                                placeholder="Write your lyrics here..."
-                                className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none resize-none min-h-[150px]"
+                                placeholder="Write your lyrics here or use ✨ to auto-generate..."
+                                className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none resize-none min-h-[200px]"
                                 maxLength={musicModel === 'V4' ? 3000 : 5000}
                               />
                               <div className="flex justify-between items-center">
