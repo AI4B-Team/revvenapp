@@ -7210,6 +7210,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           }
         }}
         onRemoveAudio={() => setTranscribeAudio(null)}
+        onBackToLibrary={() => setIsAudioSelectModalOpen(true)}
         isTranscribing={isTranscribing}
       />
 

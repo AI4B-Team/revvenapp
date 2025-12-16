@@ -21,6 +21,7 @@ interface TranscribeConfirmModalProps {
   } | null;
   onTranscribe: (numSpeakers: number, fileName?: string) => void;
   onRemoveAudio: () => void;
+  onBackToLibrary?: () => void;
   isTranscribing?: boolean;
 }
 
@@ -30,6 +31,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
   audioFile,
   onTranscribe,
   onRemoveAudio,
+  onBackToLibrary,
   isTranscribing = false,
 }) => {
   const [numSpeakers, setNumSpeakers] = useState(1);
@@ -159,6 +161,10 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
                   onClick={() => {
                     onRemoveAudio();
                     onClose();
+                    // Re-open the audio library modal
+                    if (onBackToLibrary) {
+                      setTimeout(() => onBackToLibrary(), 100);
+                    }
                   }}
                   className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition"
                 >
