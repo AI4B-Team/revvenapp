@@ -228,14 +228,19 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
 
   // Initialize audio element on mount
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.crossOrigin = 'anonymous';
-    
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.volume = 0;
+    audio.muted = true; // improves autoplay success across browsers
+    // @ts-expect-error - playsInline exists on HTMLMediaElement in many browsers
+    audio.playsInline = true;
+
+    audioRef.current = audio;
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.pause();
+      audio.src = '';
+      audioRef.current = null;
     };
   }, []);
 
