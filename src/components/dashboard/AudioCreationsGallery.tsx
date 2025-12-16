@@ -102,8 +102,8 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newItem = payload.new as AudioItem;
-            // Filter out uploaded/recorded/cloned/revoice_source types from realtime updates
-            if (newItem.type !== 'uploaded' && newItem.type !== 'recorded' && newItem.type !== 'cloned' && newItem.type !== 'revoice_source') {
+            // Filter out uploaded/recorded/revoice_source types from realtime updates (but include cloned)
+            if (newItem.type !== 'uploaded' && newItem.type !== 'recorded' && newItem.type !== 'revoice_source') {
               setAudioItems(prev => [newItem, ...prev]);
             }
           } else if (payload.eventType === 'DELETE') {
