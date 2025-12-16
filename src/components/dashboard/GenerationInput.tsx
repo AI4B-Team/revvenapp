@@ -1,7 +1,9 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
+import TranscribeConfirmModal from './TranscribeConfirmModal';
+import AudioSelectModal from './AudioSelectModal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
@@ -140,6 +142,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribedText, setIsTranscribedText] = useState(false);
+  const [showTranscribeConfirmModal, setShowTranscribeConfirmModal] = useState(false);
+  const [isAudioSelectModalOpen, setIsAudioSelectModalOpen] = useState(false);
+  const [isPlayingTranscribePreview, setIsPlayingTranscribePreview] = useState(false);
+  const [isHoveringAudioIcon, setIsHoveringAudioIcon] = useState(false);
+  const transcribePreviewAudioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   
@@ -4603,194 +4610,6 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Transcribe Mode Controls */}
                 {selectedAudioMode === 'Transcribe' ? (
                   <>
-                    {/* Upload Audio Button */}
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button 
-                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            transcribeAudio 
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}
-                        >
-                          <Upload size={14} />
-                          {transcribeAudio ? transcribeAudio.name.substring(0, 15) + (transcribeAudio.name.length > 15 ? '...' : '') : 'Upload Audio'}
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-72 bg-background border-border z-50 p-4">
-                        <div className="space-y-4">
-                          <p className="text-sm font-medium">Upload audio to transcribe</p>
-                          
-                          {/* File Upload */}
-                          <div className="space-y-2">
-                            <input
-                              type="file"
-                              accept="audio/mpeg,audio/mp3,audio/mp4,audio/wav,audio/ogg,audio/webm,audio/*"
-                              id="transcribe-audio-upload"
-                              className="hidden"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                
-                                // Validate file size (max 25MB)
-                                if (file.size > 25 * 1024 * 1024) {
-                                  toast({
-                                    title: "File too large",
-                                    description: "Please upload an audio file smaller than 25MB",
-                                    variant: "destructive",
-                                  });
-                                  return;
-                                }
-                                
-                                // Convert to base64
-                                const reader = new FileReader();
-                                reader.onload = async (event) => {
-                                  const base64 = event.target?.result as string;
-                                  
-                                  // Get audio duration
-                                  const audio = new Audio();
-                                  audio.src = URL.createObjectURL(file);
-                                  audio.onloadedmetadata = () => {
-                                    setTranscribeAudio({
-                                      name: file.name,
-                                      duration: Math.round(audio.duration),
-                                      url: URL.createObjectURL(file),
-                                      base64: base64,
-                                    });
-                                    toast({
-                                      title: "Audio uploaded",
-                                      description: `${file.name} (${Math.round(audio.duration)}s)`,
-                                    });
-                                  };
-                                };
-                                reader.readAsDataURL(file);
-                              }}
-                            />
-                            <label
-                              htmlFor="transcribe-audio-upload"
-                              className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-brand-green transition"
-                            >
-                              <Upload size={18} className="text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">Click to upload MP3 or audio file</span>
-                            </label>
-                          </div>
-                          
-                          {/* Record Button */}
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={async () => {
-                                if (isRecording) {
-                                  // Stop recording
-                                  if (mediaRecorderRef.current) {
-                                    mediaRecorderRef.current.stop();
-                                    setIsRecording(false);
-                                  }
-                                } else {
-                                  // Start recording
-                                  try {
-                                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-                                    const preferredMimeType =
-                                      MediaRecorder.isTypeSupported('audio/mp4')
-                                        ? 'audio/mp4'
-                                        : MediaRecorder.isTypeSupported('audio/ogg')
-                                          ? 'audio/ogg'
-                                          : 'audio/webm';
-
-                                    const mediaRecorder = new MediaRecorder(stream, { mimeType: preferredMimeType });
-                                    mediaRecorderRef.current = mediaRecorder;
-                                    audioChunksRef.current = [];
-                                    
-                                    mediaRecorder.ondataavailable = (event) => {
-                                      if (event.data.size > 0) {
-                                        audioChunksRef.current.push(event.data);
-                                      }
-                                    };
-                                    
-                                    mediaRecorder.onstop = () => {
-                                      const mimeType = mediaRecorder.mimeType || preferredMimeType;
-                                      const extension = mimeType.includes('mp4')
-                                        ? 'mp4'
-                                        : mimeType.includes('ogg')
-                                          ? 'ogg'
-                                          : 'webm';
-
-                                      const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-                                      const reader = new FileReader();
-                                      reader.onload = (event) => {
-                                        const base64 = event.target?.result as string;
-                                        const audio = new Audio();
-                                        audio.src = URL.createObjectURL(audioBlob);
-                                        audio.onloadedmetadata = () => {
-                                          setTranscribeAudio({
-                                            name: `Recording_${Date.now()}.${extension}`,
-                                            duration: Math.round(audio.duration),
-                                            url: URL.createObjectURL(audioBlob),
-                                            base64: base64,
-                                          });
-                                          toast({
-                                            title: "Recording complete",
-                                            description: `Duration: ${Math.round(audio.duration)}s`,
-                                          });
-                                        };
-                                      };
-                                      reader.readAsDataURL(audioBlob);
-                                      stream.getTracks().forEach(track => track.stop());
-                                    };
-                                    
-                                    mediaRecorder.start();
-                                    setIsRecording(true);
-                                  } catch (error) {
-                                    toast({
-                                      title: "Microphone access denied",
-                                      description: "Please allow microphone access to record audio",
-                                      variant: "destructive",
-                                    });
-                                  }
-                                }
-                              }}
-                              className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
-                                isRecording 
-                                  ? 'bg-brand-red text-white animate-pulse' 
-                                  : 'bg-secondary hover:bg-secondary/80'
-                              }`}
-                            >
-                              {isRecording ? (
-                                <>
-                                  <div className="w-2 h-2 rounded-full bg-white" />
-                                  Stop Recording
-                                </>
-                              ) : (
-                                <>
-                                  <Mic size={16} />
-                                  Record Audio
-                                </>
-                              )}
-                            </button>
-                          </div>
-                          
-                          {/* Selected Audio Preview */}
-                          {transcribeAudio && (
-                            <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                              <div className="flex items-center gap-2">
-                                <AudioLines size={16} className="text-brand-green" />
-                                <div>
-                                  <p className="text-sm font-medium truncate max-w-[150px]">{transcribeAudio.name}</p>
-                                  <p className="text-xs text-muted-foreground">{transcribeAudio.duration}s</p>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => setTranscribeAudio(null)}
-                                className="p-1 hover:bg-background rounded-full transition"
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    
                     {/* ElevenLabs Model Indicator */}
                     <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-violet-500/20 text-violet-600 cursor-default">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-violet-500">
@@ -4798,6 +4617,78 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </svg>
                       ElevenLabs
                     </div>
+                    
+                    {/* Upload Audio Button - Opens AudioSelectModal */}
+                    <button 
+                      onClick={() => setIsAudioSelectModalOpen(true)}
+                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                        transcribeAudio 
+                          ? 'bg-pill-green text-pill-green-text' 
+                          : 'bg-pill-gray text-pill-gray-text'
+                      } hover:opacity-80`}
+                    >
+                      <Upload size={14} />
+                      {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
+                    </button>
+                    
+                    {/* Audio Icon in Prompt Box with Playback */}
+                    {transcribeAudio && (
+                      <div 
+                        className="relative"
+                        onMouseEnter={() => setIsHoveringAudioIcon(true)}
+                        onMouseLeave={() => setIsHoveringAudioIcon(false)}
+                      >
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition ${
+                          isHoveringAudioIcon ? 'bg-blue-600' : 'bg-blue-500'
+                        }`}>
+                          {isHoveringAudioIcon ? (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => {
+                                  if (isPlayingTranscribePreview) {
+                                    transcribePreviewAudioRef.current?.pause();
+                                    setIsPlayingTranscribePreview(false);
+                                  } else {
+                                    if (!transcribePreviewAudioRef.current) {
+                                      transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
+                                      transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
+                                    }
+                                    transcribePreviewAudioRef.current.play();
+                                    setIsPlayingTranscribePreview(true);
+                                  }
+                                }}
+                                className="p-1 hover:bg-white/20 rounded transition"
+                              >
+                                {isPlayingTranscribePreview ? (
+                                  <Pause size={14} className="text-white" />
+                                ) : (
+                                  <Play size={14} className="text-white" />
+                                )}
+                              </button>
+                            </div>
+                          ) : (
+                            <FileAudio size={18} className="text-white" />
+                          )}
+                        </div>
+                        {isHoveringAudioIcon && (
+                          <button
+                            onClick={() => {
+                              transcribePreviewAudioRef.current?.pause();
+                              setIsPlayingTranscribePreview(false);
+                              setTranscribeAudio(null);
+                            }}
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                          >
+                            <X size={12} className="text-white" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Menu Icon */}
+                    <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
+                      <MoreVertical size={16} />
+                    </button>
                   </>
                 ) : selectedAudioMode === 'Sound Effects' ? (
                   <>
@@ -7057,6 +6948,59 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             title: "Video selected",
             description: `${video.name} selected for Video-To-Video generation`,
           });
+        }}
+      />
+
+      {/* Transcribe Confirm Modal */}
+      <TranscribeConfirmModal
+        isOpen={showTranscribeConfirmModal}
+        onClose={() => setShowTranscribeConfirmModal(false)}
+        audioFile={transcribeAudio}
+        onTranscribe={async (numSpeakers) => {
+          setShowTranscribeConfirmModal(false);
+          // Trigger transcription
+          if (transcribeAudio?.base64) {
+            setIsTranscribing(true);
+            try {
+              const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+                body: {
+                  audioBase64: transcribeAudio.base64.split(',')[1] || transcribeAudio.base64,
+                  filename: transcribeAudio.name,
+                  contentType: 'audio/webm',
+                },
+              });
+              if (error) throw error;
+              if (data?.text) {
+                setPrompt(data.text);
+                setIsTranscribedText(true);
+                toast({ title: "Transcription complete" });
+              }
+            } catch (error) {
+              console.error('Transcription error:', error);
+              toast({ title: "Transcription failed", variant: "destructive" });
+            } finally {
+              setIsTranscribing(false);
+            }
+          }
+        }}
+        onRemoveAudio={() => setTranscribeAudio(null)}
+        isTranscribing={isTranscribing}
+      />
+
+      {/* Audio Select Modal for Transcribe */}
+      <AudioSelectModal
+        isOpen={isAudioSelectModalOpen}
+        onClose={() => setIsAudioSelectModalOpen(false)}
+        onSelectAudio={(audio) => {
+          setTranscribeAudio({
+            name: audio.name,
+            duration: audio.duration,
+            url: audio.url,
+            base64: audio.base64 || '',
+          });
+          setIsAudioSelectModalOpen(false);
+          // Show confirm modal after selection
+          setTimeout(() => setShowTranscribeConfirmModal(true), 100);
         }}
       />
     </div>
