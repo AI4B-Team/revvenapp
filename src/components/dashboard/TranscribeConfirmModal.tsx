@@ -59,7 +59,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">
-                Transcribe your recording
+                Transcribe Audio
               </h2>
               <p className="text-sm text-gray-500 dark:text-muted-foreground mt-1">
                 Generate a transcript using our cutting-edge, AI transcription tech.
