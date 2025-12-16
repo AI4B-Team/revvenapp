@@ -14,50 +14,50 @@ const musicSamples: MusicSample[] = [
     id: '1',
     genre: 'R&B',
     coverImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
     isNew: true,
   },
   {
     id: '2',
     genre: 'POP',
     coverImage: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_946b0939c1.mp3',
   },
   {
     id: '3',
     genre: 'Jazz',
     coverImage: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3',
   },
   {
     id: '4',
     genre: 'Country',
     coverImage: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/08/02/audio_884fe92c21.mp3',
   },
   {
     id: '5',
     genre: 'Blues',
     coverImage: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/11/13/audio_cb4b5a6a07.mp3',
   },
   {
     id: '6',
     genre: 'Hip-Hop',
     coverImage: 'https://images.unsplash.com/photo-1546427660-eb346c344ba5?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3',
   },
   {
     id: '7',
     genre: 'Electronic',
     coverImage: 'https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f49f8b4.mp3',
   },
   {
     id: '8',
     genre: 'Classical',
     coverImage: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=400&fit=crop',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/01/20/audio_c8c8a73467.mp3',
   },
 ];
 
@@ -144,9 +144,10 @@ const MusicSampleCard: React.FC<MusicSampleCardProps> = ({
           </div>
         )}
 
+        {/* Use Button - Bottom Right */}
         <div
           className={`
-            absolute inset-0 flex items-center justify-center
+            absolute bottom-3 right-3 z-10
             transition-all duration-300 ease-out
             ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}
           `}
@@ -157,9 +158,9 @@ const MusicSampleCard: React.FC<MusicSampleCardProps> = ({
               onSelect(sample);
             }}
             className={`
-              px-6 py-2.5 rounded-full font-semibold text-sm
+              px-4 py-2 rounded-full font-semibold text-xs
               transition-all duration-200 ease-out
-              transform ${isHovered ? 'translate-y-0 scale-100' : 'translate-y-4 scale-95'}
+              transform ${isHovered ? 'translate-y-0 scale-100' : 'translate-y-2 scale-95'}
               ${isSelected 
                 ? 'bg-white text-emerald-600 hover:bg-gray-100' 
                 : 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/30'
@@ -171,9 +172,10 @@ const MusicSampleCard: React.FC<MusicSampleCardProps> = ({
           </button>
         </div>
 
+        {/* Play/Pause Icon - Center */}
         <div
           className={`
-            absolute bottom-14 left-1/2 -translate-x-1/2
+            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
             w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm
             flex items-center justify-center
             transition-all duration-300 ease-out
@@ -187,8 +189,9 @@ const MusicSampleCard: React.FC<MusicSampleCardProps> = ({
           )}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-white font-bold text-lg tracking-wide">
+        {/* Genre Label - Bottom Left */}
+        <div className="absolute bottom-0 left-0 right-12 p-3">
+          <h3 className="text-white font-bold text-sm tracking-wide">
             {sample.genre}
           </h3>
         </div>
