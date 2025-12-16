@@ -6771,8 +6771,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         <MusicSamplesSection 
           isVisible={true}
           onSampleSelect={(sample) => {
-            setSelectedMusicSample({ id: sample.id, genre: sample.genre });
-            setMusicStyle(sample.genre);
+            if (sample) {
+              setSelectedMusicSample({ id: sample.id, genre: sample.genre });
+              setMusicStyle(sample.genre);
+              setPrompt(sample.promptText);
+            } else {
+              setSelectedMusicSample(null);
+              setMusicStyle('');
+              setPrompt('');
+            }
           }}
           selectedSampleId={selectedMusicSample?.id}
         />
