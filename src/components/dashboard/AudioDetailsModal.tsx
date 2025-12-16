@@ -75,6 +75,8 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [translateOpen, setTranslateOpen] = useState(false);
   const [languageQuery, setLanguageQuery] = useState('');
+  const [syncedTimestamps, setSyncedTimestamps] = useState<{ type: string; lines: string[]; timestamp: number | null }[]>([]);
+  const [isSyncingTimestamps, setIsSyncingTimestamps] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -116,6 +118,48 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
       // Don't clear translatedText - it's loaded from localStorage on open
     }
   }, [isOpen]);
+
+  // Sync lyrics timestamps using ElevenLabs STT
+  useEffect(() => {
+    const syncTimestamps = async () => {
+      if (!isOpen || !audioItem || audioItem.type !== 'music' || !audioItem.prompt || !audioItem.url) {
+        return;
+      }
+      
+      // Check if we already have cached timestamps
+      const cachedKey = `lyrics_timestamps_${audioItem.id}`;
+      const cached = localStorage.getItem(cachedKey);
+      if (cached) {
+        try {
+          setSyncedTimestamps(JSON.parse(cached));
+          return;
+        } catch (e) {
+          console.error('Failed to parse cached timestamps:', e);
+        }
+      }
+
+      setIsSyncingTimestamps(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('sync-lyrics-timestamps', {
+          body: { audioUrl: audioItem.url, lyrics: audioItem.prompt }
+        });
+
+        if (error) throw error;
+        
+        if (data?.sections) {
+          setSyncedTimestamps(data.sections);
+          localStorage.setItem(cachedKey, JSON.stringify(data.sections));
+        }
+      } catch (error) {
+        console.error('Failed to sync timestamps:', error);
+        // Fallback handled in render
+      } finally {
+        setIsSyncingTimestamps(false);
+      }
+    };
+
+    syncTimestamps();
+  }, [isOpen, audioItem?.id]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -702,40 +746,64 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                     ))
                   ) : (
                     (() => {
-                      const sections = parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]);
-                      const totalDuration = audioItem.duration || 180;
-                      const sectionCount = sections.filter(s => s.type).length || 1;
-                      // Spread sections across full duration (last section starts near end)
-                      const timePerSection = sectionCount > 1 ? totalDuration / (sectionCount - 1) : totalDuration;
-                      
                       const formatTimestamp = (seconds: number) => {
                         const mins = Math.floor(seconds / 60);
                         const secs = Math.floor(seconds % 60);
                         return `${mins}:${secs.toString().padStart(2, '0')}`;
                       };
                       
+                      // Use synced timestamps if available, otherwise fall back to parsed sections with estimates
+                      const useSynced = syncedTimestamps.length > 0 && activeTab === 'original';
+                      const parsedSections = parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]);
+                      
+                      // For fallback estimation
+                      const totalDuration = audioItem.duration || 180;
+                      const sectionCount = parsedSections.filter(s => s.type).length || 1;
+                      const timePerSection = sectionCount > 1 ? totalDuration / (sectionCount - 1) : totalDuration;
+                      
                       let sectionIndex = 0;
-                      return sections.map((section, index) => {
-                        const sectionStartTime = section.type ? sectionIndex++ * timePerSection : 0;
-                        
-                        return (
-                          <div key={index} className="mb-8">
-                            {section.type && (
-                              <div className="flex items-center gap-3 mb-3">
-                                <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                                  {formatTimestamp(sectionStartTime)}
-                                </span>
-                                <p className="text-sm font-semibold text-gray-500">{section.type}</p>
-                              </div>
-                            )}
-                            <div className="space-y-2 pl-14">
-                              {section.lines.map((line, lineIndex) => (
-                                <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
-                              ))}
+                      const sectionsToRender = useSynced ? syncedTimestamps : parsedSections;
+                      
+                      return (
+                        <>
+                          {isSyncingTimestamps && (
+                            <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <span>Syncing lyrics with audio...</span>
                             </div>
-                          </div>
-                        );
-                      });
+                          )}
+                          {sectionsToRender.map((section, index) => {
+                            // Use synced timestamp if available, otherwise estimate
+                            const syncedSection = useSynced ? syncedTimestamps[index] : null;
+                            const hasRealTimestamp = syncedSection && syncedSection.timestamp !== null && syncedSection.timestamp !== undefined;
+                            const timestamp = hasRealTimestamp
+                              ? syncedSection.timestamp!
+                              : (section.type ? sectionIndex++ * timePerSection : 0);
+                            
+                            return (
+                              <div key={index} className="mb-8">
+                                {section.type && (
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <span className={`text-xs font-mono px-2 py-0.5 rounded ${
+                                      hasRealTimestamp 
+                                        ? 'text-green-600 bg-green-50' 
+                                        : 'text-gray-400 bg-gray-100'
+                                    }`}>
+                                      {formatTimestamp(timestamp)}
+                                    </span>
+                                    <p className="text-sm font-semibold text-gray-500">{section.type}</p>
+                                  </div>
+                                )}
+                                <div className="space-y-2 pl-14">
+                                  {section.lines.map((line, lineIndex) => (
+                                    <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </>
+                      );
                     })()
                   )}
                 </div>
