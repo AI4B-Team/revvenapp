@@ -798,7 +798,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         </div>
 
         {/* Right Panel - Upload Options */}
-        <div className="w-[480px] p-6 flex flex-col bg-gray-50/50 overflow-y-auto">
+        <div className="w-[480px] p-6 flex flex-col bg-gray-100 overflow-y-auto">
           {/* Show selected file if exists - Centered in middle */}
           {selectedFile ? (
             <div className="flex-1 flex flex-col justify-center items-center">
@@ -893,13 +893,13 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {/* Upload Audio Option - 1st - PASTEL GREEN */}
+              {/* Upload Audio Option - 1st */}
               <label
                 className={`
                   relative flex flex-col items-center justify-center p-5 
                   border-2 border-dashed rounded-xl cursor-pointer
                   transition-all duration-200 bg-white
-                  border-gray-200 hover:border-gray-300 hover:bg-gray-50
+                  border-gray-200 hover:border-emerald-400 hover:bg-gray-50
                 `}
               >
                 <input
@@ -930,12 +930,12 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {/* Online File URL Option - 2nd - PASTEL BLUE */}
+              {/* Online File URL Option - 2nd */}
               <div
                 className={`
                   relative flex flex-col items-center justify-center p-5 
                   border-2 border-dashed rounded-xl bg-white
-                  transition-all duration-200
+                  transition-all duration-200 hover:border-emerald-400
                   ${mediaUrl 
                     ? 'border-blue-300 bg-blue-50' 
                     : 'border-gray-200'
@@ -984,7 +984,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {/* Record Audio Option - 3rd - PASTEL RED */}
+              {/* Record Audio Option - 3rd */}
               <button
                 onClick={handleRecordClick}
                 disabled={isUploading}
@@ -994,7 +994,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   transition-all duration-200 bg-white
                   ${isRecording
                     ? 'border-red-400 bg-red-50' 
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-gray-200 hover:border-emerald-400 hover:bg-gray-50'
                   }
                 `}
               >
