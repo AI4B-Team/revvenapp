@@ -78,6 +78,28 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
+  // Load saved translations from localStorage
+  useEffect(() => {
+    if (isOpen && audioItem) {
+      const savedTranslations = localStorage.getItem(`translations_${audioItem.id}`);
+      if (savedTranslations) {
+        try {
+          setTranslatedText(JSON.parse(savedTranslations));
+        } catch (e) {
+          console.error('Failed to parse saved translations:', e);
+        }
+      }
+      setEditedTitle(audioItem.name);
+    }
+  }, [isOpen, audioItem]);
+
+  // Save translations to localStorage whenever they change
+  useEffect(() => {
+    if (audioItem && Object.keys(translatedText).length > 0) {
+      localStorage.setItem(`translations_${audioItem.id}`, JSON.stringify(translatedText));
+    }
+  }, [translatedText, audioItem]);
+
   useEffect(() => {
     if (!isOpen) {
       if (audioRef.current) {
@@ -91,10 +113,9 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
       setSelectedLanguage(null);
       setTranslateOpen(false);
       setLanguageQuery('');
-    } else if (audioItem) {
-      setEditedTitle(audioItem.name);
+      setTranslatedText({});
     }
-  }, [isOpen, audioItem]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (audioRef.current) {
