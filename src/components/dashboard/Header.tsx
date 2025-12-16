@@ -187,7 +187,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
       </div>
 
       <div className="flex-1 flex items-center justify-end gap-2">
-        <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs">
+        <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 flex items-center gap-1.5 px-3 py-1 h-8 text-xs border border-amber-200">
           <Crown size={14} />
           <span className="font-semibold">Upgrade</span>
         </Button>
@@ -195,7 +195,7 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         <Button 
           size="sm" 
           onClick={() => setIsRewardsModalOpen(true)}
-          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5 px-3 py-1 h-8 text-xs"
+          className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 flex items-center gap-1.5 px-3 py-1 h-8 text-xs border border-emerald-200"
         >
           <Gift size={14} />
           <span className="font-semibold">Earn</span>
