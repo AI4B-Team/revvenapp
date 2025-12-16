@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Play, Pause, Bookmark, Heart, Download, Edit, 
-  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText
+  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw
 } from 'lucide-react';
 import {
   Tooltip,
@@ -393,14 +393,8 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
           {/* Info Area */}
           <div className="p-3">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-sm truncate">{item.name}</h3>
-                {/* Show transcribed text preview for transcription items */}
-                {item.type === 'transcription' && item.prompt && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2 bg-secondary/50 rounded px-2 py-1">
-                    "{item.prompt}"
-                  </p>
-                )}
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {formatTimestamp(item.created_at)}
                 </p>
@@ -445,6 +439,19 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>Like</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        <RefreshCw size={14} className="text-muted-foreground" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Remix</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 

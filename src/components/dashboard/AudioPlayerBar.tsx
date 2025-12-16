@@ -270,7 +270,7 @@ const AudioPlayerBar = ({
                   <Info size={18} className="text-sidebar-text" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="top">View Details</TooltipContent>
+              <TooltipContent side="top">Details</TooltipContent>
             </Tooltip>
 
             {/* Heart/Like */}
@@ -347,7 +347,7 @@ const AudioPlayerBar = ({
               </Tooltip>
               <PopoverContent 
                 side="top" 
-                className="w-10 p-2 bg-sidebar-background border-sidebar-hover"
+                className="w-10 p-2 bg-black border-sidebar-hover"
                 align="center"
               >
                 <div className="h-24 flex justify-center">
@@ -391,7 +391,7 @@ const AudioPlayerBar = ({
                     </button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent side="top">More Options</TooltipContent>
+                <TooltipContent side="top">Options</TooltipContent>
               </Tooltip>
               <DropdownMenuContent 
                 align="end" 
