@@ -4587,64 +4587,64 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 </TooltipProvider>
               </>
             ) : isAudioMode ? (
-              <>
-                {/* Audio Mode Controls */}
-                <div className="flex flex-col items-start gap-2">
-                  {/* Audio Preview (shows ABOVE the Transcribe dropdown) */}
-                  {selectedAudioMode === 'Transcribe' && transcribeAudio && (
+              <div className="flex flex-col gap-2">
+                {/* Audio Preview Row (shows ABOVE the buttons) */}
+                {selectedAudioMode === 'Transcribe' && transcribeAudio && (
+                  <div 
+                    className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-1.5 group w-fit"
+                    onMouseEnter={() => setIsHoveringAudioIcon(true)}
+                    onMouseLeave={() => setIsHoveringAudioIcon(false)}
+                  >
                     <div 
-                      className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-1.5 group"
-                      onMouseEnter={() => setIsHoveringAudioIcon(true)}
-                      onMouseLeave={() => setIsHoveringAudioIcon(false)}
-                    >
-                      <div 
-                        className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden flex-shrink-0"
-                        onClick={() => {
-                          if (isPlayingTranscribePreview) {
-                            transcribePreviewAudioRef.current?.pause();
-                            setIsPlayingTranscribePreview(false);
-                          } else {
-                            if (!transcribePreviewAudioRef.current) {
-                              transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
-                              transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
-                            }
-                            transcribePreviewAudioRef.current.play();
-                            setIsPlayingTranscribePreview(true);
-                          }
-                        }}
-                      >
-                        <AudioLines size={16} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
-                        <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
-                          {isPlayingTranscribePreview ? (
-                            <Pause size={14} className="text-white" />
-                          ) : (
-                            <Play size={14} className="text-white ml-0.5" />
-                          )}
-                        </div>
-                      </div>
-
-                      <span className="text-sm font-medium text-foreground max-w-28 truncate">
-                        {transcribeAudio.name}
-                      </span>
-
-                      <button
-                        onClick={() => {
+                      className="w-8 h-8 bg-brand-green rounded-full flex items-center justify-center cursor-pointer relative overflow-hidden flex-shrink-0"
+                      onClick={() => {
+                        if (isPlayingTranscribePreview) {
                           transcribePreviewAudioRef.current?.pause();
                           setIsPlayingTranscribePreview(false);
-                          setTranscribeAudio(null);
-                        }}
-                        className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
-                        aria-label="Remove audio"
-                      >
-                        <X size={14} className="text-muted-foreground hover:text-red-500" />
-                      </button>
+                        } else {
+                          if (!transcribePreviewAudioRef.current) {
+                            transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
+                            transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
+                          }
+                          transcribePreviewAudioRef.current.play();
+                          setIsPlayingTranscribePreview(true);
+                        }
+                      }}
+                    >
+                      <AudioLines size={16} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
+                      <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
+                        {isPlayingTranscribePreview ? (
+                          <Pause size={14} className="text-white" />
+                        ) : (
+                          <Play size={14} className="text-white ml-0.5" />
+                        )}
+                      </div>
                     </div>
-                  )}
 
+                    <span className="text-sm font-medium text-foreground max-w-32 truncate">
+                      {transcribeAudio.name}
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        transcribePreviewAudioRef.current?.pause();
+                        setIsPlayingTranscribePreview(false);
+                        setTranscribeAudio(null);
+                      }}
+                      className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
+                      aria-label="Remove audio"
+                    >
+                      <X size={14} className="text-muted-foreground hover:text-red-500" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Buttons Row */}
+                <div className="flex items-center gap-2">
                   {/* Audio Mode Dropdown */}
                   <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
                     <DropdownMenuTrigger asChild>
-                      <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80`}>
+                      <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
                         {(() => {
                           const mode = audioModes.find(m => m.value === selectedAudioMode);
                           const Icon = mode?.icon || Mic;
@@ -4671,165 +4671,163 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
 
-                {/* Transcribe Mode Controls */}
-                {selectedAudioMode === 'Transcribe' ? (
-                  <>
-                    {/* ElevenLabs Model Indicator */}
-                    <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-violet-500/20 text-violet-600 cursor-default">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-violet-500">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                      ElevenLabs
-                    </div>
-                    
-                    {/* Upload Audio Button - Opens AudioSelectModal */}
-                    <button 
-                      onClick={() => setIsAudioSelectModalOpen(true)}
-                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        transcribeAudio 
-                          ? 'bg-pill-green text-pill-green-text' 
-                          : 'bg-pill-gray text-pill-gray-text'
-                      } hover:opacity-80`}
-                    >
-                      <Upload size={14} />
-                      {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
-                    </button>
-                    
-                    {/* Menu Icon */}
-                    <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
-                      <MoreVertical size={16} />
-                    </button>
-                  </>
-                ) : selectedAudioMode === 'Sound Effects' ? (
-                  <>
-                    {/* Sound Effects Mode Controls */}
-                    {/* Duration Selector */}
-                    <Popover open={isSfxDurationPopoverOpen} onOpenChange={setIsSfxDurationPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          sfxDuration !== undefined ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}>
-                          {sfxDuration !== undefined ? `${sfxDuration}s` : 'Duration'}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 bg-background border-border z-50 p-3">
-                        <div className="space-y-3">
-                          <p className="text-xs text-muted-foreground">Duration (0.5-22 seconds)</p>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0.5"
-                              max="22"
-                              step="0.5"
-                              value={sfxDuration ?? 5}
-                              onChange={(e) => setSfxDuration(parseFloat(e.target.value))}
-                              className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
-                            />
-                            <span className="text-sm font-medium w-12 text-right">{sfxDuration ?? 'Auto'}s</span>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSfxDuration(undefined);
-                              setIsSfxDurationPopoverOpen(false);
-                            }}
-                            className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
-                          >
-                            Auto (optimal)
+                  {/* Transcribe Mode Controls */}
+                  {selectedAudioMode === 'Transcribe' && (
+                    <>
+                      {/* ElevenLabs Model Indicator */}
+                      <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text cursor-default">
+                        <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                        ElevenLabs
+                      </div>
+                      
+                      {/* Upload Audio Button */}
+                      <button 
+                        onClick={() => setIsAudioSelectModalOpen(true)}
+                        className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80"
+                      >
+                        <Upload size={14} />
+                        {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
+                      </button>
+                      
+                      {/* Menu Icon */}
+                      <button className="text-muted-foreground hover:text-foreground transition bg-muted rounded-lg p-2">
+                        <MoreVertical size={16} />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Sound Effects Mode Controls */}
+                  {selectedAudioMode === 'Sound Effects' && (
+                    <>
+                      {/* Duration Selector */}
+                      <Popover open={isSfxDurationPopoverOpen} onOpenChange={setIsSfxDurationPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            sfxDuration !== undefined ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {sfxDuration !== undefined ? `${sfxDuration}s` : 'Duration'}
+                            <ChevronDown size={14} />
                           </button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-
-                    {/* Loop Toggle */}
-                    <button
-                      onClick={() => setSfxLoop(!sfxLoop)}
-                      className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                        sfxLoop ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                      } hover:opacity-80`}
-                    >
-                      <RefreshCw size={14} />
-                      {sfxLoop ? 'Loop On' : 'Loop'}
-                    </button>
-
-                    {/* Prompt Influence */}
-                    <Popover open={isSfxInfluencePopoverOpen} onOpenChange={setIsSfxInfluencePopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          sfxPromptInfluence !== 0.3 ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}>
-                          Influence: {Math.round(sfxPromptInfluence * 100)}%
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 bg-background border-border z-50 p-3">
-                        <div className="space-y-3">
-                          <p className="text-xs text-muted-foreground">How closely to follow the prompt (0-100%)</p>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.05"
-                              value={sfxPromptInfluence}
-                              onChange={(e) => setSfxPromptInfluence(parseFloat(e.target.value))}
-                              className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
-                            />
-                            <span className="text-sm font-medium w-12 text-right">{Math.round(sfxPromptInfluence * 100)}%</span>
-                          </div>
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>More variation</span>
-                            <span>More precise</span>
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-
-                    {/* Output Format */}
-                    <Popover open={isSfxFormatPopoverOpen} onOpenChange={setIsSfxFormatPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                          sfxOutputFormat !== 'mp3_44100_128' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
-                        } hover:opacity-80`}>
-                          {sfxOutputFormat.split('_')[0].toUpperCase()}
-                          <ChevronDown size={14} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 bg-background border-border z-50 max-h-72 overflow-y-auto">
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground mb-2 px-2">Output Format</p>
-                          {[
-                            { value: 'mp3_44100_128', label: 'MP3 128kbps (Default)' },
-                            { value: 'mp3_44100_192', label: 'MP3 192kbps (High Quality)' },
-                            { value: 'mp3_44100_64', label: 'MP3 64kbps' },
-                            { value: 'mp3_44100_32', label: 'MP3 32kbps' },
-                            { value: 'wav_44100', label: 'WAV 44.1kHz' },
-                            { value: 'pcm_44100', label: 'PCM 44.1kHz' },
-                            { value: 'pcm_24000', label: 'PCM 24kHz' },
-                            { value: 'pcm_16000', label: 'PCM 16kHz' },
-                            { value: 'opus_48000_128', label: 'Opus 128kbps' },
-                            { value: 'opus_48000_64', label: 'Opus 64kbps' },
-                          ].map((format) => (
-                            <button 
-                              key={format.value}
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50 p-3">
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground">Duration (0.5-22 seconds)</p>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="0.5"
+                                max="22"
+                                step="0.5"
+                                value={sfxDuration ?? 5}
+                                onChange={(e) => setSfxDuration(parseFloat(e.target.value))}
+                                className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
+                              />
+                              <span className="text-sm font-medium w-12 text-right">{sfxDuration ?? 'Auto'}s</span>
+                            </div>
+                            <button
                               onClick={() => {
-                                setSfxOutputFormat(format.value);
-                                setIsSfxFormatPopoverOpen(false);
+                                setSfxDuration(undefined);
+                                setIsSfxDurationPopoverOpen(false);
                               }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${sfxOutputFormat === format.value ? 'bg-brand-green/10 font-medium' : ''}`}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition"
                             >
-                              {format.label}
-                              {sfxOutputFormat === format.value && <Check size={14} className="text-brand-green" />}
+                              Auto (optimal)
                             </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </>
-                ) : selectedAudioMode === 'Music' ? (
-                  <>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Loop Toggle */}
+                      <button
+                        onClick={() => setSfxLoop(!sfxLoop)}
+                        className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                          sfxLoop ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        } hover:opacity-80`}
+                      >
+                        <RefreshCw size={14} />
+                        {sfxLoop ? 'Loop On' : 'Loop'}
+                      </button>
+
+                      {/* Prompt Influence */}
+                      <Popover open={isSfxInfluencePopoverOpen} onOpenChange={setIsSfxInfluencePopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            sfxPromptInfluence !== 0.3 ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            Influence: {Math.round(sfxPromptInfluence * 100)}%
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 bg-background border-border z-50 p-3">
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground">How closely to follow the prompt (0-100%)</p>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={sfxPromptInfluence}
+                                onChange={(e) => setSfxPromptInfluence(parseFloat(e.target.value))}
+                                className="flex-1 h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-brand-green"
+                              />
+                              <span className="text-sm font-medium w-12 text-right">{Math.round(sfxPromptInfluence * 100)}%</span>
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>More variation</span>
+                              <span>More precise</span>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Output Format */}
+                      <Popover open={isSfxFormatPopoverOpen} onOpenChange={setIsSfxFormatPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            sfxOutputFormat !== 'mp3_44100_128' ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            {sfxOutputFormat.split('_')[0].toUpperCase()}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 bg-background border-border z-50 max-h-72 overflow-y-auto">
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground mb-2 px-2">Output Format</p>
+                            {[
+                              { value: 'mp3_44100_128', label: 'MP3 128kbps (Default)' },
+                              { value: 'mp3_44100_192', label: 'MP3 192kbps (High Quality)' },
+                              { value: 'mp3_44100_64', label: 'MP3 64kbps' },
+                              { value: 'mp3_44100_32', label: 'MP3 32kbps' },
+                              { value: 'wav_44100', label: 'WAV 44.1kHz' },
+                              { value: 'pcm_44100', label: 'PCM 44.1kHz' },
+                              { value: 'pcm_24000', label: 'PCM 24kHz' },
+                              { value: 'pcm_16000', label: 'PCM 16kHz' },
+                              { value: 'opus_48000_128', label: 'Opus 128kbps' },
+                              { value: 'opus_48000_64', label: 'Opus 64kbps' },
+                            ].map((format) => (
+                              <button 
+                                key={format.value}
+                                onClick={() => {
+                                  setSfxOutputFormat(format.value);
+                                  setIsSfxFormatPopoverOpen(false);
+                                }}
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-md transition flex items-center justify-between ${sfxOutputFormat === format.value ? 'bg-brand-green/10 font-medium' : ''}`}
+                              >
+                                {format.label}
+                                {sfxOutputFormat === format.value && <Check size={14} className="text-brand-green" />}
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </>
+                  )}
+
+                  {/* Music Mode Controls */}
+                  {selectedAudioMode === 'Music' ? (
+                    <>
                     {/* Music Mode Controls */}
                     {/* Model Selector */}
                     <Popover open={isMusicModelPopoverOpen} onOpenChange={setIsMusicModelPopoverOpen}>
@@ -5543,8 +5541,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </Popover>
                   </>
                 ) : null}
-
-              </>
+                </div>
+              </div>
             ) : isDesignMode ? (
               <>
                 {/* Design Mode Controls */}
