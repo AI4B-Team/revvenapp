@@ -790,9 +790,15 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                                   </div>
                                 )}
                                 <div className="space-y-2 pl-14">
-                                  {section.lines.map((line, lineIndex) => (
-                                    <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
-                                  ))}
+                                  {section.lines.map((line, lineIndex) => {
+                                    const trimmedLine = line.trim();
+                                    const needsPeriod = trimmedLine && !/[.!?;:,]$/.test(trimmedLine);
+                                    return (
+                                      <p key={lineIndex} className="text-gray-700 leading-relaxed">
+                                        {needsPeriod ? `${trimmedLine}.` : line}
+                                      </p>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             );
