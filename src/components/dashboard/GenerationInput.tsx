@@ -2963,24 +2963,26 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         <p>Transcribe</p>
                       </TooltipContent>
                     </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleAutoPrompt}
-                          disabled={isEnhancing || selectedAudioMode === 'Transcribe'}
-                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isEnhancing ? (
-                            <Loader2 size={20} strokeWidth={2.5} className="text-brand-green animate-spin" />
-                          ) : (
-                            <Shuffle size={20} strokeWidth={2.5} className="text-brand-green" />
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black">
-                        <p>Auto Prompt</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    {selectedAudioMode !== 'Transcribe' && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleAutoPrompt}
+                            disabled={isEnhancing}
+                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isEnhancing ? (
+                              <Loader2 size={20} strokeWidth={2.5} className="text-brand-green animate-spin" />
+                            ) : (
+                              <Shuffle size={20} strokeWidth={2.5} className="text-brand-green" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Auto Prompt</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </>
                 ) : (
                   <>
