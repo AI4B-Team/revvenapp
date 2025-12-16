@@ -72,6 +72,8 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
   const [translatedText, setTranslatedText] = useState<{ [key: string]: string }>({});
   const [isTranslating, setIsTranslating] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [translateOpen, setTranslateOpen] = useState(false);
+  const [languageQuery, setLanguageQuery] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -86,6 +88,8 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
       setIsEditingTitle(false);
       setActiveTab('original');
       setSelectedLanguage(null);
+      setTranslateOpen(false);
+      setLanguageQuery('');
     } else if (audioItem) {
       setEditedTitle(audioItem.name);
     }
@@ -129,7 +133,12 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
   };
 
   const handleTranslate = async (langCode: string, langName: string) => {
-    if (!audioItem?.prompt || translatedText[langCode]) {
+    if (!audioItem?.prompt) return;
+
+    setTranslateOpen(false);
+    setLanguageQuery('');
+
+    if (translatedText[langCode]) {
       setSelectedLanguage(langCode);
       setActiveTab(langCode);
       return;
@@ -281,6 +290,9 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
 
   const isTranscription = audioItem.type === 'transcription';
   const isMusic = audioItem.type === 'music';
+  const filteredLanguages = LANGUAGES.filter((lang) =>
+    lang.name.toLowerCase().includes(languageQuery.trim().toLowerCase())
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -522,7 +534,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
           </div>
           
           {/* Right Side - Transcript/Lyrics */}
-          <div className="w-[55%] flex flex-col h-full overflow-hidden">
+          <div className="w-[55%] flex flex-col h-full min-h-0 overflow-hidden">
             <DialogHeader className="px-8 py-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <DialogTitle className="text-2xl font-bold text-gray-900">
@@ -540,15 +552,27 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                     </Tooltip>
                   </TooltipProvider>
                   
-                  <DropdownMenu>
+                  <DropdownMenu open={translateOpen} onOpenChange={(open) => {
+                    setTranslateOpen(open);
+                    if (open) setLanguageQuery('');
+                  }}>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="gap-2">
                         <Languages size={16} />
                         Translate
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-white z-50">
-                      {LANGUAGES.map((lang) => (
+                    <DropdownMenuContent align="end" className="bg-white z-50 w-64">
+                      <div className="p-2 border-b border-border">
+                        <Input
+                          value={languageQuery}
+                          onChange={(e) => setLanguageQuery(e.target.value)}
+                          onKeyDown={(e) => e.stopPropagation()}
+                          placeholder="Search languages..."
+                          className="h-9"
+                        />
+                      </div>
+                      {filteredLanguages.map((lang) => (
                         <DropdownMenuItem
                           key={lang.code}
                           onClick={() => handleTranslate(lang.code, lang.name)}
@@ -557,6 +581,9 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                           {lang.name}
                         </DropdownMenuItem>
                       ))}
+                      {filteredLanguages.length === 0 && (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">No languages found</div>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -590,7 +617,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
               )}
             </DialogHeader>
             
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 min-h-0 overflow-y-auto px-8 py-6">
               {isTranslating && activeTab !== 'original' ? (
                 <div className="flex flex-col items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-2" />
