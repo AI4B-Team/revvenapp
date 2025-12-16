@@ -562,6 +562,14 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
           setSelectedAudioItem(null);
         }}
         audioItem={selectedAudioItem}
+        onTitleUpdate={(id, newTitle) => {
+          setAudioItems(prev => prev.map(item => 
+            item.id === id ? { ...item, name: newTitle } : item
+          ));
+          if (selectedAudioItem?.id === id) {
+            setSelectedAudioItem(prev => prev ? { ...prev, name: newTitle } : null);
+          }
+        }}
       />
     </div>
   );
