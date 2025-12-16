@@ -280,26 +280,44 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
     }));
   };
 
-  // Parse lyrics with sections
+  // Parse lyrics with sections - handles format with section headers like "Verse 1", "Chorus", etc.
   const parseLyrics = (text: string) => {
+    const sectionHeaders = [
+      '🎵 Song Title:', 'Song Title:',
+      'Verse 1', 'Verse 2', 'Verse 3',
+      'Pre-Chorus', 'Chorus', 'Bridge',
+      'Final Chorus', 'Outro', 'Intro'
+    ];
+    
     const sections: { type: string; lines: string[] }[] = [];
     let currentSection = { type: '', lines: [] as string[] };
     
-    text.split('\n').forEach(line => {
+    const lines = text.split('\n');
+    
+    lines.forEach((line) => {
       const trimmedLine = line.trim();
-      if (!trimmedLine) return;
       
-      if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
-        if (currentSection.lines.length > 0 || currentSection.type) {
+      // Check if this line is a section header
+      const isHeader = sectionHeaders.some(header => 
+        trimmedLine.toLowerCase().startsWith(header.toLowerCase()) ||
+        (trimmedLine.startsWith('[') && trimmedLine.endsWith(']'))
+      );
+      
+      if (isHeader) {
+        // Save previous section if it has content
+        if (currentSection.type || currentSection.lines.length > 0) {
           sections.push({ ...currentSection });
         }
         currentSection = { type: trimmedLine, lines: [] };
-      } else {
+      } else if (trimmedLine) {
+        // Add non-empty lines to current section
         currentSection.lines.push(trimmedLine);
       }
+      // Empty lines are skipped but create natural spacing in render
     });
     
-    if (currentSection.lines.length > 0 || currentSection.type) {
+    // Don't forget the last section
+    if (currentSection.type || currentSection.lines.length > 0) {
       sections.push(currentSection);
     }
     
@@ -684,13 +702,15 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                     ))
                   ) : (
                     parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]).map((section, index) => (
-                      <div key={index} className="mb-6">
+                      <div key={index} className="mb-8">
                         {section.type && (
-                          <p className="text-sm font-semibold text-gray-400 mb-2">{section.type}</p>
+                          <p className="text-sm font-semibold text-gray-500 mb-3">{section.type}</p>
                         )}
-                        {section.lines.map((line, lineIndex) => (
-                          <p key={lineIndex} className="text-gray-700 leading-loose">{line}</p>
-                        ))}
+                        <div className="space-y-2">
+                          {section.lines.map((line, lineIndex) => (
+                            <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
+                          ))}
+                        </div>
                       </div>
                     ))
                   )}
