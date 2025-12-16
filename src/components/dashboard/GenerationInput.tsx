@@ -3,7 +3,7 @@ import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import VideoToVideoModal from './VideoToVideoModal';
 import TranscribeConfirmModal from './TranscribeConfirmModal';
-import AudioSelectModal from './AudioSelectModal';
+import AudioLibraryModal from './AudioLibraryModal';
 import MusicSamplesSection from './MusicSamplesSection';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -7213,11 +7213,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         isTranscribing={isTranscribing}
       />
 
-      {/* Audio Select Modal for Transcribe */}
-      <AudioSelectModal
+      {/* Audio Library Modal for Transcribe */}
+      <AudioLibraryModal
         isOpen={isAudioSelectModalOpen}
         onClose={() => setIsAudioSelectModalOpen(false)}
-        onSelectAudio={(audio) => {
+        onSelect={(audio) => {
           setTranscribeAudio({
             name: audio.name,
             duration: audio.duration,
