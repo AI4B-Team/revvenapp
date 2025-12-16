@@ -90,8 +90,8 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
         <div className="px-6 pb-4">
           <div className="flex items-center gap-4 p-4 bg-gray-100 dark:bg-secondary/50 rounded-xl">
             {/* Waveform Icon */}
-            <div className="w-24 h-16 bg-gradient-to-br from-violet-500/20 to-violet-600/30 rounded-lg flex items-center justify-center flex-shrink-0">
-              <AudioLines size={32} className="text-violet-500" />
+            <div className="w-24 h-16 bg-gradient-to-br from-blue-500/20 to-blue-600/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <AudioLines size={32} className="text-blue-500" />
             </div>
             
             {/* File Info */}
