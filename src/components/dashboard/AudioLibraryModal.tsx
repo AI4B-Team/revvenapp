@@ -910,11 +910,11 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   className="hidden"
                   disabled={isUploading}
                 />
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-emerald-50">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-emerald-100">
                   {isUploading ? (
-                    <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
                   ) : (
-                    <div className="text-emerald-400">
+                    <div className="text-emerald-500">
                       <UploadAudioIcon />
                     </div>
                   )}
@@ -942,8 +942,8 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   }
                 `}
               >
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-50">
-                  <div className="text-blue-300">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-100">
+                  <div className="text-blue-500">
                     <OnlineFileIcon />
                   </div>
                 </div>
@@ -998,7 +998,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   }
                 `}
               >
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-red-50 relative">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-red-100 relative">
                   {isRecording ? (
                     <>
                       {/* Recording animation - pulsing rings */}
@@ -1010,7 +1010,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                       <Square className="w-6 h-6 text-red-500 fill-red-500 relative z-10" />
                     </>
                   ) : (
-                    <Mic className="w-8 h-8 text-red-300" />
+                    <Mic className="w-8 h-8 text-red-400" />
                   )}
                 </div>
                 <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Record Audio</h3>
