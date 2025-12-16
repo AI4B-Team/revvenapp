@@ -234,9 +234,30 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
   const [hoveredSample, setHoveredSample] = useState<MusicSample | null>(null);
   const [internalSelectedSample, setInternalSelectedSample] = useState<MusicSample | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const activeSampleIdRef = useRef<string | null>(null);
+
+  const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeInIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fadeOutIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const autoplayToastShownRef = useRef(false);
+
+  const clearPreviewTimers = useCallback(() => {
+    if (stopTimeoutRef.current) {
+      clearTimeout(stopTimeoutRef.current);
+      stopTimeoutRef.current = null;
+    }
+    if (fadeInIntervalRef.current) {
+      clearInterval(fadeInIntervalRef.current);
+      fadeInIntervalRef.current = null;
+    }
+    if (fadeOutIntervalRef.current) {
+      clearInterval(fadeOutIntervalRef.current);
+      fadeOutIntervalRef.current = null;
+    }
+  }, []);
 
   // Initialize audio element on mount
   useEffect(() => {
@@ -250,49 +271,67 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
     audioRef.current = audio;
 
     return () => {
+      clearPreviewTimers();
       audio.pause();
       audio.src = '';
       audioRef.current = null;
     };
-  }, []);
+  }, [clearPreviewTimers]);
 
   const selectedSample = selectedSampleId 
     ? musicSamples.find(s => s.id === selectedSampleId) || internalSelectedSample
     : internalSelectedSample;
 
-  const handleHover = useCallback((sample: MusicSample | null) => {
-    if (fadeTimeoutRef.current) {
-      clearTimeout(fadeTimeoutRef.current);
-      fadeTimeoutRef.current = null;
-    }
+  const handleHover = useCallback(
+    (sample: MusicSample | null) => {
+      // Prevent any in-flight fade-out from muting/pausing the next hover preview
+      clearPreviewTimers();
 
-    if (sample) {
-      setHoveredSample(sample);
-      
-      if (audioRef.current) {
+      activeSampleIdRef.current = sample?.id ?? null;
+
+      if (sample) {
+        setHoveredSample(sample);
+
         const audio = audioRef.current;
+        if (!audio) return;
+
         audio.pause();
         audio.src = sample.audioUrl;
-        audio.load();
+        audio.currentTime = 0;
         audio.volume = 0;
         audio.muted = false;
-        audio.currentTime = 0;
+        audio.load();
 
         audio
           .play()
           .then(() => {
+            if (activeSampleIdRef.current !== sample.id) return;
+
             setIsPlaying(true);
+
+            const target = 0.5;
             let vol = 0;
-            const fadeIn = setInterval(() => {
-              if (audioRef.current && vol < 0.5) {
-                vol += 0.05;
-                audioRef.current.volume = Math.min(vol, 0.5);
-              } else {
-                clearInterval(fadeIn);
+
+            fadeInIntervalRef.current = setInterval(() => {
+              const a = audioRef.current;
+              if (!a || activeSampleIdRef.current !== sample.id) {
+                if (fadeInIntervalRef.current) clearInterval(fadeInIntervalRef.current);
+                fadeInIntervalRef.current = null;
+                return;
               }
-            }, 50);
+
+              vol = Math.min(target, vol + 0.1);
+              a.volume = vol;
+
+              if (vol >= target) {
+                if (fadeInIntervalRef.current) clearInterval(fadeInIntervalRef.current);
+                fadeInIntervalRef.current = null;
+              }
+            }, 25);
           })
           .catch((e) => {
+            if (activeSampleIdRef.current !== sample.id) return;
+
             if (!autoplayToastShownRef.current) {
               autoplayToastShownRef.current = true;
               toast('Enable audio previews', {
@@ -303,28 +342,47 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
             console.log('Audio play failed:', e);
             setIsPlaying(false);
           });
+
+        return;
       }
-    } else {
-      if (audioRef.current && isPlaying) {
-        let vol = audioRef.current.volume;
-        const fadeOut = setInterval(() => {
-          if (audioRef.current && vol > 0) {
-            vol -= 0.05;
-            audioRef.current.volume = Math.max(vol, 0);
-          } else {
-            clearInterval(fadeOut);
-            if (audioRef.current) {
-              audioRef.current.pause();
-            }
-            setIsPlaying(false);
-            setHoveredSample(null);
+
+      // Small delay so moving between cards doesn’t cut the audio out
+      setHoveredSample(null);
+
+      stopTimeoutRef.current = setTimeout(() => {
+        if (activeSampleIdRef.current) return;
+
+        const audio = audioRef.current;
+        if (!audio || audio.paused || !audio.src) {
+          setIsPlaying(false);
+          return;
+        }
+
+        let vol = audio.volume;
+
+        fadeOutIntervalRef.current = setInterval(() => {
+          const a = audioRef.current;
+          if (!a || activeSampleIdRef.current) {
+            if (fadeOutIntervalRef.current) clearInterval(fadeOutIntervalRef.current);
+            fadeOutIntervalRef.current = null;
+            return;
           }
-        }, 30);
-      } else {
-        setHoveredSample(null);
-      }
-    }
-  }, [isPlaying]);
+
+          vol = Math.max(0, vol - 0.1);
+          a.volume = vol;
+
+          if (vol <= 0.001) {
+            a.pause();
+            setIsPlaying(false);
+
+            if (fadeOutIntervalRef.current) clearInterval(fadeOutIntervalRef.current);
+            fadeOutIntervalRef.current = null;
+          }
+        }, 25);
+      }, 120);
+    },
+    [clearPreviewTimers]
+  );
 
   const handleSelect = useCallback((sample: MusicSample) => {
     const isCurrentlySelected = internalSelectedSample?.id === sample.id || selectedSampleId === sample.id;
