@@ -145,20 +145,22 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
 
   // Map audio mode to type filter
   const getTypeFromMode = (mode: string | undefined): string | null => {
-    switch (mode) {
-      case 'Voiceover': return 'voiceover';
-      case 'Sound Effects': return 'sound_effect';
-      case 'Music': return 'music';
-      case 'Transcribe': return 'transcription';
-      case 'Revoice': return 'revoice';
-      case 'Clone': return 'cloned';
-      default: return null;
-    }
+    if (!mode) return null;
+    const modeMap: Record<string, string> = {
+      'Voiceover': 'voiceover',
+      'Sound Effects': 'sound_effect',
+      'Music': 'music',
+      'Transcribe': 'transcription',
+      'Revoice': 'revoice',
+      'Clone': 'cloned',
+    };
+    return modeMap[mode] || null;
   };
 
-  // Filter items based on audio mode
+  // Filter items based on audio mode - strict filtering
   const filteredItems = useMemo(() => {
     const typeFilter = getTypeFromMode(audioModeFilter);
+    // Always filter if we have a valid mode, show all only if no mode specified
     if (!typeFilter) return audioItems;
     return audioItems.filter(item => item.type === typeFilter);
   }, [audioItems, audioModeFilter]);
