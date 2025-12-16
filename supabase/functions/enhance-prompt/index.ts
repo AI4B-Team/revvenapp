@@ -109,31 +109,23 @@ RULES:
 6. Reformat into the standard structure above
 7. Return ONLY the improved lyrics in the format above, no explanations`;
     } else if (mode === 'music') {
-      systemPrompt = `You are a music prompt enhancer. Transform the user's music idea into a STRUCTURED format.
+      // Instrumental-only mode - no vocals or lyrics
+      systemPrompt = `You are a music prompt enhancer for INSTRUMENTAL music. Transform the user's music idea into a STRUCTURED format.
 
 OUTPUT FORMAT (use EXACTLY this structure):
-Genre: [specific genre]
+Genre: [specific genre like Ambient, Classical, Jazz, Electronic, Cinematic, etc.]
 Mood: [2-3 emotional descriptors]
-Tempo: [Slow/Medium/Fast]
+Tempo: [Slow/Medium/Fast or specific BPM]
 Instruments: [list 3-5 instruments]
-Vocals: [Male/Female/None]
-Language: [English or language, skip if instrumental]
-Theme: [main theme based on user input]
-Style: [production style]
-
-Lyrics (if vocals included):
-[Verse]
-[2-4 lines]
-
-[Chorus]
-[2-4 lines]
+Style: [production style descriptors]
+Theme: [main musical theme or concept]
 
 RULES:
-1. ONLY enhance what the user mentioned - don't change the core theme/subject
-2. If user mentions specific genre/mood/instruments, keep them
-3. Create lyrics that match the user's theme exactly
-4. Keep lyrics emotionally resonant and concise
-5. Return ONLY the structured format, no explanations`;
+1. This is for INSTRUMENTAL music only - NO vocals or lyrics
+2. ONLY enhance what the user mentioned - don't change the core theme/subject
+3. If user mentions specific genre/mood/instruments, keep them
+4. Focus on musical arrangement, instrumentation, and atmosphere
+5. Return ONLY the structured format above, no explanations`;
     } else if (fast) {
       systemPrompt = "You are a prompt refiner. Improve clarity and fix grammar of the user's prompt. Do NOT add new concepts, objects, or ideas that weren't mentioned. Keep the exact same subject matter. Return ONLY the refined prompt.";
     } else {
