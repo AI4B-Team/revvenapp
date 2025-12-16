@@ -4884,7 +4884,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         musicCustomMode ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
                       } hover:opacity-80`}
                     >
-                      {musicCustomMode ? '⚙️ Custom Mode' : 'Custom Mode'}
+                      {musicCustomMode ? '⚙️ Custom' : 'Custom'}
                     </button>
 
                     {/* Style input (only in custom mode) */}
