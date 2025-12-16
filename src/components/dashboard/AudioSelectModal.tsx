@@ -644,7 +644,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                               <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
                               <button
                                 onClick={(e) => handleStartEditName(audio, e)}
-                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-100 rounded transition flex-shrink-0"
+                                className="p-1 hover:bg-gray-100 rounded transition flex-shrink-0"
                               >
                                 <Pencil size={12} className="text-gray-400" />
                               </button>
