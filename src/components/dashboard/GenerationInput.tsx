@@ -136,6 +136,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [musicInstrumental, setMusicInstrumental] = useState(true);
   const [musicStyle, setMusicStyle] = useState('');
   const [musicTitle, setMusicTitle] = useState('');
+  const [musicLyrics, setMusicLyrics] = useState('');
   const [isMusicModelPopoverOpen, setIsMusicModelPopoverOpen] = useState(false);
   const [selectedMusicSample, setSelectedMusicSample] = useState<{ id: string; genre: string } | null>(null);
   
@@ -1779,8 +1780,19 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           }
         }
 
+        // Validate lyrics required when With Vocals is selected
+        if (!musicInstrumental && !musicLyrics.trim()) {
+          toast({
+            title: "Lyrics required",
+            description: "Please add lyrics for vocal music generation",
+            variant: "destructive",
+          });
+          return;
+        }
+
         onGenerationStart?.();
         const promptText = prompt.trim();
+        const lyricsText = musicLyrics.trim();
 
         // Get user first
         const { data: { user } } = await supabase.auth.getUser();
@@ -1796,12 +1808,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         // Insert processing record immediately so it appears in gallery
         const { data: pendingRecord, error: insertError } = await supabase.from('user_voices').insert({
           user_id: user.id,
-          name: musicCustomMode && musicTitle ? musicTitle.substring(0, 50) : promptText.substring(0, 50) + (promptText.length > 50 ? '...' : ''),
+          name: musicCustomMode && musicTitle ? musicTitle.substring(0, 50) : (lyricsText || promptText).substring(0, 50) + ((lyricsText || promptText).length > 50 ? '...' : ''),
           url: '',
           duration: 30, // Default estimate
           type: 'music',
           status: 'processing',
-          prompt: promptText,
+          prompt: !musicInstrumental && lyricsText ? lyricsText : promptText,
         }).select().single();
 
         if (insertError) {
@@ -1825,7 +1837,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             console.log("Starting music generation...");
             
             const requestBody: Record<string, unknown> = {
-              prompt: promptText,
+              prompt: !musicInstrumental && musicLyrics ? musicLyrics : promptText,
               customMode: musicCustomMode,
               instrumental: musicInstrumental,
               model: musicModel,
@@ -4875,6 +4887,44 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     >
                       {musicInstrumental ? '🎹 Instrumental' : '🎤 With Vocals'}
                     </button>
+
+                    {/* Lyrics input (only when With Vocals is selected) */}
+                    {!musicInstrumental && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            musicLyrics ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                          } hover:opacity-80`}>
+                            <FileText size={14} />
+                            {musicLyrics ? 'Lyrics ✓' : 'Add Lyrics'}
+                            <ChevronDown size={14} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 bg-background border-border z-50 p-3">
+                          <div className="space-y-3">
+                            <p className="text-xs text-muted-foreground">Enter your song lyrics (max {musicModel === 'V4' ? '3000' : '5000'} characters)</p>
+                            <textarea
+                              value={musicLyrics}
+                              onChange={(e) => setMusicLyrics(e.target.value)}
+                              placeholder="Write your lyrics here..."
+                              className="w-full px-3 py-2 text-sm bg-secondary rounded-md border-none outline-none resize-none min-h-[150px]"
+                              maxLength={musicModel === 'V4' ? 3000 : 5000}
+                            />
+                            <div className="flex justify-between items-center">
+                              <p className="text-xs text-muted-foreground">{musicLyrics.length}/{musicModel === 'V4' ? '3000' : '5000'}</p>
+                              {musicLyrics && (
+                                <button
+                                  onClick={() => setMusicLyrics('')}
+                                  className="text-xs text-red-400 hover:text-red-300"
+                                >
+                                  Clear
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
 
                     {/* Custom Mode Toggle */}
                     <button
