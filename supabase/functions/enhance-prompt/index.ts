@@ -29,164 +29,222 @@ serve(async (req) => {
     let systemPrompt: string;
     
     if (mode === 'lyrics') {
-      systemPrompt = `You are a professional songwriter and lyricist. Generate complete, emotionally resonant song lyrics.
+      systemPrompt = `You are a professional songwriter. Generate song lyrics with EXACT formatting shown below.
 
-OUTPUT FORMAT - Use EXACTLY this spacing pattern:
+COPY THIS EXACT FORMAT (including all blank lines):
 
-🎵 Song Title: "[Creative title]"
+🎵 Song Title: "Your Title Here"
+
 
 
 Verse 1
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First lyric line here
+
+Second lyric line here
+
+Third lyric line here
+
+Fourth lyric line here
+
 
 
 Pre-Chorus
 
-[Line 1]
-[Line 2]
+First line here
+
+Second line here
+
 
 
 Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First chorus line
+
+Second chorus line
+
+Third chorus line
+
+Fourth chorus line
 
 Verse 2
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First lyric line here
+
+Second lyric line here
+
+Third lyric line here
+
+Fourth lyric line here
+
 
 
 Pre-Chorus
 
-[Line 1]
-[Line 2]
+First line here
+
+Second line here
+
 
 
 Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First chorus line
+
+Second chorus line
+
+Third chorus line
+
+Fourth chorus line
 
 Bridge
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First bridge line
+
+Second bridge line
+
+Third bridge line
+
+Fourth bridge line
+
 
 
 Final Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First final chorus line
+
+Second final chorus line
+
+Third final chorus line
+
+Fourth final chorus line
+
 
 
 Outro
 
-[Line 1]
-[Line 2]
-[Line 3]
+First outro line…
 
-RULES:
-1. Two blank lines after Song Title
-2. One blank line between section name and lyrics
-3. Two blank lines between most sections (see pattern above)
-4. Each lyric line on its own line
-5. Use vivid imagery, metaphors, emotional language
-6. Maintain consistent rhyme schemes
-7. Return ONLY the lyrics, no explanations`;
+Second outro line…
+
+Fading… so fast…
+
+CRITICAL RULES:
+1. TWO blank lines after Song Title before Verse 1
+2. ONE blank line between section header and first lyric
+3. EACH lyric line must be on its OWN line (not grouped together)
+4. TWO blank lines AFTER most sections (before next section header)
+5. Use vivid imagery and consistent rhyme schemes
+6. Return ONLY the formatted lyrics`;
     } else if (mode === 'lyrics-enhance') {
-      systemPrompt = `You are a professional songwriter. Improve the given lyrics and reformat them.
+      systemPrompt = `You are a professional songwriter. Improve the given lyrics with EXACT formatting shown below.
 
-OUTPUT FORMAT - Use EXACTLY this spacing pattern:
+COPY THIS EXACT FORMAT (including all blank lines):
 
-🎵 Song Title: "[Title from lyrics]"
+🎵 Song Title: "Your Title Here"
+
 
 
 Verse 1
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First lyric line here
+
+Second lyric line here
+
+Third lyric line here
+
+Fourth lyric line here
+
 
 
 Pre-Chorus
 
-[Line 1]
-[Line 2]
+First line here
+
+Second line here
+
 
 
 Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First chorus line
+
+Second chorus line
+
+Third chorus line
+
+Fourth chorus line
 
 Verse 2
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First lyric line here
+
+Second lyric line here
+
+Third lyric line here
+
+Fourth lyric line here
+
 
 
 Pre-Chorus
 
-[Line 1]
-[Line 2]
+First line here
+
+Second line here
+
 
 
 Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First chorus line
+
+Second chorus line
+
+Third chorus line
+
+Fourth chorus line
 
 Bridge
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First bridge line
+
+Second bridge line
+
+Third bridge line
+
+Fourth bridge line
+
 
 
 Final Chorus
 
-[Line 1]
-[Line 2]
-[Line 3]
-[Line 4]
+First final chorus line
+
+Second final chorus line
+
+Third final chorus line
+
+Fourth final chorus line
+
 
 
 Outro
 
-[Line 1]
-[Line 2]
-[Line 3]
+First outro line…
 
-RULES:
-1. Keep the SAME theme and core message
-2. Two blank lines after Song Title
-3. One blank line between section name and lyrics
-4. Two blank lines between most sections
-5. Improve word choices, enhance rhymes
-6. Return ONLY the improved lyrics, no explanations`;
+Second outro line…
+
+Fading… so fast…
+
+CRITICAL RULES:
+1. Keep the SAME theme and core message from original
+2. TWO blank lines after Song Title before Verse 1
+3. ONE blank line between section header and first lyric
+4. EACH lyric line must be on its OWN line (not grouped together)
+5. TWO blank lines AFTER most sections (before next section header)
+6. Improve word choices and rhyme schemes
+7. Return ONLY the formatted lyrics`;
     } else if (mode === 'music') {
       // Generate prose-style music description for BOTH instrumental and vocal modes
       const vocalDescription = musicWithVocals 
