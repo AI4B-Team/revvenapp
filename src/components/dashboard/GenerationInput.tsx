@@ -5158,7 +5158,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     )}
                   </>
                 ) : selectedAudioMode === 'Clone' ? (
-                  <>
+                  <div className="flex items-center gap-2 min-w-[600px]">
                     {/* Clone Mode - Show button to open Audio Modal */}
                     <button
                       onClick={() => setIsAudioUploadModalOpen(true)}
@@ -5256,7 +5256,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </div>
                       </PopoverContent>
                     </Popover>
-                  </>
+                  </div>
                 ) : selectedAudioMode === 'Revoice' ? (
                   <>
                 {/* Revoice Mode Controls - Upload audio, record, and select target language */}
