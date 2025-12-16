@@ -445,8 +445,28 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
                 </TooltipProvider>
               )}
               
-              {/* Details button for transcription and music */}
-              {(item.type === 'transcription' || item.type === 'music') && (
+              {/* Lyrics button for music */}
+              {item.type === 'music' && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => {
+                          setSelectedAudioItem(item);
+                          setDetailsModalOpen(true);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                      >
+                        <FileText size={14} className="text-purple-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Lyrics</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              
+              {/* Details button for transcription */}
+              {item.type === 'transcription' && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
