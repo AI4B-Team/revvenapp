@@ -4589,94 +4589,93 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             ) : isAudioMode ? (
               <>
                 {/* Audio Mode Controls */}
-                {/* Audio Mode Dropdown */}
-                <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80`}>
-                      {(() => {
-                        const mode = audioModes.find(m => m.value === selectedAudioMode);
-                        const Icon = mode?.icon || Mic;
-                        return <Icon size={14} />;
-                      })()}
-                      {selectedAudioMode}
-                      <ChevronDown size={14} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-48 bg-background border-border z-50">
-                    {audioModes.map((mode) => (
-                      <DropdownMenuItem
-                        key={mode.value}
+                <div className="flex flex-col items-start gap-2">
+                  {/* Audio Preview (shows ABOVE the Transcribe dropdown) */}
+                  {selectedAudioMode === 'Transcribe' && transcribeAudio && (
+                    <div 
+                      className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-1.5 group"
+                      onMouseEnter={() => setIsHoveringAudioIcon(true)}
+                      onMouseLeave={() => setIsHoveringAudioIcon(false)}
+                    >
+                      <div 
+                        className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden flex-shrink-0"
                         onClick={() => {
-                          setSelectedAudioMode(mode.value);
-                          setIsAudioModeDropdownOpen(false);
+                          if (isPlayingTranscribePreview) {
+                            transcribePreviewAudioRef.current?.pause();
+                            setIsPlayingTranscribePreview(false);
+                          } else {
+                            if (!transcribePreviewAudioRef.current) {
+                              transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
+                              transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
+                            }
+                            transcribePreviewAudioRef.current.play();
+                            setIsPlayingTranscribePreview(true);
+                          }
                         }}
-                        className={`flex items-center gap-2 ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
                       >
-                        <mode.icon size={16} />
-                        {mode.label}
-                        {selectedAudioMode === mode.value && <Check size={14} className="ml-auto" />}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        <AudioLines size={16} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
+                        <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
+                          {isPlayingTranscribePreview ? (
+                            <Pause size={14} className="text-white" />
+                          ) : (
+                            <Play size={14} className="text-white ml-0.5" />
+                          )}
+                        </div>
+                      </div>
+
+                      <span className="text-sm font-medium text-foreground max-w-28 truncate">
+                        {transcribeAudio.name}
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          transcribePreviewAudioRef.current?.pause();
+                          setIsPlayingTranscribePreview(false);
+                          setTranscribeAudio(null);
+                        }}
+                        className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
+                        aria-label="Remove audio"
+                      >
+                        <X size={14} className="text-muted-foreground hover:text-red-500" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Audio Mode Dropdown */}
+                  <DropdownMenu open={isAudioModeDropdownOpen} onOpenChange={setIsAudioModeDropdownOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <button className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80`}>
+                        {(() => {
+                          const mode = audioModes.find(m => m.value === selectedAudioMode);
+                          const Icon = mode?.icon || Mic;
+                          return <Icon size={14} />;
+                        })()}
+                        {selectedAudioMode}
+                        <ChevronDown size={14} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-48 bg-background border-border z-50">
+                      {audioModes.map((mode) => (
+                        <DropdownMenuItem
+                          key={mode.value}
+                          onClick={() => {
+                            setSelectedAudioMode(mode.value);
+                            setIsAudioModeDropdownOpen(false);
+                          }}
+                          className={`flex items-center gap-2 ${selectedAudioMode === mode.value ? 'text-primary font-medium' : ''}`}
+                        >
+                          <mode.icon size={16} />
+                          {mode.label}
+                          {selectedAudioMode === mode.value && <Check size={14} className="ml-auto" />}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
                 {/* Transcribe Mode Controls */}
                 {selectedAudioMode === 'Transcribe' ? (
                   <>
-                    {/* Audio File Preview - Left side */}
-                    {transcribeAudio && (
-                      <div 
-                        className="flex items-center gap-2 bg-secondary/80 rounded-xl px-3 py-1.5 group"
-                        onMouseEnter={() => setIsHoveringAudioIcon(true)}
-                        onMouseLeave={() => setIsHoveringAudioIcon(false)}
-                      >
-                        {/* Audio Icon with Play/Pause overlay */}
-                        <div 
-                          className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden flex-shrink-0"
-                          onClick={() => {
-                            if (isPlayingTranscribePreview) {
-                              transcribePreviewAudioRef.current?.pause();
-                              setIsPlayingTranscribePreview(false);
-                            } else {
-                              if (!transcribePreviewAudioRef.current) {
-                                transcribePreviewAudioRef.current = new Audio(transcribeAudio.url);
-                                transcribePreviewAudioRef.current.onended = () => setIsPlayingTranscribePreview(false);
-                              }
-                              transcribePreviewAudioRef.current.play();
-                              setIsPlayingTranscribePreview(true);
-                            }
-                          }}
-                        >
-                          <AudioLines size={16} className={`text-white transition ${isHoveringAudioIcon ? 'opacity-30' : 'opacity-100'}`} />
-                          {/* Play/Pause overlay on hover */}
-                          <div className={`absolute inset-0 flex items-center justify-center transition ${isHoveringAudioIcon ? 'opacity-100' : 'opacity-0'}`}>
-                            {isPlayingTranscribePreview ? (
-                              <Pause size={14} className="text-white" />
-                            ) : (
-                              <Play size={14} className="text-white ml-0.5" />
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* File name */}
-                        <span className="text-sm font-medium text-foreground max-w-28 truncate">
-                          {transcribeAudio.name}
-                        </span>
-                        
-                        {/* Delete button */}
-                        <button
-                          onClick={() => {
-                            transcribePreviewAudioRef.current?.pause();
-                            setIsPlayingTranscribePreview(false);
-                            setTranscribeAudio(null);
-                          }}
-                          className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition opacity-0 group-hover:opacity-100"
-                        >
-                          <X size={14} className="text-muted-foreground hover:text-red-500" />
-                        </button>
-                      </div>
-                    )}
-                    
                     {/* ElevenLabs Model Indicator */}
                     <div className="px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 whitespace-nowrap bg-violet-500/20 text-violet-600 cursor-default">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-violet-500">
