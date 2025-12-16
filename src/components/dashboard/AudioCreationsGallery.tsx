@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { 
   Play, Pause, Bookmark, Heart, Download, Edit, 
-  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw
+  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw, Info
 } from 'lucide-react';
 import {
   Tooltip,
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import AudioDetailsModal from './AudioDetailsModal';
 
 export interface AudioTrack {
   id: string;
@@ -53,6 +54,8 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
   const [savedItems, setSavedItems] = useState(new Set<string>());
   const [isLoading, setIsLoading] = useState(true);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedAudioItem, setSelectedAudioItem] = useState<AudioItem | null>(null);
   const { toast } = useToast();
 
   // Fetch user's audio from Supabase
@@ -425,6 +428,26 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
                   </TooltipProvider>
                 )}
                 
+                {/* Details button for transcription and music */}
+                {(item.type === 'transcription' || item.type === 'music') && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => {
+                            setSelectedAudioItem(item);
+                            setDetailsModalOpen(true);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+                        >
+                          <Info size={14} className="text-muted-foreground" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Details</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -514,6 +537,16 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
           </div>
         </div>
       ))}
+      
+      {/* Audio Details Modal */}
+      <AudioDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false);
+          setSelectedAudioItem(null);
+        }}
+        audioItem={selectedAudioItem}
+      />
     </div>
   );
 };
