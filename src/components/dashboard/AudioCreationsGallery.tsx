@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { 
   Play, Pause, Bookmark, Heart, Download, Edit, 
   Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw, Info
@@ -48,9 +48,10 @@ interface AudioCreationsGalleryProps {
   onPauseToggle?: () => void;
   currentPlayingId?: string | null;
   isAudioPlaying?: boolean;
+  audioModeFilter?: string;
 }
 
-const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle, currentPlayingId, isAudioPlaying = false }: AudioCreationsGalleryProps) => {
+const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle, currentPlayingId, isAudioPlaying = false, audioModeFilter }: AudioCreationsGalleryProps) => {
   const [audioItems, setAudioItems] = useState<AudioItem[]>([]);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useState(new Set<string>());
@@ -142,6 +143,25 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
     return date.toLocaleDateString();
   };
 
+  // Map audio mode to type filter
+  const getTypeFromMode = (mode: string | undefined): string | null => {
+    switch (mode) {
+      case 'Voiceover': return 'voiceover';
+      case 'Sound Effects': return 'sound_effect';
+      case 'Music': return 'music';
+      case 'Transcribe': return 'transcription';
+      case 'Revoice': return 'revoice';
+      default: return null;
+    }
+  };
+
+  // Filter items based on audio mode
+  const filteredItems = useMemo(() => {
+    const typeFilter = getTypeFromMode(audioModeFilter);
+    if (!typeFilter) return audioItems;
+    return audioItems.filter(item => item.type === typeFilter);
+  }, [audioItems, audioModeFilter]);
+
   const handlePlay = (item: AudioItem, index: number) => {
     // If this track is already playing and we have a pause toggle, use it
     if (currentPlayingId === item.id && isAudioPlaying && onPauseToggle) {
@@ -159,7 +179,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
     
     // If onTrackSelect is provided, use the player bar instead
     if (onTrackSelect) {
-      const completedItems = audioItems.filter(i => i.status !== 'processing' && i.status !== 'error');
+      const completedItems = filteredItems.filter(i => i.status !== 'processing' && i.status !== 'error');
       const tracks: AudioTrack[] = completedItems.map(i => ({
         id: i.id,
         name: i.name,
@@ -280,15 +300,16 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
     );
   }
 
-  if (audioItems.length === 0) {
+  if (filteredItems.length === 0) {
+    const modeLabel = audioModeFilter || 'audio';
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="w-16 h-16 rounded-full bg-brand-green/10 flex items-center justify-center mb-4">
           <Mic className="h-8 w-8 text-brand-green" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">No audio creations yet</h3>
+        <h3 className="text-lg font-semibold mb-2">No {modeLabel.toLowerCase()} creations yet</h3>
         <p className="text-muted-foreground text-sm max-w-md">
-          Generate voiceovers, clone voices, or record audio to see them here
+          Generate {modeLabel.toLowerCase()} to see them here
         </p>
       </div>
     );
@@ -301,7 +322,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
         gridTemplateColumns: `repeat(${columnsPerRow}, minmax(0, 1fr))`
       }}
     >
-      {audioItems.map((item) => (
+      {filteredItems.map((item) => (
         <div
           key={item.id}
           className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all group"
@@ -313,7 +334,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
             }`}
             onClick={() => {
               if (item.status !== 'processing' && item.status !== 'error') {
-                const completedItems = audioItems.filter(i => i.status !== 'processing' && i.status !== 'error');
+                const completedItems = filteredItems.filter(i => i.status !== 'processing' && i.status !== 'error');
                 const index = completedItems.findIndex(i => i.id === item.id);
                 handlePlay(item, index);
               }
