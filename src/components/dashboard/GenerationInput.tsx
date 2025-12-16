@@ -1839,7 +1839,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             console.log("Starting music generation...");
             
             // When vocals + lyrics are provided, we need customMode=true for KIE.AI to sing the lyrics
-            const hasLyricsWithVocals = !musicInstrumental && musicLyrics.trim();
+            const hasLyricsWithVocals = !musicInstrumental && musicLyrics.trim().length > 0;
             const effectiveCustomMode = musicCustomMode || hasLyricsWithVocals;
             
             // Auto-extract title from lyrics if not manually set (looks for "Song Title:" pattern)
