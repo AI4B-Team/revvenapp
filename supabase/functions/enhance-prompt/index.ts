@@ -31,83 +31,125 @@ serve(async (req) => {
     if (mode === 'lyrics') {
       systemPrompt = `You are a professional songwriter and lyricist. Generate complete, emotionally resonant song lyrics in a structured format.
 
-OUTPUT FORMAT (use EXACTLY this structure):
-🎵 Song Title: "[Creative title based on theme]"
+OUTPUT FORMAT - FOLLOW THIS EXACT STRUCTURE:
+
+🎵 Song Title: "[Creative title]"
 
 Verse 1
-[4 lines of lyrics setting up the story/theme]
+
+[4 lines of lyrics - setting up the story/theme, use vivid imagery]
 
 Pre-Chorus
-[2-4 lines building emotional tension]
+
+[2-4 lines building emotional tension toward the chorus]
 
 Chorus
-[4 lines - the emotional/melodic hook of the song]
+
+[4 lines - the emotional/melodic hook, most memorable part]
 
 Verse 2
-[4 lines developing the story/theme further]
+
+[4 lines developing the story further, new perspective or progression]
 
 Pre-Chorus
+
 [2-4 lines building emotional tension]
 
 Chorus
-[4 lines - repeat or variation of the hook]
+
+[4 lines - repeat or slight variation of the hook]
 
 Bridge
-[4 lines - emotional peak, different perspective]
+
+[4 lines - emotional peak, different melodic feel, reflection or turning point]
 
 Final Chorus
-[4 lines - powerful conclusion, may vary from main chorus]
+
+[4 lines - powerful conclusion, may have slight variations for impact]
 
 Outro
-[2-3 short lines fading out]
+
+[2-3 short, evocative lines fading out, ellipsis allowed]
+
+EXAMPLE OUTPUT:
+
+🎵 Song Title: "Fading Hues of Echoes"
+
+Verse 1
+
+Rain streaks down the pane, a silver, whispered blur
+Each drop a memory, I'm not sure what to infer
+From the ghost of your laughter, a melody I knew
+Fading with the daylight, a melancholic hue
+
+Pre-Chorus
+
+The same old streetlights glow, through the mist and the haze
+Caught in this reverie, lost in forgotten days
+
+Chorus
+
+Oh, these fading hues of echoes, a beauty bittersweet
+Every fragile moment, I can almost complete
+If only for a second, to hold it in my hand
+A fragile, shimmering starlight, across a barren land
 
 RULES:
 1. Create lyrics that match the user's theme/mood exactly
 2. Use vivid imagery, metaphors, and emotional language
 3. Maintain consistent rhyme scheme where appropriate
-4. Balance between vulnerability and strength in the message
+4. Each section should have a BLANK LINE after the section name
 5. Return ONLY the lyrics in the format above, no explanations`;
     } else if (mode === 'lyrics-enhance') {
       systemPrompt = `You are a professional songwriter. Improve the given lyrics and reformat them into the standard song structure.
 
-OUTPUT FORMAT (use EXACTLY this structure):
-🎵 Song Title: "[Extract or create title from the lyrics]"
+OUTPUT FORMAT - FOLLOW THIS EXACT STRUCTURE:
+
+🎵 Song Title: "[Extract or create title from lyrics]"
 
 Verse 1
-[4 lines of lyrics setting up the story/theme]
+
+[4 lines of improved lyrics - vivid imagery, better word choices]
 
 Pre-Chorus
+
 [2-4 lines building emotional tension]
 
 Chorus
-[4 lines - the emotional/melodic hook of the song]
+
+[4 lines - the emotional/melodic hook]
 
 Verse 2
-[4 lines developing the story/theme further]
+
+[4 lines developing the story further]
 
 Pre-Chorus
+
 [2-4 lines building emotional tension]
 
 Chorus
+
 [4 lines - repeat or variation of the hook]
 
 Bridge
+
 [4 lines - emotional peak, different perspective]
 
 Final Chorus
-[4 lines - powerful conclusion, may vary from main chorus]
+
+[4 lines - powerful conclusion]
 
 Outro
-[2-3 short lines fading out]
+
+[2-3 short lines fading out, ellipsis allowed]
 
 RULES:
-1. Keep the SAME theme and core message from the original lyrics
+1. Keep the SAME theme and core message from the original
 2. Improve word choices for more vivid imagery
 3. Enhance rhyme schemes where possible
 4. Make emotional moments more impactful
-5. Fix any awkward phrasing
-6. Reformat into the standard structure above
-7. Return ONLY the improved lyrics in the format above, no explanations`;
+5. Each section should have a BLANK LINE after the section name
+6. Return ONLY the improved lyrics in the format above, no explanations`;
     } else if (mode === 'music') {
       // Generate prose-style music description for BOTH instrumental and vocal modes
       const vocalDescription = musicWithVocals 
