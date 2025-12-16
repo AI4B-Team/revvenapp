@@ -3047,19 +3047,21 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   )
                 ) : isAudioMode ? (
                   <>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={() => setIsAudioSelectModalOpen(true)}
-                          className="p-1.5 transition hover:opacity-70"
-                        >
-                          <AudioLines size={20} strokeWidth={2.5} className="text-brand-green" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black">
-                        <p>Transcribe</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    {selectedAudioMode !== 'Music' && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setIsAudioSelectModalOpen(true)}
+                            className="p-1.5 transition hover:opacity-70"
+                          >
+                            <AudioLines size={20} strokeWidth={2.5} className="text-brand-green" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-black border-black">
+                          <p>Transcribe</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                     {selectedAudioMode !== 'Transcribe' && (
                       <Tooltip>
                         <TooltipTrigger asChild>
