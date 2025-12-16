@@ -1838,17 +1838,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           try {
             console.log("Starting music generation...");
             
+            // When vocals + lyrics are provided, we need customMode=true for KIE.AI to sing the lyrics
+            const hasLyricsWithVocals = !musicInstrumental && musicLyrics.trim();
+            const effectiveCustomMode = musicCustomMode || hasLyricsWithVocals;
+            
+            // Auto-extract title from lyrics if not manually set (looks for "Song Title:" pattern)
+            let effectiveTitle = musicTitle;
+            if (hasLyricsWithVocals && !musicTitle) {
+              const titleMatch = musicLyrics.match(/Song Title:\s*["']?([^"'\n]+)["']?/i);
+              effectiveTitle = titleMatch ? titleMatch[1].trim() : 'Untitled Song';
+            }
+            
+            // Auto-set style if not manually set when using vocals
+            let effectiveStyle = musicStyle;
+            if (hasLyricsWithVocals && !musicStyle) {
+              effectiveStyle = promptText.trim() || 'Pop, Contemporary, Emotional';
+            }
+            
             const requestBody: Record<string, unknown> = {
-              prompt: !musicInstrumental && musicLyrics ? musicLyrics : promptText,
-              customMode: musicCustomMode,
+              prompt: hasLyricsWithVocals ? musicLyrics : promptText,
+              customMode: effectiveCustomMode,
               instrumental: musicInstrumental,
               model: musicModel,
               recordId: pendingRecord.id,
             };
 
-            if (musicCustomMode) {
-              requestBody.style = musicStyle;
-              requestBody.title = musicTitle;
+            // Add style and title when in custom mode (required by KIE.AI for vocals)
+            if (effectiveCustomMode) {
+              requestBody.style = effectiveStyle;
+              requestBody.title = effectiveTitle;
             }
 
             // Add vocal gender when not instrumental
