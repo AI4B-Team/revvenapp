@@ -971,9 +971,9 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                     <OnlineFileIcon />
                   </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Online File</h3>
+                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Upload Link</h3>
                 <p className="text-xs text-gray-500 text-center mb-3">
-                  Paste A Supported Media Link To Transcribe
+                  Paste A Supported Public Media Link
                 </p>
 
                 {/* URL Input */}
