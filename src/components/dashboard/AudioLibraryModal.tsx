@@ -164,6 +164,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
   const selectedAudioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordedBlobRef = useRef<Blob | null>(null);
+  const recordingTimeRef = useRef<number>(0);
 
   // Reordered: YouTube, Facebook, TikTok, Instagram, Threads, X, Reddit, Vimeo, Bluesky
   const socialPlatforms = [
@@ -416,9 +417,9 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
           if (error) throw error;
 
-          // Save to database
+          // Save to database - use ref for accurate duration
           const { data: { user } } = await supabase.auth.getUser();
-          const finalDuration = recordingTime;
+          const finalDuration = recordingTimeRef.current;
           
           if (user) {
             const { data: insertedData } = await supabase.from('user_voices').insert({
@@ -462,9 +463,14 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+      recordingTimeRef.current = 0;
 
       recordingIntervalRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          recordingTimeRef.current = newTime;
+          return newTime;
+        });
       }, 1000);
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -631,7 +637,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         <X className="w-5 h-5 text-gray-600" />
       </button>
 
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex relative">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex relative">
         {/* Left Panel - Audio Library */}
         <div className="flex-1 border-r border-gray-100 flex flex-col">
           {/* Header */}
@@ -792,21 +798,36 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         </div>
 
         {/* Right Panel - Upload Options */}
-        <div className="w-96 p-6 flex flex-col gap-3 bg-gray-50/50 overflow-y-auto">
-          {/* Show selected file if exists */}
+        <div className="w-[420px] p-6 flex flex-col bg-gray-50/50 overflow-y-auto">
+          {/* Show selected file if exists - Centered in middle */}
           {selectedFile ? (
-            <div className="mb-4">
+            <div className="flex-1 flex flex-col justify-center">
               <div 
                 className="relative flex items-center gap-3 p-4 bg-white border-2 border-emerald-300 rounded-xl"
                 onMouseEnter={() => setHoveredSelectedFile(true)}
                 onMouseLeave={() => setHoveredSelectedFile(false)}
               >
-                {/* Audio Icon with Play overlay */}
+                {/* Audio Waveform Icon with Play overlay - Reference image style */}
                 <div 
-                  className="relative w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  className="relative w-16 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 cursor-pointer overflow-hidden"
                   onClick={handlePlaySelectedFile}
                 >
-                  <FileAudio className="w-6 h-6 text-blue-500" />
+                  {/* Waveform bars */}
+                  <div className="flex items-center gap-[3px] h-full py-2">
+                    {[0.4, 0.6, 0.9, 1, 0.7, 0.5, 0.3].map((height, i) => (
+                      <div
+                        key={i}
+                        className={`w-[3px] bg-blue-400 rounded-full transition-all ${
+                          isPlayingSelected ? 'animate-pulse' : ''
+                        }`}
+                        style={{ 
+                          height: `${height * 100}%`,
+                          animationDelay: isPlayingSelected ? `${i * 0.1}s` : '0s',
+                          animationDuration: isPlayingSelected ? '0.5s' : '0s',
+                        }}
+                      />
+                    ))}
+                  </div>
                   {hoveredSelectedFile && (
                     <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center">
                       {isPlayingSelected ? (
@@ -871,8 +892,8 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
               </div>
             </div>
           ) : (
-            <>
-              {/* Upload Audio Option - PASTEL GREEN */}
+            <div className="flex flex-col gap-3">
+              {/* Upload Audio Option - 1st - PASTEL GREEN */}
               <label
                 className={`
                   relative flex flex-col items-center justify-center p-5 
@@ -909,7 +930,61 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {/* Record Audio Option - PASTEL RED */}
+              {/* Online File URL Option - 2nd - PASTEL BLUE */}
+              <div
+                className={`
+                  relative flex flex-col items-center justify-center p-5 
+                  border-2 border-dashed rounded-xl bg-white
+                  transition-all duration-200
+                  ${mediaUrl 
+                    ? 'border-blue-300 bg-blue-50' 
+                    : 'border-gray-200'
+                  }
+                `}
+              >
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-50">
+                  <div className="text-blue-300">
+                    <OnlineFileIcon />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Online File</h3>
+                <p className="text-xs text-gray-500 text-center mb-3">
+                  Paste A Supported Media Link To Transcribe
+                </p>
+
+                {/* URL Input */}
+                <div className="w-full mb-3">
+                  <input
+                    type="url"
+                    value={mediaUrl}
+                    onChange={handleMediaUrlChange}
+                    placeholder="youtube.com | facebook.com | tiktok.com"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                {/* Social Platform Icons - Faded */}
+                <div className="flex items-center justify-center flex-wrap gap-2">
+                  {socialPlatforms.map(({ icon: Icon, name }) => (
+                    <div
+                      key={name}
+                      className="p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer opacity-50 hover:opacity-100"
+                      title={name}
+                    >
+                      <Icon />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 py-1">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs text-gray-400">- or -</span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+
+              {/* Record Audio Option - 3rd - PASTEL RED */}
               <button
                 onClick={handleRecordClick}
                 disabled={isUploading}
@@ -947,85 +1022,33 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   )}
                 </p>
               </button>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 py-1">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400">- or -</span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              {/* Online File URL Option - PASTEL BLUE */}
-              <div
-                className={`
-                  relative flex flex-col items-center justify-center p-5 
-                  border-2 border-dashed rounded-xl bg-white
-                  transition-all duration-200
-                  ${mediaUrl 
-                    ? 'border-blue-300 bg-blue-50' 
-                    : 'border-gray-200'
-                  }
-                `}
-              >
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-50">
-                  <div className="text-blue-300">
-                    <OnlineFileIcon />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Online File</h3>
-                <p className="text-xs text-gray-500 text-center mb-3">
-                  Paste A Supported Media Link To Transcribe
-                </p>
-
-                {/* URL Input */}
-                <div className="w-full mb-3">
-                  <input
-                    type="url"
-                    value={mediaUrl}
-                    onChange={handleMediaUrlChange}
-                    placeholder="youtube.com | facebook.com |"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                {/* Social Platform Icons - Faded */}
-                <div className="flex items-center justify-center gap-2">
-                  {socialPlatforms.map(({ icon: Icon, name }) => (
-                    <div
-                      key={name}
-                      className="p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer opacity-50 hover:opacity-100"
-                      title={name}
-                    >
-                      <Icon />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
+            </div>
           )}
 
-          {/* Use Button */}
-          <button
-            onClick={handleUse}
-            disabled={!selectedFile || isUploading}
-            className={`
-              w-full py-3 rounded-xl font-semibold text-white mt-2
-              transition-all duration-200 flex items-center justify-center gap-2
-              ${selectedFile && !isUploading
-                ? 'bg-emerald-400 hover:bg-emerald-500 active:scale-[0.98] shadow-lg shadow-emerald-400/30'
-                : 'bg-gray-300 cursor-not-allowed'
-              }
-            `}
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              'Use'
-            )}
-          </button>
+          {/* Use Button - Anchored at bottom */}
+          <div className="mt-auto pt-4">
+            <button
+              onClick={handleUse}
+              disabled={!selectedFile || isUploading}
+              className={`
+                w-full py-3 rounded-xl font-semibold text-white
+                transition-all duration-200 flex items-center justify-center gap-2
+                ${selectedFile && !isUploading
+                  ? 'bg-emerald-400 hover:bg-emerald-500 active:scale-[0.98] shadow-lg shadow-emerald-400/30'
+                  : 'bg-gray-300 cursor-not-allowed'
+                }
+              `}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Use'
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
