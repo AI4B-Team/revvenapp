@@ -640,15 +640,7 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                               </button>
                             </div>
                           ) : (
-                            <>
-                              <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
-                              <button
-                                onClick={(e) => handleStartEditName(audio, e)}
-                                className="p-1 hover:bg-gray-100 rounded transition flex-shrink-0"
-                              >
-                                <Pencil size={12} className="text-gray-400" />
-                              </button>
-                            </>
+                            <p className="text-sm font-medium text-gray-900 truncate">{audio.name}</p>
                           )}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -663,17 +655,25 @@ const AudioSelectModal: React.FC<AudioSelectModalProps> = ({
                         </div>
                       </div>
 
-                      <button
-                        onClick={(e) => handleDeleteAudio(audio.id, e)}
-                        disabled={deletingAudioId === audio.id}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-100 rounded-lg transition"
-                      >
-                        {deletingAudioId === audio.id ? (
-                          <Loader2 size={14} className="text-gray-400 animate-spin" />
-                        ) : (
-                          <Trash2 size={14} className="text-gray-400 hover:text-red-500" />
-                        )}
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => handleStartEditName(audio, e)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition"
+                        >
+                          <Pencil size={14} className="text-gray-400 hover:text-gray-600" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteAudio(audio.id, e)}
+                          disabled={deletingAudioId === audio.id}
+                          className="p-2 hover:bg-red-100 rounded-lg transition"
+                        >
+                          {deletingAudioId === audio.id ? (
+                            <Loader2 size={14} className="text-gray-400 animate-spin" />
+                          ) : (
+                            <Trash2 size={14} className="text-gray-400 hover:text-red-500" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
