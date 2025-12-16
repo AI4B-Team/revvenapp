@@ -43,9 +43,10 @@ interface AudioCreationsGalleryProps {
   columnsPerRow?: number;
   onTrackSelect?: (track: AudioTrack, index: number, allTracks: AudioTrack[]) => void;
   currentPlayingId?: string | null;
+  isAudioPlaying?: boolean;
 }
 
-const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayingId }: AudioCreationsGalleryProps) => {
+const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayingId, isAudioPlaying = false }: AudioCreationsGalleryProps) => {
   const [audioItems, setAudioItems] = useState<AudioItem[]>([]);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [likedItems, setLikedItems] = useState(new Set<string>());
@@ -320,15 +321,18 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, currentPlayin
                 {/* Animated waveform visualization */}
                 <div className="flex items-center gap-0.5 h-12">
                   {Array.from({ length: 32 }).map((_, i) => {
-                    const isPlaying = currentPlayingId === item.id || playingId === item.id;
+                    const isCurrentTrack = currentPlayingId === item.id || playingId === item.id;
+                    const shouldAnimate = isCurrentTrack && isAudioPlaying;
                     const baseHeight = 20 + Math.sin(i * 0.5) * 30 + Math.random() * 30;
                     return (
                       <div 
                         key={i}
                         className={`w-1 rounded-full origin-bottom ${
-                          isPlaying 
+                          shouldAnimate 
                             ? 'bg-brand-green animate-waveform' 
-                            : 'bg-brand-green/40'
+                            : isCurrentTrack
+                              ? 'bg-brand-green/60'
+                              : 'bg-brand-green/40'
                         }`}
                         style={{ 
                           height: `${baseHeight}%`,
