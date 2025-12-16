@@ -4684,7 +4684,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       {/* Upload Audio Button */}
                       <button 
                         onClick={() => setIsAudioSelectModalOpen(true)}
-                        className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80"
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap hover:opacity-80 ${
+                          transcribeAudio ? 'bg-pill-green text-pill-green-text' : 'bg-pill-gray text-pill-gray-text'
+                        }`}
                       >
                         <Upload size={14} />
                         {transcribeAudio ? 'Audio Added' : 'Upload Audio'}
