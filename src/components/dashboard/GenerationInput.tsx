@@ -2950,9 +2950,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isEnhancing ? (
-                          <Loader2 size={20} strokeWidth={2.5} className="text-amber-500 animate-spin" />
+                          <Loader2 size={20} strokeWidth={2.5} className="text-brand-green animate-spin" />
                         ) : (
-                          <Sparkles size={20} strokeWidth={2.5} className="text-amber-500" />
+                          <AudioLines size={20} strokeWidth={2.5} className="text-brand-green" />
                         )}
                       </button>
                     </TooltipTrigger>
