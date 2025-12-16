@@ -113,7 +113,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
       setSelectedLanguage(null);
       setTranslateOpen(false);
       setLanguageQuery('');
-      setTranslatedText({});
+      // Don't clear translatedText - it's loaded from localStorage on open
     }
   }, [isOpen]);
 
