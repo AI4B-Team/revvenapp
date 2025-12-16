@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
   Heart, Calendar, Layers, Image, Video, Headphones, 
-  Palette, FileText, Grid3x3
+  Palette, FileText, Grid3x3, Mic, Volume2, Music, 
+  FileText as TranscribeIcon, Languages, Copy
 } from 'lucide-react';
 import {
   Tooltip,
@@ -27,9 +28,19 @@ interface FilterToolbarProps {
   onFiltersChange?: (filters: FilterState) => void;
   selectedContentType?: string;
   onContentTypeChange?: (type: string) => void;
+  audioModeFilter?: string;
+  onAudioModeChange?: (mode: string) => void;
 }
 
-const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType = 'All', onContentTypeChange }: FilterToolbarProps) => {
+const FilterToolbar = ({ 
+  onZoomChange, 
+  zoom = 50, 
+  onFiltersChange, 
+  selectedContentType = 'All', 
+  onContentTypeChange,
+  audioModeFilter = 'All',
+  onAudioModeChange
+}: FilterToolbarProps) => {
   const [allDropdownOpen, setAllDropdownOpen] = useState(false);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -52,6 +63,16 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
     { name: 'Design', icon: Palette, color: 'text-yellow-500' },
     { name: 'Content', icon: FileText, color: 'text-blue-500' },
     { name: 'Apps', icon: Grid3x3, color: 'text-green-500' }
+  ];
+
+  const audioModes = [
+    { name: 'All', icon: Layers },
+    { name: 'Voiceover', icon: Mic },
+    { name: 'Sound Effects', icon: Volume2 },
+    { name: 'Music', icon: Music },
+    { name: 'Transcribe', icon: TranscribeIcon },
+    { name: 'Revoice', icon: Languages },
+    { name: 'Clone', icon: Copy }
   ];
 
   // Focus search input when expanded
@@ -143,8 +164,38 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
               </div>
 
               {/* Content */}
-              <div className="px-5 py-4">
+              <div className="px-5 py-4 max-h-[400px] overflow-y-auto">
                 
+                {/* Audio Mode Section - Only show when Audio is selected */}
+                {selectedContentType === 'Audio' && (
+                  <>
+                    <div className="space-y-2 mb-5">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-3">Audio Type</h4>
+                      {audioModes.map((mode) => {
+                        const Icon = mode.icon;
+                        return (
+                          <label key={mode.name} className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center">
+                              <input
+                                type="radio"
+                                name="audioMode"
+                                checked={audioModeFilter === mode.name}
+                                onChange={() => onAudioModeChange?.(mode.name)}
+                                className="w-5 h-5 border-2 border-gray-300 rounded-full cursor-pointer appearance-none checked:border-green-500 checked:border-[6px] transition-colors"
+                              />
+                            </div>
+                            <Icon size={16} className="text-gray-500" />
+                            <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                              {mode.name}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t border-gray-200 mb-5"></div>
+                  </>
+                )}
+
                 {/* Checkboxes Section */}
                 <div className="space-y-3 mb-5">
                   {/* Likes */}
