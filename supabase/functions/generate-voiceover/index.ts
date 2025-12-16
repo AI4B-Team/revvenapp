@@ -74,7 +74,7 @@ serve(async (req) => {
         name: `${voiceName || voice} - ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`,
         duration: estimatedDuration,
         url: '', // Will be updated when generation completes
-        type: 'voiceover',
+        type: isClonedVoice ? 'cloned' : 'voiceover',
         status: 'processing',
         prompt: text,
       })
