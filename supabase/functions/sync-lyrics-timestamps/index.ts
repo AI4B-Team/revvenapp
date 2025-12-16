@@ -5,6 +5,61 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Normalize text for comparison (remove punctuation, lowercase, trim)
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Find the best matching timestamp for a lyrics line in the transcription
+function findTimestampForLine(line: string, words: any[], usedIndices: Set<number>): number | null {
+  const normalizedLine = normalizeText(line);
+  const lineWords = normalizedLine.split(' ').filter(w => w.length > 2); // Skip short words
+  
+  if (lineWords.length === 0) return null;
+  
+  // Take first 2-4 significant words from the line
+  const searchWords = lineWords.slice(0, Math.min(4, lineWords.length));
+  
+  let bestMatch = { index: -1, score: 0, timestamp: null as number | null };
+  
+  // Slide through transcript words looking for matches
+  for (let i = 0; i < words.length - searchWords.length; i++) {
+    if (usedIndices.has(i)) continue;
+    
+    let matchScore = 0;
+    for (let j = 0; j < searchWords.length; j++) {
+      const transcriptWord = normalizeText(words[i + j]?.text || '');
+      if (transcriptWord === searchWords[j]) {
+        matchScore++;
+      } else if (transcriptWord.includes(searchWords[j]) || searchWords[j].includes(transcriptWord)) {
+        matchScore += 0.5;
+      }
+    }
+    
+    const scorePercent = matchScore / searchWords.length;
+    if (scorePercent > bestMatch.score && scorePercent >= 0.5) {
+      bestMatch = {
+        index: i,
+        score: scorePercent,
+        timestamp: words[i]?.start || null
+      };
+    }
+  }
+  
+  if (bestMatch.index >= 0) {
+    // Mark these indices as used to maintain order
+    for (let k = bestMatch.index; k < bestMatch.index + searchWords.length; k++) {
+      usedIndices.add(k);
+    }
+  }
+  
+  return bestMatch.timestamp;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -57,17 +112,20 @@ serve(async (req) => {
     }
 
     const sttResult = await sttResponse.json();
-    console.log('STT result received, words:', sttResult.words?.length || 0);
+    const words = sttResult.words || [];
+    const audioDuration = sttResult.audio?.duration || 180;
+    
+    console.log('STT result received, words:', words.length, 'duration:', audioDuration);
 
     // Parse lyrics sections
     const sectionHeaders = [
       '🎵 Song Title:', 'Song Title:',
-      'Verse 1', 'Verse 2', 'Verse 3',
+      'Verse 1', 'Verse 2', 'Verse 3', 'Verse 4',
       'Pre-Chorus', 'Chorus', 'Bridge',
       'Final Chorus', 'Outro', 'Intro'
     ];
 
-    const sections: { type: string; lines: string[]; timestamp?: number }[] = [];
+    const sections: { type: string; lines: string[]; timestamp?: number | null }[] = [];
     let currentSection = { type: '', lines: [] as string[] };
     
     if (lyrics) {
@@ -93,42 +151,61 @@ serve(async (req) => {
       }
     }
 
-    // Match transcribed words to lyrics sections to get timestamps
-    const words = sttResult.words || [];
+    // Track used word indices to maintain temporal order
+    const usedIndices = new Set<number>();
+    
+    // Match each section to timestamps
     const timestampedSections = sections.map((section, index) => {
-      // Try to find the first word of this section's first line in the transcription
-      const firstLine = section.lines[0]?.toLowerCase() || '';
-      const firstWords = firstLine.split(' ').slice(0, 3).join(' ');
+      let timestamp: number | null = null;
       
-      let timestamp = null;
+      // Skip title section, start from 0
+      if (section.type.includes('Song Title') || section.type.includes('🎵')) {
+        return { ...section, timestamp: 0 };
+      }
       
-      // Search through transcribed words to find a match
-      for (let i = 0; i < words.length - 2; i++) {
-        const transcriptSegment = words.slice(i, i + 3)
-          .map((w: any) => w.text?.toLowerCase() || '')
-          .join(' ');
-        
-        if (firstWords && transcriptSegment.includes(firstWords.slice(0, 10))) {
-          timestamp = words[i].start || null;
+      // Try to find timestamp from first few lines of the section
+      for (const line of section.lines.slice(0, 3)) {
+        timestamp = findTimestampForLine(line, words, usedIndices);
+        if (timestamp !== null) {
+          console.log(`Found timestamp for "${section.type}": ${timestamp}s from line "${line.substring(0, 30)}..."`);
           break;
         }
       }
       
-      // If no match found, estimate based on position
-      if (timestamp === null && sttResult.audio?.duration) {
-        const duration = sttResult.audio.duration;
-        const sectionCount = sections.filter(s => s.type).length || 1;
-        const sectionIndex = sections.slice(0, index).filter(s => s.type).length;
-        timestamp = sectionCount > 1 
-          ? (sectionIndex / (sectionCount - 1)) * duration 
-          : 0;
-      }
-      
-      return {
-        ...section,
-        timestamp: timestamp !== null ? Math.round(timestamp * 10) / 10 : null
-      };
+      return { ...section, timestamp };
     });
+
+    // Fill in missing timestamps by interpolation
+    let lastKnownTimestamp = 0;
+    let lastKnownIndex = 0;
+    
+    for (let i = 0; i < timestampedSections.length; i++) {
+      if (timestampedSections[i].timestamp !== null) {
+        // Fill gaps between last known and current
+        if (i > lastKnownIndex + 1) {
+          const gap = timestampedSections[i].timestamp! - lastKnownTimestamp;
+          const steps = i - lastKnownIndex;
+          for (let j = lastKnownIndex + 1; j < i; j++) {
+            const interpolated = lastKnownTimestamp + (gap * (j - lastKnownIndex) / steps);
+            timestampedSections[j].timestamp = Math.round(interpolated * 10) / 10;
+            console.log(`Interpolated timestamp for "${timestampedSections[j].type}": ${timestampedSections[j].timestamp}s`);
+          }
+        }
+        lastKnownTimestamp = timestampedSections[i].timestamp!;
+        lastKnownIndex = i;
+      }
+    }
+    
+    // Fill remaining sections after last known timestamp
+    if (lastKnownIndex < timestampedSections.length - 1) {
+      const remainingGap = audioDuration - lastKnownTimestamp;
+      const remainingSteps = timestampedSections.length - lastKnownIndex;
+      for (let j = lastKnownIndex + 1; j < timestampedSections.length; j++) {
+        const interpolated = lastKnownTimestamp + (remainingGap * (j - lastKnownIndex) / remainingSteps);
+        timestampedSections[j].timestamp = Math.round(interpolated * 10) / 10;
+        console.log(`Extrapolated timestamp for "${timestampedSections[j].type}": ${timestampedSections[j].timestamp}s`);
+      }
+    }
 
     console.log('Sections with timestamps:', timestampedSections.length);
 
@@ -136,7 +213,7 @@ serve(async (req) => {
       success: true,
       sections: timestampedSections,
       transcript: sttResult.text,
-      duration: sttResult.audio?.duration
+      duration: audioDuration
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
