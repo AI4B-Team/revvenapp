@@ -701,18 +701,33 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                       </div>
                     ))
                   ) : (
-                    parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]).map((section, index) => (
-                      <div key={index} className="mb-8">
-                        {section.type && (
-                          <p className="text-sm font-semibold text-gray-500 mb-3">{section.type}</p>
-                        )}
-                        <div className="space-y-2">
-                          {section.lines.map((line, lineIndex) => (
-                            <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
-                          ))}
+                    parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]).map((section, index) => {
+                      // Calculate approximate timestamp based on section position
+                      const sectionStartTime = index * 30; // ~30 seconds per section
+                      const formatTimestamp = (seconds: number) => {
+                        const mins = Math.floor(seconds / 60);
+                        const secs = seconds % 60;
+                        return `${mins}:${secs.toString().padStart(2, '0')}`;
+                      };
+                      
+                      return (
+                        <div key={index} className="mb-8">
+                          {section.type && (
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                                {formatTimestamp(sectionStartTime)}
+                              </span>
+                              <p className="text-sm font-semibold text-gray-500">{section.type}</p>
+                            </div>
+                          )}
+                          <div className="space-y-2 pl-14">
+                            {section.lines.map((line, lineIndex) => (
+                              <p key={lineIndex} className="text-gray-700 leading-relaxed">{line}</p>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               ) : (
