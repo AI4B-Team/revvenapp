@@ -3160,7 +3160,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </button>
                     </div>
                   </>
-                ) : null}
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                    <p className="text-lg">Upload or record audio to transcribe</p>
+                  </div>
+                )}
               </div>
             ) : (
               <>
