@@ -64,8 +64,13 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
   if (!audioFile) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl p-0 bg-white dark:bg-background border-0 rounded-2xl overflow-hidden">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        onRemoveAudio();
+        onClose();
+      }
+    }}>
+      <DialogContent className="max-w-2xl p-0 bg-white dark:bg-background border-0 rounded-2xl overflow-hidden [&>button]:hidden">
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between">
@@ -78,7 +83,10 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
               </p>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => {
+                onRemoveAudio();
+                onClose();
+              }}
               className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition"
             >
               <X size={20} className="text-gray-500 dark:text-muted-foreground" />
@@ -117,6 +125,15 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
                     className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded transition"
                   >
                     <Check size={16} className="text-emerald-500" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditedName(audioFile.name);
+                      setIsEditingName(false);
+                    }}
+                    className="p-1 hover:bg-gray-200 dark:hover:bg-secondary rounded transition"
+                  >
+                    <X size={16} className="text-gray-500" />
                   </button>
                 </div>
               ) : (
@@ -181,7 +198,7 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
           </div>
         </div>
 
-        {/* Transcribe Button */}
+        {/* Add Audio Button */}
         <div className="px-6 pb-6">
           <Button
             onClick={() => onTranscribe(numSpeakers, editedName)}
@@ -191,10 +208,10 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
             {isTranscribing ? (
               <>
                 <Loader2 size={18} className="mr-2 animate-spin" />
-                Transcribing...
+                Adding...
               </>
             ) : (
-              'Transcribe'
+              'Add Audio'
             )}
           </Button>
         </div>
