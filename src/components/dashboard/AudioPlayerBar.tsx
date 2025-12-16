@@ -249,6 +249,9 @@ const AudioPlayerBar = ({
               step={0.1}
               onValueChange={handleSeek}
               className="flex-1"
+              trackClassName="bg-gray-500/50 h-1"
+              rangeClassName="bg-white"
+              thumbClassName="h-3 w-3 border-white bg-white"
             />
             <span className="text-sm text-white w-12 font-mono">
               {formatTime(track.duration)}
@@ -358,6 +361,9 @@ const AudioPlayerBar = ({
                       setIsMuted(false);
                     }}
                     className="h-full"
+                    trackClassName="bg-gray-500/50 w-1"
+                    rangeClassName="bg-white"
+                    thumbClassName="h-3 w-3 border-white bg-white"
                   />
                 </div>
                 <button
