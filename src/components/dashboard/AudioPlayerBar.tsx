@@ -40,6 +40,7 @@ interface AudioPlayerBarProps {
   onTrackChange: (index: number) => void;
   onPlayStateChange?: (isPlaying: boolean) => void;
   onShowDetails?: (track: AudioTrack) => void;
+  registerTogglePlay?: (toggleFn: () => void) => void;
 }
 
 const AudioPlayerBar = ({ 
@@ -51,7 +52,8 @@ const AudioPlayerBar = ({
   onClose,
   onTrackChange,
   onPlayStateChange,
-  onShowDetails
+  onShowDetails,
+  registerTogglePlay
 }: AudioPlayerBarProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -107,6 +109,11 @@ const AudioPlayerBar = ({
     }
     setIsPlaying(!isPlaying);
   };
+
+  // Register toggle play function with parent
+  useEffect(() => {
+    registerTogglePlay?.(togglePlay);
+  }, [registerTogglePlay, isPlaying]);
 
   const handleSeek = (value: number[]) => {
     if (!audioRef.current) return;

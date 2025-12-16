@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LayoutGrid, SlidersHorizontal, Search } from 'lucide-react';
 import { useReferenceImages } from '@/hooks/useReferenceImages';
@@ -11,6 +11,7 @@ import ToolCard from '@/components/dashboard/ToolCard';
 import CreationsGallery from '@/components/dashboard/CreationsGallery';
 import AudioCreationsGallery from '@/components/dashboard/AudioCreationsGallery';
 import AudioPlayerBar from '@/components/dashboard/AudioPlayerBar';
+import AudioDetailsModal from '@/components/dashboard/AudioDetailsModal';
 import type { AudioTrack } from '@/components/dashboard/AudioCreationsGallery';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import ReferencesModal from '@/components/dashboard/ReferencesModal';
@@ -122,6 +123,9 @@ const Create = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioDetailsModalOpen, setAudioDetailsModalOpen] = useState(false);
+  const [audioDetailsItem, setAudioDetailsItem] = useState<any>(null);
+  const toggleAudioPlayRef = useRef<(() => void) | null>(null);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -569,6 +573,7 @@ const Create = () => {
                       setAudioTracks(tracks);
                       setIsAudioPlaying(true);
                     }}
+                    onPauseToggle={() => toggleAudioPlayRef.current?.()}
                     currentPlayingId={selectedAudioTrack?.id}
                     isAudioPlaying={isAudioPlaying}
                   />
@@ -1096,8 +1101,31 @@ const Create = () => {
             setCurrentTrackIndex(index);
           }}
           onPlayStateChange={setIsAudioPlaying}
+          onShowDetails={(track) => {
+            setAudioDetailsItem({
+              id: track.id,
+              name: track.name,
+              url: track.url,
+              duration: track.duration,
+              type: track.type,
+              created_at: (track as any).created_at || new Date().toISOString(),
+              prompt: (track as any).prompt || ''
+            });
+            setAudioDetailsModalOpen(true);
+          }}
+          registerTogglePlay={(fn) => { toggleAudioPlayRef.current = fn; }}
         />
       )}
+      
+      {/* Audio Details Modal */}
+      <AudioDetailsModal
+        isOpen={audioDetailsModalOpen}
+        onClose={() => {
+          setAudioDetailsModalOpen(false);
+          setAudioDetailsItem(null);
+        }}
+        audioItem={audioDetailsItem}
+      />
     </div>
   );
 };
