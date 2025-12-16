@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { 
-  Sliders, Search, ZoomIn, ZoomOut, 
-  Heart, Calendar
+  ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
+  Heart, Calendar, Layers, Image, Video, Headphones, 
+  Palette, FileText, Grid3x3
 } from 'lucide-react';
 import {
   Tooltip,
@@ -25,9 +26,11 @@ interface FilterToolbarProps {
   zoom?: number;
   onFiltersChange?: (filters: FilterState) => void;
   selectedContentType?: string;
+  onContentTypeChange?: (type: string) => void;
 }
 
-const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType = 'All' }: FilterToolbarProps) => {
+const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedContentType = 'All', onContentTypeChange }: FilterToolbarProps) => {
+  const [allDropdownOpen, setAllDropdownOpen] = useState(false);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +44,16 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
   
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  const contentTypes = [
+    { name: 'All', icon: Layers, color: '' },
+    { name: 'Image', icon: Image, color: 'text-blue-500' },
+    { name: 'Video', icon: Video, color: 'text-red-500' },
+    { name: 'Audio', icon: Headphones, color: 'text-green-500' },
+    { name: 'Design', icon: Palette, color: 'text-yellow-500' },
+    { name: 'Content', icon: FileText, color: 'text-blue-500' },
+    { name: 'Apps', icon: Grid3x3, color: 'text-green-500' }
+  ];
+
   // Focus search input when expanded
   useEffect(() => {
     if (searchExpanded && searchInputRef.current) {
@@ -53,6 +66,7 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.dropdown-container')) {
+        setAllDropdownOpen(false);
         setFilterDropdownOpen(false);
       }
     };
@@ -62,6 +76,45 @@ const FilterToolbar = ({ onZoomChange, zoom = 50, onFiltersChange, selectedConte
 
   return (
     <div className="flex items-center gap-3">
+      
+      {/* Content Type Dropdown */}
+      <div className="relative dropdown-container">
+        <button
+          onClick={() => setAllDropdownOpen(!allDropdownOpen)}
+          className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg transition-colors"
+        >
+          <span className="text-sm font-medium">{selectedContentType}</span>
+          <ChevronDown size={16} />
+        </button>
+
+        {allDropdownOpen && (
+          <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+            {contentTypes.map((type) => {
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.name}
+                  onClick={() => {
+                    onContentTypeChange?.(type.name);
+                    setAllDropdownOpen(false);
+                    onFiltersChange?.({
+                      contentType: type.name,
+                      ...filters,
+                      searchQuery
+                    });
+                  }}
+                  className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
+                    selectedContentType === type.name ? 'bg-gray-100 font-semibold' : ''
+                  }`}
+                >
+                  <Icon size={16} className={type.color} />
+                  {type.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Filter Dropdown */}
       <div className="relative dropdown-container">
