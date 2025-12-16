@@ -2231,13 +2231,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       
       // Determine mode for the enhancer
       const isMusicMode = selectedType === 'Audio' && selectedAudioMode === 'Music';
+      // When music mode with vocals enabled, use lyrics mode to generate actual lyrics
+      const isMusicWithVocals = isMusicMode && !musicInstrumental;
       
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
           prompt: text.trim(),
           fast: fast,
           maxLength: maxLength,
-          mode: isMusicMode ? 'music' : 'image'
+          mode: isMusicWithVocals ? 'lyrics' : (isMusicMode ? 'music' : 'image')
         }
       });
 
@@ -2367,12 +2369,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         contentType = 'content';
       }
 
+      // Check if music mode with vocals enabled
+      const isMusicWithVocals = selectedType === 'Audio' && selectedAudioMode === 'Music' && !musicInstrumental;
+
       const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
         body: { 
           contentType,
           specificMode,
           characterImages,
-          referenceImages
+          referenceImages,
+          musicWithVocals: isMusicWithVocals
         }
       });
 

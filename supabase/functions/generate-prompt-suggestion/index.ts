@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { contentType, specificMode, characterImages, referenceImages } = await req.json();
+    const { contentType, specificMode, characterImages, referenceImages, musicWithVocals } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -190,6 +190,68 @@ Focus on: lip-sync friendly phrasing, maintaining original meaning.`,
             };
 
           case 'music':
+            // If vocals are enabled, generate proper song lyrics
+            if (musicWithVocals) {
+              return {
+                guidance: `You are a professional songwriter. Generate complete song lyrics in the EXACT format below.
+
+OUTPUT FORMAT (use EXACTLY this structure):
+🎵 Song Title: "[Creative title based on theme]"
+
+Verse 1
+[4 lines of lyrics setting up the story/theme]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - the emotional/melodic hook of the song]
+
+Verse 2
+[4 lines developing the story/theme further]
+
+Pre-Chorus
+[2-4 lines building emotional tension]
+
+Chorus
+[4 lines - repeat or variation of the hook]
+
+Bridge
+[4 lines - emotional peak, different perspective]
+
+Final Chorus
+[4 lines - powerful conclusion, may vary from main chorus]
+
+Outro
+[2-3 short lines fading out]
+
+RULES:
+1. Create original, emotionally resonant lyrics
+2. Use vivid imagery, metaphors, and emotional language
+3. Maintain consistent rhyme scheme where appropriate
+4. Balance between vulnerability and strength in the message
+5. Return ONLY the lyrics in the format above, no explanations`,
+                example: `🎵 Song Title: "Rising Above"
+
+Verse 1
+In the shadows where I used to hide
+Finding courage that was locked inside
+Every setback was a stepping stone
+Now I'm stronger than I've ever known
+
+Pre-Chorus
+The fire burns within my soul
+Taking back what fear once stole
+
+Chorus
+I'm rising above, reaching for the sky
+Nothing gonna stop me now, gonna learn to fly
+Every scar I wear, every tear I've cried
+Made me who I am, standing tall with pride`,
+                type: "music_vocals_audio"
+              };
+            }
+            // Instrumental mode - generate style description
             return {
               guidance: `Create STRUCTURED music prompts following this EXACT format:
 
@@ -197,36 +259,14 @@ Genre: [specific genre like Pop, Rock, Jazz, EDM, Classical, etc.]
 Mood: [2-3 emotional descriptors]
 Tempo: [Slow/Medium/Fast or specific BPM]
 Instruments: [list of 3-5 instruments]
-Vocals: [Male/Female/None for instrumental]
-Language: [English or other language, skip if instrumental]
-Theme: [main lyrical theme or concept]
 Style: [production style descriptors]
 
-Lyrics (only if vocals are included):
-[Verse]
-[2-4 lines of verse lyrics]
-
-[Chorus]
-[2-4 lines of chorus lyrics]
-
-Be creative with genre combinations and themes. Include emotional depth in lyrics.`,
-              example: `Genre: Pop
-Mood: Emotional, hopeful
+Be creative with genre combinations. Focus on instrumental composition and arrangement.`,
+              example: `Genre: Indie Folk
+Mood: Reflective, wistful
 Tempo: Medium
-Instruments: Piano, soft drums, ambient synth
-Vocals: Female
-Language: English
-Theme: Self-belief and new beginnings
-Style: Modern pop, cinematic
-
-Lyrics:
-[Verse]
-I was lost in the noise of yesterday
-Shadows talking, pulling me away
-
-[Chorus]
-Now I'm standing in the light I found
-Every scar turned strength somehow`,
+Instruments: Acoustic guitar, cello, light percussion, ambient pads
+Style: Minimalist, cinematic, emotional`,
               type: "music_audio"
             };
 
