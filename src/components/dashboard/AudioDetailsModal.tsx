@@ -76,7 +76,6 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
   const [translateOpen, setTranslateOpen] = useState(false);
   const [languageQuery, setLanguageQuery] = useState('');
   const [syncedTimestamps, setSyncedTimestamps] = useState<{ type: string; lines: string[]; timestamp: number | null }[]>([]);
-  const [isSyncingTimestamps, setIsSyncingTimestamps] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -119,47 +118,49 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
     }
   }, [isOpen]);
 
-  // Sync lyrics timestamps using ElevenLabs STT
+  // Calculate lyrics timestamps based on song duration (first verse at start, outro at end)
   useEffect(() => {
-    const syncTimestamps = async () => {
-      if (!isOpen || !audioItem || audioItem.type !== 'music' || !audioItem.prompt || !audioItem.url) {
-        return;
+    if (!isOpen || !audioItem || audioItem.type !== 'music' || !audioItem.prompt) {
+      return;
+    }
+    
+    const totalDuration = audioItem.duration || 180;
+    const parsedSections = parseLyrics(audioItem.prompt);
+    
+    // Filter to get only actual song sections (skip title)
+    const songSections = parsedSections.filter(s => 
+      s.type && !s.type.includes('Song Title') && !s.type.includes('🎵')
+    );
+    
+    if (songSections.length === 0) {
+      setSyncedTimestamps([]);
+      return;
+    }
+    
+    // Distribute timestamps: first verse at ~5s, outro ends at song end
+    const startOffset = 5; // Small offset for intro/instrumental
+    const availableDuration = totalDuration - startOffset;
+    const timePerSection = songSections.length > 1 
+      ? availableDuration / (songSections.length - 1) 
+      : availableDuration;
+    
+    const timestampedSections = parsedSections.map((section, index) => {
+      // Title section gets 0
+      if (section.type.includes('Song Title') || section.type.includes('🎵')) {
+        return { ...section, timestamp: 0 };
       }
       
-      // Check if we already have cached timestamps
-      const cachedKey = `lyrics_timestamps_${audioItem.id}`;
-      const cached = localStorage.getItem(cachedKey);
-      if (cached) {
-        try {
-          setSyncedTimestamps(JSON.parse(cached));
-          return;
-        } catch (e) {
-          console.error('Failed to parse cached timestamps:', e);
-        }
-      }
-
-      setIsSyncingTimestamps(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('sync-lyrics-timestamps', {
-          body: { audioUrl: audioItem.url, lyrics: audioItem.prompt }
-        });
-
-        if (error) throw error;
-        
-        if (data?.sections) {
-          setSyncedTimestamps(data.sections);
-          localStorage.setItem(cachedKey, JSON.stringify(data.sections));
-        }
-      } catch (error) {
-        console.error('Failed to sync timestamps:', error);
-        // Fallback handled in render
-      } finally {
-        setIsSyncingTimestamps(false);
-      }
-    };
-
-    syncTimestamps();
-  }, [isOpen, audioItem?.id]);
+      // Find this section's index among song sections
+      const songIndex = songSections.findIndex(s => s.type === section.type && s.lines.join() === section.lines.join());
+      const timestamp = songIndex >= 0 
+        ? startOffset + (songIndex * timePerSection)
+        : null;
+      
+      return { ...section, timestamp: timestamp !== null ? Math.round(timestamp * 10) / 10 : null };
+    });
+    
+    setSyncedTimestamps(timestampedSections);
+  }, [isOpen, audioItem?.id, audioItem?.prompt, audioItem?.duration]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -766,12 +767,6 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioD
                       
                       return (
                         <>
-                          {isSyncingTimestamps && (
-                            <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                              <span>Syncing lyrics with audio...</span>
-                            </div>
-                          )}
                           {sectionsToRender.map((section, index) => {
                             // Use synced timestamp if available, otherwise estimate
                             const syncedSection = useSynced ? syncedTimestamps[index] : null;
