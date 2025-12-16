@@ -462,7 +462,7 @@ const DigitalCharactersModal = ({ isOpen, onClose, onSelectCharacter }: DigitalC
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pl-[var(--app-sidebar-width,16rem)]">
         {/* Close Button - Outside Modal */}
         <button
           onClick={onClose}

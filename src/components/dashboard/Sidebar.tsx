@@ -194,6 +194,8 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   // Notify parent component when collapse state changes
   useEffect(() => {
     onCollapseChange?.(isCollapsed);
+    const width = isCollapsed ? "4rem" : "16rem";
+    document.documentElement.style.setProperty("--app-sidebar-width", width);
   }, [isCollapsed, onCollapseChange]);
   
   // Initialize dropdown state based on current page

@@ -411,7 +411,7 @@ const GalleryImageCard: React.FC<{ image: CollectionImage; columnsPerRow: number
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pl-[var(--app-sidebar-width,16rem)]">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
               {/* Close Button */}
               <button
