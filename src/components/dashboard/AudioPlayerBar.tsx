@@ -20,6 +20,7 @@ interface AudioPlayerBarProps {
   onPrevious: () => void;
   onClose: () => void;
   onTrackChange: (index: number) => void;
+  onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
 const AudioPlayerBar = ({ 
@@ -29,7 +30,8 @@ const AudioPlayerBar = ({
   onNext, 
   onPrevious, 
   onClose,
-  onTrackChange 
+  onTrackChange,
+  onPlayStateChange
 }: AudioPlayerBarProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -78,8 +80,10 @@ const AudioPlayerBar = ({
     
     if (isPlaying) {
       audioRef.current.pause();
+      onPlayStateChange?.(false);
     } else {
       audioRef.current.play();
+      onPlayStateChange?.(true);
     }
     setIsPlaying(!isPlaying);
   };
@@ -118,7 +122,7 @@ const AudioPlayerBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-64 right-0 bg-sidebar-background border-t border-sidebar-hover z-50 animate-slide-up">
+    <div className="fixed bottom-0 left-64 right-0 z-50 animate-slide-up" style={{ backgroundColor: 'hsl(215, 28%, 17%)' }}>
       <div className="flex items-center gap-4 px-6 py-3">
         {/* Track Info */}
         <div className="flex items-center gap-3 min-w-[200px]">

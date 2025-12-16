@@ -121,6 +121,7 @@ const Create = () => {
   const [selectedAudioTrack, setSelectedAudioTrack] = useState<AudioTrack | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([]);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -566,8 +567,10 @@ const Create = () => {
                       setSelectedAudioTrack(track);
                       setCurrentTrackIndex(index);
                       setAudioTracks(tracks);
+                      setIsAudioPlaying(true);
                     }}
                     currentPlayingId={selectedAudioTrack?.id}
+                    isAudioPlaying={isAudioPlaying}
                   />
                 ) : (
                   <CreationsGallery 
@@ -1066,8 +1069,8 @@ const Create = () => {
         }}
       />
 
-      {/* Audio Player Bar */}
-      {selectedAudioTrack && (
+      {/* Audio Player Bar - only show in Audio section */}
+      {selectedType === 'Audio' && selectedAudioTrack && (
         <AudioPlayerBar 
           track={selectedAudioTrack}
           tracks={audioTracks}
@@ -1084,11 +1087,15 @@ const Create = () => {
             setSelectedAudioTrack(audioTracks[prevIndex]);
             setCurrentTrackIndex(prevIndex);
           }}
-          onClose={() => setSelectedAudioTrack(null)}
+          onClose={() => {
+            setSelectedAudioTrack(null);
+            setIsAudioPlaying(false);
+          }}
           onTrackChange={(index) => {
             setSelectedAudioTrack(audioTracks[index]);
             setCurrentTrackIndex(index);
           }}
+          onPlayStateChange={setIsAudioPlaying}
         />
       )}
     </div>
