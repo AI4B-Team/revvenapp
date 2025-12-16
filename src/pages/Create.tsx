@@ -564,6 +564,7 @@ const Create = () => {
                     onZoomChange={setZoom}
                     onFiltersChange={setFilters}
                     selectedContentType={filters.contentType}
+                    onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
                   />
                 </div>
                 {selectedType === 'Audio' ? (
@@ -607,6 +608,7 @@ const Create = () => {
                     onZoomChange={setZoom}
                     onFiltersChange={setFilters}
                     selectedContentType={filters.contentType}
+                    onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
                   />
                 </div>
                 <CreationsGallery 
@@ -626,6 +628,7 @@ const Create = () => {
                     onZoomChange={setZoom}
                     onFiltersChange={setFilters}
                     selectedContentType={filters.contentType}
+                    onContentTypeChange={(type) => setFilters(prev => ({ ...prev, contentType: type }))}
                   />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
