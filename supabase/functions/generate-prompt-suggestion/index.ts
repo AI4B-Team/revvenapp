@@ -190,83 +190,42 @@ Focus on: lip-sync friendly phrasing, maintaining original meaning.`,
             };
 
           case 'music':
-            // If vocals are enabled, generate proper song lyrics
+            // Generate prose-style music description
             if (musicWithVocals) {
               return {
-                guidance: `You are a professional songwriter. Generate complete song lyrics in the EXACT format below.
+                guidance: `Generate a flowing, descriptive prose paragraph about a song WITH VOCALS.
 
-OUTPUT FORMAT (use EXACTLY this structure):
-🎵 Song Title: "[Creative title based on theme]"
+OUTPUT FORMAT (write as a single cohesive paragraph, like this example):
+"This song blends EDM, Pop-Dance, and Progressive House styles, creating an uplifting, anthemic, and emotionally charged track perfect for a night out, a music festival, or even a high-energy workout. The lyrics are designed to evoke feelings of hope, yearning, and strength, with a male vocalist delivering a melodic, smooth, and emotionally rich performance."
 
-Verse 1
-[4 lines of lyrics setting up the story/theme]
+MUST INCLUDE:
+- Genre blend (2-3 specific genres)
+- Mood/atmosphere descriptors
+- Ideal use cases or settings
+- Vocalist gender (male/female) and vocal style
+- Emotional themes the lyrics convey
 
-Pre-Chorus
-[2-4 lines building emotional tension]
-
-Chorus
-[4 lines - the emotional/melodic hook of the song]
-
-Verse 2
-[4 lines developing the story/theme further]
-
-Pre-Chorus
-[2-4 lines building emotional tension]
-
-Chorus
-[4 lines - repeat or variation of the hook]
-
-Bridge
-[4 lines - emotional peak, different perspective]
-
-Final Chorus
-[4 lines - powerful conclusion, may vary from main chorus]
-
-Outro
-[2-3 short lines fading out]
-
-RULES:
-1. Create original, emotionally resonant lyrics
-2. Use vivid imagery, metaphors, and emotional language
-3. Maintain consistent rhyme scheme where appropriate
-4. Balance between vulnerability and strength in the message
-5. Return ONLY the lyrics in the format above, no explanations`,
-                example: `🎵 Song Title: "Rising Above"
-
-Verse 1
-In the shadows where I used to hide
-Finding courage that was locked inside
-Every setback was a stepping stone
-Now I'm stronger than I've ever known
-
-Pre-Chorus
-The fire burns within my soul
-Taking back what fear once stole
-
-Chorus
-I'm rising above, reaching for the sky
-Nothing gonna stop me now, gonna learn to fly
-Every scar I wear, every tear I've cried
-Made me who I am, standing tall with pride`,
+Write as ONE flowing paragraph. Return ONLY the prose description.`,
+                example: `This song blends R&B, Neo-Soul, and Contemporary Pop styles, creating a smooth, intimate, and emotionally vulnerable track perfect for late-night reflection or romantic moments. The lyrics explore themes of love, longing, and self-discovery, with a female vocalist delivering a sultry, breathy, and deeply expressive performance.`,
                 type: "music_vocals_audio"
               };
             }
-            // Instrumental mode - generate style description
+            // Instrumental mode
             return {
-              guidance: `Create STRUCTURED music prompts following this EXACT format:
+              guidance: `Generate a flowing, descriptive prose paragraph about INSTRUMENTAL music (no vocals).
 
-Genre: [specific genre like Pop, Rock, Jazz, EDM, Classical, etc.]
-Mood: [2-3 emotional descriptors]
-Tempo: [Slow/Medium/Fast or specific BPM]
-Instruments: [list of 3-5 instruments]
-Style: [production style descriptors]
+OUTPUT FORMAT (write as a single cohesive paragraph, like this example):
+"This piece blends Ambient, Cinematic, and Electronic styles, creating a vast, atmospheric, and emotionally stirring instrumental track perfect for focus work, meditation, or film scoring. The composition features sweeping synth pads, delicate piano melodies, and subtle percussion that builds to an epic crescendo."
 
-Be creative with genre combinations. Focus on instrumental composition and arrangement.`,
-              example: `Genre: Indie Folk
-Mood: Reflective, wistful
-Tempo: Medium
-Instruments: Acoustic guitar, cello, light percussion, ambient pads
-Style: Minimalist, cinematic, emotional`,
+MUST INCLUDE:
+- Genre blend (2-3 specific genres)
+- Mood/atmosphere descriptors
+- Ideal use cases or settings
+- Key instruments and arrangement style
+
+This is INSTRUMENTAL - do NOT mention vocals, singers, or lyrics.
+Write as ONE flowing paragraph. Return ONLY the prose description.`,
+              example: `This piece blends Lo-Fi, Jazz, and Ambient styles, creating a relaxed, nostalgic, and warmly textured instrumental track perfect for studying, creative work, or unwinding after a long day. The arrangement features dusty vinyl crackles, mellow jazz piano chords, soft brushed drums, and warm bass undertones.`,
               type: "music_audio"
             };
 

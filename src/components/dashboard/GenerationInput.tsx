@@ -2231,15 +2231,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       
       // Determine mode for the enhancer
       const isMusicMode = selectedType === 'Audio' && selectedAudioMode === 'Music';
-      // When music mode with vocals enabled, use lyrics mode to generate actual lyrics
-      const isMusicWithVocals = isMusicMode && !musicInstrumental;
+      // Music mode always uses 'music' for style descriptions (lyrics are enhanced separately)
       
       const { data, error } = await supabase.functions.invoke('enhance-prompt', {
         body: { 
           prompt: text.trim(),
           fast: fast,
           maxLength: maxLength,
-          mode: isMusicWithVocals ? 'lyrics' : (isMusicMode ? 'music' : 'image')
+          mode: isMusicMode ? 'music' : 'image',
+          musicWithVocals: isMusicMode ? !musicInstrumental : false
         }
       });
 
