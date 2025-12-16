@@ -1764,7 +1764,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           if (!musicStyle.trim()) {
             toast({
               title: "Style required",
-              description: "Please enter a music style (e.g., Jazz, Classical, Electronic)",
+              description: "Please enter a music style",
               variant: "destructive",
             });
             return;
@@ -4900,7 +4900,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </PopoverTrigger>
                         <PopoverContent className="w-64 bg-background border-border z-50 p-3">
                           <div className="space-y-3">
-                            <p className="text-xs text-muted-foreground">Music Style (e.g., Jazz, Classical, Electronic)</p>
+                            <p className="text-xs text-muted-foreground">Music Style</p>
                             <input
                               type="text"
                               value={musicStyle}
@@ -4910,7 +4910,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                               maxLength={musicModel === 'V4' ? 200 : 1000}
                             />
                             <div className="flex flex-wrap gap-1">
-                              {['Jazz', 'Classical', 'Electronic', 'Pop', 'Rock', 'Hip-hop', 'Ambient', 'Cinematic'].map((s) => (
+                              {['Jazz', 'Classical', 'Electronic', 'Pop', 'Rock', 'Hip-hop', 'Ambient', 'Cinematic', 'Folk', 'Reggae', 'Urban', 'Disco', 'Ethnic', 'Country', 'R&B', 'Blues'].map((s) => (
                                 <button
                                   key={s}
                                   onClick={() => setMusicStyle(s)}

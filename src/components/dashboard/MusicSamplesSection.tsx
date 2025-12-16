@@ -405,7 +405,7 @@ const MusicSamplesSection: React.FC<MusicSamplesSectionProps> = ({
         </div>
         
         <button className="text-sm font-medium text-emerald-500 hover:text-emerald-400 transition-colors flex items-center gap-1 group">
-          View all
+          View All
           <svg 
             className="w-4 h-4 transition-transform group-hover:translate-x-0.5" 
             fill="none" 
