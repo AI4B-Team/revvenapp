@@ -1,0 +1,159 @@
+import React, { useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { X, Trash2, AudioLines, ChevronDown, Loader2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+interface TranscribeConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  audioFile: {
+    name: string;
+    duration: number;
+    url: string;
+    base64?: string;
+  } | null;
+  onTranscribe: (numSpeakers: number) => void;
+  onRemoveAudio: () => void;
+  isTranscribing?: boolean;
+}
+
+const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  audioFile,
+  onTranscribe,
+  onRemoveAudio,
+  isTranscribing = false,
+}) => {
+  const [numSpeakers, setNumSpeakers] = useState(1);
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatFileSize = (duration: number) => {
+    // Rough estimation based on duration (assuming ~32kbps audio)
+    const estimatedBytes = duration * 32 * 1000 / 8;
+    if (estimatedBytes >= 1024 * 1024) {
+      return `${(estimatedBytes / (1024 * 1024)).toFixed(2)} MB`;
+    }
+    return `${(estimatedBytes / 1024).toFixed(2)} KB`;
+  };
+
+  if (!audioFile) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-lg p-0 bg-white dark:bg-background border-0 rounded-2xl overflow-hidden">
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">
+                Transcribe your recording
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground mt-1">
+                Generate a transcript using our cutting-edge, AI transcription tech.
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-secondary rounded-full transition"
+            >
+              <X size={20} className="text-gray-500 dark:text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Audio File Preview */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center gap-4 p-4 bg-gray-100 dark:bg-secondary/50 rounded-xl">
+            {/* Waveform Icon */}
+            <div className="w-24 h-16 bg-gradient-to-br from-violet-500/20 to-violet-600/30 rounded-lg flex items-center justify-center">
+              <AudioLines size={32} className="text-violet-500" />
+            </div>
+            
+            {/* File Info */}
+            <div className="flex-1">
+              <p className="font-medium text-gray-900 dark:text-foreground">
+                {audioFile.name}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground">
+                {formatFileSize(audioFile.duration)} - {formatDuration(audioFile.duration)}
+              </p>
+            </div>
+
+            {/* Delete Button */}
+            <button
+              onClick={() => {
+                onRemoveAudio();
+                onClose();
+              }}
+              className="p-2 hover:bg-gray-200 dark:hover:bg-secondary rounded-lg transition"
+            >
+              <Trash2 size={18} className="text-gray-500 dark:text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Speakers Selector */}
+        <div className="px-6 pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900 dark:text-foreground">
+                How many speakers?
+              </p>
+              <p className="text-sm text-gray-500 dark:text-muted-foreground">
+                You'll get separate audio tracks per speaker for more powerful editing.
+              </p>
+            </div>
+            <Select
+              value={numSpeakers.toString()}
+              onValueChange={(value) => setNumSpeakers(parseInt(value))}
+            >
+              <SelectTrigger className="w-36 bg-gray-100 dark:bg-secondary border-0">
+                <SelectValue placeholder="1 speaker" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-background border-border">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num} speaker{num > 1 ? 's' : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Transcribe Button */}
+        <div className="px-6 pb-6">
+          <Button
+            onClick={() => onTranscribe(numSpeakers)}
+            disabled={isTranscribing}
+            className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-base rounded-xl"
+          >
+            {isTranscribing ? (
+              <>
+                <Loader2 size={18} className="mr-2 animate-spin" />
+                Transcribing...
+              </>
+            ) : (
+              'Transcribe'
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default TranscribeConfirmModal;
