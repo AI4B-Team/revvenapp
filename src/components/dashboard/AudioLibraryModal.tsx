@@ -185,6 +185,20 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
     { id: 'community' as TabType, label: 'Community', icon: CommunityIcon },
   ];
 
+  // Cleanup function to stop all audio
+  const stopAllAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setPlayingId(null);
+    }
+    if (selectedAudioRef.current) {
+      selectedAudioRef.current.pause();
+      selectedAudioRef.current = null;
+      setIsPlayingSelected(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       loadAudioHistory();
@@ -193,7 +207,15 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
       setMediaUrl('');
       setIsEditingFileName(false);
       setEditedFileName('');
+    } else {
+      // Stop all audio when modal closes
+      stopAllAudio();
     }
+    
+    // Cleanup on unmount
+    return () => {
+      stopAllAudio();
+    };
   }, [isOpen]);
 
   const loadAudioHistory = async () => {
@@ -615,6 +637,8 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
   const handleUse = () => {
     if (selectedFile) {
+      // Stop any playing audio before closing
+      stopAllAudio();
       onSelect({
         name: selectedFile.name,
         duration: selectedFile.duration,
