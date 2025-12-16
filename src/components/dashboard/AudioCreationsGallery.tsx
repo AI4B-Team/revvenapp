@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { 
   Play, Pause, Bookmark, Heart, Download, Edit, 
-  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw, Info
+  Share2, Trash2, MoreVertical, Mic, Clock, Loader2, Copy, FileText, RefreshCw, Info, FileAudio
 } from 'lucide-react';
 import {
   Tooltip,
@@ -489,7 +489,7 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
                 </TooltipProvider>
               )}
               
-              {/* Details button for transcription */}
+              {/* Transcribe button for transcription */}
               {item.type === 'transcription' && (
                 <TooltipProvider>
                   <Tooltip>
@@ -501,10 +501,10 @@ const AudioCreationsGallery = ({ columnsPerRow = 4, onTrackSelect, onPauseToggle
                         }}
                         className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
                       >
-                        <Info size={14} className="text-muted-foreground" />
+                        <FileAudio size={14} className="text-violet-400" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>Details</TooltipContent>
+                    <TooltipContent>Transcribe</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )}
