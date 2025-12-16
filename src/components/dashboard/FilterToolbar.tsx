@@ -196,89 +196,93 @@ const FilterToolbar = ({
                   </>
                 )}
 
-                {/* Checkboxes Section */}
-                <div className="space-y-3 mb-5">
-                  {/* Likes */}
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.likes}
-                        onChange={() => setFilters(prev => ({ ...prev, likes: !prev.likes }))}
-                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
-                      />
-                      {filters.likes && (
-                        <svg 
-                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="3"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
-                      Likes
-                    </span>
-                  </label>
+                {/* Checkboxes Section - Hide for Audio */}
+                {selectedContentType !== 'Audio' && (
+                  <>
+                    <div className="space-y-3 mb-5">
+                      {/* Likes */}
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={filters.likes}
+                            onChange={() => setFilters(prev => ({ ...prev, likes: !prev.likes }))}
+                            className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                          />
+                          {filters.likes && (
+                            <svg 
+                              className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth="3"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                          Likes
+                        </span>
+                      </label>
 
-                  {/* Edits */}
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.edits}
-                        onChange={() => setFilters(prev => ({ ...prev, edits: !prev.edits }))}
-                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
-                      />
-                      {filters.edits && (
-                        <svg 
-                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="3"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
-                      Edits
-                    </span>
-                  </label>
+                      {/* Edits */}
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={filters.edits}
+                            onChange={() => setFilters(prev => ({ ...prev, edits: !prev.edits }))}
+                            className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                          />
+                          {filters.edits && (
+                            <svg 
+                              className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth="3"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                          Edits
+                        </span>
+                      </label>
 
-                  {/* Upscales */}
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.upscales}
-                        onChange={() => setFilters(prev => ({ ...prev, upscales: !prev.upscales }))}
-                        className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
-                      />
-                      {filters.upscales && (
-                        <svg 
-                          className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="3"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
+                      {/* Upscales */}
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={filters.upscales}
+                            onChange={() => setFilters(prev => ({ ...prev, upscales: !prev.upscales }))}
+                            className="w-5 h-5 border-2 border-gray-300 rounded cursor-pointer appearance-none checked:bg-gray-900 checked:border-gray-900 transition-colors"
+                          />
+                          {filters.upscales && (
+                            <svg 
+                              className="absolute left-0.5 top-0.5 w-4 h-4 text-white pointer-events-none"
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth="3"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-gray-700 font-medium group-hover:text-gray-900">
+                          Upscales
+                        </span>
+                      </label>
                     </div>
-                    <span className="text-gray-700 font-medium group-hover:text-gray-900">
-                      Upscales
-                    </span>
-                  </label>
-                </div>
 
-                {/* Divider */}
-                <div className="border-t border-gray-200 mb-5"></div>
+                    {/* Divider */}
+                    <div className="border-t border-gray-200 mb-5"></div>
+                  </>
+                )}
 
                 {/* Date Range Section */}
                 <div className="space-y-3">
