@@ -1125,6 +1125,14 @@ const Create = () => {
           setAudioDetailsItem(null);
         }}
         audioItem={audioDetailsItem}
+        onTitleUpdate={(id, newTitle) => {
+          setAudioTracks(prev => prev.map(track => 
+            track.id === id ? { ...track, name: newTitle } : track
+          ));
+          if (audioDetailsItem?.id === id) {
+            setAudioDetailsItem((prev: any) => prev ? { ...prev, name: newTitle } : null);
+          }
+        }}
       />
     </div>
   );

@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   Play, Pause, SkipBack, SkipForward, Heart, Download, Share2,
-  RefreshCw, Volume2, VolumeX, MoreVertical, Bookmark, Clock, Music
+  RefreshCw, Volume2, VolumeX, MoreVertical, Bookmark, Clock, Music,
+  Pencil, Copy, Languages, Check, X, Loader2
 } from 'lucide-react';
 import {
   Tooltip,
@@ -22,8 +23,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+
+const LANGUAGES = [
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'ru', name: 'Russian' },
+];
 
 interface AudioDetailsModalProps {
   isOpen: boolean;
@@ -38,15 +55,23 @@ interface AudioDetailsModalProps {
     prompt?: string;
     cover_image_url?: string;
   } | null;
+  onTitleUpdate?: (id: string, newTitle: string) => void;
 }
 
-const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProps) => {
+const AudioDetailsModal = ({ isOpen, onClose, audioItem, onTitleUpdate }: AudioDetailsModalProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+  const [activeTab, setActiveTab] = useState<'original' | string>('original');
+  const [translatedText, setTranslatedText] = useState<{ [key: string]: string }>({});
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -58,14 +83,82 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
       }
       setIsPlaying(false);
       setCurrentTime(0);
+      setIsEditingTitle(false);
+      setActiveTab('original');
+      setSelectedLanguage(null);
+    } else if (audioItem) {
+      setEditedTitle(audioItem.name);
     }
-  }, [isOpen]);
+  }, [isOpen, audioItem]);
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume / 100;
     }
   }, [volume, isMuted]);
+
+  const handleSaveTitle = async () => {
+    if (!audioItem || !editedTitle.trim()) return;
+    setIsSavingTitle(true);
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ name: editedTitle.trim() })
+        .eq('id', audioItem.id);
+      
+      if (error) throw error;
+      
+      onTitleUpdate?.(audioItem.id, editedTitle.trim());
+      setIsEditingTitle(false);
+      toast({ title: "Title updated", description: "Audio title saved successfully" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update title", variant: "destructive" });
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
+
+  const handleCopyText = () => {
+    const textToCopy = activeTab === 'original' 
+      ? audioItem?.prompt 
+      : translatedText[activeTab];
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy);
+      toast({ title: "Copied", description: "Text copied to clipboard" });
+    }
+  };
+
+  const handleTranslate = async (langCode: string, langName: string) => {
+    if (!audioItem?.prompt || translatedText[langCode]) {
+      setSelectedLanguage(langCode);
+      setActiveTab(langCode);
+      return;
+    }
+    
+    setIsTranslating(true);
+    setSelectedLanguage(langCode);
+    
+    try {
+      const response = await supabase.functions.invoke('editor-chat', {
+        body: {
+          messages: [{
+            role: 'user',
+            content: `Translate the following text to ${langName}. Return ONLY the translated text, no explanations:\n\n${audioItem.prompt}`
+          }]
+        }
+      });
+      
+      if (response.error) throw response.error;
+      
+      const translated = response.data?.content || response.data?.message || '';
+      setTranslatedText(prev => ({ ...prev, [langCode]: translated }));
+      setActiveTab(langCode);
+    } catch (error) {
+      toast({ title: "Translation failed", description: "Could not translate text", variant: "destructive" });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const handlePlayPause = () => {
     if (!audioRef.current || !audioItem) return;
@@ -243,7 +336,41 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
               
               {/* Title & Date */}
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">{audioItem.name}</h3>
+                <div className="flex items-center gap-2 mb-1">
+                  {isEditingTitle ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <Input
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        className="text-xl font-semibold h-9"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleSaveTitle}
+                        disabled={isSavingTitle}
+                        className="p-1.5 rounded hover:bg-gray-100"
+                      >
+                        {isSavingTitle ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} className="text-green-600" />}
+                      </button>
+                      <button
+                        onClick={() => { setIsEditingTitle(false); setEditedTitle(audioItem.name); }}
+                        className="p-1.5 rounded hover:bg-gray-100"
+                      >
+                        <X size={16} className="text-gray-500" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="text-xl font-semibold text-gray-900">{audioItem.name}</h3>
+                      <button
+                        onClick={() => setIsEditingTitle(true)}
+                        className="p-1.5 rounded hover:bg-gray-100"
+                      >
+                        <Pencil size={14} className="text-gray-500" />
+                      </button>
+                    </>
+                  )}
+                </div>
                 <p className="text-sm text-gray-500">{formatTimestamp(audioItem.created_at)}</p>
               </div>
               
@@ -395,48 +522,103 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
           </div>
           
           {/* Right Side - Transcript/Lyrics */}
-          <div className="w-[55%] flex flex-col">
-            <DialogHeader className="px-8 py-6 border-b border-gray-200">
-              <DialogTitle className="text-2xl font-bold text-gray-900">
-                {audioItem.name}
-              </DialogTitle>
-              {audioItem.prompt && (
-                <p className="text-sm text-gray-500 mt-2 line-clamp-2">
-                  {isMusic ? 'Inspiration: ' : ''}{audioItem.prompt.slice(0, 100)}...
-                </p>
+          <div className="w-[55%] flex flex-col h-full overflow-hidden">
+            <DialogHeader className="px-8 py-6 border-b border-gray-200 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-2xl font-bold text-gray-900">
+                  {isTranscription ? 'Transcript' : 'Lyrics'}
+                </DialogTitle>
+                <div className="flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button onClick={handleCopyText} className="p-2 rounded-lg hover:bg-gray-100">
+                          <Copy size={18} className="text-gray-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy text</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <Languages size={16} />
+                        Translate
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-white z-50">
+                      {LANGUAGES.map((lang) => (
+                        <DropdownMenuItem
+                          key={lang.code}
+                          onClick={() => handleTranslate(lang.code, lang.name)}
+                          className="cursor-pointer"
+                        >
+                          {lang.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+              
+              {/* Language Tabs */}
+              {selectedLanguage && (
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setActiveTab('original')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      activeTab === 'original' 
+                        ? 'bg-gray-900 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Original
+                  </button>
+                  <button
+                    onClick={() => setActiveTab(selectedLanguage)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                      activeTab === selectedLanguage 
+                        ? 'bg-gray-900 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {LANGUAGES.find(l => l.code === selectedLanguage)?.name}
+                    {isTranslating && <Loader2 size={14} className="animate-spin" />}
+                  </button>
+                </div>
               )}
             </DialogHeader>
             
-            <ScrollArea className="flex-1 px-8 py-6 h-[calc(100%-80px)]">
-              {isTranscription && audioItem.prompt ? (
-                <div className="space-y-4">
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                    Transcript
-                  </h4>
-                  {parseTranscript(audioItem.prompt).map((segment, index) => (
-                    <div key={index} className="flex gap-4 group hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors">
-                      <span className="text-xs text-gray-900 font-mono w-12 flex-shrink-0 pt-0.5">
-                        {segment.time}
-                      </span>
-                      <p className="text-gray-700 leading-relaxed">{segment.text}</p>
-                    </div>
-                  ))}
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+              {isTranslating && activeTab !== 'original' ? (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-400 mb-2" />
+                  <p className="text-gray-500">Translating...</p>
                 </div>
-              ) : isMusic && audioItem.prompt ? (
-                <div className="space-y-6">
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                    Lyrics
-                  </h4>
-                  {parseLyrics(audioItem.prompt).map((section, index) => (
-                    <div key={index} className="mb-6">
-                      {section.type && (
-                        <p className="text-sm font-semibold text-gray-400 mb-2">{section.type}</p>
-                      )}
-                      {section.lines.map((line, lineIndex) => (
-                        <p key={lineIndex} className="text-gray-700 leading-loose">{line}</p>
-                      ))}
-                    </div>
-                  ))}
+              ) : (isTranscription || isMusic) && (activeTab === 'original' ? audioItem.prompt : translatedText[activeTab]) ? (
+                <div className="space-y-4">
+                  {isTranscription ? (
+                    parseTranscript(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]).map((segment, index) => (
+                      <div key={index} className="flex gap-4 group hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors">
+                        <span className="text-xs text-gray-900 font-mono w-12 flex-shrink-0 pt-0.5">
+                          {segment.time}
+                        </span>
+                        <p className="text-gray-700 leading-relaxed">{segment.text}</p>
+                      </div>
+                    ))
+                  ) : (
+                    parseLyrics(activeTab === 'original' ? audioItem.prompt! : translatedText[activeTab]).map((section, index) => (
+                      <div key={index} className="mb-6">
+                        {section.type && (
+                          <p className="text-sm font-semibold text-gray-400 mb-2">{section.type}</p>
+                        )}
+                        {section.lines.map((line, lineIndex) => (
+                          <p key={lineIndex} className="text-gray-700 leading-loose">{line}</p>
+                        ))}
+                      </div>
+                    ))
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
@@ -446,7 +628,7 @@ const AudioDetailsModal = ({ isOpen, onClose, audioItem }: AudioDetailsModalProp
                   </p>
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </div>
         </div>
       </DialogContent>
