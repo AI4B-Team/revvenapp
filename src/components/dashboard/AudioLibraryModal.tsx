@@ -637,7 +637,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         <X className="w-5 h-5 text-gray-600" />
       </button>
 
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex relative">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1500px] max-h-[90vh] overflow-hidden flex relative">
         {/* Left Panel - Audio Library */}
         <div className="flex-1 border-r border-gray-100 flex flex-col">
           {/* Header */}
@@ -798,26 +798,26 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         </div>
 
         {/* Right Panel - Upload Options */}
-        <div className="w-[420px] p-6 flex flex-col bg-gray-50/50 overflow-y-auto">
+        <div className="w-[480px] p-6 flex flex-col bg-gray-50/50 overflow-y-auto">
           {/* Show selected file if exists - Centered in middle */}
           {selectedFile ? (
-            <div className="flex-1 flex flex-col justify-center">
+            <div className="flex-1 flex flex-col justify-center items-center">
               <div 
-                className="relative flex items-center gap-3 p-4 bg-white border-2 border-emerald-300 rounded-xl"
+                className="relative flex flex-col items-center p-6 bg-white border-2 border-emerald-300 rounded-xl w-full max-w-xs"
                 onMouseEnter={() => setHoveredSelectedFile(true)}
                 onMouseLeave={() => setHoveredSelectedFile(false)}
               >
-                {/* Audio Waveform Icon with Play overlay - Reference image style */}
+                {/* Audio Waveform Icon with Play overlay - ABOVE title */}
                 <div 
-                  className="relative w-16 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 cursor-pointer overflow-hidden"
+                  className="relative w-20 h-16 rounded-xl bg-blue-100 flex items-center justify-center cursor-pointer overflow-hidden mb-4"
                   onClick={handlePlaySelectedFile}
                 >
                   {/* Waveform bars */}
-                  <div className="flex items-center gap-[3px] h-full py-2">
+                  <div className="flex items-center gap-[3px] h-full py-3">
                     {[0.4, 0.6, 0.9, 1, 0.7, 0.5, 0.3].map((height, i) => (
                       <div
                         key={i}
-                        className={`w-[3px] bg-blue-400 rounded-full transition-all ${
+                        className={`w-[4px] bg-blue-400 rounded-full transition-all ${
                           isPlayingSelected ? 'animate-pulse' : ''
                         }`}
                         style={{ 
@@ -831,23 +831,23 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   {hoveredSelectedFile && (
                     <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center">
                       {isPlayingSelected ? (
-                        <Pause className="w-5 h-5 text-white" fill="white" />
+                        <Pause className="w-6 h-6 text-white" fill="white" />
                       ) : (
-                        <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                        <Play className="w-6 h-6 text-white ml-0.5" fill="white" />
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* File Info */}
-                <div className="flex-1 min-w-0">
+                {/* File Info - Below icon */}
+                <div className="w-full text-center">
                   {isEditingFileName ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <input
                         type="text"
                         value={editedFileName}
                         onChange={(e) => setEditedFileName(e.target.value)}
-                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 max-w-[180px]"
                         autoFocus
                       />
                       <button
@@ -867,8 +867,8 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900 text-sm truncate">{selectedFile.name}</h4>
+                    <div className="flex items-center justify-center gap-2">
+                      <h4 className="font-medium text-gray-900 text-sm truncate max-w-[200px]">{selectedFile.name}</h4>
                       <button
                         onClick={() => setIsEditingFileName(true)}
                         className="p-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
@@ -877,15 +877,15 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                       </button>
                     </div>
                   )}
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-500 mt-1">
                     {selectedFile.duration > 0 ? formatDuration(selectedFile.duration) : 'Duration unknown'}
                   </p>
                 </div>
 
-                {/* Delete button */}
+                {/* Delete button - positioned top right */}
                 <button
                   onClick={handleClearSelectedFile}
-                  className="p-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-500 transition-colors flex-shrink-0"
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-500 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -958,17 +958,17 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                     type="url"
                     value={mediaUrl}
                     onChange={handleMediaUrlChange}
-                    placeholder="youtube.com | facebook.com | tiktok.com"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                    placeholder="youtube | facebook | tiktok"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-center"
                   />
                 </div>
 
-                {/* Social Platform Icons - Faded */}
-                <div className="flex items-center justify-center flex-wrap gap-2">
+                {/* Social Platform Icons - Faded, single row */}
+                <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                   {socialPlatforms.map(({ icon: Icon, name }) => (
                     <div
                       key={name}
-                      className="p-1.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer opacity-50 hover:opacity-100"
+                      className="p-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer opacity-50 hover:opacity-100 flex-shrink-0"
                       title={name}
                     >
                       <Icon />
