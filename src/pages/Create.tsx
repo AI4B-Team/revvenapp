@@ -126,7 +126,7 @@ const Create = () => {
   const [audioDetailsModalOpen, setAudioDetailsModalOpen] = useState(false);
   const [audioDetailsItem, setAudioDetailsItem] = useState<any>(null);
   const toggleAudioPlayRef = useRef<(() => void) | null>(null);
-  const [selectedAudioMode, setSelectedAudioMode] = useState('Voiceover');
+  const [selectedAudioMode, setSelectedAudioMode] = useState('All');
   const [filters, setFilters] = useState({
     contentType: 'All',
     likes: false,
@@ -189,6 +189,13 @@ const Create = () => {
       setHasInitialized(true);
     }
   }, [hasInitialized, location.pathname, location.search, location.state]);
+
+  // Reset audio mode to 'All' when entering Audio section
+  useEffect(() => {
+    if (selectedType === 'Audio') {
+      setSelectedAudioMode('All');
+    }
+  }, [selectedType]);
 
   // Fetch and subscribe to generated images
   useEffect(() => {
