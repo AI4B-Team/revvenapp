@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 // Declare EdgeRuntime for TypeScript
 declare const EdgeRuntime: {
@@ -147,11 +146,11 @@ serve(async (req) => {
         const CLOUDINARY_CLOUD_NAME = "dszt275xv";
         const CLOUDINARY_UPLOAD_PRESET = "revven";
 
-        // Convert to base64 for Cloudinary upload using Deno's encoding
-        const base64Video = base64Encode(videoArrayBuffer);
+        // Upload as blob directly (no base64 to save memory)
+        const videoBlob = new Blob([videoArrayBuffer], { type: 'video/mp4' });
         
         const formData = new FormData();
-        formData.append("file", `data:video/mp4;base64,${base64Video}`);
+        formData.append("file", videoBlob, "video.mp4");
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
         formData.append("resource_type", "video");
         formData.append("folder", "ugc-audio");
