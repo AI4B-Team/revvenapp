@@ -35,110 +35,48 @@ serve(async (req) => {
       throw new Error("Invalid YouTube URL - could not extract video ID");
     }
 
-    const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY");
-    if (!RAPIDAPI_KEY) {
-      throw new Error("RAPIDAPI_KEY is not configured");
-    }
+    console.log("Extracting audio for video:", videoId);
 
-    console.log("Fetching YouTube video details for:", videoId);
-
-    // Get video details with audios
-    const detailsResponse = await fetch(
-      `https://youtube-media-downloader.p.rapidapi.com/v2/video/details?videoId=${videoId}&audios=auto`,
-      {
-        method: "GET",
-        headers: {
-          "x-rapidapi-host": "youtube-media-downloader.p.rapidapi.com",
-          "x-rapidapi-key": RAPIDAPI_KEY,
-        },
-      }
-    );
-
-    if (!detailsResponse.ok) {
-      const errorText = await detailsResponse.text();
-      console.error("RapidAPI details error:", detailsResponse.status, errorText);
-      throw new Error(`Failed to fetch video details: ${detailsResponse.status}`);
-    }
-
-    const videoDetails = await detailsResponse.json();
-    console.log("Video title:", videoDetails.title);
-
-    // Log the full audios structure to understand it
-    const audios = videoDetails.audios?.items || [];
-    console.log("Audio streams found:", audios.length);
-    
-    if (audios.length > 0) {
-      console.log("First audio item keys:", Object.keys(audios[0]));
-      console.log("First audio item:", JSON.stringify(audios[0]).substring(0, 500));
-    }
-    
-    if (audios.length === 0) {
-      throw new Error("No audio streams found for this video");
-    }
-
-    // Find an audio with a working URL - check all fields
-    let workingAudio = null;
-    let audioUrl = null;
-
-    for (const audio of audios) {
-      // Try different possible URL fields
-      const possibleUrl = audio.url || audio.downloadUrl || audio.directUrl || audio.streamUrl;
-      if (possibleUrl) {
-        console.log("Trying audio URL from field, extension:", audio.extension);
-        
-        // Test if URL is accessible
-        try {
-          const testResponse = await fetch(possibleUrl, {
-            method: 'HEAD',
-            headers: {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-              "Referer": "https://www.youtube.com/",
-            },
-          });
-          
-          if (testResponse.ok || testResponse.status === 200 || testResponse.status === 206) {
-            workingAudio = audio;
-            audioUrl = possibleUrl;
-            console.log("Found working URL for:", audio.extension);
-            break;
-          }
-        } catch (e) {
-          console.log("URL test failed:", e);
-        }
-      }
-    }
-
-    if (!workingAudio || !audioUrl) {
-      // If no direct URL works, return info for manual download
-      console.log("No working audio URL found, returning video info only");
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "YouTube audio URLs are protected and cannot be downloaded directly. Please download the video manually and upload the audio file.",
-          videoTitle: videoDetails.title,
-          videoDuration: videoDetails.lengthInSeconds,
-        }),
-        { 
-          status: 422,
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
-
-    console.log("Downloading audio...");
-
-    // Download the audio
-    const audioResponse = await fetch(audioUrl, {
+    // Use cobalt.tools API to extract audio
+    const cobaltResponse = await fetch("https://api.cobalt.tools/", {
+      method: "POST",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "*/*",
-        "Referer": "https://www.youtube.com/",
-        "Range": "bytes=0-",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        downloadMode: "audio",
+        audioFormat: "mp3",
+      }),
     });
 
-    if (!audioResponse.ok && audioResponse.status !== 206) {
-      throw new Error(`Audio download failed: ${audioResponse.status}`);
+    if (!cobaltResponse.ok) {
+      const errorText = await cobaltResponse.text();
+      console.error("Cobalt API error:", cobaltResponse.status, errorText);
+      throw new Error(`Audio extraction service error: ${cobaltResponse.status}`);
+    }
+
+    const cobaltData = await cobaltResponse.json();
+    console.log("Cobalt response status:", cobaltData.status);
+
+    if (cobaltData.status === "error") {
+      throw new Error(cobaltData.error?.code || "Failed to extract audio");
+    }
+
+    // Get the audio URL
+    const audioUrl = cobaltData.url || cobaltData.audio;
+    if (!audioUrl) {
+      console.log("Cobalt response:", JSON.stringify(cobaltData));
+      throw new Error("No audio URL returned from extraction service");
+    }
+
+    console.log("Downloading audio from extracted URL...");
+
+    // Download the audio file
+    const audioResponse = await fetch(audioUrl);
+    if (!audioResponse.ok) {
+      throw new Error(`Failed to download audio: ${audioResponse.status}`);
     }
 
     const audioBuffer = await audioResponse.arrayBuffer();
@@ -154,14 +92,24 @@ serve(async (req) => {
     }
     const audioBase64 = btoa(binaryString);
 
+    // Get filename from response headers or use video ID
+    const contentDisposition = audioResponse.headers.get('content-disposition');
+    let filename = `youtube_${videoId}.mp3`;
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match) {
+        filename = match[1].replace(/['"]/g, '');
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         audioBase64,
-        filename: `${videoDetails.title || videoId}.${workingAudio.extension || 'm4a'}`,
-        contentType: `audio/${workingAudio.extension || 'mp4'}`,
-        title: videoDetails.title,
-        duration: videoDetails.lengthInSeconds,
+        filename,
+        contentType: audioResponse.headers.get('content-type') || 'audio/mpeg',
+        title: cobaltData.filename || filename,
+        duration: 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
