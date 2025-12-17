@@ -1613,13 +1613,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
  
             try {
               // Save transcribed audio to history
+              console.log('[TRANSCRIBE DEBUG] Starting save, transcribeAudio:', transcribeAudio);
               const { data: { user } } = await supabase.auth.getUser();
+              console.log('[TRANSCRIBE DEBUG] User:', user?.id);
               if (user) {
                 let audioUrl = transcribeAudio?.url;
                 let audioDuration: number = 0;
                 
                 // Parse duration - handle both number and string formats
                 const rawDuration = transcribeAudio?.duration;
+                console.log('[TRANSCRIBE DEBUG] Raw duration:', rawDuration, 'type:', typeof rawDuration);
                 if (typeof rawDuration === 'number') {
                   audioDuration = rawDuration;
                 } else if (typeof rawDuration === 'string') {
@@ -1632,9 +1635,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     audioDuration = parseFloat(rawDuration) || 0;
                   }
                 }
+                console.log('[TRANSCRIBE DEBUG] Parsed duration:', audioDuration);
                 
                 // If we have base64 data (regular upload), upload to Cloudinary first
                 if (transcribeAudio?.base64) {
+                  console.log('[TRANSCRIBE DEBUG] Has base64, uploading to Cloudinary...');
                   const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
                     body: {
                       audioData: transcribeAudio.base64,
@@ -1646,12 +1651,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                   if (!uploadError && uploadData?.url) {
                     audioUrl = uploadData.url;
                     audioDuration = uploadData.duration || audioDuration;
+                    console.log('[TRANSCRIBE DEBUG] Upload success, url:', audioUrl);
+                  } else {
+                    console.log('[TRANSCRIBE DEBUG] Upload error:', uploadError);
                   }
                 }
                 
                 // Save to database if we have a URL (either from YouTube or uploaded)
+                console.log('[TRANSCRIBE DEBUG] Final audioUrl:', audioUrl);
                 if (audioUrl) {
-                  await supabase.from('user_voices').insert({
+                  const insertData = {
                     user_id: user.id,
                     name: transcribeAudio?.name || 'Transcription',
                     duration: audioDuration,
@@ -1659,7 +1668,16 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     type: 'transcription',
                     status: 'completed',
                     prompt: data.text,
-                  });
+                  };
+                  console.log('[TRANSCRIBE DEBUG] Inserting:', insertData);
+                  const { error: insertError } = await supabase.from('user_voices').insert(insertData);
+                  if (insertError) {
+                    console.error('[TRANSCRIBE DEBUG] Insert error:', insertError);
+                  } else {
+                    console.log('[TRANSCRIBE DEBUG] Insert success!');
+                  }
+                } else {
+                  console.log('[TRANSCRIBE DEBUG] No audioUrl, skipping insert');
                 }
               }
             } catch (historyError) {
