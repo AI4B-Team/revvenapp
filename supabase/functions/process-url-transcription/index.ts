@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 // Declare EdgeRuntime for TypeScript
 declare const EdgeRuntime: {
@@ -128,14 +129,29 @@ serve(async (req) => {
 
         console.log(`[BG-TRANSCRIBE] Download URL obtained: ${downloadUrl.substring(0, 100)}...`);
 
-        // Step 2: Upload to Cloudinary
-        console.log(`[BG-TRANSCRIBE] Step 2: Uploading to Cloudinary...`);
+        // Step 2: Download video from snap-video URL
+        console.log(`[BG-TRANSCRIBE] Step 2: Downloading video...`);
+        
+        const videoResponse = await fetch(downloadUrl);
+        if (!videoResponse.ok) {
+          console.error("[BG-TRANSCRIBE] Video download failed:", videoResponse.status);
+          throw new Error(`Failed to download video: ${videoResponse.status}`);
+        }
+        
+        const videoArrayBuffer = await videoResponse.arrayBuffer();
+        console.log(`[BG-TRANSCRIBE] Video downloaded: ${videoArrayBuffer.byteLength} bytes`);
+        
+        // Step 3: Upload binary to Cloudinary
+        console.log(`[BG-TRANSCRIBE] Step 3: Uploading to Cloudinary...`);
         
         const CLOUDINARY_CLOUD_NAME = "dszt275xv";
         const CLOUDINARY_UPLOAD_PRESET = "revven";
 
+        // Convert to base64 for Cloudinary upload using Deno's encoding
+        const base64Video = base64Encode(videoArrayBuffer);
+        
         const formData = new FormData();
-        formData.append("file", downloadUrl);
+        formData.append("file", `data:video/mp4;base64,${base64Video}`);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
         formData.append("resource_type", "video");
         formData.append("folder", "ugc-audio");
