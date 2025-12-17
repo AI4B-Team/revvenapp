@@ -152,7 +152,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isEnhancingLyrics, setIsEnhancingLyrics] = useState(false);
   
   // Transcribe mode state
-  const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url: string; base64: string } | null>(null);
+  const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url?: string; base64?: string } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribedText, setIsTranscribedText] = useState(false);
@@ -1598,9 +1598,10 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           
           const { data, error } = await supabase.functions.invoke('transcribe-audio', {
             body: {
-              audioBase64: transcribeAudio.base64,
+              audioBase64: transcribeAudio.base64 || undefined,
+              audioUrl: transcribeAudio.url || undefined,
               filename: transcribeAudio.name,
-              contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
+              contentType: 'audio/mpeg',
             }
           });
 
@@ -7012,14 +7013,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         onTranscribe={async (numSpeakers) => {
           setShowTranscribeConfirmModal(false);
           // Trigger transcription
-          if (transcribeAudio?.base64) {
+          if (transcribeAudio?.base64 || transcribeAudio?.url) {
             setIsTranscribing(true);
             try {
               const { data, error } = await supabase.functions.invoke('transcribe-audio', {
                 body: {
-                  audioBase64: transcribeAudio.base64.split(',')[1] || transcribeAudio.base64,
+                  audioBase64: transcribeAudio.base64 ? (transcribeAudio.base64.split(',')[1] || transcribeAudio.base64) : undefined,
+                  audioUrl: transcribeAudio.url || undefined,
                   filename: transcribeAudio.name,
-                  contentType: 'audio/webm',
+                  contentType: 'audio/mpeg',
                 },
               });
               if (error) throw error;

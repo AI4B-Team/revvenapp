@@ -16,7 +16,7 @@ interface TranscribeConfirmModalProps {
   audioFile: {
     name: string;
     duration: number;
-    url: string;
+    url?: string;
     base64?: string;
   } | null;
   onTranscribe: (numSpeakers: number, fileName?: string) => void;
