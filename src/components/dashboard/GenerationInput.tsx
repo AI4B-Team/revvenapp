@@ -3419,8 +3419,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         ) : null}
 
-        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video, Lip-Sync, UGC, and Recast modes */}
-        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !((selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0) && selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'UGC' && (
+        {/* Video Animation Frames - Show only when frames exist, hidden in Avatar Video, Lip-Sync, UGC, Recast, and Story modes */}
+        {isVideoMode && (videoModeState.startingFrame || videoModeState.endingFrame) && !((selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && videoModeState.characters.length > 0) && selectedAnimateMode !== 'Recast' && selectedAnimateMode !== 'UGC' && selectedAnimateMode !== 'Story' && (
           <div className="mb-6 mt-6">
             <VideoFrameBoxes
               startingFrame={videoModeState.startingFrame}
