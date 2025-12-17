@@ -9,7 +9,8 @@ interface Scene {
 
 const MAX_SCENES = 8;
 const DEFAULT_DURATION = 5;
-const MAX_TOTAL_DURATION = 60; // Maximum total duration in seconds
+const MAX_TOTAL_DURATION = 60;
+const INITIAL_VISIBLE_SCENES = 4;
 
 const StoryboardSceneEditor: React.FC = () => {
   const [scenes, setScenes] = useState<Scene[]>([
@@ -22,10 +23,14 @@ const StoryboardSceneEditor: React.FC = () => {
   ]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'auto' | 'scenes' | 'instadump'>('scenes');
+  const [showAllScenes, setShowAllScenes] = useState(false);
 
   const totalDuration = useMemo(() => {
     return scenes.reduce((sum, scene) => sum + scene.duration, 0);
   }, [scenes]);
+
+  const visibleScenes = showAllScenes ? scenes : scenes.slice(0, INITIAL_VISIBLE_SCENES);
+  const hiddenScenesCount = scenes.length - INITIAL_VISIBLE_SCENES;
 
   const addScene = () => {
     if (scenes.length >= MAX_SCENES) return;
@@ -46,7 +51,7 @@ const StoryboardSceneEditor: React.FC = () => {
   };
 
   const updateSceneDuration = (id: number, duration: number) => {
-    const clampedDuration = Math.max(1, Math.min(30, duration)); // Clamp between 1-30 seconds
+    const clampedDuration = Math.max(1, Math.min(30, duration));
     setScenes(scenes.map(scene => 
       scene.id === id ? { ...scene, duration: clampedDuration } : scene
     ));
@@ -67,7 +72,7 @@ const StoryboardSceneEditor: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto font-sans">
+    <div className="w-full font-sans">
       {/* Dropdown Section */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
         {/* Tab Navigation */}
@@ -140,7 +145,7 @@ const StoryboardSceneEditor: React.FC = () => {
 
             {/* Scenes List */}
             <div className="divide-y divide-gray-100">
-              {scenes.map((scene, index) => (
+              {visibleScenes.map((scene, index) => (
                 <div 
                   key={scene.id}
                   className="px-4 py-4 group hover:bg-gray-50 transition-colors"
@@ -229,6 +234,28 @@ const StoryboardSceneEditor: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {/* Show More/Less Button */}
+            {hiddenScenesCount > 0 && (
+              <div className="flex justify-center py-3 border-t border-gray-100">
+                <button
+                  onClick={() => setShowAllScenes(!showAllScenes)}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  {showAllScenes ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      Show Less
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Show {hiddenScenesCount} More Scene{hiddenScenesCount > 1 ? 's' : ''}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             {/* Add Scene Button */}
             <div className="flex justify-center py-4 border-t border-gray-100">
