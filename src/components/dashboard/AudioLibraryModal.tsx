@@ -1080,59 +1080,96 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {/* Online File URL Option - 2nd */}
+              {/* Video Downloader Section - Stylish Pro Design */}
               <div
                 className={`
-                  relative flex flex-col items-center justify-center p-5 
-                  border-2 border-dashed rounded-xl bg-white
-                  transition-all duration-200 hover:border-emerald-400
+                  relative overflow-hidden rounded-2xl transition-all duration-300
                   ${isExtractingYouTube
-                    ? 'border-blue-400 bg-blue-50'
+                    ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-purple-500/30'
                     : mediaUrl 
-                      ? 'border-blue-300 bg-blue-50' 
-                      : 'border-gray-200'
+                      ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-lg shadow-indigo-500/30' 
+                      : 'bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 hover:from-slate-700 hover:via-slate-800 hover:to-gray-800'
                   }
                 `}
               >
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-100">
-                  {isExtractingYouTube ? (
-                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  ) : (
-                    <div className="text-blue-500">
-                      <OnlineFileIcon />
-                    </div>
-                  )}
-                </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">
-                  {isExtractingYouTube ? 'Extracting Audio...' : 'Upload Link'}
-                </h3>
-                <p className="text-xs text-gray-500 text-center mb-3">
-                  {isExtractingYouTube ? 'Downloading from YouTube' : 'Paste A Supported Public Media Link'}
-                </p>
-
-                {/* URL Input */}
-                <div className="w-full mb-3">
-                  <input
-                    type="url"
-                    value={mediaUrl}
-                    onChange={handleMediaUrlChange}
-                    placeholder="youtube | tiktok | instagram | facebook | x | vimeo + 40 more"
-                    disabled={isExtractingYouTube}
-                    className="w-full px-3 py-2.5 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-center disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  />
+                {/* Animated background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
                 </div>
 
-                {/* Social Platform Icons - Faded, single row */}
-                <div className="flex items-center justify-center gap-1.5 flex-nowrap">
-                  {socialPlatforms.map(({ icon: Icon, name }) => (
-                    <div
-                      key={name}
-                      className="p-1 rounded-md hover:bg-gray-100 transition-colors cursor-pointer opacity-50 hover:opacity-100 flex-shrink-0"
-                      title={name}
-                    >
-                      <Icon />
+                <div className="relative p-5 flex flex-col items-center">
+                  {/* Icon with glow effect */}
+                  <div className={`
+                    w-14 h-14 rounded-xl flex items-center justify-center mb-3 
+                    ${isExtractingYouTube 
+                      ? 'bg-white/20 backdrop-blur-sm' 
+                      : 'bg-white/10 backdrop-blur-sm group-hover:bg-white/15'
+                    }
+                    transition-all duration-300
+                  `}>
+                    {isExtractingYouTube ? (
+                      <div className="relative">
+                        <Loader2 className="w-7 h-7 text-white animate-spin" />
+                        <div className="absolute inset-0 w-7 h-7 bg-white/30 rounded-full blur-md animate-pulse" />
+                      </div>
+                    ) : (
+                      <div className="text-white">
+                        <OnlineFileIcon />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-bold text-white text-sm mb-0.5 tracking-wide">
+                    {isExtractingYouTube ? 'Extracting Audio...' : 'Video Downloader'}
+                  </h3>
+                  <p className="text-xs text-white/70 text-center mb-4">
+                    {isExtractingYouTube ? 'Processing your media' : 'Paste any video link to extract audio'}
+                  </p>
+
+                  {/* URL Input - Glassmorphism style */}
+                  <div className="w-full mb-4 relative">
+                    <input
+                      type="url"
+                      value={mediaUrl}
+                      onChange={handleMediaUrlChange}
+                      placeholder="Paste URL here..."
+                      disabled={isExtractingYouTube}
+                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                    {mediaUrl && !isExtractingYouTube && (
+                      <button
+                        onClick={() => setMediaUrl('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                      >
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Supported platforms badge */}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full mb-3">
+                    <span className="text-[10px] text-white/80 font-medium">Supports 50+ platforms</span>
+                  </div>
+
+                  {/* Social Platform Icons - Stylish row */}
+                  <div className="flex items-center justify-center gap-1 flex-wrap max-w-full">
+                    {socialPlatforms.slice(0, 8).map(({ icon: Icon, name }) => (
+                      <div
+                        key={name}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition-all duration-200 cursor-pointer transform hover:scale-110"
+                        title={name}
+                      >
+                        <div className="[&_svg]:w-4 [&_svg]:h-4 opacity-70 hover:opacity-100 transition-opacity">
+                          <Icon />
+                        </div>
+                      </div>
+                    ))}
+                    <div className="px-2 py-1 rounded-lg bg-white/10 text-[10px] text-white/60 font-medium">
+                      +40
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
 
