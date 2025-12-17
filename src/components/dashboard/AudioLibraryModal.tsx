@@ -561,12 +561,20 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
     }
   };
 
-  const isYouTubeUrl = (url: string) => {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)/,
-      /youtube\.com\/embed\//,
+  // Check if URL is from a supported platform for extraction
+  const isSupportedPlatformUrl = (url: string) => {
+    const supportedPlatforms = [
+      '9gag', 'akillitv', 'bandcamp', 'bilibili', 'bitchute', 'blogger', 'blogspot',
+      'buzzfeed', 'capcut', 'chingari', 'dailymotion', 'douyin', 'espn', 'facebook',
+      'fb.watch', 'febspot', 'flickr', 'gaana', 'ifunny', 'imdb', 'imgur', 'instagram',
+      'izlesene', 'kickstarter', 'kinemaster', 'kuaishou', 'kwai', 'likee', 'linkedin',
+      'mashable', 'mixcloud', 'mxtakatak', 'ok.ru', 'odnoklassniki', 'periscope',
+      'pinterest', 'puhutv', 'reddit', 'rumble', 'snapchat', 'soundcloud', 'streamable',
+      'ted.com', 'threads', 'tiktok', 'tumblr', 'twitch', 'twitter', 'x.com', 'vimeo',
+      'vk', 'weibo', 'xiaohongshu', 'youtube', 'youtu.be', 'zingmp3'
     ];
-    return patterns.some(pattern => pattern.test(url));
+    const urlLower = url.toLowerCase();
+    return supportedPlatforms.some(platform => urlLower.includes(platform));
   };
 
   const [isExtractingYouTube, setIsExtractingYouTube] = useState(false);
@@ -580,12 +588,12 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
       return;
     }
 
-    // Check if it's a YouTube URL
-    if (isYouTubeUrl(url)) {
+    // Check if it's a supported platform URL
+    if (isSupportedPlatformUrl(url)) {
       setIsExtractingYouTube(true);
       toast({
         title: "Extracting audio",
-        description: "Getting audio from YouTube...",
+        description: "Getting audio from media URL...",
       });
 
       try {
@@ -647,28 +655,27 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
         toast({
           title: "Audio extracted",
-          description: `Successfully extracted audio from YouTube`,
+          description: `Successfully extracted audio from ${data.platform || 'media'}`,
         });
       } catch (error) {
-        console.error('Error extracting YouTube audio:', error);
+        console.error('Error extracting media audio:', error);
         toast({
           title: "Extraction failed",
-          description: error instanceof Error ? error.message : "Failed to extract audio from YouTube",
+          description: error instanceof Error ? error.message : "Failed to extract audio from URL",
           variant: "destructive",
         });
         setMediaUrl('');
       } finally {
         setIsExtractingYouTube(false);
       }
-    } else {
-      // For non-YouTube URLs, just store the URL
-      setSelectedFile({
-        name: url,
-        duration: 0,
-        url: url,
-        source: 'media',
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+      // For unsupported URLs, show an error
+      toast({
+        title: "Unsupported platform",
+        description: "This URL is not from a supported platform. Try YouTube, TikTok, Instagram, Facebook, etc.",
+        variant: "destructive",
       });
-      setEditedFileName(url);
+      setMediaUrl('');
     }
   };
 
