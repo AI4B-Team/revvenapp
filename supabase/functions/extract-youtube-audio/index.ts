@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 function extractVideoId(url: string): string | null {
-  // Handle various YouTube URL formats
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
@@ -43,9 +42,9 @@ serve(async (req) => {
 
     console.log("Fetching YouTube video details for:", videoId);
 
-    // Get video details including audio URLs with original access
+    // Get video details
     const detailsResponse = await fetch(
-      `https://youtube-media-downloader.p.rapidapi.com/v2/video/details?videoId=${videoId}&urlAccess=original&videos=auto&audios=auto`,
+      `https://youtube-media-downloader.p.rapidapi.com/v2/video/details?videoId=${videoId}`,
       {
         method: "GET",
         headers: {
@@ -57,14 +56,15 @@ serve(async (req) => {
 
     if (!detailsResponse.ok) {
       const errorText = await detailsResponse.text();
-      console.error("RapidAPI error:", detailsResponse.status, errorText);
+      console.error("RapidAPI details error:", detailsResponse.status, errorText);
       throw new Error(`Failed to fetch video details: ${detailsResponse.status}`);
     }
 
     const videoDetails = await detailsResponse.json();
     console.log("Video title:", videoDetails.title);
+    console.log("Video duration:", videoDetails.lengthInSeconds, "seconds");
 
-    // Find the best audio URL
+    // Now use the download endpoint to get actual downloadable content
     const audios = videoDetails.audios?.items || [];
     console.log("Audio streams found:", audios.length);
     
@@ -72,43 +72,75 @@ serve(async (req) => {
       throw new Error("No audio streams found for this video");
     }
 
-    // Log audio options for debugging
-    audios.forEach((a: any, i: number) => {
-      console.log(`Audio ${i}: extension=${a.extension}, quality=${a.quality}, hasUrl=${!!a.url}`);
-    });
+    // Find best audio - prefer m4a
+    let bestAudio = audios.find((a: any) => a.extension === 'm4a') ||
+                    audios.find((a: any) => a.extension === 'webm') ||
+                    audios[0];
 
-    // Try to get a working audio URL - prefer mp4/m4a formats
-    let bestAudio = audios.find((a: any) => a.extension === 'm4a' && a.url) ||
-                    audios.find((a: any) => a.extension === 'mp4' && a.url) ||
-                    audios.find((a: any) => a.url);
+    console.log("Selected audio:", bestAudio.extension, bestAudio.quality, "itag:", bestAudio.itag);
 
-    if (!bestAudio || !bestAudio.url) {
-      throw new Error("No downloadable audio URL found");
+    // Use the download endpoint with itag
+    const downloadResponse = await fetch(
+      `https://youtube-media-downloader.p.rapidapi.com/v2/video/file/audio?videoId=${videoId}&itag=${bestAudio.itag}`,
+      {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "youtube-media-downloader.p.rapidapi.com",
+          "x-rapidapi-key": RAPIDAPI_KEY,
+        },
+      }
+    );
+
+    if (!downloadResponse.ok) {
+      const errorText = await downloadResponse.text();
+      console.error("Download error:", downloadResponse.status, errorText);
+      
+      // If file endpoint fails, try using the direct URL with headers
+      console.log("Trying direct URL download...");
+      if (bestAudio.url) {
+        const directResponse = await fetch(bestAudio.url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "*/*",
+            "Referer": "https://www.youtube.com/",
+          },
+        });
+        
+        if (!directResponse.ok) {
+          throw new Error(`Both download methods failed. Direct: ${directResponse.status}`);
+        }
+        
+        const audioBuffer = await directResponse.arrayBuffer();
+        const uint8Array = new Uint8Array(audioBuffer);
+        let binaryString = '';
+        const chunkSize = 32768;
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.slice(i, i + chunkSize);
+          binaryString += String.fromCharCode(...chunk);
+        }
+        const audioBase64 = btoa(binaryString);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            audioBase64,
+            filename: `${videoDetails.title || videoId}.${bestAudio.extension || 'm4a'}`,
+            contentType: `audio/${bestAudio.extension || 'mp4'}`,
+            title: videoDetails.title,
+            duration: videoDetails.lengthInSeconds,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      throw new Error(`Download failed: ${downloadResponse.status}`);
     }
 
-    const audioUrl = bestAudio.url;
-    console.log("Selected audio format:", bestAudio.extension, "quality:", bestAudio.quality);
-    console.log("Downloading audio from URL...");
+    // Get the audio content
+    const audioBuffer = await downloadResponse.arrayBuffer();
+    console.log("Audio downloaded, size:", audioBuffer.byteLength, "bytes");
 
-    // Download the audio file with proper headers
-    const audioResponse = await fetch(audioUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "*/*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.youtube.com/",
-        "Origin": "https://www.youtube.com",
-      },
-    });
-
-    if (!audioResponse.ok) {
-      console.error("Audio download failed:", audioResponse.status);
-      throw new Error(`Failed to download audio: ${audioResponse.status}`);
-    }
-
-    const audioBuffer = await audioResponse.arrayBuffer();
-    
-    // Convert to base64 in chunks to avoid memory issues
+    // Convert to base64
     const uint8Array = new Uint8Array(audioBuffer);
     let binaryString = '';
     const chunkSize = 32768;
@@ -118,20 +150,16 @@ serve(async (req) => {
     }
     const audioBase64 = btoa(binaryString);
 
-    console.log("Audio downloaded, size:", audioBuffer.byteLength, "bytes");
-
     return new Response(
       JSON.stringify({
         success: true,
         audioBase64,
-        filename: `${videoDetails.title || videoId}.${bestAudio.extension || 'mp3'}`,
-        contentType: bestAudio.mimeType || `audio/${bestAudio.extension || 'mpeg'}`,
+        filename: `${videoDetails.title || videoId}.${bestAudio.extension || 'm4a'}`,
+        contentType: downloadResponse.headers.get('content-type') || `audio/${bestAudio.extension || 'mp4'}`,
         title: videoDetails.title,
         duration: videoDetails.lengthInSeconds,
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
     console.error("Error extracting YouTube audio:", error);
