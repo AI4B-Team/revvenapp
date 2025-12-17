@@ -77,7 +77,10 @@ serve(async (req) => {
     const platformName = getPlatformName(cleanUrl);
     console.log(`Extracting media from ${platformName}:`, cleanUrl);
 
-    const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || "95ca0bc5aemsh3c366a842c91a7ep1fd154jsn605142776c85";
+    const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY");
+    if (!RAPIDAPI_KEY) {
+      throw new Error("RAPIDAPI_KEY not configured");
+    }
 
     // Use snap-video3 API to get download URL - supports all platforms
     const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
