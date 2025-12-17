@@ -11,10 +11,10 @@ serve(async (req) => {
   }
 
   try {
-    const { audioBase64, filename, contentType } = await req.json();
+    const { audioBase64, audioUrl, filename, contentType } = await req.json();
     
-    if (!audioBase64) {
-      throw new Error("No audio data provided");
+    if (!audioBase64 && !audioUrl) {
+      throw new Error("No audio data provided - need audioBase64 or audioUrl");
     }
 
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
@@ -22,19 +22,33 @@ serve(async (req) => {
       throw new Error("ELEVENLABS_API_KEY is not configured");
     }
 
-    console.log("Transcribing audio with ElevenLabs:", filename, contentType);
+    console.log("Transcribing audio:", filename || "audio file", audioUrl ? "(from URL)" : "(from base64)");
 
-    // Convert base64 to binary
-    const base64Data = audioBase64.split(',')[1] || audioBase64;
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    let audioBlob: Blob;
+
+    if (audioUrl) {
+      // Fetch audio from URL
+      console.log("Fetching audio from URL:", audioUrl.substring(0, 100));
+      const audioResponse = await fetch(audioUrl);
+      if (!audioResponse.ok) {
+        throw new Error(`Failed to fetch audio from URL: ${audioResponse.status}`);
+      }
+      const audioArrayBuffer = await audioResponse.arrayBuffer();
+      const mimeType = audioResponse.headers.get('content-type') || contentType || 'audio/mpeg';
+      audioBlob = new Blob([audioArrayBuffer], { type: mimeType });
+      console.log("Fetched audio, size:", audioBlob.size, "type:", mimeType);
+    } else {
+      // Convert base64 to binary
+      const base64Data = audioBase64.split(',')[1] || audioBase64;
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const mimeType = contentType || 'audio/mpeg';
+      audioBlob = new Blob([bytes], { type: mimeType });
     }
-    
-    // Create blob with appropriate mime type
-    const mimeType = contentType || 'audio/mpeg';
-    const audioBlob = new Blob([bytes], { type: mimeType });
     
     // Prepare form data for ElevenLabs
     const formData = new FormData();
