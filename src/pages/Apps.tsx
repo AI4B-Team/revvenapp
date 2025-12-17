@@ -6,12 +6,14 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import VideoDownloaderModal from '@/components/dashboard/VideoDownloaderModal';
 
 const Apps = () => {
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [videoDownloaderOpen, setVideoDownloaderOpen] = useState(false);
 
   const trendingApps = [
     {
@@ -280,7 +282,7 @@ const Apps = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {[
-                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥' },
+                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥', action: () => setVideoDownloaderOpen(true) },
                     { name: 'Video Resizer', description: 'Resize video dimensions', bgColor: 'bg-tool-pink', emoji: '📐' },
                     { name: 'Motion-Sync', description: 'Sync video motion', bgColor: 'bg-tool-yellow', emoji: '🎬' },
                     { name: 'Explainer Video', description: 'Create educational videos', bgColor: 'bg-tool-blue', emoji: '🎬' },
@@ -290,7 +292,16 @@ const Apps = () => {
                       { name: 'Subtitle Editor', description: 'Add and edit subtitles', bgColor: 'bg-tool-pink', emoji: '📝' },
                     ] : [])
                   ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
+                    <div 
+                      key={idx} 
+                      onClick={tool.action}
+                      className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden group`}
+                    >
+                      {tool.name === 'Video Downloader' && (
+                        <span className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-black text-[10px] font-bold rounded-full">
+                          AI
+                        </span>
+                      )}
                       <div className="text-4xl mb-2">{tool.emoji}</div>
                       <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
                       <p className="text-xs text-black">{tool.description}</p>
@@ -412,6 +423,10 @@ const Apps = () => {
       <AIPersonaSidebar 
         isOpen={identitySidebarOpen} 
         onClose={() => setIdentitySidebarOpen(false)}
+      />
+      <VideoDownloaderModal
+        isOpen={videoDownloaderOpen}
+        onClose={() => setVideoDownloaderOpen(false)}
       />
     </div>
   );
