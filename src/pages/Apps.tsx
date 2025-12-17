@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Play, ChevronRight, ChevronDown, SlidersHorizontal, Search, ZoomIn, ZoomOut
 } from 'lucide-react';
@@ -6,14 +7,13 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
-import VideoDownloaderModal from '@/components/dashboard/VideoDownloaderModal';
 
 const Apps = () => {
+  const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({});
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [videoDownloaderOpen, setVideoDownloaderOpen] = useState(false);
 
   const trendingApps = [
     {
@@ -282,7 +282,7 @@ const Apps = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {[
-                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥', action: () => setVideoDownloaderOpen(true) },
+                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥', action: () => navigate('/video-downloader') },
                     { name: 'Video Resizer', description: 'Resize video dimensions', bgColor: 'bg-tool-pink', emoji: '📐' },
                     { name: 'Motion-Sync', description: 'Sync video motion', bgColor: 'bg-tool-yellow', emoji: '🎬' },
                     { name: 'Explainer Video', description: 'Create educational videos', bgColor: 'bg-tool-blue', emoji: '🎬' },
@@ -423,10 +423,6 @@ const Apps = () => {
       <AIPersonaSidebar 
         isOpen={identitySidebarOpen} 
         onClose={() => setIdentitySidebarOpen(false)}
-      />
-      <VideoDownloaderModal
-        isOpen={videoDownloaderOpen}
-        onClose={() => setVideoDownloaderOpen(false)}
       />
     </div>
   );
