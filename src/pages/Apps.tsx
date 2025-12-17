@@ -429,13 +429,13 @@ const Apps = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {[
-                    { name: 'Versus', description: 'Compare LLM models side-by-side', bgColor: 'bg-tool-blue', emoji: '⚔️', badge: 'LLM' },
+                    { name: 'Versus', description: 'Compare LLM models side-by-side', bgColor: 'bg-tool-blue', emoji: '⚔️', badge: 'LLM', onClick: () => navigate('/versus') },
                     ...(expandedSections.tools ? [
                       { name: 'Prompt Lab', description: 'Test and refine prompts', bgColor: 'bg-tool-yellow', emoji: '🧪' },
                       { name: 'Model Benchmark', description: 'Benchmark AI models', bgColor: 'bg-tool-pink', emoji: '📈' },
                     ] : [])
                   ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden`}>
+                    <div key={idx} onClick={tool.onClick} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden`}>
                       {tool.badge && (
                         <span className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-black text-[10px] font-bold rounded-full">
                           {tool.badge}
