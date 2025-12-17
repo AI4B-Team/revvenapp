@@ -1080,23 +1080,25 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
-              {/* Video Downloader Section - Stylish Pro Design */}
+              {/* Upload Link Section */}
               <div
                 className={`
-                  relative overflow-hidden rounded-2xl transition-all duration-300
+                  relative overflow-hidden rounded-2xl transition-all duration-300 border border-gray-200
                   ${isExtractingYouTube
                     ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-purple-500/30'
                     : mediaUrl 
                       ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-lg shadow-indigo-500/30' 
-                      : 'bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 hover:from-slate-700 hover:via-slate-800 hover:to-gray-800'
+                      : 'bg-white hover:bg-gray-50'
                   }
                 `}
               >
-                {/* Animated background pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-                </div>
+                {/* Animated background pattern - only show when extracting or has URL */}
+                {(isExtractingYouTube || mediaUrl) && (
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+                  </div>
+                )}
 
                 <div className="relative p-5 flex flex-col items-center">
                   {/* Icon with glow effect */}
@@ -1104,7 +1106,9 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                     w-14 h-14 rounded-xl flex items-center justify-center mb-3 
                     ${isExtractingYouTube 
                       ? 'bg-white/20 backdrop-blur-sm' 
-                      : 'bg-white/10 backdrop-blur-sm group-hover:bg-white/15'
+                      : mediaUrl
+                        ? 'bg-white/10 backdrop-blur-sm'
+                        : 'bg-blue-50'
                     }
                     transition-all duration-300
                   `}>
@@ -1114,29 +1118,33 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                         <div className="absolute inset-0 w-7 h-7 bg-white/30 rounded-full blur-md animate-pulse" />
                       </div>
                     ) : (
-                      <div className="text-white">
+                      <div className={mediaUrl ? 'text-white' : 'text-blue-500'}>
                         <OnlineFileIcon />
                       </div>
                     )}
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-bold text-white text-sm mb-0.5 tracking-wide">
-                    {isExtractingYouTube ? 'Extracting Audio...' : 'Video Downloader'}
+                  <h3 className={`font-bold text-sm mb-0.5 tracking-wide ${isExtractingYouTube || mediaUrl ? 'text-white' : 'text-gray-800'}`}>
+                    {isExtractingYouTube ? 'Extracting Audio...' : 'Upload Link'}
                   </h3>
-                  <p className="text-xs text-white/70 text-center mb-4">
-                    {isExtractingYouTube ? 'Processing your media' : 'Paste any video link to extract audio'}
+                  <p className={`text-xs text-center mb-4 ${isExtractingYouTube || mediaUrl ? 'text-white/70' : 'text-gray-500'}`}>
+                    {isExtractingYouTube ? 'Processing your media' : 'Paste Any Video Link To Extract Audio'}
                   </p>
 
-                  {/* URL Input - Glassmorphism style */}
+                  {/* URL Input */}
                   <div className="w-full mb-4 relative">
                     <input
                       type="url"
                       value={mediaUrl}
                       onChange={handleMediaUrlChange}
-                      placeholder="Paste URL here..."
+                      placeholder="Paste URL Here..."
                       disabled={isExtractingYouTube}
-                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isExtractingYouTube || mediaUrl
+                          ? 'bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/50 focus:ring-white/40'
+                          : 'bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 focus:ring-blue-400 focus:border-transparent'
+                      }`}
                     />
                     {mediaUrl && !isExtractingYouTube && (
                       <button
@@ -1149,8 +1157,10 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   </div>
 
                   {/* Supported platforms badge */}
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full mb-3">
-                    <span className="text-[10px] text-white/80 font-medium">Supports 50+ platforms</span>
+                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3 ${
+                    isExtractingYouTube || mediaUrl ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-100'
+                  }`}>
+                    <span className={`text-[10px] font-medium ${isExtractingYouTube || mediaUrl ? 'text-white/80' : 'text-gray-500'}`}>Supports 50+ Platforms</span>
                   </div>
 
                   {/* Social Platform Icons - Stylish row */}
