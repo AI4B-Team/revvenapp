@@ -1614,22 +1614,33 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             try {
               // Save transcribed audio to history
               const { data: { user } } = await supabase.auth.getUser();
-              if (user && transcribeAudio?.base64) {
-                // Upload audio file to Cloudinary via edge function
-                const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
-                  body: {
-                    audioData: transcribeAudio.base64,
-                    filename: transcribeAudio.name,
-                    contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
-                  },
-                });
- 
-                if (!uploadError && uploadData?.url) {
+              if (user) {
+                let audioUrl = transcribeAudio?.url;
+                let audioDuration = transcribeAudio?.duration || 0;
+                
+                // If we have base64 data (regular upload), upload to Cloudinary first
+                if (transcribeAudio?.base64) {
+                  const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+                    body: {
+                      audioData: transcribeAudio.base64,
+                      filename: transcribeAudio.name,
+                      contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
+                    },
+                  });
+
+                  if (!uploadError && uploadData?.url) {
+                    audioUrl = uploadData.url;
+                    audioDuration = uploadData.duration || audioDuration;
+                  }
+                }
+                
+                // Save to database if we have a URL (either from YouTube or uploaded)
+                if (audioUrl) {
                   await supabase.from('user_voices').insert({
                     user_id: user.id,
-                    name: transcribeAudio.name || 'Transcription',
-                    duration: transcribeAudio.duration || uploadData.duration || 0,
-                    url: uploadData.url,
+                    name: transcribeAudio?.name || 'Transcription',
+                    duration: audioDuration,
+                    url: audioUrl,
                     type: 'transcription',
                     status: 'completed',
                     prompt: data.text,
