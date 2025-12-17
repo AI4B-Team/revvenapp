@@ -522,10 +522,92 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
     }
   };
 
-  const handleMediaUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const isYouTubeUrl = (url: string) => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)/,
+      /youtube\.com\/embed\//,
+    ];
+    return patterns.some(pattern => pattern.test(url));
+  };
+
+  const [isExtractingYouTube, setIsExtractingYouTube] = useState(false);
+
+  const handleMediaUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
     setMediaUrl(url);
-    if (url) {
+    
+    if (!url) {
+      setSelectedFile(null);
+      return;
+    }
+
+    // Check if it's a YouTube URL
+    if (isYouTubeUrl(url)) {
+      setIsExtractingYouTube(true);
+      toast({
+        title: "Extracting audio",
+        description: "Downloading audio from YouTube...",
+      });
+
+      try {
+        const { data, error } = await supabase.functions.invoke('extract-youtube-audio', {
+          body: { url }
+        });
+
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Failed to extract audio');
+
+        // Upload to Cloudinary
+        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+          body: {
+            audioData: `data:${data.contentType};base64,${data.audioBase64}`,
+            filename: data.filename,
+            contentType: data.contentType,
+          }
+        });
+
+        if (uploadError) throw uploadError;
+
+        // Save to database
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: insertedData } = await supabase.from('user_voices').insert({
+            user_id: user.id,
+            name: data.title || data.filename,
+            duration: data.duration || 0,
+            url: uploadData.url,
+            type: 'uploaded',
+          }).select().single();
+
+          await loadAudioHistory();
+
+          setSelectedFile({
+            name: data.title || data.filename,
+            duration: data.duration || 0,
+            url: uploadData.url,
+            source: 'media',
+            id: insertedData?.id,
+          });
+          setEditedFileName(data.title || data.filename);
+        }
+
+        toast({
+          title: "Audio extracted",
+          description: `Successfully extracted audio from YouTube`,
+        });
+      } catch (error) {
+        console.error('Error extracting YouTube audio:', error);
+        toast({
+          title: "Extraction failed",
+          description: error instanceof Error ? error.message : "Failed to extract audio from YouTube",
+          variant: "destructive",
+        });
+        setMediaUrl('');
+      } finally {
+        setIsExtractingYouTube(false);
+      }
+    } else {
+      // For non-YouTube URLs, just store the URL
       setSelectedFile({
         name: url,
         duration: 0,
@@ -533,8 +615,6 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         source: 'media',
       });
       setEditedFileName(url);
-    } else {
-      setSelectedFile(null);
     }
   };
 
@@ -960,20 +1040,28 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   relative flex flex-col items-center justify-center p-5 
                   border-2 border-dashed rounded-xl bg-white
                   transition-all duration-200 hover:border-emerald-400
-                  ${mediaUrl 
-                    ? 'border-blue-300 bg-blue-50' 
-                    : 'border-gray-200'
+                  ${isExtractingYouTube
+                    ? 'border-blue-400 bg-blue-50'
+                    : mediaUrl 
+                      ? 'border-blue-300 bg-blue-50' 
+                      : 'border-gray-200'
                   }
                 `}
               >
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-100">
-                  <div className="text-blue-500">
-                    <OnlineFileIcon />
-                  </div>
+                  {isExtractingYouTube ? (
+                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                  ) : (
+                    <div className="text-blue-500">
+                      <OnlineFileIcon />
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Upload Link</h3>
+                <h3 className="font-semibold text-gray-900 text-sm mb-0.5">
+                  {isExtractingYouTube ? 'Extracting Audio...' : 'Upload Link'}
+                </h3>
                 <p className="text-xs text-gray-500 text-center mb-3">
-                  Paste A Supported Public Media Link
+                  {isExtractingYouTube ? 'Downloading from YouTube' : 'Paste A Supported Public Media Link'}
                 </p>
 
                 {/* URL Input */}
@@ -983,7 +1071,8 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                     value={mediaUrl}
                     onChange={handleMediaUrlChange}
                     placeholder="youtube | facebook | tiktok"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-center"
+                    disabled={isExtractingYouTube}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-center disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
 
