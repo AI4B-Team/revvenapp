@@ -11,39 +11,48 @@ serve(async (req) => {
   }
 
   try {
-    const { audioData, filename, contentType } = await req.json();
+    const { audioData, filename, contentType, remoteUrl } = await req.json();
     
-    if (!audioData) {
-      throw new Error("No audio data provided");
-    }
-
-    console.log("Uploading audio to Cloudinary:", filename, contentType);
-
     // Cloudinary credentials
     const cloudName = "dszt275xv";
     const uploadPreset = "revven";
     
     // Create form data for Cloudinary
     const formData = new FormData();
-    
-    // Convert base64 to blob
-    const base64Data = audioData.split(',')[1] || audioData;
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+
+    // Option 1: Upload from remote URL (faster for YouTube)
+    if (remoteUrl) {
+      console.log("Uploading from remote URL:", remoteUrl.substring(0, 100));
+      formData.append("file", remoteUrl);
+      formData.append("upload_preset", uploadPreset);
+      formData.append("resource_type", "video");
+      formData.append("folder", "ugc-audio");
     }
-    
-    // Determine if this is a video file (from YouTube extraction)
-    const isVideoFile = contentType?.includes('video') || filename?.endsWith('.mp4');
-    const actualContentType = contentType || (isVideoFile ? 'video/mp4' : 'audio/webm');
-    
-    const blob = new Blob([bytes], { type: actualContentType });
-    
-    formData.append("file", blob, filename || "audio.webm");
-    formData.append("upload_preset", uploadPreset);
-    formData.append("resource_type", "video"); // Cloudinary uses 'video' for both audio and video files
-    formData.append("folder", "ugc-audio");
+    // Option 2: Upload from base64 data
+    else if (audioData) {
+      console.log("Uploading audio to Cloudinary:", filename, contentType);
+      
+      // Convert base64 to blob
+      const base64Data = audioData.split(',')[1] || audioData;
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      // Determine if this is a video file
+      const isVideoFile = contentType?.includes('video') || filename?.endsWith('.mp4');
+      const actualContentType = contentType || (isVideoFile ? 'video/mp4' : 'audio/webm');
+      
+      const blob = new Blob([bytes], { type: actualContentType });
+      
+      formData.append("file", blob, filename || "audio.webm");
+      formData.append("upload_preset", uploadPreset);
+      formData.append("resource_type", "video");
+      formData.append("folder", "ugc-audio");
+    } else {
+      throw new Error("No audio data or URL provided");
+    }
 
     // Upload to Cloudinary
     const cloudinaryResponse = await fetch(

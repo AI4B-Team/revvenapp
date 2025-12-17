@@ -557,12 +557,11 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         if (error) throw error;
         if (!data?.success) throw new Error(data?.error || 'Failed to extract audio');
 
-        // Upload to Cloudinary
+        // Upload to Cloudinary using remote URL (much faster)
         const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
           body: {
-            audioData: `data:${data.contentType};base64,${data.audioBase64}`,
+            remoteUrl: data.downloadUrl,
             filename: data.filename,
-            contentType: data.contentType,
           }
         });
 
