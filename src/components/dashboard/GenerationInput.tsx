@@ -7072,7 +7072,66 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               if (data?.text) {
                 setPrompt(data.text);
                 setIsTranscribedText(true);
+                
+                // Save transcription to database
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (user) {
+                    let audioUrl = transcribeAudio?.url;
+                    let audioDuration: number = 0;
+                    
+                    // Parse duration - handle both number and string formats
+                    const rawDuration = transcribeAudio?.duration;
+                    if (typeof rawDuration === 'number') {
+                      audioDuration = rawDuration;
+                    } else if (typeof rawDuration === 'string') {
+                      const parts = rawDuration.split(':');
+                      if (parts.length === 2) {
+                        audioDuration = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+                      } else if (parts.length === 3) {
+                        audioDuration = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+                      } else {
+                        audioDuration = parseFloat(rawDuration) || 0;
+                      }
+                    }
+                    
+                    // If we have base64 data, upload to Cloudinary first
+                    if (transcribeAudio?.base64 && !audioUrl) {
+                      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+                        body: {
+                          audioData: transcribeAudio.base64,
+                          filename: transcribeAudio.name,
+                          contentType: transcribeAudio.base64.split(';')[0].replace('data:', '') || 'audio/mp4',
+                        },
+                      });
+                      if (!uploadError && uploadData?.url) {
+                        audioUrl = uploadData.url;
+                        audioDuration = uploadData.duration || audioDuration;
+                      }
+                    }
+                    
+                    // Save to database if we have a URL
+                    if (audioUrl) {
+                      const { error: insertError } = await supabase.from('user_voices').insert({
+                        user_id: user.id,
+                        name: transcribeAudio?.name || 'Transcription',
+                        duration: audioDuration,
+                        url: audioUrl,
+                        type: 'transcription',
+                        status: 'completed',
+                        prompt: data.text,
+                      });
+                      if (insertError) {
+                        console.error('Failed to save transcription:', insertError);
+                      }
+                    }
+                  }
+                } catch (saveError) {
+                  console.error('Failed to save transcription history:', saveError);
+                }
+                
                 toast({ title: "Transcription complete" });
+                setTranscribeAudio(null);
               }
             } catch (error) {
               console.error('Transcription error:', error);
