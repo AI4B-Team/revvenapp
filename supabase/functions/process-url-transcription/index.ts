@@ -59,12 +59,13 @@ serve(async (req) => {
         }
 
         const downloadData = await downloadResponse.json();
-        console.log("[BG-TRANSCRIBE] Snap Video API response received, title:", downloadData.title);
+        console.log("[BG-TRANSCRIBE] Snap Video API full response:", JSON.stringify(downloadData).substring(0, 1000));
 
         let downloadUrl: string | null = null;
-        const title = downloadData.title || "media_audio";
+        const title = downloadData.title || downloadData.meta?.title || "media_audio";
 
-        // Extract download URL from medias array
+        // Try multiple extraction strategies
+        // 1. medias array (most common)
         if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
           const media = downloadData.medias.find((m: any) => m.url) || downloadData.medias[0];
           if (media?.url) {
@@ -72,11 +73,36 @@ serve(async (req) => {
           }
         }
 
+        // 2. Direct url field
         if (!downloadUrl && downloadData.url) {
           downloadUrl = downloadData.url;
         }
 
+        // 3. download_url field
+        if (!downloadUrl && downloadData.download_url) {
+          downloadUrl = downloadData.download_url;
+        }
+
+        // 4. video_url or audio_url field
+        if (!downloadUrl && (downloadData.video_url || downloadData.audio_url)) {
+          downloadUrl = downloadData.video_url || downloadData.audio_url;
+        }
+
+        // 5. result object
+        if (!downloadUrl && downloadData.result) {
+          downloadUrl = downloadData.result.url || downloadData.result.download_url || downloadData.result.video_url;
+        }
+
+        // 6. data object
+        if (!downloadUrl && downloadData.data) {
+          downloadUrl = downloadData.data.url || downloadData.data.download_url;
+          if (!downloadUrl && downloadData.data.medias && downloadData.data.medias.length > 0) {
+            downloadUrl = downloadData.data.medias[0].url;
+          }
+        }
+
         if (!downloadUrl) {
+          console.error("[BG-TRANSCRIBE] Could not find download URL. Response keys:", Object.keys(downloadData));
           throw new Error("No download URL found in API response");
         }
 
