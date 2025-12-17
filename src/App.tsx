@@ -40,6 +40,7 @@ import AIInfluencer from "./pages/AIInfluencer";
 import Marketing from "./pages/Marketing";
 import Edit from "./pages/Edit";
 import VideoDownloader from "./pages/VideoDownloader";
+import Versus from "./pages/Versus";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/apps" element={<Apps />} />
           <Route path="/video-downloader" element={<VideoDownloader />} />
+          <Route path="/versus" element={<Versus />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
