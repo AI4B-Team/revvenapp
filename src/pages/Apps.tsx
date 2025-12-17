@@ -282,7 +282,7 @@ const Apps = () => {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {[
-                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥', action: () => navigate('/video-downloader') },
+                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥' },
                     { name: 'Video Resizer', description: 'Resize video dimensions', bgColor: 'bg-tool-pink', emoji: '📐' },
                     { name: 'Motion-Sync', description: 'Sync video motion', bgColor: 'bg-tool-yellow', emoji: '🎬' },
                     { name: 'Explainer Video', description: 'Create educational videos', bgColor: 'bg-tool-blue', emoji: '🎬' },
@@ -294,7 +294,11 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div 
                       key={idx} 
-                      onClick={() => tool.action?.()}
+                      onClick={() => {
+                        if (tool.name === 'Video Downloader') {
+                          navigate('/video-downloader');
+                        }
+                      }}
                       className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden group`}
                     >
                       {tool.name === 'Video Downloader' && (
