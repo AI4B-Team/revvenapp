@@ -27,6 +27,7 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   const [isSceneCountDropdownOpen, setIsSceneCountDropdownOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dropPosition, setDropPosition] = useState<'above' | 'below' | null>(null);
 
   const totalDuration = useMemo(() => {
     return scenes.reduce((sum, scene) => sum + scene.duration, 0);
@@ -85,32 +86,57 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    // Calculate if cursor is in top or bottom half of the element
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+    const position = e.clientY < midpoint ? 'above' : 'below';
+    
     setDragOverIndex(index);
+    setDropPosition(position);
   };
 
   const handleDragLeave = () => {
     setDragOverIndex(null);
+    setDropPosition(null);
   };
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) {
+    if (draggedIndex === null) {
       setDraggedIndex(null);
       setDragOverIndex(null);
+      setDropPosition(null);
       return;
     }
 
-    const newScenes = [...scenes];
-    const [draggedScene] = newScenes.splice(draggedIndex, 1);
-    newScenes.splice(dropIndex, 0, draggedScene);
-    setScenes(newScenes);
+    // Calculate the actual insert position based on drop position
+    let targetIndex = dropIndex;
+    if (dropPosition === 'below') {
+      targetIndex = dropIndex + 1;
+    }
+    
+    // Adjust for the removed item
+    if (draggedIndex < targetIndex) {
+      targetIndex -= 1;
+    }
+    
+    if (draggedIndex !== targetIndex) {
+      const newScenes = [...scenes];
+      const [draggedScene] = newScenes.splice(draggedIndex, 1);
+      newScenes.splice(targetIndex, 0, draggedScene);
+      setScenes(newScenes);
+    }
+    
     setDraggedIndex(null);
     setDragOverIndex(null);
+    setDropPosition(null);
   };
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
+    setDropPosition(null);
   };
 
   return (
@@ -187,10 +213,24 @@ const StoryboardSceneEditor: React.FC<StoryboardSceneEditorProps> = ({ onGenerat
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`px-4 py-4 group hover:bg-gray-50 transition-colors cursor-move ${
+                  className={`relative px-4 py-4 group hover:bg-gray-50 transition-colors cursor-move ${
                     draggedIndex === index ? 'opacity-50' : ''
-                  } ${dragOverIndex === index ? 'border-t-2 border-green-500' : ''}`}
+                  }`}
                 >
+                  {/* Green drop indicator line - above */}
+                  {dragOverIndex === index && dropPosition === 'above' && draggedIndex !== index && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-green-500 z-10" style={{ transform: 'translateY(-1px)' }}>
+                      <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-green-500 rounded-full" />
+                      <div className="absolute -right-1 -top-1 w-2.5 h-2.5 bg-green-500 rounded-full" />
+                    </div>
+                  )}
+                  {/* Green drop indicator line - below */}
+                  {dragOverIndex === index && dropPosition === 'below' && draggedIndex !== index && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500 z-10" style={{ transform: 'translateY(1px)' }}>
+                      <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-green-500 rounded-full" />
+                      <div className="absolute -right-1 -top-1 w-2.5 h-2.5 bg-green-500 rounded-full" />
+                    </div>
+                  )}
                   {/* Scene Header Row */}
                   <div className="flex items-center gap-3 mb-3">
                     {/* Drag Handle */}
