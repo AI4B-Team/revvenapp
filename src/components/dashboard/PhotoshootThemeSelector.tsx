@@ -17,7 +17,7 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     images: [
       'https://images.unsplash.com/photo-1457269449834-928af64c684d?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1418985991508-e47386d96a71?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -47,7 +47,7 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     images: [
       'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1462275646964-a0e3571f4f7a?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1518882605630-8a6e96fcd25a?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -56,8 +56,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'sunseeker',
     images: [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=500&fit=crop&q=80'
     ]
   },
 
@@ -108,8 +108,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'luxelife',
     images: [
       'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -138,8 +138,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'voguette',
     images: [
       'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -148,8 +148,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'urbancore',
     images: [
       'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1544441893-675973e31985?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1544441893-675973e31985?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400&h=500&fit=crop&q=80'
     ]
   },
 
@@ -169,9 +169,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'ANIME AESTHETIC',
     creator: 'kawaiipop',
     images: [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1580477667995-2b94f01c9516?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -180,8 +180,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'enchanted',
     images: [
       'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -200,8 +200,8 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     creator: 'shadowplay',
     images: [
       'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1463453091185-61582044d556?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -219,9 +219,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'Y2K VIBES',
     creator: 'millennium',
     images: [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1558618047-f4b511d7c4de?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1558171013-62352801d5c0?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1558171814-77d0f3e01a8b?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -229,9 +229,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'BEACH TROPICAL',
     creator: 'islandlife',
     images: [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1520454974749-611b7248ffdb?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=400&h=500&fit=crop&q=80'
     ]
   },
 
@@ -241,9 +241,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'CORPORATE PRO',
     creator: 'bizshots',
     images: [
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -251,9 +251,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'LINKEDIN READY',
     creator: 'profiled',
     images: [
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1556157382-97edd2d9e772?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -261,9 +261,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'ENTREPRENEUR',
     creator: 'foundersclub',
     images: [
-      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1557862921-37829c790f19?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -399,7 +399,7 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     images: [
       'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1544568100-847a948585b9?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=500&fit=crop&q=80'
     ]
   },
 
@@ -419,9 +419,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'VALENTINES LOVE',
     creator: 'heartseyes',
     images: [
-      'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1495653797063-114787b77b23?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -441,9 +441,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'BACHELORETTE',
     creator: 'bridetribe',
     images: [
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1529529159227-6e4c87e61a9e?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -451,9 +451,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'GIRLS NIGHT',
     creator: 'girlsquad',
     images: [
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1516939884455-1445c8652f83?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=400&h=500&fit=crop&q=80'
     ]
   },
 
@@ -475,9 +475,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'EID CELEBRATION',
     creator: 'eidmubarak',
     images: [
-      'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -485,9 +485,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'DIWALI LIGHTS',
     creator: 'festivaloflights',
     images: [
-      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1574265935440-1f7e2a0ee417?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1582560475093-ba66accbc424?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -495,9 +495,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'LUNAR NEW YEAR',
     creator: 'cnyvibes',
     images: [
-      'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1548247416-ec66f4900b2e?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1517299321609-52687d1bc55a?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1549451371-64aa98a6f660?w=400&h=500&fit=crop&q=80'
     ]
   }
 ];
@@ -598,10 +598,6 @@ const PhotoshootThemeSelector: React.FC<PhotoshootThemeSelectorProps> = ({
                         alt={`${theme.name} preview ${idx + 1}`}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop&q=80';
-                        }}
                       />
                     </div>
                   ))}
