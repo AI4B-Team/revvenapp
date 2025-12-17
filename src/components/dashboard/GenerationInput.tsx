@@ -207,6 +207,10 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [storyReferenceImage, setStoryReferenceImage] = useState<{ url: string; name: string; id?: string } | null>(null);
   const [isUploadingStoryReference, setIsUploadingStoryReference] = useState(false);
   
+  // Story mode scene mode (Auto vs Manual)
+  const [storySceneMode, setStorySceneMode] = useState<'Auto' | 'Manual'>('Auto');
+  const [isStorySceneModeDropdownOpen, setIsStorySceneModeDropdownOpen] = useState(false);
+  
   // UGC audio URL for speech-to-video generation (optional - backend can auto-generate)
   const [ugcAudioUrl, setUgcAudioUrl] = useState<string | null>(null);
   
@@ -431,12 +435,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Use isolated state instead of props when in specific modes
   const activeCharacters = isVideoMode ? videoModeState.characters : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedCharacters);
-  const activeReferences = isVideoMode ? videoModeState.references : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedReferences);
+  const activeReferences = isVideoMode ? (selectedAnimateMode === 'Story' ? selectedReferences : videoModeState.references) : (isAudioMode || isDesignMode || isContentMode || isAppsMode || isDocumentMode ? [] : selectedReferences);
   
   // Determine if we should show character and reference displays
   const shouldHideCharacterAndReference = isDesignMode || isContentMode || isAppsMode || isDocumentMode;
   const shouldShowCharacters = !shouldHideCharacterAndReference && !isVideoMode;
-  const shouldShowReferences = !shouldHideCharacterAndReference && !isVideoMode && !isAudioMode;
+  // Show references in image mode and Story mode (video)
+  const shouldShowReferences = !shouldHideCharacterAndReference && !isAudioMode && (!isVideoMode || (isVideoMode && selectedAnimateMode === 'Story'));
 
   // Sync external props to image mode state only when in image mode
   useEffect(() => {
@@ -3203,7 +3208,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       : (isVideoMode && (selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync'))
                         ? (selectedUGCButton === 'Scene' ? 'Describe the scene (e.g., "Unboxing a package on the couch")' : 'Write what you want your character to say...(e.g., "Hey there! This product changed my life!")') 
                         : (isVideoMode && selectedAnimateMode === 'Story')
-                          ? (selectedStoryButton === 'Scene' ? 'Describe the scene setting (e.g., "A cozy coffee shop at sunset with warm lighting")' : '⬇️ Add scenes below using the + button to build your storyboard')
+                          ? 'Upload References. Describe your vision. We\'ll create the scenes (e.g., Product reveal with smooth motion, premium feel, confident tone)'
                           : (isVideoMode && selectedAnimateMode === 'UGC') 
                             ? 'Describe what you want (e.g., "Make this product in the style of the reference image and create a promotional video")' 
                             : "Describe what you want to create..."
@@ -4150,272 +4155,76 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         </TooltipContent>
                       </Tooltip>
 
-                      {/* Reference button - disabled if character is selected */}
-                      {videoModeState.characters.length > 0 ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed hover:opacity-80"
-                            >
-                              <ImageIcon size={14} />
-                              Reference
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Clear character to use reference image</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : storyReferenceImage ? (
-                        <button 
-                          onClick={() => setStoryReferenceImage(null)}
-                          className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80"
-                        >
-                          <img 
-                            src={storyReferenceImage.url} 
-                            alt={storyReferenceImage.name} 
-                            className="w-5 h-5 rounded object-cover"
-                          />
-                          <span className="max-w-20 truncate">{storyReferenceImage.name}</span>
-                          <X size={14} />
-                        </button>
-                      ) : (
-                        <Popover open={isStoryReferencePopoverOpen} onOpenChange={setIsStoryReferencePopoverOpen}>
-                          <PopoverTrigger asChild>
-                            <button className="px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap bg-pill-gray text-pill-gray-text hover:opacity-80">
-                              <ImageIcon size={14} />
-                              Reference
-                              <ChevronDown size={14} />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-72 bg-background border-border z-50 max-h-80 overflow-y-auto">
-                            <div className="space-y-3">
-                              <p className="text-sm font-medium">Reference Image</p>
-                              <p className="text-xs text-muted-foreground">Single image only (use character OR reference)</p>
-                              
-                              {/* Upload section */}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                id="story-reference-upload"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  
-                                  setIsUploadingStoryReference(true);
-                                  try {
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-                                    formData.append('upload_preset', 'revven');
-                                    
-                                    const response = await fetch('https://api.cloudinary.com/v1_1/dszt275xv/upload', {
-                                      method: 'POST',
-                                      body: formData
-                                    });
-                                    
-                                    if (!response.ok) throw new Error('Upload failed');
-                                    
-                                    const data = await response.json();
-                                    
-                                    // Save to database for history persistence
-                                    const { data: { user } } = await supabase.auth.getUser();
-                                    if (user) {
-                                      const { data: savedRef, error: dbError } = await supabase
-                                        .from('reference_images')
-                                        .insert({
-                                          user_id: user.id,
-                                          image_url: data.secure_url,
-                                          cloudinary_public_id: data.public_id,
-                                          original_filename: file.name
-                                        })
-                                        .select('id')
-                                        .single();
-                                      
-                                      if (!dbError && savedRef) {
-                                        setStoryReferenceImage({
-                                          url: data.secure_url,
-                                          name: file.name,
-                                          id: savedRef.id
-                                        });
-                                        // Refresh saved references list
-                                        setSavedReferenceImages(prev => [
-                                          { url: data.secure_url, name: file.name, id: savedRef.id },
-                                          ...prev
-                                        ]);
-                                      } else {
-                                        setStoryReferenceImage({
-                                          url: data.secure_url,
-                                          name: file.name
-                                        });
-                                      }
-                                    } else {
-                                      setStoryReferenceImage({
-                                        url: data.secure_url,
-                                        name: file.name
-                                      });
-                                    }
-                                    setIsStoryReferencePopoverOpen(false);
-                                    
-                                    toast({
-                                      title: "Reference uploaded",
-                                      description: "Your reference image is saved to history",
-                                    });
-                                  } catch (error) {
-                                    console.error('Upload error:', error);
-                                    toast({
-                                      title: "Upload failed",
-                                      description: "Failed to upload reference image",
-                                      variant: "destructive",
-                                    });
-                                  } finally {
-                                    setIsUploadingStoryReference(false);
-                                    e.target.value = '';
-                                  }
-                                }}
-                              />
-                              <label 
-                                htmlFor="story-reference-upload"
-                                className="flex items-center gap-2 p-3 border border-dashed border-border rounded-lg cursor-pointer hover:bg-secondary/50 transition"
-                              >
-                                {isUploadingStoryReference ? (
-                                  <Loader2 size={20} className="animate-spin text-muted-foreground" />
-                                ) : (
-                                  <Upload size={20} className="text-muted-foreground" />
-                                )}
-                                <span className="text-sm text-muted-foreground">
-                                  {isUploadingStoryReference ? 'Uploading...' : 'Click to upload new'}
-                                </span>
-                              </label>
-                              
-                              {/* Reference image history */}
-                              {savedReferenceImages.length > 0 && (
-                                <div className="space-y-2">
-                                  <p className="text-xs font-medium text-muted-foreground">My References</p>
-                                  <div className="grid grid-cols-4 gap-2">
-                                    {isLoadingReferenceImages ? (
-                                      <div className="col-span-4 flex justify-center py-2">
-                                        <Loader2 size={16} className="animate-spin text-muted-foreground" />
-                                      </div>
-                                    ) : (
-                                      savedReferenceImages.map((ref) => (
-                                        <button
-                                          key={ref.id}
-                                          onClick={() => {
-                                            console.log('Story mode: Selecting reference image:', ref);
-                                            setStoryReferenceImage({
-                                              url: ref.url,
-                                              name: ref.name,
-                                              id: ref.id
-                                            });
-                                            setIsStoryReferencePopoverOpen(false);
-                                          }}
-                                          className="relative aspect-square rounded-md overflow-hidden border border-border hover:border-primary transition group"
-                                        >
-                                          <img 
-                                            src={ref.url} 
-                                            alt={ref.name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition" />
-                                        </button>
-                                      ))
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      )}
+                      {/* Reference button - opens modal like image section */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => {
+                              if (videoModeState.characters.length > 0) {
+                                toast({
+                                  title: "Clear character first",
+                                  description: "You can use either a character OR reference images, not both.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              onReferencesClick?.();
+                            }}
+                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              selectedReferences.length > 0 
+                                ? 'bg-pill-green text-pill-green-text' 
+                                : videoModeState.characters.length > 0
+                                  ? 'bg-pill-gray/50 text-pill-gray-text/50 cursor-not-allowed'
+                                  : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}
+                          >
+                            <ImageIcon size={14} />
+                            Reference {selectedReferences.length > 0 && `(${selectedReferences.length})`}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{videoModeState.characters.length > 0 ? 'Clear character to add references' : 'Add up to 10 reference images'}</p>
+                        </TooltipContent>
+                      </Tooltip>
 
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            storyScenes.some(s => s.scene.trim().length > 0)
+                      {/* Scenes dropdown - Auto/Manual */}
+                      <div className="relative">
+                        <button 
+                          onClick={() => setIsStorySceneModeDropdownOpen(!isStorySceneModeDropdownOpen)}
+                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                            storySceneMode === 'Manual'
                               ? 'bg-pill-green text-pill-green-text' 
                               : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}>
-                            <Clapperboard size={14} />
-                            Scenes ({storyScenes.length})
-                            <ChevronDown size={14} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-96 bg-background border-border z-50 max-h-[400px] overflow-y-auto">
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium">Story Scenes</p>
-                              <button
-                                onClick={() => {
-                                  const maxDuration = parseInt(storyDuration);
-                                  const newSceneCount = storyScenes.length + 1;
-                                  const splitDuration = parseFloat((maxDuration / newSceneCount).toFixed(1));
-                                  // Redistribute duration evenly across all scenes
-                                  const updatedScenes = storyScenes.map(s => ({ ...s, duration: splitDuration }));
-                                  updatedScenes.push({ scene: '', duration: splitDuration });
-                                  setStoryScenes(updatedScenes);
-                                }}
-                                className="flex items-center gap-1 text-xs text-primary hover:underline"
-                              >
-                                <Plus size={12} />
-                                Add Scene
-                              </button>
-                            </div>
-                            <p className={`text-xs ${
-                              Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5
-                                ? 'text-destructive font-medium'
-                                : 'text-muted-foreground'
-                            }`}>
-                              Total: {storyScenes.reduce((sum, s) => sum + s.duration, 0).toFixed(1)}s / {storyDuration}s
-                              {Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5 && ' ⚠️ Must equal total'}
-                            </p>
-                            {storyScenes.map((scene, index) => (
-                              <div key={index} className="space-y-2 p-3 bg-muted/50 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs font-medium text-muted-foreground">Scene {index + 1}</span>
-                                  {storyScenes.length > 1 && (
-                                    <button
-                                      onClick={() => setStoryScenes(storyScenes.filter((_, i) => i !== index))}
-                                      className="text-destructive hover:text-destructive/80"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  )}
-                                </div>
-                                <textarea
-                                  value={scene.scene}
-                                  onChange={(e) => {
-                                    const updated = [...storyScenes];
-                                    updated[index].scene = e.target.value;
-                                    setStoryScenes(updated);
-                                  }}
-                                  placeholder="Describe this scene..."
-                                  className="w-full h-16 text-sm p-2 rounded-md border border-border bg-background resize-none"
-                                />
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground">Duration:</span>
-                                  <input
-                                    type="number"
-                                    value={scene.duration}
-                                    onChange={(e) => {
-                                      const newDuration = Math.max(1, parseFloat(e.target.value) || 1);
-                                      const otherScenesDuration = storyScenes.reduce((sum, s, i) => i === index ? sum : sum + s.duration, 0);
-                                      const maxAllowed = parseInt(storyDuration) - otherScenesDuration;
-                                      const updated = [...storyScenes];
-                                      updated[index].duration = Math.min(newDuration, Math.max(1, maxAllowed));
-                                      setStoryScenes(updated);
-                                    }}
-                                    min={1}
-                                    max={parseInt(storyDuration) - storyScenes.reduce((sum, s, i) => i === index ? sum : sum + s.duration, 0)}
-                                    step={0.5}
-                                    className="w-16 text-sm p-1 rounded-md border border-border bg-background"
-                                  />
-                                  <span className="text-xs text-muted-foreground">sec</span>
-                                </div>
-                              </div>
-                            ))}
+                          } hover:opacity-80`}
+                        >
+                          <Clapperboard size={14} />
+                          Scenes: {storySceneMode}
+                          <ChevronDown size={14} className={`transition-transform ${isStorySceneModeDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {isStorySceneModeDropdownOpen && (
+                          <div className="absolute top-full left-0 mt-1 w-36 bg-background border border-border rounded-lg shadow-lg z-50">
+                            <button
+                              onClick={() => {
+                                setStorySceneMode('Auto');
+                                setIsStorySceneModeDropdownOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-t-lg transition ${storySceneMode === 'Auto' ? 'bg-secondary' : ''}`}
+                            >
+                              Auto
+                            </button>
+                            <button
+                              onClick={() => {
+                                setStorySceneMode('Manual');
+                                setIsStorySceneModeDropdownOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-b-lg transition ${storySceneMode === 'Manual' ? 'bg-secondary' : ''}`}
+                            >
+                              Manual
+                            </button>
                           </div>
-                        </PopoverContent>
-                      </Popover>
+                        )}
+                      </div>
 
                       <Popover>
                         <PopoverTrigger asChild>
@@ -6934,7 +6743,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                                 : isVideoMode && selectedAnimateMode === 'UGC'
                                   ? (!prompt.trim() || selectedCharacters.length === 0 || !ugcProductImage)
                                   : isVideoMode && selectedAnimateMode === 'Story'
-                                    ? (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && !storyReferenceImage) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5)
+                                    ? (storySceneMode === 'Auto' 
+                                        ? !prompt.trim() // Auto mode just needs a prompt
+                                        : (!storyScenes.some(s => s.scene.trim().length >= 10) || (videoModeState.characters.length === 0 && selectedReferences.length === 0) || Math.abs(storyScenes.reduce((sum, s) => sum + s.duration, 0) - parseInt(storyDuration)) > 0.5))
                                     : !prompt.trim()
                       )
                     }
@@ -6973,8 +6784,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
         </div>
       </div>
 
-      {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode */}
-      {isVideoMode && selectedAnimateMode === 'Story' && (
+      {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode AND Manual mode */}
+      {isVideoMode && selectedAnimateMode === 'Story' && storySceneMode === 'Manual' && (
         <div className="w-full mt-4">
           <StoryboardSceneEditor />
         </div>
