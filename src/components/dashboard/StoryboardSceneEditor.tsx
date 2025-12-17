@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 interface Scene {
   id: number;
@@ -127,6 +127,20 @@ const StoryboardSceneEditor: React.FC = () => {
             </span>
           </div>
         </div>
+
+        {/* Auto Tab Content */}
+        {activeTab === 'auto' && (
+          <div className="bg-white px-4 py-4">
+            <div className="flex items-center gap-3 w-full text-left">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-purple-500" />
+              </div>
+              <span className="text-gray-600 text-sm">
+                Describe your vision. We'll create the scenes (e.g., Product reveal with smooth motion, premium feel, confident tone)
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Expandable Scenes Panel */}
         {isDropdownOpen && activeTab === 'scenes' && (
