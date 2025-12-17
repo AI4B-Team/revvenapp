@@ -546,7 +546,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
       setIsExtractingYouTube(true);
       toast({
         title: "Extracting audio",
-        description: "Downloading audio from YouTube...",
+        description: "Getting audio from YouTube...",
       });
 
       try {
