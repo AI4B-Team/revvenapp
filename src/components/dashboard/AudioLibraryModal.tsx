@@ -570,10 +570,26 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         // Save to database
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          // Parse duration - handle both number and string formats (e.g., "01:31" -> 91)
+          let parsedDuration = 0;
+          const rawDuration = uploadData.duration || data.duration;
+          if (typeof rawDuration === 'number') {
+            parsedDuration = rawDuration;
+          } else if (typeof rawDuration === 'string') {
+            const parts = rawDuration.split(':');
+            if (parts.length === 2) {
+              parsedDuration = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+            } else if (parts.length === 3) {
+              parsedDuration = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+            } else {
+              parsedDuration = parseFloat(rawDuration) || 0;
+            }
+          }
+
           const { data: insertedData } = await supabase.from('user_voices').insert({
             user_id: user.id,
             name: data.title || data.filename,
-            duration: data.duration || 0,
+            duration: parsedDuration,
             url: uploadData.url,
             type: 'uploaded',
           }).select().single();
@@ -582,7 +598,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
           setSelectedFile({
             name: data.title || data.filename,
-            duration: data.duration || 0,
+            duration: parsedDuration,
             url: uploadData.url,
             source: 'media',
             id: insertedData?.id,
