@@ -6975,7 +6975,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode */}
       {isVideoMode && selectedAnimateMode === 'Story' && (
-        <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mt-4 transition-all duration-300">
+        <div className="w-full mt-4">
           <StoryboardSceneEditor />
         </div>
       )}
