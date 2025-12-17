@@ -7,6 +7,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
+import AppCard from '@/components/dashboard/AppCard';
 
 const Apps = () => {
   const navigate = useNavigate();
@@ -89,6 +90,55 @@ const Apps = () => {
     }
   ];
 
+  // App data with thumbnails
+  const imageApps = [
+    { name: 'Art Blocks', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400&h=300&fit=crop', timestamp: '00:30' },
+    { name: 'Background Remover', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Image Eraser', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1561998338-13ad7883b20f?w=400&h=300&fit=crop' },
+    { name: 'Image Upscaler', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Image Enhancer', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1552168324-d612d77725e3?w=400&h=300&fit=crop' },
+    { name: 'Image Colorizer', category: 'Image Tools', thumbnail: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop', badge: 'AI' },
+  ];
+
+  const videoApps = [
+    { name: 'Video Downloader', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/video-downloader') },
+    { name: 'Video Resizer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop', timestamp: '01:32' },
+    { name: 'Motion-Sync', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Explainer Video', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop', timestamp: '02:00' },
+  ];
+
+  const audioApps = [
+    { name: 'AI Voice Cloner', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Transcriber', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Voice Changer', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Voiceovers', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Audio Dubber', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'AI Noise Remover', category: 'Audio Tools', thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop', badge: 'AI' },
+  ];
+
+  const designApps = [
+    { name: 'Logo Designer', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1626785774625-ddcddc3445e9?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Banner Creator', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop' },
+    { name: 'Flyer Maker', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&h=300&fit=crop' },
+    { name: 'Poster Designer', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1561998338-13ad7883b20f?w=400&h=300&fit=crop' },
+    { name: 'Infographic Builder', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Presentation Maker', category: 'Design Tools', thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop' },
+  ];
+
+  const contentApps = [
+    { name: 'Blog Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Social Posts', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Email Generator', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Ad Copy Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Script Writer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'SEO Optimizer', category: 'Content Tools', thumbnail: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400&h=300&fit=crop', badge: 'AI' },
+  ];
+
+  const toolsApps = [
+    { name: 'Versus', category: 'LLM Tool', thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop', badge: 'LLM', onClick: () => navigate('/versus') },
+    { name: 'Prompt Lab', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&h=300&fit=crop', badge: 'AI' },
+    { name: 'Model Benchmark', category: 'Tools', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop' },
+  ];
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -113,28 +163,19 @@ const Apps = () => {
                 
                 {/* Filter Controls */}
                 <div className="flex items-center gap-3">
-                  {/* All Dropdown */}
                   <button className="px-4 py-2 border border-border rounded-lg flex items-center gap-2 hover:bg-muted transition">
                     <span className="text-sm text-foreground">All</span>
                     <ChevronDown size={16} className="text-muted-foreground" />
                   </button>
-
-                  {/* Controls Dropdown */}
                   <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
                     <SlidersHorizontal size={18} className="text-muted-foreground" />
                   </button>
-
-                  {/* Search Dropdown */}
                   <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
                     <Search size={18} className="text-muted-foreground" />
                   </button>
-
-                  {/* Zoom In */}
                   <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
                     <ZoomIn size={18} className="text-muted-foreground" />
                   </button>
-
-                  {/* Zoom Out */}
                   <button className="p-2 border border-border rounded-lg hover:bg-muted transition">
                     <ZoomOut size={18} className="text-muted-foreground" />
                   </button>
@@ -173,28 +214,21 @@ const Apps = () => {
                       key={app.id}
                       className="group relative bg-card rounded-2xl overflow-hidden hover:ring-2 hover:ring-primary transition-all cursor-pointer border border-border"
                     >
-                      {/* Image */}
                       <div className="relative aspect-[4/3]">
                         <img
                           src={app.image}
                           alt={app.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        
-                        {/* Badge */}
                         {app.badge && (
                           <div className={`absolute top-4 left-4 ${app.badgeColor} text-black font-bold text-xs px-3 py-1 rounded-full`}>
                             {app.badge}
                           </div>
                         )}
                       </div>
-
-                       {/* Content */}
                       <div className="p-4">
-                        <h3 className="font-bold text-lg mb-2 text-black">{app.name}</h3>
+                        <h3 className="font-bold text-lg mb-2 text-foreground">{app.name}</h3>
                         <p className="text-muted-foreground text-sm mb-4">{app.description}</p>
-                        
-                        {/* Try Now Button */}
                         <button className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
                           <Play size={16} fill="currentColor" />
                           <span>Try Now</span>
@@ -227,14 +261,14 @@ const Apps = () => {
                       <div className={`w-12 h-12 ${app.color} rounded-xl flex items-center justify-center text-2xl mb-4`}>
                         {app.icon}
                       </div>
-                      <h3 className="font-bold mb-1 text-black">{app.name}</h3>
-                      <p className="text-black text-sm">{app.description}</p>
+                      <h3 className="font-bold mb-1 text-foreground">{app.name}</h3>
+                      <p className="text-muted-foreground text-sm">{app.description}</p>
                     </div>
                   ))}
                 </div>
               </section>
 
-              {/* Tools from Create Page */}
+              {/* Image Apps */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">IMAGE APPS</h2>
@@ -247,28 +281,13 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'Art Blocks', description: 'AI create some art works', bgColor: 'bg-tool-blue', emoji: '🎨' },
-                    { name: 'Background Remover', description: 'Remove backgrounds', bgColor: 'bg-tool-yellow', emoji: '✂️' },
-                    { name: 'Image Eraser', description: 'Erase parts of images', bgColor: 'bg-tool-blue', emoji: '🖼️' },
-                    { name: 'Image Upscaler', description: 'Enhance image quality', bgColor: 'bg-tool-yellow', emoji: '📸' },
-                    { name: 'Image Enhancer', description: 'Improve image details', bgColor: 'bg-tool-blue', emoji: '❤️' },
-                    { name: 'Image Colorizer', description: 'Add color to images', bgColor: 'bg-tool-gray', emoji: '🌹' },
-                    ...(expandedSections.imageApps ? [
-                      { name: 'Photo Editor', description: 'Edit photos professionally', bgColor: 'bg-tool-blue', emoji: '📷' },
-                      { name: 'Collage Maker', description: 'Create photo collages', bgColor: 'bg-tool-yellow', emoji: '🖼️' },
-                      { name: 'Filter Studio', description: 'Apply artistic filters', bgColor: 'bg-tool-blue', emoji: '🎨' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {imageApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
 
+              {/* Video Apps */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">VIDEO APPS</h2>
@@ -281,39 +300,13 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'Video Downloader', description: 'Download videos', bgColor: 'bg-tool-blue', emoji: '📥' },
-                    { name: 'Video Resizer', description: 'Resize video dimensions', bgColor: 'bg-tool-pink', emoji: '📐' },
-                    { name: 'Motion-Sync', description: 'Sync video motion', bgColor: 'bg-tool-yellow', emoji: '🎬' },
-                    { name: 'Explainer Video', description: 'Create educational videos', bgColor: 'bg-tool-blue', emoji: '🎬' },
-                    ...(expandedSections.videoApps ? [
-                      { name: 'Video Trimmer', description: 'Cut and trim videos', bgColor: 'bg-tool-blue', emoji: '✂️' },
-                      { name: 'Video Merger', description: 'Merge multiple videos', bgColor: 'bg-tool-yellow', emoji: '🎞️' },
-                      { name: 'Subtitle Editor', description: 'Add and edit subtitles', bgColor: 'bg-tool-pink', emoji: '📝' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div 
-                      key={idx} 
-                      onClick={() => {
-                        if (tool.name === 'Video Downloader') {
-                          navigate('/video-downloader');
-                        }
-                      }}
-                      className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden group`}
-                    >
-                      {tool.name === 'Video Downloader' && (
-                        <span className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-black text-[10px] font-bold rounded-full">
-                          AI
-                        </span>
-                      )}
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {videoApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
 
+              {/* Audio Apps */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">AUDIO APPS</h2>
@@ -326,28 +319,13 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'AI Voice Cloner', description: 'Clone any voice', bgColor: 'bg-tool-blue', emoji: '🎤' },
-                    { name: 'AI Transcriber', description: 'Transcribe audio to text', bgColor: 'bg-tool-pink', emoji: '📝' },
-                    { name: 'AI Voice Changer', description: 'Transform voice style', bgColor: 'bg-tool-blue', emoji: '🎵' },
-                    { name: 'AI Voiceovers', description: 'Generate voiceovers', bgColor: 'bg-tool-yellow', emoji: '🎬' },
-                    { name: 'AI Audio Dubber', description: 'Dub audio tracks', bgColor: 'bg-tool-blue', emoji: '🎧' },
-                    { name: 'AI Noise Remover', description: 'Remove background noise', bgColor: 'bg-tool-yellow', emoji: '🔇' },
-                    ...(expandedSections.audioApps ? [
-                      { name: 'Audio Mixer', description: 'Mix audio tracks', bgColor: 'bg-tool-blue', emoji: '🎛️' },
-                      { name: 'Beat Maker', description: 'Create custom beats', bgColor: 'bg-tool-pink', emoji: '🥁' },
-                      { name: 'Podcast Editor', description: 'Edit podcast episodes', bgColor: 'bg-tool-yellow', emoji: '🎙️' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {audioApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
 
+              {/* Design Apps */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">DESIGN APPS</h2>
@@ -360,28 +338,13 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'Logo Designer', description: 'Create brand logos', bgColor: 'bg-tool-blue', emoji: '🎨' },
-                    { name: 'Banner Creator', description: 'Design social banners', bgColor: 'bg-tool-yellow', emoji: '🖼️' },
-                    { name: 'Flyer Maker', description: 'Create marketing flyers', bgColor: 'bg-tool-green', emoji: '📄' },
-                    { name: 'Poster Designer', description: 'Design custom posters', bgColor: 'bg-tool-blue', emoji: '🎭' },
-                    { name: 'Infographic Builder', description: 'Create infographics', bgColor: 'bg-tool-pink', emoji: '📊' },
-                    { name: 'Presentation Maker', description: 'Design presentations', bgColor: 'bg-tool-yellow', emoji: '📺' },
-                    ...(expandedSections.designApps ? [
-                      { name: 'Business Card Maker', description: 'Design business cards', bgColor: 'bg-tool-blue', emoji: '💳' },
-                      { name: 'Brochure Creator', description: 'Create brochures', bgColor: 'bg-tool-yellow', emoji: '📰' },
-                      { name: 'Certificate Maker', description: 'Design certificates', bgColor: 'bg-tool-green', emoji: '🏆' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {designApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
 
+              {/* Content Apps */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">CONTENT APPS</h2>
@@ -394,28 +357,13 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'Blog Writer', description: 'Generate blog posts', bgColor: 'bg-tool-green', emoji: '✍️' },
-                    { name: 'Social Posts', description: 'Create social content', bgColor: 'bg-tool-blue', emoji: '📱' },
-                    { name: 'Email Generator', description: 'Write email campaigns', bgColor: 'bg-tool-yellow', emoji: '📧' },
-                    { name: 'Ad Copy Writer', description: 'Generate ad copy', bgColor: 'bg-tool-pink', emoji: '💡' },
-                    { name: 'Script Writer', description: 'Create video scripts', bgColor: 'bg-tool-blue', emoji: '🎬' },
-                    { name: 'SEO Optimizer', description: 'Optimize for search', bgColor: 'bg-tool-green', emoji: '🔍' },
-                    ...(expandedSections.contentApps ? [
-                      { name: 'Press Release', description: 'Write press releases', bgColor: 'bg-tool-blue', emoji: '📰' },
-                      { name: 'Product Description', description: 'Write product descriptions', bgColor: 'bg-tool-yellow', emoji: '🏷️' },
-                      { name: 'Landing Page Copy', description: 'Create landing page copy', bgColor: 'bg-tool-green', emoji: '🎯' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div key={idx} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer`}>
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {contentApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
 
+              {/* Tools */}
               <section>
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-2xl font-bold">TOOLS</h2>
@@ -428,23 +376,8 @@ const Apps = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-                  {[
-                    { name: 'Versus', description: 'Compare LLM models side-by-side', bgColor: 'bg-tool-blue', emoji: '⚔️', badge: 'LLM', onClick: () => navigate('/versus') },
-                    ...(expandedSections.tools ? [
-                      { name: 'Prompt Lab', description: 'Test and refine prompts', bgColor: 'bg-tool-yellow', emoji: '🧪' },
-                      { name: 'Model Benchmark', description: 'Benchmark AI models', bgColor: 'bg-tool-pink', emoji: '📈' },
-                    ] : [])
-                  ].map((tool, idx) => (
-                    <div key={idx} onClick={tool.onClick} className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden`}>
-                      {tool.badge && (
-                        <span className="absolute top-2 right-2 px-2 py-0.5 bg-amber-500 text-black text-[10px] font-bold rounded-full">
-                          {tool.badge}
-                        </span>
-                      )}
-                      <div className="text-4xl mb-2">{tool.emoji}</div>
-                      <h3 className="font-bold text-sm mb-1 text-black">{tool.name}</h3>
-                      <p className="text-xs text-black">{tool.description}</p>
-                    </div>
+                  {toolsApps.map((app, idx) => (
+                    <AppCard key={idx} {...app} />
                   ))}
                 </div>
               </section>
