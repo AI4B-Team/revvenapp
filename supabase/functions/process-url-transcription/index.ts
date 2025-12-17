@@ -72,14 +72,23 @@ serve(async (req) => {
           body: `url=${encodeURIComponent(cleanUrl)}`,
         });
 
+        const responseText = await downloadResponse.text();
+        console.log("[BG-TRANSCRIBE] Snap Video API raw response:", responseText.substring(0, 500));
+        
         if (!downloadResponse.ok) {
-          const errorText = await downloadResponse.text();
-          console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, errorText);
-          throw new Error(`Failed to extract from URL: ${downloadResponse.status}`);
+          console.error("[BG-TRANSCRIBE] Snap Video API error:", downloadResponse.status, responseText);
+          throw new Error(`Failed to extract from URL: ${downloadResponse.status} - ${responseText.substring(0, 100)}`);
         }
 
-        const downloadData = await downloadResponse.json();
-        console.log("[BG-TRANSCRIBE] Snap Video API full response:", JSON.stringify(downloadData).substring(0, 1000));
+        let downloadData;
+        try {
+          downloadData = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error("[BG-TRANSCRIBE] Failed to parse API response as JSON:", responseText.substring(0, 200));
+          throw new Error(`API returned invalid JSON response. Platform may not be supported.`);
+        }
+        
+        console.log("[BG-TRANSCRIBE] Snap Video API parsed response:", JSON.stringify(downloadData).substring(0, 1000));
 
         let downloadUrl: string | null = null;
         const title = downloadData.title || downloadData.meta?.title || "media_audio";
