@@ -152,7 +152,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   const [isEnhancingLyrics, setIsEnhancingLyrics] = useState(false);
   
   // Transcribe mode state
-  const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number; url?: string; base64?: string } | null>(null);
+  const [transcribeAudio, setTranscribeAudio] = useState<{ name: string; duration: number | string; url?: string; base64?: string } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribedText, setIsTranscribedText] = useState(false);
@@ -1616,7 +1616,22 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
                 let audioUrl = transcribeAudio?.url;
-                let audioDuration = transcribeAudio?.duration || 0;
+                let audioDuration: number = 0;
+                
+                // Parse duration - handle both number and string formats
+                const rawDuration = transcribeAudio?.duration;
+                if (typeof rawDuration === 'number') {
+                  audioDuration = rawDuration;
+                } else if (typeof rawDuration === 'string') {
+                  const parts = rawDuration.split(':');
+                  if (parts.length === 2) {
+                    audioDuration = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+                  } else if (parts.length === 3) {
+                    audioDuration = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+                  } else {
+                    audioDuration = parseFloat(rawDuration) || 0;
+                  }
+                }
                 
                 // If we have base64 data (regular upload), upload to Cloudinary first
                 if (transcribeAudio?.base64) {
