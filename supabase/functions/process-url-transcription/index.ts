@@ -65,11 +65,11 @@ serve(async (req) => {
         const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": RAPIDAPI_KEY,
-            "X-RapidAPI-Host": "snap-video3.p.rapidapi.com"
+            "Content-Type": "application/x-www-form-urlencoded",
+            "x-rapidapi-host": "snap-video3.p.rapidapi.com",
+            "x-rapidapi-key": RAPIDAPI_KEY,
           },
-          body: JSON.stringify({ url: cleanUrl })
+          body: `url=${encodeURIComponent(cleanUrl)}`,
         });
 
         if (!downloadResponse.ok) {
