@@ -149,9 +149,10 @@ const Create = () => {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (!session) {
+      // Only navigate to login on explicit sign out, not during token refresh
+      if (event === 'SIGNED_OUT') {
         navigate('/login');
       }
     });
