@@ -41,7 +41,27 @@ serve(async (req) => {
           throw new Error("RAPIDAPI_KEY not configured");
         }
 
-        const cleanUrl = url.trim();
+        let cleanUrl = url.trim();
+        
+        // Clean and normalize YouTube URLs
+        // Convert shorts to regular format: youtube.com/shorts/ID -> youtube.com/watch?v=ID
+        if (cleanUrl.includes('youtube.com/shorts/')) {
+          const videoId = cleanUrl.match(/shorts\/([a-zA-Z0-9_-]+)/)?.[1];
+          if (videoId) {
+            cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          }
+        }
+        
+        // Remove tracking parameters (?si=...)
+        cleanUrl = cleanUrl.split('?si=')[0];
+        
+        // Add www if missing for youtube.com
+        if (cleanUrl.includes('youtube.com') && !cleanUrl.includes('www.youtube.com')) {
+          cleanUrl = cleanUrl.replace('youtube.com', 'www.youtube.com');
+        }
+        
+        console.log("[BG-TRANSCRIBE] Cleaned URL:", cleanUrl);
+        
         const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
           method: "POST",
           headers: {
