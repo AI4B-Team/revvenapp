@@ -579,103 +579,81 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
   const [isExtractingYouTube, setIsExtractingYouTube] = useState(false);
 
-  const handleMediaUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle URL input change - just validate, don't process yet
+  const handleMediaUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
     setMediaUrl(url);
+  };
+
+  // Start background processing for URL transcription
+  const handleUrlBackgroundProcess = async () => {
+    if (!mediaUrl) return;
     
-    if (!url) {
-      setSelectedFile(null);
+    // Validate URL
+    if (!isSupportedPlatformUrl(mediaUrl)) {
+      if (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://')) {
+        toast({
+          title: "Unsupported platform",
+          description: "This URL is not from a supported platform. Try YouTube, TikTok, Instagram, Facebook, etc.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
-    // Check if it's a supported platform URL
-    if (isSupportedPlatformUrl(url)) {
-      setIsExtractingYouTube(true);
+    setIsExtractingYouTube(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Get auth token for edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token;
+
+      // Step 1: Create a "processing" record immediately
+      const { data: insertedData, error: insertError } = await supabase.from('user_voices').insert({
+        user_id: user.id,
+        name: 'Processing media...',
+        duration: 0,
+        url: '',
+        type: 'transcription',
+        status: 'processing',
+      }).select().single();
+
+      if (insertError) throw insertError;
+
       toast({
-        title: "Extracting audio",
-        description: "Getting audio from media URL...",
+        title: "Processing started",
+        description: "Your audio is being extracted and transcribed in the background. Check creations for progress.",
       });
 
-      try {
-        const { data, error } = await supabase.functions.invoke('extract-youtube-audio', {
-          body: { url }
-        });
+      // Step 2: Start background processing (fire and forget)
+      supabase.functions.invoke('process-url-transcription', {
+        body: {
+          url: mediaUrl,
+          recordId: insertedData.id,
+          userId: user.id,
+        },
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+      }).catch(error => {
+        console.error('Background processing error:', error);
+      });
 
-        if (error) throw error;
-        if (!data?.success) throw new Error(data?.error || 'Failed to extract audio');
+      // Step 3: Close modal immediately - processing happens in background
+      stopAllAudio();
+      setMediaUrl('');
+      onClose();
 
-        // Upload to Cloudinary using remote URL (much faster)
-        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
-          body: {
-            remoteUrl: data.downloadUrl,
-            filename: data.filename,
-          }
-        });
-
-        if (uploadError) throw uploadError;
-
-        // Save to database
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          // Parse duration - handle both number and string formats (e.g., "01:31" -> 91)
-          let parsedDuration = 0;
-          const rawDuration = uploadData.duration || data.duration;
-          if (typeof rawDuration === 'number') {
-            parsedDuration = rawDuration;
-          } else if (typeof rawDuration === 'string') {
-            const parts = rawDuration.split(':');
-            if (parts.length === 2) {
-              parsedDuration = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-            } else if (parts.length === 3) {
-              parsedDuration = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
-            } else {
-              parsedDuration = parseFloat(rawDuration) || 0;
-            }
-          }
-
-          const { data: insertedData } = await supabase.from('user_voices').insert({
-            user_id: user.id,
-            name: data.title || data.filename,
-            duration: parsedDuration,
-            url: uploadData.url,
-            type: 'uploaded',
-          }).select().single();
-
-          await loadAudioHistory();
-
-          setSelectedFile({
-            name: data.title || data.filename,
-            duration: parsedDuration,
-            url: uploadData.url,
-            source: 'media',
-            id: insertedData?.id,
-          });
-          setEditedFileName(data.title || data.filename);
-        }
-
-        toast({
-          title: "Audio extracted",
-          description: `Successfully extracted audio from ${data.platform || 'media'}`,
-        });
-      } catch (error) {
-        console.error('Error extracting media audio:', error);
-        toast({
-          title: "Extraction failed",
-          description: error instanceof Error ? error.message : "Failed to extract audio from URL",
-          variant: "destructive",
-        });
-        setMediaUrl('');
-      } finally {
-        setIsExtractingYouTube(false);
-      }
-    } else if (url.startsWith('http://') || url.startsWith('https://')) {
-      // For unsupported URLs, show an error
+    } catch (error) {
+      console.error('Error starting background process:', error);
       toast({
-        title: "Unsupported platform",
-        description: "This URL is not from a supported platform. Try YouTube, TikTok, Instagram, Facebook, etc.",
+        title: "Processing failed",
+        description: error instanceof Error ? error.message : "Failed to start processing",
         variant: "destructive",
       });
-      setMediaUrl('');
+    } finally {
+      setIsExtractingYouTube(false);
     }
   };
 
@@ -776,7 +754,14 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
     setIsEditingFileName(false);
   };
 
-  const handleUse = () => {
+  const handleUse = async () => {
+    // If there's a media URL entered, use background processing
+    if (mediaUrl && isSupportedPlatformUrl(mediaUrl)) {
+      await handleUrlBackgroundProcess();
+      return;
+    }
+
+    // Otherwise use the selected file
     if (selectedFile) {
       // Stop any playing audio before closing
       stopAllAudio();
@@ -1203,21 +1188,23 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
           <div className="mt-auto pt-4">
             <button
               onClick={handleUse}
-              disabled={!selectedFile || isUploading}
+              disabled={(!selectedFile && !mediaUrl) || isUploading || isExtractingYouTube}
               className={`
                 w-full py-3 rounded-xl font-semibold text-white
                 transition-all duration-200 flex items-center justify-center gap-2
-                ${selectedFile && !isUploading
+                ${(selectedFile || mediaUrl) && !isUploading && !isExtractingYouTube
                   ? 'bg-emerald-400 hover:bg-emerald-500 active:scale-[0.98] shadow-lg shadow-emerald-400/30'
                   : 'bg-gray-300 cursor-not-allowed'
                 }
               `}
             >
-              {isUploading ? (
+              {isUploading || isExtractingYouTube ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Processing...
+                  {isExtractingYouTube ? 'Starting...' : 'Processing...'}
                 </>
+              ) : mediaUrl ? (
+                'Process & Transcribe'
               ) : (
                 'Use'
               )}
