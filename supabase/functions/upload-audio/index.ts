@@ -33,16 +33,21 @@ serve(async (req) => {
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
-    const blob = new Blob([bytes], { type: contentType || 'audio/webm' });
+    
+    // Determine if this is a video file (from YouTube extraction)
+    const isVideoFile = contentType?.includes('video') || filename?.endsWith('.mp4');
+    const actualContentType = contentType || (isVideoFile ? 'video/mp4' : 'audio/webm');
+    
+    const blob = new Blob([bytes], { type: actualContentType });
     
     formData.append("file", blob, filename || "audio.webm");
     formData.append("upload_preset", uploadPreset);
-    formData.append("resource_type", "video"); // Cloudinary uses 'video' for audio files
+    formData.append("resource_type", "video"); // Cloudinary uses 'video' for both audio and video files
     formData.append("folder", "ugc-audio");
 
     // Upload to Cloudinary
     const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
       {
         method: "POST",
         body: formData,
