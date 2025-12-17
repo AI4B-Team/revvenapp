@@ -15,7 +15,7 @@ interface TranscribeConfirmModalProps {
   onClose: () => void;
   audioFile: {
     name: string;
-    duration: number;
+    duration: number | string;
     url?: string;
     base64?: string;
   } | null;
@@ -44,15 +44,29 @@ const TranscribeConfirmModal: React.FC<TranscribeConfirmModalProps> = ({
     }
   }, [audioFile]);
 
-  const formatDuration = (seconds: number) => {
+  const parseDuration = (duration: number | string): number => {
+    if (typeof duration === 'number') return duration;
+    // Handle "MM:SS" or "HH:MM:SS" format
+    const parts = duration.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    } else if (parts.length === 3) {
+      return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+    }
+    return parseFloat(duration) || 0;
+  };
+
+  const formatDuration = (duration: number | string) => {
+    const seconds = parseDuration(duration);
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatFileSize = (duration: number) => {
+  const formatFileSize = (duration: number | string) => {
+    const seconds = parseDuration(duration);
     // Rough estimation based on duration (assuming ~32kbps audio)
-    const estimatedBytes = duration * 32 * 1000 / 8;
+    const estimatedBytes = seconds * 32 * 1000 / 8;
     if (estimatedBytes >= 1024 * 1024) {
       return `${(estimatedBytes / (1024 * 1024)).toFixed(2)} MB`;
     }
