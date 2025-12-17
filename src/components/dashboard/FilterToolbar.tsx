@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   ChevronDown, Sliders, Search, ZoomIn, ZoomOut, 
   Heart, Calendar, Layers, Image, Video, Headphones, 
-  Palette, FileText, Grid3x3, Mic, Volume2, Music, 
-  FileText as TranscribeIcon, Languages, Copy
+  Palette, FileText, Grid3x3, Mic, User, RefreshCw, 
+  Captions, AudioLines, Music
 } from 'lucide-react';
 import {
   Tooltip,
@@ -68,11 +68,11 @@ const FilterToolbar = ({
   const audioModes = [
     { name: 'All', icon: Layers },
     { name: 'Voiceover', icon: Mic },
-    { name: 'Sound Effects', icon: Volume2 },
-    { name: 'Music', icon: Music },
-    { name: 'Transcribe', icon: TranscribeIcon },
-    { name: 'Revoice', icon: Languages },
-    { name: 'Clone', icon: Copy }
+    { name: 'Clone', icon: User },
+    { name: 'Revoice', icon: RefreshCw },
+    { name: 'Transcribe', icon: Captions },
+    { name: 'Sound Effects', icon: AudioLines },
+    { name: 'Music', icon: Music }
   ];
 
   // Focus search input when expanded
