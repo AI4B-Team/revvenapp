@@ -1,6 +1,7 @@
 import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
+import StoryboardSceneEditor from './StoryboardSceneEditor';
 import VideoToVideoModal from './VideoToVideoModal';
 import TranscribeConfirmModal from './TranscribeConfirmModal';
 import AudioLibraryModal from './AudioLibraryModal';
@@ -6971,6 +6972,11 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         </div>
       </div>
+
+      {/* Storyboard Scene Editor - Only visible when Story is selected in Video mode */}
+      {isVideoMode && selectedAnimateMode === 'Story' && (
+        <StoryboardSceneEditor />
+      )}
 
       {/* Music Samples Section - Only visible when Music is selected in Audio mode */}
       {isAudioMode && selectedAudioMode === 'Music' && (
