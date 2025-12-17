@@ -283,7 +283,8 @@ const Create = () => {
       name: 'Video Downloader', 
       description: 'Download videos',
       bgColor: 'bg-tool-blue',
-      emoji: '📥'
+      emoji: '📥',
+      onClick: () => navigate('/video-downloader')
     },
     { 
       name: 'Video Resizer', 
