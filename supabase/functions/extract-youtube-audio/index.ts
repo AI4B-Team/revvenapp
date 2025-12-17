@@ -37,44 +37,69 @@ serve(async (req) => {
 
     console.log("Extracting audio for video:", videoId);
 
-    // Use cobalt.tools API to extract audio
-    const cobaltResponse = await fetch("https://api.cobalt.tools/", {
+    const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || "95ca0bc5aemsh3c366a842c91a7ep1fd154jsn605142776c85";
+
+    // Use snap-video3 API to download
+    const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
       method: "POST",
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "x-rapidapi-host": "snap-video3.p.rapidapi.com",
+        "x-rapidapi-key": RAPIDAPI_KEY,
       },
-      body: JSON.stringify({
-        url: `https://www.youtube.com/watch?v=${videoId}`,
-        downloadMode: "audio",
-        audioFormat: "mp3",
-      }),
+      body: `url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`,
     });
 
-    if (!cobaltResponse.ok) {
-      const errorText = await cobaltResponse.text();
-      console.error("Cobalt API error:", cobaltResponse.status, errorText);
-      throw new Error(`Audio extraction service error: ${cobaltResponse.status}`);
+    if (!downloadResponse.ok) {
+      const errorText = await downloadResponse.text();
+      console.error("Snap Video API error:", downloadResponse.status, errorText);
+      throw new Error(`Download API error: ${downloadResponse.status}`);
     }
 
-    const cobaltData = await cobaltResponse.json();
-    console.log("Cobalt response status:", cobaltData.status);
+    const downloadData = await downloadResponse.json();
+    console.log("Snap Video API response:", JSON.stringify(downloadData, null, 2));
 
-    if (cobaltData.status === "error") {
-      throw new Error(cobaltData.error?.code || "Failed to extract audio");
+    // Find audio URL from the response
+    let audioUrl: string | null = null;
+    let title = downloadData.title || `youtube_${videoId}`;
+
+    // Check for audio in various response formats
+    if (downloadData.audio && Array.isArray(downloadData.audio) && downloadData.audio.length > 0) {
+      audioUrl = downloadData.audio[0].url || downloadData.audio[0].downloadUrl;
+    } else if (downloadData.audioFormats && Array.isArray(downloadData.audioFormats)) {
+      const audioFormat = downloadData.audioFormats[0];
+      audioUrl = audioFormat.url || audioFormat.downloadUrl;
+    } else if (downloadData.url) {
+      audioUrl = downloadData.url;
+    } else if (downloadData.downloadUrl) {
+      audioUrl = downloadData.downloadUrl;
+    } else if (downloadData.medias && Array.isArray(downloadData.medias)) {
+      // Look for audio media
+      const audioMedia = downloadData.medias.find((m: any) => 
+        m.type === 'audio' || m.extension === 'mp3' || m.quality?.includes('audio')
+      );
+      if (audioMedia) {
+        audioUrl = audioMedia.url || audioMedia.downloadUrl;
+      } else if (downloadData.medias.length > 0) {
+        // Use first available media as fallback
+        audioUrl = downloadData.medias[0].url || downloadData.medias[0].downloadUrl;
+      }
     }
 
-    // Get the audio URL
-    const audioUrl = cobaltData.url || cobaltData.audio;
     if (!audioUrl) {
-      console.log("Cobalt response:", JSON.stringify(cobaltData));
-      throw new Error("No audio URL returned from extraction service");
+      console.log("Full response structure:", JSON.stringify(downloadData, null, 2));
+      throw new Error("No audio URL found in API response");
     }
 
-    console.log("Downloading audio from extracted URL...");
+    console.log("Downloading audio from:", audioUrl);
 
     // Download the audio file
-    const audioResponse = await fetch(audioUrl);
+    const audioResponse = await fetch(audioUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      },
+    });
+
     if (!audioResponse.ok) {
       throw new Error(`Failed to download audio: ${audioResponse.status}`);
     }
@@ -92,23 +117,17 @@ serve(async (req) => {
     }
     const audioBase64 = btoa(binaryString);
 
-    // Get filename from response headers or use video ID
-    const contentDisposition = audioResponse.headers.get('content-disposition');
-    let filename = `youtube_${videoId}.mp3`;
-    if (contentDisposition) {
-      const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      if (match) {
-        filename = match[1].replace(/['"]/g, '');
-      }
-    }
+    // Clean filename
+    const safeTitle = title.replace(/[^a-zA-Z0-9\s-]/g, '').substring(0, 50);
+    const filename = `${safeTitle || videoId}.mp3`;
 
     return new Response(
       JSON.stringify({
         success: true,
         audioBase64,
         filename,
-        contentType: audioResponse.headers.get('content-type') || 'audio/mpeg',
-        title: cobaltData.filename || filename,
+        contentType: "audio/mpeg",
+        title: title,
         duration: 0,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
