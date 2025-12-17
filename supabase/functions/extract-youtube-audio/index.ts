@@ -39,7 +39,7 @@ serve(async (req) => {
 
     const RAPIDAPI_KEY = Deno.env.get("RAPIDAPI_KEY") || "95ca0bc5aemsh3c366a842c91a7ep1fd154jsn605142776c85";
 
-    // Use snap-video3 API to download
+    // Use snap-video3 API to get download URL
     const downloadResponse = await fetch("https://snap-video3.p.rapidapi.com/download", {
       method: "POST",
       headers: {
@@ -57,7 +57,7 @@ serve(async (req) => {
     }
 
     const downloadData = await downloadResponse.json();
-    console.log("Snap Video API response:", JSON.stringify(downloadData, null, 2));
+    console.log("Snap Video API response received, title:", downloadData.title);
 
     let downloadUrl: string | null = null;
     let title = downloadData.title || `youtube_${videoId}`;
@@ -65,11 +65,11 @@ serve(async (req) => {
 
     // Extract download URL from medias array (primary source)
     if (downloadData.medias && Array.isArray(downloadData.medias) && downloadData.medias.length > 0) {
-      // Prefer smallest file (usually 360p) for faster download
+      // Prefer smallest file (usually 360p) for faster processing
       const media = downloadData.medias[0];
       downloadUrl = media.url;
       extension = media.extension || "mp4";
-      console.log("Using media URL:", downloadUrl, "Quality:", media.quality);
+      console.log("Found media URL, quality:", media.quality);
     }
 
     if (!downloadUrl) {
@@ -77,48 +77,19 @@ serve(async (req) => {
       throw new Error("No download URL found in API response");
     }
 
-    console.log("Downloading from:", downloadUrl);
-
-    // Download the file
-    const mediaResponse = await fetch(downloadUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-    });
-
-    if (!mediaResponse.ok) {
-      throw new Error(`Failed to download media: ${mediaResponse.status}`);
-    }
-
-    const mediaBuffer = await mediaResponse.arrayBuffer();
-    console.log("Media downloaded, size:", mediaBuffer.byteLength, "bytes");
-
-    // Convert to base64
-    const uint8Array = new Uint8Array(mediaBuffer);
-    let binaryString = '';
-    const chunkSize = 32768;
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.slice(i, i + chunkSize);
-      binaryString += String.fromCharCode(...chunk);
-    }
-    const audioBase64 = btoa(binaryString);
-
     // Clean filename
     const safeTitle = title.replace(/[^a-zA-Z0-9\s-]/g, '').substring(0, 50);
     const filename = `${safeTitle || videoId}.${extension}`;
 
-    // Determine content type based on extension
-    const contentType = extension === "mp3" ? "audio/mpeg" : "video/mp4";
-
+    // Return the URL directly - let client/Cloudinary handle the download
     return new Response(
       JSON.stringify({
         success: true,
-        audioBase64,
+        downloadUrl,
         filename,
-        contentType,
+        contentType: extension === "mp3" ? "audio/mpeg" : "video/mp4",
         title: title,
-        duration: 0,
-        isVideo: extension !== "mp3", // Flag to indicate this is a video file
+        duration: downloadData.duration || "0:00",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
