@@ -2,6 +2,7 @@ import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, Chev
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
+import PhotoshootThemeSelector from './PhotoshootThemeSelector';
 import VideoToVideoModal from './VideoToVideoModal';
 import TranscribeConfirmModal from './TranscribeConfirmModal';
 import AudioLibraryModal from './AudioLibraryModal';
@@ -6788,6 +6789,13 @@ Make it look like a natural, professional product showcase or UGC-style promotio
       {isVideoMode && selectedAnimateMode === 'Story' && storySceneMode === 'Manual' && (
         <div className="w-full mt-4">
           <StoryboardSceneEditor />
+        </div>
+      )}
+
+      {/* Photoshoot Theme Selector - Only visible when Photoshoot is selected in Image mode */}
+      {!isVideoMode && !isAudioMode && !isDesignMode && !isContentMode && !isAppsMode && !isDocumentMode && selectedCreateMode === 'Photoshoot' && (
+        <div className="w-full mt-4">
+          <PhotoshootThemeSelector />
         </div>
       )}
 
