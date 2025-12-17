@@ -294,7 +294,7 @@ const Apps = () => {
                   ].map((tool, idx) => (
                     <div 
                       key={idx} 
-                      onClick={tool.action}
+                      onClick={() => tool.action?.()}
                       className={`${tool.bgColor} rounded-2xl p-4 hover:scale-105 transition cursor-pointer relative overflow-hidden group`}
                     >
                       {tool.name === 'Video Downloader' && (
