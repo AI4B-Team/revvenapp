@@ -25,9 +25,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'CHRISTMAS MAGIC',
     creator: 'hollydays',
     images: [
-      'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1512389142860-9c449e58a814?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1545622783-b3e021430fee?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
@@ -45,9 +45,9 @@ const PHOTOSHOOT_THEMES: PhotoTheme[] = [
     name: 'SPRING BLOOM',
     creator: 'cherryblsm',
     images: [
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=500&fit=crop&q=80',
       'https://images.unsplash.com/photo-1462275646964-a0e3571f4f7a?w=400&h=500&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1518882605630-8a6e96fcd25a?w=400&h=500&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1518882605630-8a6e96fcd25a?w=400&h=500&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1522748906645-95d8adfd52c7?w=400&h=500&fit=crop&q=80'
     ]
   },
   {
