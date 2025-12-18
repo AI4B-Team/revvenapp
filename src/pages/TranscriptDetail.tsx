@@ -34,39 +34,50 @@ const LANGUAGES = [
   'Swedish', 'Bengali'
 ];
 
-const MOCK_TRANSCRIPT_CONTENT = [
-  { speaker: 'Speaker 1', time: '00:00:05', text: "Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started." },
-  { speaker: 'Speaker 2', time: '00:00:15', text: "Thanks for organizing this. I've prepared the Q4 projections we discussed last week." },
-  { speaker: 'Speaker 1', time: '00:00:25', text: "Perfect. Before we dive in, let's do a quick round of updates from each team." },
-  { speaker: 'Speaker 3', time: '00:00:35', text: "The engineering team has completed the core features for the mobile app. We're now in the testing phase." },
-  { speaker: 'Speaker 4', time: '00:00:48', text: "Marketing has finalized the launch campaign. We're targeting early January for the announcement." },
-  { speaker: 'Speaker 2', time: '00:01:02', text: "Great progress. The numbers look promising - we're projecting a 40% increase in user engagement." },
-  { speaker: 'Speaker 1', time: '00:01:15', text: "That's excellent news. Let's discuss the resource allocation for Q1 and how we can best support the launch." },
-  { speaker: 'Speaker 3', time: '00:01:28', text: "I think we need at least two more developers to help with the final testing phase. The timeline is tight." },
-  { speaker: 'Speaker 4', time: '00:01:42', text: "Marketing can actually share some budget if engineering needs additional resources. Our campaign is mostly set." },
-  { speaker: 'Speaker 2', time: '00:01:55', text: "That's a great point. I'll run the numbers and see how we can reallocate funds to support the launch." },
-  { speaker: 'Speaker 1', time: '00:02:10', text: "Let's also talk about the customer feedback we've been collecting. There are some interesting patterns emerging." },
-  { speaker: 'Speaker 3', time: '00:02:25', text: "Yes, users are really excited about the new features. The beta testers gave us overwhelmingly positive feedback." },
-  { speaker: 'Speaker 4', time: '00:02:40', text: "We should highlight those testimonials in our launch materials. Real user stories always resonate well." },
-  { speaker: 'Speaker 2', time: '00:02:55', text: "I can compile a report on the feedback trends. We have data from over 500 beta users now." },
-  { speaker: 'Speaker 1', time: '00:03:10', text: "Perfect. Let's reconvene next week with action items completed. Great progress everyone." },
-  { speaker: 'Speaker 3', time: '00:03:25', text: "Before we wrap up, should we discuss the internationalization plans? That's coming up quickly." },
-  { speaker: 'Speaker 4', time: '00:03:40', text: "Good point. We have translation partners lined up for Spanish, French, and German markets." },
-  { speaker: 'Speaker 2', time: '00:03:55', text: "The international expansion could double our user base within six months according to projections." },
-  { speaker: 'Speaker 1', time: '00:04:10', text: "Let's put that on the agenda for our next meeting. We'll need a detailed rollout plan." },
-  { speaker: 'Speaker 3', time: '00:04:25', text: "I'll prepare technical requirements for multi-language support. The infrastructure is mostly ready." },
+// Speaker color mapping
+const SPEAKER_COLORS = [
+  { color: 'bg-emerald-300', textColor: 'text-emerald-500', bgLight: 'bg-emerald-500/20' },
+  { color: 'bg-blue-300', textColor: 'text-blue-500', bgLight: 'bg-blue-500/20' },
+  { color: 'bg-purple-300', textColor: 'text-purple-500', bgLight: 'bg-purple-500/20' },
+  { color: 'bg-orange-300', textColor: 'text-orange-500', bgLight: 'bg-orange-500/20' },
 ];
 
-// Mock speaker speaking time data - using pastel colors to match icons
-const SPEAKER_DATA = [
-  { id: 1, name: 'Speaker 1', minutes: 12, color: 'bg-emerald-300', textColor: 'text-emerald-500', bgLight: 'bg-emerald-500/20' },
-  { id: 2, name: 'Speaker 2', minutes: 8, color: 'bg-blue-300', textColor: 'text-blue-500', bgLight: 'bg-blue-500/20' },
-  { id: 3, name: 'Speaker 3', minutes: 15, color: 'bg-purple-300', textColor: 'text-purple-500', bgLight: 'bg-purple-500/20' },
-  { id: 4, name: 'Speaker 4', minutes: 10, color: 'bg-orange-300', textColor: 'text-orange-500', bgLight: 'bg-orange-500/20' },
-];
+interface TranscriptLine {
+  speaker: string;
+  time: string;
+  text: string;
+}
+
+// Parse transcript text into structured format
+const parseTranscriptContent = (text: string, durationStr: string): TranscriptLine[] => {
+  if (!text) return [];
+  
+  // Split by sentences or paragraphs
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+  
+  // Parse duration to seconds
+  const durationParts = durationStr.split(':').map(Number);
+  const totalSeconds = durationParts.length === 3 
+    ? durationParts[0] * 3600 + durationParts[1] * 60 + durationParts[2]
+    : durationParts[0] * 60 + (durationParts[1] || 0);
+  
+  const timePerSentence = totalSeconds / Math.max(sentences.length, 1);
+  
+  return sentences.map((sentence, index) => {
+    const seconds = Math.floor(index * timePerSentence);
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return {
+      speaker: 'Speaker 1',
+      time: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+      text: sentence.trim()
+    };
+  });
+};
 
 const TranscriptDetail = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [searchParams] = useSearchParams();
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
   const [identitySidebarOpen, setIdentitySidebarOpen] = useState(false);
@@ -86,15 +97,19 @@ const TranscriptDetail = () => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   
+  // Transcript content from database
+  const [originalContent, setOriginalContent] = useState<TranscriptLine[]>([]);
+  const [editedContent, setEditedContent] = useState<TranscriptLine[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Per-line transcript editing
   const [editingLineIndex, setEditingLineIndex] = useState<number | null>(null);
-  const [editedContent, setEditedContent] = useState(MOCK_TRANSCRIPT_CONTENT);
   
   // Translation
   const [showTranslatePopover, setShowTranslatePopover] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
   const [selectedTranslation, setSelectedTranslation] = useState<string | null>(null);
-  const [translatedContent, setTranslatedContent] = useState<typeof MOCK_TRANSCRIPT_CONTENT | null>(null);
+  const [translatedContent, setTranslatedContent] = useState<TranscriptLine[] | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [activeTranslationTab, setActiveTranslationTab] = useState<'original' | 'translated'>('original');
   
@@ -107,7 +122,50 @@ const TranscriptDetail = () => {
   const duration = searchParams.get('duration') || '00:00';
   const speakers = parseInt(searchParams.get('speakers') || '1');
   const language = searchParams.get('language') || 'English';
-  const summary = searchParams.get('summary') || 'This meeting covered Q4 product strategy and launch planning.';
+  const summary = searchParams.get('summary') || '';
+
+  // Generate speaker data dynamically
+  const speakerData = Array.from({ length: speakers }, (_, i) => ({
+    id: i + 1,
+    name: `Speaker ${i + 1}`,
+    minutes: Math.floor(Math.random() * 10) + 5,
+    ...SPEAKER_COLORS[i % SPEAKER_COLORS.length]
+  }));
+  
+  const totalSpeakingMinutes = speakerData.reduce((sum, s) => sum + s.minutes, 0);
+
+  // Load transcript from database
+  useEffect(() => {
+    const loadTranscript = async () => {
+      if (!id) {
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_voices')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (error) throw error;
+        
+        if (data?.prompt) {
+          const parsedContent = parseTranscriptContent(data.prompt, duration);
+          setOriginalContent(parsedContent);
+          setEditedContent(parsedContent);
+        }
+      } catch (error) {
+        console.error('Error loading transcript:', error);
+        toast.error('Failed to load transcript');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTranscript();
+  }, [id, duration]);
 
   useEffect(() => {
     setEditedTitle(title);
@@ -174,7 +232,7 @@ const TranscriptDetail = () => {
   const handleCancelLineEdit = (index: number) => {
     // Reset the line to original content
     const newContent = [...editedContent];
-    newContent[index] = { ...MOCK_TRANSCRIPT_CONTENT[index] };
+    newContent[index] = { ...originalContent[index] };
     setEditedContent(newContent);
     setEditingLineIndex(null);
   };
@@ -197,7 +255,7 @@ const TranscriptDetail = () => {
     try {
       // Translate the transcript content
       const translatedItems = await Promise.all(
-        MOCK_TRANSCRIPT_CONTENT.map(async (item) => {
+        originalContent.map(async (item) => {
           const { data, error } = await supabase.functions.invoke('translate-text', {
             body: { text: item.text, targetLanguage }
           });
@@ -235,8 +293,6 @@ const TranscriptDetail = () => {
   const filteredLanguages = LANGUAGES.filter(lang => 
     lang.toLowerCase().includes(languageSearch.toLowerCase())
   );
-
-  const totalSpeakingMinutes = SPEAKER_DATA.reduce((sum, s) => sum + s.minutes, 0);
 
   const displayContent = (selectedTranslation && translatedContent && activeTranslationTab === 'translated') 
     ? translatedContent 
@@ -640,7 +696,7 @@ const TranscriptDetail = () => {
                   <p className="text-gray-500 mb-6">Identify & Label Speakers For Better Organization</p>
                   
                   <div className="grid grid-cols-2 gap-4 mb-8">
-                    {SPEAKER_DATA.slice(0, speakers).map((speaker) => (
+                    {speakerData.slice(0, speakers).map((speaker) => (
                       <div key={speaker.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-300">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${speaker.bgLight} ${speaker.textColor}`}>
                           <User className="w-5 h-5" />
@@ -679,7 +735,7 @@ const TranscriptDetail = () => {
                   <div className="p-5 rounded-xl bg-gray-50 border border-gray-300">
                     <h4 className="text-sm font-medium text-gray-900 mb-4">Speaking Time Distribution</h4>
                     <div className="space-y-3">
-                      {SPEAKER_DATA.slice(0, speakers).map((speaker) => (
+                      {speakerData.slice(0, speakers).map((speaker) => (
                         <div key={speaker.id} className="flex items-center gap-3">
                           <div className="w-24 text-sm text-gray-600">{speakerNames[speaker.id] || speaker.name}</div>
                           <div className="flex-1 h-6 bg-gray-200 rounded-full overflow-hidden">
