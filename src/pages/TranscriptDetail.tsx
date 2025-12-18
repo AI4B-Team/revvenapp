@@ -10,7 +10,7 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
-  Info, Heart, RefreshCw, MoreVertical
+  Star, MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1539,9 +1539,6 @@ ${content.map((item, index) => {
           <div className="flex items-center gap-4">
             {/* Left: Title & Badge */}
             <div className="flex items-center gap-3 min-w-[200px]">
-              <div className="w-8 h-8 rounded bg-gray-700/50 flex items-center justify-center">
-                <MoreVertical className="w-4 h-4 text-gray-400" />
-              </div>
               <div className="flex flex-col">
                 <span className="text-sm text-white font-medium truncate max-w-[150px]">{editedTitle}</span>
                 <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
@@ -1580,6 +1577,35 @@ ${content.map((item, index) => {
 
             {/* Right: Controls */}
             <div className="flex items-center gap-1">
+              {/* Volume */}
+              <Popover>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Volume</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
+                  <div className="relative h-24 flex items-center justify-center">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={volume}
+                      onChange={(e) => setVolume(parseInt(e.target.value))}
+                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+
               {/* Speed */}
               <select 
                 value={playbackSpeed}
@@ -1594,39 +1620,61 @@ ${content.map((item, index) => {
                 <option value={2}>2x</option>
               </select>
 
-              {/* Info */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <Info className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Info</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {/* Create */}
+              <DropdownMenu>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                          <Wand2 className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Create</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
+                  <DropdownMenuItem 
+                    onClick={() => handleCreate('video')}
+                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                  >
+                    <Video className="w-4 h-4 mr-2" />
+                    Video
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleCreate('ugc')}
+                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                  >
+                    <UserCircle className="w-4 h-4 mr-2" />
+                    UGC
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleCreate('post')}
+                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                  >
+                    <FileEdit className="w-4 h-4 mr-2" />
+                    Post
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleCreate('ebook')}
+                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Ebook
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Favorite */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <Heart className="w-5 h-5" />
+                      <Star className="w-5 h-5" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>Favorite</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Loop */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <RefreshCw className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Loop</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -1660,34 +1708,20 @@ ${content.map((item, index) => {
                 </Tooltip>
               </TooltipProvider>
 
-              {/* Volume */}
-              <Popover>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PopoverTrigger asChild>
-                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                          <Volume2 className="w-5 h-5" />
-                        </button>
-                      </PopoverTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Volume</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
-                  <div className="relative h-24 flex items-center justify-center">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume}
-                      onChange={(e) => setVolume(parseInt(e.target.value))}
-                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
-                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
+              {/* Delete */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleDelete}
+                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Delete</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
               {/* More Options */}
               <TooltipProvider>
