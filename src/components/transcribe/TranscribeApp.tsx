@@ -1279,141 +1279,147 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
-                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer flex flex-col h-full min-h-[280px]"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      {/* Number Badge */}
-                      <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600">
-                        {index + 1}
+                  {/* Top content */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        {/* Number Badge */}
+                        <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600">
+                          {index + 1}
+                        </div>
+                        {/* Source Icon */}
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
+                          {getSourceIcon(transcript.source)}
+                        </div>
                       </div>
-                      {/* Source Icon */}
-                      <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
-                        {getSourceIcon(transcript.source)}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
-                        <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDelete(transcript.id); }}
-                        className="p-1 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
-                    {transcript.title}
-                  </h3>
-
-                  {transcript.summary && (
-                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{transcript.summary}</p>
-                  )}
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {transcript.tags.map((tag, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-md bg-gray-200 text-xs text-gray-600">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {transcript.duration}
-                    </span>
-                    <span>{formatDate(transcript.date)}</span>
-                  </div>
-
-                  {transcript.status === 'processing' ? (
-                    <div className="flex items-center justify-end gap-2 text-amber-600 text-sm font-medium animate-pulse">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                      Processing...
-                    </div>
-                  ) : (
-                    <TooltipProvider>
                       <div className="flex items-center gap-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button 
-                                  className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Zap className="w-4 h-4" />
-                                  Create
-                                  <ChevronDown className="w-3.5 h-3.5" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <Video className="w-4 h-4" />
-                                  Video
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <UserCircle className="w-4 h-4" />
-                                  UGC
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <Image className="w-4 h-4" />
-                                  Post
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <BookOpenCheck className="w-4 h-4" />
-                                  Ebook
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Create Content</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
-                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Download
+                        <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
+                          <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                         </button>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigator.clipboard.writeText(transcript.title);
-                                alert('Transcript title copied!');
-                              }}
-                              className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                            >
-                              <Copy className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Copy</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); handleShare(transcript); }}
-                              className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                            >
-                              <Share2 className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Share</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleDelete(transcript.id); }}
+                          className="p-1 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                    </TooltipProvider>
-                  )}
+                    </div>
+
+                    <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
+                      {transcript.title}
+                    </h3>
+
+                    {transcript.summary && (
+                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">{transcript.summary}</p>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {transcript.tags.map((tag, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-gray-200 text-xs text-gray-600">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bottom content - anchored */}
+                  <div className="mt-auto">
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {transcript.duration}
+                      </span>
+                      <span>{formatDate(transcript.date)}</span>
+                    </div>
+
+                    {transcript.status === 'processing' ? (
+                      <div className="flex items-center justify-end gap-2 text-amber-600 text-sm font-medium animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                        Processing...
+                      </div>
+                    ) : (
+                      <TooltipProvider>
+                        <div className="flex items-center gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button 
+                                    className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Zap className="w-4 h-4" />
+                                    Create
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
+                                    <Video className="w-4 h-4" />
+                                    Video
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
+                                    <UserCircle className="w-4 h-4" />
+                                    UGC
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
+                                    <Image className="w-4 h-4" />
+                                    Post
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
+                                    <BookOpenCheck className="w-4 h-4" />
+                                    Ebook
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Create Content</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
+                            className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <Download className="w-4 h-4" />
+                            Download
+                          </button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(transcript.title);
+                                  alert('Transcript title copied!');
+                                }}
+                                className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleShare(transcript); }}
+                                className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Share</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
