@@ -178,11 +178,14 @@ const TranscriptDetail = () => {
 
   // Format seconds to MM:SS
   const formatTime = (seconds: number): string => {
+    if (!isFinite(seconds) || isNaN(seconds)) return '00:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+  // Check if audio duration is valid
+  const isValidDuration = (d: number) => isFinite(d) && !isNaN(d) && d > 0;
   // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current;
@@ -1355,10 +1358,10 @@ ${content.map((item, index) => {
               >
                 <div 
                   className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" 
-                  style={{ width: audioDuration ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
+                  style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
                 />
               </div>
-              <span className="text-sm text-white font-mono w-12">{audioDuration ? formatTime(audioDuration) : duration}</span>
+              <span className="text-sm text-white font-mono w-12">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
               
               {/* Volume */}
               <Popover>
