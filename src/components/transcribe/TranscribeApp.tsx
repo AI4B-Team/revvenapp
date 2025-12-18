@@ -242,7 +242,7 @@ export default function TranscribeApp() {
                   <span className="text-gray-900">TRAN</span>
                   <span className="text-emerald-500">SCRIBE</span>
                 </h1>
-                <p className="text-sm text-gray-500">AI-Powered Speech to Text</p>
+                <p className="text-sm text-gray-500">AI-Powered Speech To Text</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -283,13 +283,13 @@ export default function TranscribeApp() {
                     dragOver ? 'text-emerald-500 scale-110' : 'text-emerald-500 group-hover:scale-110'
                   }`} />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Audio</h3>
-                <p className="text-sm text-gray-500">MP3, WAV, M4A, FLAC up to 500MB</p>
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
+                <p className="text-sm text-gray-500 mb-4">Upload Video Or Audio File</p>
+                <div className="flex flex-wrap justify-center gap-2">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.wav</span>
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.m4a</span>
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.flac</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp4</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mov</span>
                 </div>
               </div>
             </button>
@@ -306,11 +306,10 @@ export default function TranscribeApp() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
                 <div className="mt-3 w-full">
                   <div className="relative">
-                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Paste Any Public Media Link"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-400 text-center focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
@@ -390,12 +389,8 @@ export default function TranscribeApp() {
                 {filterOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-white border border-gray-200 shadow-xl z-50">
                     {[
-                      { id: 'all', label: 'All Transcripts' },
+                      { id: 'all', label: 'All' },
                       { id: 'starred', label: 'Starred' },
-                      { id: 'recording', label: 'Recordings' },
-                      { id: 'upload', label: 'Uploads' },
-                      { id: 'youtube', label: 'YouTube' },
-                      { id: 'processing', label: 'Processing' },
                     ].map(filter => (
                       <button
                         key={filter.id}
@@ -505,20 +500,20 @@ export default function TranscribeApp() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={() => handleDownload(transcript)}
-                        disabled={transcript.status === 'processing'}
-                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
-                      <button 
                         onClick={() => handleUse(transcript)}
                         disabled={transcript.status === 'processing'}
                         className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <Zap className="w-4 h-4" />
                         Use
+                      </button>
+                      <button 
+                        onClick={() => handleDownload(transcript)}
+                        disabled={transcript.status === 'processing'}
+                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
                       </button>
                       <button 
                         onClick={() => handleEdit(transcript)}
@@ -604,18 +599,18 @@ export default function TranscribeApp() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <button 
-                          onClick={() => handleDownload(transcript)}
-                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Download
-                        </button>
-                        <button 
                           onClick={() => handleUse(transcript)}
                           className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
                         >
                           <Zap className="w-4 h-4" />
                           Use
+                        </button>
+                        <button 
+                          onClick={() => handleDownload(transcript)}
+                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
@@ -967,13 +962,29 @@ export default function TranscribeApp() {
 }
 
 // Download Modal Component
+type DownloadFormat = 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'media';
+
 function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
-  const [format, setFormat] = useState<'docx' | 'pdf'>('docx');
+  const [format, setFormat] = useState<DownloadFormat>('docx');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [includeSummary, setIncludeSummary] = useState(true);
 
+  const FORMAT_OPTIONS = [
+    { id: 'docx' as DownloadFormat, label: 'Microsoft Word(.docx)', category: 'Transcript' },
+    { id: 'txt' as DownloadFormat, label: 'Text(.txt)', category: 'Transcript' },
+    { id: 'srt' as DownloadFormat, label: 'Subtitle File(.srt)', category: 'Transcript' },
+    { id: 'vtt' as DownloadFormat, label: 'Subtitle File(.vtt)', category: 'Transcript' },
+    { id: 'xml' as DownloadFormat, label: 'Adobe premiere(.xml)', category: 'Transcript' },
+    { id: 'fcpxml' as DownloadFormat, label: 'Final Cut Pro(.fcpxml)', category: 'Transcript' },
+    { id: 'media' as DownloadFormat, label: 'Video/Audio', category: 'Media file' },
+  ];
+
+  const getFormatLabel = (formatId: DownloadFormat) => {
+    return FORMAT_OPTIONS.find(f => f.id === formatId)?.label || 'Microsoft Word(.docx)';
+  };
+
   const handleDownload = () => {
-    // Mock download functionality
     console.log('Downloading:', { format, includeTimestamps, includeSummary, transcript: transcript.title });
     onClose();
   };
@@ -982,7 +993,7 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Download Transcript</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Download</h2>
           <button 
             onClick={onClose}
             className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
@@ -991,64 +1002,86 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
           </button>
         </div>
 
-        <p className="text-sm text-gray-500 mb-6">{transcript.title}</p>
+        <p className="text-sm text-gray-400 mb-4">Select the format</p>
 
-        {/* Format Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">File Format</label>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setFormat('docx')}
-              className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
-                format === 'docx'
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              <FileText className="w-5 h-5 mx-auto mb-1" />
-              DOCX
-            </button>
-            <button
-              onClick={() => setFormat('pdf')}
-              className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
-                format === 'pdf'
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              <FileDown className="w-5 h-5 mx-auto mb-1" />
-              PDF
-            </button>
+        {/* Format Dropdown */}
+        <div className="relative mb-6">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-left text-sm text-gray-900 flex items-center justify-between hover:border-gray-300 transition-colors"
+          >
+            {getFormatLabel(format)}
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {dropdownOpen && (
+            <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+              {/* Transcript Section */}
+              <div className="px-4 py-2 text-xs font-semibold text-gray-900 bg-gray-50 border-b border-gray-100">
+                Transcript
+              </div>
+              {FORMAT_OPTIONS.filter(f => f.category === 'Transcript').map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => { setFormat(opt.id); setDropdownOpen(false); }}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                    format === opt.id ? 'text-gray-900' : 'text-gray-600'
+                  }`}
+                >
+                  {opt.label}
+                  {format === opt.id && <Check className="w-4 h-4 text-emerald-500" />}
+                </button>
+              ))}
+              
+              {/* Media File Section */}
+              <div className="px-4 py-2 text-xs font-semibold text-gray-900 bg-gray-50 border-t border-b border-gray-100">
+                Media file
+              </div>
+              {FORMAT_OPTIONS.filter(f => f.category === 'Media file').map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => { setFormat(opt.id); setDropdownOpen(false); }}
+                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                    format === opt.id ? 'text-gray-900' : 'text-gray-600'
+                  }`}
+                >
+                  {opt.label}
+                  {format === opt.id && <Check className="w-4 h-4 text-emerald-500" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Options - only show for transcript formats */}
+        {format !== 'media' && (
+          <div className="space-y-4 mb-6">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeTimestamps}
+                onChange={(e) => setIncludeTimestamps(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-700">Include Timestamps</span>
+                <p className="text-xs text-gray-500">Add time markers for each speaker segment</p>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeSummary}
+                onChange={(e) => setIncludeSummary(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-700">Include Summary</span>
+                <p className="text-xs text-gray-500">Add AI-generated summary at the top</p>
+              </div>
+            </label>
           </div>
-        </div>
-
-        {/* Options */}
-        <div className="space-y-4 mb-6">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeTimestamps}
-              onChange={(e) => setIncludeTimestamps(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-            />
-            <div>
-              <span className="text-sm font-medium text-gray-700">Include Timestamps</span>
-              <p className="text-xs text-gray-500">Add time markers for each speaker segment</p>
-            </div>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeSummary}
-              onChange={(e) => setIncludeSummary(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-            />
-            <div>
-              <span className="text-sm font-medium text-gray-700">Include Summary</span>
-              <p className="text-xs text-gray-500">Add AI-generated summary at the top</p>
-            </div>
-          </label>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3">
@@ -1063,7 +1096,7 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
             className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Download {format.toUpperCase()}
+            Download
           </button>
         </div>
       </div>
