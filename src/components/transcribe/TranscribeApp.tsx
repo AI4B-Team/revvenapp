@@ -141,7 +141,9 @@ export default function TranscribeApp() {
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [downloadTranscript, setDownloadTranscript] = useState<Transcript | null>(null);
+  const [shareTranscript, setShareTranscript] = useState<Transcript | null>(null);
   const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -161,9 +163,14 @@ export default function TranscribeApp() {
   };
 
   const handleShare = (transcript: Transcript) => {
-    // Share functionality - could open share modal or copy link
-    navigator.clipboard.writeText(`https://app.transcribe.com/transcript/${transcript.id}`);
-    alert('Link copied to clipboard!');
+    setShareTranscript(transcript);
+    setShowShareModal(true);
+  };
+
+  const copyShareLink = () => {
+    if (shareTranscript) {
+      navigator.clipboard.writeText(`https://app.transcribe.com/transcript/share/${shareTranscript.id}`);
+    }
   };
 
   // Recording timer
@@ -1019,6 +1026,52 @@ export default function TranscribeApp() {
           transcript={downloadTranscript}
           onClose={() => { setShowDownloadModal(false); setDownloadTranscript(null); }}
         />
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && shareTranscript && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Link2 className="w-5 h-5 text-blue-500" />
+                Share Transcript
+              </h2>
+              <button 
+                onClick={() => { setShowShareModal(false); setShareTranscript(null); }}
+                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Anyone with the following secure link can <span className="font-semibold">view</span> this transcript.
+            </p>
+
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Secure Link</label>
+              <input
+                type="text"
+                readOnly
+                value={`https://app.transcribe.com/transcript/share/${shareTranscript.id}`}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-blue-200 text-sm text-gray-700 focus:outline-none"
+              />
+            </div>
+
+            <button
+              onClick={() => {
+                copyShareLink();
+                setShowShareModal(false);
+                setShareTranscript(null);
+              }}
+              className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <Link2 className="w-4 h-4" />
+              COPY SECURE LINK
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
