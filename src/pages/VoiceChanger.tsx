@@ -409,42 +409,51 @@ export default function VoiceChanger() {
               )}
             </div>
 
-            {/* Usage History */}
+            {/* Usage History - Grouped by Voice Style */}
             <div className="bg-card rounded-2xl p-6 border border-border">
               <h2 className="text-xl font-semibold mb-4">Recent Transformations</h2>
               {usageHistory.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">No transformations yet</p>
               ) : (
-                <div className="space-y-3">
-                  {usageHistory.map((record) => (
-                    <div key={record.id} className="flex items-center gap-4 p-3 bg-secondary rounded-xl">
-                      <div className={`w-2 h-2 rounded-full ${
-                        record.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
-                      }`} />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">
-                          {VOICE_STYLES.find(s => s.id === record.settings?.style)?.name || 'Voice Transform'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(record.created_at).toLocaleString()}
-                        </p>
+                <div className="space-y-6">
+                  {VOICE_STYLES.map((style) => {
+                    const styleRecords = usageHistory.filter(r => r.settings?.style === style.id);
+                    if (styleRecords.length === 0) return null;
+                    
+                    return (
+                      <div key={style.id}>
+                        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{style.name}</h3>
+                        <div className="space-y-2">
+                          {styleRecords.map((record) => (
+                            <div key={record.id} className="flex items-center gap-4 p-3 bg-secondary rounded-xl">
+                              <div className={`w-2 h-2 rounded-full ${
+                                record.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <div className="flex-1">
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(record.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                              {record.output_audio_url && (
+                                <button
+                                  onClick={() => playAudio(record.output_audio_url!)}
+                                  className="p-2 rounded-lg hover:bg-background/50"
+                                >
+                                  {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteRecord(record.id)}
+                                className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      {record.output_audio_url && (
-                        <button
-                          onClick={() => playAudio(record.output_audio_url!)}
-                          className="p-2 rounded-lg hover:bg-background/50"
-                        >
-                          {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDeleteRecord(record.id)}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
