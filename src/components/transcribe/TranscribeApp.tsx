@@ -191,11 +191,11 @@ export default function TranscribeApp() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-white text-gray-900 font-['Inter',sans-serif]">
       {/* Ambient Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/5 rounded-full blur-[150px]" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[150px]" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
@@ -208,14 +208,14 @@ export default function TranscribeApp() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">
-                  <span className="text-white">TRAN</span>
-                  <span className="text-emerald-400">SCRIBE</span>
+                  <span className="text-gray-900">TRAN</span>
+                  <span className="text-emerald-500">SCRIBE</span>
                 </h1>
                 <p className="text-sm text-gray-500">AI-Powered Speech to Text</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2">
+              <button className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-sm text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-all flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 Settings
               </button>
@@ -239,7 +239,7 @@ export default function TranscribeApp() {
               className={`group relative p-8 rounded-2xl border-2 border-dashed transition-all duration-300 ${
                 dragOver 
                   ? 'border-emerald-400 bg-emerald-500/10' 
-                  : 'border-white/10 bg-white/[0.02] hover:border-emerald-400/50 hover:bg-white/[0.04]'
+                  : 'border-gray-200 bg-gray-50 hover:border-emerald-400/50 hover:bg-emerald-50'
               }`}
             >
               <div className="flex flex-col items-center text-center">
@@ -249,16 +249,16 @@ export default function TranscribeApp() {
                     : 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 group-hover:from-emerald-500/20 group-hover:to-emerald-600/20'
                 }`}>
                   <Upload className={`w-9 h-9 transition-all duration-300 ${
-                    dragOver ? 'text-emerald-400 scale-110' : 'text-emerald-400 group-hover:scale-110'
+                    dragOver ? 'text-emerald-500 scale-110' : 'text-emerald-500 group-hover:scale-110'
                   }`} />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Upload Audio</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Audio</h3>
                 <p className="text-sm text-gray-500">MP3, WAV, M4A, FLAC up to 500MB</p>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.mp3</span>
-                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.wav</span>
-                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.m4a</span>
-                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.flac</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.wav</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.m4a</span>
+                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.flac</span>
                 </div>
               </div>
             </button>
@@ -266,24 +266,24 @@ export default function TranscribeApp() {
             {/* Upload Link */}
             <button
               onClick={() => setShowLinkModal(true)}
-              className="group relative p-8 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-blue-400/50 hover:bg-white/[0.04] transition-all duration-300"
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300"
             >
               <div className="flex flex-col items-center text-center">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
-                  <Link2 className="w-9 h-9 text-blue-400 group-hover:scale-110 transition-all duration-300" />
+                  <Link2 className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Upload Link</h3>
-                <p className="text-sm text-gray-500">Paste Any Video Link To Extract Audio</p>
-                <div className="mt-4 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                  <p className="text-xs text-gray-400">Supports 50+ Platforms</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
+                <p className="text-sm text-gray-500">Paste Any Public Media Link To Extract Audio</p>
+                <div className="mt-4 px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200">
+                  <p className="text-xs text-gray-500">Supports 50+ Platforms</p>
                 </div>
                 <div className="mt-3 flex flex-wrap justify-center gap-2">
                   {PLATFORMS.slice(0, 6).map((platform, i) => (
-                    <div key={i} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center">
+                    <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                       <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
                     </div>
                   ))}
-                  <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-xs text-gray-400">
+                  <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500">
                     +44
                   </div>
                 </div>
@@ -293,17 +293,17 @@ export default function TranscribeApp() {
             {/* Record Audio */}
             <button
               onClick={() => setShowRecordModal(true)}
-              className="group relative p-8 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-rose-400/50 hover:bg-white/[0.04] transition-all duration-300"
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300"
             >
               <div className="flex flex-col items-center text-center">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/10 group-hover:from-rose-500/20 group-hover:to-rose-600/20 flex items-center justify-center mb-5 transition-all duration-300">
-                  <Mic className="w-9 h-9 text-rose-400 group-hover:scale-110 transition-all duration-300" />
+                  <Mic className="w-9 h-9 text-rose-500 group-hover:scale-110 transition-all duration-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Record Audio</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Record Audio</h3>
                 <p className="text-sm text-gray-500">Click To Start Recording</p>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                  Real-time Transcription Available
+                  Real-Time Transcription Available
                 </div>
               </div>
             </button>
@@ -315,24 +315,24 @@ export default function TranscribeApp() {
           {/* Section Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-emerald-400" />
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-500" />
                 Transcripts
               </h2>
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
                 {transcripts.length} files
               </span>
             </div>
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search transcripts..."
+                  placeholder="Search Transcripts"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                  className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                 />
               </div>
               {/* Filter */}
@@ -341,8 +341,8 @@ export default function TranscribeApp() {
                   onClick={() => setFilterOpen(!filterOpen)}
                   className={`px-4 py-2.5 rounded-xl border text-sm flex items-center gap-2 transition-all ${
                     activeFilter !== 'all' 
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600' 
+                      : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
                   <Filter className="w-4 h-4" />
@@ -350,7 +350,7 @@ export default function TranscribeApp() {
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 {filterOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-[#141419] border border-white/10 shadow-xl z-50">
+                  <div className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-white border border-gray-200 shadow-xl z-50">
                     {[
                       { id: 'all', label: 'All Transcripts' },
                       { id: 'starred', label: 'Starred' },
@@ -362,8 +362,8 @@ export default function TranscribeApp() {
                       <button
                         key={filter.id}
                         onClick={() => { setActiveFilter(filter.id); setFilterOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-sm flex items-center justify-between hover:bg-white/5 transition-colors ${
-                          activeFilter === filter.id ? 'text-emerald-400' : 'text-gray-400'
+                        className={`w-full px-4 py-2 text-left text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                          activeFilter === filter.id ? 'text-emerald-600' : 'text-gray-600'
                         }`}
                       >
                         {filter.label}
@@ -374,16 +374,16 @@ export default function TranscribeApp() {
                 )}
               </div>
               {/* View Toggle */}
-              <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/10">
+              <div className="flex items-center bg-gray-50 rounded-xl p-1 border border-gray-200">
                 <button 
                   onClick={() => setActiveView('list')}
-                  className={`p-2 rounded-lg transition-all ${activeView === 'list' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all ${activeView === 'list' ? 'bg-emerald-500/20 text-emerald-600' : 'text-gray-400 hover:text-gray-900'}`}
                 >
                   <List className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => setActiveView('grid')}
-                  className={`p-2 rounded-lg transition-all ${activeView === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all ${activeView === 'grid' ? 'bg-emerald-500/20 text-emerald-600' : 'text-gray-400 hover:text-gray-900'}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
@@ -397,11 +397,11 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200"
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
                 >
                   <div className="flex items-center gap-5">
                     {/* Thumbnail / Icon */}
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
                       {getSourceIcon(transcript.source)}
                     </div>
 
@@ -409,19 +409,19 @@ export default function TranscribeApp() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <h3 className="text-base font-medium text-white truncate">
+                          <h3 className="text-base font-medium text-gray-900 truncate">
                             {transcript.title}
                           </h3>
                           <button 
                             onClick={() => toggleStar(transcript.id)}
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`} />
+                            <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                           </button>
                         </div>
                         {transcript.status === 'processing' && (
-                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 text-xs font-medium flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 text-xs font-medium flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                             Processing
                           </span>
                         )}
@@ -455,7 +455,7 @@ export default function TranscribeApp() {
                       {/* Tags */}
                       <div className="flex items-center gap-2 mt-3">
                         {transcript.tags.map((tag, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-gray-200 text-xs text-gray-600">
                             {tag}
                           </span>
                         ))}
@@ -475,12 +475,12 @@ export default function TranscribeApp() {
                       <button 
                         onClick={() => handleEdit(transcript)}
                         disabled={transcript.status === 'processing'}
-                        className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <Edit3 className="w-4 h-4" />
                         Edit
                       </button>
-                      <button className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                      <button className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors">
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     </div>
@@ -494,18 +494,18 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200"
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
                       {getSourceIcon(transcript.source)}
                     </div>
                     <button onClick={() => toggleStar(transcript.id)}>
-                      <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`} />
+                      <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                     </button>
                   </div>
 
-                  <h3 className="text-base font-medium text-white mb-2 line-clamp-2">
+                  <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
                     {transcript.title}
                   </h3>
 
@@ -515,7 +515,7 @@ export default function TranscribeApp() {
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     {transcript.tags.map((tag, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
+                      <span key={i} className="px-2 py-0.5 rounded-md bg-gray-200 text-xs text-gray-600">
                         {tag}
                       </span>
                     ))}
@@ -530,8 +530,8 @@ export default function TranscribeApp() {
                   </div>
 
                   {transcript.status === 'processing' ? (
-                    <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 text-amber-400 text-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 text-amber-600 text-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                       Processing...
                     </div>
                   ) : (
@@ -545,7 +545,7 @@ export default function TranscribeApp() {
                       </button>
                       <button 
                         onClick={() => handleEdit(transcript)}
-                        className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
                       >
                         <Edit3 className="w-4 h-4" />
                         Edit
@@ -601,7 +601,7 @@ export default function TranscribeApp() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Language</label>
                   <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
-                    <option value="auto">Auto-detect</option>
+                    <option value="auto">Auto-Detect</option>
                     {LANGUAGES.map(lang => (
                       <option key={lang} value={lang.toLowerCase()}>{lang}</option>
                     ))}
@@ -651,7 +651,7 @@ export default function TranscribeApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-2xl bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">Transcribe from URL</h2>
+              <h2 className="text-2xl font-semibold text-white">Transcribe From URL</h2>
               <button 
                 onClick={() => setShowLinkModal(false)}
                 className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
@@ -664,7 +664,7 @@ export default function TranscribeApp() {
               <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
                 type="url"
-                placeholder="Paste YouTube, TikTok, Instagram, or any video URL..."
+                placeholder="Paste Any Public Media Link To Extract Audio"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
@@ -695,7 +695,7 @@ export default function TranscribeApp() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Language</label>
                   <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50">
-                    <option value="auto">Auto-detect</option>
+                    <option value="auto">Auto-Detect</option>
                     {LANGUAGES.map(lang => (
                       <option key={lang} value={lang.toLowerCase()}>{lang}</option>
                     ))}
@@ -789,7 +789,7 @@ export default function TranscribeApp() {
                 {formatTime(recordingTime)}
               </div>
               <p className="text-sm text-gray-500">
-                {isRecording ? 'Recording...' : 'Click to start recording'}
+                {isRecording ? 'Recording...' : 'Click To Start Recording'}
               </p>
 
               {/* Live Waveform Placeholder */}
@@ -827,7 +827,7 @@ export default function TranscribeApp() {
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Language</label>
                 <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50">
-                  <option value="auto">Auto-detect</option>
+                  <option value="auto">Auto-Detect</option>
                   {LANGUAGES.map(lang => (
                     <option key={lang} value={lang.toLowerCase()}>{lang}</option>
                   ))}
