@@ -99,10 +99,13 @@ const Create = () => {
     
     console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl, transcriptText: transcriptText?.substring(0, 50), targetAnimateMode });
     
+    let hasState = false;
+    
     if (imageUrl) {
       setIsEditMode(true);
       setEditingImage(imageUrl);
       setActiveTab('Image');
+      hasState = true;
     }
     
     if (animateUrl) {
@@ -115,6 +118,7 @@ const Create = () => {
       });
       setActiveView('creations');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      hasState = true;
     }
     
     // Handle transcript text for video/avatar mode
@@ -129,8 +133,14 @@ const Create = () => {
         setExternalAnimateMode(targetAnimateMode);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      hasState = true;
     }
-  }, [location]);
+    
+    // Clear the navigation state after processing to prevent re-applying on page revisit
+    if (hasState) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate]);
   const [generatedImages, setGeneratedImages] = useState<any[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
