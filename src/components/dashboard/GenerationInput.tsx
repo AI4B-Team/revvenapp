@@ -845,9 +845,12 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, storyReferenceImage]);
 
-  // Reset animate mode to 'Animate' when entering video mode (unless external mode provided)
+  // Track if we've applied an external animate mode this session
+  const hasAppliedExternalAnimateMode = useRef(false);
+
+  // Reset animate mode to 'Animate' when entering video mode (unless external mode was applied)
   useEffect(() => {
-    if (isVideoMode && !externalAnimateMode) {
+    if (isVideoMode && !externalAnimateMode && !hasAppliedExternalAnimateMode.current) {
       setSelectedAnimateMode('Animate');
     }
   }, [isVideoMode, externalAnimateMode]);
@@ -855,10 +858,19 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Handle external animate mode
   useEffect(() => {
     if (externalAnimateMode && isVideoMode) {
+      console.log('Setting external animate mode:', externalAnimateMode);
       setSelectedAnimateMode(externalAnimateMode);
+      hasAppliedExternalAnimateMode.current = true;
       onExternalAnimateModeUsed?.();
     }
   }, [externalAnimateMode, isVideoMode, onExternalAnimateModeUsed]);
+
+  // Reset the ref when leaving video mode
+  useEffect(() => {
+    if (!isVideoMode) {
+      hasAppliedExternalAnimateMode.current = false;
+    }
+  }, [isVideoMode]);
 
   // Clear transcribed text highlight when switching away from Transcribe mode
   // Also clear prompt when entering Transcribe mode
