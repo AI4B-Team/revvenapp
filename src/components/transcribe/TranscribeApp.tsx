@@ -18,6 +18,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
+import AudioLibraryModal from '@/components/dashboard/AudioLibraryModal';
+import TranscribeConfirmModal from '@/components/dashboard/TranscribeConfirmModal';
+import { useToast } from '@/hooks/use-toast';
 
 // Platform icons data with real brand logos
 const PLATFORMS = [
@@ -133,6 +136,7 @@ interface Transcript {
 
 export default function TranscribeApp() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTranscripts, setSelectedTranscripts] = useState<number[]>([]);
@@ -162,6 +166,113 @@ export default function TranscribeApp() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // AudioLibraryModal and TranscribeConfirmModal states
+  const [showAudioLibraryModal, setShowAudioLibraryModal] = useState(false);
+  const [showTranscribeConfirmModal, setShowTranscribeConfirmModal] = useState(false);
+  const [pendingAudioFile, setPendingAudioFile] = useState<{
+    name: string;
+    duration: number | string;
+    url?: string;
+    base64?: string;
+  } | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  // Handle audio selection from AudioLibraryModal
+  const handleAudioSelect = (file: { name: string; duration: number; url?: string; base64?: string }) => {
+    setPendingAudioFile(file);
+    setShowAudioLibraryModal(false);
+    setShowTranscribeConfirmModal(true);
+  };
+
+  // Handle transcription from TranscribeConfirmModal
+  const handleTranscribe = async (numSpeakers: number, fileName?: string) => {
+    if (!pendingAudioFile) return;
+    
+    setIsTranscribing(true);
+    const newTranscriptId = Date.now();
+    
+    try {
+      // Create a new processing transcript
+      const newTranscript: Transcript = {
+        id: newTranscriptId,
+        title: fileName || pendingAudioFile.name.replace(/\.[^/.]+$/, ''),
+        duration: '--:--',
+        date: new Date().toISOString().split('T')[0],
+        source: 'upload',
+        status: 'processing',
+        speakers: numSpeakers,
+        language: 'Detecting...',
+        words: null,
+        starred: false,
+        tags: ['Upload'],
+        thumbnail: null,
+        summary: null,
+      };
+      
+      setTranscripts(prev => [newTranscript, ...prev]);
+      setShowTranscribeConfirmModal(false);
+      setPendingAudioFile(null);
+      
+      // Start transcription
+      const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-audio', {
+        body: {
+          audioUrl: pendingAudioFile.url,
+          audioBase64: pendingAudioFile.base64,
+          filename: pendingAudioFile.name
+        }
+      });
+      
+      if (transcribeError) throw transcribeError;
+      
+      // Parse duration
+      const durationNum = typeof pendingAudioFile.duration === 'number' 
+        ? pendingAudioFile.duration 
+        : parseFloat(String(pendingAudioFile.duration)) || 0;
+      
+      // Update transcript with results
+      setTranscripts(prev => prev.map(t => 
+        t.id === newTranscriptId 
+          ? { 
+              ...t, 
+              status: 'completed',
+              summary: transcribeData?.text || 'Transcription completed',
+              language: 'English',
+              words: transcribeData?.text?.split(' ').length || null,
+              duration: formatTime(Math.floor(durationNum))
+            } 
+          : t
+      ));
+      
+      toast({
+        title: "Transcription complete",
+        description: "Your audio has been transcribed successfully.",
+      });
+      
+    } catch (err) {
+      console.error('Error transcribing:', err);
+      setTranscripts(prev => prev.map(t => 
+        t.id === newTranscriptId 
+          ? { ...t, status: 'error' } 
+          : t
+      ));
+      toast({
+        title: "Transcription failed",
+        description: "There was an error transcribing your audio.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const handleRemoveAudio = () => {
+    setPendingAudioFile(null);
+  };
+
+  const handleBackToLibrary = () => {
+    setShowAudioLibraryModal(true);
+  };
 
   const handleUrlSubmit = async (url: string) => {
     if (!url) return;
@@ -539,13 +650,13 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Upload Audio */}
             <button
-              onClick={() => setShowUploadModal(true)}
+              onClick={() => setShowAudioLibraryModal(true)}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => {
                 e.preventDefault();
                 setDragOver(false);
-                setShowUploadModal(true);
+                setShowAudioLibraryModal(true);
               }}
               className={`group relative p-8 rounded-2xl border-2 border-dashed transition-all duration-300 ${
                 dragOver 
@@ -1514,6 +1625,24 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           </div>
         </div>
       )}
+
+      {/* Audio Library Modal */}
+      <AudioLibraryModal
+        isOpen={showAudioLibraryModal}
+        onClose={() => setShowAudioLibraryModal(false)}
+        onSelect={handleAudioSelect}
+      />
+
+      {/* Transcribe Confirm Modal */}
+      <TranscribeConfirmModal
+        isOpen={showTranscribeConfirmModal}
+        onClose={() => setShowTranscribeConfirmModal(false)}
+        audioFile={pendingAudioFile}
+        onTranscribe={handleTranscribe}
+        onRemoveAudio={handleRemoveAudio}
+        onBackToLibrary={handleBackToLibrary}
+        isTranscribing={isTranscribing}
+      />
     </div>
   );
 }
