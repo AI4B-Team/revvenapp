@@ -1401,7 +1401,7 @@ ${content.map((item, index) => {
               </select>
             </div>
 
-            <p className="text-sm text-white ml-4">Click Any Text To Jump To That Moment</p>
+            
           </div>
         </div>
       </div>
