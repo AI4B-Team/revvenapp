@@ -18,25 +18,24 @@ serve(async (req) => {
       throw new Error('ELEVENLABS_API_KEY is not configured');
     }
 
-    const formData = await req.formData();
-    const audioFile = formData.get('audio') as File;
-    const targetLanguage = formData.get('target_language') as string;
-    const sourceLang = formData.get('source_language') as string || 'auto';
-    const name = formData.get('name') as string || 'Revoiced Audio';
+    // Accept JSON body with audioUrl instead of FormData
+    const { audioUrl, targetLanguage, sourceLanguage, name } = await req.json();
 
-    if (!audioFile) {
-      throw new Error('Audio file is required');
+    if (!audioUrl) {
+      throw new Error('Audio URL is required');
     }
 
     if (!targetLanguage) {
       throw new Error('Target language is required');
     }
 
+    const sourceLang = sourceLanguage || 'auto';
+    const audioName = name || 'Revoiced Audio';
+
     console.log('Starting revoice process:', {
       targetLanguage,
       sourceLang,
-      fileName: audioFile.name,
-      fileSize: audioFile.size,
+      audioUrl,
     });
 
     // Get user and create processing record immediately
@@ -59,7 +58,7 @@ serve(async (req) => {
         // Insert processing record immediately so it shows in gallery
         const { data: insertedRecord, error: insertError } = await supabaseClient.from('user_voices').insert({
           user_id: userData.user.id,
-          name: `${name} (${targetLanguage})`,
+          name: `${audioName} (${targetLanguage})`,
           url: 'processing',
           duration: 0,
           type: 'revoice',
@@ -89,43 +88,13 @@ serve(async (req) => {
       try {
         console.log('Background task started for revoice...');
         
-        // Upload audio to Cloudinary first for conversion
-        const cloudinaryUploadFormData = new FormData();
-        cloudinaryUploadFormData.append('file', audioFile, 'audio.mp4');
-        cloudinaryUploadFormData.append('upload_preset', 'revven');
-        cloudinaryUploadFormData.append('resource_type', 'video');
-        cloudinaryUploadFormData.append('folder', 'temp-audio');
-        
-        const cloudinaryUploadResponse = await fetch('https://api.cloudinary.com/v1_1/dszt275xv/video/upload', {
-          method: 'POST',
-          body: cloudinaryUploadFormData,
-        });
-
-        if (!cloudinaryUploadResponse.ok) {
-          throw new Error(`Failed to upload audio: ${cloudinaryUploadResponse.status}`);
+        // Download audio from URL
+        const sourceAudioResponse = await fetch(audioUrl);
+        if (!sourceAudioResponse.ok) {
+          throw new Error(`Failed to download audio: ${sourceAudioResponse.status}`);
         }
-
-        const cloudinaryUploadResult = await cloudinaryUploadResponse.json();
-        console.log('Audio uploaded to Cloudinary:', cloudinaryUploadResult.secure_url);
-
-        // Convert to MP3 via Cloudinary URL transformation
-        const originalUrl = cloudinaryUploadResult.secure_url as string;
-        const mp3Url = originalUrl.replace(/\.[^/.]+$/, '.mp3');
-        
-        // Download the converted MP3
-        const mp3Response = await fetch(mp3Url);
-        let mp3Blob: Blob;
-        if (!mp3Response.ok) {
-          const originalResponse = await fetch(originalUrl);
-          if (!originalResponse.ok) {
-            throw new Error('Failed to download audio');
-          }
-          const originalBuffer = await originalResponse.arrayBuffer();
-          mp3Blob = new Blob([originalBuffer], { type: 'audio/mpeg' });
-        } else {
-          const mp3Buffer = await mp3Response.arrayBuffer();
-          mp3Blob = new Blob([mp3Buffer], { type: 'audio/mpeg' });
-        }
+        const audioBuffer = await sourceAudioResponse.arrayBuffer();
+        const mp3Blob = new Blob([audioBuffer], { type: 'audio/mpeg' });
 
         // Use Dubbing API for translation
         console.log('Using Dubbing API for translation to:', targetLanguage);
@@ -133,7 +102,7 @@ serve(async (req) => {
         const dubbingFormData = new FormData();
         dubbingFormData.append('file', mp3Blob, 'audio.mp3');
         dubbingFormData.append('target_lang', targetLanguage);
-        dubbingFormData.append('name', name);
+        dubbingFormData.append('name', audioName);
         
         if (sourceLang !== 'auto') {
           dubbingFormData.append('source_lang', sourceLang);
