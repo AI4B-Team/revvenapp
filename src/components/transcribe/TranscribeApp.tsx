@@ -151,7 +151,10 @@ export default function TranscribeApp() {
   const [dragOver, setDragOver] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [liveTranscriptionEnabled, setLiveTranscriptionEnabled] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const handleUrlSubmit = async (url: string) => {
     if (!url) return;
@@ -225,6 +228,47 @@ export default function TranscribeApp() {
     }
     return () => clearInterval(interval);
   }, [isRecording]);
+
+  // Speech recognition for live transcription
+  useEffect(() => {
+    if (isRecording && liveTranscriptionEnabled) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        recognition.onresult = (event: any) => {
+          let transcript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          setLiveTranscript(transcript);
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+        };
+        
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+    };
+  }, [isRecording, liveTranscriptionEnabled]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -945,7 +989,7 @@ export default function TranscribeApp() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Record Audio To Transcribe</h2>
               <button 
-                onClick={() => { setShowRecordModal(false); setIsRecording(false); setRecordingTime(0); }}
+                onClick={() => { setShowRecordModal(false); setIsRecording(false); setRecordingTime(0); setLiveTranscript(''); }}
                 className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -1013,11 +1057,27 @@ export default function TranscribeApp() {
                   Live Transcription
                 </h3>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={liveTranscriptionEnabled}
+                    onChange={(e) => setLiveTranscriptionEnabled(e.target.checked)}
+                  />
                   <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
                 </label>
               </div>
-              <p className="text-xs text-gray-500">See your words appear as you speak</p>
+              {liveTranscriptionEnabled && liveTranscript ? (
+                <div className="min-h-[60px] max-h-[120px] overflow-y-auto">
+                  <p className="text-sm text-white leading-relaxed">{liveTranscript}</p>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  {liveTranscriptionEnabled 
+                    ? (isRecording ? 'Listening...' : 'Start recording to see your words appear')
+                    : 'Live transcription disabled'
+                  }
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -1042,7 +1102,7 @@ export default function TranscribeApp() {
 
             <div className="flex justify-end gap-3 mt-6">
               <button 
-                onClick={() => { setRecordingTime(0); }}
+                onClick={() => { setRecordingTime(0); setLiveTranscript(''); }}
                 disabled={recordingTime === 0}
                 className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
