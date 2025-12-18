@@ -162,7 +162,7 @@ export default function TranscribeApp() {
           title: record.name || 'Untitled',
           duration: formatTime(Math.floor(record.duration || 0)),
           date: new Date(record.created_at).toISOString().split('T')[0],
-          source: 'upload',
+          source: (record as any).source || 'upload',
           status: record.status || 'completed',
           speakers: 1,
           language: 'English',
@@ -218,7 +218,8 @@ export default function TranscribeApp() {
         duration: durationNum,
         status: 'processing',
         type: 'transcription',
-      });
+        source: 'upload',
+      } as any);
       
       if (insertError) throw insertError;
       
@@ -351,7 +352,8 @@ export default function TranscribeApp() {
         duration: 0,
         status: 'processing',
         type: 'transcription',
-      });
+        source: 'link',
+      } as any);
       
       if (insertError) {
         console.error('Failed to create record:', insertError);
@@ -1762,7 +1764,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       status: 'processing',
                       type: 'transcription',
                       prompt: 'Transcribing...',
-                    });
+                      source: 'recording',
+                    } as any);
                     
                     if (insertError) throw insertError;
                     
