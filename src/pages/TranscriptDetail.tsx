@@ -107,11 +107,12 @@ const TranscriptDetail = () => {
   
   // AI Summary
   const [aiSummary, setAiSummary] = useState('');
-  const [translatedSummary, setTranslatedSummary] = useState('');
-  const [summaryTranslationLang, setSummaryTranslationLang] = useState('');
+  const [summaryTranslations, setSummaryTranslations] = useState<Record<string, string>>({});
+  const [activeSummaryTab, setActiveSummaryTab] = useState<'original' | string>('original');
   const [selectedSummaryLang, setSelectedSummaryLang] = useState('Spanish');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isTranslatingSummary, setIsTranslatingSummary] = useState(false);
+  const [isSavingTranscript, setIsSavingTranscript] = useState(false);
   
   // AI Chat
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'assistant'; content: string}[]>([]);
@@ -279,8 +280,13 @@ const TranscriptDetail = () => {
       
       if (error) throw error;
       if (data?.translatedText) {
-        setTranslatedSummary(data.translatedText);
-        setSummaryTranslationLang(targetLanguage);
+        setSummaryTranslations(prev => ({ ...prev, [targetLanguage]: data.translatedText }));
+        setActiveSummaryTab(targetLanguage);
+        // Save to localStorage
+        if (id) {
+          const currentTranslations = { ...summaryTranslations, [targetLanguage]: data.translatedText };
+          localStorage.setItem(`summary-translations-${id}`, JSON.stringify(currentTranslations));
+        }
         toast.success(`Summary translated to ${targetLanguage}`);
       }
     } catch (error) {
@@ -288,6 +294,19 @@ const TranscriptDetail = () => {
       toast.error('Failed to translate summary');
     } finally {
       setIsTranslatingSummary(false);
+    }
+  };
+
+  // Remove a summary translation
+  const handleRemoveSummaryTranslation = (lang: string) => {
+    const newTranslations = { ...summaryTranslations };
+    delete newTranslations[lang];
+    setSummaryTranslations(newTranslations);
+    if (activeSummaryTab === lang) {
+      setActiveSummaryTab('original');
+    }
+    if (id) {
+      localStorage.setItem(`summary-translations-${id}`, JSON.stringify(newTranslations));
     }
   };
 
@@ -625,9 +644,35 @@ ${content.map((item, index) => {
     toast.success(`Downloaded as ${extension.toUpperCase()}`);
   };
 
-  const handleSaveLine = (index: number) => {
-    setEditingLineIndex(null);
-    toast.success('Line saved');
+  const handleSaveLine = async (index: number) => {
+    if (!id) {
+      setEditingLineIndex(null);
+      toast.success('Line saved locally');
+      return;
+    }
+    
+    setIsSavingTranscript(true);
+    try {
+      // Compile all edited content back to a single string
+      const updatedTranscript = editedContent.map(item => item.text).join(' ');
+      
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ prompt: updatedTranscript })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Update original content to match edited content
+      setOriginalContent([...editedContent]);
+      setEditingLineIndex(null);
+      toast.success('Transcript saved');
+    } catch (error) {
+      console.error('Error saving transcript:', error);
+      toast.error('Failed to save transcript');
+    } finally {
+      setIsSavingTranscript(false);
+    }
   };
 
   const handleCancelLineEdit = (index: number) => {
@@ -638,9 +683,27 @@ ${content.map((item, index) => {
     setEditingLineIndex(null);
   };
 
-  const handleSaveTitle = () => {
-    setIsEditingTitle(false);
-    toast.success('Title updated');
+  const handleSaveTitle = async () => {
+    if (!id) {
+      setIsEditingTitle(false);
+      toast.success('Title updated locally');
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ name: editedTitle })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setIsEditingTitle(false);
+      toast.success('Title saved');
+    } catch (error) {
+      console.error('Error saving title:', error);
+      toast.error('Failed to save title');
+    }
   };
 
   const handleCancelTitleEdit = () => {
@@ -648,9 +711,10 @@ ${content.map((item, index) => {
     setIsEditingTitle(false);
   };
 
-  // Load saved translation from localStorage on mount
+  // Load saved translations from localStorage on mount
   useEffect(() => {
     if (id) {
+      // Load transcript translation
       const savedTranslation = localStorage.getItem(`transcript-translation-${id}`);
       if (savedTranslation) {
         try {
@@ -659,6 +723,17 @@ ${content.map((item, index) => {
           setTranslatedContent(parsed.content);
         } catch (e) {
           console.error('Failed to parse saved translation:', e);
+        }
+      }
+      
+      // Load summary translations
+      const savedSummaryTranslations = localStorage.getItem(`summary-translations-${id}`);
+      if (savedSummaryTranslations) {
+        try {
+          const parsed = JSON.parse(savedSummaryTranslations);
+          setSummaryTranslations(parsed);
+        } catch (e) {
+          console.error('Failed to parse saved summary translations:', e);
         }
       }
     }
@@ -1072,22 +1147,37 @@ ${content.map((item, index) => {
                         <Sparkles className="w-5 h-5 text-emerald-500" />
                         <h3 className="font-semibold text-gray-900">AI Summary</h3>
                       </div>
-                      {summaryTranslationLang && translatedSummary && (
-                        <div className="flex items-center gap-2">
+                      {Object.keys(summaryTranslations).length > 0 && (
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button 
-                            onClick={() => { setTranslatedSummary(''); setSummaryTranslationLang(''); }}
+                            onClick={() => setActiveSummaryTab('original')}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                              !summaryTranslationLang ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                           >
                             Original
                           </button>
-                          <button 
-                            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-500 text-white flex items-center gap-1.5"
-                          >
-                            <Languages className="w-3.5 h-3.5" />
-                            {summaryTranslationLang}
-                          </button>
+                          {Object.keys(summaryTranslations).map(lang => (
+                            <div key={lang} className="flex items-center">
+                              <button 
+                                onClick={() => setActiveSummaryTab(lang)}
+                                className={`px-3 py-1.5 rounded-l-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                                  activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                                }`}
+                              >
+                                <Languages className="w-3.5 h-3.5" />
+                                {lang}
+                              </button>
+                              <button
+                                onClick={() => handleRemoveSummaryTranslation(lang)}
+                                className={`px-1.5 py-1.5 rounded-r-lg text-sm font-medium transition-colors ${
+                                  activeSummaryTab === lang ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                                }`}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -1101,9 +1191,9 @@ ${content.map((item, index) => {
                         <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                         Translating summary with GPT-4o...
                       </div>
-                    ) : translatedSummary && summaryTranslationLang ? (
+                    ) : activeSummaryTab !== 'original' && summaryTranslations[activeSummaryTab] ? (
                       <p className="text-gray-700 leading-relaxed mb-4">
-                        {translatedSummary}
+                        {summaryTranslations[activeSummaryTab]}
                       </p>
                     ) : aiSummary ? (
                       <p className="text-gray-700 leading-relaxed mb-4">
@@ -1114,8 +1204,7 @@ ${content.map((item, index) => {
                     )}
                     <button 
                       onClick={() => {
-                        setTranslatedSummary('');
-                        setSummaryTranslationLang('');
+                        setActiveSummaryTab('original');
                         const transcriptText = originalContent.map(c => c.text).join(' ');
                         if (transcriptText) generateAISummary(transcriptText);
                       }}
