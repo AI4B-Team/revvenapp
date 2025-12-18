@@ -1493,7 +1493,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   onClick={async () => {
                     if (isRecording) {
                       // Stop recording
-                      if (mediaRecorderRef.current) {
+                      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
                         mediaRecorderRef.current.stop();
                       }
                       if (streamRef.current) {
@@ -1507,20 +1507,31 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         streamRef.current = stream;
                         audioChunksRef.current = [];
                         
-                        const mediaRecorder = new MediaRecorder(stream);
+                        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                         mediaRecorderRef.current = mediaRecorder;
                         
                         mediaRecorder.ondataavailable = (e) => {
+                          console.log('Audio data available:', e.data.size, 'bytes');
                           if (e.data.size > 0) {
                             audioChunksRef.current.push(e.data);
                           }
                         };
                         
-                        mediaRecorder.start(100);
+                        mediaRecorder.onstop = () => {
+                          console.log('Recording stopped, total chunks:', audioChunksRef.current.length);
+                        };
+                        
+                        mediaRecorder.start(1000); // Collect data every 1 second
                         setIsRecording(true);
                         setRecordingTime(0);
+                        console.log('Recording started');
                       } catch (err) {
                         console.error('Error accessing microphone:', err);
+                        toast({
+                          title: "Microphone Error",
+                          description: "Could not access microphone. Please check permissions.",
+                          variant: "destructive"
+                        });
                       }
                     }
                   }}
