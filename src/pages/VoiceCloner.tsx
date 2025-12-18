@@ -36,7 +36,7 @@ export default function VoiceCloner() {
   const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [testText, setTestText] = useState('Hello! This is a test of my cloned voice.');
-  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -301,6 +301,52 @@ export default function VoiceCloner() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleTestVoice = async (voiceId: string, voiceName: string) => {
+    if (!voiceId) {
+      toast.error('No ElevenLabs voice ID found');
+      return;
+    }
+
+    setIsGeneratingPreview(voiceId);
+    try {
+      const response = await supabase.functions.invoke('generate-voice-preview', {
+        body: { 
+          voiceId,
+          text: testText,
+          stability: 0.5,
+          similarityBoost: 0.75,
+          style: 0.5,
+          speed: 1.0,
+          useSpeakerBoost: true
+        }
+      });
+
+      if (response.error) throw response.error;
+      
+      if (response.data?.audioContent) {
+        const audioUrl = `data:audio/mpeg;base64,${response.data.audioContent}`;
+        
+        // Play the generated audio
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.play();
+        audioRef.current.onended = () => setIsPlaying(null);
+        setIsPlaying(audioUrl);
+        
+        toast.success(`Playing ${voiceName}'s cloned voice`);
+      } else {
+        throw new Error('No audio content received');
+      }
+    } catch (error: any) {
+      console.error('Error generating preview:', error);
+      toast.error(error.message || 'Failed to generate voice preview');
+    } finally {
+      setIsGeneratingPreview(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
@@ -460,28 +506,53 @@ export default function VoiceCloner() {
                 ) : (
                   <div className="space-y-3">
                     {clonedVoices.map((voice) => (
-                      <div key={voice.id} className="p-4 bg-secondary rounded-xl flex items-center gap-4">
-                        <button
-                          onClick={() => voice.url && playAudio(voice.url)}
-                          className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary"
-                        >
-                          {isPlaying === voice.url ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                        </button>
-                        <div className="flex-1">
-                          <p className="font-medium">{voice.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(voice.created_at).toLocaleDateString()}
-                          </p>
+                      <div key={voice.id} className="p-4 bg-secondary rounded-xl">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400">
+                            <Volume2 className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{voice.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(voice.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <button
+                            className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground"
+                            onClick={() => {
+                              navigator.clipboard.writeText(voice.elevenlabs_voice_id || '');
+                              toast.success('Voice ID copied');
+                            }}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button
-                          className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground"
-                          onClick={() => {
-                            navigator.clipboard.writeText(voice.elevenlabs_voice_id || '');
-                            toast.success('Voice ID copied');
-                          }}
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
+                        
+                        {/* Test Voice Section */}
+                        {voice.elevenlabs_voice_id && (
+                          <div className="mt-3 pt-3 border-t border-border/50">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={testText}
+                                onChange={(e) => setTestText(e.target.value)}
+                                placeholder="Enter text to test..."
+                                className="flex-1 text-sm bg-background h-9"
+                              />
+                              <Button
+                                size="sm"
+                                onClick={() => handleTestVoice(voice.elevenlabs_voice_id, voice.name)}
+                                disabled={isGeneratingPreview === voice.elevenlabs_voice_id || !testText.trim()}
+                                className="bg-violet-500 hover:bg-violet-600"
+                              >
+                                {isGeneratingPreview === voice.elevenlabs_voice_id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Play className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
