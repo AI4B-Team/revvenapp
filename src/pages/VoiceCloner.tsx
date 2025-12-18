@@ -311,20 +311,20 @@ export default function VoiceCloner() {
     try {
       const response = await supabase.functions.invoke('generate-voice-preview', {
         body: { 
-          voiceId,
+          voice: voiceId,
           text: testText,
           stability: 0.5,
-          similarityBoost: 0.75,
+          similarity_boost: 0.75,
           style: 0.5,
           speed: 1.0,
-          useSpeakerBoost: true
+          use_speaker_boost: true
         }
       });
 
       if (response.error) throw response.error;
       
-      if (response.data?.audioContent) {
-        const audioUrl = `data:audio/mpeg;base64,${response.data.audioContent}`;
+      if (response.data?.audioUrl) {
+        const audioUrl = response.data.audioUrl;
         
         // Play the generated audio
         if (audioRef.current) {
