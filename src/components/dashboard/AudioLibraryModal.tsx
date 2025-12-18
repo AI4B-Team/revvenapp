@@ -948,9 +948,11 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
 
         {/* Right Panel - Upload Options */}
         <div className="w-[480px] p-6 flex flex-col bg-gray-100">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto min-h-0">
           {/* Show selected file if exists - Centered in middle */}
           {selectedFile ? (
-            <div className="flex-1 flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-center items-center h-full">
               <div 
                 className="relative flex flex-col items-center p-6 bg-white border-2 border-emerald-300 rounded-xl w-full max-w-xs"
                 onMouseEnter={() => setHoveredSelectedFile(true)}
@@ -1205,6 +1207,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
               </button>
             </div>
           )}
+          </div>
 
           {/* Use Button - Anchored at bottom */}
           <div className="mt-6 pt-4">
