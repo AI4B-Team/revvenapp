@@ -786,7 +786,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         <X className="w-5 h-5 text-gray-600" />
       </button>
 
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1500px] max-h-[80vh] overflow-hidden flex relative">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1500px] max-h-[92vh] overflow-hidden flex relative">
         {/* Left Panel - Audio Library */}
         <div className="flex-1 border-r border-gray-100 flex flex-col">
           {/* Header */}
@@ -947,7 +947,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
         </div>
 
         {/* Right Panel - Upload Options */}
-        <div className="w-[480px] p-6 flex flex-col bg-gray-100 overflow-y-auto">
+        <div className="w-[480px] p-6 flex flex-col bg-gray-100">
           {/* Show selected file if exists - Centered in middle */}
           {selectedFile ? (
             <div className="flex-1 flex flex-col justify-center items-center">
