@@ -1140,7 +1140,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Users className="w-3.5 h-3.5" />
-                          {transcript.speakers} Speakers
+                          {transcript.speakers} {transcript.speakers === 1 ? 'Speaker' : 'Speakers'}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Globe className="w-3.5 h-3.5" />
@@ -1506,10 +1506,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   <label className="block text-xs text-gray-500 mb-2">Speaker Detection</label>
                   <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
                     <option value="auto" className="bg-gray-800 text-white">Auto-Detect Speakers</option>
-                    <option value="1" className="bg-gray-800 text-white">1 speaker</option>
-                    <option value="2" className="bg-gray-800 text-white">2 speakers</option>
-                    <option value="3" className="bg-gray-800 text-white">3-4 speakers</option>
-                    <option value="5" className="bg-gray-800 text-white">5+ speakers</option>
+                    <option value="1" className="bg-gray-800 text-white">1 Speaker</option>
+                    <option value="2" className="bg-gray-800 text-white">2 Speakers</option>
+                    <option value="3" className="bg-gray-800 text-white">3-4 Speakers</option>
+                    <option value="5" className="bg-gray-800 text-white">5+ Speakers</option>
                   </select>
                 </div>
               </div>

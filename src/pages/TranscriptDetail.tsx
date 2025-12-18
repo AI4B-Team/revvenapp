@@ -1006,14 +1006,14 @@ ${content.map((item, index) => {
                         </button>
                       </div>
                     ) : (
-                      <>
-                        <h1 className="text-2xl font-bold text-gray-900">{editedTitle}</h1>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <h1 className="text-2xl font-bold text-gray-900 whitespace-nowrap">{editedTitle}</h1>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button 
                                 onClick={() => setIsEditingTitle(true)}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                               >
                                 <Pencil className="w-4 h-4" />
                               </button>
@@ -1021,7 +1021,7 @@ ${content.map((item, index) => {
                             <TooltipContent>Rename</TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                      </>
+                      </div>
                     )}
                   </div>
                   <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
@@ -1031,7 +1031,7 @@ ${content.map((item, index) => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      {speakers} speaker{speakers > 1 ? 's' : ''}
+                      {speakers} {speakers === 1 ? 'Speaker' : 'Speakers'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Globe className="w-4 h-4" />
