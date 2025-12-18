@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Mic, Upload, Link2, Play, Pause, Download, Edit3, Sparkles, 
   Search, Folder, Tag, Clock, User, Globe, FileText, Copy, 
@@ -122,6 +123,7 @@ interface Transcript {
 }
 
 export default function TranscribeApp() {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTranscripts, setSelectedTranscripts] = useState<number[]>([]);
@@ -162,7 +164,14 @@ export default function TranscribeApp() {
   };
 
   const handleUse = (transcript: Transcript) => {
-    alert(`Using transcript "${transcript.title}" in REVVEN workflow...`);
+    const params = new URLSearchParams({
+      title: transcript.title,
+      duration: transcript.duration,
+      speakers: String(transcript.speakers),
+      language: transcript.language,
+      summary: transcript.summary || ''
+    });
+    navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
 
   const toggleStar = (id: number) => {
@@ -239,7 +248,7 @@ export default function TranscribeApp() {
               className={`group relative p-8 rounded-2xl border-2 border-dashed transition-all duration-300 ${
                 dragOver 
                   ? 'border-emerald-400 bg-emerald-500/10' 
-                  : 'border-gray-200 bg-gray-50 hover:border-emerald-400/50 hover:bg-emerald-50'
+                  : 'border-gray-400 bg-gray-50 hover:border-emerald-400/50 hover:bg-emerald-50'
               }`}
             >
               <div className="flex flex-col items-center text-center">
@@ -266,7 +275,7 @@ export default function TranscribeApp() {
             {/* Upload Link */}
             <button
               onClick={() => setShowLinkModal(true)}
-              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300"
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300"
             >
               <div className="flex flex-col items-center text-center">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
@@ -293,7 +302,7 @@ export default function TranscribeApp() {
             {/* Record Audio */}
             <button
               onClick={() => setShowRecordModal(true)}
-              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300"
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300"
             >
               <div className="flex flex-col items-center text-center">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/10 group-hover:from-rose-500/20 group-hover:to-rose-600/20 flex items-center justify-center mb-5 transition-all duration-300">
@@ -397,7 +406,7 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200"
                 >
                   <div className="flex items-center gap-5">
                     {/* Thumbnail / Icon */}
@@ -494,7 +503,7 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
