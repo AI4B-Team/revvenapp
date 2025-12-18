@@ -645,6 +645,22 @@ ${content.map((item, index) => {
     setIsEditingTitle(false);
   };
 
+  // Load saved translation from localStorage on mount
+  useEffect(() => {
+    if (id) {
+      const savedTranslation = localStorage.getItem(`transcript-translation-${id}`);
+      if (savedTranslation) {
+        try {
+          const parsed = JSON.parse(savedTranslation);
+          setSelectedTranslation(parsed.language);
+          setTranslatedContent(parsed.content);
+        } catch (e) {
+          console.error('Failed to parse saved translation:', e);
+        }
+      }
+    }
+  }, [id]);
+
   const handleTranslate = async (targetLanguage: string) => {
     setIsTranslating(true);
     setSelectedTranslation(targetLanguage);
@@ -665,6 +681,15 @@ ${content.map((item, index) => {
       
       setTranslatedContent(translatedItems);
       setActiveTranslationTab('translated'); // Auto-switch to translated tab
+      
+      // Save translation to localStorage
+      if (id) {
+        localStorage.setItem(`transcript-translation-${id}`, JSON.stringify({
+          language: targetLanguage,
+          content: translatedItems
+        }));
+      }
+      
       toast.success(`Translated to ${targetLanguage}`);
     } catch (error) {
       console.error('Translation error:', error);
@@ -678,6 +703,11 @@ ${content.map((item, index) => {
   const handleRemoveTranslation = () => {
     setSelectedTranslation(null);
     setTranslatedContent(null);
+    setActiveTranslationTab('original');
+    // Remove from localStorage
+    if (id) {
+      localStorage.removeItem(`transcript-translation-${id}`);
+    }
   };
 
   const handleIdentifyVoice = (speakerId: number) => {
