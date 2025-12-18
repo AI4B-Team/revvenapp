@@ -202,53 +202,52 @@ const TranscriptDetail = () => {
 
   // Render text with word-level highlighting (karaoke-style)
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
-    if (!isPlaying) {
-      return <span>{item.text}</span>;
-    }
-
     const segmentStartTime = parseTimeToSeconds(item.time);
     const segmentEndTime = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
     const segmentDuration = segmentEndTime - segmentStartTime;
     
-    // Check if current time is within this segment
-    if (currentTime < segmentStartTime || currentTime >= segmentEndTime) {
+    // If before this segment, show normal text
+    if (currentTime < segmentStartTime) {
       return <span>{item.text}</span>;
     }
+    
+    // If after this segment, show fully highlighted
+    if (currentTime >= segmentEndTime) {
+      return <span className="bg-emerald-500/30 text-emerald-700 rounded px-0.5">{item.text}</span>;
+    }
 
-    // Calculate progress within this segment
-    const progressInSegment = currentTime - segmentStartTime;
-    const words = item.text.split(/(\s+)/);
-    const totalChars = item.text.length;
-    const charsPerSecond = totalChars / segmentDuration;
-    const highlightedChars = Math.floor(progressInSegment * charsPerSecond);
-
-    let charCount = 0;
+    // Calculate progress within this segment (0 to 1)
+    const progressInSegment = (currentTime - segmentStartTime) / segmentDuration;
+    
+    // Split into actual words (not preserving whitespace separately for cleaner highlighting)
+    const words = item.text.split(' ');
+    const totalWords = words.length;
+    
+    // Calculate how many words should be highlighted based on time progress
+    const wordsToHighlight = Math.floor(progressInSegment * totalWords);
+    
     return (
       <span>
         {words.map((word, wordIndex) => {
-          const wordStart = charCount;
-          charCount += word.length;
+          const isHighlighted = wordIndex < wordsToHighlight;
+          const isCurrentWord = wordIndex === wordsToHighlight;
           
-          if (wordStart + word.length <= highlightedChars) {
-            // Fully highlighted word
-            return (
-              <span key={wordIndex} className="bg-emerald-500/30 text-emerald-700 rounded px-0.5 transition-colors">
-                {word}
-              </span>
-            );
-          } else if (wordStart < highlightedChars) {
-            // Partially highlighted word
-            const highlightLength = highlightedChars - wordStart;
-            return (
-              <span key={wordIndex}>
-                <span className="bg-emerald-500/30 text-emerald-700 rounded-l px-0.5 transition-colors">
-                  {word.slice(0, highlightLength)}
+          return (
+            <span key={wordIndex}>
+              {isHighlighted ? (
+                <span className="bg-emerald-500/30 text-emerald-700 rounded px-0.5 transition-colors duration-100">
+                  {word}
                 </span>
-                <span>{word.slice(highlightLength)}</span>
-              </span>
-            );
-          }
-          return <span key={wordIndex}>{word}</span>;
+              ) : isCurrentWord ? (
+                <span className="bg-emerald-500/20 text-emerald-600 rounded px-0.5 transition-colors duration-100">
+                  {word}
+                </span>
+              ) : (
+                <span>{word}</span>
+              )}
+              {wordIndex < words.length - 1 && ' '}
+            </span>
+          );
         })}
       </span>
     );
@@ -1707,6 +1706,18 @@ ${content.map((item, index) => {
                 <option value={2}>2x</option>
               </select>
 
+              {/* Favorite - moved after speed */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                      <Star className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Favorite</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               {/* Create */}
               <DropdownMenu>
                 <TooltipProvider>
@@ -1752,18 +1763,6 @@ ${content.map((item, index) => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* Favorite */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <Star className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Favorite</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
 
               {/* Download */}
               <TooltipProvider>
