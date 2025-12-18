@@ -371,7 +371,7 @@ export default function TranscribeApp() {
                     <Link2 className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
                     <input
                       type="text"
-                      placeholder="Paste Any Public Media Link"
+                      placeholder="Paste A Supported Public Media Link"
                       value={urlInput}
                       onChange={(e) => setUrlInput(e.target.value)}
                       onKeyDown={(e) => {
@@ -386,7 +386,7 @@ export default function TranscribeApp() {
                           setTimeout(() => handleUrlSubmit(pastedText.trim()), 100);
                         }
                       }}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                 </div>
