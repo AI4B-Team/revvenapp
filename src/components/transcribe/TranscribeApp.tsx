@@ -545,6 +545,16 @@ export default function TranscribeApp() {
                         <Share2 className="w-4 h-4" />
                       </button>
                       <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(transcript.title);
+                          alert('Transcript title copied!');
+                        }}
+                        disabled={transcript.status === 'processing'}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <button 
                         onClick={() => handleDelete(transcript.id)}
                         className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors"
                       >
@@ -640,6 +650,15 @@ export default function TranscribeApp() {
                           className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                         >
                           <Share2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(transcript.title);
+                            alert('Transcript title copied!');
+                          }}
+                          className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                        >
+                          <Copy className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
