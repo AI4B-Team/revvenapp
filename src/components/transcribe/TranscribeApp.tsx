@@ -7,8 +7,15 @@ import {
   Volume2, VolumeX, Settings, Filter, Grid, List, Star,
   MessageSquare, Zap, Languages, FileDown, AlertCircle,
   StopCircle, RotateCcw, ChevronRight, Wand2, Users,
-  BookOpen, Subtitles, Hash, Calendar, TrendingUp, Loader2
+  BookOpen, Subtitles, Hash, Calendar, TrendingUp, Loader2,
+  Video, UserCircle, Image, BookOpenCheck
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import {
@@ -754,7 +761,7 @@ export default function TranscribeApp() {
     navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
 
-  const handleUse = (transcript: Transcript) => {
+  const handleCreate = (transcript: Transcript, contentType: 'video' | 'ugc' | 'post' | 'ebook') => {
     // Mock transcript text - in real implementation, this would come from the transcript data
     const mockTranscriptText = `Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started.
 
@@ -786,15 +793,47 @@ I can compile a report on the feedback trends. We have data from over 500 beta u
 
 Perfect. Let's reconvene next week with action items completed. Great progress everyone.`;
 
-    // Navigate to Create page with the transcript text for video/avatar mode
-    navigate('/create', { 
-      state: { 
-        transcriptText: mockTranscriptText,
-        transcriptTitle: transcript.title,
-        targetMode: 'Video',
-        targetAnimateMode: 'Avatar Video'
-      } 
-    });
+    // Navigate based on content type
+    switch (contentType) {
+      case 'video':
+        navigate('/create', { 
+          state: { 
+            transcriptText: mockTranscriptText,
+            transcriptTitle: transcript.title,
+            targetMode: 'Video',
+            targetAnimateMode: 'Avatar Video'
+          } 
+        });
+        break;
+      case 'ugc':
+        navigate('/create', { 
+          state: { 
+            transcriptText: mockTranscriptText,
+            transcriptTitle: transcript.title,
+            targetMode: 'Video',
+            targetAnimateMode: 'UGC Video'
+          } 
+        });
+        break;
+      case 'post':
+        navigate('/create', { 
+          state: { 
+            transcriptText: mockTranscriptText,
+            transcriptTitle: transcript.title,
+            targetMode: 'Image'
+          } 
+        });
+        break;
+      case 'ebook':
+        navigate('/create', { 
+          state: { 
+            transcriptText: mockTranscriptText,
+            transcriptTitle: transcript.title,
+            targetMode: 'Design'
+          } 
+        });
+        break;
+    }
   };
 
   const toggleStar = (id: string) => {
@@ -1136,14 +1175,44 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     {/* Actions */}
                     <TooltipProvider>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleUse(transcript); }}
-                          disabled={transcript.status === 'processing'}
-                          className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          <Zap className="w-4 h-4" />
-                          Use
-                        </button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button 
+                                  disabled={transcript.status === 'processing'}
+                                  className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Zap className="w-4 h-4" />
+                                  Create
+                                  <ChevronDown className="w-3.5 h-3.5" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <Video className="w-4 h-4" />
+                                  Video
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <UserCircle className="w-4 h-4" />
+                                  UGC
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <Image className="w-4 h-4" />
+                                  Post
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <BookOpenCheck className="w-4 h-4" />
+                                  Ebook
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Create Content</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                           disabled={transcript.status === 'processing'}
@@ -1268,13 +1337,43 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   ) : (
                     <TooltipProvider>
                       <div className="flex items-center gap-2">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleUse(transcript); }}
-                          className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Zap className="w-4 h-4" />
-                          Use
-                        </button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button 
+                                  className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Zap className="w-4 h-4" />
+                                  Create
+                                  <ChevronDown className="w-3.5 h-3.5" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <Video className="w-4 h-4" />
+                                  Video
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <UserCircle className="w-4 h-4" />
+                                  UGC
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <Image className="w-4 h-4" />
+                                  Post
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
+                                  <BookOpenCheck className="w-4 h-4" />
+                                  Ebook
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Create Content</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                           className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
