@@ -664,6 +664,7 @@ ${content.map((item, index) => {
       );
       
       setTranslatedContent(translatedItems);
+      setActiveTranslationTab('translated'); // Auto-switch to translated tab
       toast.success(`Translated to ${targetLanguage}`);
     } catch (error) {
       console.error('Translation error:', error);
