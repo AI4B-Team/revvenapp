@@ -155,6 +155,17 @@ export default function AudioDubber() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from('user_voices').delete().eq('id', id);
+      if (error) throw error;
+      setUsageHistory(prev => prev.filter(r => r.id !== id));
+      toast.success('Deleted successfully');
+    } catch (error: any) {
+      toast.error('Failed to delete');
+    }
+  };
+
   const playAudio = (url: string) => {
     if (isPlaying === url) {
       audioRef.current?.pause();
@@ -366,6 +377,12 @@ export default function AudioDubber() {
                           </a>
                         </>
                       )}
+                      <button
+                        onClick={() => handleDelete(record.id)}
+                        className="p-2 rounded-lg hover:bg-red-500/20 text-muted-foreground hover:text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
