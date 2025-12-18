@@ -1147,7 +1147,7 @@ ${content.map((item, index) => {
                         <Sparkles className="w-5 h-5 text-emerald-500" />
                         <h3 className="font-semibold text-gray-900">AI Summary</h3>
                       </div>
-                      {Object.keys(summaryTranslations).length > 0 && (
+                      {aiSummary && Object.keys(summaryTranslations).length > 0 && (
                         <div className="flex items-center gap-2 flex-wrap">
                           <button 
                             onClick={() => setActiveSummaryTab('original')}
@@ -1205,6 +1205,11 @@ ${content.map((item, index) => {
                     <button 
                       onClick={() => {
                         setActiveSummaryTab('original');
+                        // Clear old translations when regenerating summary
+                        setSummaryTranslations({});
+                        if (id) {
+                          localStorage.removeItem(`summary-translations-${id}`);
+                        }
                         const transcriptText = originalContent.map(c => c.text).join(' ');
                         if (transcriptText) generateAISummary(transcriptText);
                       }}
