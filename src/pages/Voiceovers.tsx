@@ -101,38 +101,64 @@ export default function Voiceovers() {
 
       if (error) throw error;
 
-      // Create audio URL from base64
-      const audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
-      setOutputUrl(audioUrl);
+      const voiceRecordId = data.id;
+      toast.info('Generating voiceover...');
 
-      // Record usage
-      await supabase.from('audio_app_usage').insert({
-        user_id: user.id,
-        app_name: 'voiceovers',
-        input_text: text.trim(),
-        output_audio_url: audioUrl,
-        settings: { 
-          voice: selectedVoice.name,
-          voiceId: selectedVoice.id,
-          stability: stability[0],
-          similarity: similarity[0],
-          speed: speed[0]
-        },
-        status: 'completed'
-      });
+      // Poll for completion
+      let attempts = 0;
+      const maxAttempts = 60;
+      
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: voiceRecord } = await supabase
+          .from('user_voices')
+          .select('*')
+          .eq('id', voiceRecordId)
+          .single();
 
-      toast.success('Voiceover generated!');
+        if (voiceRecord?.status === 'completed' && voiceRecord?.url) {
+          setOutputUrl(voiceRecord.url);
+          
+          // Record usage
+          await supabase.from('audio_app_usage').insert({
+            user_id: user.id,
+            app_name: 'voiceovers',
+            input_text: text.trim(),
+            output_audio_url: voiceRecord.url,
+            settings: { 
+              voice: selectedVoice.name,
+              voiceId: selectedVoice.id,
+              stability: stability[0],
+              similarity: similarity[0],
+              speed: speed[0]
+            },
+            status: 'completed'
+          });
 
-      // Refresh history
-      const { data: history } = await supabase
-        .from('audio_app_usage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('app_name', 'voiceovers')
-        .order('created_at', { ascending: false })
-        .limit(20);
+          toast.success('Voiceover generated!');
 
-      if (history) setUsageHistory(history);
+          // Refresh history
+          const { data: history } = await supabase
+            .from('audio_app_usage')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('app_name', 'voiceovers')
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+          if (history) setUsageHistory(history);
+          break;
+        } else if (voiceRecord?.status === 'error') {
+          throw new Error('Voice generation failed');
+        }
+
+        attempts++;
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error('Voice generation timed out');
+      }
 
     } catch (error: any) {
       toast.error(error.message || 'Failed to generate voiceover');
