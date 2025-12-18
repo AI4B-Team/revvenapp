@@ -181,15 +181,56 @@ export default function VoiceCloner() {
 
       if (error) throw error;
 
-      // Save cloned voice to user_voices table
+      const voiceId = data?.voice_id;
+      let previewAudioUrl = uploadData.secure_url;
+
+      // Generate a preview using the cloned voice
+      if (voiceId) {
+        try {
+          const previewResponse = await supabase.functions.invoke('generate-voice-preview', {
+            body: { 
+              voiceId,
+              text: 'Hello! This is a preview of my cloned voice. I hope you like how I sound.',
+              stability: 0.5,
+              similarityBoost: 0.75,
+              style: 0.5,
+              speed: 1.0,
+              useSpeakerBoost: true
+            }
+          });
+
+          if (previewResponse.data?.audioContent) {
+            // Upload the preview audio to Cloudinary
+            const base64Audio = previewResponse.data.audioContent;
+            const audioBlob = await fetch(`data:audio/mpeg;base64,${base64Audio}`).then(r => r.blob());
+            const previewFormData = new FormData();
+            previewFormData.append('file', audioBlob, 'voice-preview.mp3');
+            previewFormData.append('upload_preset', 'revven');
+            previewFormData.append('resource_type', 'video');
+
+            const previewUpload = await fetch(
+              'https://api.cloudinary.com/v1_1/dszt275xv/upload',
+              { method: 'POST', body: previewFormData }
+            );
+            const previewData = await previewUpload.json();
+            if (previewData.secure_url) {
+              previewAudioUrl = previewData.secure_url;
+            }
+          }
+        } catch (previewError) {
+          console.error('Error generating preview:', previewError);
+        }
+      }
+
+      // Save cloned voice to user_voices table with preview URL
       const { error: saveError } = await supabase.from('user_voices').insert({
         user_id: user.id,
         name: voiceName.trim(),
-        url: uploadData.secure_url,
+        url: previewAudioUrl,
         duration: 0,
         type: 'cloned',
         status: 'completed',
-        elevenlabs_voice_id: data?.voice_id || null,
+        elevenlabs_voice_id: voiceId || null,
       });
 
       if (saveError) {
