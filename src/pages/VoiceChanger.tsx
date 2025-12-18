@@ -27,13 +27,122 @@ interface UsageRecord {
 }
 
 const VOICE_STYLES = [
-  { id: 'deep', name: 'Deep Voice', description: 'Lower pitch, more resonant' },
-  { id: 'high', name: 'High Voice', description: 'Higher pitch, lighter tone' },
-  { id: 'robotic', name: 'Robotic', description: 'Mechanical, synthesized' },
-  { id: 'whisper', name: 'Female', description: 'Soft, hushed tone' },
-  { id: 'echo', name: 'Echo', description: 'Reverberating effect' },
-  { id: 'chipmunk', name: 'Chipmunk', description: 'High-pitched, fast' },
+  { id: 'deep', name: 'Deep Voice', description: 'Lower pitch, more resonant', hasReverb: false },
+  { id: 'high', name: 'High Voice', description: 'Higher pitch, lighter tone', hasReverb: false },
+  { id: 'robotic', name: 'Robotic', description: 'Mechanical, synthesized', hasReverb: false },
+  { id: 'whisper', name: 'Female', description: 'Soft, hushed tone', hasReverb: false },
+  { id: 'echo', name: 'Echo', description: 'Reverberating effect', hasReverb: true },
+  { id: 'chipmunk', name: 'Chipmunk', description: 'High-pitched, fast', hasReverb: false },
 ];
+
+// Apply reverb effect using Web Audio API
+const applyReverbEffect = async (audioFile: File): Promise<File> => {
+  const audioContext = new AudioContext();
+  const arrayBuffer = await audioFile.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  
+  // Create offline context for processing
+  const offlineContext = new OfflineAudioContext(
+    audioBuffer.numberOfChannels,
+    audioBuffer.length + audioContext.sampleRate * 2, // Add 2 seconds for reverb tail
+    audioBuffer.sampleRate
+  );
+  
+  // Create source
+  const source = offlineContext.createBufferSource();
+  source.buffer = audioBuffer;
+  
+  // Create convolver for reverb
+  const convolver = offlineContext.createConvolver();
+  
+  // Generate impulse response for reverb effect
+  const impulseLength = offlineContext.sampleRate * 2; // 2 second reverb
+  const impulse = offlineContext.createBuffer(2, impulseLength, offlineContext.sampleRate);
+  
+  for (let channel = 0; channel < 2; channel++) {
+    const channelData = impulse.getChannelData(channel);
+    for (let i = 0; i < impulseLength; i++) {
+      // Exponential decay with some randomness for natural reverb
+      channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impulseLength, 2.5);
+    }
+  }
+  
+  convolver.buffer = impulse;
+  
+  // Create gain nodes for dry/wet mix
+  const dryGain = offlineContext.createGain();
+  const wetGain = offlineContext.createGain();
+  dryGain.gain.value = 0.6; // Original signal
+  wetGain.gain.value = 0.5; // Reverb signal
+  
+  // Connect: source -> dry -> destination
+  //          source -> convolver -> wet -> destination
+  source.connect(dryGain);
+  dryGain.connect(offlineContext.destination);
+  
+  source.connect(convolver);
+  convolver.connect(wetGain);
+  wetGain.connect(offlineContext.destination);
+  
+  source.start(0);
+  
+  // Render the audio
+  const renderedBuffer = await offlineContext.startRendering();
+  
+  // Convert AudioBuffer to WAV file
+  const wavBlob = audioBufferToWav(renderedBuffer);
+  return new File([wavBlob], 'reverb-audio.wav', { type: 'audio/wav' });
+};
+
+// Convert AudioBuffer to WAV format
+const audioBufferToWav = (buffer: AudioBuffer): Blob => {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const format = 1; // PCM
+  const bitDepth = 16;
+  
+  const bytesPerSample = bitDepth / 8;
+  const blockAlign = numChannels * bytesPerSample;
+  
+  const dataLength = buffer.length * blockAlign;
+  const bufferLength = 44 + dataLength;
+  
+  const arrayBuffer = new ArrayBuffer(bufferLength);
+  const view = new DataView(arrayBuffer);
+  
+  // WAV header
+  const writeString = (offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+  
+  writeString(0, 'RIFF');
+  view.setUint32(4, bufferLength - 8, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true); // fmt chunk size
+  view.setUint16(20, format, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitDepth, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataLength, true);
+  
+  // Interleave channels and write samples
+  let offset = 44;
+  for (let i = 0; i < buffer.length; i++) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+  
+  return new Blob([arrayBuffer], { type: 'audio/wav' });
+};
 
 export default function VoiceChanger() {
   const navigate = useNavigate();
@@ -142,9 +251,16 @@ export default function VoiceChanger() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Apply reverb effect if the style has it
+      let processedAudio = audioFile;
+      if (selectedStyle.hasReverb) {
+        toast.info('Applying reverb effect...');
+        processedAudio = await applyReverbEffect(audioFile);
+      }
+
       // Call ElevenLabs voice changer edge function
       const formData = new FormData();
-      formData.append('audio', audioFile);
+      formData.append('audio', processedAudio);
       formData.append('style', selectedStyle.id);
 
       const response = await fetch(
