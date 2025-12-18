@@ -284,12 +284,16 @@ export default function TranscribeApp() {
                   }`} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
-                <p className="text-sm text-gray-500 mb-4">Upload Video Or Audio File</p>
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
+                  <Upload className="w-5 h-5 text-emerald-500" />
+                  <span className="text-sm text-gray-600">Upload Video Or Audio File</span>
+                </div>
+                <div className="flex flex-wrap justify-center gap-2 items-center">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.wav</span>
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp4</span>
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mov</span>
+                  <span className="px-2 py-1 rounded-md bg-emerald-100 text-xs text-emerald-600 font-medium">+ more</span>
                 </div>
               </div>
             </button>
@@ -309,7 +313,7 @@ export default function TranscribeApp() {
                     <input
                       type="text"
                       placeholder="Paste Any Public Media Link"
-                      className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-400 text-center focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-400 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
