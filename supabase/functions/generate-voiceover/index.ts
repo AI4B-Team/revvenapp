@@ -159,7 +159,7 @@ serve(async (req) => {
             model: 'elevenlabs/text-to-speech-multilingual-v2',
             input: {
               text,
-              voice,
+              voice: voiceName || voice, // Use voice name for KIE.AI, not ElevenLabs ID
               stability,
               similarity_boost,
               style,
