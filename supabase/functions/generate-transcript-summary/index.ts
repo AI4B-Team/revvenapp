@@ -11,32 +11,50 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript, action, text, targetLanguage } = await req.json();
+    const { transcript, action, text, targetLanguage, question, chatHistory } = await req.json();
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    let systemPrompt = "";
-    let userPrompt = "";
+    let messages: { role: string; content: string }[] = [];
 
-    if (action === "translate") {
+    if (action === "chat") {
+      // Chat mode - answer questions about the transcript
+      if (!question || !transcript) {
+        throw new Error("Question and transcript required for chat");
+      }
+      console.log("Chat about transcript:", question);
+      
+      messages = [
+        {
+          role: "system",
+          content: `You are a helpful assistant that answers questions about a transcript. Be concise and accurate. Here is the transcript:\n\n${transcript}`
+        },
+        ...(chatHistory || []),
+        { role: "user", content: question }
+      ];
+    } else if (action === "translate") {
       // Translation mode
       if (!text || !targetLanguage) {
         throw new Error("Text and target language required for translation");
       }
       console.log("Translating text to:", targetLanguage);
-      systemPrompt = `You are a professional translator. Translate the following text to ${targetLanguage}. Only return the translated text, nothing else.`;
-      userPrompt = text;
+      messages = [
+        { role: "system", content: `You are a professional translator. Translate the following text to ${targetLanguage}. Only return the translated text, nothing else.` },
+        { role: "user", content: text }
+      ];
     } else {
       // Summary mode (default)
       if (!transcript) {
         throw new Error("No transcript provided");
       }
       console.log("Generating summary for transcript:", transcript.substring(0, 100));
-      systemPrompt = "You are an expert at summarizing transcripts. Create a concise, informative summary that captures the key points, main topics discussed, and any action items or conclusions. Keep the summary clear and professional, around 2-4 sentences.";
-      userPrompt = `Please summarize the following transcript:\n\n${transcript}`;
+      messages = [
+        { role: "system", content: "You are an expert at summarizing transcripts. Create a concise, informative summary that captures the key points, main topics discussed, and any action items or conclusions. Keep the summary clear and professional, around 2-4 sentences." },
+        { role: "user", content: `Please summarize the following transcript:\n\n${transcript}` }
+      ];
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -49,11 +67,8 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "openai/gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        max_tokens: 500,
+        messages,
+        max_tokens: 1000,
         temperature: 0.7
       }),
     });
@@ -72,8 +87,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        summary: action !== "translate" ? result : undefined,
-        translatedText: action === "translate" ? result : undefined 
+        summary: action !== "translate" && action !== "chat" ? result : undefined,
+        translatedText: action === "translate" ? result : undefined,
+        answer: action === "chat" ? result : undefined
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

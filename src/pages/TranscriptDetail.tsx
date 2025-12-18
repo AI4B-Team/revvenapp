@@ -110,6 +110,11 @@ const TranscriptDetail = () => {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isTranslatingSummary, setIsTranslatingSummary] = useState(false);
   
+  // AI Chat
+  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'assistant'; content: string}[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  
   // Per-line transcript editing
   const [editingLineIndex, setEditingLineIndex] = useState<number | null>(null);
   
@@ -185,6 +190,43 @@ const TranscriptDetail = () => {
       toast.error('Failed to translate summary');
     } finally {
       setIsTranslatingSummary(false);
+    }
+  };
+
+  // Chat about transcript
+  const sendChatMessage = async (question: string) => {
+    if (!question.trim() || isChatLoading) return;
+    
+    const transcriptText = originalContent.map(c => c.text).join(' ');
+    if (!transcriptText) {
+      toast.error('No transcript loaded');
+      return;
+    }
+
+    const userMessage = { role: 'user' as const, content: question };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsChatLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+        body: { 
+          action: 'chat', 
+          question, 
+          transcript: transcriptText,
+          chatHistory: chatMessages
+        }
+      });
+
+      if (error) throw error;
+      if (data?.answer) {
+        setChatMessages(prev => [...prev, { role: 'assistant', content: data.answer }]);
+      }
+    } catch (error) {
+      console.error('Error chatting:', error);
+      toast.error('Failed to get response');
+    } finally {
+      setIsChatLoading(false);
     }
   };
 
@@ -874,28 +916,70 @@ const TranscriptDetail = () => {
               )}
 
               {activeTab === 'chat' && (
-                <div className="max-w-3xl">
-                  <div className="space-y-4 mb-4">
+                <div className="max-w-3xl w-full">
+                  {/* Chat Messages */}
+                  <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
                     <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
                       <p className="text-sm text-emerald-700">
                         Ask me anything about this transcript! I can help you find specific information, extract insights, or answer questions about what was discussed.
                       </p>
                     </div>
+                    
+                    {chatMessages.map((msg, i) => (
+                      <div 
+                        key={i} 
+                        className={`p-4 rounded-xl max-w-md ${
+                          msg.role === 'user' 
+                            ? 'bg-gray-100 border border-gray-300 ml-auto' 
+                            : 'bg-emerald-500/10 border border-emerald-500/20'
+                        }`}
+                      >
+                        <p className={`text-sm ${msg.role === 'user' ? 'text-gray-700' : 'text-emerald-700'}`}>
+                          {msg.content}
+                        </p>
+                      </div>
+                    ))}
+                    
+                    {isChatLoading && (
+                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
+                        <div className="flex items-center gap-2 text-emerald-600">
+                          <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm">Thinking...</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                  
+                  {/* Chat Input */}
                   <div className="flex items-center gap-3">
                     <input
                       type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && sendChatMessage(chatInput)}
                       placeholder="Ask a question about this transcript..."
                       className="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                      disabled={isChatLoading}
                     />
-                    <button className="px-4 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors">
+                    <button 
+                      onClick={() => sendChatMessage(chatInput)}
+                      disabled={isChatLoading || !chatInput.trim()}
+                      className="px-4 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                    >
                       <Wand2 className="w-5 h-5" />
                     </button>
                   </div>
-                  <div className="flex items-center gap-2 mt-3">
+                  
+                  {/* Quick Suggestions */}
+                  <div className="flex items-center gap-2 mt-3 flex-wrap">
                     <span className="text-xs text-gray-500">Try:</span>
-                    {['What was decided?', 'Action items', 'Key metrics'].map((q, i) => (
-                      <button key={i} className="px-3 py-1 rounded-lg bg-gray-100 border border-gray-300 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors">
+                    {['What was decided?', 'Action items', 'Key metrics', 'Main topics'].map((q, i) => (
+                      <button 
+                        key={i} 
+                        onClick={() => sendChatMessage(q)}
+                        disabled={isChatLoading}
+                        className="px-3 py-1 rounded-lg bg-gray-100 border border-gray-300 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors disabled:opacity-50"
+                      >
                         {q}
                       </button>
                     ))}
