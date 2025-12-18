@@ -17,14 +17,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface UsageRecord {
+interface VoiceRecord {
   id: string;
-  app_name: string;
-  input_text: string | null;
-  output_audio_url: string | null;
-  settings: any;
+  name: string;
+  url: string;
+  prompt: string | null;
   status: string;
   created_at: string;
+  type: string;
 }
 
 const VOICES = [
@@ -45,7 +45,7 @@ export default function Voiceovers() {
   const [selectedVoice, setSelectedVoice] = useState(VOICES[0]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [usageHistory, setUsageHistory] = useState<VoiceRecord[]>([]);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [stability, setStability] = useState([0.5]);
   const [similarity, setSimilarity] = useState([0.75]);
@@ -60,10 +60,10 @@ export default function Voiceovers() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('audio_app_usage')
+        .from('user_voices')
         .select('*')
         .eq('user_id', user.id)
-        .eq('app_name', 'voiceovers')
+        .eq('type', 'voiceover')
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -120,30 +120,14 @@ export default function Voiceovers() {
         if (voiceRecord?.status === 'completed' && voiceRecord?.url) {
           setOutputUrl(voiceRecord.url);
           
-          // Record usage
-          await supabase.from('audio_app_usage').insert({
-            user_id: user.id,
-            app_name: 'voiceovers',
-            input_text: text.trim(),
-            output_audio_url: voiceRecord.url,
-            settings: { 
-              voice: selectedVoice.name,
-              voiceId: selectedVoice.id,
-              stability: stability[0],
-              similarity: similarity[0],
-              speed: speed[0]
-            },
-            status: 'completed'
-          });
-
           toast.success('Voiceover generated!');
 
-          // Refresh history
+          // Refresh history from user_voices
           const { data: history } = await supabase
-            .from('audio_app_usage')
+            .from('user_voices')
             .select('*')
             .eq('user_id', user.id)
-            .eq('app_name', 'voiceovers')
+            .eq('type', 'voiceover')
             .order('created_at', { ascending: false })
             .limit(20);
 
@@ -360,23 +344,26 @@ export default function Voiceovers() {
                   {usageHistory.map((record) => (
                     <div key={record.id} className="flex items-center gap-4 p-3 bg-secondary rounded-xl">
                       <div className={`w-2 h-2 rounded-full ${
-                        record.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
+                        record.status === 'completed' ? 'bg-green-500' : record.status === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
                       }`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {record.input_text?.substring(0, 50)}...
+                          {record.prompt?.substring(0, 50) || record.name}...
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {record.settings?.voice} • {new Date(record.created_at).toLocaleString()}
+                          {new Date(record.created_at).toLocaleString()}
                         </p>
                       </div>
-                      {record.output_audio_url && (
+                      {record.url && record.status === 'completed' && (
                         <button
-                          onClick={() => playAudio(record.output_audio_url!)}
+                          onClick={() => playAudio(record.url)}
                           className="p-2 rounded-lg hover:bg-background/50"
                         >
-                          {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          {isPlaying === record.url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                         </button>
+                      )}
+                      {record.status === 'processing' && (
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                       )}
                     </div>
                   ))}
