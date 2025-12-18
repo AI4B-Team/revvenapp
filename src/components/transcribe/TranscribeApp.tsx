@@ -265,7 +265,7 @@ export default function TranscribeApp() {
                   <span className="text-gray-900">TRAN</span>
                   <span className="text-emerald-500">SCRIBE</span>
                 </h1>
-                <p className="text-sm text-gray-500">AI-Powered Speech To Text</p>
+                <p className="text-sm text-gray-500">AI-Powered Transcriptions</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -539,7 +539,7 @@ export default function TranscribeApp() {
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                           disabled={transcript.status === 'processing'}
-                          className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           <Download className="w-4 h-4" />
                           Download
@@ -662,7 +662,7 @@ export default function TranscribeApp() {
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
-                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
                         >
                           <Download className="w-4 h-4" />
                           Download
