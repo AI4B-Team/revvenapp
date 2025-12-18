@@ -33,93 +33,8 @@ const PLATFORMS = [
   { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
 ];
 
-// Mock transcript data
-const MOCK_TRANSCRIPTS = [
-  {
-    id: 1,
-    title: 'Product Launch Meeting - Q4 Strategy',
-    duration: '45:32',
-    date: '2025-12-17',
-    source: 'recording',
-    status: 'completed',
-    speakers: 4,
-    language: 'English',
-    words: 6840,
-    starred: true,
-    tags: ['Meeting', 'Strategy'],
-    thumbnail: null,
-    summary: 'Discussion of Q4 product launch timeline, marketing strategy, and resource allocation.',
-  },
-  {
-    id: 2,
-    title: 'Customer Interview - Sarah Chen',
-    duration: '28:15',
-    date: '2025-12-16',
-    source: 'upload',
-    status: 'completed',
-    speakers: 2,
-    language: 'English',
-    words: 4230,
-    starred: false,
-    tags: ['Interview', 'Research'],
-    thumbnail: null,
-    summary: 'User feedback session covering pain points and feature requests for the mobile app.',
-  },
-  {
-    id: 3,
-    title: 'AI Trends 2025 - YouTube Analysis',
-    duration: '12:47',
-    date: '2025-12-15',
-    source: 'link',
-    status: 'completed',
-    speakers: 1,
-    language: 'English',
-    words: 2100,
-    starred: true,
-    tags: ['Research', 'AI'],
-    thumbnail: null,
-    summary: 'Overview of emerging AI trends including multimodal models and agent frameworks.',
-  },
-  {
-    id: 4,
-    title: 'Spanish Podcast - Marketing Tips',
-    duration: '34:22',
-    date: '2025-12-14',
-    source: 'upload',
-    status: 'processing',
-    speakers: 2,
-    language: 'Spanish',
-    words: null,
-    starred: false,
-    tags: ['Podcast', 'Marketing'],
-    thumbnail: null,
-    summary: null,
-  },
-  {
-    id: 5,
-    title: 'Team Standup - December 13',
-    duration: '15:08',
-    date: '2025-12-13',
-    source: 'recording',
-    status: 'completed',
-    speakers: 6,
-    language: 'English',
-    words: 2450,
-    starred: false,
-    tags: ['Meeting', 'Daily'],
-    thumbnail: null,
-    summary: 'Daily standup covering sprint progress, blockers, and upcoming deadlines.',
-  },
-];
-
-const LANGUAGES = [
-  'English', 'Spanish', 'French', 'German', 'Portuguese', 'Italian',
-  'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic',
-  'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian'
-];
-
 interface Transcript {
-  id: number;
+  id: string;
   title: string;
   duration: string;
   date: string;
@@ -132,15 +47,30 @@ interface Transcript {
   tags: string[];
   thumbnail: string | null;
   summary: string | null;
+  audioUrl?: string;
 }
+
+const LANGUAGES = [
+  'English', 'Spanish', 'French', 'German', 'Portuguese', 'Italian',
+  'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic',
+  'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian'
+];
+
+// Helper to format time
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
 export default function TranscribeApp() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTranscripts, setSelectedTranscripts] = useState<number[]>([]);
-  const [transcripts, setTranscripts] = useState<Transcript[]>(MOCK_TRANSCRIPTS);
+  const [selectedTranscripts, setSelectedTranscripts] = useState<string[]>([]);
+  const [transcripts, setTranscripts] = useState<Transcript[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
@@ -178,6 +108,53 @@ export default function TranscribeApp() {
   } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  // Load transcripts from database
+  useEffect(() => {
+    const loadTranscripts = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('user_voices')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('type', 'transcription')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const loadedTranscripts: Transcript[] = (data || []).map(record => ({
+          id: record.id,
+          title: record.name || 'Untitled',
+          duration: formatTime(Math.floor(record.duration || 0)),
+          date: new Date(record.created_at).toISOString().split('T')[0],
+          source: 'upload',
+          status: record.status || 'completed',
+          speakers: 1,
+          language: 'English',
+          words: record.prompt?.split(' ').length || null,
+          starred: false,
+          tags: [],
+          thumbnail: null,
+          summary: record.prompt || null,
+          audioUrl: record.url,
+        }));
+
+        setTranscripts(loadedTranscripts);
+      } catch (err) {
+        console.error('Error loading transcripts:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTranscripts();
+  }, []);
+
   // Handle audio selection from AudioLibraryModal
   const handleAudioSelect = (file: { name: string; duration: number; url?: string; base64?: string }) => {
     setPendingAudioFile(file);
@@ -190,14 +167,36 @@ export default function TranscribeApp() {
     if (!pendingAudioFile) return;
     
     setIsTranscribing(true);
-    const newTranscriptId = Date.now();
+    const newTranscriptId = crypto.randomUUID();
+    const title = fileName || pendingAudioFile.name.replace(/\.[^/.]+$/, '');
     
     try {
-      // Create a new processing transcript
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      
+      // Parse duration
+      const durationNum = typeof pendingAudioFile.duration === 'number' 
+        ? pendingAudioFile.duration 
+        : parseFloat(String(pendingAudioFile.duration)) || 0;
+      
+      // Create a record in the database
+      const { error: insertError } = await supabase.from('user_voices').insert({
+        id: newTranscriptId,
+        user_id: user.id,
+        name: title,
+        url: pendingAudioFile.url || '',
+        duration: durationNum,
+        status: 'processing',
+        type: 'transcription',
+      });
+      
+      if (insertError) throw insertError;
+      
+      // Add to local state
       const newTranscript: Transcript = {
         id: newTranscriptId,
-        title: fileName || pendingAudioFile.name.replace(/\.[^/.]+$/, ''),
-        duration: '--:--',
+        title,
+        duration: formatTime(Math.floor(durationNum)),
         date: new Date().toISOString().split('T')[0],
         source: 'upload',
         status: 'processing',
@@ -208,6 +207,7 @@ export default function TranscribeApp() {
         tags: ['Upload'],
         thumbnail: null,
         summary: null,
+        audioUrl: pendingAudioFile.url,
       };
       
       setTranscripts(prev => [newTranscript, ...prev]);
@@ -225,12 +225,15 @@ export default function TranscribeApp() {
       
       if (transcribeError) throw transcribeError;
       
-      // Parse duration
-      const durationNum = typeof pendingAudioFile.duration === 'number' 
-        ? pendingAudioFile.duration 
-        : parseFloat(String(pendingAudioFile.duration)) || 0;
+      // Update database with results
+      await supabase.from('user_voices')
+        .update({
+          status: 'completed',
+          prompt: transcribeData?.text || 'Transcription completed',
+        })
+        .eq('id', newTranscriptId);
       
-      // Update transcript with results
+      // Update local state
       setTranscripts(prev => prev.map(t => 
         t.id === newTranscriptId 
           ? { 
@@ -239,7 +242,6 @@ export default function TranscribeApp() {
               summary: transcribeData?.text || 'Transcription completed',
               language: 'English',
               words: transcribeData?.text?.split(' ').length || null,
-              duration: formatTime(Math.floor(durationNum))
             } 
           : t
       ));
@@ -251,6 +253,12 @@ export default function TranscribeApp() {
       
     } catch (err) {
       console.error('Error transcribing:', err);
+      
+      // Update database with error
+      await supabase.from('user_voices')
+        .update({ status: 'error' })
+        .eq('id', newTranscriptId);
+      
       setTranscripts(prev => prev.map(t => 
         t.id === newTranscriptId 
           ? { ...t, status: 'error' } 
@@ -277,12 +285,11 @@ export default function TranscribeApp() {
   const handleUrlSubmit = async (url: string) => {
     if (!url) return;
     
-    const newTranscriptId = Date.now();
     const recordId = crypto.randomUUID();
     
     // Create a new processing transcript in UI
     const newTranscript: Transcript = {
-      id: newTranscriptId,
+      id: recordId,
       title: `Processing: ${url.substring(0, 50)}...`,
       duration: '--:--',
       date: new Date().toISOString().split('T')[0],
@@ -358,7 +365,7 @@ export default function TranscribeApp() {
         if (record?.status === 'completed') {
           // Update the UI transcript with real data
           setTranscripts(prev => prev.map(t => 
-            t.id === newTranscriptId 
+            t.id === recordId 
               ? { 
                   ...t, 
                   title: record.name || 'Transcribed from URL', 
@@ -380,7 +387,7 @@ export default function TranscribeApp() {
         
         if (record?.status === 'error') {
           setTranscripts(prev => prev.map(t => 
-            t.id === newTranscriptId 
+            t.id === recordId 
               ? { ...t, status: 'error', title: 'Error processing URL' } 
               : t
           ));
@@ -398,7 +405,7 @@ export default function TranscribeApp() {
         } else {
           // Timeout - mark as error
           setTranscripts(prev => prev.map(t => 
-            t.id === newTranscriptId 
+            t.id === recordId 
               ? { ...t, status: 'error', title: 'Processing timeout' } 
               : t
           ));
@@ -411,7 +418,7 @@ export default function TranscribeApp() {
     } catch (err) {
       console.error('Error processing URL:', err);
       setTranscripts(prev => prev.map(t => 
-        t.id === newTranscriptId 
+        t.id === recordId 
           ? { ...t, status: 'error', title: 'Error processing URL' } 
           : t
       ));
@@ -434,7 +441,7 @@ export default function TranscribeApp() {
     if (!selectedFile) return;
     
     setIsUploading(true);
-    const newTranscriptId = Date.now();
+    const newTranscriptId = crypto.randomUUID();
     
     try {
       // Create a new processing transcript
@@ -520,8 +527,16 @@ export default function TranscribeApp() {
     setShowDownloadModal(true);
   };
 
-  const handleDelete = (id: number) => {
-    setTranscripts(prev => prev.filter(t => t.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('user_voices').delete().eq('id', id).eq('user_id', user.id);
+      }
+      setTranscripts(prev => prev.filter(t => t.id !== id));
+    } catch (err) {
+      console.error('Error deleting transcript:', err);
+    }
   };
 
   const handleShare = (transcript: Transcript) => {
@@ -654,7 +669,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
     });
   };
 
-  const toggleStar = (id: number) => {
+  const toggleStar = (id: string) => {
     setTranscripts(prev => prev.map(t => 
       t.id === id ? { ...t, starred: !t.starred } : t
     ));
@@ -1565,8 +1580,9 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     if (uploadError) throw uploadError;
                     
                     // Create transcript entry
+                    const recordingId = crypto.randomUUID();
                     const newTranscript: Transcript = {
-                      id: Date.now(),
+                      id: recordingId,
                       title: `Recording ${new Date().toLocaleTimeString()}`,
                       duration: formatTime(recordingTime),
                       date: new Date().toISOString().split('T')[0],
