@@ -1,4 +1,4 @@
-import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift, Settings } from 'lucide-react';
+import { HelpCircle, User, Sparkles, Crown, ChevronRight, CreditCard, Globe, Languages, Moon, Sun, Circle, CircleDashed, Power, RefreshCw, UserPlus, Mail, Zap, Plug, Search, Check, Command, Gift, Settings, Menu } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import * as React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   onCreateClick?: () => void;
+  onMenuClick?: () => void;
 }
 
 const DiscordIcon = ({ size = 20, className = "" }) => (
@@ -52,7 +53,7 @@ const InstagramIcon = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const Header = ({ onCreateClick }: HeaderProps) => {
+const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
   const [selectedLanguage, setSelectedLanguage] = React.useState('English');
   const [selectedTheme, setSelectedTheme] = React.useState('split');
   const [languageSearch, setLanguageSearch] = React.useState('');
@@ -140,44 +141,52 @@ const Header = ({ onCreateClick }: HeaderProps) => {
   return (
     <>
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
-      <header className="border-b border-border px-8 py-4 flex items-center justify-between bg-background">
+      <header className="border-b border-border px-4 md:px-8 py-4 flex items-center justify-between bg-background">
+        {/* Mobile menu button */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-2 hover:bg-secondary rounded-lg mr-2"
+        >
+          <Menu size={24} />
+        </button>
+        
         <div className="flex-1 flex items-center">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="flex items-center gap-2 px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-gray-300 w-80"
+            className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-gray-300 w-full max-w-[200px] md:max-w-[320px]"
           >
             <Search size={18} className="text-gray-400" />
-            <span className="text-sm text-gray-500">Search</span>
-            <kbd className="ml-auto hidden sm:inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200">
+            <span className="text-sm text-gray-500 hidden sm:inline">Search</span>
+            <kbd className="ml-auto hidden md:inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200">
               <Command size={12} />
               <span>F</span>
             </kbd>
           </button>
         </div>
       
-      <div className="flex items-center gap-8">
-        <nav className="flex items-center gap-8">
+      <div className="hidden md:flex items-center gap-4 lg:gap-8">
+        <nav className="flex items-center gap-4 lg:gap-8">
           <Link 
             to="/create" 
-            className={`font-medium hover:text-foreground transition ${
+            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
               isMenuActive('create') ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Create
           </Link>
-          <span className="text-muted">|</span>
+          <span className="text-muted hidden lg:inline">|</span>
           <Link 
             to="/products" 
-            className={`font-medium hover:text-foreground transition ${
+            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
               isMenuActive('monetize') ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
             Monetize
           </Link>
-          <span className="text-muted">|</span>
+          <span className="text-muted hidden lg:inline">|</span>
           <Link 
             to="/apps" 
-            className={`font-medium hover:text-foreground transition ${
+            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
               isMenuActive('automate') ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
@@ -186,19 +195,19 @@ const Header = ({ onCreateClick }: HeaderProps) => {
         </nav>
       </div>
 
-      <div className="flex-1 flex items-center justify-end gap-2">
-        <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 flex items-center gap-1.5 px-3 py-1 h-8 text-xs border border-amber-200">
+      <div className="flex items-center justify-end gap-1 md:gap-2">
+        <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-amber-200">
           <Crown size={14} />
-          <span className="font-semibold">Upgrade</span>
+          <span className="font-semibold hidden md:inline">Upgrade</span>
         </Button>
 
         <Button 
           size="sm" 
           onClick={() => setIsRewardsModalOpen(true)}
-          className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 flex items-center gap-1.5 px-3 py-1 h-8 text-xs border border-emerald-200"
+          className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-emerald-200"
         >
           <Gift size={14} />
-          <span className="font-semibold">Earn</span>
+          <span className="font-semibold hidden md:inline">Earn</span>
         </Button>
 
         <NotificationBell />

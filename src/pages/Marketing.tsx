@@ -10,9 +10,9 @@ const Marketing = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar isMonetizePage={true} onCollapseChange={setIsSidebarCollapsed} />
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
-        <main className="flex-1 overflow-y-auto p-8">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">MARKETING</h1>
             <p className="text-muted-foreground text-lg">
