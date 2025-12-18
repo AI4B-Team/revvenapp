@@ -454,11 +454,50 @@ export default function TranscribeApp() {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
+      await processFileForTranscription(file);
     }
+  };
+
+  const processFileForTranscription = async (file: File) => {
+    // Get audio duration
+    const audio = new Audio();
+    const url = URL.createObjectURL(file);
+    
+    const getDuration = new Promise<number>((resolve) => {
+      audio.onloadedmetadata = () => {
+        resolve(audio.duration);
+        URL.revokeObjectURL(url);
+      };
+      audio.onerror = () => {
+        resolve(0);
+        URL.revokeObjectURL(url);
+      };
+    });
+    audio.src = url;
+    
+    const duration = await getDuration;
+    
+    // Convert to base64
+    const reader = new FileReader();
+    const base64Promise = new Promise<string>((resolve) => {
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+    });
+    reader.readAsDataURL(file);
+    const base64 = await base64Promise;
+    
+    // Set pending file and show confirm modal
+    setPendingAudioFile({
+      name: file.name,
+      duration,
+      base64,
+    });
+    setShowTranscribeConfirmModal(true);
   };
 
   const handleFileUpload = async () => {
@@ -806,13 +845,16 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Upload Audio */}
             <button
-              onClick={() => setShowAudioLibraryModal(true)}
+              onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => {
+              onDrop={async (e) => {
                 e.preventDefault();
                 setDragOver(false);
-                setShowAudioLibraryModal(true);
+                const file = e.dataTransfer.files?.[0];
+                if (file) {
+                  await processFileForTranscription(file);
+                }
               }}
               className={`group relative p-8 rounded-2xl border-2 border-dashed transition-all duration-300 ${
                 dragOver 
@@ -844,6 +886,15 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 </div>
               </div>
             </button>
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="audio/*,video/*,.mp3,.wav,.m4a,.webm,.mp4,.mov,.mkv"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
 
             {/* Upload Link */}
             <div
