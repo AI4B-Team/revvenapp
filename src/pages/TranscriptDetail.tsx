@@ -9,7 +9,8 @@ import {
   FileDown, Share2, ChevronDown, Copy, Edit3, Sparkles,
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
-  Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen
+  Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
+  Info, Heart, RefreshCw, MoreVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1533,61 +1534,57 @@ ${content.map((item, index) => {
           <audio ref={audioRef} src={audioUrl} preload="metadata" />
         )}
 
-        {/* Fixed Audio Player at Bottom */}
-        <div className={`fixed bottom-0 right-0 bg-[hsl(215,28%,17%)] border-t border-gray-700 p-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
-          <div className="max-w-6xl mx-auto flex items-center gap-4">
-            <button 
-              onClick={togglePlayPause}
-              className="w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0"
-            >
-              {isPlaying ? (
-                <Pause className="w-5 h-5 text-white" />
-              ) : (
-                <Play className="w-5 h-5 text-white ml-0.5" />
-              )}
-            </button>
-            
-            <div className="flex-1 flex items-center gap-3">
-              <span className="text-sm text-white font-mono w-12">{formatTime(currentTime)}</span>
+        {/* Fixed Audio Player at Bottom - Dark Sleek Design */}
+        <div className={`fixed bottom-0 right-0 bg-[#1a1f2e] border-t border-gray-800 py-3 px-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
+          <div className="flex items-center gap-4">
+            {/* Left: Title & Badge */}
+            <div className="flex items-center gap-3 min-w-[200px]">
+              <div className="w-8 h-8 rounded bg-gray-700/50 flex items-center justify-center">
+                <MoreVertical className="w-4 h-4 text-gray-400" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm text-white font-medium truncate max-w-[150px]">{editedTitle}</span>
+                <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
+              </div>
+            </div>
+
+            {/* Center: Play Button & Progress */}
+            <div className="flex-1 flex items-center gap-4">
+              <button 
+                onClick={togglePlayPause}
+                className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0 shadow-lg"
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5 text-white" />
+                ) : (
+                  <Play className="w-5 h-5 text-white ml-0.5" />
+                )}
+              </button>
+              
+              <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
+              
               <div 
-                className="flex-1 h-2 bg-gray-600 rounded-full overflow-hidden cursor-pointer"
+                className="flex-1 h-1.5 bg-gray-600 rounded-full overflow-hidden cursor-pointer relative group"
                 onClick={handleSeek}
               >
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" 
+                  className="h-full bg-white rounded-full transition-all relative" 
                   style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
-                />
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </div>
-              <span className="text-sm text-white font-mono w-12">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
               
-              {/* Volume */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="p-2 rounded-lg hover:bg-gray-700 text-white transition-colors">
-                    <Volume2 className="w-5 h-5" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
-                  <div className="relative h-24 flex items-center justify-center">
-                    <div className="absolute w-2 h-20 bg-white/30 rounded-full" />
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume}
-                      onChange={(e) => setVolume(parseInt(e.target.value))}
-                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-runnable-track]:bg-white/30 [&::-webkit-slider-runnable-track]:rounded-full"
-                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
+            </div>
 
+            {/* Right: Controls */}
+            <div className="flex items-center gap-1">
               {/* Speed */}
               <select 
                 value={playbackSpeed}
                 onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                className="px-2 py-1 rounded-lg bg-gray-700 border border-gray-600 text-sm text-white focus:outline-none cursor-pointer"
+                className="px-2 py-1.5 rounded-lg bg-gray-700/50 border-0 text-sm text-white focus:outline-none cursor-pointer hover:bg-gray-700 transition-colors"
               >
                 <option value={0.5}>0.5x</option>
                 <option value={0.75}>0.75x</option>
@@ -1596,9 +1593,129 @@ ${content.map((item, index) => {
                 <option value={1.5}>1.5x</option>
                 <option value={2}>2x</option>
               </select>
-            </div>
 
-            
+              {/* Info */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                      <Info className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Info</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Favorite */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                      <Heart className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Favorite</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Loop */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                      <RefreshCw className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Loop</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Download */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleDownload}
+                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Share */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleShare}
+                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Share</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Volume */}
+              <Popover>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>Volume</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
+                  <div className="relative h-24 flex items-center justify-center">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={volume}
+                      onChange={(e) => setVolume(parseInt(e.target.value))}
+                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* More Options */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>More Options</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Close */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => navigate('/transcribe')}
+                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Close</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </div>
       </div>
