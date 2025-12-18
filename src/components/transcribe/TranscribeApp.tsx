@@ -393,7 +393,7 @@ export default function TranscribeApp() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
-                  <Upload className="w-5 h-5 text-emerald-500" />
+                  <Upload className="w-6 h-6 text-emerald-500 flex-shrink-0" />
                   <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
@@ -416,8 +416,8 @@ export default function TranscribeApp() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
                 <div className="mt-3 w-full">
-                  <div className="relative flex items-center">
-                    <Link2 className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <div className="relative flex items-center justify-center">
+                    <Link2 className="absolute left-4 w-6 h-6 text-blue-500 pointer-events-none flex-shrink-0" />
                     <input
                       type="text"
                       placeholder="Paste A Supported Public Media Link"
@@ -435,7 +435,7 @@ export default function TranscribeApp() {
                           setTimeout(() => handleUrlSubmit(pastedText.trim()), 100);
                         }
                       }}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                 </div>
