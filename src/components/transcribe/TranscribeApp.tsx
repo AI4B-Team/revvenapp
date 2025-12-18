@@ -153,6 +153,48 @@ export default function TranscribeApp() {
   const [activeFilter, setActiveFilter] = useState('all');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleUrlSubmit = async (url: string) => {
+    if (!url) return;
+    
+    // Create a new processing transcript
+    const newTranscript: Transcript = {
+      id: Date.now(),
+      title: `Processing: ${url.substring(0, 50)}...`,
+      duration: '--:--',
+      date: new Date().toISOString().split('T')[0],
+      source: 'link',
+      status: 'processing',
+      speakers: 1,
+      language: 'Detecting...',
+      words: null,
+      starred: false,
+      tags: ['Link'],
+      thumbnail: null,
+      summary: null,
+    };
+    
+    setTranscripts(prev => [newTranscript, ...prev]);
+    setUrlInput('');
+    
+    // TODO: Call the actual transcription API here
+    // For now, simulate processing completion after 3 seconds
+    setTimeout(() => {
+      setTranscripts(prev => prev.map(t => 
+        t.id === newTranscript.id 
+          ? { 
+              ...t, 
+              title: 'Transcribed from URL', 
+              status: 'completed',
+              duration: '05:32',
+              language: 'English',
+              words: 850,
+              summary: 'Transcription from uploaded URL'
+            } 
+          : t
+      ));
+    }, 3000);
+  };
+
   const handleDownload = (transcript: Transcript) => {
     setDownloadTranscript(transcript);
     setShowDownloadModal(true);
@@ -316,8 +358,7 @@ export default function TranscribeApp() {
             </button>
 
             {/* Upload Link */}
-            <button
-              onClick={() => setShowLinkModal(true)}
+            <div
               className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300"
             >
               <div className="flex flex-col items-center text-center">
@@ -327,12 +368,25 @@ export default function TranscribeApp() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
                 <div className="mt-3 w-full">
                   <div className="relative flex items-center">
-                    <Link2 className="absolute left-1/2 -translate-x-[115px] w-4 h-4 text-gray-400 pointer-events-none" />
+                    <Link2 className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Paste Any Public Media Link"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                      onClick={(e) => e.stopPropagation()}
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && urlInput.trim()) {
+                          e.preventDefault();
+                          handleUrlSubmit(urlInput.trim());
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData('text');
+                        if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
+                          setTimeout(() => handleUrlSubmit(pastedText.trim()), 100);
+                        }
+                      }}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                     />
                   </div>
                 </div>
@@ -347,7 +401,7 @@ export default function TranscribeApp() {
                   </div>
                 </div>
               </div>
-            </button>
+            </div>
 
             {/* Record Audio */}
             <button
