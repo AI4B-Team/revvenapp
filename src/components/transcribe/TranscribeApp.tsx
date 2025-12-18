@@ -53,7 +53,7 @@ interface Transcript {
 const LANGUAGES = [
   'English', 'Spanish', 'French', 'German', 'Portuguese', 'Italian',
   'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic',
-  'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian'
+  'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian', 'Bengali'
 ];
 
 // Language code mapping for Speech Recognition API (BCP 47 codes)
@@ -76,7 +76,8 @@ const LANGUAGE_CODES: Record<string, string> = {
   'polish': 'pl-PL',
   'vietnamese': 'vi-VN',
   'thai': 'th-TH',
-  'indonesian': 'id-ID'
+  'indonesian': 'id-ID',
+  'bengali': 'bn-BD'
 };
 
 // Helper to format time
