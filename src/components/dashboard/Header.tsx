@@ -164,7 +164,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           </button>
         </div>
       
-      <div className="hidden md:flex items-center gap-4 lg:gap-8">
+      <div className="hidden md:flex items-center justify-center flex-1">
         <nav className="flex items-center gap-4 lg:gap-8">
           <Link 
             to="/create" 
@@ -215,8 +215,11 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center hover:bg-secondary/80 transition">
-              <User size={18} />
+            <button className="relative w-10 h-10 rounded-full flex items-center justify-center p-0.5 bg-emerald-500 hover:bg-emerald-400 transition">
+              <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                <User size={18} />
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-background" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
