@@ -1084,50 +1084,30 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 className={`
                   relative overflow-hidden rounded-2xl transition-all duration-300 border-2 border-dashed
                   ${isExtractingYouTube
-                    ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-purple-500/30 border-transparent'
+                    ? 'bg-white border-emerald-400'
                     : mediaUrl 
-                      ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-lg shadow-indigo-500/30 border-transparent' 
-                      : 'bg-white hover:bg-gray-50 border-gray-300 hover:border-emerald-400'
+                      ? 'bg-white border-emerald-400' 
+                      : 'bg-white hover:bg-gray-50 border-gray-400 hover:border-emerald-400'
                   }
                 `}
               >
-                {/* Animated background pattern - only show when extracting or has URL */}
-                {(isExtractingYouTube || mediaUrl) && (
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-                  </div>
-                )}
-
                 <div className="relative p-5 flex flex-col items-center">
-                  {/* Icon with glow effect */}
-                  <div className={`
-                    w-16 h-16 rounded-2xl flex items-center justify-center mb-3 
-                    ${isExtractingYouTube 
-                      ? 'bg-white/20 backdrop-blur-sm' 
-                      : mediaUrl
-                        ? 'bg-white/10 backdrop-blur-sm'
-                        : 'bg-blue-100'
-                    }
-                    transition-all duration-300
-                  `}>
+                  {/* Icon */}
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3 bg-blue-100 transition-all duration-300">
                     {isExtractingYouTube ? (
-                      <div className="relative">
-                        <Loader2 className="w-7 h-7 text-white animate-spin" />
-                        <div className="absolute inset-0 w-7 h-7 bg-white/30 rounded-full blur-md animate-pulse" />
-                      </div>
+                      <Loader2 className="w-7 h-7 text-[#5B8DEF] animate-spin" />
                     ) : (
-                      <div className={mediaUrl ? 'text-white' : 'text-blue-500'}>
+                      <div className="text-[#5B8DEF]">
                         <OnlineFileIcon />
                       </div>
                     )}
                   </div>
 
                   {/* Title */}
-                  <h3 className={`font-bold text-sm mb-0.5 tracking-wide ${isExtractingYouTube || mediaUrl ? 'text-white' : 'text-gray-800'}`}>
+                  <h3 className="font-bold text-sm mb-0.5 tracking-wide text-gray-800">
                     {isExtractingYouTube ? 'Extracting Audio...' : 'Upload Link'}
                   </h3>
-                  <p className={`text-xs text-center mb-4 ${isExtractingYouTube || mediaUrl ? 'text-white/70' : 'text-gray-500'}`}>
+                  <p className="text-xs text-center mb-4 text-gray-500">
                     {isExtractingYouTube ? 'Processing your media' : 'Paste Any Video Link To Extract Audio'}
                   </p>
 
@@ -1139,27 +1119,23 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                       onChange={handleMediaUrlChange}
                       placeholder="Paste URL Here..."
                       disabled={isExtractingYouTube}
-                      className={`w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed ${
-                        isExtractingYouTube || mediaUrl
-                          ? 'bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/50 focus:ring-white/40'
-                          : 'bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 focus:ring-blue-400 focus:border-transparent'
+                      className={`w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed bg-gray-50 border text-gray-800 placeholder-gray-400 focus:ring-emerald-400 focus:border-transparent ${
+                        mediaUrl ? 'border-emerald-400' : 'border-gray-400'
                       }`}
                     />
                     {mediaUrl && !isExtractingYouTube && (
                       <button
                         onClick={() => setMediaUrl('')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
                       >
-                        <X className="w-3 h-3 text-white" />
+                        <X className="w-3 h-3 text-gray-600" />
                       </button>
                     )}
                   </div>
 
                   {/* Supported platforms badge */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3 ${
-                    isExtractingYouTube || mediaUrl ? 'bg-white/10 backdrop-blur-sm' : 'bg-gray-100'
-                  }`}>
-                    <span className={`text-[10px] font-medium ${isExtractingYouTube || mediaUrl ? 'text-white/80' : 'text-gray-500'}`}>Supports 50+ Platforms</span>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3 bg-gray-100">
+                    <span className="text-[10px] font-medium text-gray-500">Supports 50+ Platforms</span>
                   </div>
 
                   {/* Social Platform Icons - Stylish row */}
@@ -1167,7 +1143,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                     {socialPlatforms.slice(0, 8).map(({ icon: Icon, name }) => (
                       <div
                         key={name}
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition-all duration-200 cursor-pointer transform hover:scale-110"
+                        className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all duration-200 cursor-pointer transform hover:scale-110"
                         title={name}
                       >
                         <div className="[&_svg]:w-4 [&_svg]:h-4 opacity-70 hover:opacity-100 transition-opacity">
@@ -1175,7 +1151,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                         </div>
                       </div>
                     ))}
-                    <div className="px-2 py-1 rounded-lg bg-white/10 text-[10px] text-white/60 font-medium">
+                    <div className="px-2 py-1 rounded-lg bg-gray-200 text-[10px] text-gray-500 font-medium">
                       +40
                     </div>
                   </div>
