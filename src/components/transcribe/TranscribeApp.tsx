@@ -7,7 +7,7 @@ import {
   Volume2, VolumeX, Settings, Filter, Grid, List, Star,
   MessageSquare, Zap, Languages, FileDown, AlertCircle,
   StopCircle, RotateCcw, ChevronRight, Wand2, Users,
-  BookOpen, Subtitles, Hash, Calendar, TrendingUp
+  BookOpen, Subtitles, Hash, Calendar, TrendingUp, Loader2
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { supabase } from "@/integrations/supabase/client";
 
 // Platform icons data with real brand logos
 const PLATFORMS = [
@@ -153,8 +154,12 @@ export default function TranscribeApp() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [liveTranscript, setLiveTranscript] = useState('');
   const [liveTranscriptionEnabled, setLiveTranscriptionEnabled] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const handleUrlSubmit = async (url: string) => {
     if (!url) return;
@@ -460,6 +465,7 @@ export default function TranscribeApp() {
                 <p className="text-sm text-gray-500">Click To Start Recording</p>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="px-1.5 py-0.5 rounded bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wide">Live</span>
                   Real-Time Transcription Available
                 </div>
               </div>
@@ -1009,8 +1015,41 @@ export default function TranscribeApp() {
                     <div className="absolute inset-2 rounded-full bg-rose-500/10 animate-pulse" />
                   </>
                 )}
-                <button
-                  onClick={() => setIsRecording(!isRecording)}
+              <button
+                  onClick={async () => {
+                    if (isRecording) {
+                      // Stop recording
+                      if (mediaRecorderRef.current) {
+                        mediaRecorderRef.current.stop();
+                      }
+                      if (streamRef.current) {
+                        streamRef.current.getTracks().forEach(track => track.stop());
+                      }
+                      setIsRecording(false);
+                    } else {
+                      // Start recording
+                      try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        streamRef.current = stream;
+                        audioChunksRef.current = [];
+                        
+                        const mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorderRef.current = mediaRecorder;
+                        
+                        mediaRecorder.ondataavailable = (e) => {
+                          if (e.data.size > 0) {
+                            audioChunksRef.current.push(e.data);
+                          }
+                        };
+                        
+                        mediaRecorder.start(100);
+                        setIsRecording(true);
+                        setRecordingTime(0);
+                      } catch (err) {
+                        console.error('Error accessing microphone:', err);
+                      }
+                    }
+                  }}
                   className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all ${
                     isRecording 
                       ? 'bg-rose-500 hover:bg-rose-400' 
@@ -1110,11 +1149,97 @@ export default function TranscribeApp() {
                 Reset
               </button>
               <button 
-                disabled={recordingTime === 0 || isRecording}
+                disabled={recordingTime === 0 || isRecording || isSaving || audioChunksRef.current.length === 0}
+                onClick={async () => {
+                  if (audioChunksRef.current.length === 0) return;
+                  
+                  setIsSaving(true);
+                  try {
+                    // Create audio blob
+                    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                    
+                    // Convert to base64
+                    const reader = new FileReader();
+                    const base64Promise = new Promise<string>((resolve) => {
+                      reader.onloadend = () => {
+                        const base64 = (reader.result as string).split(',')[1];
+                        resolve(base64);
+                      };
+                    });
+                    reader.readAsDataURL(audioBlob);
+                    const base64Audio = await base64Promise;
+                    
+                    // Upload to Cloudinary
+                    const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+                      body: {
+                        audioBase64: base64Audio,
+                        filename: `recording-${Date.now()}.webm`,
+                        contentType: 'audio/webm'
+                      }
+                    });
+                    
+                    if (uploadError) throw uploadError;
+                    
+                    // Create transcript entry
+                    const newTranscript: Transcript = {
+                      id: Date.now(),
+                      title: `Recording ${new Date().toLocaleTimeString()}`,
+                      duration: formatTime(recordingTime),
+                      date: new Date().toISOString().split('T')[0],
+                      source: 'recording',
+                      status: 'processing',
+                      speakers: 1,
+                      language: 'Detecting...',
+                      words: null,
+                      starred: false,
+                      tags: ['Recording'],
+                      thumbnail: null,
+                      summary: liveTranscript || null,
+                    };
+                    
+                    setTranscripts(prev => [newTranscript, ...prev]);
+                    
+                    // Start transcription
+                    const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-audio', {
+                      body: {
+                        audioUrl: uploadData?.url,
+                        filename: `recording-${Date.now()}.webm`
+                      }
+                    });
+                    
+                    // Update transcript with results
+                    setTranscripts(prev => prev.map(t => 
+                      t.id === newTranscript.id 
+                        ? { 
+                            ...t, 
+                            status: transcribeError ? 'error' : 'completed',
+                            summary: transcribeData?.text || liveTranscript || 'Transcription completed',
+                            language: 'English',
+                            words: transcribeData?.text?.split(' ').length || null
+                          } 
+                        : t
+                    ));
+                    
+                    // Close modal and reset
+                    setShowRecordModal(false);
+                    setRecordingTime(0);
+                    setLiveTranscript('');
+                    audioChunksRef.current = [];
+                    
+                  } catch (err) {
+                    console.error('Error saving recording:', err);
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
                 className="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-medium hover:bg-rose-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Sparkles className="w-4 h-4" />
-                Save & Transcribe
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4" />
+                )}
+                {isSaving ? 'Saving...' : 'Save & Transcribe'}
               </button>
             </div>
           </div>
