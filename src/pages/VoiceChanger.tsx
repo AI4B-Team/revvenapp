@@ -1,0 +1,429 @@
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
+import { 
+  ArrowLeft, Upload, Mic, Play, Pause, Trash2, 
+  Clock, FileAudio, Loader2, Download, StopCircle,
+  Wand2, ChevronDown
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+interface UsageRecord {
+  id: string;
+  app_name: string;
+  input_audio_url: string | null;
+  output_audio_url: string | null;
+  settings: any;
+  status: string;
+  created_at: string;
+}
+
+const VOICE_STYLES = [
+  { id: 'deep', name: 'Deep Voice', description: 'Lower pitch, more resonant' },
+  { id: 'high', name: 'High Voice', description: 'Higher pitch, lighter tone' },
+  { id: 'robotic', name: 'Robotic', description: 'Mechanical, synthesized' },
+  { id: 'whisper', name: 'Whisper', description: 'Soft, hushed tone' },
+  { id: 'echo', name: 'Echo', description: 'Reverberating effect' },
+  { id: 'chipmunk', name: 'Chipmunk', description: 'High-pitched, fast' },
+];
+
+export default function VoiceChanger() {
+  const navigate = useNavigate();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState(VOICE_STYLES[0]);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [isPlaying, setIsPlaying] = useState<string | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch usage history
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('audio_app_usage')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('app_name', 'voice_changer')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (!error && data) {
+        setUsageHistory(data);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('audio/')) {
+        toast.error('Please upload an audio file');
+        return;
+      }
+      setAudioFile(file);
+      setAudioUrl(URL.createObjectURL(file));
+      setOutputUrl(null);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        audioChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const file = new File([audioBlob], 'recorded-audio.webm', { type: 'audio/webm' });
+        setAudioFile(file);
+        setAudioUrl(URL.createObjectURL(audioBlob));
+        setOutputUrl(null);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      const interval = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      (mediaRecorderRef.current as any).intervalId = interval;
+    } catch (error) {
+      toast.error('Failed to access microphone');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      clearInterval((mediaRecorderRef.current as any).intervalId);
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleChangeVoice = async () => {
+    if (!audioFile) {
+      toast.error('Please provide an audio file');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Upload audio to Cloudinary
+      const formData = new FormData();
+      formData.append('file', audioFile);
+      formData.append('upload_preset', 'revven');
+
+      const uploadResponse = await fetch(
+        'https://api.cloudinary.com/v1_1/dszt275xv/upload',
+        { method: 'POST', body: formData }
+      );
+
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.secure_url) throw new Error('Upload failed');
+
+      // For now, simulate voice change (replace with actual API call)
+      // In production, this would call an AI voice changer API
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Record usage
+      await supabase.from('audio_app_usage').insert({
+        user_id: user.id,
+        app_name: 'voice_changer',
+        input_audio_url: uploadData.secure_url,
+        output_audio_url: uploadData.secure_url, // Would be the processed URL
+        settings: { style: selectedStyle.id },
+        status: 'completed'
+      });
+
+      setOutputUrl(uploadData.secure_url);
+      toast.success('Voice transformed successfully!');
+
+      // Refresh history
+      const { data: history } = await supabase
+        .from('audio_app_usage')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('app_name', 'voice_changer')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (history) setUsageHistory(history);
+
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to change voice');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const playAudio = (url: string) => {
+    if (isPlaying === url) {
+      audioRef.current?.pause();
+      setIsPlaying(null);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      audioRef.current = new Audio(url);
+      audioRef.current.play();
+      audioRef.current.onended = () => setIsPlaying(null);
+      setIsPlaying(url);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex">
+      <Sidebar onCollapseChange={setIsSidebarCollapsed} />
+      
+      <div className="flex-1 flex flex-col" style={{ marginLeft: isSidebarCollapsed ? '80px' : '256px' }}>
+        <Header />
+        
+        <main className="flex-1 p-8 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
+            <button 
+              onClick={() => navigate('/create')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back to Create</span>
+            </button>
+
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-600/20 flex items-center justify-center">
+                  <span className="text-3xl">🎵</span>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold">AI Voice Changer</h1>
+                  <p className="text-muted-foreground">Transform your voice with AI-powered effects</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="bg-card rounded-2xl p-6 border border-border mb-8">
+              {/* Audio Upload/Record */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Upload or Record Audio</label>
+                
+                {!audioUrl ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-6 border-2 border-dashed border-border rounded-xl hover:border-primary/50 transition-colors flex flex-col items-center gap-2"
+                    >
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Upload Audio</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+
+                    <button
+                      onClick={isRecording ? stopRecording : startRecording}
+                      className={`p-6 rounded-xl flex flex-col items-center gap-2 transition-colors ${
+                        isRecording 
+                          ? 'bg-red-500/10 border-2 border-red-500' 
+                          : 'bg-secondary hover:bg-secondary/80 border-2 border-transparent'
+                      }`}
+                    >
+                      {isRecording ? (
+                        <>
+                          <StopCircle className="w-8 h-8 text-red-500 animate-pulse" />
+                          <span className="text-sm text-red-500">{formatTime(recordingTime)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Record</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-secondary rounded-xl flex items-center gap-4">
+                    <button
+                      onClick={() => playAudio(audioUrl)}
+                      className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground"
+                    >
+                      {isPlaying === audioUrl ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    </button>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{audioFile?.name || 'Recorded Audio'}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setAudioFile(null);
+                        setAudioUrl(null);
+                        setOutputUrl(null);
+                      }}
+                      className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Voice Style Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">Voice Style</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="w-full p-4 bg-secondary rounded-xl flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-left">{selectedStyle.name}</p>
+                        <p className="text-sm text-muted-foreground">{selectedStyle.description}</p>
+                      </div>
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="start">
+                    <div className="max-h-64 overflow-y-auto">
+                      {VOICE_STYLES.map((style) => (
+                        <button
+                          key={style.id}
+                          onClick={() => setSelectedStyle(style)}
+                          className={`w-full p-4 text-left hover:bg-secondary transition-colors ${
+                            selectedStyle.id === style.id ? 'bg-secondary' : ''
+                          }`}
+                        >
+                          <p className="font-medium">{style.name}</p>
+                          <p className="text-sm text-muted-foreground">{style.description}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Transform Button */}
+              <Button
+                onClick={handleChangeVoice}
+                disabled={isProcessing || !audioFile}
+                className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Transforming...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Transform Voice
+                  </>
+                )}
+              </Button>
+
+              {/* Output */}
+              {outputUrl && (
+                <div className="mt-6 p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+                  <p className="text-sm font-medium text-green-500 mb-2">Transformed Audio</p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => playAudio(outputUrl)}
+                      className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white"
+                    >
+                      {isPlaying === outputUrl ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    </button>
+                    <div className="flex-1">
+                      <p className="text-sm">Output ({selectedStyle.name})</p>
+                    </div>
+                    <a
+                      href={outputUrl}
+                      download
+                      className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground"
+                    >
+                      <Download className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Usage History */}
+            <div className="bg-card rounded-2xl p-6 border border-border">
+              <h2 className="text-xl font-semibold mb-4">Recent Transformations</h2>
+              {usageHistory.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No transformations yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {usageHistory.map((record) => (
+                    <div key={record.id} className="flex items-center gap-4 p-3 bg-secondary rounded-xl">
+                      <div className={`w-2 h-2 rounded-full ${
+                        record.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {VOICE_STYLES.find(s => s.id === record.settings?.style)?.name || 'Voice Transform'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(record.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      {record.output_audio_url && (
+                        <button
+                          onClick={() => playAudio(record.output_audio_url!)}
+                          className="p-2 rounded-lg hover:bg-background/50"
+                        >
+                          {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
