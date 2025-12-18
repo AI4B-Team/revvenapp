@@ -133,6 +133,11 @@ export default function TranscribeApp() {
   } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Load transcripts from database
   useEffect(() => {
     const loadTranscripts = async () => {
