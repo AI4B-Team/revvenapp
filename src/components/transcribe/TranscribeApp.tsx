@@ -301,14 +301,45 @@ export default function TranscribeApp() {
   };
 
   const handleUse = (transcript: Transcript) => {
-    const params = new URLSearchParams({
-      title: transcript.title,
-      duration: transcript.duration,
-      speakers: String(transcript.speakers),
-      language: transcript.language,
-      summary: transcript.summary || ''
+    // Mock transcript text - in real implementation, this would come from the transcript data
+    const mockTranscriptText = `Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started.
+
+Thanks for organizing this. I've prepared the Q4 projections we discussed last week.
+
+Perfect. Before we dive in, let's do a quick round of updates from each team.
+
+The engineering team has completed the core features for the mobile app. We're now in the testing phase.
+
+Marketing has finalized the launch campaign. We're targeting early January for the announcement.
+
+Great progress. The numbers look promising - we're projecting a 40% increase in user engagement.
+
+That's excellent news. Let's discuss the resource allocation for Q1 and how we can best support the launch.
+
+I think we need at least two more developers to help with the final testing phase. The timeline is tight.
+
+Marketing can actually share some budget if engineering needs additional resources. Our campaign is mostly set.
+
+That's a great point. I'll run the numbers and see how we can reallocate funds to support the launch.
+
+Let's also talk about the customer feedback we've been collecting. There are some interesting patterns emerging.
+
+Yes, users are really excited about the new features. The beta testers gave us overwhelmingly positive feedback.
+
+We should highlight those testimonials in our launch materials. Real user stories always resonate well.
+
+I can compile a report on the feedback trends. We have data from over 500 beta users now.
+
+Perfect. Let's reconvene next week with action items completed. Great progress everyone.`;
+
+    // Navigate to Create page with the transcript text for video/avatar mode
+    navigate('/create', { 
+      state: { 
+        transcriptText: mockTranscriptText,
+        transcriptTitle: transcript.title,
+        targetMode: 'Video' // Default to video section
+      } 
     });
-    navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
 
   const toggleStar = (id: number) => {
