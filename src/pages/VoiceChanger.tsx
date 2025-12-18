@@ -210,6 +210,22 @@ export default function VoiceChanger() {
     }
   };
 
+  const handleDeleteRecord = async (recordId: string) => {
+    try {
+      const { error } = await supabase
+        .from('audio_app_usage')
+        .delete()
+        .eq('id', recordId);
+
+      if (error) throw error;
+
+      setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      toast.success('Transformation deleted');
+    } catch (error) {
+      toast.error('Failed to delete');
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -421,6 +437,12 @@ export default function VoiceChanger() {
                           {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                         </button>
                       )}
+                      <button
+                        onClick={() => handleDeleteRecord(record.id)}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
