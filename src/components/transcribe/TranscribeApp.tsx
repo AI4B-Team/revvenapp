@@ -651,11 +651,14 @@ export default function TranscribeApp() {
         
         recognition.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          if (event.error === 'language-not-supported') {
+          if (event.error === 'language-not-supported' || event.error === 'network') {
+            // Bengali and some other languages aren't supported by browser speech recognition
+            // Disable live transcription silently - recording continues, backend will transcribe
+            setLiveTranscriptionEnabled(false);
+            setLiveTranscript('');
             toast({
-              title: "Language not supported",
-              description: `Live transcription for ${selectedLanguage} is not supported in your browser. Try using Chrome for best language support.`,
-              variant: "destructive"
+              title: "Live transcription unavailable",
+              description: `Live transcription for ${selectedLanguage} is not supported in your browser. Recording will continue and be transcribed after completion.`,
             });
           } else if (event.error === 'no-speech') {
             // Silently ignore no-speech errors, just restart
