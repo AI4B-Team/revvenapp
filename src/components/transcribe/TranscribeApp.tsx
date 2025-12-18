@@ -1239,21 +1239,21 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Language</label>
-                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
-                    <option value="auto">Auto-Detect</option>
+                  <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                    <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
                     {LANGUAGES.map(lang => (
-                      <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                      <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 text-white">{lang}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Speaker Detection</label>
-                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
-                    <option value="auto">Auto-Detect Speakers</option>
-                    <option value="1">1 speaker</option>
-                    <option value="2">2 speakers</option>
-                    <option value="3">3-4 speakers</option>
-                    <option value="5">5+ speakers</option>
+                  <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                    <option value="auto" className="bg-gray-800 text-white">Auto-Detect Speakers</option>
+                    <option value="1" className="bg-gray-800 text-white">1 speaker</option>
+                    <option value="2" className="bg-gray-800 text-white">2 speakers</option>
+                    <option value="3" className="bg-gray-800 text-white">3-4 speakers</option>
+                    <option value="5" className="bg-gray-800 text-white">5+ speakers</option>
                   </select>
                 </div>
               </div>
@@ -1341,19 +1341,19 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Language</label>
-                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50">
-                    <option value="auto">Auto-Detect</option>
+                  <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                    <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
                     {LANGUAGES.map(lang => (
-                      <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                      <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 text-white">{lang}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Output Format</label>
-                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50">
-                    <option value="transcript">Full Transcript</option>
-                    <option value="srt">SRT Subtitles</option>
-                    <option value="vtt">VTT Subtitles</option>
+                  <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                    <option value="transcript" className="bg-gray-800 text-white">Full Transcript</option>
+                    <option value="srt" className="bg-gray-800 text-white">SRT Subtitles</option>
+                    <option value="vtt" className="bg-gray-800 text-white">VTT Subtitles</option>
                   </select>
                 </div>
               </div>
@@ -1522,19 +1522,19 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Language</label>
-                <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50">
-                  <option value="auto">Auto-Detect</option>
+                <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                  <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
                   {LANGUAGES.map(lang => (
-                    <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                    <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 text-white">{lang}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Audio Quality</label>
-                <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50">
-                  <option value="high">High Quality</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low (smaller file)</option>
+                <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                  <option value="high" className="bg-gray-800 text-white">High Quality</option>
+                  <option value="medium" className="bg-gray-800 text-white">Medium</option>
+                  <option value="low" className="bg-gray-800 text-white">Low (smaller file)</option>
                 </select>
               </div>
             </div>
