@@ -112,7 +112,7 @@ export default function TranscribeApp() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [liveTranscript, setLiveTranscript] = useState('');
   const [liveTranscriptionEnabled, setLiveTranscriptionEnabled] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState('auto');
+  const [selectedLanguage, setSelectedLanguage] = useState('english');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -1666,19 +1666,9 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <label className="block text-xs text-gray-500 mb-2">Language</label>
                 <select 
                   value={selectedLanguage}
-                  onChange={(e) => {
-                    const newLang = e.target.value;
-                    setSelectedLanguage(newLang);
-                    if (newLang === 'auto') {
-                      toast({
-                        title: "Auto-detect enabled",
-                        description: "Live transcription disabled. Language will be detected automatically after recording.",
-                      });
-                    }
-                  }}
+                  onChange={(e) => setSelectedLanguage(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white"
                 >
-                  <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
                   {LANGUAGES.map(lang => (
                     <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 text-white">{lang}</option>
                   ))}
