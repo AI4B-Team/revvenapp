@@ -444,7 +444,8 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200"
+                  onClick={() => handleEdit(transcript)}
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-center gap-5">
                     {/* Thumbnail / Icon */}
@@ -460,7 +461,7 @@ export default function TranscribeApp() {
                             {transcript.title}
                           </h3>
                           <button 
-                            onClick={() => toggleStar(transcript.id)}
+                            onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
@@ -514,7 +515,7 @@ export default function TranscribeApp() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={() => handleUse(transcript)}
+                        onClick={(e) => { e.stopPropagation(); handleUse(transcript); }}
                         disabled={transcript.status === 'processing'}
                         className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
@@ -522,30 +523,15 @@ export default function TranscribeApp() {
                         Use
                       </button>
                       <button 
-                        onClick={() => handleDownload(transcript)}
-                        disabled={transcript.status === 'processing'}
-                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
-                      <button 
-                        onClick={() => handleEdit(transcript)}
-                        disabled={transcript.status === 'processing'}
-                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleShare(transcript)}
+                        onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                         disabled={transcript.status === 'processing'}
                         className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Share2 className="w-4 h-4" />
+                        <Download className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           navigator.clipboard.writeText(transcript.title);
                           alert('Transcript title copied!');
                         }}
@@ -555,7 +541,14 @@ export default function TranscribeApp() {
                         <Copy className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDelete(transcript.id)}
+                        onClick={(e) => { e.stopPropagation(); handleShare(transcript); }}
+                        disabled={transcript.status === 'processing'}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(transcript.id); }}
                         className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -571,18 +564,19 @@ export default function TranscribeApp() {
               {filteredTranscripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200"
+                  onClick={() => handleEdit(transcript)}
+                  className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
                       {getSourceIcon(transcript.source)}
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => toggleStar(transcript.id)}>
+                      <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
                         <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                       </button>
                       <button 
-                        onClick={() => handleDelete(transcript.id)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(transcript.id); }}
                         className="p-1 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -620,47 +614,36 @@ export default function TranscribeApp() {
                       Processing...
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => handleUse(transcript)}
-                          className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Zap className="w-4 h-4" />
-                          Use
-                        </button>
-                        <button 
-                          onClick={() => handleDownload(transcript)}
-                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Download
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => handleEdit(transcript)}
-                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleShare(transcript)}
-                          className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            navigator.clipboard.writeText(transcript.title);
-                            alert('Transcript title copied!');
-                          }}
-                          className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleUse(transcript); }}
+                        className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Zap className="w-4 h-4" />
+                        Use
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(transcript.title);
+                          alert('Transcript title copied!');
+                        }}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleShare(transcript); }}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
                     </div>
                   )}
                 </div>
