@@ -53,6 +53,7 @@ interface TranscriptLine {
   speaker: string;
   time: string;
   text: string;
+  endTime?: string; // End time for the segment
 }
 
 // Parse transcript text into structured format
@@ -71,14 +72,18 @@ const parseTranscriptContent = (text: string, durationStr: string, speakerCount:
   const timePerSentence = totalSeconds / Math.max(sentences.length, 1);
   
   return sentences.map((sentence, index) => {
-    const seconds = Math.floor(index * timePerSentence);
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const startSeconds = Math.floor(index * timePerSentence);
+    const endSeconds = Math.floor((index + 1) * timePerSentence);
+    const startMins = Math.floor(startSeconds / 60);
+    const startSecs = startSeconds % 60;
+    const endMins = Math.floor(endSeconds / 60);
+    const endSecs = endSeconds % 60;
     // Distribute speakers across sentences
     const speakerNum = (index % speakerCount) + 1;
     return {
       speaker: `Speaker ${speakerNum}`,
-      time: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+      time: `${String(startMins).padStart(2, '0')}:${String(startSecs).padStart(2, '0')}`,
+      endTime: `${String(endMins).padStart(2, '0')}:${String(endSecs).padStart(2, '0')}`,
       text: sentence.trim()
     };
   });
@@ -193,6 +198,60 @@ const TranscriptDetail = () => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  // Render text with word-level highlighting (karaoke-style)
+  const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
+    if (!isPlaying) {
+      return <span>{item.text}</span>;
+    }
+
+    const segmentStartTime = parseTimeToSeconds(item.time);
+    const segmentEndTime = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
+    const segmentDuration = segmentEndTime - segmentStartTime;
+    
+    // Check if current time is within this segment
+    if (currentTime < segmentStartTime || currentTime >= segmentEndTime) {
+      return <span>{item.text}</span>;
+    }
+
+    // Calculate progress within this segment
+    const progressInSegment = currentTime - segmentStartTime;
+    const words = item.text.split(/(\s+)/);
+    const totalChars = item.text.length;
+    const charsPerSecond = totalChars / segmentDuration;
+    const highlightedChars = Math.floor(progressInSegment * charsPerSecond);
+
+    let charCount = 0;
+    return (
+      <span>
+        {words.map((word, wordIndex) => {
+          const wordStart = charCount;
+          charCount += word.length;
+          
+          if (wordStart + word.length <= highlightedChars) {
+            // Fully highlighted word
+            return (
+              <span key={wordIndex} className="bg-emerald-500/30 text-emerald-700 rounded px-0.5 transition-colors">
+                {word}
+              </span>
+            );
+          } else if (wordStart < highlightedChars) {
+            // Partially highlighted word
+            const highlightLength = highlightedChars - wordStart;
+            return (
+              <span key={wordIndex}>
+                <span className="bg-emerald-500/30 text-emerald-700 rounded-l px-0.5 transition-colors">
+                  {word.slice(0, highlightLength)}
+                </span>
+                <span>{word.slice(highlightLength)}</span>
+              </span>
+            );
+          }
+          return <span key={wordIndex}>{word}</span>;
+        })}
+      </span>
+    );
   };
 
   // Check if audio duration is valid
@@ -1205,7 +1264,7 @@ ${content.map((item, index) => {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-gray-900 leading-relaxed">{item.text}</p>
+                          <p className="text-gray-900 leading-relaxed">{renderHighlightedText(item, i)}</p>
                         )}
                       </div>
                       {editingLineIndex !== i && (
@@ -1537,6 +1596,34 @@ ${content.map((item, index) => {
         {/* Fixed Audio Player at Bottom - Dark Sleek Design */}
         <div className={`fixed bottom-0 right-0 bg-[#1a1f2e] border-t border-gray-800 py-3 px-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
           <div className="flex items-center gap-4">
+            {/* Animated Audio Waves */}
+            <div className="flex items-center gap-1 h-8">
+              {[1, 2, 3].map((bar) => (
+                <div
+                  key={bar}
+                  className={`w-1 bg-emerald-500 rounded-full ${isPlaying ? 'animate-pulse' : ''}`}
+                  style={{
+                    height: isPlaying ? undefined : '8px',
+                    animation: isPlaying ? `audioWave${bar} 0.5s ease-in-out infinite` : 'none',
+                  }}
+                />
+              ))}
+              <style>{`
+                @keyframes audioWave1 {
+                  0%, 100% { height: 8px; }
+                  50% { height: 24px; }
+                }
+                @keyframes audioWave2 {
+                  0%, 100% { height: 16px; }
+                  50% { height: 8px; }
+                }
+                @keyframes audioWave3 {
+                  0%, 100% { height: 12px; }
+                  50% { height: 28px; }
+                }
+              `}</style>
+            </div>
+
             {/* Left: Title & Badge */}
             <div className="flex items-center gap-3 min-w-[200px]">
               <div className="flex flex-col">
@@ -1690,6 +1777,21 @@ ${content.map((item, index) => {
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Copy */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleCopy}
+                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Copy className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Copy</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
