@@ -189,20 +189,19 @@ export default function VoiceCloner() {
         try {
           const previewResponse = await supabase.functions.invoke('generate-voice-preview', {
             body: { 
-              voiceId,
+              voice: voiceId,
               text: 'Hello! This is a preview of my cloned voice. I hope you like how I sound.',
               stability: 0.5,
-              similarityBoost: 0.75,
+              similarity_boost: 0.75,
               style: 0.5,
               speed: 1.0,
-              useSpeakerBoost: true
+              use_speaker_boost: true
             }
           });
 
-          if (previewResponse.data?.audioContent) {
+          if (previewResponse.data?.audioUrl) {
             // Upload the preview audio to Cloudinary
-            const base64Audio = previewResponse.data.audioContent;
-            const audioBlob = await fetch(`data:audio/mpeg;base64,${base64Audio}`).then(r => r.blob());
+            const audioBlob = await fetch(previewResponse.data.audioUrl).then(r => r.blob());
             const previewFormData = new FormData();
             previewFormData.append('file', audioBlob, 'voice-preview.mp3');
             previewFormData.append('upload_preset', 'revven');
