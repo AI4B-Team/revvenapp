@@ -19,6 +19,8 @@ interface UseResizableTextareaReturn {
   isResizing: boolean;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   containerStyle: React.CSSProperties;
+  setHeight: (h: number) => void;
+  setWidth: (w: number) => void;
 }
 
 export const useResizableTextarea = (
@@ -104,6 +106,8 @@ export const useResizableTextarea = (
     isResizing,
     handleResizeStart,
     containerStyle,
+    setHeight,
+    setWidth,
   };
 };
 

@@ -38,6 +38,8 @@ interface GenerationInputProps {
   onContentTypeChange?: (type: string) => void;
   onSocialGenerate?: (platforms: string[], prompt: string) => void;
   onAudioModeChange?: (mode: string) => void;
+  externalPrompt?: string | null;
+  onExternalPromptUsed?: () => void;
 }
 
 // Separate state containers for each content type
@@ -61,7 +63,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -317,9 +319,9 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   // Resizable prompt box (both directions)
-  const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart } = useResizableTextarea({
+  const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
     minHeight: 80,
-    maxHeight: 400,
+    maxHeight: 600,
     initialHeight: 100,
     minWidth: 1100,
     maxWidth: 1600,
@@ -602,6 +604,23 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     
     fetchSavedRevoiceAudio();
   }, []);
+
+  // Handle external prompt (e.g., from transcript "Use" button)
+  useEffect(() => {
+    if (externalPrompt) {
+      setPrompt(externalPrompt);
+      // Expand the prompt box to accommodate longer text
+      const lineCount = externalPrompt.split('\n').length;
+      const estimatedHeight = Math.min(500, Math.max(200, lineCount * 24 + 80));
+      setPromptHeight(estimatedHeight);
+      // Notify parent that we've used the external prompt
+      onExternalPromptUsed?.();
+      toast({
+        title: "Transcript loaded",
+        description: "Your transcript has been loaded into the prompt box.",
+      });
+    }
+  }, [externalPrompt, onExternalPromptUsed]);
 
   // Delete cloned voice handler
   const handleDeleteClonedVoice = async (voiceId: string, e: React.MouseEvent) => {

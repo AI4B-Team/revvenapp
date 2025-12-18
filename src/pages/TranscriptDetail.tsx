@@ -142,7 +142,19 @@ const TranscriptDetail = () => {
   };
 
   const handleUse = () => {
-    toast.success('Transcript ready to use');
+    // Compile all transcript content
+    const transcriptText = editedContent
+      .map(item => item.text)
+      .join('\n\n');
+    
+    // Navigate to Create page with the transcript text for video/avatar mode
+    navigate('/create', { 
+      state: { 
+        transcriptText,
+        transcriptTitle: editedTitle,
+        targetMode: 'Video' // Default to video section
+      } 
+    });
   };
 
   const handleDownload = () => {
