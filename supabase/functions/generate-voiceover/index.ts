@@ -35,8 +35,8 @@ serve(async (req) => {
       );
     }
 
-    // Check if this is a cloned voice (ElevenLabs ID) or standard voice
-    const isClonedVoice = !STANDARD_VOICES.includes(voice);
+    // Check if this is a cloned voice or standard voice by checking voiceName against standard voices
+    const isClonedVoice = voiceName ? !STANDARD_VOICES.includes(voiceName) : !STANDARD_VOICES.includes(voice);
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
