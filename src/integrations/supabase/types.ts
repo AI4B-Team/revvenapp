@@ -364,6 +364,7 @@ export type Database = {
           id: string
           name: string
           prompt: string | null
+          source: string | null
           status: string
           type: string
           url: string
@@ -377,6 +378,7 @@ export type Database = {
           id?: string
           name: string
           prompt?: string | null
+          source?: string | null
           status?: string
           type?: string
           url: string
@@ -390,6 +392,7 @@ export type Database = {
           id?: string
           name?: string
           prompt?: string | null
+          source?: string | null
           status?: string
           type?: string
           url?: string
