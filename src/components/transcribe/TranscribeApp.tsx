@@ -177,6 +177,14 @@ export default function TranscribeApp() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const handleEdit = (transcript: Transcript) => {
     setSelectedTranscript(transcript);
     setShowDetailModal(true);
@@ -288,7 +296,7 @@ export default function TranscribeApp() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
                   <Upload className="w-5 h-5 text-emerald-500" />
-                  <span className="text-sm text-gray-600 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
+                  <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
@@ -315,7 +323,7 @@ export default function TranscribeApp() {
                     <input
                       type="text"
                       placeholder="Paste Any Public Media Link"
-                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-400 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
@@ -363,7 +371,7 @@ export default function TranscribeApp() {
                 Transcripts
               </h2>
               <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
-                {transcripts.length} files
+                {transcripts.length} Files
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -467,11 +475,11 @@ export default function TranscribeApp() {
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
-                          {transcript.date}
+                          {formatDate(transcript.date)}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Users className="w-3.5 h-3.5" />
-                          {transcript.speakers} speaker{transcript.speakers > 1 ? 's' : ''}
+                          {transcript.speakers} Speakers
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Globe className="w-3.5 h-3.5" />
@@ -480,7 +488,7 @@ export default function TranscribeApp() {
                         {transcript.words && (
                           <span className="flex items-center gap-1.5">
                             <Hash className="w-3.5 h-3.5" />
-                            {transcript.words.toLocaleString()} words
+                            {transcript.words.toLocaleString()} Words
                           </span>
                         )}
                       </div>
@@ -593,7 +601,7 @@ export default function TranscribeApp() {
                       <Clock className="w-3 h-3" />
                       {transcript.duration}
                     </span>
-                    <span>{transcript.date}</span>
+                    <span>{formatDate(transcript.date)}</span>
                   </div>
 
                   {transcript.status === 'processing' ? (
@@ -968,36 +976,34 @@ export default function TranscribeApp() {
 }
 
 // Download Modal Component
-type DownloadFormat = 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'media';
+type DownloadFormat = 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio' | 'video';
 
 function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
   const [format, setFormat] = useState<DownloadFormat>('docx');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [includeSummary, setIncludeSummary] = useState(true);
 
   const FORMAT_OPTIONS = [
-    { id: 'docx' as DownloadFormat, label: 'Microsoft Word(.docx)', category: 'Transcript' },
-    { id: 'txt' as DownloadFormat, label: 'Text(.txt)', category: 'Transcript' },
-    { id: 'srt' as DownloadFormat, label: 'Subtitle File(.srt)', category: 'Transcript' },
-    { id: 'vtt' as DownloadFormat, label: 'Subtitle File(.vtt)', category: 'Transcript' },
-    { id: 'xml' as DownloadFormat, label: 'Adobe premiere(.xml)', category: 'Transcript' },
-    { id: 'fcpxml' as DownloadFormat, label: 'Final Cut Pro(.fcpxml)', category: 'Transcript' },
-    { id: 'media' as DownloadFormat, label: 'Video/Audio', category: 'Media file' },
+    { id: 'docx' as DownloadFormat, label: 'Word', ext: '.docx', icon: FileText },
+    { id: 'txt' as DownloadFormat, label: 'Text', ext: '.txt', icon: FileText },
+    { id: 'srt' as DownloadFormat, label: 'SRT', ext: '.srt', icon: Subtitles },
+    { id: 'vtt' as DownloadFormat, label: 'VTT', ext: '.vtt', icon: Subtitles },
+    { id: 'xml' as DownloadFormat, label: 'Premiere', ext: '.xml', icon: FileDown },
+    { id: 'fcpxml' as DownloadFormat, label: 'Final Cut', ext: '.fcpxml', icon: FileDown },
+    { id: 'audio' as DownloadFormat, label: 'Audio', ext: '.mp3', icon: Volume2 },
+    { id: 'video' as DownloadFormat, label: 'Video', ext: '.mp4', icon: Play },
   ];
-
-  const getFormatLabel = (formatId: DownloadFormat) => {
-    return FORMAT_OPTIONS.find(f => f.id === formatId)?.label || 'Microsoft Word(.docx)';
-  };
 
   const handleDownload = () => {
     console.log('Downloading:', { format, includeTimestamps, includeSummary, transcript: transcript.title });
     onClose();
   };
 
+  const isMediaFormat = format === 'audio' || format === 'video';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Download</h2>
           <button 
@@ -1008,60 +1014,33 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
           </button>
         </div>
 
-        <p className="text-sm text-gray-400 mb-4">Select the format</p>
+        <p className="text-sm text-gray-500 mb-4">Select The Format</p>
 
-        {/* Format Dropdown */}
-        <div className="relative mb-6">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-left text-sm text-gray-900 flex items-center justify-between hover:border-gray-300 transition-colors"
-          >
-            {getFormatLabel(format)}
-            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-          
-          {dropdownOpen && (
-            <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
-              {/* Transcript Section */}
-              <div className="px-4 py-2 text-xs font-semibold text-gray-900 bg-gray-50 border-b border-gray-100">
-                Transcript
-              </div>
-              {FORMAT_OPTIONS.filter(f => f.category === 'Transcript').map(opt => (
-                <button
-                  key={opt.id}
-                  onClick={() => { setFormat(opt.id); setDropdownOpen(false); }}
-                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                    format === opt.id ? 'text-gray-900' : 'text-gray-600'
-                  }`}
-                >
-                  {opt.label}
-                  {format === opt.id && <Check className="w-4 h-4 text-emerald-500" />}
-                </button>
-              ))}
-              
-              {/* Media File Section */}
-              <div className="px-4 py-2 text-xs font-semibold text-gray-900 bg-gray-50 border-t border-b border-gray-100">
-                Media file
-              </div>
-              {FORMAT_OPTIONS.filter(f => f.category === 'Media file').map(opt => (
-                <button
-                  key={opt.id}
-                  onClick={() => { setFormat(opt.id); setDropdownOpen(false); }}
-                  className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                    format === opt.id ? 'text-gray-900' : 'text-gray-600'
-                  }`}
-                >
-                  {opt.label}
-                  {format === opt.id && <Check className="w-4 h-4 text-emerald-500" />}
-                </button>
-              ))}
-            </div>
-          )}
+        {/* Format Grid */}
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {FORMAT_OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => setFormat(opt.id)}
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                  format === opt.id 
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                    : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className={`w-6 h-6 mb-2 ${format === opt.id ? 'text-emerald-500' : 'text-gray-400'}`} />
+                <span className="text-sm font-medium">{opt.label}</span>
+                <span className={`text-xs mt-0.5 ${format === opt.id ? 'text-emerald-400' : 'text-gray-400'}`}>{opt.ext}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Options - only show for transcript formats */}
-        {format !== 'media' && (
-          <div className="space-y-4 mb-6">
+        {!isMediaFormat && (
+          <div className="space-y-4 mb-6 p-4 rounded-xl bg-gray-50 border border-gray-100">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -1145,7 +1124,7 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
                 </span>
                 <span className="flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" />
-                  {transcript.speakers} speakers
+                  {transcript.speakers} Speakers
                 </span>
                 <span className="flex items-center gap-1">
                   <Globe className="w-3.5 h-3.5" />
