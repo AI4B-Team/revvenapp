@@ -98,8 +98,8 @@ const Assistant = () => {
         onCollapseChange={setIsSidebarCollapsed}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         <div className="flex flex-1 overflow-hidden">
           <ChatHistorySidebar />

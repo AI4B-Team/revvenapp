@@ -159,10 +159,10 @@ export default function Voiceovers() {
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
       
-      <div className="flex-1 flex flex-col" style={{ marginLeft: isSidebarCollapsed ? '80px' : '256px' }}>
-        <Header />
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {/* Back Button */}
             <button 

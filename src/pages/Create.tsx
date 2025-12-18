@@ -518,8 +518,8 @@ const Create = () => {
         onClose={() => setIdentitySidebarOpen(false)}
       />
       
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
         {/* Show Image Editing Canvas when in edit mode */}
         {isEditMode ? (

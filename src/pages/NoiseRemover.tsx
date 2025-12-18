@@ -144,12 +144,12 @@ export default function NoiseRemover() {
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
       
-      <div className="flex-1 flex flex-col" style={{ marginLeft: isSidebarCollapsed ? '80px' : '256px' }}>
-        <Header />
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
         
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {/* Animated Background */}
-          <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ marginLeft: isSidebarCollapsed ? '80px' : '256px' }}>
+          <div className={`fixed inset-0 pointer-events-none overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
             <div className="absolute top-20 right-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-20 left-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
