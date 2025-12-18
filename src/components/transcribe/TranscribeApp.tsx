@@ -1055,15 +1055,20 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           {/* Transcripts List */}
           {activeView === 'list' ? (
             <div className="space-y-3">
-              {filteredTranscripts.map((transcript) => (
+              {filteredTranscripts.map((transcript, index) => (
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-center gap-5">
-                    {/* Thumbnail / Icon */}
-                    <div className="w-16 h-16 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                    {/* Number Badge */}
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-sm font-semibold text-gray-600">
+                      {index + 1}
+                    </div>
+                    
+                    {/* Source Icon */}
+                    <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
                       {getSourceIcon(transcript.source)}
                     </div>
 
@@ -1199,15 +1204,22 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           ) : (
             /* Grid View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTranscripts.map((transcript) => (
+              {filteredTranscripts.map((transcript, index) => (
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
-                      {getSourceIcon(transcript.source)}
+                    <div className="flex items-center gap-3">
+                      {/* Number Badge */}
+                      <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600">
+                        {index + 1}
+                      </div>
+                      {/* Source Icon */}
+                      <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
+                        {getSourceIcon(transcript.source)}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
