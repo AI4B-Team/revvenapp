@@ -1623,16 +1623,27 @@ ${content.map((item, index) => {
           <div className="flex items-center gap-4">
             {/* Animated Audio Waves */}
             <div className="flex items-center gap-1 h-8">
-              {[1, 2, 3].map((bar) => (
-                <div
-                  key={bar}
-                  className={`w-1 bg-primary rounded-full ${isPlaying ? 'animate-pulse' : ''}`}
-                  style={{
-                    height: isPlaying ? undefined : '8px',
-                    animation: isPlaying ? `audioWave${bar} 0.5s ease-in-out infinite` : 'none',
-                  }}
-                />
-              ))}
+              <div
+                className="w-1 rounded-full bg-emerald-500"
+                style={{
+                  height: isPlaying ? '24px' : '8px',
+                  animation: isPlaying ? 'audioWave1 0.4s ease-in-out infinite' : 'none',
+                }}
+              />
+              <div
+                className="w-1 rounded-full bg-emerald-500"
+                style={{
+                  height: isPlaying ? '16px' : '12px',
+                  animation: isPlaying ? 'audioWave2 0.4s ease-in-out infinite 0.1s' : 'none',
+                }}
+              />
+              <div
+                className="w-1 rounded-full bg-emerald-500"
+                style={{
+                  height: isPlaying ? '20px' : '10px',
+                  animation: isPlaying ? 'audioWave3 0.4s ease-in-out infinite 0.2s' : 'none',
+                }}
+              />
               <style>{`
                 @keyframes audioWave1 {
                   0%, 100% { height: 8px; }
