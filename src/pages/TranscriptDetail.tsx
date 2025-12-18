@@ -279,11 +279,11 @@ const TranscriptDetail = () => {
     setShowTranslatePopover(false);
     
     try {
-      // Translate the transcript content
+      // Translate the transcript content using OpenRouter GPT-4o
       const translatedItems = await Promise.all(
         originalContent.map(async (item) => {
-          const { data, error } = await supabase.functions.invoke('translate-text', {
-            body: { text: item.text, targetLanguage }
+          const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+            body: { action: 'translate', text: item.text, targetLanguage }
           });
           
           if (error) throw error;
