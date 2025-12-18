@@ -62,7 +62,7 @@ const SPEAKER_DATA = [
   { id: 1, name: 'Speaker 1', minutes: 12, color: 'bg-emerald-300', textColor: 'text-emerald-500', bgLight: 'bg-emerald-500/20' },
   { id: 2, name: 'Speaker 2', minutes: 8, color: 'bg-blue-300', textColor: 'text-blue-500', bgLight: 'bg-blue-500/20' },
   { id: 3, name: 'Speaker 3', minutes: 15, color: 'bg-purple-300', textColor: 'text-purple-500', bgLight: 'bg-purple-500/20' },
-  { id: 4, name: 'Speaker 4', minutes: 10, color: 'bg-amber-300', textColor: 'text-amber-500', bgLight: 'bg-amber-500/20' },
+  { id: 4, name: 'Speaker 4', minutes: 10, color: 'bg-orange-300', textColor: 'text-orange-500', bgLight: 'bg-orange-500/20' },
 ];
 
 const TranscriptDetail = () => {
@@ -294,6 +294,20 @@ const TranscriptDetail = () => {
                       </>
                     )}
                   </div>
+                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {duration}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      {speakers} speaker{speakers > 1 ? 's' : ''}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Globe className="w-4 h-4" />
+                      {language}
+                    </span>
+                  </div>
                   {/* Translation tabs */}
                   {selectedTranslation && (
                     <div className="flex items-center gap-2 mt-2">
@@ -326,20 +340,6 @@ const TranscriptDetail = () => {
                       </button>
                     </div>
                   )}
-                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {speakers} speaker{speakers > 1 ? 's' : ''}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Globe className="w-4 h-4" />
-                      {language}
-                    </span>
-                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -792,7 +792,7 @@ const TranscriptDetail = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Download</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Download Transcript</h2>
               <button 
                 onClick={() => setShowDownloadModal(false)}
                 className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
