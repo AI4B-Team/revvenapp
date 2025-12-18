@@ -41,15 +41,28 @@ const MOCK_TRANSCRIPT_CONTENT = [
   { speaker: 'Speaker 3', time: '00:00:35', text: "The engineering team has completed the core features for the mobile app. We're now in the testing phase." },
   { speaker: 'Speaker 4', time: '00:00:48', text: "Marketing has finalized the launch campaign. We're targeting early January for the announcement." },
   { speaker: 'Speaker 2', time: '00:01:02', text: "Great progress. The numbers look promising - we're projecting a 40% increase in user engagement." },
-  { speaker: 'Speaker 1', time: '00:01:15', text: "That's excellent news. Let's discuss the resource allocation for Q1..." },
+  { speaker: 'Speaker 1', time: '00:01:15', text: "That's excellent news. Let's discuss the resource allocation for Q1 and how we can best support the launch." },
+  { speaker: 'Speaker 3', time: '00:01:28', text: "I think we need at least two more developers to help with the final testing phase. The timeline is tight." },
+  { speaker: 'Speaker 4', time: '00:01:42', text: "Marketing can actually share some budget if engineering needs additional resources. Our campaign is mostly set." },
+  { speaker: 'Speaker 2', time: '00:01:55', text: "That's a great point. I'll run the numbers and see how we can reallocate funds to support the launch." },
+  { speaker: 'Speaker 1', time: '00:02:10', text: "Let's also talk about the customer feedback we've been collecting. There are some interesting patterns emerging." },
+  { speaker: 'Speaker 3', time: '00:02:25', text: "Yes, users are really excited about the new features. The beta testers gave us overwhelmingly positive feedback." },
+  { speaker: 'Speaker 4', time: '00:02:40', text: "We should highlight those testimonials in our launch materials. Real user stories always resonate well." },
+  { speaker: 'Speaker 2', time: '00:02:55', text: "I can compile a report on the feedback trends. We have data from over 500 beta users now." },
+  { speaker: 'Speaker 1', time: '00:03:10', text: "Perfect. Let's reconvene next week with action items completed. Great progress everyone." },
+  { speaker: 'Speaker 3', time: '00:03:25', text: "Before we wrap up, should we discuss the internationalization plans? That's coming up quickly." },
+  { speaker: 'Speaker 4', time: '00:03:40', text: "Good point. We have translation partners lined up for Spanish, French, and German markets." },
+  { speaker: 'Speaker 2', time: '00:03:55', text: "The international expansion could double our user base within six months according to projections." },
+  { speaker: 'Speaker 1', time: '00:04:10', text: "Let's put that on the agenda for our next meeting. We'll need a detailed rollout plan." },
+  { speaker: 'Speaker 3', time: '00:04:25', text: "I'll prepare technical requirements for multi-language support. The infrastructure is mostly ready." },
 ];
 
-// Mock speaker speaking time data
+// Mock speaker speaking time data - using pastel colors to match icons
 const SPEAKER_DATA = [
-  { id: 1, name: 'Speaker 1', minutes: 12, color: 'bg-emerald-500', textColor: 'text-emerald-500', bgLight: 'bg-emerald-500/20' },
-  { id: 2, name: 'Speaker 2', minutes: 8, color: 'bg-blue-500', textColor: 'text-blue-500', bgLight: 'bg-blue-500/20' },
-  { id: 3, name: 'Speaker 3', minutes: 15, color: 'bg-purple-500', textColor: 'text-purple-500', bgLight: 'bg-purple-500/20' },
-  { id: 4, name: 'Speaker 4', minutes: 10, color: 'bg-amber-500', textColor: 'text-amber-500', bgLight: 'bg-amber-500/20' },
+  { id: 1, name: 'Speaker 1', minutes: 12, color: 'bg-emerald-300', textColor: 'text-emerald-500', bgLight: 'bg-emerald-500/20' },
+  { id: 2, name: 'Speaker 2', minutes: 8, color: 'bg-blue-300', textColor: 'text-blue-500', bgLight: 'bg-blue-500/20' },
+  { id: 3, name: 'Speaker 3', minutes: 15, color: 'bg-purple-300', textColor: 'text-purple-500', bgLight: 'bg-purple-500/20' },
+  { id: 4, name: 'Speaker 4', minutes: 10, color: 'bg-amber-300', textColor: 'text-amber-500', bgLight: 'bg-amber-500/20' },
 ];
 
 const TranscriptDetail = () => {
@@ -63,8 +76,11 @@ const TranscriptDetail = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'doc' | 'txt' | 'srt' | 'audio'>('pdf');
+  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio'>('pdf');
+  const [includeTimestamps, setIncludeTimestamps] = useState(true);
+  const [includeSummary, setIncludeSummary] = useState(true);
   const [volume, setVolume] = useState(80);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   // Title editing
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -103,21 +119,19 @@ const TranscriptDetail = () => {
   };
 
   const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: title,
-        text: 'Check out this transcript',
-        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
-    }
+    setShowShareModal(true);
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard!');
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(`https://app.transcribe.com/transcript/share/${searchParams.get('id') || '1'}`);
+    toast.success('Link copied to clipboard!');
+    setShowShareModal(false);
+  };
+
+  const handleCopy = () => {
+    const fullTranscript = displayContent.map(c => `[${c.time}] ${c.speaker}: ${c.text}`).join('\n\n');
+    navigator.clipboard.writeText(fullTranscript);
+    toast.success('Full transcript copied to clipboard!');
   };
 
   const handleDelete = () => {
@@ -235,7 +249,7 @@ const TranscriptDetail = () => {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back To Transcripts.</span>
+              <span className="font-medium">Back To Transcripts</span>
             </button>
 
             {/* Header */}
@@ -374,11 +388,11 @@ const TranscriptDetail = () => {
                       <TooltipContent>Translate Transcript</TooltipContent>
                     </Tooltip>
                     <PopoverContent className="w-64 p-0 bg-white" align="end">
-                      <div className="p-3 border-b border-gray-200">
+                        <div className="p-3 border-b border-gray-200">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input
-                            placeholder="Search languages..."
+                            placeholder="Search Languages..."
                             value={languageSearch}
                             onChange={(e) => setLanguageSearch(e.target.value)}
                             className="pl-9"
@@ -404,7 +418,7 @@ const TranscriptDetail = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
-                        onClick={() => handleCopy(displayContent.map(c => c.text).join('\n'))}
+                        onClick={handleCopy}
                         className="p-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors"
                       >
                         <Copy className="w-4 h-4" />
@@ -442,8 +456,8 @@ const TranscriptDetail = () => {
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex items-center gap-1 mb-6 border-b border-gray-300 pb-4">
+            {/* Tabs - Centered */}
+            <div className="flex items-center justify-center gap-1 mb-6 border-b border-gray-300 pb-4">
               {[
                 { id: 'transcript', label: 'Transcript', icon: FileText },
                 { id: 'summary', label: 'Summary', icon: Sparkles },
@@ -521,7 +535,10 @@ const TranscriptDetail = () => {
                       {editingLineIndex !== i && (
                         <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
-                            onClick={() => handleCopy(item.text)}
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.text);
+                              toast.success('Line copied!');
+                            }}
                             className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
                           >
                             <Copy className="w-4 h-4" />
@@ -607,6 +624,7 @@ const TranscriptDetail = () => {
 
               {activeTab === 'speakers' && (
                 <div className="w-full">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Speakers</h3>
                   <p className="text-gray-500 mb-6">Identify & Label Speakers For Better Organization</p>
                   
                   <div className="grid grid-cols-2 gap-4 mb-8">
@@ -734,15 +752,18 @@ const TranscriptDetail = () => {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(parseInt(e.target.value))}
-                    className="w-24 h-2 bg-gray-600 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
-                    style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                  />
+                  <div className="relative h-24 flex items-center justify-center">
+                    <div className="absolute w-2 h-20 bg-white/30 rounded-full" />
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={volume}
+                      onChange={(e) => setVolume(parseInt(e.target.value))}
+                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-runnable-track]:bg-white/30 [&::-webkit-slider-runnable-track]:rounded-full"
+                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
 
@@ -766,47 +787,138 @@ const TranscriptDetail = () => {
         </div>
       </div>
 
-      {/* Download Modal */}
+      {/* Download Modal - Matching listing page */}
       {showDownloadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Download Transcript</h3>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Download</h2>
+              <button 
+                onClick={() => setShowDownloadModal(false)}
+                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-4">Select The Format</p>
+
+            {/* Format Grid */}
+            <div className="grid grid-cols-4 gap-3 mb-6">
               {[
-                { id: 'pdf', label: 'PDF', icon: FileDown },
-                { id: 'doc', label: 'DOC', icon: FileText },
-                { id: 'txt', label: 'TXT', icon: FileText },
-                { id: 'srt', label: 'SRT', icon: FileText },
-                { id: 'audio', label: 'Audio', icon: Volume2 },
-              ].map(format => (
+                { id: 'pdf' as const, label: 'PDF', ext: '.pdf', icon: FileText },
+                { id: 'docx' as const, label: 'Word', ext: '.docx', icon: FileText },
+                { id: 'txt' as const, label: 'Text', ext: '.txt', icon: FileText },
+                { id: 'srt' as const, label: 'SRT', ext: '.srt', icon: FileText },
+                { id: 'vtt' as const, label: 'VTT', ext: '.vtt', icon: FileText },
+                { id: 'xml' as const, label: 'Premiere', ext: '.xml', icon: FileDown },
+                { id: 'fcpxml' as const, label: 'Final Cut', ext: '.fcpxml', icon: FileDown },
+                { id: 'audio' as const, label: 'Audio', ext: '.mp3', icon: Volume2 },
+              ].map((opt) => (
                 <button
-                  key={format.id}
-                  onClick={() => setDownloadFormat(format.id as any)}
-                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
-                    downloadFormat === format.id
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                  key={opt.id}
+                  onClick={() => setDownloadFormat(opt.id)}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                    downloadFormat === opt.id 
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'
                   }`}
                 >
-                  <format.icon className="w-6 h-6" />
-                  <span className="text-sm font-medium">{format.label}</span>
+                  <opt.icon className={`w-6 h-6 mb-2 ${downloadFormat === opt.id ? 'text-emerald-500' : 'text-gray-400'}`} />
+                  <span className="text-sm font-medium">{opt.label}</span>
+                  <span className={`text-xs mt-0.5 ${downloadFormat === opt.id ? 'text-emerald-400' : 'text-gray-400'}`}>{opt.ext}</span>
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-3">
-              <button
+
+            {/* Options - only show for transcript formats */}
+            {downloadFormat !== 'audio' && (
+              <div className="space-y-4 mb-6 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeTimestamps}
+                    onChange={(e) => setIncludeTimestamps(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Include Timestamps</span>
+                    <p className="text-xs text-gray-500">Add time markers for each speaker segment</p>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={includeSummary}
+                    onChange={(e) => setIncludeSummary(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Include Summary</span>
+                    <p className="text-xs text-gray-500">Add AI-generated summary at the top</p>
+                  </div>
+                </label>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button 
                 onClick={() => setShowDownloadModal(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 font-medium hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
-              <button
+              <button 
                 onClick={handleConfirmDownload}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
               >
+                <Download className="w-4 h-4" />
                 Download
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal - Matching listing page */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-blue-500" />
+                Share Transcript
+              </h2>
+              <button 
+                onClick={() => setShowShareModal(false)}
+                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Anyone with the following secure link can <span className="font-semibold">view</span> this transcript.
+            </p>
+
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Secure Link</label>
+              <input
+                type="text"
+                readOnly
+                value={`https://app.transcribe.com/transcript/share/${searchParams.get('id') || '1'}`}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border-2 border-blue-200 text-sm text-gray-700 focus:outline-none"
+              />
+            </div>
+
+            <button
+              onClick={copyShareLink}
+              className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <Copy className="w-4 h-4" />
+              COPY SECURE LINK
+            </button>
           </div>
         </div>
       )}
