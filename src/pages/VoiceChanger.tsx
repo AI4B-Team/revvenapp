@@ -30,7 +30,7 @@ const VOICE_STYLES = [
   { id: 'deep', name: 'Deep Voice', description: 'Lower pitch, more resonant' },
   { id: 'high', name: 'High Voice', description: 'Higher pitch, lighter tone' },
   { id: 'robotic', name: 'Robotic', description: 'Mechanical, synthesized' },
-  { id: 'whisper', name: 'Whisper', description: 'Soft, hushed tone' },
+  { id: 'whisper', name: 'Female', description: 'Soft, hushed tone' },
   { id: 'echo', name: 'Echo', description: 'Reverberating effect' },
   { id: 'chipmunk', name: 'Chipmunk', description: 'High-pitched, fast' },
 ];
