@@ -92,6 +92,9 @@ const TranscriptDetail = () => {
   const [includeSummary, setIncludeSummary] = useState(true);
   const [volume, setVolume] = useState(80);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   // Title editing
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -145,6 +148,98 @@ const TranscriptDetail = () => {
   }));
   
   const totalSpeakingMinutes = speakerData.reduce((sum, s) => sum + s.minutes, 0);
+
+  // Audio URL from URL params (passed from transcription)
+  const audioUrl = searchParams.get('audioUrl') || '';
+
+  // Parse time string (MM:SS) to seconds
+  const parseTimeToSeconds = (timeStr: string): number => {
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 3) {
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return parts[0] * 60 + (parts[1] || 0);
+  };
+
+  // Jump to specific time in audio
+  const jumpToTime = (timeStr: string) => {
+    if (!audioRef.current || !audioUrl) {
+      toast.error('No audio available to play');
+      return;
+    }
+    const seconds = parseTimeToSeconds(timeStr);
+    audioRef.current.currentTime = seconds;
+    if (!isPlaying) {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+    toast.success(`Jumped to ${timeStr}`);
+  };
+
+  // Format seconds to MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  // Audio event handlers
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setAudioDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  // Handle play/pause
+  const togglePlayPause = () => {
+    if (!audioRef.current || !audioUrl) {
+      toast.error('No audio available');
+      return;
+    }
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  // Handle volume change
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
+
+  // Handle playback speed change
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
+
+  // Handle seek
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !audioDuration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = percentage * audioDuration;
+    audioRef.current.currentTime = newTime;
+  };
 
   // Generate AI summary
   const generateAISummary = async (transcriptText: string) => {
@@ -657,16 +752,20 @@ const TranscriptDetail = () => {
                     </div>
                   )}
                   {!isTranslating && displayContent.map((item, i) => (
-                    <div key={i} className="group flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div 
+                      key={i} 
+                      className="group flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer"
+                      onClick={() => jumpToTime(item.time)}
+                    >
                       <div className="flex-shrink-0 w-20">
-                        <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded">
+                        <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded hover:bg-emerald-500/20 transition-colors">
                           {item.time}
                         </span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-500 mb-1">{item.speaker}</p>
                         {editingLineIndex === i ? (
-                          <div className="space-y-2">
+                          <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                             <textarea
                               value={editedContent[i].text}
                               onChange={(e) => {
@@ -702,7 +801,8 @@ const TranscriptDetail = () => {
                       {editingLineIndex !== i && (
                         <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               navigator.clipboard.writeText(item.text);
                               toast.success('Line copied!');
                             }}
@@ -711,7 +811,10 @@ const TranscriptDetail = () => {
                             <Copy className="w-4 h-4" />
                           </button>
                           <button 
-                            onClick={() => setEditingLineIndex(i)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingLineIndex(i);
+                            }}
                             className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
                           >
                             <Edit3 className="w-4 h-4" />
@@ -990,11 +1093,16 @@ const TranscriptDetail = () => {
           </div>
         </main>
 
+        {/* Hidden Audio Element */}
+        {audioUrl && (
+          <audio ref={audioRef} src={audioUrl} preload="metadata" />
+        )}
+
         {/* Fixed Audio Player at Bottom */}
         <div className={`fixed bottom-0 right-0 bg-[hsl(215,28%,17%)] border-t border-gray-700 p-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
           <div className="max-w-6xl mx-auto flex items-center gap-4">
             <button 
-              onClick={() => setIsPlaying(!isPlaying)}
+              onClick={togglePlayPause}
               className="w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0"
             >
               {isPlaying ? (
@@ -1005,11 +1113,17 @@ const TranscriptDetail = () => {
             </button>
             
             <div className="flex-1 flex items-center gap-3">
-              <span className="text-sm text-white font-mono w-12">00:00</span>
-              <div className="flex-1 h-2 bg-gray-600 rounded-full overflow-hidden cursor-pointer">
-                <div className="h-full w-0 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" />
+              <span className="text-sm text-white font-mono w-12">{formatTime(currentTime)}</span>
+              <div 
+                className="flex-1 h-2 bg-gray-600 rounded-full overflow-hidden cursor-pointer"
+                onClick={handleSeek}
+              >
+                <div 
+                  className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" 
+                  style={{ width: audioDuration ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
+                />
               </div>
-              <span className="text-sm text-white font-mono w-12">{duration}</span>
+              <span className="text-sm text-white font-mono w-12">{audioDuration ? formatTime(audioDuration) : duration}</span>
               
               {/* Volume */}
               <Popover>
