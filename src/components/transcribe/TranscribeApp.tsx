@@ -56,6 +56,29 @@ const LANGUAGES = [
   'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian'
 ];
 
+// Language code mapping for Speech Recognition API (BCP 47 codes)
+const LANGUAGE_CODES: Record<string, string> = {
+  'auto': 'en-US',
+  'english': 'en-US',
+  'spanish': 'es-ES',
+  'french': 'fr-FR',
+  'german': 'de-DE',
+  'portuguese': 'pt-BR',
+  'italian': 'it-IT',
+  'dutch': 'nl-NL',
+  'russian': 'ru-RU',
+  'chinese': 'zh-CN',
+  'japanese': 'ja-JP',
+  'korean': 'ko-KR',
+  'arabic': 'ar-SA',
+  'hindi': 'hi-IN',
+  'turkish': 'tr-TR',
+  'polish': 'pl-PL',
+  'vietnamese': 'vi-VN',
+  'thai': 'th-TH',
+  'indonesian': 'id-ID'
+};
+
 // Helper to format time
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -88,6 +111,7 @@ export default function TranscribeApp() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [liveTranscript, setLiveTranscript] = useState('');
   const [liveTranscriptionEnabled, setLiveTranscriptionEnabled] = useState(true);
+  const [selectedLanguage, setSelectedLanguage] = useState('auto');
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -570,7 +594,7 @@ export default function TranscribeApp() {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = 'en-US';
+        recognition.lang = LANGUAGE_CODES[selectedLanguage] || 'en-US';
         
         recognition.onresult = (event: any) => {
           let transcript = '';
@@ -600,7 +624,7 @@ export default function TranscribeApp() {
         recognitionRef.current = null;
       }
     };
-  }, [isRecording, liveTranscriptionEnabled]);
+  }, [isRecording, liveTranscriptionEnabled, selectedLanguage]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -1522,7 +1546,11 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-gray-500 mb-2">Language</label>
-                <select className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white">
+                <select 
+                  value={selectedLanguage}
+                  onChange={(e) => setSelectedLanguage(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white"
+                >
                   <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
                   {LANGUAGES.map(lang => (
                     <option key={lang} value={lang.toLowerCase()} className="bg-gray-800 text-white">{lang}</option>
