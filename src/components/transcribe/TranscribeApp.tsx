@@ -1312,14 +1312,15 @@ export default function TranscribeApp() {
 }
 
 // Download Modal Component
-type DownloadFormat = 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio' | 'video';
+type DownloadFormat = 'pdf' | 'docx' | 'txt' | 'srt' | 'vtt' | 'xml' | 'fcpxml' | 'audio';
 
 function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
-  const [format, setFormat] = useState<DownloadFormat>('docx');
+  const [format, setFormat] = useState<DownloadFormat>('pdf');
   const [includeTimestamps, setIncludeTimestamps] = useState(true);
   const [includeSummary, setIncludeSummary] = useState(true);
 
   const FORMAT_OPTIONS = [
+    { id: 'pdf' as DownloadFormat, label: 'PDF', ext: '.pdf', icon: FileText },
     { id: 'docx' as DownloadFormat, label: 'Word', ext: '.docx', icon: FileText },
     { id: 'txt' as DownloadFormat, label: 'Text', ext: '.txt', icon: FileText },
     { id: 'srt' as DownloadFormat, label: 'SRT', ext: '.srt', icon: Subtitles },
@@ -1327,7 +1328,6 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
     { id: 'xml' as DownloadFormat, label: 'Premiere', ext: '.xml', icon: FileDown },
     { id: 'fcpxml' as DownloadFormat, label: 'Final Cut', ext: '.fcpxml', icon: FileDown },
     { id: 'audio' as DownloadFormat, label: 'Audio', ext: '.mp3', icon: Volume2 },
-    { id: 'video' as DownloadFormat, label: 'Video', ext: '.mp4', icon: Play },
   ];
 
   const handleDownload = () => {
@@ -1335,7 +1335,7 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
     onClose();
   };
 
-  const isMediaFormat = format === 'audio' || format === 'video';
+  const isMediaFormat = format === 'audio';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
