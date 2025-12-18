@@ -789,7 +789,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
       state: { 
         transcriptText: mockTranscriptText,
         transcriptTitle: transcript.title,
-        targetMode: 'Video' // Default to video section
+        targetMode: 'Video',
+        targetAnimateMode: 'Avatar Video'
       } 
     });
   };
