@@ -9,7 +9,8 @@ import {
   StopCircle, RotateCcw, ChevronRight, Wand2, Users,
   BookOpen, Subtitles, Hash, Calendar, TrendingUp
 } from 'lucide-react';
-import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaTwitter, FaVimeo } from 'react-icons/fa';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 
 // Platform icons data with real brand logos
 const PLATFORMS = [
@@ -17,8 +18,9 @@ const PLATFORMS = [
   { name: 'TikTok', icon: FaTiktok, color: '#000000' },
   { name: 'Instagram', icon: FaInstagram, color: '#E4405F' },
   { name: 'Facebook', icon: FaFacebook, color: '#1877F2' },
-  { name: 'X/Twitter', icon: FaTwitter, color: '#1DA1F2' },
+  { name: 'X', icon: FaXTwitter, color: '#000000' },
   { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
+  { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
 ];
 
 // Mock transcript data
@@ -286,7 +288,7 @@ export default function TranscribeApp() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
                   <Upload className="w-5 h-5 text-emerald-500" />
-                  <span className="text-sm text-gray-600">Upload Video Or Audio File</span>
+                  <span className="text-sm text-gray-600 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
@@ -319,13 +321,13 @@ export default function TranscribeApp() {
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  {PLATFORMS.slice(0, 6).map((platform, i) => (
+                  {PLATFORMS.slice(0, 7).map((platform, i) => (
                     <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                       <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
                     </div>
                   ))}
                   <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-                    +44
+                    +43
                   </div>
                 </div>
               </div>
@@ -646,7 +648,7 @@ export default function TranscribeApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-2xl bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">Upload Audio File</h2>
+              <h2 className="text-2xl font-semibold text-white">Upload File To Transcribe</h2>
               <button 
                 onClick={() => setShowUploadModal(false)}
                 className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
@@ -692,7 +694,7 @@ export default function TranscribeApp() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-2">Speaker Detection</label>
                   <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
-                    <option value="auto">Auto-detect speakers</option>
+                    <option value="auto">Auto-Detect Speakers</option>
                     <option value="1">1 speaker</option>
                     <option value="2">2 speakers</option>
                     <option value="3">3-4 speakers</option>
@@ -706,7 +708,7 @@ export default function TranscribeApp() {
                   Generate AI Summary
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-emerald-500 focus:ring-emerald-500/20" />
+                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-emerald-500 focus:ring-emerald-500/20" defaultChecked />
                   Include Timestamps
                 </label>
               </div>
@@ -763,7 +765,7 @@ export default function TranscribeApp() {
                   </div>
                 ))}
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
-                  <span className="text-xs text-gray-400">+44 more platforms</span>
+                  <span className="text-xs text-gray-400">+43 more platforms</span>
                 </div>
               </div>
             </div>
@@ -828,7 +830,7 @@ export default function TranscribeApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-lg bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">Record Audio</h2>
+              <h2 className="text-2xl font-semibold text-white">Record Audio To Transcribe</h2>
               <button 
                 onClick={() => { setShowRecordModal(false); setIsRecording(false); setRecordingTime(0); }}
                 className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
