@@ -627,7 +627,9 @@ export default function TranscribeApp() {
 
   // Speech recognition for live transcription
   useEffect(() => {
-    if (isRecording && liveTranscriptionEnabled) {
+    // Skip live transcription for "auto" mode - browser API doesn't support true auto-detection
+    // The backend ElevenLabs will auto-detect after recording completes
+    if (isRecording && liveTranscriptionEnabled && selectedLanguage !== 'auto') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       
       if (SpeechRecognition) {
@@ -636,7 +638,7 @@ export default function TranscribeApp() {
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
         
-        const langCode = LANGUAGE_CODES[selectedLanguage] || 'en-US';
+        const langCode = LANGUAGE_CODES[selectedLanguage.toLowerCase()] || 'en-US';
         recognition.lang = langCode;
         
         console.log('Starting speech recognition with language:', langCode);
@@ -1664,7 +1666,16 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <label className="block text-xs text-gray-500 mb-2">Language</label>
                 <select 
                   value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
+                  onChange={(e) => {
+                    const newLang = e.target.value;
+                    setSelectedLanguage(newLang);
+                    if (newLang === 'auto') {
+                      toast({
+                        title: "Auto-detect enabled",
+                        description: "Live transcription disabled. Language will be detected automatically after recording.",
+                      });
+                    }
+                  }}
                   className="w-full px-3 py-2 rounded-xl bg-gray-800 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50 [&>option]:bg-gray-800 [&>option]:text-white"
                 >
                   <option value="auto" className="bg-gray-800 text-white">Auto-Detect</option>
