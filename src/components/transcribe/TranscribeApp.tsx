@@ -622,7 +622,8 @@ export default function TranscribeApp() {
       duration: transcript.duration,
       speakers: String(transcript.speakers),
       language: transcript.language,
-      summary: transcript.summary || ''
+      summary: transcript.summary || '',
+      audioUrl: transcript.audioUrl || ''
     });
     navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
