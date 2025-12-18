@@ -457,7 +457,8 @@ const TranscriptDetail = () => {
       state: { 
         transcriptText,
         transcriptTitle: editedTitle,
-        targetMode: 'Video' // Default to video section
+        targetMode: 'Video',
+        targetAnimateMode: 'Avatar Video'
       } 
     });
   };

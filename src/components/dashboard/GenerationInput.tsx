@@ -40,6 +40,8 @@ interface GenerationInputProps {
   onAudioModeChange?: (mode: string) => void;
   externalPrompt?: string | null;
   onExternalPromptUsed?: () => void;
+  externalAnimateMode?: string | null;
+  onExternalAnimateModeUsed?: () => void;
 }
 
 // Separate state containers for each content type
@@ -63,7 +65,7 @@ interface DesignModeState {
   // Design-specific state can be added here
 }
 
-const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed }: GenerationInputProps) => {
+const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, selectedCharacters = [], onReferencesClick, onReferencesSelect, selectedReferences = [], isCharacterReference, onGenerationStart, externalStartingFrame, onContentTypeChange, onSocialGenerate, onAudioModeChange, externalPrompt, onExternalPromptUsed, externalAnimateMode, onExternalAnimateModeUsed }: GenerationInputProps) => {
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -843,12 +845,20 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     }
   }, [isVideoMode, selectedAnimateMode, storyScenes, videoModeState.characters, storyReferenceImage]);
 
-  // Reset animate mode to 'Animate' when entering video mode
+  // Reset animate mode to 'Animate' when entering video mode (unless external mode provided)
   useEffect(() => {
-    if (isVideoMode) {
+    if (isVideoMode && !externalAnimateMode) {
       setSelectedAnimateMode('Animate');
     }
-  }, [isVideoMode]);
+  }, [isVideoMode, externalAnimateMode]);
+
+  // Handle external animate mode
+  useEffect(() => {
+    if (externalAnimateMode && isVideoMode) {
+      setSelectedAnimateMode(externalAnimateMode);
+      onExternalAnimateModeUsed?.();
+    }
+  }, [externalAnimateMode, isVideoMode, onExternalAnimateModeUsed]);
 
   // Clear transcribed text highlight when switching away from Transcribe mode
   // Also clear prompt when entering Transcribe mode

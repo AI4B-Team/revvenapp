@@ -55,6 +55,7 @@ const Create = () => {
   const [activeTab, setActiveTab] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [externalPromptText, setExternalPromptText] = useState<string | null>(null);
+  const [externalAnimateMode, setExternalAnimateMode] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<'tools' | 'creations' | 'templates' | 'community' | 'collections'>('tools');
   const [zoom, setZoom] = useState(50);
   const [charactersModalOpen, setCharactersModalOpen] = useState(false);
@@ -88,14 +89,15 @@ const Create = () => {
 
   // Check for image to edit from navigation state or URL params
   useEffect(() => {
-    const state = location.state as { editImage?: string; animateImage?: string; transcriptText?: string; targetMode?: string } | null;
+    const state = location.state as { editImage?: string; animateImage?: string; transcriptText?: string; targetMode?: string; targetAnimateMode?: string } | null;
     const params = new URLSearchParams(location.search);
     const imageUrl = state?.editImage || params.get('editImage');
     const animateUrl = state?.animateImage || params.get('animateImage');
     const transcriptText = state?.transcriptText;
     const targetMode = state?.targetMode;
+    const targetAnimateMode = state?.targetAnimateMode;
     
-    console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl, transcriptText: transcriptText?.substring(0, 50) });
+    console.log('Create.tsx navigation state:', { state, animateUrl, imageUrl, transcriptText: transcriptText?.substring(0, 50), targetAnimateMode });
     
     if (imageUrl) {
       setIsEditMode(true);
@@ -122,6 +124,9 @@ const Create = () => {
         setSelectedType('Video');
         setActiveTab('Video');
         setActiveView('creations');
+      }
+      if (targetAnimateMode) {
+        setExternalAnimateMode(targetAnimateMode);
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -575,6 +580,8 @@ const Create = () => {
               onAudioModeChange={setSelectedAudioMode}
               externalPrompt={externalPromptText}
               onExternalPromptUsed={() => setExternalPromptText(null)}
+              externalAnimateMode={externalAnimateMode}
+              onExternalAnimateModeUsed={() => setExternalAnimateMode(null)}
             />
             
             <ActionButtons 
