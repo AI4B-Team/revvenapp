@@ -28,14 +28,27 @@ interface VoiceRecord {
 }
 
 const VOICES = [
-  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', gender: 'Male' },
-  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', gender: 'Female' },
+  { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', gender: 'Female' },
+  { id: '9BWtsMINqrJLrRacOk9x', name: 'Aria', gender: 'Female' },
   { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger', gender: 'Male' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', gender: 'Female' },
   { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', gender: 'Female' },
   { id: 'IKne3meq5aSn9XLyUdCD', name: 'Charlie', gender: 'Male' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', gender: 'Male' },
+  { id: 'N2lVS1w4EtoT3dr4eOWO', name: 'Callum', gender: 'Male' },
+  { id: 'SAz9YHcvj6GT2YYXdXww', name: 'River', gender: 'Neutral' },
+  { id: 'TX3LPaxmHKxFdv7VOQHJ', name: 'Liam', gender: 'Male' },
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', gender: 'Female' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', gender: 'Female' },
   { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', gender: 'Female' },
-  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female' },
+  { id: 'bIHbv24MWmeRgasZH58o', name: 'Will', gender: 'Male' },
+  { id: 'cgSgspJ2msm6clMCkdW9', name: 'Jessica', gender: 'Female' },
+  { id: 'cjVigY5qzO86Huf0OWal', name: 'Eric', gender: 'Male' },
+  { id: 'iP95p4xoKVk53GoZ742B', name: 'Chris', gender: 'Male' },
+  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', gender: 'Male' },
   { id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', gender: 'Male' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', gender: 'Female' },
+  { id: 'pqHfZKP75CvOlQylNhV4', name: 'Bill', gender: 'Male' },
 ];
 
 export default function Voiceovers() {
