@@ -328,7 +328,7 @@ const Create = () => {
       emoji: '🎤'
     },
     { 
-      name: 'AI Transcriber', 
+      name: 'Transcribe', 
       description: 'Transcribe audio to text',
       bgColor: 'bg-tool-pink',
       emoji: '📝'
