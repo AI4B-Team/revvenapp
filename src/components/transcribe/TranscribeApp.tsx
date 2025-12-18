@@ -6,19 +6,19 @@ import {
   Share2, Trash2, MoreVertical, ChevronDown, Check, X, 
   Volume2, VolumeX, Settings, Filter, Grid, List, Star,
   MessageSquare, Zap, Languages, FileDown, AlertCircle,
-  Youtube, Instagram, Music2, Facebook, Twitter, Video,
   StopCircle, RotateCcw, ChevronRight, Wand2, Users,
   BookOpen, Subtitles, Hash, Calendar, TrendingUp
 } from 'lucide-react';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaTwitter, FaVimeo } from 'react-icons/fa';
 
-// Platform icons data
+// Platform icons data with real brand logos
 const PLATFORMS = [
-  { name: 'YouTube', icon: Youtube, color: '#FF0000' },
-  { name: 'TikTok', icon: Music2, color: '#00F2EA' },
-  { name: 'Instagram', icon: Instagram, color: '#E4405F' },
-  { name: 'Facebook', icon: Facebook, color: '#1877F2' },
-  { name: 'X/Twitter', icon: Twitter, color: '#1DA1F2' },
-  { name: 'Vimeo', icon: Video, color: '#1AB7EA' },
+  { name: 'YouTube', icon: FaYoutube, color: '#FF0000' },
+  { name: 'TikTok', icon: FaTiktok, color: '#000000' },
+  { name: 'Instagram', icon: FaInstagram, color: '#E4405F' },
+  { name: 'Facebook', icon: FaFacebook, color: '#1877F2' },
+  { name: 'X/Twitter', icon: FaTwitter, color: '#1DA1F2' },
+  { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
 ];
 
 // Mock transcript data
@@ -58,7 +58,7 @@ const MOCK_TRANSCRIPTS = [
     title: 'AI Trends 2025 - YouTube Analysis',
     duration: '12:47',
     date: '2025-12-15',
-    source: 'youtube',
+    source: 'link',
     status: 'completed',
     speakers: 1,
     language: 'English',
@@ -132,6 +132,8 @@ export default function TranscribeApp() {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadTranscript, setDownloadTranscript] = useState<Transcript | null>(null);
   const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -140,6 +142,21 @@ export default function TranscribeApp() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownload = (transcript: Transcript) => {
+    setDownloadTranscript(transcript);
+    setShowDownloadModal(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setTranscripts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const handleShare = (transcript: Transcript) => {
+    // Share functionality - could open share modal or copy link
+    navigator.clipboard.writeText(`https://app.transcribe.com/transcript/${transcript.id}`);
+    alert('Link copied to clipboard!');
+  };
 
   // Recording timer
   useEffect(() => {
@@ -182,10 +199,15 @@ export default function TranscribeApp() {
 
   const getSourceIcon = (source: string) => {
     switch(source) {
-      case 'youtube': return <Youtube className="w-4 h-4 text-red-500" />;
-      case 'recording': return <Mic className="w-4 h-4 text-emerald-400" />;
-      case 'upload': return <Upload className="w-4 h-4 text-blue-400" />;
-      default: return <FileText className="w-4 h-4 text-gray-400" />;
+      case 'youtube': 
+      case 'link': 
+        return <Link2 className="w-5 h-5 text-blue-500" />;
+      case 'recording': 
+        return <Mic className="w-5 h-5 text-rose-500" />;
+      case 'upload': 
+        return <Upload className="w-5 h-5 text-emerald-500" />;
+      default: 
+        return <FileText className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -282,11 +304,18 @@ export default function TranscribeApp() {
                   <Link2 className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
-                <p className="text-sm text-gray-500">Paste Any Public Media Link To Extract Audio</p>
-                <div className="mt-4 px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-200">
-                  <p className="text-xs text-gray-500">Supports 50+ Platforms</p>
+                <div className="mt-3 w-full">
+                  <div className="relative">
+                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Paste Any Public Media Link"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
-                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
                   {PLATFORMS.slice(0, 6).map((platform, i) => (
                     <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                       <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
@@ -428,12 +457,6 @@ export default function TranscribeApp() {
                             <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                           </button>
                         </div>
-                        {transcript.status === 'processing' && (
-                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 text-xs font-medium flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                            Processing
-                          </span>
-                        )}
                       </div>
 
                       <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -471,8 +494,24 @@ export default function TranscribeApp() {
                       </div>
                     </div>
 
+                    {/* Processing indicator on far right */}
+                    {transcript.status === 'processing' && (
+                      <div className="flex items-center gap-2 text-amber-600 text-sm font-medium animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                        Processing...
+                      </div>
+                    )}
+
                     {/* Actions */}
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleDownload(transcript)}
+                        disabled={transcript.status === 'processing'}
+                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
                       <button 
                         onClick={() => handleUse(transcript)}
                         disabled={transcript.status === 'processing'}
@@ -482,15 +521,17 @@ export default function TranscribeApp() {
                         Use
                       </button>
                       <button 
-                        onClick={() => handleEdit(transcript)}
+                        onClick={() => handleShare(transcript)}
                         disabled={transcript.status === 'processing'}
-                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Edit3 className="w-4 h-4" />
-                        Edit
+                        <Share2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors">
-                        <MoreVertical className="w-4 h-4" />
+                      <button 
+                        onClick={() => handleDelete(transcript.id)}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -509,9 +550,17 @@ export default function TranscribeApp() {
                     <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
                       {getSourceIcon(transcript.source)}
                     </div>
-                    <button onClick={() => toggleStar(transcript.id)}>
-                      <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleStar(transcript.id)}>
+                        <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(transcript.id)}
+                        className="p-1 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
@@ -539,12 +588,19 @@ export default function TranscribeApp() {
                   </div>
 
                   {transcript.status === 'processing' ? (
-                    <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 text-amber-600 text-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    <div className="flex items-center justify-end gap-2 text-amber-600 text-sm font-medium animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
                       Processing...
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleDownload(transcript)}
+                        className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
                       <button 
                         onClick={() => handleUse(transcript)}
                         className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
@@ -553,11 +609,10 @@ export default function TranscribeApp() {
                         Use
                       </button>
                       <button 
-                        onClick={() => handleEdit(transcript)}
-                        className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                        onClick={() => handleShare(transcript)}
+                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                       >
-                        <Edit3 className="w-4 h-4" />
-                        Edit
+                        <Share2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
@@ -880,6 +935,119 @@ export default function TranscribeApp() {
           onClose={() => { setShowDetailModal(false); setSelectedTranscript(null); }}
         />
       )}
+
+      {/* Download Modal */}
+      {showDownloadModal && downloadTranscript && (
+        <DownloadModal 
+          transcript={downloadTranscript}
+          onClose={() => { setShowDownloadModal(false); setDownloadTranscript(null); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Download Modal Component
+function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
+  const [format, setFormat] = useState<'docx' | 'pdf'>('docx');
+  const [includeTimestamps, setIncludeTimestamps] = useState(true);
+  const [includeSummary, setIncludeSummary] = useState(true);
+
+  const handleDownload = () => {
+    // Mock download functionality
+    console.log('Downloading:', { format, includeTimestamps, includeSummary, transcript: transcript.title });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Download Transcript</h2>
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-500 mb-6">{transcript.title}</p>
+
+        {/* Format Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">File Format</label>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setFormat('docx')}
+              className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                format === 'docx'
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <FileText className="w-5 h-5 mx-auto mb-1" />
+              DOCX
+            </button>
+            <button
+              onClick={() => setFormat('pdf')}
+              className={`flex-1 py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                format === 'pdf'
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <FileDown className="w-5 h-5 mx-auto mb-1" />
+              PDF
+            </button>
+          </div>
+        </div>
+
+        {/* Options */}
+        <div className="space-y-4 mb-6">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeTimestamps}
+              onChange={(e) => setIncludeTimestamps(e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+            />
+            <div>
+              <span className="text-sm font-medium text-gray-700">Include Timestamps</span>
+              <p className="text-xs text-gray-500">Add time markers for each speaker segment</p>
+            </div>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeSummary}
+              onChange={(e) => setIncludeSummary(e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+            />
+            <div>
+              <span className="text-sm font-medium text-gray-700">Include Summary</span>
+              <p className="text-xs text-gray-500">Add AI-generated summary at the top</p>
+            </div>
+          </label>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button 
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 font-medium hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleDownload}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download {format.toUpperCase()}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
