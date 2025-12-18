@@ -1,0 +1,1189 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Mic, Upload, Link2, Play, Pause, Download, Edit3, Sparkles, 
+  Search, Folder, Tag, Clock, User, Globe, FileText, Copy, 
+  Share2, Trash2, MoreVertical, ChevronDown, Check, X, 
+  Volume2, VolumeX, Settings, Filter, Grid, List, Star,
+  MessageSquare, Zap, Languages, FileDown, AlertCircle,
+  Youtube, Instagram, Music2, Facebook, Twitter, Video,
+  StopCircle, RotateCcw, ChevronRight, Wand2, Users,
+  BookOpen, Subtitles, Hash, Calendar, TrendingUp
+} from 'lucide-react';
+
+// Platform icons data
+const PLATFORMS = [
+  { name: 'YouTube', icon: Youtube, color: '#FF0000' },
+  { name: 'TikTok', icon: Music2, color: '#00F2EA' },
+  { name: 'Instagram', icon: Instagram, color: '#E4405F' },
+  { name: 'Facebook', icon: Facebook, color: '#1877F2' },
+  { name: 'X/Twitter', icon: Twitter, color: '#1DA1F2' },
+  { name: 'Vimeo', icon: Video, color: '#1AB7EA' },
+];
+
+// Mock transcript data
+const MOCK_TRANSCRIPTS = [
+  {
+    id: 1,
+    title: 'Product Launch Meeting - Q4 Strategy',
+    duration: '45:32',
+    date: '2025-12-17',
+    source: 'recording',
+    status: 'completed',
+    speakers: 4,
+    language: 'English',
+    words: 6840,
+    starred: true,
+    tags: ['Meeting', 'Strategy'],
+    thumbnail: null,
+    summary: 'Discussion of Q4 product launch timeline, marketing strategy, and resource allocation.',
+  },
+  {
+    id: 2,
+    title: 'Customer Interview - Sarah Chen',
+    duration: '28:15',
+    date: '2025-12-16',
+    source: 'upload',
+    status: 'completed',
+    speakers: 2,
+    language: 'English',
+    words: 4230,
+    starred: false,
+    tags: ['Interview', 'Research'],
+    thumbnail: null,
+    summary: 'User feedback session covering pain points and feature requests for the mobile app.',
+  },
+  {
+    id: 3,
+    title: 'AI Trends 2025 - YouTube Analysis',
+    duration: '12:47',
+    date: '2025-12-15',
+    source: 'youtube',
+    status: 'completed',
+    speakers: 1,
+    language: 'English',
+    words: 2100,
+    starred: true,
+    tags: ['Research', 'AI'],
+    thumbnail: null,
+    summary: 'Overview of emerging AI trends including multimodal models and agent frameworks.',
+  },
+  {
+    id: 4,
+    title: 'Spanish Podcast - Marketing Tips',
+    duration: '34:22',
+    date: '2025-12-14',
+    source: 'upload',
+    status: 'processing',
+    speakers: 2,
+    language: 'Spanish',
+    words: null,
+    starred: false,
+    tags: ['Podcast', 'Marketing'],
+    thumbnail: null,
+    summary: null,
+  },
+  {
+    id: 5,
+    title: 'Team Standup - December 13',
+    duration: '15:08',
+    date: '2025-12-13',
+    source: 'recording',
+    status: 'completed',
+    speakers: 6,
+    language: 'English',
+    words: 2450,
+    starred: false,
+    tags: ['Meeting', 'Daily'],
+    thumbnail: null,
+    summary: 'Daily standup covering sprint progress, blockers, and upcoming deadlines.',
+  },
+];
+
+const LANGUAGES = [
+  'English', 'Spanish', 'French', 'German', 'Portuguese', 'Italian',
+  'Dutch', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic',
+  'Hindi', 'Turkish', 'Polish', 'Vietnamese', 'Thai', 'Indonesian'
+];
+
+interface Transcript {
+  id: number;
+  title: string;
+  duration: string;
+  date: string;
+  source: string;
+  status: string;
+  speakers: number;
+  language: string;
+  words: number | null;
+  starred: boolean;
+  tags: string[];
+  thumbnail: string | null;
+  summary: string | null;
+}
+
+export default function TranscribeApp() {
+  const [activeView, setActiveView] = useState<'list' | 'grid'>('list');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTranscripts, setSelectedTranscripts] = useState<number[]>([]);
+  const [transcripts, setTranscripts] = useState<Transcript[]>(MOCK_TRANSCRIPTS);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [urlInput, setUrlInput] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Recording timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleEdit = (transcript: Transcript) => {
+    setSelectedTranscript(transcript);
+    setShowDetailModal(true);
+  };
+
+  const handleUse = (transcript: Transcript) => {
+    alert(`Using transcript "${transcript.title}" in REVVEN workflow...`);
+  };
+
+  const toggleStar = (id: number) => {
+    setTranscripts(prev => prev.map(t => 
+      t.id === id ? { ...t, starred: !t.starred } : t
+    ));
+  };
+
+  const getSourceIcon = (source: string) => {
+    switch(source) {
+      case 'youtube': return <Youtube className="w-4 h-4 text-red-500" />;
+      case 'recording': return <Mic className="w-4 h-4 text-emerald-400" />;
+      case 'upload': return <Upload className="w-4 h-4 text-blue-400" />;
+      default: return <FileText className="w-4 h-4 text-gray-400" />;
+    }
+  };
+
+  const filteredTranscripts = transcripts.filter(t => {
+    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    if (activeFilter === 'all') return matchesSearch;
+    if (activeFilter === 'starred') return matchesSearch && t.starred;
+    if (activeFilter === 'processing') return matchesSearch && t.status === 'processing';
+    return matchesSearch && t.source === activeFilter;
+  });
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white font-['Inter',sans-serif]">
+      {/* Ambient Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/5 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <header className="mb-10">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <Subtitles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  <span className="text-white">TRAN</span>
+                  <span className="text-emerald-400">SCRIBE</span>
+                </h1>
+                <p className="text-sm text-gray-500">AI-Powered Speech to Text</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Settings
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Input Options - 3 Horizontal Boxes */}
+        <section className="mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Upload Audio */}
+            <button
+              onClick={() => setShowUploadModal(true)}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                setShowUploadModal(true);
+              }}
+              className={`group relative p-8 rounded-2xl border-2 border-dashed transition-all duration-300 ${
+                dragOver 
+                  ? 'border-emerald-400 bg-emerald-500/10' 
+                  : 'border-white/10 bg-white/[0.02] hover:border-emerald-400/50 hover:bg-white/[0.04]'
+              }`}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 ${
+                  dragOver 
+                    ? 'bg-emerald-500/20' 
+                    : 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 group-hover:from-emerald-500/20 group-hover:to-emerald-600/20'
+                }`}>
+                  <Upload className={`w-9 h-9 transition-all duration-300 ${
+                    dragOver ? 'text-emerald-400 scale-110' : 'text-emerald-400 group-hover:scale-110'
+                  }`} />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Upload Audio</h3>
+                <p className="text-sm text-gray-500">MP3, WAV, M4A, FLAC up to 500MB</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.mp3</span>
+                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.wav</span>
+                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.m4a</span>
+                  <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-gray-400">.flac</span>
+                </div>
+              </div>
+            </button>
+
+            {/* Upload Link */}
+            <button
+              onClick={() => setShowLinkModal(true)}
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-blue-400/50 hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
+                  <Link2 className="w-9 h-9 text-blue-400 group-hover:scale-110 transition-all duration-300" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Upload Link</h3>
+                <p className="text-sm text-gray-500">Paste Any Video Link To Extract Audio</p>
+                <div className="mt-4 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+                  <p className="text-xs text-gray-400">Supports 50+ Platforms</p>
+                </div>
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  {PLATFORMS.slice(0, 6).map((platform, i) => (
+                    <div key={i} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center">
+                      <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+                    </div>
+                  ))}
+                  <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-xs text-gray-400">
+                    +44
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {/* Record Audio */}
+            <button
+              onClick={() => setShowRecordModal(true)}
+              className="group relative p-8 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] hover:border-rose-400/50 hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/10 group-hover:from-rose-500/20 group-hover:to-rose-600/20 flex items-center justify-center mb-5 transition-all duration-300">
+                  <Mic className="w-9 h-9 text-rose-400 group-hover:scale-110 transition-all duration-300" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Record Audio</h3>
+                <p className="text-sm text-gray-500">Click To Start Recording</p>
+                <div className="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  Real-time Transcription Available
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* Transcripts Section */}
+        <section>
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-400" />
+                Transcripts
+              </h2>
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium">
+                {transcripts.length} files
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search transcripts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              {/* Filter */}
+              <div className="relative">
+                <button 
+                  onClick={() => setFilterOpen(!filterOpen)}
+                  className={`px-4 py-2.5 rounded-xl border text-sm flex items-center gap-2 transition-all ${
+                    activeFilter !== 'all' 
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Filter className="w-4 h-4" />
+                  Filter
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                {filterOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-[#141419] border border-white/10 shadow-xl z-50">
+                    {[
+                      { id: 'all', label: 'All Transcripts' },
+                      { id: 'starred', label: 'Starred' },
+                      { id: 'recording', label: 'Recordings' },
+                      { id: 'upload', label: 'Uploads' },
+                      { id: 'youtube', label: 'YouTube' },
+                      { id: 'processing', label: 'Processing' },
+                    ].map(filter => (
+                      <button
+                        key={filter.id}
+                        onClick={() => { setActiveFilter(filter.id); setFilterOpen(false); }}
+                        className={`w-full px-4 py-2 text-left text-sm flex items-center justify-between hover:bg-white/5 transition-colors ${
+                          activeFilter === filter.id ? 'text-emerald-400' : 'text-gray-400'
+                        }`}
+                      >
+                        {filter.label}
+                        {activeFilter === filter.id && <Check className="w-4 h-4" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* View Toggle */}
+              <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/10">
+                <button 
+                  onClick={() => setActiveView('list')}
+                  className={`p-2 rounded-lg transition-all ${activeView === 'list' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setActiveView('grid')}
+                  className={`p-2 rounded-lg transition-all ${activeView === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Transcripts List */}
+          {activeView === 'list' ? (
+            <div className="space-y-3">
+              {filteredTranscripts.map((transcript) => (
+                <div
+                  key={transcript.id}
+                  className="group relative p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200"
+                >
+                  <div className="flex items-center gap-5">
+                    {/* Thumbnail / Icon */}
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 flex items-center justify-center flex-shrink-0">
+                      {getSourceIcon(transcript.source)}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-base font-medium text-white truncate">
+                            {transcript.title}
+                          </h3>
+                          <button 
+                            onClick={() => toggleStar(transcript.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`} />
+                          </button>
+                        </div>
+                        {transcript.status === 'processing' && (
+                          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 text-xs font-medium flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Processing
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          {transcript.duration}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {transcript.date}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5" />
+                          {transcript.speakers} speaker{transcript.speakers > 1 ? 's' : ''}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5" />
+                          {transcript.language}
+                        </span>
+                        {transcript.words && (
+                          <span className="flex items-center gap-1.5">
+                            <Hash className="w-3.5 h-3.5" />
+                            {transcript.words.toLocaleString()} words
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex items-center gap-2 mt-3">
+                        {transcript.tags.map((tag, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleUse(transcript)}
+                        disabled={transcript.status === 'processing'}
+                        className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Zap className="w-4 h-4" />
+                        Use
+                      </button>
+                      <button 
+                        onClick={() => handleEdit(transcript)}
+                        disabled={transcript.status === 'processing'}
+                        className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Grid View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTranscripts.map((transcript) => (
+                <div
+                  key={transcript.id}
+                  className="group relative p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 flex items-center justify-center">
+                      {getSourceIcon(transcript.source)}
+                    </div>
+                    <button onClick={() => toggleStar(transcript.id)}>
+                      <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-500 hover:text-yellow-400'}`} />
+                    </button>
+                  </div>
+
+                  <h3 className="text-base font-medium text-white mb-2 line-clamp-2">
+                    {transcript.title}
+                  </h3>
+
+                  {transcript.summary && (
+                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{transcript.summary}</p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {transcript.tags.map((tag, i) => (
+                      <span key={i} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-gray-400">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {transcript.duration}
+                    </span>
+                    <span>{transcript.date}</span>
+                  </div>
+
+                  {transcript.status === 'processing' ? (
+                    <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-amber-500/10 text-amber-400 text-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      Processing...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => handleUse(transcript)}
+                        className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Zap className="w-4 h-4" />
+                        Use
+                      </button>
+                      <button 
+                        onClick={() => handleEdit(transcript)}
+                        className="flex-1 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-2xl bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-white">Upload Audio File</h2>
+              <button 
+                onClick={() => setShowUploadModal(false)}
+                className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="p-12 rounded-2xl border-2 border-dashed border-white/10 hover:border-emerald-400/50 bg-white/[0.02] hover:bg-emerald-500/5 cursor-pointer transition-all group"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                  <Upload className="w-10 h-10 text-emerald-400" />
+                </div>
+                <p className="text-lg font-medium text-white mb-2">
+                  Drag & drop your audio file here
+                </p>
+                <p className="text-sm text-gray-500 mb-4">or click to browse</p>
+                <p className="text-xs text-gray-500">
+                  Supported: MP3, WAV, M4A, FLAC, OGG, WMA • Max 500MB
+                </p>
+              </div>
+            </div>
+            <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" />
+
+            <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-emerald-400" />
+                Transcription Settings
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-2">Language</label>
+                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+                    <option value="auto">Auto-detect</option>
+                    {LANGUAGES.map(lang => (
+                      <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-2">Speaker Detection</label>
+                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+                    <option value="auto">Auto-detect speakers</option>
+                    <option value="1">1 speaker</option>
+                    <option value="2">2 speakers</option>
+                    <option value="3">3-4 speakers</option>
+                    <option value="5">5+ speakers</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-emerald-500 focus:ring-emerald-500/20" defaultChecked />
+                  Generate AI Summary
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-emerald-500 focus:ring-emerald-500/20" />
+                  Include Timestamps
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setShowUploadModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button className="px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Start Transcription
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link Modal */}
+      {showLinkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-2xl bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-white">Transcribe from URL</h2>
+              <button 
+                onClick={() => setShowLinkModal(false)}
+                className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="relative mb-6">
+              <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <input
+                type="url"
+                placeholder="Paste YouTube, TikTok, Instagram, or any video URL..."
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              />
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
+              <h3 className="text-sm font-medium text-white mb-4">Supported Platforms (50+)</h3>
+              <div className="grid grid-cols-4 gap-3">
+                {PLATFORMS.map((platform, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+                    <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+                    <span className="text-xs text-gray-400">{platform.name}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/5">
+                  <span className="text-xs text-gray-400">+44 more platforms</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                <Settings className="w-4 h-4 text-blue-400" />
+                Transcription Settings
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-2">Language</label>
+                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50">
+                    <option value="auto">Auto-detect</option>
+                    {LANGUAGES.map(lang => (
+                      <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-2">Output Format</label>
+                  <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-blue-500/50">
+                    <option value="transcript">Full Transcript</option>
+                    <option value="srt">SRT Subtitles</option>
+                    <option value="vtt">VTT Subtitles</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-blue-500 focus:ring-blue-500/20" defaultChecked />
+                  Generate AI Summary
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-blue-500 focus:ring-blue-500/20" />
+                  Translate to English
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setShowLinkModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                disabled={!urlInput}
+                className="px-5 py-2.5 rounded-xl bg-blue-500 text-white font-medium hover:bg-blue-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                Extract & Transcribe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Record Modal */}
+      {showRecordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#141419] rounded-3xl border border-white/10 p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-white">Record Audio</h2>
+              <button 
+                onClick={() => { setShowRecordModal(false); setIsRecording(false); setRecordingTime(0); }}
+                className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center py-8">
+              {/* Recording Visualization */}
+              <div className={`relative w-32 h-32 rounded-full flex items-center justify-center mb-6 transition-all duration-300 ${
+                isRecording 
+                  ? 'bg-rose-500/20' 
+                  : 'bg-white/5'
+              }`}>
+                {isRecording && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-rose-500/20 animate-ping" />
+                    <div className="absolute inset-2 rounded-full bg-rose-500/10 animate-pulse" />
+                  </>
+                )}
+                <button
+                  onClick={() => setIsRecording(!isRecording)}
+                  className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all ${
+                    isRecording 
+                      ? 'bg-rose-500 hover:bg-rose-400' 
+                      : 'bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500'
+                  }`}
+                >
+                  {isRecording ? (
+                    <StopCircle className="w-10 h-10 text-white" />
+                  ) : (
+                    <Mic className="w-10 h-10 text-white" />
+                  )}
+                </button>
+              </div>
+
+              {/* Timer */}
+              <div className="text-4xl font-mono text-white mb-2">
+                {formatTime(recordingTime)}
+              </div>
+              <p className="text-sm text-gray-500">
+                {isRecording ? 'Recording...' : 'Click to start recording'}
+              </p>
+
+              {/* Live Waveform Placeholder */}
+              {isRecording && (
+                <div className="flex items-center gap-1 mt-6">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-rose-500 rounded-full animate-pulse"
+                      style={{
+                        height: `${Math.random() * 24 + 8}px`,
+                        animationDelay: `${i * 0.05}s`
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-rose-400" />
+                  Live Transcription
+                </h3>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+              <p className="text-xs text-gray-500">See your words appear as you speak</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-500 mb-2">Language</label>
+                <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50">
+                  <option value="auto">Auto-detect</option>
+                  {LANGUAGES.map(lang => (
+                    <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-2">Audio Quality</label>
+                <select className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-rose-500/50">
+                  <option value="high">High Quality</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low (smaller file)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => { setRecordingTime(0); }}
+                disabled={recordingTime === 0}
+                className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset
+              </button>
+              <button 
+                disabled={recordingTime === 0 || isRecording}
+                className="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-medium hover:bg-rose-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4" />
+                Save & Transcribe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail/Edit Modal */}
+      {showDetailModal && selectedTranscript && (
+        <TranscriptDetailModal 
+          transcript={selectedTranscript} 
+          onClose={() => { setShowDetailModal(false); setSelectedTranscript(null); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Transcript Detail/Edit Modal Component
+function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState('transcript');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  const MOCK_TRANSCRIPT_CONTENT = [
+    { speaker: 'Speaker 1', time: '00:00:05', text: "Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started." },
+    { speaker: 'Speaker 2', time: '00:00:15', text: "Thanks for organizing this. I've prepared the Q4 projections we discussed last week." },
+    { speaker: 'Speaker 1', time: '00:00:25', text: "Perfect. Before we dive in, let's do a quick round of updates from each team." },
+    { speaker: 'Speaker 3', time: '00:00:35', text: "The engineering team has completed the core features for the mobile app. We're now in the testing phase." },
+    { speaker: 'Speaker 4', time: '00:00:48', text: "Marketing has finalized the launch campaign. We're targeting early January for the announcement." },
+    { speaker: 'Speaker 2', time: '00:01:02', text: "Great progress. The numbers look promising - we're projecting a 40% increase in user engagement." },
+    { speaker: 'Speaker 1', time: '00:01:15', text: "That's excellent news. Let's discuss the resource allocation for Q1..." },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
+      <div className="w-full max-w-5xl h-[90vh] bg-[#141419] rounded-3xl border border-white/10 shadow-2xl flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
+              <FileText className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-white">{transcript.title}</h2>
+              <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {transcript.duration}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  {transcript.speakers} speakers
+                </span>
+                <span className="flex items-center gap-1">
+                  <Globe className="w-3.5 h-3.5" />
+                  {transcript.language}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <button 
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2"
+              >
+                <FileDown className="w-4 h-4" />
+                Export
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {showExportMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 py-2 rounded-xl bg-[#1a1a1f] border border-white/10 shadow-xl z-50">
+                  {[
+                    { format: 'TXT', desc: 'Plain Text' },
+                    { format: 'DOCX', desc: 'Word Document' },
+                    { format: 'PDF', desc: 'PDF Document' },
+                    { format: 'SRT', desc: 'Subtitles' },
+                    { format: 'VTT', desc: 'Web Subtitles' },
+                    { format: 'JSON', desc: 'Raw Data' },
+                  ].map(item => (
+                    <button
+                      key={item.format}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-400 hover:bg-white/5 hover:text-white transition-colors flex items-center justify-between"
+                    >
+                      <span>{item.format}</span>
+                      <span className="text-xs text-gray-600">{item.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2">
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Audio Player */}
+        <div className="p-4 border-b border-white/10 bg-white/[0.02]">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors"
+            >
+              {isPlaying ? (
+                <Pause className="w-5 h-5 text-white" />
+              ) : (
+                <Play className="w-5 h-5 text-white ml-0.5" />
+              )}
+            </button>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-sm text-gray-400 font-mono">00:00</span>
+                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full w-0 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" />
+                </div>
+                <span className="text-sm text-gray-400 font-mono">{transcript.duration}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-colors">
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                  <select 
+                    value={playbackSpeed}
+                    onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
+                    className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 focus:outline-none"
+                  >
+                    <option value={0.5}>0.5x</option>
+                    <option value={0.75}>0.75x</option>
+                    <option value={1}>1x</option>
+                    <option value={1.25}>1.25x</option>
+                    <option value={1.5}>1.5x</option>
+                    <option value={2}>2x</option>
+                  </select>
+                </div>
+                <p className="text-xs text-gray-500">Click any text to jump to that moment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-1 p-4 border-b border-white/10">
+          {[
+            { id: 'transcript', label: 'Transcript', icon: FileText },
+            { id: 'summary', label: 'AI Summary', icon: Sparkles },
+            { id: 'speakers', label: 'Speakers', icon: Users },
+            { id: 'chat', label: 'AI Chat', icon: MessageSquare },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
+                activeTab === tab.id 
+                  ? 'bg-emerald-500/10 text-emerald-400' 
+                  : 'text-gray-500 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {activeTab === 'transcript' && (
+            <div className="space-y-4">
+              {MOCK_TRANSCRIPT_CONTENT.map((item, i) => (
+                <div key={i} className="group flex gap-4 p-4 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
+                  <div className="flex-shrink-0 w-20">
+                    <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">
+                      {item.time}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-400 mb-1">{item.speaker}</p>
+                    <p className="text-white leading-relaxed">{item.text}</p>
+                  </div>
+                  <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors">
+                      <Copy className="w-4 h-4" />
+                    </button>
+                    <button className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors">
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'summary' && (
+            <div className="max-w-3xl">
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="w-5 h-5 text-emerald-400" />
+                  <h3 className="font-semibold text-white">AI-Generated Summary</h3>
+                </div>
+                <p className="text-gray-300 leading-relaxed mb-4">
+                  {transcript.summary || 'This meeting covered Q4 product strategy and launch planning. Key topics included engineering progress on the mobile app, marketing campaign finalization, and resource allocation discussions for Q1.'}
+                </p>
+                <button className="text-sm text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Regenerate Summary
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+                  <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-blue-400" />
+                    Key Points
+                  </h4>
+                  <ul className="space-y-2">
+                    {['Mobile app testing phase completed', 'Launch campaign targeting January', '40% projected user engagement increase'].map((point, i) => (
+                      <li key={i} className="text-sm text-gray-400 flex items-start gap-2">
+                        <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+                  <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                    Action Items
+                  </h4>
+                  <ul className="space-y-2">
+                    {['Finalize Q1 resource allocation', 'Schedule follow-up meeting', 'Review marketing materials'].map((item, i) => (
+                      <li key={i} className="text-sm text-gray-400 flex items-start gap-2">
+                        <div className="w-4 h-4 rounded border border-amber-500/30 flex-shrink-0 mt-0.5" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+                <h4 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
+                  <Languages className="w-4 h-4 text-purple-400" />
+                  Translate Summary
+                </h4>
+                <div className="flex items-center gap-3">
+                  <select className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none">
+                    {LANGUAGES.map(lang => (
+                      <option key={lang} value={lang.toLowerCase()}>{lang}</option>
+                    ))}
+                  </select>
+                  <button className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-400 text-sm font-medium hover:bg-purple-500/30 transition-colors">
+                    Translate
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'speakers' && (
+            <div className="max-w-2xl">
+              <p className="text-gray-500 mb-6">Identify and label speakers for better organization</p>
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((speaker) => (
+                  <div key={speaker} className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/5">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      ['bg-emerald-500/20 text-emerald-400', 'bg-blue-500/20 text-blue-400', 'bg-purple-500/20 text-purple-400', 'bg-amber-500/20 text-amber-400'][speaker - 1]
+                    }`}>
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        defaultValue={`Speaker ${speaker}`}
+                        className="w-full bg-transparent text-white font-medium focus:outline-none"
+                      />
+                      <p className="text-xs text-gray-500 mt-0.5">Spoke for ~{Math.floor(Math.random() * 10 + 5)} minutes</p>
+                    </div>
+                    <button className="px-3 py-1.5 rounded-lg bg-white/5 text-xs text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                      Identify Voice
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'chat' && (
+            <div className="max-w-3xl h-full flex flex-col">
+              <div className="flex-1 space-y-4 mb-4">
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
+                  <p className="text-sm text-emerald-100">
+                    Ask me anything about this transcript! I can help you find specific information, extract insights, or answer questions about what was discussed.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Ask a question about this transcript..."
+                  className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50"
+                />
+                <button className="px-4 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors">
+                  <Wand2 className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="text-xs text-gray-500">Try:</span>
+                {['What was decided?', 'Action items', 'Key metrics'].map((q, i) => (
+                  <button key={i} className="px-3 py-1 rounded-lg bg-white/5 text-xs text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
