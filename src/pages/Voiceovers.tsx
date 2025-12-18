@@ -91,7 +91,8 @@ export default function Voiceovers() {
       const { data, error } = await supabase.functions.invoke('generate-voiceover', {
         body: {
           text: text.trim(),
-          voiceId: selectedVoice.id,
+          voice: selectedVoice.id,
+          voiceName: selectedVoice.name,
           stability: stability[0],
           similarity_boost: similarity[0],
           speed: speed[0]
