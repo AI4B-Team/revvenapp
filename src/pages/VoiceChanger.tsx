@@ -27,12 +27,12 @@ interface UsageRecord {
 }
 
 const VOICE_STYLES = [
-  { id: 'deep', name: 'Daniel', description: 'Deep, authoritative male voice' },
-  { id: 'high', name: 'Lily', description: 'Bright, energetic female voice' },
-  { id: 'robotic', name: 'Liam', description: 'Precise, mechanical tone' },
-  { id: 'whisper', name: 'Laura', description: 'Soft, gentle female voice' },
-  { id: 'echo', name: 'River', description: 'Neutral, expressive voice' },
-  { id: 'chipmunk', name: 'Alice', description: 'Light, playful female voice' },
+  { id: 'deep', name: 'Deep Voice', description: 'Lower pitch, more resonant' },
+  { id: 'high', name: 'High Voice', description: 'Higher pitch, lighter tone' },
+  { id: 'robotic', name: 'Robotic', description: 'Mechanical, synthesized' },
+  { id: 'whisper', name: 'Whisper', description: 'Soft, hushed tone' },
+  { id: 'echo', name: 'Echo', description: 'Reverberating effect' },
+  { id: 'chipmunk', name: 'Chipmunk', description: 'High-pitched, fast' },
 ];
 
 export default function VoiceChanger() {
