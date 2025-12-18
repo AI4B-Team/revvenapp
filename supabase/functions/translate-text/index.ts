@@ -38,11 +38,17 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional translator. Translate the given text to ${targetLanguage}. Return ONLY the translated text without any explanations, notes, or additional content. Preserve the original formatting including line breaks and paragraphs.`
+            content: `You are a professional translator. Your task is to translate the given text into ${targetLanguage}.
+IMPORTANT RULES:
+- Return ONLY the translated text, nothing else
+- Do NOT include any explanations, notes, or comments  
+- Do NOT repeat the original text
+- Preserve the original formatting including line breaks
+- If the text is already in ${targetLanguage}, still return it as-is`
           },
           {
             role: 'user',
-            content: text
+            content: `Translate this to ${targetLanguage}: ${text}`
           }
         ],
         temperature: 0.3,

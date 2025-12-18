@@ -40,10 +40,19 @@ serve(async (req) => {
       if (!text || !targetLanguage) {
         throw new Error("Text and target language required for translation");
       }
-      console.log("Translating text to:", targetLanguage);
+      console.log("Translating text to:", targetLanguage, "Input:", text.substring(0, 50));
       messages = [
-        { role: "system", content: `You are a professional translator. Translate the following text to ${targetLanguage}. Only return the translated text, nothing else.` },
-        { role: "user", content: text }
+        { 
+          role: "system", 
+          content: `You are a professional translator. Your task is to translate the following text into ${targetLanguage}. 
+IMPORTANT RULES:
+- Return ONLY the translated text, nothing else
+- Do NOT include any explanations, notes, or comments
+- Do NOT repeat the original text
+- Preserve the original formatting
+- If the text is already in ${targetLanguage}, still return it as-is` 
+        },
+        { role: "user", content: `Translate this to ${targetLanguage}: ${text}` }
       ];
     } else {
       // Summary mode (default)
