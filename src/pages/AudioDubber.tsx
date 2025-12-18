@@ -17,10 +17,8 @@ import {
 
 interface UsageRecord {
   id: string;
-  app_name: string;
-  input_audio_url: string | null;
-  output_audio_url: string | null;
-  settings: any;
+  name: string;
+  url: string;
   status: string;
   created_at: string;
 }
@@ -53,26 +51,47 @@ export default function AudioDubber() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch usage history
+  // Fetch usage history from user_voices where type='revoice'
+  const fetchHistory = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('user_voices')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('type', 'revoice')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (!error && data) {
+      setUsageHistory(data);
+    }
+  };
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('audio_app_usage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('app_name', 'audio_dubber')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (!error && data) {
-        setUsageHistory(data);
-      }
-    };
-
     fetchHistory();
+
+    // Subscribe to realtime updates for revoice records
+    const channel = supabase
+      .channel('revoice-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_voices',
+          filter: 'type=eq.revoice'
+        },
+        () => {
+          fetchHistory();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,42 +132,24 @@ export default function AudioDubber() {
       const uploadData = await uploadResponse.json();
       if (!uploadData.secure_url) throw new Error('Upload failed');
 
-      // Call the revoice-audio edge function for dubbing
-      const { data, error } = await supabase.functions.invoke('revoice-audio', {
+      // Call the revoice-audio edge function for dubbing (runs async in background)
+      const { error } = await supabase.functions.invoke('revoice-audio', {
         body: {
           audioUrl: uploadData.secure_url,
-          targetLanguage: targetLanguage.code
+          targetLanguage: targetLanguage.code,
+          name: audioFile.name.replace(/\.[^/.]+$/, '')
         }
       });
 
       if (error) throw error;
 
-      // Record usage
-      await supabase.from('audio_app_usage').insert({
-        user_id: user.id,
-        app_name: 'audio_dubber',
-        input_audio_url: uploadData.secure_url,
-        output_audio_url: data.audioUrl || uploadData.secure_url,
-        settings: { target_language: targetLanguage.name },
-        status: 'completed'
-      });
-
-      setOutputUrl(data.audioUrl || uploadData.secure_url);
-      toast.success('Audio dubbed successfully!');
-
-      // Refresh history
-      const { data: history } = await supabase
-        .from('audio_app_usage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('app_name', 'audio_dubber')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (history) setUsageHistory(history);
+      toast.success('Dubbing started! It will appear in history when complete.');
+      setAudioFile(null);
+      setAudioUrl(null);
+      setOutputUrl(null);
 
     } catch (error: any) {
-      toast.error(error.message || 'Failed to dub audio');
+      toast.error(error.message || 'Failed to start dubbing');
     } finally {
       setIsProcessing(false);
     }
@@ -336,23 +337,34 @@ export default function AudioDubber() {
                   {usageHistory.map((record) => (
                     <div key={record.id} className="flex items-center gap-4 p-3 bg-secondary rounded-xl">
                       <div className={`w-2 h-2 rounded-full ${
-                        record.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
+                        record.status === 'completed' ? 'bg-green-500' : 
+                        record.status === 'processing' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
                       }`} />
                       <div className="flex-1">
-                        <p className="text-sm font-medium">
-                          Dubbed to {record.settings?.target_language}
-                        </p>
+                        <p className="text-sm font-medium">{record.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(record.created_at).toLocaleString()}
                         </p>
                       </div>
-                      {record.output_audio_url && (
-                        <button
-                          onClick={() => playAudio(record.output_audio_url!)}
-                          className="p-2 rounded-lg hover:bg-background/50"
-                        >
-                          {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                        </button>
+                      {record.status === 'processing' && (
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      )}
+                      {record.status === 'completed' && record.url && record.url !== 'processing' && (
+                        <>
+                          <button
+                            onClick={() => playAudio(record.url)}
+                            className="p-2 rounded-lg hover:bg-background/50"
+                          >
+                            {isPlaying === record.url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          </button>
+                          <a
+                            href={record.url}
+                            download
+                            className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
+                        </>
                       )}
                     </div>
                   ))}
