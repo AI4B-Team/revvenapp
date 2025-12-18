@@ -194,9 +194,22 @@ const Create = () => {
   
   // Reset states only on initial mount when navigating to /create without parameters or state
   useEffect(() => {
-    const state = location.state as { editImage?: string; animateImage?: string } | null;
-    const hasNavigationState = state?.editImage || state?.animateImage;
-    
+    const state = location.state as {
+      editImage?: string;
+      animateImage?: string;
+      transcriptText?: string;
+      targetMode?: string;
+      targetAnimateMode?: string;
+    } | null;
+
+    const hasNavigationState = !!(
+      state?.editImage ||
+      state?.animateImage ||
+      state?.transcriptText ||
+      state?.targetMode ||
+      state?.targetAnimateMode
+    );
+
     if (!hasInitialized && location.pathname === '/create' && !location.search && !hasNavigationState) {
       setActiveTab('');
       setSelectedType('');
