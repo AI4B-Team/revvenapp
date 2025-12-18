@@ -888,7 +888,7 @@ ${content.map((item, index) => {
                     <div className="flex items-center gap-2 mt-2">
                       <button 
                         onClick={() => setActiveTranslationTab('original')}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                           activeTranslationTab === 'original'
                             ? 'bg-emerald-500 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -898,7 +898,7 @@ ${content.map((item, index) => {
                       </button>
                       <button 
                         onClick={() => setActiveTranslationTab('translated')}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                        className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
                           activeTranslationTab === 'translated'
                             ? 'bg-purple-500 text-white'
                             : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
@@ -909,9 +909,13 @@ ${content.map((item, index) => {
                       </button>
                       <button 
                         onClick={handleRemoveTranslation}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                        className={`px-2 py-1.5 rounded-r-full transition-colors ${
+                          activeTranslationTab === 'translated'
+                            ? 'bg-purple-600 text-white hover:bg-purple-700'
+                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                        }`}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -1151,7 +1155,7 @@ ${content.map((item, index) => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <button 
                             onClick={() => setActiveSummaryTab('original')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                               activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                           >
@@ -1161,7 +1165,7 @@ ${content.map((item, index) => {
                             <div key={lang} className="flex items-center">
                               <button 
                                 onClick={() => setActiveSummaryTab(lang)}
-                                className={`px-3 py-1.5 rounded-l-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                                className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
                                   activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                                 }`}
                               >
@@ -1170,7 +1174,7 @@ ${content.map((item, index) => {
                               </button>
                               <button
                                 onClick={() => handleRemoveSummaryTranslation(lang)}
-                                className={`px-1.5 py-1.5 rounded-r-lg text-sm font-medium transition-colors ${
+                                className={`px-2 py-1.5 rounded-r-full text-sm font-medium transition-colors ${
                                   activeSummaryTab === lang ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                                 }`}
                               >
