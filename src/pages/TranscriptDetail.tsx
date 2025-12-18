@@ -49,7 +49,7 @@ interface TranscriptLine {
 }
 
 // Parse transcript text into structured format
-const parseTranscriptContent = (text: string, durationStr: string): TranscriptLine[] => {
+const parseTranscriptContent = (text: string, durationStr: string, speakerCount: number = 1): TranscriptLine[] => {
   if (!text) return [];
   
   // Split by sentences or paragraphs
@@ -67,8 +67,10 @@ const parseTranscriptContent = (text: string, durationStr: string): TranscriptLi
     const seconds = Math.floor(index * timePerSentence);
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
+    // Distribute speakers across sentences
+    const speakerNum = (index % speakerCount) + 1;
     return {
-      speaker: 'Speaker 1',
+      speaker: `Speaker ${speakerNum}`,
       time: `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
       text: sentence.trim()
     };
@@ -133,6 +135,7 @@ const TranscriptDetail = () => {
   // Speakers
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [identifyingVoice, setIdentifyingVoice] = useState<number | null>(null);
+  const [speakerNamesLoaded, setSpeakerNamesLoaded] = useState(false);
 
   // Get transcript data from URL params
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -365,7 +368,7 @@ const TranscriptDetail = () => {
         if (error) throw error;
         
         if (data?.prompt) {
-          const parsedContent = parseTranscriptContent(data.prompt, duration);
+          const parsedContent = parseTranscriptContent(data.prompt, duration, speakers);
           setOriginalContent(parsedContent);
           setEditedContent(parsedContent);
           
@@ -381,7 +384,35 @@ const TranscriptDetail = () => {
     };
 
     loadTranscript();
-  }, [id, duration]);
+  }, [id, duration, speakers]);
+
+  // Apply saved speaker names to content on initial load
+  const applySpeakerNamesToContent = (names: Record<number, string>, content: TranscriptLine[]) => {
+    return content.map(line => {
+      const match = line.speaker.match(/Speaker (\d+)/);
+      if (match) {
+        const speakerNum = parseInt(match[1]);
+        const customName = names[speakerNum];
+        if (customName && customName !== `Speaker ${speakerNum}`) {
+          return { ...line, speaker: customName };
+        }
+      }
+      return line;
+    });
+  };
+
+  // Load speaker names and apply to content after initial load
+  useEffect(() => {
+    if (id && editedContent.length > 0 && !isLoading && !speakerNamesLoaded) {
+      const savedNames = localStorage.getItem(`speaker-names-${id}`);
+      if (savedNames) {
+        const names = JSON.parse(savedNames);
+        setSpeakerNames(names);
+        setEditedContent(prev => applySpeakerNamesToContent(names, prev));
+      }
+      setSpeakerNamesLoaded(true);
+    }
+  }, [id, isLoading, editedContent.length, speakerNamesLoaded]);
 
   useEffect(() => {
     setEditedTitle(title);
@@ -788,12 +819,34 @@ ${content.map((item, index) => {
     }
   };
 
+  const handleSpeakerNameChange = (speakerId: number, newName: string) => {
+    const updatedNames = { ...speakerNames, [speakerId]: newName };
+    setSpeakerNames(updatedNames);
+    
+    // Save to localStorage
+    if (id) {
+      localStorage.setItem(`speaker-names-${id}`, JSON.stringify(updatedNames));
+    }
+    
+    // Update content with new speaker name
+    const oldSpeakerName = speakerNames[speakerId] || `Speaker ${speakerId}`;
+    setEditedContent(prev => prev.map(line => {
+      if (line.speaker === oldSpeakerName || line.speaker === `Speaker ${speakerId}`) {
+        return { ...line, speaker: newName || `Speaker ${speakerId}` };
+      }
+      return line;
+    }));
+  };
+
   const handleIdentifyVoice = (speakerId: number) => {
     setIdentifyingVoice(speakerId);
-    // Simulate voice identification
+    // Simulate voice identification - in a real app this would use audio analysis
     setTimeout(() => {
       setIdentifyingVoice(null);
-      toast.success(`Voice identified for Speaker ${speakerId}`);
+      // Auto-assign a placeholder name based on voice characteristics
+      const suggestedName = `Voice ${speakerId}`;
+      handleSpeakerNameChange(speakerId, suggestedName);
+      toast.success(`Voice identified and labeled as "${suggestedName}"`);
     }, 2000);
   };
 
@@ -1301,8 +1354,15 @@ ${content.map((item, index) => {
                           <input
                             type="text"
                             value={speakerNames[speaker.id] || speaker.name}
-                            onChange={(e) => setSpeakerNames(prev => ({ ...prev, [speaker.id]: e.target.value }))}
-                            className="w-full bg-transparent text-gray-900 font-medium focus:outline-none"
+                            onChange={(e) => handleSpeakerNameChange(speaker.id, e.target.value)}
+                            onBlur={() => {
+                              // Ensure changes are saved on blur
+                              if (id && Object.keys(speakerNames).length > 0) {
+                                localStorage.setItem(`speaker-names-${id}`, JSON.stringify(speakerNames));
+                              }
+                            }}
+                            className="w-full bg-transparent text-gray-900 font-medium focus:outline-none border-b border-transparent focus:border-emerald-500 transition-colors"
+                            placeholder={speaker.name}
                           />
                           <p className="text-xs text-gray-500 mt-0.5">Spoke For ~{speaker.minutes} minutes</p>
                         </div>
