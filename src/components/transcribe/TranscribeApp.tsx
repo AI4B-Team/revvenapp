@@ -594,7 +594,12 @@ export default function TranscribeApp() {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        recognition.lang = LANGUAGE_CODES[selectedLanguage] || 'en-US';
+        recognition.maxAlternatives = 1;
+        
+        const langCode = LANGUAGE_CODES[selectedLanguage] || 'en-US';
+        recognition.lang = langCode;
+        
+        console.log('Starting speech recognition with language:', langCode);
         
         recognition.onresult = (event: any) => {
           let transcript = '';
@@ -606,10 +611,51 @@ export default function TranscribeApp() {
         
         recognition.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
+          if (event.error === 'language-not-supported') {
+            toast({
+              title: "Language not supported",
+              description: `Live transcription for ${selectedLanguage} is not supported in your browser. Try using Chrome for best language support.`,
+              variant: "destructive"
+            });
+          } else if (event.error === 'no-speech') {
+            // Silently ignore no-speech errors, just restart
+          } else if (event.error !== 'aborted') {
+            toast({
+              title: "Transcription error",
+              description: `Speech recognition error: ${event.error}`,
+              variant: "destructive"
+            });
+          }
         };
         
-        recognition.start();
-        recognitionRef.current = recognition;
+        // Auto-restart on end (for continuous transcription)
+        recognition.onend = () => {
+          if (isRecording && liveTranscriptionEnabled && recognitionRef.current) {
+            try {
+              recognition.start();
+            } catch (e) {
+              console.log('Could not restart recognition:', e);
+            }
+          }
+        };
+        
+        try {
+          recognition.start();
+          recognitionRef.current = recognition;
+        } catch (e) {
+          console.error('Failed to start speech recognition:', e);
+          toast({
+            title: "Failed to start",
+            description: "Could not start live transcription. Please check browser permissions.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Not supported",
+          description: "Live transcription is not supported in your browser. Please use Chrome for best results.",
+          variant: "destructive"
+        });
       }
     } else {
       if (recognitionRef.current) {
@@ -620,11 +666,15 @@ export default function TranscribeApp() {
     
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore errors when stopping
+        }
         recognitionRef.current = null;
       }
     };
-  }, [isRecording, liveTranscriptionEnabled, selectedLanguage]);
+  }, [isRecording, liveTranscriptionEnabled, selectedLanguage, toast]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
