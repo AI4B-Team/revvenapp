@@ -1633,6 +1633,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   
                   setIsSaving(true);
                   try {
+                    // Get current user
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) throw new Error('Not authenticated');
+                    
                     // Create audio blob
                     const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
                     
@@ -1648,6 +1652,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     const base64Audio = await base64Promise;
                     
                     // Upload to Cloudinary
+                    console.log('Uploading audio to Cloudinary...');
                     const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
                       body: {
                         audioData: base64Audio,
@@ -1657,12 +1662,29 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     });
                     
                     if (uploadError) throw uploadError;
+                    console.log('Audio uploaded:', uploadData?.url);
                     
-                    // Create transcript entry
                     const recordingId = crypto.randomUUID();
+                    const title = `Recording ${new Date().toLocaleTimeString()}`;
+                    
+                    // Save initial record to database
+                    const { error: insertError } = await supabase.from('user_voices').insert({
+                      id: recordingId,
+                      user_id: user.id,
+                      name: title,
+                      url: uploadData?.url || '',
+                      duration: recordingTime,
+                      status: 'processing',
+                      type: 'transcription',
+                      prompt: 'Transcribing...',
+                    });
+                    
+                    if (insertError) throw insertError;
+                    
+                    // Create transcript entry for UI
                     const newTranscript: Transcript = {
                       id: recordingId,
-                      title: `Recording ${new Date().toLocaleTimeString()}`,
+                      title,
                       duration: formatTime(recordingTime),
                       date: new Date().toISOString().split('T')[0],
                       source: 'recording',
@@ -1673,12 +1695,20 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       starred: false,
                       tags: ['Recording'],
                       thumbnail: null,
-                      summary: liveTranscript || null,
+                      summary: 'Transcribing with ElevenLabs...',
+                      audioUrl: uploadData?.url,
                     };
                     
                     setTranscripts(prev => [newTranscript, ...prev]);
                     
-                    // Start transcription
+                    // Close modal and reset UI
+                    setShowRecordModal(false);
+                    setRecordingTime(0);
+                    setLiveTranscript('');
+                    audioChunksRef.current = [];
+                    
+                    // Start ElevenLabs transcription
+                    console.log('Starting ElevenLabs transcription...');
                     const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-audio', {
                       body: {
                         audioUrl: uploadData?.url,
@@ -1686,27 +1716,42 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       }
                     });
                     
-                    // Update transcript with results
+                    console.log('Transcription result:', transcribeData);
+                    
+                    const transcribedText = transcribeData?.text || 'Transcription failed';
+                    
+                    // Update database with transcription result
+                    await supabase.from('user_voices').update({
+                      status: transcribeError ? 'error' : 'completed',
+                      prompt: transcribedText,
+                    }).eq('id', recordingId);
+                    
+                    // Update UI state
                     setTranscripts(prev => prev.map(t => 
-                      t.id === newTranscript.id 
+                      t.id === recordingId 
                         ? { 
                             ...t, 
                             status: transcribeError ? 'error' : 'completed',
-                            summary: transcribeData?.text || liveTranscript || 'Transcription completed',
+                            summary: transcribedText,
                             language: 'English',
-                            words: transcribeData?.text?.split(' ').length || null
+                            words: transcribedText?.split(' ').length || null
                           } 
                         : t
                     ));
                     
-                    // Close modal and reset
-                    setShowRecordModal(false);
-                    setRecordingTime(0);
-                    setLiveTranscript('');
-                    audioChunksRef.current = [];
+                    toast({
+                      title: transcribeError ? "Transcription failed" : "Transcription complete",
+                      description: transcribeError ? "There was an error transcribing your audio" : "Your recording has been transcribed successfully",
+                      variant: transcribeError ? "destructive" : "default"
+                    });
                     
                   } catch (err) {
                     console.error('Error saving recording:', err);
+                    toast({
+                      title: "Error",
+                      description: err instanceof Error ? err.message : "Failed to save recording",
+                      variant: "destructive"
+                    });
                   } finally {
                     setIsSaving(false);
                   }
