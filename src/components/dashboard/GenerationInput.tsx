@@ -610,19 +610,39 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Handle external prompt (e.g., from transcript "Use" button)
   useEffect(() => {
     if (externalPrompt) {
-      setPrompt(externalPrompt);
-      // Expand the prompt box to accommodate longer text
-      const lineCount = externalPrompt.split('\n').length;
-      const estimatedHeight = Math.min(500, Math.max(200, lineCount * 24 + 80));
-      setPromptHeight(estimatedHeight);
+      // If entering Avatar Video or Lip-Sync mode, set the script text field instead of prompt
+      const isEnteringAvatarMode = externalAnimateMode === 'Avatar Video' || externalAnimateMode === 'Lip-Sync';
+      
+      if (isEnteringAvatarMode) {
+        // For Avatar Video, truncate to 180 char limit and set as script
+        const truncatedScript = externalPrompt.substring(0, 180);
+        setUgcScriptText(truncatedScript);
+        if (externalPrompt.length > 180) {
+          toast({
+            title: "Script loaded (truncated)",
+            description: `Script truncated to 180 characters. Original was ${externalPrompt.length} characters.`,
+          });
+        } else {
+          toast({
+            title: "Script loaded",
+            description: "Your transcript has been loaded as a script for Avatar Video.",
+          });
+        }
+      } else {
+        setPrompt(externalPrompt);
+        // Expand the prompt box to accommodate longer text
+        const lineCount = externalPrompt.split('\n').length;
+        const estimatedHeight = Math.min(500, Math.max(200, lineCount * 24 + 80));
+        setPromptHeight(estimatedHeight);
+        toast({
+          title: "Transcript loaded",
+          description: "Your transcript has been loaded into the prompt box.",
+        });
+      }
       // Notify parent that we've used the external prompt
       onExternalPromptUsed?.();
-      toast({
-        title: "Transcript loaded",
-        description: "Your transcript has been loaded into the prompt box.",
-      });
     }
-  }, [externalPrompt, onExternalPromptUsed]);
+  }, [externalPrompt, externalAnimateMode, onExternalPromptUsed]);
 
   // Delete cloned voice handler
   const handleDeleteClonedVoice = async (voiceId: string, e: React.MouseEvent) => {
