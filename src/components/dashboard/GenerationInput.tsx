@@ -832,9 +832,13 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   }, [isVideoMode]);
 
   // Clear transcribed text highlight when switching away from Transcribe mode
+  // Also clear prompt when entering Transcribe mode
   useEffect(() => {
     if (!(isAudioMode && selectedAudioMode === 'Transcribe')) {
       setIsTranscribedText(false);
+    } else {
+      // Clear prompt when entering Transcribe mode
+      setPrompt('');
     }
   }, [isAudioMode, selectedAudioMode]);
 
@@ -3213,9 +3217,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     </div>
                   </>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                    <p className="text-lg">Upload or record audio to transcribe</p>
-                  </div>
+                  <p className="text-sm text-muted-foreground">Upload or record audio to transcribe</p>
                 )}
               </div>
             ) : (
