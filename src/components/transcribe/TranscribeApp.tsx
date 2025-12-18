@@ -1347,7 +1347,7 @@ function DownloadModal({ transcript, onClose }: { transcript: Transcript; onClos
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Download</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Download Transcript</h2>
           <button 
             onClick={onClose}
             className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
