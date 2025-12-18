@@ -102,6 +102,10 @@ const TranscriptDetail = () => {
   const [editedContent, setEditedContent] = useState<TranscriptLine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // AI Summary
+  const [aiSummary, setAiSummary] = useState('');
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  
   // Per-line transcript editing
   const [editingLineIndex, setEditingLineIndex] = useState<number | null>(null);
   
@@ -122,7 +126,6 @@ const TranscriptDetail = () => {
   const duration = searchParams.get('duration') || '00:00';
   const speakers = parseInt(searchParams.get('speakers') || '1');
   const language = searchParams.get('language') || 'English';
-  const summary = searchParams.get('summary') || '';
 
   // Generate speaker data dynamically
   const speakerData = Array.from({ length: speakers }, (_, i) => ({
@@ -133,6 +136,26 @@ const TranscriptDetail = () => {
   }));
   
   const totalSpeakingMinutes = speakerData.reduce((sum, s) => sum + s.minutes, 0);
+
+  // Generate AI summary
+  const generateAISummary = async (transcriptText: string) => {
+    setIsGeneratingSummary(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+        body: { transcript: transcriptText }
+      });
+      
+      if (error) throw error;
+      if (data?.summary) {
+        setAiSummary(data.summary);
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      toast.error('Failed to generate summary');
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
 
   // Load transcript from database
   useEffect(() => {
@@ -155,6 +178,9 @@ const TranscriptDetail = () => {
           const parsedContent = parseTranscriptContent(data.prompt, duration);
           setOriginalContent(parsedContent);
           setEditedContent(parsedContent);
+          
+          // Generate AI summary from the transcript
+          generateAISummary(data.prompt);
         }
       } catch (error) {
         console.error('Error loading transcript:', error);
@@ -629,12 +655,28 @@ const TranscriptDetail = () => {
                   <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Sparkles className="w-5 h-5 text-emerald-500" />
-                      <h3 className="font-semibold text-gray-900">Summary</h3>
+                      <h3 className="font-semibold text-gray-900">AI Summary</h3>
                     </div>
-                    <p className="text-gray-700 leading-relaxed mb-4">
-                      {summary}
-                    </p>
-                    <button className="text-sm text-emerald-600 hover:text-emerald-500 flex items-center gap-1">
+                    {isGeneratingSummary ? (
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                        Generating summary with GPT-4o...
+                      </div>
+                    ) : aiSummary ? (
+                      <p className="text-gray-700 leading-relaxed mb-4">
+                        {aiSummary}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 italic">No summary available</p>
+                    )}
+                    <button 
+                      onClick={() => {
+                        const transcriptText = originalContent.map(c => c.text).join(' ');
+                        if (transcriptText) generateAISummary(transcriptText);
+                      }}
+                      disabled={isGeneratingSummary || originalContent.length === 0}
+                      className="text-sm text-emerald-600 hover:text-emerald-500 flex items-center gap-1 disabled:opacity-50"
+                    >
                       <RotateCcw className="w-3.5 h-3.5" />
                       Regenerate Summary
                     </button>
