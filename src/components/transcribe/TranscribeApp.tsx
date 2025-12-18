@@ -393,7 +393,7 @@ export default function TranscribeApp() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
-                  <Upload className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                  <Upload className="w-[22px] h-[22px] text-emerald-500 flex-shrink-0" />
                   <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
@@ -417,7 +417,7 @@ export default function TranscribeApp() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
                 <div className="mt-3 w-full">
                   <div className="relative flex items-center justify-center">
-                    <Link2 className="absolute left-4 w-5 h-5 text-blue-500 pointer-events-none flex-shrink-0" />
+                    <Link2 className="absolute left-4 w-[22px] h-[22px] text-blue-500 pointer-events-none flex-shrink-0" />
                     <input
                       type="text"
                       placeholder="Paste A Supported Public Media Link"
