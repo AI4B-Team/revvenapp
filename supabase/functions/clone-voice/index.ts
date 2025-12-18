@@ -18,39 +18,47 @@ serve(async (req) => {
       throw new Error('ElevenLabs API key not configured');
     }
 
-    const formData = await req.formData();
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string || '';
-    const audioFile = formData.get('audio') as File;
-    const removeBackgroundNoise = formData.get('remove_background_noise') === 'true';
+    // Parse JSON body
+    const { audioUrl, voiceName, description, removeBackgroundNoise } = await req.json();
 
-    if (!name || !audioFile) {
-      throw new Error('Name and audio file are required');
+    if (!voiceName || !audioUrl) {
+      throw new Error('Voice name and audio URL are required');
     }
 
     console.log('Cloning voice:', { 
-      name, 
+      voiceName, 
       description, 
-      audioFileName: audioFile.name,
-      audioSize: audioFile.size,
+      audioUrl: audioUrl.substring(0, 50) + '...',
       removeBackgroundNoise 
     });
 
-    // Prepare form data for ElevenLabs
-    // API: POST https://api.elevenlabs.io/v1/voices/add
-    // Required: name, files (audio samples 1-5 minutes recommended)
-    // Optional: description, remove_background_noise
-    const elevenLabsFormData = new FormData();
-    elevenLabsFormData.append('name', name);
-    elevenLabsFormData.append('description', description);
-    elevenLabsFormData.append('files', audioFile);
+    // Fetch audio from URL
+    console.log('Fetching audio from URL...');
+    const audioResponse = await fetch(audioUrl);
+    if (!audioResponse.ok) {
+      throw new Error(`Failed to fetch audio: ${audioResponse.status}`);
+    }
     
-    // Enable background noise removal for cleaner voice cloning
+    const audioArrayBuffer = await audioResponse.arrayBuffer();
+    const contentType = audioResponse.headers.get('content-type') || 'audio/mpeg';
+    const audioBlob = new Blob([audioArrayBuffer], { type: contentType });
+    
+    console.log('Audio fetched, size:', audioBlob.size, 'type:', contentType);
+
+    // Prepare form data for ElevenLabs
+    const elevenLabsFormData = new FormData();
+    elevenLabsFormData.append('name', voiceName);
+    if (description) {
+      elevenLabsFormData.append('description', description);
+    }
+    elevenLabsFormData.append('files', audioBlob, 'voice_sample.mp3');
+    
     if (removeBackgroundNoise) {
       elevenLabsFormData.append('remove_background_noise', 'true');
     }
 
-    // Call ElevenLabs voice cloning API (Instant Voice Clone)
+    // Call ElevenLabs voice cloning API
+    console.log('Calling ElevenLabs API...');
     const response = await fetch('https://api.elevenlabs.io/v1/voices/add', {
       method: 'POST',
       headers: {
@@ -63,7 +71,6 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('ElevenLabs API error:', response.status, errorText);
       
-      // Parse error for better user feedback
       let userMessage = 'Failed to clone voice';
       try {
         const errorData = JSON.parse(errorText);
@@ -85,7 +92,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       voice_id: result.voice_id,
-      name: name,
+      name: voiceName,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
