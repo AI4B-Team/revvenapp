@@ -68,16 +68,29 @@ const parseTranscriptContent = (text: string, durationStr: string, speakerCount:
   const totalSeconds = durationParts.length === 3 
     ? durationParts[0] * 3600 + durationParts[1] * 60 + durationParts[2]
     : durationParts[0] * 60 + (durationParts[1] || 0);
-  
-  const timePerSentence = totalSeconds / Math.max(sentences.length, 1);
-  
+
+  // Distribute timestamps proportionally by word count (much closer to real speech pacing)
+  const wordsPerSentence = sentences.map(s => s.trim().split(/\s+/).filter(Boolean).length);
+  const totalWords = wordsPerSentence.reduce((sum, w) => sum + w, 0) || 1;
+
+  let wordCursor = 0;
+
   return sentences.map((sentence, index) => {
-    const startSeconds = Math.floor(index * timePerSentence);
-    const endSeconds = Math.floor((index + 1) * timePerSentence);
+    const isLast = index === sentences.length - 1;
+    const startSeconds = Math.floor((wordCursor / totalWords) * totalSeconds);
+
+    wordCursor += wordsPerSentence[index] || 0;
+
+    const rawEndSeconds = Math.floor((wordCursor / totalWords) * totalSeconds);
+    const endSeconds = isLast
+      ? totalSeconds
+      : Math.min(totalSeconds, Math.max(startSeconds + 1, rawEndSeconds));
+
     const startMins = Math.floor(startSeconds / 60);
     const startSecs = startSeconds % 60;
     const endMins = Math.floor(endSeconds / 60);
     const endSecs = endSeconds % 60;
+
     // Distribute speakers across sentences
     const speakerNum = (index % speakerCount) + 1;
     return {
@@ -202,50 +215,45 @@ const TranscriptDetail = () => {
 
   // Render text with word-level highlighting (karaoke-style)
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
-    const segmentStartTime = parseTimeToSeconds(item.time);
-    const segmentEndTime = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
-    const segmentDuration = segmentEndTime - segmentStartTime;
-    
-    // If before this segment, show normal text
-    if (currentTime < segmentStartTime) {
+    if (!isPlaying) {
       return <span>{item.text}</span>;
     }
-    
-    // If after this segment, show fully highlighted
-    if (currentTime >= segmentEndTime) {
-      return <span className="bg-emerald-500/30 text-emerald-700 rounded px-0.5">{item.text}</span>;
+
+    const segmentStartTime = parseTimeToSeconds(item.time);
+    const segmentEndTime = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
+    const segmentDuration = Math.max(0.001, segmentEndTime - segmentStartTime);
+
+    // Only highlight while we're inside this segment
+    if (currentTime < segmentStartTime || currentTime >= segmentEndTime) {
+      return <span>{item.text}</span>;
     }
 
-    // Calculate progress within this segment (0 to 1)
+    const words = item.text.split(/\s+/).filter(Boolean);
+    const totalWords = words.length || 1;
+
     const progressInSegment = (currentTime - segmentStartTime) / segmentDuration;
-    
-    // Split into actual words (not preserving whitespace separately for cleaner highlighting)
-    const words = item.text.split(' ');
-    const totalWords = words.length;
-    
-    // Calculate how many words should be highlighted based on time progress
-    const wordsToHighlight = Math.floor(progressInSegment * totalWords);
-    
+    const activeWordIndex = Math.min(totalWords - 1, Math.floor(progressInSegment * totalWords));
+
     return (
       <span>
         {words.map((word, wordIndex) => {
-          const isHighlighted = wordIndex < wordsToHighlight;
-          const isCurrentWord = wordIndex === wordsToHighlight;
-          
+          const isPastWord = wordIndex < activeWordIndex;
+          const isCurrentWord = wordIndex === activeWordIndex;
+
           return (
             <span key={wordIndex}>
-              {isHighlighted ? (
-                <span className="bg-emerald-500/30 text-emerald-700 rounded px-0.5 transition-colors duration-100">
+              {isPastWord ? (
+                <span className="bg-primary/25 text-foreground rounded-sm px-0.5 transition-colors duration-75">
                   {word}
                 </span>
               ) : isCurrentWord ? (
-                <span className="bg-emerald-500/20 text-emerald-600 rounded px-0.5 transition-colors duration-100">
+                <span className="bg-primary/15 text-foreground rounded-sm px-0.5 transition-colors duration-75">
                   {word}
                 </span>
               ) : (
                 <span>{word}</span>
               )}
-              {wordIndex < words.length - 1 && ' '}
+              {wordIndex < totalWords - 1 && ' '}
             </span>
           );
         })}
@@ -274,6 +282,23 @@ const TranscriptDetail = () => {
       audio.removeEventListener('ended', handleEnded);
     };
   }, []);
+
+  // Smooth currentTime updates for karaoke highlighting (timeupdate is low-frequency)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!isPlaying) return;
+
+    let rafId = 0;
+    const tick = () => {
+      setCurrentTime(audio.currentTime);
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(rafId);
+  }, [isPlaying]);
 
   // Handle play/pause
   const togglePlayPause = () => {
@@ -311,6 +336,7 @@ const TranscriptDetail = () => {
     const percentage = clickX / rect.width;
     const newTime = percentage * audioDuration;
     audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   // Generate AI summary
@@ -1600,7 +1626,7 @@ ${content.map((item, index) => {
               {[1, 2, 3].map((bar) => (
                 <div
                   key={bar}
-                  className={`w-1 bg-emerald-500 rounded-full ${isPlaying ? 'animate-pulse' : ''}`}
+                  className={`w-1 bg-primary rounded-full ${isPlaying ? 'animate-pulse' : ''}`}
                   style={{
                     height: isPlaying ? undefined : '8px',
                     animation: isPlaying ? `audioWave${bar} 0.5s ease-in-out infinite` : 'none',
