@@ -134,9 +134,9 @@ const UploadAudioIcon = () => (
   </svg>
 );
 
-// Cloud download icon for Online File - BLUE
+// Cloud download icon for Online File - BLUE (darker pastel)
 const OnlineFileIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5">
+  <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#5B8DEF" strokeWidth="1.5">
     <path d="M12 16V8M12 16l-3-3M12 16l3-3" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M20 16.7428C21.2215 15.734 22 14.2079 22 12.5C22 9.46243 19.5376 7 16.5 7C16.2815 7 16.0771 6.886 15.9661 6.69774C14.6621 4.48484 12.2544 3 9.5 3C5.35786 3 2 6.35786 2 10.5C2 12.5661 2.83545 14.4371 4.18695 15.7935" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
@@ -777,17 +777,16 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 pl-[var(--app-sidebar-width,16rem)]">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-8 pl-[calc(var(--app-sidebar-width,16rem)+2rem)]">
       {/* Close Button - EXTERIOR of modal */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-[60] p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
-        style={{ transform: 'translate(50%, -50%)' }}
+        className="absolute top-8 right-8 z-[70] p-2 rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
       >
         <X className="w-5 h-5 text-gray-600" />
       </button>
 
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1500px] max-h-[90vh] overflow-hidden flex relative">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[1500px] max-h-[80vh] overflow-hidden flex relative">
         {/* Left Panel - Audio Library */}
         <div className="flex-1 border-r border-gray-100 flex flex-col">
           {/* Header */}
@@ -1049,7 +1048,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   relative flex flex-col items-center justify-center p-5 
                   border-2 border-dashed rounded-xl cursor-pointer
                   transition-all duration-200 bg-white
-                  border-gray-200 hover:border-emerald-400 hover:bg-gray-50
+                  border-gray-300 hover:border-emerald-400 hover:bg-gray-50
                 `}
               >
                 <input
@@ -1083,12 +1082,12 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
               {/* Upload Link Section */}
               <div
                 className={`
-                  relative overflow-hidden rounded-2xl transition-all duration-300 border border-gray-200
+                  relative overflow-hidden rounded-2xl transition-all duration-300 border-2 border-dashed
                   ${isExtractingYouTube
-                    ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-purple-500/30'
+                    ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 shadow-lg shadow-purple-500/30 border-transparent'
                     : mediaUrl 
-                      ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-lg shadow-indigo-500/30' 
-                      : 'bg-white hover:bg-gray-50'
+                      ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 shadow-lg shadow-indigo-500/30 border-transparent' 
+                      : 'bg-white hover:bg-gray-50 border-gray-300 hover:border-emerald-400'
                   }
                 `}
               >
@@ -1103,12 +1102,12 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                 <div className="relative p-5 flex flex-col items-center">
                   {/* Icon with glow effect */}
                   <div className={`
-                    w-14 h-14 rounded-xl flex items-center justify-center mb-3 
+                    w-16 h-16 rounded-2xl flex items-center justify-center mb-3 
                     ${isExtractingYouTube 
                       ? 'bg-white/20 backdrop-blur-sm' 
                       : mediaUrl
                         ? 'bg-white/10 backdrop-blur-sm'
-                        : 'bg-blue-50'
+                        : 'bg-blue-100'
                     }
                     transition-all duration-300
                   `}>
@@ -1200,7 +1199,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
                   transition-all duration-200 bg-white
                   ${isRecording
                     ? 'border-red-400 bg-red-50' 
-                    : 'border-gray-200 hover:border-emerald-400 hover:bg-gray-50'
+                    : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
                   }
                 `}
               >
@@ -1232,7 +1231,7 @@ const AudioLibraryModal: React.FC<AudioLibraryModalProps> = ({
           )}
 
           {/* Use Button - Anchored at bottom */}
-          <div className="mt-auto pt-4">
+          <div className="mt-6 pt-4">
             <button
               onClick={handleUse}
               disabled={(!selectedFile && !mediaUrl) || isUploading || isExtractingYouTube}
