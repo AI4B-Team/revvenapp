@@ -1125,7 +1125,7 @@ ${content.map((item, index) => {
                         Download
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>Download Transcript</TooltipContent>
+                    <TooltipContent>Download</TooltipContent>
                   </Tooltip>
 
                   {/* Translate Button */}
@@ -1141,7 +1141,7 @@ ${content.map((item, index) => {
                           </button>
                         </PopoverTrigger>
                       </TooltipTrigger>
-                      <TooltipContent>Translate Transcript</TooltipContent>
+                      <TooltipContent>Translate</TooltipContent>
                     </Tooltip>
                     <PopoverContent className="w-64 p-0 bg-white" align="end">
                         <div className="p-3 border-b border-gray-200">
