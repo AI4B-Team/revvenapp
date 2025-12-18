@@ -150,7 +150,7 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           <Menu size={24} />
         </button>
         
-        <div className="flex-1 flex items-center">
+        <div className="flex items-center">
           <button
             onClick={() => setIsSearchOpen(true)}
             className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-gray-300 w-full max-w-[200px] md:max-w-[320px]"
