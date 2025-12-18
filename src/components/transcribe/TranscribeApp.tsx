@@ -246,12 +246,6 @@ export default function TranscribeApp() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-['Inter',sans-serif]">
-      {/* Ambient Background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[150px]" />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <header className="mb-10">
