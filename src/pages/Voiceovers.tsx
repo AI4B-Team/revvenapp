@@ -4,7 +4,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { 
   ArrowLeft, Play, Pause, Loader2, Download, 
-  Volume2, ChevronDown, Copy, Sparkles
+  Volume2, ChevronDown, Copy, Sparkles, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -176,6 +176,22 @@ export default function Voiceovers() {
       audioRef.current.play();
       audioRef.current.onended = () => setIsPlaying(null);
       setIsPlaying(url);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUsageHistory(prev => prev.filter(item => item.id !== id));
+      toast.success('Voiceover deleted');
+    } catch (error: any) {
+      toast.error('Failed to delete voiceover');
     }
   };
 
@@ -378,6 +394,12 @@ export default function Voiceovers() {
                       {record.status === 'processing' && (
                         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                       )}
+                      <button
+                        onClick={() => handleDelete(record.id)}
+                        className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
