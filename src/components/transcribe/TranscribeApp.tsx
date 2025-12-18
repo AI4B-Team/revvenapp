@@ -502,7 +502,7 @@ export default function TranscribeApp() {
       // Upload to Cloudinary
       const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
         body: {
-          audioBase64: base64Audio,
+          audioData: base64Audio,
           filename: selectedFile.name,
           contentType: selectedFile.type
         }
@@ -1650,7 +1650,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     // Upload to Cloudinary
                     const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
                       body: {
-                        audioBase64: base64Audio,
+                        audioData: base64Audio,
                         filename: `recording-${Date.now()}.webm`,
                         contentType: 'audio/webm'
                       }
