@@ -168,8 +168,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         <nav className="flex items-center gap-4 lg:gap-8">
           <Link 
             to="/create" 
-            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
-              isMenuActive('create') ? 'text-foreground' : 'text-muted-foreground'
+            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
+              isMenuActive('create') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
             Create
@@ -177,8 +177,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           <span className="text-muted hidden lg:inline">|</span>
           <Link 
             to="/products" 
-            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
-              isMenuActive('monetize') ? 'text-foreground' : 'text-muted-foreground'
+            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
+              isMenuActive('monetize') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
             Monetize
@@ -186,8 +186,8 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
           <span className="text-muted hidden lg:inline">|</span>
           <Link 
             to="/apps" 
-            className={`font-medium hover:text-foreground transition text-sm lg:text-base ${
-              isMenuActive('automate') ? 'text-foreground' : 'text-muted-foreground'
+            className={`font-medium hover:text-emerald-500 transition text-sm lg:text-base ${
+              isMenuActive('automate') ? 'text-emerald-500' : 'text-muted-foreground'
             }`}
           >
             Automate
