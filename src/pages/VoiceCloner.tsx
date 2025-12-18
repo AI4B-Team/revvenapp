@@ -43,6 +43,11 @@ export default function VoiceCloner() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Fetch usage history
   useEffect(() => {
     const fetchHistory = async () => {
@@ -175,6 +180,21 @@ export default function VoiceCloner() {
       });
 
       if (error) throw error;
+
+      // Save cloned voice to user_voices table
+      const { error: saveError } = await supabase.from('user_voices').insert({
+        user_id: user.id,
+        name: voiceName.trim(),
+        url: uploadData.secure_url,
+        duration: 0,
+        type: 'cloned',
+        status: 'completed',
+        elevenlabs_voice_id: data?.voice_id || null,
+      });
+
+      if (saveError) {
+        console.error('Error saving cloned voice:', saveError);
+      }
 
       // Record usage
       await supabase.from('audio_app_usage').insert({
