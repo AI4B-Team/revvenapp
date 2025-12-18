@@ -215,18 +215,17 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="relative w-10 h-10 rounded-full flex items-center justify-center p-0.5 bg-emerald-500 hover:bg-emerald-400 transition">
+            <button className="relative w-10 h-10 rounded-full flex items-center justify-center p-0.5 ring-2 ring-emerald-500 hover:ring-emerald-400 transition">
               <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center overflow-hidden">
                 <User size={18} />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-background" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
             {/* Header Section */}
             <div className="flex items-start gap-3 mb-4">
               <div className="relative">
-                <Avatar className="h-12 w-12">
+                <Avatar className="h-12 w-12 ring-2 ring-emerald-500">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-secondary">DC</AvatarFallback>
                 </Avatar>
