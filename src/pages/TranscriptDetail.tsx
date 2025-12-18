@@ -9,7 +9,7 @@ import {
   FileDown, Share2, ChevronDown, Copy, Edit3, Sparkles,
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
-  Pencil, Trash2, Check, X, Search, Mic
+  Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -446,19 +452,29 @@ const TranscriptDetail = () => {
     }
   };
 
-  const handleUse = () => {
+  const handleCreate = (contentType: 'video' | 'ugc' | 'post' | 'ebook') => {
     // Compile all transcript content
     const transcriptText = editedContent
       .map(item => item.text)
       .join('\n\n');
     
-    // Navigate to Create page with the transcript text for video/avatar mode
+    // Map content types to modes
+    const modeMap = {
+      video: { targetMode: 'Video', targetAnimateMode: 'Avatar Video' },
+      ugc: { targetMode: 'Video', targetAnimateMode: 'UGC Video' },
+      post: { targetMode: 'Content', targetAnimateMode: 'Social Post' },
+      ebook: { targetMode: 'Content', targetAnimateMode: 'Ebook' }
+    };
+    
+    const { targetMode, targetAnimateMode } = modeMap[contentType];
+    
+    // Navigate to Create page with the transcript text
     navigate('/create', { 
       state: { 
         transcriptText,
         transcriptTitle: editedTitle,
-        targetMode: 'Video',
-        targetAnimateMode: 'Avatar Video'
+        targetMode,
+        targetAnimateMode
       } 
     });
   };
@@ -977,19 +993,41 @@ ${content.map((item, index) => {
               </div>
               <div className="flex items-center gap-2">
                 <TooltipProvider>
-                  {/* Use Button */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleUse}
-                        className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center gap-2"
-                      >
-                        <Check className="w-4 h-4" />
-                        Use
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Use Transcript</TooltipContent>
-                  </Tooltip>
+                  {/* Create Dropdown Button */}
+                  <DropdownMenu>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center gap-2"
+                          >
+                            <Wand2 className="w-4 h-4" />
+                            Create
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Create Content</TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent align="end" className="w-48 bg-popover border-border">
+                      <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
+                        <Video className="w-4 h-4" />
+                        Video
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
+                        <UserCircle className="w-4 h-4" />
+                        UGC
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
+                        <FileEdit className="w-4 h-4" />
+                        Post
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
+                        <BookOpen className="w-4 h-4" />
+                        Ebook
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   {/* Download Button */}
                   <Tooltip>
