@@ -278,8 +278,9 @@ export default function TranscribeApp() {
     if (!url) return;
     
     const newTranscriptId = Date.now();
+    const recordId = crypto.randomUUID();
     
-    // Create a new processing transcript
+    // Create a new processing transcript in UI
     const newTranscript: Transcript = {
       id: newTranscriptId,
       title: `Processing: ${url.substring(0, 50)}...`,
@@ -300,13 +301,27 @@ export default function TranscribeApp() {
     setUrlInput('');
     
     try {
-      // Get user ID (use anonymous ID for now)
-      const userId = 'anonymous-' + Date.now();
+      // Get user ID from auth or use anonymous
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || 'anonymous-' + Date.now();
       
-      // Create a record in user_voices first
-      const recordId = crypto.randomUUID();
+      // Create a record in user_voices first with 'processing' status
+      const { error: insertError } = await supabase.from('user_voices').insert({
+        id: recordId,
+        user_id: userId,
+        name: `Processing: ${url.substring(0, 50)}...`,
+        url: '',
+        duration: 0,
+        status: 'processing',
+        type: 'transcription',
+      });
       
-      // Call the process-url-transcription edge function
+      if (insertError) {
+        console.error('Failed to create record:', insertError);
+        throw insertError;
+      }
+      
+      // Call the process-url-transcription edge function (uses RapidAPI + ElevenLabs)
       const { data, error } = await supabase.functions.invoke('process-url-transcription', {
         body: {
           url,
@@ -317,35 +332,81 @@ export default function TranscribeApp() {
       
       if (error) throw error;
       
-      // Poll for completion (check every 3 seconds for up to 2 minutes)
+      toast({
+        title: "Processing started",
+        description: "Downloading and transcribing audio from URL...",
+      });
+      
+      // Poll the database for status updates
       let attempts = 0;
-      const maxAttempts = 40;
+      const maxAttempts = 60; // 3 minutes max
       
       const checkStatus = async () => {
         attempts++;
         
-        // For now, simulate completion after delay since we're not using real DB
-        if (attempts >= 5) {
+        // Query the database for the record status
+        const { data: record, error: queryError } = await supabase
+          .from('user_voices')
+          .select('*')
+          .eq('id', recordId)
+          .single();
+        
+        if (queryError) {
+          console.error('Error checking status:', queryError);
+        }
+        
+        if (record?.status === 'completed') {
+          // Update the UI transcript with real data
           setTranscripts(prev => prev.map(t => 
             t.id === newTranscriptId 
               ? { 
                   ...t, 
-                  title: 'Transcribed from URL', 
+                  title: record.name || 'Transcribed from URL', 
                   status: 'completed',
-                  duration: '05:32',
+                  duration: formatTime(Math.floor(record.duration || 0)),
                   language: 'English',
-                  words: 850,
-                  summary: 'Transcription from uploaded URL'
+                  words: record.prompt?.split(' ').length || 0,
+                  summary: record.prompt || 'Transcription completed'
                 } 
               : t
           ));
+          
+          toast({
+            title: "Transcription complete",
+            description: "Your audio has been transcribed successfully.",
+          });
           return;
         }
         
-        setTimeout(checkStatus, 3000);
+        if (record?.status === 'error') {
+          setTranscripts(prev => prev.map(t => 
+            t.id === newTranscriptId 
+              ? { ...t, status: 'error', title: 'Error processing URL' } 
+              : t
+          ));
+          toast({
+            title: "Transcription failed",
+            description: "There was an error processing your URL.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Continue polling if not done yet
+        if (attempts < maxAttempts) {
+          setTimeout(checkStatus, 3000);
+        } else {
+          // Timeout - mark as error
+          setTranscripts(prev => prev.map(t => 
+            t.id === newTranscriptId 
+              ? { ...t, status: 'error', title: 'Processing timeout' } 
+              : t
+          ));
+        }
       };
       
-      checkStatus();
+      // Start polling after a short delay
+      setTimeout(checkStatus, 3000);
       
     } catch (err) {
       console.error('Error processing URL:', err);
@@ -354,6 +415,11 @@ export default function TranscribeApp() {
           ? { ...t, status: 'error', title: 'Error processing URL' } 
           : t
       ));
+      toast({
+        title: "Error",
+        description: "Failed to process URL. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
