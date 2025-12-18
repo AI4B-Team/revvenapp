@@ -347,6 +347,38 @@ export default function VoiceCloner() {
     }
   };
 
+  const handleDeleteVoice = async (voiceId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .delete()
+        .eq('id', voiceId);
+
+      if (error) throw error;
+
+      setClonedVoices(prev => prev.filter(v => v.id !== voiceId));
+      toast.success('Voice deleted');
+    } catch (error: any) {
+      toast.error('Failed to delete voice');
+    }
+  };
+
+  const handleDeleteActivity = async (activityId: string) => {
+    try {
+      const { error } = await supabase
+        .from('audio_app_usage')
+        .delete()
+        .eq('id', activityId);
+
+      if (error) throw error;
+
+      setUsageHistory(prev => prev.filter(a => a.id !== activityId));
+      toast.success('Activity deleted');
+    } catch (error: any) {
+      toast.error('Failed to delete activity');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
@@ -526,6 +558,12 @@ export default function VoiceCloner() {
                           >
                             <Copy className="w-4 h-4" />
                           </button>
+                          <button
+                            className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
+                            onClick={() => handleDeleteVoice(voice.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                         
                         {/* Test Voice Section */}
@@ -587,6 +625,12 @@ export default function VoiceCloner() {
                       }`}>
                         {record.status}
                       </span>
+                      <button
+                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
+                        onClick={() => handleDeleteActivity(record.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
