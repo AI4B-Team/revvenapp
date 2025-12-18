@@ -610,10 +610,11 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   // Handle external prompt (e.g., from transcript "Use" button)
   useEffect(() => {
     if (externalPrompt) {
-      // If entering Avatar Video or Lip-Sync mode, set the script text field instead of prompt
-      const isEnteringAvatarMode = externalAnimateMode === 'Avatar Video' || externalAnimateMode === 'Lip-Sync';
+      // Check if we're in Avatar Video or Lip-Sync mode (either from external or already set)
+      const isAvatarMode = selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync' || 
+                           externalAnimateMode === 'Avatar Video' || externalAnimateMode === 'Lip-Sync';
       
-      if (isEnteringAvatarMode) {
+      if (isAvatarMode && isVideoMode) {
         // For Avatar Video, truncate to 180 char limit and set as script
         const truncatedScript = externalPrompt.substring(0, 180);
         setUgcScriptText(truncatedScript);
@@ -642,7 +643,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       // Notify parent that we've used the external prompt
       onExternalPromptUsed?.();
     }
-  }, [externalPrompt, externalAnimateMode, onExternalPromptUsed]);
+  }, [externalPrompt, externalAnimateMode, selectedAnimateMode, isVideoMode, onExternalPromptUsed]);
 
   // Delete cloned voice handler
   const handleDeleteClonedVoice = async (voiceId: string, e: React.MouseEvent) => {
