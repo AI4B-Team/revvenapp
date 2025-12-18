@@ -11,18 +11,33 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript } = await req.json();
-
-    if (!transcript) {
-      throw new Error("No transcript provided");
-    }
+    const { transcript, action, text, targetLanguage } = await req.json();
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    console.log("Generating summary for transcript:", transcript.substring(0, 100));
+    let systemPrompt = "";
+    let userPrompt = "";
+
+    if (action === "translate") {
+      // Translation mode
+      if (!text || !targetLanguage) {
+        throw new Error("Text and target language required for translation");
+      }
+      console.log("Translating text to:", targetLanguage);
+      systemPrompt = `You are a professional translator. Translate the following text to ${targetLanguage}. Only return the translated text, nothing else.`;
+      userPrompt = text;
+    } else {
+      // Summary mode (default)
+      if (!transcript) {
+        throw new Error("No transcript provided");
+      }
+      console.log("Generating summary for transcript:", transcript.substring(0, 100));
+      systemPrompt = "You are an expert at summarizing transcripts. Create a concise, informative summary that captures the key points, main topics discussed, and any action items or conclusions. Keep the summary clear and professional, around 2-4 sentences.";
+      userPrompt = `Please summarize the following transcript:\n\n${transcript}`;
+    }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -35,14 +50,8 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "openai/gpt-4o",
         messages: [
-          {
-            role: "system",
-            content: "You are an expert at summarizing transcripts. Create a concise, informative summary that captures the key points, main topics discussed, and any action items or conclusions. Keep the summary clear and professional, around 2-4 sentences."
-          },
-          {
-            role: "user",
-            content: `Please summarize the following transcript:\n\n${transcript}`
-          }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
         ],
         max_tokens: 500,
         temperature: 0.7
@@ -56,16 +65,20 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || "";
+    const result = data.choices?.[0]?.message?.content || "";
 
-    console.log("Generated summary:", summary.substring(0, 100));
+    console.log("Result:", result.substring(0, 100));
 
     return new Response(
-      JSON.stringify({ success: true, summary }),
+      JSON.stringify({ 
+        success: true, 
+        summary: action !== "translate" ? result : undefined,
+        translatedText: action === "translate" ? result : undefined 
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
-    console.error("Error generating summary:", error);
+    console.error("Error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({ error: errorMessage }),
