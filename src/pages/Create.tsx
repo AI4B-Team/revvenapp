@@ -339,37 +339,43 @@ const Create = () => {
       name: 'AI Voice Cloner', 
       description: 'Clone any voice',
       bgColor: 'bg-tool-blue',
-      emoji: '🎤'
+      emoji: '🎤',
+      onClick: () => navigate('/voice-cloner')
     },
     { 
       name: 'Transcribe', 
       description: 'Transcribe audio to text',
       bgColor: 'bg-tool-pink',
-      emoji: '📝'
+      emoji: '📝',
+      onClick: () => navigate('/transcribe')
     },
     { 
       name: 'AI Voice Changer', 
       description: 'Transform voice style',
       bgColor: 'bg-tool-blue',
-      emoji: '🎵'
+      emoji: '🎵',
+      onClick: () => navigate('/voice-changer')
     },
     { 
       name: 'AI Voiceovers', 
       description: 'Generate voiceovers',
       bgColor: 'bg-tool-yellow',
-      emoji: '🎬'
+      emoji: '🎬',
+      onClick: () => navigate('/voiceovers')
     },
     { 
       name: 'AI Audio Dubber', 
       description: 'Dub audio tracks',
       bgColor: 'bg-tool-blue',
-      emoji: '🎧'
+      emoji: '🎧',
+      onClick: () => navigate('/audio-dubber')
     },
     { 
       name: 'AI Noise Remover', 
       description: 'Remove background noise',
       bgColor: 'bg-tool-yellow',
-      emoji: '🔇'
+      emoji: '🔇',
+      onClick: () => navigate('/noise-remover')
     },
   ];
 
