@@ -326,11 +326,12 @@ export default function TranscribeApp() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Link</h3>
                 <div className="mt-3 w-full">
-                  <div className="relative">
+                  <div className="relative flex items-center">
+                    <Link2 className="absolute left-1/2 -translate-x-[115px] w-4 h-4 text-gray-400 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Paste Any Public Media Link"
-                      className="w-full px-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
