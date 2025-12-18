@@ -62,14 +62,16 @@ const TranscriptDetail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<'pdf' | 'doc' | 'txt' | 'srt' | 'audio'>('pdf');
   const [volume, setVolume] = useState(80);
   
   // Title editing
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   
-  // Transcript editing
-  const [isEditingTranscript, setIsEditingTranscript] = useState(false);
+  // Per-line transcript editing
+  const [editingLineIndex, setEditingLineIndex] = useState<number | null>(null);
   const [editedContent, setEditedContent] = useState(MOCK_TRANSCRIPT_CONTENT);
   
   // Translation
@@ -78,6 +80,7 @@ const TranscriptDetail = () => {
   const [selectedTranslation, setSelectedTranslation] = useState<string | null>(null);
   const [translatedContent, setTranslatedContent] = useState<typeof MOCK_TRANSCRIPT_CONTENT | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [activeTranslationTab, setActiveTranslationTab] = useState<'original' | 'translated'>('original');
   
   // Speakers
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
@@ -129,7 +132,25 @@ const TranscriptDetail = () => {
   };
 
   const handleDownload = () => {
-    toast.success('Downloading transcript...');
+    setShowDownloadModal(true);
+  };
+
+  const handleConfirmDownload = () => {
+    toast.success(`Downloading as ${downloadFormat.toUpperCase()}...`);
+    setShowDownloadModal(false);
+  };
+
+  const handleSaveLine = (index: number) => {
+    setEditingLineIndex(null);
+    toast.success('Line saved');
+  };
+
+  const handleCancelLineEdit = (index: number) => {
+    // Reset the line to original content
+    const newContent = [...editedContent];
+    newContent[index] = { ...MOCK_TRANSCRIPT_CONTENT[index] };
+    setEditedContent(newContent);
+    setEditingLineIndex(null);
   };
 
   const handleSaveTitle = () => {
@@ -191,7 +212,9 @@ const TranscriptDetail = () => {
 
   const totalSpeakingMinutes = SPEAKER_DATA.reduce((sum, s) => sum + s.minutes, 0);
 
-  const displayContent = selectedTranslation && translatedContent ? translatedContent : editedContent;
+  const displayContent = (selectedTranslation && translatedContent && activeTranslationTab === 'translated') 
+    ? translatedContent 
+    : editedContent;
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -212,7 +235,7 @@ const TranscriptDetail = () => {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Transcripts</span>
+              <span className="font-medium">Back To Transcripts.</span>
             </button>
 
             {/* Header */}
@@ -257,55 +280,56 @@ const TranscriptDetail = () => {
                       </>
                     )}
                   </div>
-                  {/* Translation language button */}
-                  <div className="flex items-center gap-4 mt-1">
-                    {selectedTranslation && (
+                  {/* Translation tabs */}
+                  {selectedTranslation && (
+                    <div className="flex items-center gap-2 mt-2">
                       <button 
-                        onClick={handleRemoveTranslation}
-                        className="px-3 py-1 rounded-lg bg-purple-500/20 text-purple-600 text-sm font-medium flex items-center gap-1.5 hover:bg-purple-500/30 transition-colors"
+                        onClick={() => setActiveTranslationTab('original')}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          activeTranslationTab === 'original'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Original
+                      </button>
+                      <button 
+                        onClick={() => setActiveTranslationTab('translated')}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                          activeTranslationTab === 'translated'
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                        }`}
                       >
                         <Languages className="w-3.5 h-3.5" />
                         {selectedTranslation}
-                        <X className="w-3.5 h-3.5 ml-1" />
                       </button>
-                    )}
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {duration}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {speakers} speaker{speakers > 1 ? 's' : ''}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Globe className="w-4 h-4" />
-                        {language}
-                      </span>
+                      <button 
+                        onClick={handleRemoveTranslation}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
+                  )}
+                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {duration}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-4 h-4" />
+                      {speakers} speaker{speakers > 1 ? 's' : ''}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Globe className="w-4 h-4" />
+                      {language}
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <TooltipProvider>
-                  {/* Edit Button */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setIsEditingTranscript(!isEditingTranscript)}
-                        className={`px-4 py-2.5 rounded-xl border transition-colors flex items-center gap-2 ${
-                          isEditingTranscript 
-                            ? 'bg-emerald-500 text-white border-emerald-500' 
-                            : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        Edit
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit Transcript</TooltipContent>
-                  </Tooltip>
-
                   {/* Use Button */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -422,7 +446,7 @@ const TranscriptDetail = () => {
             <div className="flex items-center gap-1 mb-6 border-b border-gray-300 pb-4">
               {[
                 { id: 'transcript', label: 'Transcript', icon: FileText },
-                { id: 'summary', label: 'AI Summary', icon: Sparkles },
+                { id: 'summary', label: 'Summary', icon: Sparkles },
                 { id: 'speakers', label: 'Speakers', icon: Users },
                 { id: 'chat', label: 'AI Chat', icon: MessageSquare },
               ].map(tab => (
@@ -460,22 +484,41 @@ const TranscriptDetail = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-500 mb-1">{item.speaker}</p>
-                        {isEditingTranscript ? (
-                          <textarea
-                            value={item.text}
-                            onChange={(e) => {
-                              const newContent = [...editedContent];
-                              newContent[i] = { ...newContent[i], text: e.target.value };
-                              setEditedContent(newContent);
-                            }}
-                            className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
-                            rows={2}
-                          />
+                        {editingLineIndex === i ? (
+                          <div className="space-y-2">
+                            <textarea
+                              value={editedContent[i].text}
+                              onChange={(e) => {
+                                const newContent = [...editedContent];
+                                newContent[i] = { ...newContent[i], text: e.target.value };
+                                setEditedContent(newContent);
+                              }}
+                              className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
+                              rows={2}
+                              autoFocus
+                            />
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => handleSaveLine(i)}
+                                className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                Save
+                              </button>
+                              <button 
+                                onClick={() => handleCancelLineEdit(i)}
+                                className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-300 transition-colors flex items-center gap-1.5"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
                         ) : (
                           <p className="text-gray-900 leading-relaxed">{item.text}</p>
                         )}
                       </div>
-                      {!isEditingTranscript && (
+                      {editingLineIndex !== i && (
                         <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={() => handleCopy(item.text)}
@@ -484,7 +527,7 @@ const TranscriptDetail = () => {
                             <Copy className="w-4 h-4" />
                           </button>
                           <button 
-                            onClick={() => setIsEditingTranscript(true)}
+                            onClick={() => setEditingLineIndex(i)}
                             className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
                           >
                             <Edit3 className="w-4 h-4" />
@@ -501,7 +544,7 @@ const TranscriptDetail = () => {
                   <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Sparkles className="w-5 h-5 text-emerald-500" />
-                      <h3 className="font-semibold text-gray-900">AI-Generated Summary</h3>
+                      <h3 className="font-semibold text-gray-900">Summary</h3>
                     </div>
                     <p className="text-gray-700 leading-relaxed mb-4">
                       {summary}
@@ -677,16 +720,16 @@ const TranscriptDetail = () => {
             </button>
             
             <div className="flex-1 flex items-center gap-3">
-              <span className="text-sm text-gray-400 font-mono w-12">00:00</span>
+              <span className="text-sm text-white font-mono w-12">00:00</span>
               <div className="flex-1 h-2 bg-gray-600 rounded-full overflow-hidden cursor-pointer">
                 <div className="h-full w-0 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" />
               </div>
-              <span className="text-sm text-gray-400 font-mono w-12">{duration}</span>
+              <span className="text-sm text-white font-mono w-12">{duration}</span>
               
               {/* Volume */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors">
+                  <button className="p-2 rounded-lg hover:bg-gray-700 text-white transition-colors">
                     <Volume2 className="w-5 h-5" />
                   </button>
                 </PopoverTrigger>
@@ -697,7 +740,7 @@ const TranscriptDetail = () => {
                     max="100"
                     value={volume}
                     onChange={(e) => setVolume(parseInt(e.target.value))}
-                    className="w-24 h-2 bg-gray-600 rounded-full appearance-none cursor-pointer -rotate-90 origin-center"
+                    className="w-24 h-2 bg-gray-600 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
                     style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
                   />
                 </PopoverContent>
@@ -707,7 +750,7 @@ const TranscriptDetail = () => {
               <select 
                 value={playbackSpeed}
                 onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                className="px-2 py-1 rounded-lg bg-gray-700 border border-gray-600 text-sm text-gray-300 focus:outline-none cursor-pointer"
+                className="px-2 py-1 rounded-lg bg-gray-700 border border-gray-600 text-sm text-white focus:outline-none cursor-pointer"
               >
                 <option value={0.5}>0.5x</option>
                 <option value={0.75}>0.75x</option>
@@ -718,10 +761,55 @@ const TranscriptDetail = () => {
               </select>
             </div>
 
-            <p className="text-sm text-gray-400 ml-4">Click Any Text To Jump To That Moment</p>
+            <p className="text-sm text-white ml-4">Click Any Text To Jump To That Moment</p>
           </div>
         </div>
       </div>
+
+      {/* Download Modal */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Download Transcript</h3>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {[
+                { id: 'pdf', label: 'PDF', icon: FileDown },
+                { id: 'doc', label: 'DOC', icon: FileText },
+                { id: 'txt', label: 'TXT', icon: FileText },
+                { id: 'srt', label: 'SRT', icon: FileText },
+                { id: 'audio', label: 'Audio', icon: Volume2 },
+              ].map(format => (
+                <button
+                  key={format.id}
+                  onClick={() => setDownloadFormat(format.id as any)}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    downloadFormat === format.id
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
+                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                  }`}
+                >
+                  <format.icon className="w-6 h-6" />
+                  <span className="text-sm font-medium">{format.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDownload}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <DigitalCharactersModal 
         isOpen={charactersModalOpen} 
