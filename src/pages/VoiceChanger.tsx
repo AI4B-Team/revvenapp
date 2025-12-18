@@ -142,34 +142,39 @@ export default function VoiceChanger() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Upload audio to Cloudinary
+      // Call ElevenLabs voice changer edge function
       const formData = new FormData();
-      formData.append('file', audioFile);
-      formData.append('upload_preset', 'revven');
+      formData.append('audio', audioFile);
+      formData.append('style', selectedStyle.id);
 
-      const uploadResponse = await fetch(
-        'https://api.cloudinary.com/v1_1/dszt275xv/upload',
-        { method: 'POST', body: formData }
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/change-voice`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: formData,
+        }
       );
 
-      const uploadData = await uploadResponse.json();
-      if (!uploadData.secure_url) throw new Error('Upload failed');
-
-      // For now, simulate voice change (replace with actual API call)
-      // In production, this would call an AI voice changer API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await response.json();
       
+      if (!response.ok) {
+        throw new Error(result.error || 'Voice transformation failed');
+      }
+
       // Record usage
       await supabase.from('audio_app_usage').insert({
         user_id: user.id,
         app_name: 'voice_changer',
-        input_audio_url: uploadData.secure_url,
-        output_audio_url: uploadData.secure_url, // Would be the processed URL
+        input_audio_url: URL.createObjectURL(audioFile),
+        output_audio_url: result.outputUrl,
         settings: { style: selectedStyle.id },
         status: 'completed'
       });
 
-      setOutputUrl(uploadData.secure_url);
+      setOutputUrl(result.outputUrl);
       toast.success('Voice transformed successfully!');
 
       // Refresh history
