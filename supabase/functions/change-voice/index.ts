@@ -20,8 +20,8 @@ const VOICE_STYLES: Record<string, { voiceId: string; settings: { stability: num
     settings: { stability: 1.0, similarity_boost: 0.2, style: 0.0 }
   },
   whisper: {
-    voiceId: "EXAVITQu4vr4xnSDxMaL", // Sarah - soft voice
-    settings: { stability: 0.9, similarity_boost: 0.4, style: 0.1 }
+    voiceId: "FGY2WhTYpPnrIDTdsKH5", // Laura - soft female voice
+    settings: { stability: 0.9, similarity_boost: 0.5, style: 0.2 }
   },
   echo: {
     voiceId: "SAz9YHcvj6GT2YYXdXww", // River - neutral
