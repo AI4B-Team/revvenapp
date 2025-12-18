@@ -115,6 +115,51 @@ export type Database = {
           },
         ]
       }
+      audio_app_usage: {
+        Row: {
+          app_name: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          input_audio_url: string | null
+          input_text: string | null
+          output_audio_url: string | null
+          output_text: string | null
+          settings: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          app_name: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_audio_url?: string | null
+          input_text?: string | null
+          output_audio_url?: string | null
+          output_text?: string | null
+          settings?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          app_name?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_audio_url?: string | null
+          input_text?: string | null
+          output_audio_url?: string | null
+          output_text?: string | null
+          settings?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       editor_chat_messages: {
         Row: {
           content: string

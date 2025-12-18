@@ -43,6 +43,11 @@ import VideoDownloader from "./pages/VideoDownloader";
 import Versus from "./pages/Versus";
 import Transcribe from "./pages/Transcribe";
 import TranscriptDetail from "./pages/TranscriptDetail";
+import VoiceCloner from "./pages/VoiceCloner";
+import VoiceChanger from "./pages/VoiceChanger";
+import Voiceovers from "./pages/Voiceovers";
+import AudioDubber from "./pages/AudioDubber";
+import NoiseRemover from "./pages/NoiseRemover";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +83,11 @@ const App = () => (
           <Route path="/versus" element={<Versus />} />
           <Route path="/transcribe" element={<Transcribe />} />
           <Route path="/transcribe/:id" element={<TranscriptDetail />} />
+          <Route path="/voice-cloner" element={<VoiceCloner />} />
+          <Route path="/voice-changer" element={<VoiceChanger />} />
+          <Route path="/voiceovers" element={<Voiceovers />} />
+          <Route path="/audio-dubber" element={<AudioDubber />} />
+          <Route path="/noise-remover" element={<NoiseRemover />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
