@@ -384,12 +384,21 @@ export default function Voiceovers() {
                         </p>
                       </div>
                       {record.url && record.status === 'completed' && (
-                        <button
-                          onClick={() => playAudio(record.url)}
-                          className="p-2 rounded-lg hover:bg-background/50"
-                        >
-                          {isPlaying === record.url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                        </button>
+                        <>
+                          <button
+                            onClick={() => playAudio(record.url)}
+                            className="p-2 rounded-lg hover:bg-background/50"
+                          >
+                            {isPlaying === record.url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          </button>
+                          <a
+                            href={record.url}
+                            download={`${record.name || 'voiceover'}.mp3`}
+                            className="p-2 rounded-lg hover:bg-background/50 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
+                        </>
                       )}
                       {record.status === 'processing' && (
                         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
