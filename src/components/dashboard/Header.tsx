@@ -227,7 +227,9 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               <div className="relative">
                 <Avatar className="h-12 w-12 ring-2 ring-emerald-500">
                   <AvatarImage src="" />
-                  <AvatarFallback className="bg-secondary">DC</AvatarFallback>
+                  <AvatarFallback className="bg-secondary">
+                    <User size={24} />
+                  </AvatarFallback>
                 </Avatar>
                 <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-1">
                   <Crown size={12} className="text-background" />
