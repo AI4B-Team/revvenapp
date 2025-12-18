@@ -290,8 +290,14 @@ export default function TranscribeApp() {
   };
 
   const handleEdit = (transcript: Transcript) => {
-    setSelectedTranscript(transcript);
-    setShowDetailModal(true);
+    const params = new URLSearchParams({
+      title: transcript.title,
+      duration: transcript.duration,
+      speakers: String(transcript.speakers),
+      language: transcript.language,
+      summary: transcript.summary || ''
+    });
+    navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
 
   const handleUse = (transcript: Transcript) => {
