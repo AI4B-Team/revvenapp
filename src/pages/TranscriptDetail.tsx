@@ -414,8 +414,212 @@ const TranscriptDetail = () => {
   };
 
   const handleConfirmDownload = () => {
-    toast.success(`Downloading as ${downloadFormat.toUpperCase()}...`);
+    const content = displayContent;
+    const fileName = editedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    
+    let fileContent = '';
+    let mimeType = 'text/plain';
+    let extension = 'txt';
+    
+    switch (downloadFormat) {
+      case 'txt':
+        fileContent = content.map(item => {
+          let line = '';
+          if (includeTimestamps) line += `[${item.time}] `;
+          line += `${item.speaker}: ${item.text}`;
+          return line;
+        }).join('\n\n');
+        if (includeSummary && aiSummary) {
+          fileContent = `SUMMARY:\n${aiSummary}\n\n---\n\nTRANSCRIPT:\n\n${fileContent}`;
+        }
+        extension = 'txt';
+        mimeType = 'text/plain';
+        break;
+        
+      case 'srt':
+        fileContent = content.map((item, index) => {
+          const startSeconds = parseTimeToSeconds(item.time);
+          const endSeconds = startSeconds + 5; // Assume 5 seconds per segment
+          const formatSrtTime = (s: number) => {
+            const hrs = Math.floor(s / 3600);
+            const mins = Math.floor((s % 3600) / 60);
+            const secs = Math.floor(s % 60);
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')},000`;
+          };
+          return `${index + 1}\n${formatSrtTime(startSeconds)} --> ${formatSrtTime(endSeconds)}\n${item.text}`;
+        }).join('\n\n');
+        extension = 'srt';
+        mimeType = 'text/plain';
+        break;
+        
+      case 'vtt':
+        fileContent = 'WEBVTT\n\n' + content.map((item, index) => {
+          const startSeconds = parseTimeToSeconds(item.time);
+          const endSeconds = startSeconds + 5;
+          const formatVttTime = (s: number) => {
+            const hrs = Math.floor(s / 3600);
+            const mins = Math.floor((s % 3600) / 60);
+            const secs = Math.floor(s % 60);
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.000`;
+          };
+          return `${index + 1}\n${formatVttTime(startSeconds)} --> ${formatVttTime(endSeconds)}\n${item.text}`;
+        }).join('\n\n');
+        extension = 'vtt';
+        mimeType = 'text/vtt';
+        break;
+        
+      case 'pdf':
+        // Create a printable HTML and trigger print dialog
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>${editedTitle}</title>
+              <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+                h1 { color: #333; border-bottom: 2px solid #10b981; padding-bottom: 10px; }
+                .summary { background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+                .summary h2 { color: #059669; margin-top: 0; }
+                .line { margin-bottom: 15px; padding: 10px; background: #f9fafb; border-radius: 4px; }
+                .time { color: #10b981; font-family: monospace; font-size: 12px; }
+                .speaker { color: #6b7280; font-size: 14px; }
+                .text { color: #111827; margin-top: 5px; }
+              </style>
+            </head>
+            <body>
+              <h1>${editedTitle}</h1>
+              ${includeSummary && aiSummary ? `<div class="summary"><h2>Summary</h2><p>${aiSummary}</p></div>` : ''}
+              <h2>Transcript</h2>
+              ${content.map(item => `
+                <div class="line">
+                  ${includeTimestamps ? `<span class="time">[${item.time}]</span>` : ''}
+                  <span class="speaker">${item.speaker}</span>
+                  <p class="text">${item.text}</p>
+                </div>
+              `).join('')}
+            </body>
+            </html>
+          `;
+          printWindow.document.write(htmlContent);
+          printWindow.document.close();
+          printWindow.print();
+        }
+        setShowDownloadModal(false);
+        toast.success('PDF print dialog opened');
+        return;
+        
+      case 'docx':
+        // Create RTF-like content that Word can open
+        fileContent = `${editedTitle}\n${'='.repeat(editedTitle.length)}\n\n`;
+        if (includeSummary && aiSummary) {
+          fileContent += `SUMMARY\n${'-'.repeat(7)}\n${aiSummary}\n\n`;
+        }
+        fileContent += `TRANSCRIPT\n${'-'.repeat(10)}\n\n`;
+        fileContent += content.map(item => {
+          let line = '';
+          if (includeTimestamps) line += `[${item.time}] `;
+          line += `${item.speaker}: ${item.text}`;
+          return line;
+        }).join('\n\n');
+        extension = 'doc';
+        mimeType = 'application/msword';
+        break;
+        
+      case 'xml':
+        // Premiere Pro compatible XML
+        fileContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xmeml version="5">
+  <sequence>
+    <name>${editedTitle}</name>
+    <media>
+      <video>
+        <track>
+${content.map((item, index) => {
+  const startSeconds = parseTimeToSeconds(item.time);
+  return `          <clipitem id="${index + 1}">
+            <name>${item.speaker}</name>
+            <start>${Math.floor(startSeconds * 30)}</start>
+            <end>${Math.floor((startSeconds + 5) * 30)}</end>
+            <marker>
+              <comment>${item.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</comment>
+            </marker>
+          </clipitem>`;
+}).join('\n')}
+        </track>
+      </video>
+    </media>
+  </sequence>
+</xmeml>`;
+        extension = 'xml';
+        mimeType = 'application/xml';
+        break;
+        
+      case 'fcpxml':
+        // Final Cut Pro X compatible XML
+        fileContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.9">
+  <resources>
+    <format id="r1" name="FFVideoFormat1080p30" frameDuration="100/3000s" width="1920" height="1080"/>
+  </resources>
+  <library>
+    <event name="${editedTitle}">
+      <project name="${editedTitle}">
+        <sequence format="r1">
+          <spine>
+${content.map((item, index) => {
+  const startSeconds = parseTimeToSeconds(item.time);
+  return `            <title ref="r${index + 2}" offset="${startSeconds}s" duration="5s" name="${item.speaker}">
+              <text>${item.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</text>
+            </title>`;
+}).join('\n')}
+          </spine>
+        </sequence>
+      </project>
+    </event>
+  </library>
+</fcpxml>`;
+        extension = 'fcpxml';
+        mimeType = 'application/xml';
+        break;
+        
+      case 'audio':
+        // Download the audio file directly
+        if (audioUrl) {
+          const link = document.createElement('a');
+          link.href = audioUrl;
+          link.download = `${fileName}.mp3`;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setShowDownloadModal(false);
+          toast.success('Audio download started');
+          return;
+        } else {
+          toast.error('No audio file available');
+          return;
+        }
+        
+      default:
+        fileContent = content.map(item => `[${item.time}] ${item.speaker}: ${item.text}`).join('\n\n');
+    }
+    
+    // Create and download the file
+    const blob = new Blob([fileContent], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName}.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
     setShowDownloadModal(false);
+    toast.success(`Downloaded as ${extension.toUpperCase()}`);
   };
 
   const handleSaveLine = (index: number) => {
