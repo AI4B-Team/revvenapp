@@ -521,6 +521,14 @@ export default function TranscribeApp() {
                         Use
                       </button>
                       <button 
+                        onClick={() => handleEdit(transcript)}
+                        disabled={transcript.status === 'processing'}
+                        className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button 
                         onClick={() => handleShare(transcript)}
                         disabled={transcript.status === 'processing'}
                         className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -593,27 +601,38 @@ export default function TranscribeApp() {
                       Processing...
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => handleDownload(transcript)}
-                        className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
-                      <button 
-                        onClick={() => handleUse(transcript)}
-                        className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Zap className="w-4 h-4" />
-                        Use
-                      </button>
-                      <button 
-                        onClick={() => handleShare(transcript)}
-                        className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleDownload(transcript)}
+                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download
+                        </button>
+                        <button 
+                          onClick={() => handleUse(transcript)}
+                          className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Zap className="w-4 h-4" />
+                          Use
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleEdit(transcript)}
+                          className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleShare(transcript)}
+                          className="p-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
