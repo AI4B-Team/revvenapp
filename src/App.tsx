@@ -48,6 +48,9 @@ import VoiceChanger from "./pages/VoiceChanger";
 import Voiceovers from "./pages/Voiceovers";
 import AudioDubber from "./pages/AudioDubber";
 import NoiseRemover from "./pages/NoiseRemover";
+import BackgroundRemover from "./pages/BackgroundRemover";
+import ImageUpscaler from "./pages/ImageUpscaler";
+import ImageEnhancer from "./pages/ImageEnhancer";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +91,9 @@ const App = () => (
           <Route path="/voiceovers" element={<Voiceovers />} />
           <Route path="/audio-dubber" element={<AudioDubber />} />
           <Route path="/noise-remover" element={<NoiseRemover />} />
+          <Route path="/background-remover" element={<BackgroundRemover />} />
+          <Route path="/image-upscaler" element={<ImageUpscaler />} />
+          <Route path="/image-enhancer" element={<ImageEnhancer />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
