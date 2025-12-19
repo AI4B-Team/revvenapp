@@ -30,20 +30,13 @@ const BlogWriter = () => {
 
     setIsGenerating(true);
     try {
-      const prompt = `Write a ${length} length blog post about "${topic}"${keywords ? ` including these keywords: ${keywords}` : ''}. 
-      Use a ${tone} tone. Include a catchy title, introduction, main body with subheadings, and conclusion.
-      Format with proper markdown headings and paragraphs.`;
-
-      const { data, error } = await supabase.functions.invoke('editor-chat', {
-        body: { 
-          messages: [{ role: 'user', content: prompt }],
-          systemPrompt: 'You are an expert blog writer. Create engaging, SEO-friendly blog content.'
-        }
+      const { data, error } = await supabase.functions.invoke('generate-blog', {
+        body: { topic, tone, length, keywords }
       });
 
       if (error) throw error;
-      setGeneratedContent(data.response || data.content || '');
-      toast.success('Blog post generated!');
+      setGeneratedContent(data.content || '');
+      toast.success('Blog post generated with Claude Sonnet 4.5!');
     } catch (error) {
       console.error('Error generating blog:', error);
       toast.error('Failed to generate blog post');
