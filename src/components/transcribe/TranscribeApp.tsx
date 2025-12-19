@@ -1018,7 +1018,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
                   <Upload className="w-[22px] h-[22px] text-emerald-500 flex-shrink-0" />
-                  <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File Here</span>
+                  <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
@@ -1099,7 +1099,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
                   <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                   <span className="px-1.5 py-0.5 rounded bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wide">Live</span>
-                  Real-Time Transcription Available
+                  Real-Time Transcription
                 </div>
               </div>
             </button>
