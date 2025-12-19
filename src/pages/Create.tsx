@@ -492,6 +492,13 @@ const Create = () => {
       emoji: '🔍',
       onClick: () => navigate('/seo-optimizer')
     },
+    { 
+      name: 'Ebook Creator', 
+      description: 'Create complete ebooks',
+      bgColor: 'bg-tool-purple',
+      emoji: '📚',
+      onClick: () => navigate('/ebook-creator')
+    },
   ];
 
   const appTools = [
