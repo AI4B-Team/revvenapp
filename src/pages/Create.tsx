@@ -299,7 +299,8 @@ const Create = () => {
       name: 'Background Remover', 
       description: 'Remove backgrounds',
       bgColor: 'bg-tool-yellow',
-      emoji: '✂️'
+      emoji: '✂️',
+      onClick: () => navigate('/background-remover')
     },
     { 
       name: 'Image Eraser', 
@@ -311,13 +312,15 @@ const Create = () => {
       name: 'Image Upscaler', 
       description: 'Enhance image quality',
       bgColor: 'bg-tool-yellow',
-      emoji: '📸'
+      emoji: '📸',
+      onClick: () => navigate('/image-upscaler')
     },
     { 
       name: 'Image Enhancer', 
       description: 'Improve image details',
       bgColor: 'bg-tool-blue',
-      emoji: '❤️'
+      emoji: '❤️',
+      onClick: () => navigate('/image-enhancer')
     },
     { 
       name: 'Image Colorizer', 
