@@ -1771,6 +1771,170 @@ ${content.map((item, index) => {
                 
                 <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
               </div>
+
+              {/* Right: Controls */}
+              <div className="flex items-center gap-1">
+                {/* Volume */}
+                <Popover>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <PopoverTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                            <Volume2 className="w-5 h-5" />
+                          </button>
+                        </PopoverTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Volume</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
+                    <div className="relative h-24 flex items-center justify-center">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={volume}
+                        onChange={(e) => setVolume(parseInt(e.target.value))}
+                        className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
+                        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Speed */}
+                <select 
+                  value={playbackSpeed}
+                  onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
+                  className="px-2 py-1.5 rounded-lg bg-gray-700/50 border-0 text-sm text-white focus:outline-none cursor-pointer hover:bg-gray-700 transition-colors"
+                >
+                  <option value={0.5}>0.5x</option>
+                  <option value={0.75}>0.75x</option>
+                  <option value={1}>1x</option>
+                  <option value={1.25}>1.25x</option>
+                  <option value={1.5}>1.5x</option>
+                  <option value={2}>2x</option>
+                </select>
+
+                {/* Favorite */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                        <Star className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Favorite</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Create */}
+                <DropdownMenu>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
+                            <Wand2 className="w-5 h-5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Create</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
+                    <DropdownMenuItem 
+                      onClick={() => handleCreate('video')}
+                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                    >
+                      <Video className="w-4 h-4 mr-2" />
+                      Video
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleCreate('ugc')}
+                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                    >
+                      <UserCircle className="w-4 h-4 mr-2" />
+                      UGC
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleCreate('post')}
+                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                    >
+                      <FileEdit className="w-4 h-4 mr-2" />
+                      Post
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleCreate('ebook')}
+                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
+                    >
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Ebook
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Download */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleDownload}
+                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Download className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Download</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Copy */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleCopy}
+                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Copy className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Copy</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Share */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleShare}
+                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Share</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Delete */}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleDelete}
+                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           ) : (
             /* No audio - show attach audio UI */
@@ -1802,199 +1966,6 @@ ${content.map((item, index) => {
                   </>
                 )}
               </button>
-            </div>
-          )}
-
-          {/* Right: Controls - only show when audio is available */}
-          {resolvedAudioUrl && (
-            <div className="flex items-center gap-1">
-              {/* Volume */}
-              <Popover>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PopoverTrigger asChild>
-                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                          <Volume2 className="w-5 h-5" />
-                        </button>
-                      </PopoverTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Volume</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
-                  <div className="relative h-24 flex items-center justify-center">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume}
-                      onChange={(e) => setVolume(parseInt(e.target.value))}
-                      className="w-20 h-2 bg-white/30 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
-                      style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {/* Speed */}
-              <select 
-                value={playbackSpeed}
-                onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                className="px-2 py-1.5 rounded-lg bg-gray-700/50 border-0 text-sm text-white focus:outline-none cursor-pointer hover:bg-gray-700 transition-colors"
-              >
-                <option value={0.5}>0.5x</option>
-                <option value={0.75}>0.75x</option>
-                <option value={1}>1x</option>
-                <option value={1.25}>1.25x</option>
-                <option value={1.5}>1.5x</option>
-                <option value={2}>2x</option>
-              </select>
-
-              {/* Favorite - moved after speed */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <Star className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Favorite</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Create */}
-              <DropdownMenu>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                          <Wand2 className="w-5 h-5" />
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Create</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
-                  <DropdownMenuItem 
-                    onClick={() => handleCreate('video')}
-                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                  >
-                    <Video className="w-4 h-4 mr-2" />
-                    Video
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => handleCreate('ugc')}
-                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                  >
-                    <UserCircle className="w-4 h-4 mr-2" />
-                    UGC
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => handleCreate('post')}
-                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                  >
-                    <FileEdit className="w-4 h-4 mr-2" />
-                    Post
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => handleCreate('ebook')}
-                    className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                  >
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    Ebook
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Download */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={handleDownload}
-                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Download className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Download</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Copy */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={handleCopy}
-                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Copy className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Copy</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Share */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={handleShare}
-                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Share</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Delete */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={handleDelete}
-                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Delete</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* More Options */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                      <MoreVertical className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>More Options</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Close */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={() => navigate('/transcribe')}
-                      className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Close</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           )}
         </div>
