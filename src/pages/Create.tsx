@@ -454,37 +454,43 @@ const Create = () => {
       name: 'Blog Writer', 
       description: 'Generate blog posts',
       bgColor: 'bg-tool-green',
-      emoji: '✍️'
+      emoji: '✍️',
+      onClick: () => navigate('/blog-writer')
     },
     { 
       name: 'Social Posts', 
       description: 'Create social content',
       bgColor: 'bg-tool-blue',
-      emoji: '📱'
+      emoji: '📱',
+      onClick: () => navigate('/social-posts')
     },
     { 
       name: 'Email Generator', 
       description: 'Write email campaigns',
       bgColor: 'bg-tool-yellow',
-      emoji: '📧'
+      emoji: '📧',
+      onClick: () => navigate('/email-generator')
     },
     { 
       name: 'Ad Copy Writer', 
       description: 'Generate ad copy',
       bgColor: 'bg-tool-pink',
-      emoji: '💡'
+      emoji: '💡',
+      onClick: () => navigate('/ad-copy-writer')
     },
     { 
       name: 'Script Writer', 
       description: 'Create video scripts',
       bgColor: 'bg-tool-blue',
-      emoji: '🎬'
+      emoji: '🎬',
+      onClick: () => navigate('/script-writer')
     },
     { 
       name: 'SEO Optimizer', 
       description: 'Optimize for search',
       bgColor: 'bg-tool-green',
-      emoji: '🔍'
+      emoji: '🔍',
+      onClick: () => navigate('/seo-optimizer')
     },
   ];
 
