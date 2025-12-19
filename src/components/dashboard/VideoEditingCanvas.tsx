@@ -724,8 +724,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
                   placeholder="Describe what you want to create..."
-                  className="w-full bg-transparent text-sm focus:outline-none resize-none h-24 placeholder:text-gray-400"
+                  className="w-full bg-transparent text-sm focus:outline-none resize-none h-32 placeholder:text-gray-400"
                 />
+              </div>
+
+              {/* Start Frame and End Frame */}
+              <div className="flex gap-3 mb-3">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Start Frame</label>
+                  <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
+                    <Plus className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">End Frame</label>
+                  <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
+                    <Plus className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
               </div>
 
               {/* Bottom Toolbar Icons */}
@@ -781,8 +797,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </div>
                     </div>
                     <div className="flex gap-1 mb-3 bg-gray-800 rounded-lg p-1">
-                      <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Video</button>
-                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Image</button>
+                      <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Image</button>
+                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Video</button>
                       <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Audio</button>
                     </div>
                     <p className="text-xs text-gray-400 mb-3">Each video costs 15-80 credits</p>
@@ -928,7 +944,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Generate Button */}
                 <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-full font-medium hover:opacity-90 transition-opacity text-sm">
-                  Generate For Free!
+                  Generate <Sparkles className="w-4 h-4" /> 20
                 </button>
               </div>
             </div>
