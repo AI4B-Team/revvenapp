@@ -486,6 +486,58 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     );
   };
 
+  // Sample data for different tabs
+  const transitionPresets = [
+    { id: '1', name: 'Fade', thumbnail: '/placeholder.svg' },
+    { id: '2', name: 'Slide', thumbnail: '/placeholder.svg' },
+    { id: '3', name: 'Wipe', thumbnail: '/placeholder.svg' },
+    { id: '4', name: 'Flip', thumbnail: '/placeholder.svg' },
+    { id: '5', name: 'Clock Wipe', thumbnail: '/placeholder.svg' },
+    { id: '6', name: 'Pull In', thumbnail: '/placeholder.svg' },
+    { id: '7', name: 'Pull Out', thumbnail: '/placeholder.svg' },
+    { id: '8', name: 'Light Leak', thumbnail: '/placeholder.svg' },
+    { id: '9', name: 'Glitch', thumbnail: '/placeholder.svg' },
+    { id: '10', name: 'Glitch 2', thumbnail: '/placeholder.svg' },
+    { id: '11', name: 'Explosion', thumbnail: '/placeholder.svg' },
+  ];
+
+  const effectPresets = [
+    { id: '1', name: 'Audio Dust', thumbnail: '/placeholder.svg' },
+    { id: '2', name: 'Audio Glitch', thumbnail: '/placeholder.svg' },
+    { id: '3', name: 'Audio Glow', thumbnail: '/placeholder.svg' },
+    { id: '4', name: 'Audio Meltdown', thumbnail: '/placeholder.svg' },
+    { id: '5', name: 'Audio Mosh', thumbnail: '/placeholder.svg' },
+    { id: '6', name: 'Audio RGB', thumbnail: '/placeholder.svg' },
+    { id: '7', name: 'Audio Shake', thumbnail: '/placeholder.svg' },
+    { id: '8', name: 'Black & White', thumbnail: '/placeholder.svg' },
+    { id: '9', name: 'Chroma Key', thumbnail: '/placeholder.svg' },
+    { id: '10', name: 'Color Grading', thumbnail: '/placeholder.svg' },
+    { id: '11', name: 'Color Strobe', thumbnail: '/placeholder.svg' },
+    { id: '12', name: 'Night Vision', thumbnail: '/placeholder.svg' },
+  ];
+
+  const visualizerPresets = [
+    { id: '1', name: 'Tunnel Vortex', thumbnail: '/placeholder.svg', icon: '🌀' },
+    { id: '2', name: 'Mandala', thumbnail: '/placeholder.svg', icon: '✨' },
+    { id: '3', name: 'Kaleidoscope', thumbnail: '/placeholder.svg', icon: '💎' },
+    { id: '4', name: 'Starfield', thumbnail: '/placeholder.svg', icon: '⭐' },
+    { id: '5', name: 'Spiral Galaxy', thumbnail: '/placeholder.svg', icon: '🌌' },
+    { id: '6', name: 'Plasma Flow', thumbnail: '/placeholder.svg', icon: '🔮' },
+    { id: '7', name: 'Cymatics', thumbnail: '/placeholder.svg', icon: '🎵' },
+    { id: '8', name: 'Aurora Borealis', thumbnail: '/placeholder.svg', icon: '🌈' },
+  ];
+
+  const captionStylePresets = [
+    { id: '1', name: 'Classic', style: 'bg-gray-800' },
+    { id: '2', name: 'Yellow Slam', style: 'bg-yellow-500' },
+    { id: '3', name: 'Subtle Backdrop', style: 'bg-gray-700' },
+    { id: '4', name: 'Neon Glow', style: 'bg-pink-600' },
+    { id: '5', name: 'Clean Slide', style: 'bg-gray-900' },
+    { id: '6', name: 'Brat', style: 'bg-green-500' },
+    { id: '7', name: 'Chaotic Paint', style: 'bg-purple-600' },
+    { id: '8', name: 'Elegant Indie', style: 'bg-gray-800' },
+  ];
+
   // Tab content renderer
   const renderTabContent = () => {
     switch (activeTab) {
@@ -536,15 +588,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'visuals':
-      case 'music':
-      case 'voice':
-      case 'sfx':
-      case 'text':
-      case 'transitions':
-      case 'effects':
-      case 'analytics':
         return (
-          <>
+          <div className="flex flex-col h-full">
+            {/* Empty state */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <Image className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">No Visual Assets</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Start building your collection by clicking the generate button below, or by uploading a file <span className="text-orange-500 cursor-pointer hover:underline">here</span>
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'music':
+        return (
+          <div className="flex flex-col h-full">
             {/* Upload and Search Row */}
             <div className="flex items-center gap-2 mb-4">
               <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
@@ -555,58 +616,166 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by description, mode..."
+                  placeholder="Search stock music library"
                   className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-              <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                All Assets
-                <ChevronDown className="w-3 h-3" />
+            </div>
+
+            {/* Empty state */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <Music className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Many Ways to Get Music!</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Use state of the art AI to generate music, search our library of 25,000+ tracks, or upload your own!
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'voice':
+        return (
+          <div className="flex flex-col h-full">
+            {/* Empty state */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <Mic className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">No Voiceover Assets</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Start building your collection by clicking the generate button below
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'sfx':
+        return (
+          <div className="flex flex-col h-full">
+            {/* Empty state */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <Headphones className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">No Sound Effect Assets</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Start building your collection by clicking the generate button below
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'text':
+        return (
+          <div className="flex flex-col h-full overflow-y-auto">
+            {/* Text Section */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Text</h3>
+              <button className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                <Plus className="w-4 h-4" />
+                Add Text
               </button>
+              <p className="text-sm text-gray-500 mt-2">or</p>
+              <p className="text-sm text-gray-500">Select text in the timeline to edit it here</p>
             </div>
 
-            {/* Asset Grid */}
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              {visualAssets.map((asset) => (
-                <div key={asset.id} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-200">
-                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                    <Video className="w-8 h-8 text-gray-500" />
-                  </div>
-                  {asset.inUse && (
-                    <div className="absolute top-1 right-1 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded">
-                      In Use
-                    </div>
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1">
-                    <span className="text-white text-xs">{asset.name}</span>
-                  </div>
-                  <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                    <button className="p-1 bg-black/50 rounded hover:bg-black/70">
-                      <Heart className="w-3 h-3 text-white" />
-                    </button>
-                    <button className="p-1 bg-black/50 rounded hover:bg-black/70">
-                      <Download className="w-3 h-3 text-white" />
-                    </button>
-                  </div>
+            {/* Subtitles Section */}
+            <div className="mb-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Subtitles</h3>
+              <div className="flex items-center gap-2 mb-3">
+                <Music className="w-4 h-4 text-gray-500" />
+                <span className="text-sm">Music</span>
+                <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded">New!</span>
+              </div>
+              <div className="flex gap-2 mb-4">
+                <button className="flex items-center gap-2 px-3 py-2 bg-orange-500/20 text-orange-600 rounded-lg text-sm hover:bg-orange-500/30 transition-colors">
+                  <Sparkles className="w-4 h-4" />
+                  Generate Music Captions
+                </button>
+                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm">
+                  <ScrollText className="w-4 h-4" />
+                  Edit Captions
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-700">Auto generate subtitles from voiceovers</span>
+                <div className="w-10 h-5 bg-gray-300 rounded-full relative cursor-pointer">
+                  <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* Video Type Selector */}
-            <div className="border border-gray-200 rounded-lg p-2 mb-4">
-              <div className="flex flex-col gap-1">
-                {['Video', 'Image', 'Img2Vid', 'Upscale', 'Lip Sync'].map((type) => (
-                  <label key={type} className="flex items-center gap-3 px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                      {videoType === type && <div className="w-3 h-3 rounded-full bg-primary" />}
+            {/* Style Presets */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="font-semibold text-gray-900">Style Presets</h3>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {captionStylePresets.map((preset) => (
+                  <div key={preset.id} className="aspect-video rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                    <div className={`w-full h-full ${preset.style} flex items-center justify-center`}>
+                      <span className="text-white text-xs font-medium">{preset.name}</span>
                     </div>
-                    <Video className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm">{type}</span>
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>
-          </>
+          </div>
+        );
+
+      case 'transitions':
+        return (
+          <div className="flex flex-col h-full overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2">
+              {transitionPresets.map((preset) => (
+                <div key={preset.id} className="group cursor-pointer">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-gray-700 to-gray-900 mb-1 hover:ring-2 hover:ring-primary transition-all">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ArrowLeftRight className="w-6 h-6 text-gray-400" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 text-center">{preset.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'effects':
+        return (
+          <div className="flex flex-col h-full overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2">
+              {effectPresets.map((preset) => (
+                <div key={preset.id} className="group cursor-pointer">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-blue-600 to-purple-700 mb-1 hover:ring-2 hover:ring-primary transition-all">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-white/70" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600 text-center truncate">{preset.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'analytics':
+        return (
+          <div className="flex flex-col h-full overflow-y-auto">
+            <div className="grid grid-cols-4 gap-3">
+              {visualizerPresets.map((preset) => (
+                <div key={preset.id} className="group cursor-pointer">
+                  <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-black mb-1 hover:ring-2 hover:ring-primary transition-all flex items-center justify-center">
+                    <span className="text-3xl">{preset.icon}</span>
+                  </div>
+                  <p className="text-xs text-gray-600 text-center">{preset.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         );
 
       default:
