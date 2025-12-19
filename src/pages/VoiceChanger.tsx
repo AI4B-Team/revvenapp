@@ -144,6 +144,13 @@ const audioBufferToWav = (buffer: AudioBuffer): Blob => {
   return new Blob([arrayBuffer], { type: 'audio/wav' });
 };
 
+// DEMO MODE - Set to true to use mock data instead of real API calls
+const DEMO_MODE = true;
+
+const MOCK_HISTORY: UsageRecord[] = [
+  { id: 'mock-1', app_name: 'voice_changer', input_audio_url: '/audio/samples/jazz.mp3', output_audio_url: '/audio/samples/pop.mp3', settings: { style: 'deep' }, status: 'completed', created_at: new Date(Date.now() - 86400000).toISOString() },
+];
+
 export default function VoiceChanger() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -154,7 +161,7 @@ export default function VoiceChanger() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState(VOICE_STYLES[0]);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -164,6 +171,8 @@ export default function VoiceChanger() {
 
   // Fetch usage history
   useEffect(() => {
+    if (DEMO_MODE) return;
+    
     const fetchHistory = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -248,6 +257,24 @@ export default function VoiceChanger() {
     setIsProcessing(true);
 
     try {
+      if (DEMO_MODE) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setOutputUrl(audioUrl);
+        const newRecord: UsageRecord = {
+          id: `mock-${Date.now()}`,
+          app_name: 'voice_changer',
+          input_audio_url: audioUrl,
+          output_audio_url: audioUrl,
+          settings: { style: selectedStyle.id },
+          status: 'completed',
+          created_at: new Date().toISOString()
+        };
+        setUsageHistory(prev => [newRecord, ...prev]);
+        toast.success('Voice transformed successfully! (Demo Mode)');
+        setIsProcessing(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 

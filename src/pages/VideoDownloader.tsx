@@ -9,6 +9,22 @@ import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaTwitter, FaVimeo } from
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 
+// DEMO MODE - Set to true to use mock data instead of real API calls
+const DEMO_MODE = true;
+
+const MOCK_VIDEO_INFO: VideoInfo = {
+  title: "Sample Video - Beautiful Nature Scenery 4K",
+  thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=640",
+  duration: "5:32",
+  source: "youtube",
+  medias: [
+    { url: "https://example.com/video-1080p.mp4", quality: "1080p HD", extension: "mp4", size: 156000000 },
+    { url: "https://example.com/video-720p.mp4", quality: "720p HD", extension: "mp4", size: 85000000 },
+    { url: "https://example.com/video-480p.mp4", quality: "480p", extension: "mp4", size: 45000000 },
+    { url: "https://example.com/audio.mp3", quality: "Audio Only", extension: "mp3", size: 8000000 },
+  ]
+};
+
 interface VideoInfo {
   title: string;
   thumbnail: string;
@@ -41,6 +57,15 @@ const VideoDownloader = () => {
     setVideoInfo(null);
 
     try {
+      if (DEMO_MODE) {
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setVideoInfo(MOCK_VIDEO_INFO);
+        toast.success("Video found! Select quality to download. (Demo Mode)");
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("download-video", {
         body: { url: url.trim() },
       });
@@ -63,6 +88,10 @@ const VideoDownloader = () => {
   };
 
   const handleDownload = (mediaUrl: string, quality: string) => {
+    if (DEMO_MODE) {
+      toast.success(`Download started for ${quality} version (Demo Mode)`);
+      return;
+    }
     window.open(mediaUrl, "_blank");
     toast.success(`Downloading ${quality} version...`);
   };
