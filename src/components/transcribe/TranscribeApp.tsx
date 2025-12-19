@@ -1385,9 +1385,9 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     {/* Actions */}
                     <TooltipProvider>
                       <div className={`flex items-center gap-2 transition-opacity ${openCreateDropdownId === transcript.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'}`}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
+                        <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <DropdownMenuTrigger asChild>
                                 <button 
                                   disabled={transcript.status === 'processing'}
@@ -1399,30 +1399,30 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                                   <ChevronDown className="w-3.5 h-3.5" />
                                 </button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <Video className="w-4 h-4" />
-                                  Video
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <UserCircle className="w-4 h-4" />
-                                  UGC
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <Image className="w-4 h-4" />
-                                  Post
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
-                                  <BookOpenCheck className="w-4 h-4" />
-                                  Ebook
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Create Content</p>
-                          </TooltipContent>
-                        </Tooltip>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Create Content</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
+                              <Video className="w-4 h-4" />
+                              Video
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
+                              <UserCircle className="w-4 h-4" />
+                              UGC
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
+                              <Image className="w-4 h-4" />
+                              Post
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
+                              <BookOpenCheck className="w-4 h-4" />
+                              Ebook
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                           disabled={transcript.status === 'processing'}
@@ -1588,9 +1588,9 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     ) : (
                       <TooltipProvider>
                         <div className="flex items-center gap-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
+                          <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <DropdownMenuTrigger asChild>
                                   <button 
                                     className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
@@ -1601,30 +1601,30 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                                     <ChevronDown className="w-3.5 h-3.5" />
                                   </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
-                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
-                                    <Video className="w-4 h-4" />
-                                    Video
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
-                                    <UserCircle className="w-4 h-4" />
-                                    UGC
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
-                                    <Image className="w-4 h-4" />
-                                    Post
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
-                                    <BookOpenCheck className="w-4 h-4" />
-                                    Ebook
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Create Content</p>
-                            </TooltipContent>
-                          </Tooltip>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Create Content</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent align="start" className="bg-popover border border-border z-50">
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
+                                <Video className="w-4 h-4" />
+                                Video
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ugc'); }} className="flex items-center gap-2 cursor-pointer">
+                                <UserCircle className="w-4 h-4" />
+                                UGC
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'post'); }} className="flex items-center gap-2 cursor-pointer">
+                                <Image className="w-4 h-4" />
+                                Post
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'ebook'); }} className="flex items-center gap-2 cursor-pointer">
+                                <BookOpenCheck className="w-4 h-4" />
+                                Ebook
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDownload(transcript); }}
                             className="flex-1 py-2 rounded-xl bg-gray-100 border border-gray-400 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
