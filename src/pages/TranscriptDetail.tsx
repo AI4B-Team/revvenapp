@@ -1464,7 +1464,10 @@ ${content.map((item, index) => {
                       {aiSummary && Object.keys(summaryTranslations).length > 0 && (
                         <div className="flex items-center gap-2 flex-wrap">
                           <button 
-                            onClick={() => setActiveSummaryTab('original')}
+                            onClick={() => {
+                              console.log('Switching to original, current tab:', activeSummaryTab);
+                              setActiveSummaryTab('original');
+                            }}
                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                               activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
@@ -1505,21 +1508,26 @@ ${content.map((item, index) => {
                         <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                         Translating summary with GPT-4o...
                       </div>
-                    ) : activeSummaryTab === 'original' ? (
-                      aiSummary ? (
-                        <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
-                          {aiSummary}
-                        </p>
-                      ) : (
-                        <p className="text-gray-500 italic">No summary available</p>
-                      )
-                    ) : summaryTranslations[activeSummaryTab] ? (
-                      <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
-                        {summaryTranslations[activeSummaryTab]}
-                      </p>
-                    ) : (
-                      <p className="text-gray-500 italic">No translation available</p>
-                    )}
+                    ) : (() => {
+                      console.log('Rendering summary - activeSummaryTab:', activeSummaryTab, 'aiSummary:', !!aiSummary, 'summaryTranslations:', Object.keys(summaryTranslations));
+                      if (activeSummaryTab === 'original') {
+                        return aiSummary ? (
+                          <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
+                            {aiSummary}
+                          </p>
+                        ) : (
+                          <p className="text-gray-500 italic">No summary available</p>
+                        );
+                      } else if (summaryTranslations[activeSummaryTab]) {
+                        return (
+                          <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
+                            {summaryTranslations[activeSummaryTab]}
+                          </p>
+                        );
+                      } else {
+                        return <p className="text-gray-500 italic">No translation available</p>;
+                      }
+                    })()}
                     <button 
                       onClick={() => {
                         setActiveSummaryTab('original');
