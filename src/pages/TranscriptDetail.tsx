@@ -165,6 +165,10 @@ const TranscriptDetail = () => {
   // Attach audio state
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const attachAudioInputRef = useRef<HTMLInputElement>(null);
+  
+  // Progress bar dragging
+  const [isDragging, setIsDragging] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   // Get transcript data from URL params
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -334,16 +338,50 @@ const TranscriptDetail = () => {
     }
   }, [playbackSpeed]);
 
-  // Handle seek
+  // Handle seek (for click and drag)
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!audioRef.current || !audioDuration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect = progressBarRef.current?.getBoundingClientRect() || e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
+    const percentage = Math.max(0, Math.min(1, clickX / rect.width));
     const newTime = percentage * audioDuration;
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
   };
+
+  // Handle drag start on progress bar
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+    handleSeek(e);
+  };
+
+  // Handle drag move
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !audioRef.current || !audioDuration || !progressBarRef.current) return;
+      const rect = progressBarRef.current.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+      const newTime = percentage * audioDuration;
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, audioDuration]);
 
   // Generate AI summary
   const generateAISummary = async (transcriptText: string) => {
@@ -1758,16 +1796,21 @@ ${content.map((item, index) => {
                 <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
                 
                 <div 
-                  className="flex-1 h-1.5 bg-gray-600 rounded-full cursor-pointer relative group"
+                  ref={progressBarRef}
+                  className="flex-1 h-4 bg-transparent cursor-pointer relative group flex items-center"
+                  onMouseDown={handleDragStart}
                   onClick={handleSeek}
                 >
+                  {/* Track background */}
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 bg-gray-600 rounded-full" />
+                  {/* Progress fill */}
                   <div 
-                    className="h-full bg-white rounded-full transition-all" 
+                    className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 bg-white rounded-full" 
                     style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
                   />
-                  {/* Draggable handle - positioned based on progress */}
+                  {/* Draggable handle */}
                   <div 
-                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-emerald-500 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                    className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-emerald-500 hover:scale-125 transition-transform ${isDragging ? 'scale-125' : ''}`}
                     style={{ left: `calc(${isValidDuration(audioDuration) ? (currentTime / audioDuration) * 100 : 0}% - 8px)` }}
                   />
                 </div>
