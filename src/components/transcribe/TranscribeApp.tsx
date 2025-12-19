@@ -232,6 +232,46 @@ export default function TranscribeApp() {
         }));
 
         setTranscripts(loadedTranscripts);
+
+        // Backfill file sizes for transcripts with URLs but no fileSize
+        const backfillSizes = async () => {
+          const transcriptsWithUrls = loadedTranscripts.filter(t => t.audioUrl && !t.fileSize);
+          
+          // Fetch sizes in parallel, max 5 at a time
+          const batchSize = 5;
+          for (let i = 0; i < transcriptsWithUrls.length; i += batchSize) {
+            const batch = transcriptsWithUrls.slice(i, i + batchSize);
+            const sizeResults = await Promise.all(
+              batch.map(async (t) => {
+                try {
+                  const res = await fetch(t.audioUrl!, { method: 'HEAD' });
+                  const len = res.headers.get('content-length');
+                  if (len) {
+                    const bytes = parseInt(len, 10);
+                    if (Number.isFinite(bytes)) {
+                      return { id: t.id, fileSize: formatFileSize(bytes) };
+                    }
+                  }
+                } catch {
+                  // Ignore errors for individual files
+                }
+                return null;
+              })
+            );
+
+            // Update state with resolved sizes
+            const validResults = sizeResults.filter(Boolean) as { id: string; fileSize: string }[];
+            if (validResults.length > 0) {
+              setTranscripts(prev => prev.map(t => {
+                const match = validResults.find(r => r.id === t.id);
+                return match ? { ...t, fileSize: match.fileSize } : t;
+              }));
+            }
+          }
+        };
+
+        // Run backfill in background (don't block initial render)
+        backfillSizes();
       } catch (err) {
         console.error('Error loading transcripts:', err);
       } finally {
