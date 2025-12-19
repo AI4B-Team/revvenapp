@@ -47,13 +47,13 @@ const EmailGenerator = () => {
       const { data, error } = await supabase.functions.invoke('editor-chat', {
         body: { 
           messages: [{ role: 'user', content: prompt }],
-          systemPrompt: 'You are an expert email copywriter. Create compelling, conversion-focused emails.'
+          stream: false
         }
       });
 
       if (error) throw error;
       
-      const content = data.response || data.content || '';
+      const content = data.message || '';
       const parts = content.split('---');
       
       if (parts.length >= 2) {
