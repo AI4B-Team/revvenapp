@@ -61,7 +61,10 @@ import {
   RotateCw,
   Cloud,
   Pencil,
+  Shuffle,
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -134,8 +137,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   activeEditorTab,
 }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   // State Management
   const [activeTab, setActiveTab] = useState<string>('script');
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(78);
@@ -306,14 +311,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const undo = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
-      toast.success('Undone');
+      toast({ title: 'Undone' });
     }
   };
 
   const redo = () => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1);
-      toast.success('Redone');
+      toast({ title: 'Redone' });
     }
   };
 
@@ -325,7 +330,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         clips: track.clips.filter(clip => clip.id !== selectedClip)
       })));
       setSelectedClip(null);
-      toast.success('Clip deleted');
+      toast({ title: 'Clip deleted' });
     }
   };
 
@@ -354,7 +359,40 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       newClips.splice(clipIndex, 1, firstHalf, secondHalf);
       return { ...track, clips: newClips };
     }));
-    toast.success('Clip split');
+    toast({ title: 'Clip split' });
+  };
+
+  // Generate auto prompt using AI
+  const handleAutoPrompt = async () => {
+    if (isGeneratingPrompt) return;
+    
+    setIsGeneratingPrompt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-prompt-suggestion', {
+        body: { 
+          contentType: 'video',
+          specificMode: 'Animate'
+        }
+      });
+
+      if (error) throw error;
+      if (data?.suggestion) {
+        setPromptText(data.suggestion);
+        toast({
+          title: "Prompt generated",
+          description: "A creative video prompt has been generated for you.",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating prompt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate prompt. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPrompt(false);
+    }
   };
 
   // Handle timeline click with smooth scrubbing
@@ -1092,9 +1130,30 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           {/* Compact Prompt Box with Green Border */}
           <div className="p-3 border-t border-gray-200">
             <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
-              {/* Video Icon and Textarea */}
+              {/* Red Video Icon and Shuffle Icon + Textarea */}
               <div className="flex items-start gap-2 mb-3">
-                <Video className="w-5 h-5 text-brand-green mt-1 flex-shrink-0" />
+                <div className="flex flex-col gap-2 mt-1 flex-shrink-0">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-0.5">
+                        <Video className="w-5 h-5 text-red-500" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Video Mode</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleAutoPrompt}
+                        disabled={isGeneratingPrompt}
+                        className="p-0.5 hover:bg-gray-200 rounded transition-colors disabled:opacity-50"
+                      >
+                        <Shuffle className={`w-5 h-5 text-brand-green ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
+                  </Tooltip>
+                </div>
                 <textarea
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
@@ -1508,7 +1567,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 {tracks.map((track) => (
                   <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
                     {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
-                    {track.id === 'video-1' && <Video className="w-5 h-5 text-yellow-400" />}
+                    {track.id === 'video-1' && <Video className="w-5 h-5 text-red-500" />}
                     {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
                     {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
                   </div>
