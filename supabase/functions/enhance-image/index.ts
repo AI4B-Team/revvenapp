@@ -27,7 +27,7 @@ serve(async (req) => {
 
     console.log('Creating enhance task for:', image_url);
 
-    // Create the task using clarity upscaler for enhancement
+    // Create the task using recraft/crisp-upscale model for enhancement
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -35,13 +35,9 @@ serve(async (req) => {
         'Authorization': `Bearer ${KIE_AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'fal/clarity-upscaler',
+        model: 'recraft/crisp-upscale',
         input: {
-          image_url: image_url,
-          prompt: "enhance image quality, improve details, sharpen, professional photo",
-          creativity: 0.3,
-          resemblance: 0.9,
-          scale_factor: 1,
+          image: image_url,
         },
       }),
     });

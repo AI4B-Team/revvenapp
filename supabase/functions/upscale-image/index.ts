@@ -25,9 +25,9 @@ serve(async (req) => {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
 
-    console.log('Creating upscale task for:', image_url);
+    console.log('Creating upscale task for:', image_url, 'scale:', scale_factor);
 
-    // Create the task using recraft/crisp-upscale model
+    // Create the task using aura-sr model
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -35,9 +35,10 @@ serve(async (req) => {
         'Authorization': `Bearer ${KIE_AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'recraft/crisp-upscale',
+        model: 'fal/aura-sr',
         input: {
-          image: image_url,
+          image_url: image_url,
+          upscaling_factor: scale_factor,
         },
       }),
     });
