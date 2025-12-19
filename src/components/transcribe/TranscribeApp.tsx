@@ -163,6 +163,9 @@ export default function TranscribeApp() {
   // Title editing state
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitleValue, setEditingTitleValue] = useState('');
+  
+  // Track which transcript's Create dropdown is open (to keep action buttons visible)
+  const [openCreateDropdownId, setOpenCreateDropdownId] = useState<string | null>(null);
 
   // Scroll restoration - restore position after navigating back
   useEffect(() => {
@@ -1381,10 +1384,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
                     {/* Actions */}
                     <TooltipProvider>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <div className={`flex items-center gap-2 transition-opacity ${openCreateDropdownId === transcript.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'}`}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <DropdownMenu>
+                            <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
                               <DropdownMenuTrigger asChild>
                                 <button 
                                   disabled={transcript.status === 'processing'}
@@ -1587,7 +1590,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         <div className="flex items-center gap-2">
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <DropdownMenu>
+                              <DropdownMenu onOpenChange={(open) => setOpenCreateDropdownId(open ? transcript.id : null)}>
                                 <DropdownMenuTrigger asChild>
                                   <button 
                                     className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
