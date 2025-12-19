@@ -213,17 +213,40 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   };
 
   // Playback controls
-  const togglePlayback = () => {
+  const togglePlayback = useCallback(() => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+    }
     setIsPlaying(!isPlaying);
-  };
+  }, [isPlaying]);
 
-  const skipBackward = () => {
-    setCurrentTime(Math.max(0, currentTime - 5));
-  };
+  const skipBackward = useCallback(() => {
+    const newTime = Math.max(0, currentTime - 5);
+    setCurrentTime(newTime);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
+  }, [currentTime]);
 
-  const skipForward = () => {
-    setCurrentTime(Math.min(duration, currentTime + 5));
-  };
+  const skipForward = useCallback(() => {
+    const newTime = Math.min(duration, currentTime + 5);
+    setCurrentTime(newTime);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
+  }, [currentTime, duration]);
+
+  // Handle timeline scrubbing with smooth animation
+  const handleTimelineSeek = useCallback((newTime: number) => {
+    setCurrentTime(newTime);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
+  }, []);
 
   // Undo/Redo
   const undo = () => {
@@ -280,15 +303,42 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     toast.success('Clip split');
   };
 
-  // Handle timeline click
-  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Handle timeline click with smooth scrubbing
+  const handleTimelineClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percentage = clickX / rect.width;
-    const newTime = percentage * duration * zoom;
-    setCurrentTime(Math.min(Math.max(0, newTime), duration));
-  };
+    const newTime = Math.min(Math.max(0, percentage * duration * zoom), duration);
+    handleTimelineSeek(newTime);
+  }, [duration, zoom, handleTimelineSeek]);
+
+  // Handle timeline drag for smooth scrubbing
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const handleTimelineMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    handleTimelineClick(e);
+  }, [handleTimelineClick]);
+
+  const handleTimelineMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !timelineRef.current) return;
+    const rect = timelineRef.current.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = Math.min(Math.max(0, percentage * duration * zoom), duration);
+    handleTimelineSeek(newTime);
+  }, [isDragging, duration, zoom, handleTimelineSeek]);
+
+  const handleTimelineMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseUp = () => setIsDragging(false);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, []);
 
   // Handle chat submit
   const handleChatSubmit = () => {
@@ -397,7 +447,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     switch (activeTab) {
       case 'script':
         return (
-          <>
+          <div className="flex flex-col h-full">
             {/* Project Title */}
             <input
               type="text"
@@ -431,14 +481,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
             </div>
 
-            {/* Script Content */}
+            {/* Script Content - Full height */}
             <textarea
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
-              className="w-full h-64 p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-gray-200"
+              className="w-full flex-1 min-h-[400px] p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-gray-200"
               placeholder="Enter your script here..."
             />
-          </>
+          </div>
         );
 
       case 'visuals':
@@ -636,9 +686,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             ))}
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {renderTabContent()}
+          {/* Content Area - grows to fill available space */}
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+            <div className="flex-1">
+              {renderTabContent()}
+            </div>
           </div>
 
           {/* Reference Images Upload Area */}
@@ -686,34 +738,52 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           {/* Video Preview */}
           <div className="flex-1 flex items-center justify-center p-6 min-h-0">
             <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl" style={{ maxWidth: '800px', maxHeight: '450px' }}>
-              {/* Video Placeholder / Preview */}
+              {/* Video Element */}
               <div className="aspect-video w-full bg-gradient-to-br from-gray-800 to-gray-900 relative">
-                {/* Selection Border */}
-                <div className="absolute inset-0 border-4 border-primary rounded-lg pointer-events-none">
-                  {/* Corner Handles */}
-                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
-                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
-                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
-                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
-                  {/* Edge Handles */}
-                  <div className="absolute top-1/2 -left-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
-                  <div className="absolute top-1/2 -right-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
-                  <div className="absolute -top-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
-                </div>
-                
-                {/* Preview Image Placeholder */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
-                      <Play className="w-12 h-12 text-primary-foreground ml-1" />
+                {video ? (
+                  <video
+                    ref={videoRef}
+                    src={video}
+                    className="w-full h-full object-contain"
+                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                    onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
+                    onEnded={() => setIsPlaying(false)}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                  />
+                ) : (
+                  <>
+                    {/* Selection Border */}
+                    <div className="absolute inset-0 border-4 border-primary rounded-lg pointer-events-none">
+                      {/* Corner Handles */}
+                      <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
+                      <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
+                      <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
+                      {/* Edge Handles */}
+                      <div className="absolute top-1/2 -left-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
+                      <div className="absolute top-1/2 -right-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
+                      <div className="absolute -top-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
+                      <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
                     </div>
-                    <p className="text-white/70 text-sm">Preview will appear here</p>
-                  </div>
-                </div>
+                    
+                    {/* Preview Image Placeholder */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button 
+                        onClick={togglePlayback}
+                        className="text-center cursor-pointer group"
+                      >
+                        <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                          <Play className="w-12 h-12 text-primary-foreground ml-1" />
+                        </div>
+                        <p className="text-white/70 text-sm">Click to play</p>
+                      </button>
+                    </div>
+                  </>
+                )}
                 
                 {/* Bottom Overlay with speaker name */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-white text-sm font-medium">Vicki Revelle</span>
@@ -875,8 +945,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 {/* Time Ruler */}
                 <div
                   ref={timelineRef}
-                  onClick={handleTimelineClick}
-                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer"
+                  onMouseDown={handleTimelineMouseDown}
+                  onMouseMove={handleTimelineMouseMove}
+                  onMouseUp={handleTimelineMouseUp}
+                  onMouseLeave={handleTimelineMouseUp}
+                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
                 >
                   {/* Plus and Arrow */}
                   <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-1 z-10">
@@ -888,13 +961,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </button>
                   </div>
                   
-                  {/* Playhead Position Marker */}
-                  <div
+                  {/* Playhead Position Marker - with smooth transition */}
+                  <motion.div
                     className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10"
                     style={{ left: `${(currentTime / duration) * 100}%` }}
+                    transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
                   >
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
-                  </div>
+                  </motion.div>
                   
                   {/* Time Markers */}
                   <div className="flex items-end h-full pl-12">
@@ -919,10 +993,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Track Content */}
                       <div className="flex-1 h-full relative">
-                        {/* Playhead Line */}
-                        <div
+                        {/* Playhead Line - smooth transition */}
+                        <motion.div
                           className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20 pointer-events-none"
                           style={{ left: `${(currentTime / duration) * 100}%` }}
+                          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
                         />
                         
                         {track.clips.map((clip) => (
