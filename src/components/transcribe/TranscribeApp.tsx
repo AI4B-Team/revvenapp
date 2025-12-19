@@ -8,7 +8,7 @@ import {
   MessageSquare, Zap, Languages, FileDown, AlertCircle,
   StopCircle, RotateCcw, ChevronRight, Wand2, Users,
   BookOpen, Subtitles, Hash, Calendar, TrendingUp, Loader2,
-  Video, UserCircle, Image, BookOpenCheck
+  Video, UserCircle, Image, BookOpenCheck, Pencil
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -139,8 +139,10 @@ export default function TranscribeApp() {
     base64?: string;
   } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
-
-  // Scroll to top on mount
+  
+  // Title editing state
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitleValue, setEditingTitleValue] = useState('');
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -761,6 +763,46 @@ export default function TranscribeApp() {
     navigate(`/transcribe/${transcript.id}?${params.toString()}`);
   };
 
+  // Handle inline title rename
+  const handleStartRename = (e: React.MouseEvent, transcript: Transcript) => {
+    e.stopPropagation();
+    setEditingTitleId(transcript.id);
+    setEditingTitleValue(transcript.title);
+  };
+
+  const handleSaveRename = async (e: React.MouseEvent | React.KeyboardEvent, transcriptId: string) => {
+    e.stopPropagation();
+    if (!editingTitleValue.trim()) {
+      setEditingTitleId(null);
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ name: editingTitleValue.trim() })
+        .eq('id', transcriptId);
+      
+      if (error) throw error;
+      
+      setTranscripts(prev => prev.map(t => 
+        t.id === transcriptId ? { ...t, title: editingTitleValue.trim() } : t
+      ));
+      toast({ title: "Title updated" });
+    } catch (error) {
+      console.error('Error renaming transcript:', error);
+      toast({ title: "Failed to rename", variant: "destructive" });
+    } finally {
+      setEditingTitleId(null);
+    }
+  };
+
+  const handleCancelRename = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    setEditingTitleId(null);
+    setEditingTitleValue('');
+  };
+
   const handleCreate = (transcript: Transcript, contentType: 'video' | 'ugc' | 'post' | 'ebook') => {
     // Mock transcript text - in real implementation, this would come from the transcript data
     const mockTranscriptText = `Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started.
@@ -1116,13 +1158,43 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-base font-medium text-gray-900 truncate">
-                            {transcript.title}
-                          </h3>
+                        <div className="flex items-center gap-1 min-w-0">
+                          {editingTitleId === transcript.id ? (
+                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type="text"
+                                value={editingTitleValue}
+                                onChange={(e) => setEditingTitleValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveRename(e, transcript.id);
+                                  if (e.key === 'Escape') handleCancelRename(e);
+                                }}
+                                className="text-base font-medium text-gray-900 bg-white border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:border-emerald-500"
+                                autoFocus
+                              />
+                              <button onClick={(e) => handleSaveRename(e, transcript.id)} className="p-1 text-emerald-500 hover:text-emerald-600">
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button onClick={(e) => handleCancelRename(e)} className="p-1 text-gray-400 hover:text-gray-600">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <h3 className="text-base font-medium text-gray-900 truncate">
+                                {transcript.title}
+                              </h3>
+                              <button 
+                                onClick={(e) => handleStartRename(e, transcript)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-1 text-gray-400 hover:text-gray-600"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
                           <button 
                             onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                           >
                             <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                           </button>
@@ -1294,7 +1366,13 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                           {getSourceIcon(transcript.source)}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={(e) => handleStartRename(e, transcript)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
                         <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
                           <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                         </button>
@@ -1307,9 +1385,31 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       </div>
                     </div>
 
-                    <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
-                      {transcript.title}
-                    </h3>
+                    {editingTitleId === transcript.id ? (
+                      <div className="flex items-center gap-1 mb-2" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={editingTitleValue}
+                          onChange={(e) => setEditingTitleValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveRename(e, transcript.id);
+                            if (e.key === 'Escape') handleCancelRename(e);
+                          }}
+                          className="flex-1 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:border-emerald-500"
+                          autoFocus
+                        />
+                        <button onClick={(e) => handleSaveRename(e, transcript.id)} className="p-1 text-emerald-500 hover:text-emerald-600">
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button onClick={(e) => handleCancelRename(e)} className="p-1 text-gray-400 hover:text-gray-600">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <h3 className="text-base font-medium text-gray-900 mb-2 line-clamp-2">
+                        {transcript.title}
+                      </h3>
+                    )}
 
                     {transcript.summary && (
                       <p className="text-sm text-gray-500 mb-3 line-clamp-2">{transcript.summary}</p>
