@@ -169,7 +169,7 @@ export default function TranscribeApp() {
   const createDropdownCloseTimerRef = useRef<number | null>(null);
 
   const cancelCreateDropdownClose = useCallback(() => {
-    if (createDropdownCloseTimerRef.current) {
+    if (createDropdownCloseTimerRef.current !== null) {
       window.clearTimeout(createDropdownCloseTimerRef.current);
       createDropdownCloseTimerRef.current = null;
     }
@@ -184,6 +184,23 @@ export default function TranscribeApp() {
       }, delay);
     },
     [cancelCreateDropdownClose]
+  );
+
+  const handleTranscriptRowEnter = useCallback(
+    (transcriptId: string) => {
+      cancelCreateDropdownClose();
+      setOpenCreateDropdownId((prev) => (prev && prev !== transcriptId ? null : prev));
+    },
+    [cancelCreateDropdownClose]
+  );
+
+  const handleTranscriptRowLeave = useCallback(
+    (transcriptId: string) => {
+      if (openCreateDropdownId === transcriptId) {
+        scheduleCreateDropdownClose(transcriptId, 120);
+      }
+    },
+    [openCreateDropdownId, scheduleCreateDropdownClose]
   );
 
   // Scroll restoration - restore position after navigating back
@@ -1293,6 +1310,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
+                  onPointerEnter={() => handleTranscriptRowEnter(transcript.id)}
+                  onPointerLeave={() => handleTranscriptRowLeave(transcript.id)}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-center gap-5">
@@ -1403,10 +1422,11 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
                     {/* Actions */}
                     <TooltipProvider>
-                      <div className={`flex items-center gap-2 transition-opacity ${openCreateDropdownId === transcript.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'}`}>
+                      <div className={`flex items-center gap-2 transition-opacity ${openCreateDropdownId === transcript.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         <DropdownMenu
                           open={openCreateDropdownId === transcript.id}
                           onOpenChange={(open) => {
+                            cancelCreateDropdownClose();
                             if (open) setOpenCreateDropdownId(transcript.id);
                             else setOpenCreateDropdownId((prev) => (prev === transcript.id ? null : prev));
                           }}
@@ -1418,8 +1438,6 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                                   disabled={transcript.status === 'processing'}
                                   className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                   onClick={(e) => e.stopPropagation()}
-                                  onPointerEnter={cancelCreateDropdownClose}
-                                  onPointerLeave={() => scheduleCreateDropdownClose(transcript.id)}
                                 >
                                   <Zap className="w-4 h-4" />
                                   Create
@@ -1435,7 +1453,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                             align="start"
                             className="bg-popover border border-border z-50"
                             onPointerEnter={cancelCreateDropdownClose}
-                            onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 0)}
+                            onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 120)}
                           >
                             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
                               <Video className="w-4 h-4" />
@@ -1521,6 +1539,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
+                  onPointerEnter={() => handleTranscriptRowEnter(transcript.id)}
+                  onPointerLeave={() => handleTranscriptRowLeave(transcript.id)}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer flex flex-col h-full min-h-[280px]"
                 >
                   {/* Top content */}
@@ -1619,22 +1639,21 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       </div>
                     ) : (
                       <TooltipProvider>
-                        <div className="flex items-center gap-2">
-                          <DropdownMenu
-                            open={openCreateDropdownId === transcript.id}
-                            onOpenChange={(open) => {
-                              if (open) setOpenCreateDropdownId(transcript.id);
-                              else setOpenCreateDropdownId((prev) => (prev === transcript.id ? null : prev));
-                            }}
-                          >
+                          <div className="flex items-center gap-2">
+                            <DropdownMenu
+                              open={openCreateDropdownId === transcript.id}
+                              onOpenChange={(open) => {
+                                cancelCreateDropdownClose();
+                                if (open) setOpenCreateDropdownId(transcript.id);
+                                else setOpenCreateDropdownId((prev) => (prev === transcript.id ? null : prev));
+                              }}
+                            >
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <DropdownMenuTrigger asChild>
                                   <button 
                                     className="flex-1 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center justify-center gap-2"
                                     onClick={(e) => e.stopPropagation()}
-                                    onPointerEnter={cancelCreateDropdownClose}
-                                    onPointerLeave={() => scheduleCreateDropdownClose(transcript.id)}
                                   >
                                     <Zap className="w-4 h-4" />
                                     Create
@@ -1650,7 +1669,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                               align="start"
                               className="bg-popover border border-border z-50"
                               onPointerEnter={cancelCreateDropdownClose}
-                              onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 0)}
+                              onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 120)}
                             >
                               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
                                 <Video className="w-4 h-4" />
