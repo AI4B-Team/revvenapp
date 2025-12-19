@@ -751,21 +751,23 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 />
               </div>
 
-              {/* Start Frame and End Frame */}
-              <div className="flex gap-3 mb-3">
-                <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-1 block">Start Frame</label>
-                  <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
-                    <Plus className="w-5 h-5 text-gray-400" />
+              {/* Start Frame and End Frame - only show for video */}
+              {selectedTool === 'video' && (
+                <div className="flex gap-3 mb-3">
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 mb-1 block">Start Frame</label>
+                    <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
+                      <Plus className="w-5 h-5 text-gray-400" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-gray-500 mb-1 block">End Frame</label>
+                    <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
+                      <Plus className="w-5 h-5 text-gray-400" />
+                    </div>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <label className="text-xs text-gray-500 mb-1 block">End Frame</label>
-                  <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
-                    <Plus className="w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Bottom Toolbar Icons */}
               <div className="flex items-center gap-1.5 pt-1">
@@ -907,13 +909,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
                         <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
-                          selectedTool ? 'bg-purple-900/30 text-purple-400' : 'hover:bg-gray-200 text-gray-500'
+                          selectedTool ? 'bg-green-200 text-green-900' : 'hover:bg-gray-200 text-gray-500'
                         }`}>
                           <LayoutGrid className="w-4 h-4" />
                           {!selectedTool && <span className="text-sm">Tools</span>}
                           {selectedTool && (
                             <>
-                              <span className="text-sm font-medium bg-green-200 text-green-900 px-2 py-0.5 rounded-md">
+                              <span className="text-sm font-medium">
                                 {selectedTool === 'image' && 'Image'}
                                 {selectedTool === 'video' && 'Video'}
                                 {selectedTool === 'music' && 'Music'}
@@ -921,7 +923,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </span>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
-                                className="ml-1 hover:bg-gray-700 rounded p-0.5"
+                                className="ml-1 hover:bg-green-300 rounded p-0.5"
                               >
                                 <X className="w-3 h-3" />
                               </button>
