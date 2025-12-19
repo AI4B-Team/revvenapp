@@ -1773,9 +1773,9 @@ ${content.map((item, index) => {
               </div>
 
               {/* Left: Title & Badge */}
-              <div className="flex items-center gap-3 min-w-[200px]">
+              <div className="flex items-center gap-3 min-w-[180px] max-w-[220px]">
                 <div className="flex flex-col">
-                  <span className="text-sm text-white font-medium truncate max-w-[150px]">{editedTitle}</span>
+                  <span className="text-sm text-white font-medium truncate max-w-[200px]">{editedTitle}</span>
                   <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
                 </div>
               </div>
@@ -1815,7 +1815,7 @@ ${content.map((item, index) => {
                   />
                 </div>
                 
-                <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
+                <span className="text-sm text-white font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
               </div>
 
               {/* Right: Controls */}
