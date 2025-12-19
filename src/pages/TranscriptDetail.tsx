@@ -140,6 +140,13 @@ const TranscriptDetail = () => {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isTranslatingSummary, setIsTranslatingSummary] = useState(false);
   const [isSavingTranscript, setIsSavingTranscript] = useState(false);
+
+  // Prevent async translation finishing from overriding a user's manual summary tab click
+  const summaryTabManuallySelectedRef = useRef(false);
+  const activeSummaryTabRef = useRef(activeSummaryTab);
+  useEffect(() => {
+    activeSummaryTabRef.current = activeSummaryTab;
+  }, [activeSummaryTab]);
   
   // AI Chat
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'assistant'; content: string}[]>([]);
@@ -978,23 +985,27 @@ ${content.map((item, index) => {
     setIsTranslating(true);
     setSelectedTranslation(targetLanguage);
     setShowTranslatePopover(false);
-    
+
+    // Track whether the user manually clicks summary tabs while translation is running
+    summaryTabManuallySelectedRef.current = false;
+    const summaryTabAtStart = activeSummaryTabRef.current;
+
     try {
-      // Translate the transcript content using OpenRouter GPT-4o
+      // Translate the transcript content
       const translatedItems = await Promise.all(
         originalContent.map(async (item) => {
           const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
             body: { action: 'translate', text: item.text, targetLanguage }
           });
-          
+
           if (error) throw error;
           return { ...item, text: data.translatedText || item.text };
         })
       );
-      
+
       setTranslatedContent(translatedItems);
       setActiveTranslationTab('translated'); // Auto-switch to translated tab
-      
+
       // Also translate the summary if it exists and hasn't been translated to this language yet
       if (aiSummary && !summaryTranslations[targetLanguage]) {
         setIsTranslatingSummary(true);
@@ -1002,12 +1013,17 @@ ${content.map((item, index) => {
           const { data: summaryData, error: summaryError } = await supabase.functions.invoke('generate-transcript-summary', {
             body: { action: 'translate', text: aiSummary, targetLanguage }
           });
-          
+
           if (!summaryError && summaryData?.translatedText) {
             const updatedTranslations = { ...summaryTranslations, [targetLanguage]: summaryData.translatedText };
             setSummaryTranslations(updatedTranslations);
-            setActiveSummaryTab(targetLanguage); // Auto-switch to translated summary
-            
+
+            // Only auto-switch summary tab if the user hasn't manually changed it mid-translation.
+            // Never override 'original' if that's what they were on.
+            if (!summaryTabManuallySelectedRef.current && summaryTabAtStart !== 'original') {
+              setActiveSummaryTab(targetLanguage);
+            }
+
             // Save to localStorage
             if (id) {
               localStorage.setItem(`summary-translations-${id}`, JSON.stringify(updatedTranslations));
@@ -1015,15 +1031,16 @@ ${content.map((item, index) => {
           }
         } catch (summaryTranslateError) {
           console.error('Summary translation error:', summaryTranslateError);
-          // Don't fail the whole operation, just log it
         } finally {
           setIsTranslatingSummary(false);
         }
       } else if (aiSummary && summaryTranslations[targetLanguage]) {
-        // Summary already translated to this language, just switch to it
-        setActiveSummaryTab(targetLanguage);
+        // Summary already translated; only auto-switch if user didn't click and they weren't on original
+        if (!summaryTabManuallySelectedRef.current && summaryTabAtStart !== 'original') {
+          setActiveSummaryTab(targetLanguage);
+        }
       }
-      
+
       // Save translation to localStorage
       if (id) {
         localStorage.setItem(`transcript-translation-${id}`, JSON.stringify({
@@ -1031,7 +1048,7 @@ ${content.map((item, index) => {
           content: translatedItems
         }));
       }
-      
+
       toast.success(`Translated to ${targetLanguage}`);
     } catch (error) {
       console.error('Translation error:', error);
@@ -1465,7 +1482,7 @@ ${content.map((item, index) => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <button 
                             onClick={() => {
-                              console.log('Switching to original, current tab:', activeSummaryTab);
+                              summaryTabManuallySelectedRef.current = true;
                               setActiveSummaryTab('original');
                             }}
                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
@@ -1477,7 +1494,10 @@ ${content.map((item, index) => {
                           {Object.keys(summaryTranslations).map(lang => (
                             <div key={lang} className="flex items-center">
                               <button 
-                                onClick={() => setActiveSummaryTab(lang)}
+                                onClick={() => {
+                                  summaryTabManuallySelectedRef.current = true;
+                                  setActiveSummaryTab(lang);
+                                }}
                                 className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
                                   activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                                 }`}
@@ -1508,26 +1528,21 @@ ${content.map((item, index) => {
                         <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                         Translating summary with GPT-4o...
                       </div>
-                    ) : (() => {
-                      console.log('Rendering summary - activeSummaryTab:', activeSummaryTab, 'aiSummary:', !!aiSummary, 'summaryTranslations:', Object.keys(summaryTranslations));
-                      if (activeSummaryTab === 'original') {
-                        return aiSummary ? (
-                          <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
-                            {aiSummary}
-                          </p>
-                        ) : (
-                          <p className="text-gray-500 italic">No summary available</p>
-                        );
-                      } else if (summaryTranslations[activeSummaryTab]) {
-                        return (
-                          <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
-                            {summaryTranslations[activeSummaryTab]}
-                          </p>
-                        );
-                      } else {
-                        return <p className="text-gray-500 italic">No translation available</p>;
-                      }
-                    })()}
+                    ) : activeSummaryTab === 'original' ? (
+                      aiSummary ? (
+                        <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
+                          {aiSummary}
+                        </p>
+                      ) : (
+                        <p className="text-gray-500 italic">No summary available</p>
+                      )
+                    ) : summaryTranslations[activeSummaryTab] ? (
+                      <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
+                        {summaryTranslations[activeSummaryTab]}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 italic">No translation available</p>
+                    )}
                     <button 
                       onClick={() => {
                         setActiveSummaryTab('original');
