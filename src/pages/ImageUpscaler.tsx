@@ -5,11 +5,12 @@ import Header from '@/components/dashboard/Header';
 import { 
   ArrowLeft, Upload, Trash2, 
   Loader2, Download, Sparkles, ZoomIn,
-  CheckCircle2, Clock, Image as ImageIcon
+  CheckCircle2, Clock, Image as ImageIcon, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface UsageRecord {
   id: string;
@@ -29,7 +30,8 @@ export default function ImageUpscaler() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
-  const [upscaleFactor, setUpscaleFactor] = useState(2);
+  const [upscaleFactor, setUpscaleFactor] = useState<string>("2");
+  const [selectedRecord, setSelectedRecord] = useState<UsageRecord | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,7 +94,7 @@ export default function ImageUpscaler() {
       const uploadData = await uploadResponse.json();
       if (!uploadData.secure_url) throw new Error('Upload failed');
 
-      toast.info('Upscaling image with AI...', { duration: 15000 });
+      toast.info('Upscaling image with AI...', { duration: 30000 });
 
       // Call the upscale-image edge function
       const { data, error } = await supabase.functions.invoke('upscale-image', {
@@ -143,6 +145,7 @@ export default function ImageUpscaler() {
       if (error) throw error;
 
       setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      setSelectedRecord(null);
       toast.success('Record deleted');
     } catch (error: any) {
       toast.error(error.message || 'Failed to delete');
@@ -196,7 +199,7 @@ export default function ImageUpscaler() {
               
               {/* Feature Pills */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {['2x Upscale', '4x Upscale', 'AI Enhanced', 'High Quality'].map((feature) => (
+                {['1x Upscale', '2x Upscale', '4x Upscale', '8x Upscale', 'AI Enhanced', 'High Quality'].map((feature) => (
                   <span key={feature} className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm border border-blue-500/20">
                     {feature}
                   </span>
@@ -273,7 +276,7 @@ export default function ImageUpscaler() {
                   <div className="mt-6">
                     <p className="text-sm text-muted-foreground mb-3">Upscale Factor</p>
                     <div className="flex gap-3">
-                      {[2, 4].map((factor) => (
+                      {["1", "2", "4", "8"].map((factor) => (
                         <button
                           key={factor}
                           onClick={() => setUpscaleFactor(factor)}
@@ -364,7 +367,11 @@ export default function ImageUpscaler() {
                   ) : (
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {usageHistory.map((record) => (
-                        <div key={record.id} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors group">
+                        <div 
+                          key={record.id} 
+                          onClick={() => setSelectedRecord(record)}
+                          className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors group cursor-pointer"
+                        >
                           {record.output_audio_url && (
                             <img src={record.output_audio_url} alt="Result" className="w-12 h-12 object-cover rounded-lg" />
                           )}
@@ -381,13 +388,17 @@ export default function ImageUpscaler() {
                               <a
                                 href={record.output_audio_url}
                                 download
+                                onClick={(e) => e.stopPropagation()}
                                 className="p-2 rounded-lg hover:bg-background/50"
                               >
                                 <Download className="w-4 h-4" />
                               </a>
                             )}
                             <button
-                              onClick={() => handleDeleteRecord(record.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteRecord(record.id);
+                              }}
                               className="p-2 rounded-lg hover:bg-red-500/10 text-red-400"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -403,6 +414,102 @@ export default function ImageUpscaler() {
           </div>
         </main>
       </div>
+
+      {/* Image Details Modal */}
+      <Dialog open={!!selectedRecord} onOpenChange={() => setSelectedRecord(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <ZoomIn className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <span className="text-xl">Upscaled Image Details</span>
+                <p className="text-sm text-muted-foreground font-normal mt-1">
+                  Created on {selectedRecord && new Date(selectedRecord.created_at).toLocaleString()}
+                </p>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedRecord && (
+            <div className="space-y-6 mt-4">
+              {/* Images Comparison */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Original Image */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">Original Image</h3>
+                  {selectedRecord.input_audio_url ? (
+                    <img 
+                      src={selectedRecord.input_audio_url} 
+                      alt="Original" 
+                      className="w-full rounded-xl border border-border/50 bg-muted/20"
+                    />
+                  ) : (
+                    <div className="w-full h-48 rounded-xl bg-muted/50 flex items-center justify-center">
+                      <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Upscaled Image */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Upscaled {selectedRecord.settings?.scale_factor || 2}x
+                  </h3>
+                  {selectedRecord.output_audio_url ? (
+                    <img 
+                      src={selectedRecord.output_audio_url} 
+                      alt="Upscaled" 
+                      className="w-full rounded-xl border border-blue-500/30 bg-muted/20"
+                    />
+                  ) : (
+                    <div className="w-full h-48 rounded-xl bg-muted/50 flex items-center justify-center">
+                      <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-secondary/30 rounded-xl">
+                <div>
+                  <p className="text-xs text-muted-foreground">Scale Factor</p>
+                  <p className="font-medium">{selectedRecord.settings?.scale_factor || 2}x</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="font-medium capitalize flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    {selectedRecord.status}
+                  </p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                {selectedRecord.output_audio_url && (
+                  <a
+                    href={selectedRecord.output_audio_url}
+                    download="upscaled-image.png"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download Upscaled Image
+                  </a>
+                )}
+                <button
+                  onClick={() => handleDeleteRecord(selectedRecord.id)}
+                  className="px-5 py-3 rounded-xl bg-red-500/10 text-red-400 font-medium hover:bg-red-500/20 transition-colors flex items-center gap-2"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

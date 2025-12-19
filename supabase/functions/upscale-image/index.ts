@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { image_url, scale_factor = 2 } = await req.json();
+    const { image_url, scale_factor = "2" } = await req.json();
 
     if (!image_url) {
       return new Response(
@@ -25,9 +25,13 @@ serve(async (req) => {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
 
-    console.log('Creating upscale task for:', image_url, 'scale:', scale_factor);
+    // Validate scale factor - must be 1, 2, 4, or 8
+    const validScales = ["1", "2", "4", "8"];
+    const upscaleFactor = validScales.includes(String(scale_factor)) ? String(scale_factor) : "2";
 
-    // Create the task using aura-sr model
+    console.log('Creating upscale task for:', image_url, 'scale:', upscaleFactor);
+
+    // Create the task using topaz/image-upscale model
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -35,10 +39,10 @@ serve(async (req) => {
         'Authorization': `Bearer ${KIE_AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'fal/aura-sr',
+        model: 'topaz/image-upscale',
         input: {
           image_url: image_url,
-          upscaling_factor: scale_factor,
+          upscale_factor: upscaleFactor,
         },
       }),
     });
@@ -54,7 +58,7 @@ serve(async (req) => {
     console.log('Task created with ID:', taskId);
 
     // Poll for completion
-    const maxAttempts = 60;
+    const maxAttempts = 120;
     const pollInterval = 3000;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -105,7 +109,7 @@ serve(async (req) => {
       }
     }
 
-    throw new Error('Task timed out after 3 minutes');
+    throw new Error('Task timed out after 6 minutes');
 
   } catch (error: unknown) {
     console.error('Error in upscale-image:', error);
