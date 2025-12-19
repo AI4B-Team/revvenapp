@@ -518,7 +518,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
   return (
     <TooltipProvider>
-      <div ref={containerRef} className="h-screen max-h-screen flex flex-col bg-white overflow-hidden font-sans">
+      <div ref={containerRef} className="h-full min-h-0 flex flex-col bg-white overflow-hidden font-sans">
         {/* Top Header - Dark Menu Bar */}
         <header className="flex items-center justify-between px-4 py-2 bg-[#1a1a2e] text-white shrink-0">
           <div className="flex items-center gap-4">
