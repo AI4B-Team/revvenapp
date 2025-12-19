@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -56,6 +57,10 @@ import {
   ImageIcon,
   AudioLines,
   Check,
+  RotateCcw,
+  RotateCw,
+  Cloud,
+  Pencil,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -128,6 +133,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   onTabChange,
   activeEditorTab,
 }) => {
+  const navigate = useNavigate();
   // State Management
   const [activeTab, setActiveTab] = useState<string>('script');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -187,6 +193,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Selected tool for the toolbar
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [selectedRatio, setSelectedRatio] = useState('Automatic Ratio');
+  const [zoomLevel, setZoomLevel] = useState(100);
+  
+  // Clip resizing state
+  const [resizingClip, setResizingClip] = useState<{ clipId: string; edge: 'left' | 'right'; startX: number; originalStart: number; originalDuration: number } | null>(null);
 
   // Timeline tracks with combined audio/text
   const [tracks, setTracks] = useState<TimelineTrack[]>([
@@ -379,10 +389,73 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   }, []);
 
   useEffect(() => {
-    const handleMouseUp = () => setIsDragging(false);
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setResizingClip(null);
+    };
+    const handleMouseMove = (e: MouseEvent) => {
+      if (resizingClip && timelineRef.current) {
+        const rect = timelineRef.current.getBoundingClientRect();
+        const deltaX = e.clientX - resizingClip.startX;
+        const timePerPixel = duration / rect.width;
+        const timeDelta = deltaX * timePerPixel;
+        
+        setTracks(prev => prev.map(track => ({
+          ...track,
+          clips: track.clips.map(clip => {
+            if (clip.id !== resizingClip.clipId) return clip;
+            
+            if (resizingClip.edge === 'left') {
+              const newStartTime = Math.max(0, resizingClip.originalStart + timeDelta);
+              const newDuration = resizingClip.originalDuration - timeDelta;
+              if (newDuration < 0.5) return clip;
+              return { ...clip, startTime: newStartTime, duration: newDuration };
+            } else {
+              const newDuration = Math.max(0.5, resizingClip.originalDuration + timeDelta);
+              return { ...clip, duration: newDuration };
+            }
+          })
+        })));
+      }
+    };
+    
     window.addEventListener('mouseup', handleMouseUp);
-    return () => window.removeEventListener('mouseup', handleMouseUp);
-  }, []);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [resizingClip, duration]);
+
+  // Handle clip resize start
+  const handleClipResizeStart = (e: React.MouseEvent, clipId: string, edge: 'left' | 'right') => {
+    e.stopPropagation();
+    const clip = tracks.flatMap(t => t.clips).find(c => c.id === clipId);
+    if (clip) {
+      setResizingClip({
+        clipId,
+        edge,
+        startX: e.clientX,
+        originalStart: clip.startTime,
+        originalDuration: clip.duration
+      });
+    }
+  };
+
+  // Collaborator avatars
+  const collaborators = [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop',
+  ];
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/create');
+    }
+  };
 
   // Handle chat submit
   const handleChatSubmit = () => {
@@ -785,7 +858,117 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   return (
     <TooltipProvider>
-      <div className="flex h-full bg-white text-gray-900 font-sans overflow-hidden">
+      <div className="flex flex-col h-full bg-white text-gray-900 font-sans overflow-hidden">
+        {/* Top Editor Menu Bar - same as Image Editor */}
+        <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-white">Editor</span>
+            <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
+              <Pencil className="w-3.5 h-3.5 text-violet-300" />
+              <span className="text-sm font-medium text-violet-200">Editing</span>
+              <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+            </div>
+          </div>
+
+          {/* Undo/Redo & Zoom */}
+          <div className="flex items-center gap-2 ml-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button onClick={undo} className="p-2 text-slate-300 hover:text-white transition-colors">
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Undo</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button onClick={redo} className="p-2 text-slate-300 hover:text-white transition-colors">
+                  <RotateCw className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Redo</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors relative">
+                  <Cloud className="w-4 h-4" />
+                  <Check className="w-2 h-2 absolute bottom-1.5 right-1.5 stroke-[3]" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-black text-white"><p>Saved To Cloud</p></TooltipContent>
+            </Tooltip>
+            <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
+              <button
+                onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
+                className="p-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
+              <button
+                onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
+                className="p-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Centered Media Type Tabs */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
+            <button 
+              onClick={() => onTabChange?.('image')}
+              className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
+              <Image className="w-4 h-4" />
+              <span>Image</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button 
+              onClick={() => onTabChange?.('video')}
+              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
+              <Video className="w-4 h-4" />
+              <span>Video</span>
+            </button>
+            <span className="text-slate-500">|</span>
+            <button 
+              onClick={() => onTabChange?.('audio')}
+              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+            >
+              <Music className="w-4 h-4" />
+              <span>Audio</span>
+            </button>
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3 ml-auto">
+            {/* Collaborator Avatars */}
+            <div className="flex items-center -space-x-2">
+              {collaborators.map((avatar, index) => (
+                <img
+                  key={index}
+                  src={avatar}
+                  alt={`Collaborator ${index + 1}`}
+                  className="w-8 h-8 rounded-full border-2 border-[#2d4a54] object-cover"
+                />
+              ))}
+            </div>
+            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors">
+              <Share2 className="w-4 h-4" />
+              <span>Share</span>
+            </button>
+            <button
+              onClick={handleClose}
+              className="p-2 text-slate-300 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content - horizontal layout */}
+        <div className="flex flex-1 overflow-hidden">
         {/* AI Chat Panel - LEFT SIDE */}
         <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
           {isChatExpanded ? (
@@ -1149,59 +1332,27 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
         {/* Right Panel - Video Preview & Timeline */}
         <div className="flex-1 flex flex-col bg-gray-100 min-w-0">
-          {/* Video Preview */}
-          <div className="flex-1 flex items-center justify-center p-6 min-h-0">
-            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl" style={{ maxWidth: '800px', maxHeight: '450px' }}>
+          {/* Video Preview - reduced height */}
+          <div className="flex-1 flex items-center justify-center p-4 min-h-0" style={{ maxHeight: '45vh' }}>
+            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full h-full" style={{ maxWidth: '720px' }}>
               {/* Video Element */}
-              <div className="aspect-video w-full bg-gradient-to-br from-gray-800 to-gray-900 relative">
-                {video ? (
-                  <video
-                    ref={videoRef}
-                    src={video}
-                    className="w-full h-full object-contain"
-                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                    onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
-                    onEnded={() => setIsPlaying(false)}
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                  />
-                ) : (
-                  <>
-                    {/* Selection Border */}
-                    <div className="absolute inset-0 border-4 border-primary rounded-lg pointer-events-none">
-                      {/* Corner Handles */}
-                      <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
-                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
-                      <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
-                      <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
-                      {/* Edge Handles */}
-                      <div className="absolute top-1/2 -left-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
-                      <div className="absolute top-1/2 -right-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
-                      <div className="absolute -top-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
-                      <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
-                    </div>
-                    
-                    {/* Preview Image Placeholder */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <button 
-                        onClick={togglePlayback}
-                        className="text-center cursor-pointer group"
-                      >
-                        <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                          <Play className="w-12 h-12 text-primary-foreground ml-1" />
-                        </div>
-                        <p className="text-white/70 text-sm">Click to play</p>
-                      </button>
-                    </div>
-                  </>
-                )}
-                
-                {/* Bottom Overlay with speaker name */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                    <span className="text-white text-sm font-medium">Vicki Revelle</span>
-                  </div>
+              <video
+                ref={videoRef}
+                src={video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
+                className="w-full h-full object-contain"
+                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
+                onEnded={() => setIsPlaying(false)}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                muted={isMuted}
+              />
+              
+              {/* Bottom Overlay with speaker name */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-white text-sm font-medium">Vicki Revelle</span>
                 </div>
               </div>
             </div>
@@ -1338,16 +1489,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
             </div>
 
-            {/* Timeline */}
-            <div className="h-80 overflow-hidden flex">
+            {/* Timeline - reduced height for no scrolling */}
+            <div className="h-56 overflow-hidden flex">
               {/* Track Labels - Dark Background matching sidebar */}
               <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
                 {/* Time Ruler Spacer */}
-                <div className="h-8 border-b border-gray-800 flex items-center justify-center">
+                <div className="h-6 border-b border-gray-800 flex items-center justify-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="p-1.5 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
-                        <Plus className="w-4 h-4" />
+                      <button className="p-1 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
+                        <Plus className="w-3 h-3" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent><p>Add Track</p></TooltipContent>
@@ -1355,11 +1506,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
                 {/* Track Icons */}
                 {tracks.map((track) => (
-                  <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
-                    {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
-                    {track.id === 'video-1' && <Video className="w-5 h-5 text-yellow-400" />}
-                    {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
-                    {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
+                  <div key={track.id} className="h-12 flex items-center justify-center border-b border-gray-800">
+                    {track.id === 'image-1' && <ImageIcon className="w-4 h-4 text-blue-400" />}
+                    {track.id === 'video-1' && <Video className="w-4 h-4 text-yellow-400" />}
+                    {track.id === 'audio-1' && <Volume2 className="w-4 h-4 text-purple-400" />}
+                    {track.id === 'music-1' && <Music className="w-4 h-4 text-green-400" />}
                   </div>
                 ))}
               </div>
@@ -1373,7 +1524,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   onMouseMove={handleTimelineMouseMove}
                   onMouseUp={handleTimelineMouseUp}
                   onMouseLeave={handleTimelineMouseUp}
-                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
+                  className="h-6 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
                 >
                   {/* Plus and Arrow */}
                   <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-1 z-10">
@@ -1409,11 +1560,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
 
                 {/* Tracks */}
-                <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)' }}>
+                <div className="overflow-y-auto" style={{ height: 'calc(100% - 24px)' }}>
                   {tracks.map((track) => (
                     <div
                       key={track.id}
-                      className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
+                      className="flex items-center h-12 border-b border-gray-100 hover:bg-gray-50 relative"
                     >
                       {/* Track Content */}
                       <div className="flex-1 h-full relative">
@@ -1490,9 +1641,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </div>
                             )}
                             
-                            {/* Resize handles */}
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
-                            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
+                            {/* Resize handles - functional */}
+                            <div 
+                              onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'left')}
+                              className="absolute left-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
+                            />
+                            <div 
+                              onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'right')}
+                              className="absolute right-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
+                            />
                           </div>
                         ))}
                       </div>
@@ -1502,6 +1659,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </TooltipProvider>
