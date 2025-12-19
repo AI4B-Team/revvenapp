@@ -5,36 +5,12 @@ import Header from '@/components/dashboard/Header';
 import { 
   ArrowLeft, Upload, Trash2, 
   Loader2, Download, Sparkles, ZoomIn,
-  CheckCircle2, Clock, Image as ImageIcon
+  CheckCircle2, Clock, Image as ImageIcon, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-// DEMO MODE - Set to true to use mock data instead of real API calls
-const DEMO_MODE = true;
-
-const MOCK_HISTORY: UsageRecord[] = [
-  {
-    id: 'mock-1',
-    app_name: 'image_upscaler',
-    input_audio_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-    output_audio_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200',
-    settings: { scale_factor: 2 },
-    status: 'completed',
-    created_at: new Date(Date.now() - 86400000).toISOString()
-  },
-  {
-    id: 'mock-2',
-    app_name: 'image_upscaler',
-    input_audio_url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400',
-    output_audio_url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200',
-    settings: { scale_factor: 4 },
-    status: 'completed',
-    created_at: new Date(Date.now() - 172800000).toISOString()
-  }
-];
 
 interface UsageRecord {
   id: string;
@@ -53,15 +29,13 @@ export default function ImageUpscaler() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
   const [upscaleFactor, setUpscaleFactor] = useState<number>(2);
   const [selectedRecord, setSelectedRecord] = useState<UsageRecord | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (DEMO_MODE) return;
-    
     const fetchHistory = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -104,31 +78,6 @@ export default function ImageUpscaler() {
     setIsProcessing(true);
 
     try {
-      if (DEMO_MODE) {
-        // Simulate processing delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Use a higher resolution version of the uploaded image as mock output
-        const mockOutputUrl = imageUrl?.replace('w=400', 'w=1200') || imageUrl;
-        setOutputUrl(mockOutputUrl);
-        
-        // Add to mock history
-        const newRecord: UsageRecord = {
-          id: `mock-${Date.now()}`,
-          app_name: 'image_upscaler',
-          input_audio_url: imageUrl,
-          output_audio_url: mockOutputUrl,
-          settings: { scale_factor: upscaleFactor },
-          status: 'completed',
-          created_at: new Date().toISOString()
-        };
-        setUsageHistory(prev => [newRecord, ...prev]);
-        
-        toast.success('Image upscaled successfully! (Demo Mode)');
-        setIsProcessing(false);
-        return;
-      }
-
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -187,13 +136,6 @@ export default function ImageUpscaler() {
   };
 
   const handleDeleteRecord = async (recordId: string) => {
-    if (DEMO_MODE) {
-      setUsageHistory(prev => prev.filter(r => r.id !== recordId));
-      setSelectedRecord(null);
-      toast.success('Record deleted (Demo Mode)');
-      return;
-    }
-    
     try {
       const { error } = await supabase
         .from('audio_app_usage')

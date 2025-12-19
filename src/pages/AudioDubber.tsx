@@ -37,13 +37,6 @@ const LANGUAGES = [
   { code: 'hi', name: 'Hindi' },
 ];
 
-// DEMO MODE - Set to true to use mock data instead of real API calls
-const DEMO_MODE = true;
-
-const MOCK_HISTORY: UsageRecord[] = [
-  { id: 'mock-1', name: 'Sample Audio - Spanish', url: '/audio/samples/jazz.mp3', status: 'completed', created_at: new Date(Date.now() - 86400000).toISOString() },
-];
-
 export default function AudioDubber() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -52,7 +45,7 @@ export default function AudioDubber() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [targetLanguage, setTargetLanguage] = useState(LANGUAGES[0]);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -60,8 +53,6 @@ export default function AudioDubber() {
 
   // Fetch usage history from user_voices where type='revoice'
   const fetchHistory = async () => {
-    if (DEMO_MODE) return;
-    
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -125,23 +116,6 @@ export default function AudioDubber() {
     setIsProcessing(true);
 
     try {
-      if (DEMO_MODE) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        const newRecord: UsageRecord = {
-          id: `mock-${Date.now()}`,
-          name: `${audioFile.name} - ${targetLanguage.name}`,
-          url: audioUrl || '/audio/samples/jazz.mp3',
-          status: 'completed',
-          created_at: new Date().toISOString()
-        };
-        setUsageHistory(prev => [newRecord, ...prev]);
-        toast.success('Dubbing completed! (Demo Mode)');
-        setAudioFile(null);
-        setAudioUrl(null);
-        setIsProcessing(false);
-        return;
-      }
-
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
