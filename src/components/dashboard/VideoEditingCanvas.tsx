@@ -913,7 +913,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           {!selectedTool && <span className="text-sm">Tools</span>}
                           {selectedTool && (
                             <>
-                              <span className="text-sm font-medium">
+                              <span className="text-sm font-medium bg-green-200 text-green-900 px-2 py-0.5 rounded-md">
                                 {selectedTool === 'image' && 'Image'}
                                 {selectedTool === 'video' && 'Video'}
                                 {selectedTool === 'music' && 'Music'}
