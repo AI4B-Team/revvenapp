@@ -178,8 +178,10 @@ const TranscriptDetail = () => {
   
   const totalSpeakingMinutes = speakerData.reduce((sum, s) => sum + s.minutes, 0);
 
-  // Audio URL from URL params (passed from transcription)
-  const audioUrl = searchParams.get('audioUrl') || '';
+  // Audio URL: prefer URL params (when present), otherwise load from DB
+  const audioUrlParam = searchParams.get('audioUrl');
+  const initialAudioUrl = audioUrlParam && audioUrlParam !== '.' ? audioUrlParam : '';
+  const [resolvedAudioUrl, setResolvedAudioUrl] = useState(initialAudioUrl);
 
   // Parse time string (MM:SS) to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -192,7 +194,7 @@ const TranscriptDetail = () => {
 
   // Jump to specific time in audio
   const jumpToTime = (timeStr: string) => {
-    if (!audioRef.current || !audioUrl) {
+    if (!audioRef.current || !resolvedAudioUrl) {
       toast.error('No audio available to play');
       return;
     }
@@ -302,7 +304,7 @@ const TranscriptDetail = () => {
 
   // Handle play/pause
   const togglePlayPause = () => {
-    if (!audioRef.current || !audioUrl) {
+    if (!audioRef.current || !resolvedAudioUrl) {
       toast.error('No audio available');
       return;
     }
@@ -457,6 +459,11 @@ const TranscriptDetail = () => {
           .single();
         
         if (error) throw error;
+
+        // Backfill audio URL from DB if it wasn't present in the URL
+        if (data?.url && !resolvedAudioUrl) {
+          setResolvedAudioUrl(data.url);
+        }
         
         if (data?.prompt) {
           const parsedContent = parseTranscriptContent(data.prompt, duration, speakers);
@@ -742,9 +749,9 @@ ${content.map((item, index) => {
         
       case 'audio':
         // Download the audio file directly
-        if (audioUrl) {
+        if (resolvedAudioUrl) {
           const link = document.createElement('a');
-          link.href = audioUrl;
+          link.href = resolvedAudioUrl;
           link.download = `${fileName}.mp3`;
           link.target = '_blank';
           document.body.appendChild(link);
@@ -1614,8 +1621,8 @@ ${content.map((item, index) => {
         </main>
 
         {/* Hidden Audio Element */}
-        {audioUrl && (
-          <audio ref={audioRef} src={audioUrl} preload="metadata" />
+        {resolvedAudioUrl && (
+          <audio ref={audioRef} src={resolvedAudioUrl} preload="metadata" />
         )}
 
         {/* Fixed Audio Player at Bottom - Dark Sleek Design */}

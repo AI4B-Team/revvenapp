@@ -157,6 +157,7 @@ export default function TranscribeApp() {
     duration: number | string;
     url?: string;
     base64?: string;
+    contentType?: string;
   } | null>(null);
   const [isTranscribing, setIsTranscribing] = useState(false);
   
@@ -308,7 +309,7 @@ export default function TranscribeApp() {
   }, []);
 
   // Handle audio selection from AudioLibraryModal
-  const handleAudioSelect = (file: { name: string; duration: number; url?: string; base64?: string }) => {
+  const handleAudioSelect = (file: { name: string; duration: number; url?: string; base64?: string; contentType?: string }) => {
     setPendingAudioFile(file);
     setShowAudioLibraryModal(false);
     setShowTranscribeConfirmModal(true);
@@ -327,16 +328,42 @@ export default function TranscribeApp() {
       if (!user) throw new Error('Not authenticated');
       
       // Parse duration
-      const durationNum = typeof pendingAudioFile.duration === 'number' 
+      let durationNum = typeof pendingAudioFile.duration === 'number' 
         ? pendingAudioFile.duration 
         : parseFloat(String(pendingAudioFile.duration)) || 0;
+
+      // Ensure we have a playable URL (upload if we only have base64)
+      let finalAudioUrl = pendingAudioFile.url || '';
+      let finalDuration = durationNum;
+
+      if (!finalAudioUrl) {
+        if (!pendingAudioFile.base64) throw new Error('Missing audio data');
+
+        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+          body: {
+            audioData: pendingAudioFile.base64,
+            filename: pendingAudioFile.name,
+            contentType: pendingAudioFile.contentType,
+          },
+        });
+
+        if (uploadError) throw uploadError;
+
+        finalAudioUrl = uploadData?.url || '';
+        if (!finalAudioUrl) throw new Error('Audio upload did not return a URL');
+
+        if (typeof uploadData?.duration === 'number' && Number.isFinite(uploadData.duration)) {
+          finalDuration = uploadData.duration;
+          durationNum = uploadData.duration;
+        }
+      }
       
       // Create a record in the database
       const { error: insertError } = await supabase.from('user_voices').insert({
         id: newTranscriptId,
         user_id: user.id,
         name: title,
-        url: pendingAudioFile.url || '',
+        url: finalAudioUrl,
         duration: durationNum,
         status: 'processing',
         type: 'transcription',
@@ -349,7 +376,7 @@ export default function TranscribeApp() {
       const newTranscript: Transcript = {
         id: newTranscriptId,
         title,
-        duration: formatTime(Math.floor(durationNum)),
+        duration: formatTime(Math.floor(finalDuration)),
         date: new Date().toISOString().split('T')[0],
         source: 'upload',
         status: 'processing',
@@ -360,19 +387,20 @@ export default function TranscribeApp() {
         tags: ['Upload'],
         thumbnail: null,
         summary: null,
-        audioUrl: pendingAudioFile.url,
+        audioUrl: finalAudioUrl,
       };
       
       setTranscripts(prev => [newTranscript, ...prev]);
       setShowTranscribeConfirmModal(false);
       setPendingAudioFile(null);
       
-      // Start transcription
+      // Start transcription (prefer URL so we don't move large base64 around)
       const { data: transcribeData, error: transcribeError } = await supabase.functions.invoke('transcribe-audio', {
         body: {
-          audioUrl: pendingAudioFile.url,
-          audioBase64: pendingAudioFile.base64,
-          filename: pendingAudioFile.name
+          audioUrl: finalAudioUrl,
+          audioBase64: finalAudioUrl ? undefined : pendingAudioFile.base64,
+          filename: pendingAudioFile.name,
+          contentType: pendingAudioFile.contentType,
         }
       });
       
@@ -383,6 +411,7 @@ export default function TranscribeApp() {
         .update({
           status: 'completed',
           prompt: transcribeData?.text || 'Transcription completed',
+          url: (await supabase.from('user_voices').select('url').eq('id', newTranscriptId).single()).data?.url,
         })
         .eq('id', newTranscriptId);
       
@@ -659,6 +688,7 @@ export default function TranscribeApp() {
       name: file.name,
       duration,
       base64,
+      contentType: file.type,
     });
     setShowTranscribeConfirmModal(true);
   };
