@@ -164,44 +164,30 @@ export default function TranscribeApp() {
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitleValue, setEditingTitleValue] = useState('');
   
-  // Track which transcript's Create dropdown is open (to keep action buttons visible)
-  const [openCreateDropdownId, setOpenCreateDropdownId] = useState<string | null>(null);
-  const createDropdownCloseTimerRef = useRef<number | null>(null);
+  // Track which transcript row is hovered and which dropdown is open
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
-  const cancelCreateDropdownClose = useCallback(() => {
-    if (createDropdownCloseTimerRef.current !== null) {
-      window.clearTimeout(createDropdownCloseTimerRef.current);
-      createDropdownCloseTimerRef.current = null;
-    }
+  // Show action buttons if row is hovered OR its dropdown is open
+  const shouldShowActions = useCallback((transcriptId: string) => {
+    return hoveredRowId === transcriptId || openDropdownId === transcriptId;
+  }, [hoveredRowId, openDropdownId]);
+
+  const handleRowMouseEnter = useCallback((transcriptId: string) => {
+    setHoveredRowId(transcriptId);
   }, []);
 
-  const scheduleCreateDropdownClose = useCallback(
-    (transcriptId: string, delay = 120) => {
-      cancelCreateDropdownClose();
-      createDropdownCloseTimerRef.current = window.setTimeout(() => {
-        setOpenCreateDropdownId((prev) => (prev === transcriptId ? null : prev));
-        createDropdownCloseTimerRef.current = null;
-      }, delay);
-    },
-    [cancelCreateDropdownClose]
-  );
+  const handleRowMouseLeave = useCallback(() => {
+    setHoveredRowId(null);
+  }, []);
 
-  const handleTranscriptRowEnter = useCallback(
-    (transcriptId: string) => {
-      cancelCreateDropdownClose();
-      setOpenCreateDropdownId((prev) => (prev && prev !== transcriptId ? null : prev));
-    },
-    [cancelCreateDropdownClose]
-  );
-
-  const handleTranscriptRowLeave = useCallback(
-    (transcriptId: string) => {
-      if (openCreateDropdownId === transcriptId) {
-        scheduleCreateDropdownClose(transcriptId, 120);
-      }
-    },
-    [openCreateDropdownId, scheduleCreateDropdownClose]
-  );
+  const handleDropdownOpenChange = useCallback((transcriptId: string, open: boolean) => {
+    if (open) {
+      setOpenDropdownId(transcriptId);
+    } else {
+      setOpenDropdownId(null);
+    }
+  }, []);
 
   // Scroll restoration - restore position after navigating back
   useEffect(() => {
@@ -1310,8 +1296,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
-                  onPointerEnter={() => handleTranscriptRowEnter(transcript.id)}
-                  onPointerLeave={() => handleTranscriptRowLeave(transcript.id)}
+                  onMouseEnter={() => handleRowMouseEnter(transcript.id)}
+                  onMouseLeave={handleRowMouseLeave}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer"
                 >
                   <div className="flex items-center gap-5">
@@ -1422,14 +1408,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
                     {/* Actions */}
                     <TooltipProvider>
-                      <div className={`flex items-center gap-2 transition-opacity ${openCreateDropdownId === transcript.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      <div className={`flex items-center gap-2 transition-opacity ${shouldShowActions(transcript.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         <DropdownMenu
-                          open={openCreateDropdownId === transcript.id}
-                          onOpenChange={(open) => {
-                            cancelCreateDropdownClose();
-                            if (open) setOpenCreateDropdownId(transcript.id);
-                            else setOpenCreateDropdownId((prev) => (prev === transcript.id ? null : prev));
-                          }}
+                          open={openDropdownId === transcript.id}
+                          onOpenChange={(open) => handleDropdownOpenChange(transcript.id, open)}
                         >
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -1452,8 +1434,6 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                           <DropdownMenuContent
                             align="start"
                             className="bg-popover border border-border z-50"
-                            onPointerEnter={cancelCreateDropdownClose}
-                            onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 120)}
                           >
                             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
                               <Video className="w-4 h-4" />
@@ -1539,8 +1519,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
-                  onPointerEnter={() => handleTranscriptRowEnter(transcript.id)}
-                  onPointerLeave={() => handleTranscriptRowLeave(transcript.id)}
+                  onMouseEnter={() => handleRowMouseEnter(transcript.id)}
+                  onMouseLeave={handleRowMouseLeave}
                   className="group relative p-5 rounded-2xl bg-gray-50 border border-gray-400 hover:bg-gray-100 hover:border-gray-500 transition-all duration-200 cursor-pointer flex flex-col h-full min-h-[280px]"
                 >
                   {/* Top content */}
@@ -1641,12 +1621,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       <TooltipProvider>
                           <div className="flex items-center gap-2">
                             <DropdownMenu
-                              open={openCreateDropdownId === transcript.id}
-                              onOpenChange={(open) => {
-                                cancelCreateDropdownClose();
-                                if (open) setOpenCreateDropdownId(transcript.id);
-                                else setOpenCreateDropdownId((prev) => (prev === transcript.id ? null : prev));
-                              }}
+                              open={openDropdownId === transcript.id}
+                              onOpenChange={(open) => handleDropdownOpenChange(transcript.id, open)}
                             >
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1668,8 +1644,6 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                             <DropdownMenuContent
                               align="start"
                               className="bg-popover border border-border z-50"
-                              onPointerEnter={cancelCreateDropdownClose}
-                              onPointerLeave={() => scheduleCreateDropdownClose(transcript.id, 120)}
                             >
                               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleCreate(transcript, 'video'); }} className="flex items-center gap-2 cursor-pointer">
                                 <Video className="w-4 h-4" />
