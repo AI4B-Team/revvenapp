@@ -1108,14 +1108,16 @@ ${content.map((item, index) => {
                         </button>
                       </div>
                     ) : (
-                      <div className="flex items-start gap-1 max-w-[500px]">
-                        <h1 className="text-2xl font-bold text-gray-900 break-words">{editedTitle}</h1>
+                      <div className="max-w-[500px]">
+                        <h1 className="text-2xl font-bold text-gray-900 break-words inline">
+                          {editedTitle}
+                        </h1>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button 
                                 onClick={() => setIsEditingTitle(true)}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 mt-1"
+                                className="p-1 ml-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors inline-flex align-middle"
                               >
                                 <Pencil className="w-4 h-4" />
                               </button>
