@@ -30,7 +30,7 @@ export default function ImageUpscaler() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
-  const [upscaleFactor, setUpscaleFactor] = useState<string>("2");
+  const [upscaleFactor, setUpscaleFactor] = useState<number>(2);
   const [selectedRecord, setSelectedRecord] = useState<UsageRecord | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -199,7 +199,7 @@ export default function ImageUpscaler() {
               
               {/* Feature Pills */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {['1x Upscale', '2x Upscale', '4x Upscale', '8x Upscale', 'AI Enhanced', 'High Quality'].map((feature) => (
+                {['2x Upscale', '4x Upscale', 'AI Enhanced', 'High Quality'].map((feature) => (
                   <span key={feature} className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm border border-blue-500/20">
                     {feature}
                   </span>
@@ -276,7 +276,7 @@ export default function ImageUpscaler() {
                   <div className="mt-6">
                     <p className="text-sm text-muted-foreground mb-3">Upscale Factor</p>
                     <div className="flex gap-3">
-                      {["1", "2", "4", "8"].map((factor) => (
+                      {[2, 4].map((factor) => (
                         <button
                           key={factor}
                           onClick={() => setUpscaleFactor(factor)}

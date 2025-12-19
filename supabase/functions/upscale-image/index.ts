@@ -25,13 +25,13 @@ serve(async (req) => {
       throw new Error('KIE_AI_API_KEY is not configured');
     }
 
-    // Validate scale factor - must be 1, 2, 4, or 8
-    const validScales = ["1", "2", "4", "8"];
-    const upscaleFactor = validScales.includes(String(scale_factor)) ? String(scale_factor) : "2";
+    // Validate scale factor - must be 2 or 4 for fal/aura-sr
+    const validScales = [2, 4];
+    const upscaleFactor = validScales.includes(Number(scale_factor)) ? Number(scale_factor) : 2;
 
     console.log('Creating upscale task for:', image_url, 'scale:', upscaleFactor);
 
-    // Create the task using topaz/image-upscale model
+    // Create the task using fal/aura-sr model
     const createResponse = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
       method: 'POST',
       headers: {
@@ -39,10 +39,10 @@ serve(async (req) => {
         'Authorization': `Bearer ${KIE_AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'topaz/image-upscale',
+        model: 'fal/aura-sr',
         input: {
           image_url: image_url,
-          upscale_factor: upscaleFactor,
+          upscaling_factor: upscaleFactor,
         },
       }),
     });
@@ -109,7 +109,7 @@ serve(async (req) => {
       }
     }
 
-    throw new Error('Task timed out after 6 minutes');
+    throw new Error('Task timed out after 3 minutes');
 
   } catch (error: unknown) {
     console.error('Error in upscale-image:', error);
