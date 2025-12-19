@@ -995,6 +995,35 @@ ${content.map((item, index) => {
       setTranslatedContent(translatedItems);
       setActiveTranslationTab('translated'); // Auto-switch to translated tab
       
+      // Also translate the summary if it exists and hasn't been translated to this language yet
+      if (aiSummary && !summaryTranslations[targetLanguage]) {
+        setIsTranslatingSummary(true);
+        try {
+          const { data: summaryData, error: summaryError } = await supabase.functions.invoke('generate-transcript-summary', {
+            body: { action: 'translate', text: aiSummary, targetLanguage }
+          });
+          
+          if (!summaryError && summaryData?.translatedText) {
+            const updatedTranslations = { ...summaryTranslations, [targetLanguage]: summaryData.translatedText };
+            setSummaryTranslations(updatedTranslations);
+            setActiveSummaryTab(targetLanguage); // Auto-switch to translated summary
+            
+            // Save to localStorage
+            if (id) {
+              localStorage.setItem(`summary-translations-${id}`, JSON.stringify(updatedTranslations));
+            }
+          }
+        } catch (summaryTranslateError) {
+          console.error('Summary translation error:', summaryTranslateError);
+          // Don't fail the whole operation, just log it
+        } finally {
+          setIsTranslatingSummary(false);
+        }
+      } else if (aiSummary && summaryTranslations[targetLanguage]) {
+        // Summary already translated to this language, just switch to it
+        setActiveSummaryTab(targetLanguage);
+      }
+      
       // Save translation to localStorage
       if (id) {
         localStorage.setItem(`transcript-translation-${id}`, JSON.stringify({
