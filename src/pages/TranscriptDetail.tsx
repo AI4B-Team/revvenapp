@@ -416,22 +416,23 @@ const TranscriptDetail = () => {
       toast.error('No summary to translate');
       return;
     }
-    
+
     setIsTranslatingSummary(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
         body: { action: 'translate', text: aiSummary, targetLanguage }
       });
-      
+
       if (error) throw error;
       if (data?.translatedText) {
-        setSummaryTranslations(prev => ({ ...prev, [targetLanguage]: data.translatedText }));
+        setSummaryTranslations((prev) => {
+          const next = { ...prev, [targetLanguage]: data.translatedText as string };
+          if (id) {
+            localStorage.setItem(`summary-translations-${id}`, JSON.stringify(next));
+          }
+          return next;
+        });
         setActiveSummaryTab(targetLanguage);
-        // Save to localStorage
-        if (id) {
-          const currentTranslations = { ...summaryTranslations, [targetLanguage]: data.translatedText };
-          localStorage.setItem(`summary-translations-${id}`, JSON.stringify(currentTranslations));
-        }
         toast.success(`Summary translated to ${targetLanguage}`);
       }
     } catch (error) {
@@ -1107,6 +1108,32 @@ ${content.map((item, index) => {
   const displayContent = (selectedTranslation && translatedContent && activeTranslationTab === 'translated') 
     ? translatedContent 
     : editedContent;
+
+  // Keep Summary language in sync with the transcript language toggle
+  useEffect(() => {
+    if (activeTab !== 'summary') return;
+
+    if (activeTranslationTab === 'original' || !selectedTranslation) {
+      if (activeSummaryTab !== 'original') setActiveSummaryTab('original');
+      return;
+    }
+
+    // Translated transcript selected
+    if (activeSummaryTab !== selectedTranslation) setActiveSummaryTab(selectedTranslation);
+
+    // If we don't have a translated summary yet, translate it on-demand
+    if (aiSummary && !summaryTranslations[selectedTranslation] && !isTranslatingSummary) {
+      void translateSummary(selectedTranslation);
+    }
+  }, [
+    activeTab,
+    activeTranslationTab,
+    selectedTranslation,
+    aiSummary,
+    summaryTranslations,
+    isTranslatingSummary,
+    activeSummaryTab,
+  ]);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
