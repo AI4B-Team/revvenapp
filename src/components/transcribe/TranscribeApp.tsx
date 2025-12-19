@@ -2701,6 +2701,35 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Handle play/pause
+  const togglePlayPause = useCallback(() => {
+    if (!audioRef.current || !transcript.audioUrl) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  }, [isPlaying, transcript.audioUrl]);
+
+  // Update playback speed
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
+
+  // Format time for display
+  const formatTimeDisplay = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const MOCK_TRANSCRIPT_CONTENT = [
     { speaker: 'Speaker 1', time: '00:00:05', text: "Welcome everyone to today's product strategy meeting. We have a lot to cover, so let's get started." },
@@ -2785,47 +2814,78 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
 
         {/* Audio Player */}
         <div className="p-4 border-b border-white/10 bg-white/[0.02]">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors"
-            >
-              {isPlaying ? (
-                <Pause className="w-5 h-5 text-white" />
-              ) : (
-                <Play className="w-5 h-5 text-white ml-0.5" />
-              )}
-            </button>
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-sm text-gray-400 font-mono">00:00</span>
-                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full w-0 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" />
+          {transcript.audioUrl ? (
+            <>
+              <audio
+                ref={audioRef}
+                src={transcript.audioUrl}
+                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+                onEnded={() => setIsPlaying(false)}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+              />
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={togglePlayPause}
+                  className="w-12 h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5 text-white" />
+                  ) : (
+                    <Play className="w-5 h-5 text-white ml-0.5" />
+                  )}
+                </button>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-sm text-gray-400 font-mono">{formatTimeDisplay(currentTime)}</span>
+                    <div 
+                      className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
+                      onClick={(e) => {
+                        if (!audioRef.current) return;
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const percent = (e.clientX - rect.left) / rect.width;
+                        audioRef.current.currentTime = percent * (duration || 0);
+                      }}
+                    >
+                      <div 
+                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all" 
+                        style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-400 font-mono">{formatTimeDisplay(duration || 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-colors">
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                      <select 
+                        value={playbackSpeed}
+                        onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
+                        className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 focus:outline-none"
+                      >
+                        <option value={0.5}>0.5x</option>
+                        <option value={0.75}>0.75x</option>
+                        <option value={1}>1x</option>
+                        <option value={1.25}>1.25x</option>
+                        <option value={1.5}>1.5x</option>
+                        <option value={2}>2x</option>
+                      </select>
+                    </div>
+                    <p className="text-xs text-gray-500">Click any text to jump to that moment</p>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-400 font-mono">{transcript.duration}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button className="p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-colors">
-                    <Volume2 className="w-4 h-4" />
-                  </button>
-                  <select 
-                    value={playbackSpeed}
-                    onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                    className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 focus:outline-none"
-                  >
-                    <option value={0.5}>0.5x</option>
-                    <option value={0.75}>0.75x</option>
-                    <option value={1}>1x</option>
-                    <option value={1.25}>1.25x</option>
-                    <option value={1.5}>1.5x</option>
-                    <option value={2}>2x</option>
-                  </select>
-                </div>
-                <p className="text-xs text-gray-500">Click any text to jump to that moment</p>
+            </>
+          ) : (
+            <div className="flex items-center gap-4 text-gray-500">
+              <div className="w-12 h-12 rounded-xl bg-gray-700/50 flex items-center justify-center">
+                <VolumeX className="w-5 h-5" />
               </div>
+              <p className="text-sm">Audio not available for this transcript</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Tabs */}
