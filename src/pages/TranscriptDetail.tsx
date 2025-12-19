@@ -1505,16 +1505,20 @@ ${content.map((item, index) => {
                         <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                         Translating summary with GPT-4o...
                       </div>
-                    ) : activeSummaryTab !== 'original' && summaryTranslations[activeSummaryTab] ? (
-                      <p className="text-gray-700 leading-relaxed mb-4">
+                    ) : activeSummaryTab === 'original' ? (
+                      aiSummary ? (
+                        <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
+                          {aiSummary}
+                        </p>
+                      ) : (
+                        <p className="text-gray-500 italic">No summary available</p>
+                      )
+                    ) : summaryTranslations[activeSummaryTab] ? (
+                      <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
                         {summaryTranslations[activeSummaryTab]}
                       </p>
-                    ) : aiSummary ? (
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        {aiSummary}
-                      </p>
                     ) : (
-                      <p className="text-gray-500 italic">No summary available</p>
+                      <p className="text-gray-500 italic">No translation available</p>
                     )}
                     <button 
                       onClick={() => {
