@@ -191,6 +191,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Timeline tracks with combined audio/text
   const [tracks, setTracks] = useState<TimelineTrack[]>([
     {
+      id: 'image-1',
+      type: 'effect' as const, // Using 'effect' for image track
+      name: 'Images',
+      clips: [
+        { id: 'img-1', type: 'effect', name: 'Brand Logo', startTime: 0, duration: 3, color: '#3B82F6' },
+        { id: 'img-2', type: 'effect', name: 'Product Hero', startTime: 8, duration: 5, color: '#3B82F6' },
+        { id: 'img-3', type: 'effect', name: 'Lifestyle Shot', startTime: 20, duration: 7, color: '#3B82F6' },
+        { id: 'img-4', type: 'effect', name: 'Testimonial BG', startTime: 35, duration: 6, color: '#3B82F6' },
+        { id: 'img-5', type: 'effect', name: 'CTA Graphic', startTime: 50, duration: 8, color: '#3B82F6' },
+      ]
+    },
+    {
       id: 'video-1',
       type: 'video',
       name: 'Video 1',
@@ -208,7 +220,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     {
       id: 'audio-1',
       type: 'audio',
-      name: 'Audio',
+      name: 'Voiceover',
       clips: [
         { id: 'audio-clip-1', type: 'audio', name: 'Intro VO', startTime: 0, duration: 5, waveform: generateWaveform(100), caption: "I'm going to tell you something shocking. I'm not real." },
         { id: 'audio-clip-2', type: 'audio', name: 'Origin', startTime: 5, duration: 8, waveform: generateWaveform(160), caption: "I wasn't born. I don't have a past. I don't even exist, and yet I show up online." },
@@ -218,6 +230,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         { id: 'audio-clip-6', type: 'audio', name: 'Solution', startTime: 41, duration: 8, waveform: generateWaveform(160), caption: "That's the trap most creators fall into, but there's a smarter way forward." },
         { id: 'audio-clip-7', type: 'audio', name: 'CTA', startTime: 49, duration: 7, waveform: generateWaveform(140), caption: "That's where Digital Babes come in. Let us be your virtual presence." },
         { id: 'audio-clip-8', type: 'audio', name: 'Outro', startTime: 56, duration: 6, waveform: generateWaveform(120), caption: "Start your journey today. Visit digitalbabes.ai" },
+      ]
+    },
+    {
+      id: 'music-1',
+      type: 'text' as const, // Using 'text' for music track
+      name: 'Music',
+      clips: [
+        { id: 'music-clip-1', type: 'text', name: 'Ambient Intro', startTime: 0, duration: 15, color: '#10B981' },
+        { id: 'music-clip-2', type: 'text', name: 'Upbeat Main', startTime: 15, duration: 25, color: '#10B981' },
+        { id: 'music-clip-3', type: 'text', name: 'Emotional Bridge', startTime: 40, duration: 12, color: '#10B981' },
+        { id: 'music-clip-4', type: 'text', name: 'Outro Fade', startTime: 52, duration: 10, color: '#10B981' },
       ]
     }
   ]);
@@ -745,14 +768,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
 
               {/* Bottom Toolbar Icons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 pt-1">
                 {/* Upload Button */}
                 <DropdownMenu>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
-                          <Plus className="w-5 h-5" />
+                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                          <Plus className="w-4 h-4" />
                         </button>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
@@ -779,8 +802,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
-                          <Box className="w-5 h-5" />
+                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                          <Box className="w-4 h-4" />
                         </button>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
@@ -824,8 +847,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
-                          <Scan className="w-5 h-5" />
+                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                          <Scan className="w-4 h-4" />
                         </button>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
@@ -876,24 +899,26 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </DropdownMenu>
 
                 {/* Separator */}
-                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <div className="w-px h-5 bg-gray-300" />
 
                 {/* Tools Dropdown */}
                 <DropdownMenu>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <button className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                        <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
                           selectedTool ? 'bg-purple-900/30 text-purple-400' : 'hover:bg-gray-200 text-gray-500'
                         }`}>
-                          <LayoutGrid className="w-5 h-5" />
+                          <LayoutGrid className="w-4 h-4" />
                           {!selectedTool && <span className="text-sm">Tools</span>}
                           {selectedTool && (
                             <>
-                              {selectedTool === 'image' && <><ImageIcon className="w-4 h-4" /> Generate Image</>}
-                              {selectedTool === 'video' && <><Video className="w-4 h-4" /> Generate Video</>}
-                              {selectedTool === 'music' && <><Music className="w-4 h-4" /> Generate Music</>}
-                              {selectedTool === 'tts' && <><AudioLines className="w-4 h-4" /> Text to Speech</>}
+                              <span className="text-sm font-medium">
+                                {selectedTool === 'image' && 'Image'}
+                                {selectedTool === 'video' && 'Video'}
+                                {selectedTool === 'music' && 'Music'}
+                                {selectedTool === 'audio' && 'Audio'}
+                              </span>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
                                 className="ml-1 hover:bg-gray-700 rounded p-0.5"
@@ -913,28 +938,28 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       onClick={() => setSelectedTool('image')}
                     >
                       <ImageIcon className="w-4 h-4 text-purple-400" />
-                      Generate Image
+                      Image
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
                       onClick={() => setSelectedTool('video')}
                     >
                       <Video className="w-4 h-4 text-purple-400" />
-                      Generate Video
+                      Video
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedTool('audio')}
+                    >
+                      <AudioLines className="w-4 h-4 text-purple-400" />
+                      Audio
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
                       onClick={() => setSelectedTool('music')}
                     >
                       <Music className="w-4 h-4 text-purple-400" />
-                      Generate Music
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedTool('tts')}
-                    >
-                      <AudioLines className="w-4 h-4 text-purple-400" />
-                      Text to Speech
+                      Music
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -1081,7 +1106,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
 
               {/* Center - Playback Controls */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                {/* Record Button */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="w-8 h-8 flex items-center justify-center bg-red-600 rounded-full hover:bg-red-700 transition-colors text-white shadow-md">
+                      <CircleDot className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Record</p></TooltipContent>
+                </Tooltip>
+                <div className="w-px h-6 bg-gray-200" />
                 <button
                   onClick={skipBackward}
                   className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
@@ -1133,14 +1168,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Timeline */}
-            <div className="h-64 overflow-hidden flex">
+            <div className="h-80 overflow-hidden flex">
               {/* Track Labels - Dark Background matching sidebar */}
-              <div className="w-12 bg-sidebar-background flex flex-col shrink-0">
+              <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
                 {/* Time Ruler Spacer */}
                 <div className="h-8 border-b border-gray-800 flex items-center justify-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="p-1 hover:bg-gray-800 rounded text-white transition-colors">
+                      <button className="p-1.5 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
                         <Plus className="w-4 h-4" />
                       </button>
                     </TooltipTrigger>
@@ -1149,11 +1184,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
                 {/* Track Icons */}
                 {tracks.map((track) => (
-                  <div key={track.id} className="h-14 flex items-center justify-center border-b border-gray-800">
-                    {track.type === 'video' && <Video className="w-4 h-4 text-gray-400" />}
-                    {track.type === 'audio' && <Volume2 className="w-4 h-4 text-gray-400" />}
-                    {track.type === 'effect' && <Sparkles className="w-4 h-4 text-gray-400" />}
-                    {track.type === 'text' && <Type className="w-4 h-4 text-gray-400" />}
+                  <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
+                    {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
+                    {track.id === 'video-1' && <Video className="w-5 h-5 text-yellow-400" />}
+                    {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
+                    {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
                   </div>
                 ))}
               </div>
@@ -1188,15 +1223,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
                   </motion.div>
                   
-                  {/* Time Markers */}
-                  <div className="flex items-end h-full pl-12">
-                    {Array.from({ length: Math.ceil(duration / 2) + 1 }, (_, i) => (
+                  {/* Time Markers - Fixed spacing with zoom */}
+                  <div className="flex items-end h-full pl-12" style={{ width: `${100 * zoom}%` }}>
+                    {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
                       <div
                         key={i}
-                        className="flex-shrink-0 text-xs text-gray-400 border-l border-gray-300 pl-1"
-                        style={{ width: `${(2 / duration) * 100}%` }}
+                        className="flex-shrink-0 text-xs text-gray-500 border-l border-gray-300 pl-2 h-full flex items-center"
+                        style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
                       >
-                        0:{(i * 2).toString().padStart(2, '0')}
+                        {formatTime(i * 5)}
                       </div>
                     ))}
                   </div>
@@ -1207,7 +1242,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   {tracks.map((track) => (
                     <div
                       key={track.id}
-                      className="flex items-center h-14 border-b border-gray-100 hover:bg-gray-50 relative"
+                      className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
                     >
                       {/* Track Content */}
                       <div className="flex-1 h-full relative">
@@ -1239,7 +1274,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             {track.type === 'audio' && (
                               <div className="absolute inset-0 flex flex-col">
                                 {/* Caption Text */}
-                                <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center">
+                                <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center font-medium">
                                   {clip.caption || clip.name}
                                 </div>
                                 {/* Waveform */}
@@ -1249,19 +1284,38 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             
                             {/* Video clips with thumbnails */}
                             {track.type === 'video' && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center overflow-hidden">
+                              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center overflow-hidden">
                                 <div className="w-full h-full flex">
                                   {Array.from({ length: Math.ceil(clip.duration) }).map((_, i) => (
                                     <div key={i} className="h-full aspect-video bg-gray-600 border-r border-gray-500 flex-shrink-0" />
                                   ))}
                                 </div>
+                                <div className="absolute inset-0 flex items-center px-2">
+                                  <span className="text-xs text-white font-medium truncate">{clip.name}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Image clips */}
+                            {track.id === 'image-1' && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 flex items-center px-2 overflow-hidden">
+                                <ImageIcon className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
+                                <span className="text-xs text-white font-medium truncate">{clip.name}</span>
+                              </div>
+                            )}
+
+                            {/* Music clips */}
+                            {track.id === 'music-1' && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700 flex items-center px-2 overflow-hidden">
+                                <Music className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
+                                <span className="text-xs text-white font-medium truncate">{clip.name}</span>
                               </div>
                             )}
                             
-                            {/* Duration indicator for selected audio */}
-                            {track.type === 'audio' && selectedClip === clip.id && (
+                            {/* Duration indicator for selected clips */}
+                            {selectedClip === clip.id && (
                               <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 rounded text-xs text-white">
-                                {clip.duration.toFixed(3)}s
+                                {clip.duration.toFixed(1)}s
                               </div>
                             )}
                             
