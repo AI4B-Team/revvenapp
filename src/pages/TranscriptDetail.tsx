@@ -1085,12 +1085,12 @@ ${content.map((item, index) => {
             </button>
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-300">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
+            <div className="flex items-start gap-6 mb-8 pb-6 border-b border-gray-300">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center flex-shrink-0">
                   <FileText className="w-7 h-7 text-emerald-500" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     {isEditingTitle ? (
                       <div className="flex items-center gap-2">
@@ -1108,7 +1108,7 @@ ${content.map((item, index) => {
                         </button>
                       </div>
                     ) : (
-                      <div className="max-w-[500px]">
+                      <div className="pr-4">
                         <h1 className="text-2xl font-bold text-gray-900 break-words inline">
                           {editedTitle}
                         </h1>
@@ -1180,7 +1180,7 @@ ${content.map((item, index) => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <TooltipProvider>
                   {/* Create Dropdown Button */}
                   <DropdownMenu>
