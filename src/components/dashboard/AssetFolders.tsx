@@ -53,10 +53,10 @@ const formatDate = (date: Date): string => {
   return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 };
 
-// Get Color Classes
-const getColorClasses = (colorValue: FolderColor, isSelected: boolean) => {
+// Get Color Classes - now returns default, hover, and selected states
+const getColorClasses = (colorValue: FolderColor, isHovered: boolean) => {
   const color = colorOptions.find(c => c.value === colorValue) || colorOptions[0];
-  if (isSelected) {
+  if (isHovered) {
     return {
       tab: color.selected.replace('bg-gradient-to-br', 'bg-gradient-to-r'),
       front: color.selected,
@@ -266,13 +266,16 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-  const colors = getColorClasses(folder.color, isSelected);
+  const [isHovered, setIsHovered] = useState(false);
+  const colors = getColorClasses(folder.color, isHovered);
 
   return (
     <>
       <div
         onClick={() => onSelect(folder.id)}
         onDoubleClick={() => onOpen(folder.id)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={`
           relative cursor-pointer select-none pt-3
           transition-all duration-300 ease-out
@@ -298,16 +301,16 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
           className={`
             relative rounded-2xl p-5 pt-6
             transition-all duration-300
-            ${isSelected
+            ${isHovered
               ? `${colors.front} text-white shadow-xl`
-              : `${colors.front} text-gray-800 shadow-lg hover:shadow-xl`
+              : `${colors.front} text-gray-800 shadow-lg`
             }
           `}
         >
           {/* Favorite Star */}
           {folder.isFavorite && (
             <div className="absolute top-4 left-4">
-              <Star className={`w-4 h-4 fill-current ${isSelected ? 'text-yellow-300' : 'text-yellow-500'}`} />
+              <Star className={`w-4 h-4 fill-current ${isHovered ? 'text-yellow-300' : 'text-yellow-500'}`} />
             </div>
           )}
 
@@ -322,13 +325,13 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
               w-10 h-10 rounded-full
               flex items-center justify-center
               transition-all duration-200
-              ${isSelected
+              ${isHovered
                 ? 'bg-white/20 hover:bg-white/30'
                 : 'bg-gray-100 hover:bg-gray-200'
               }
             `}
           >
-            <Menu className={`w-[18px] h-[18px] ${isSelected ? 'text-white' : 'text-gray-500'}`} />
+            <Menu className={`w-[18px] h-[18px] ${isHovered ? 'text-white' : 'text-gray-500'}`} />
           </button>
 
           {/* Dropdown Menu */}
@@ -370,12 +373,12 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
           {/* Folder Info */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-1">
-              <span className={isSelected ? 'text-white' : 'text-gray-700'}>
+              <span className={isHovered ? 'text-white' : 'text-gray-700'}>
                 {folderIcons[folder.type]}
               </span>
               <h3 className="text-xl font-semibold tracking-tight">{toTitleCase(folder.name)}</h3>
             </div>
-            <p className={`text-sm ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
+            <p className={`text-sm ${isHovered ? 'text-white/80' : 'text-gray-500'}`}>
               {folder.fileCount} {folder.fileCount === 1 ? 'File' : 'Files'}
             </p>
           </div>
@@ -384,13 +387,13 @@ export const AssetFolderCard: React.FC<AssetFolderCardProps> = ({
           <div
             className={`
               inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm
-              ${isSelected
+              ${isHovered
                 ? 'bg-white/20 text-white'
                 : 'bg-gray-100 text-gray-600'
               }
             `}
           >
-            <span className={isSelected ? 'text-white/70' : 'text-gray-400'}>
+            <span className={isHovered ? 'text-white/70' : 'text-gray-400'}>
               Last Modified:
             </span>
             <span className="font-medium">{formatDate(folder.lastModified)}</span>
@@ -487,49 +490,54 @@ export const AssetFolderGrid: React.FC<AssetFolderGridProps> = ({
     <div className="w-full">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">Asset Folders</h1>
-            <p className="text-muted-foreground mt-1">Organize and manage your creative assets</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">ASSETS</h1>
           </div>
-          <Button
-            onClick={onCreateFolder}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
-          >
-            <Plus className="w-5 h-5" />
-            New Folder
-          </Button>
-        </div>
-
-        {/* Search And View Toggle */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search folders..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12"
-            />
-          </div>
-          <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
-            >
-              <Grid3X3 className="w-5 h-5" />
+          
+          <div className="flex items-center gap-4">
+            {/* Search */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search folders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 w-64"
+              />
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
+              <button 
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+              >
+                <Grid3X3 className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Filter */}
+            <button className="p-3 bg-muted rounded-xl text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
+              <Filter className="w-5 h-5" />
             </button>
-            <button 
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+            
+            {/* New Folder Button */}
+            <Button
+              onClick={onCreateFolder}
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
             >
-              <List className="w-5 h-5" />
-            </button>
+              <Plus className="w-5 h-5" />
+              New Folder
+            </Button>
           </div>
-          <button className="p-3 bg-muted rounded-xl text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
-            <Filter className="w-5 h-5" />
-          </button>
         </div>
       </div>
 

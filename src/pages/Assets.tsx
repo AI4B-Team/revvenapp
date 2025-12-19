@@ -75,7 +75,7 @@ const Assets = () => {
         fileCount: imageCounts.videos, 
         type: 'videos', 
         lastModified: new Date(), 
-        color: 'red', 
+        color: 'blue', 
         isFavorite: false 
       },
       { 
@@ -84,7 +84,7 @@ const Assets = () => {
         fileCount: 0, 
         type: 'music', 
         lastModified: new Date(), 
-        color: 'purple', 
+        color: 'blue', 
         isFavorite: false 
       },
       { 
@@ -93,7 +93,7 @@ const Assets = () => {
         fileCount: 0, 
         type: 'documents', 
         lastModified: new Date(), 
-        color: 'green', 
+        color: 'blue', 
         isFavorite: false 
       },
     ];
@@ -107,7 +107,7 @@ const Assets = () => {
       fileCount: 0,
       type: 'default',
       lastModified: new Date(),
-      color: 'gray',
+      color: 'blue',
       isFavorite: false,
     };
     setFolders([...folders, newFolder]);
