@@ -136,6 +136,22 @@ export default function NoiseRemover() {
     }
   };
 
+  const handleDeleteRecord = async (recordId: string) => {
+    try {
+      const { error } = await supabase
+        .from('audio_app_usage')
+        .delete()
+        .eq('id', recordId);
+
+      if (error) throw error;
+
+      setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      toast.success('Record deleted');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete');
+    }
+  };
+
   const playAudio = (url: string) => {
     if (isPlaying === url) {
       audioRef.current?.pause();
@@ -409,14 +425,22 @@ export default function NoiseRemover() {
                               {new Date(record.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          {record.output_audio_url && (
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {record.output_audio_url && (
+                              <button
+                                onClick={() => playAudio(record.output_audio_url!)}
+                                className="p-2 rounded-lg hover:bg-background/50"
+                              >
+                                {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                              </button>
+                            )}
                             <button
-                              onClick={() => playAudio(record.output_audio_url!)}
-                              className="p-2 rounded-lg hover:bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleDeleteRecord(record.id)}
+                              className="p-2 rounded-lg hover:bg-red-500/10 text-red-400"
                             >
-                              {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                              <Trash2 className="w-4 h-4" />
                             </button>
-                          )}
+                          </div>
                         </div>
                       ))}
                     </div>
