@@ -50,7 +50,20 @@ import {
   Search,
   Minus,
   Star,
+  Box,
+  Scan,
+  LayoutGrid,
+  ImageIcon,
+  AudioLines,
+  Check,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
@@ -171,6 +184,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     { id: '8', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
   ]);
 
+  // Selected tool for the toolbar
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedRatio, setSelectedRatio] = useState('Automatic Ratio');
+
   // Timeline tracks with combined audio/text
   const [tracks, setTracks] = useState<TimelineTrack[]>([
     {
@@ -178,14 +195,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       type: 'video',
       name: 'Video 1',
       clips: [
-        { id: 'clip-1', type: 'video', name: 'Scene 1', startTime: 0, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-2', type: 'video', name: 'Scene 2', startTime: 2, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-3', type: 'video', name: 'Scene 3', startTime: 4, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-4', type: 'video', name: 'Scene 4', startTime: 6, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-5', type: 'video', name: 'Scene 5', startTime: 8, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-6', type: 'video', name: 'Scene 6', startTime: 10, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-7', type: 'video', name: 'Scene 7', startTime: 12, duration: 2, thumbnail: '/placeholder.svg' },
-        { id: 'clip-8', type: 'video', name: 'Scene 8', startTime: 14, duration: 4, thumbnail: '/placeholder.svg' },
+        { id: 'clip-1', type: 'video', name: 'Intro', startTime: 0, duration: 5, thumbnail: '/placeholder.svg' },
+        { id: 'clip-2', type: 'video', name: 'Vicki Close-up', startTime: 5, duration: 8, thumbnail: '/placeholder.svg' },
+        { id: 'clip-3', type: 'video', name: 'Product Shot', startTime: 13, duration: 6, thumbnail: '/placeholder.svg' },
+        { id: 'clip-4', type: 'video', name: 'Testimonial', startTime: 19, duration: 10, thumbnail: '/placeholder.svg' },
+        { id: 'clip-5', type: 'video', name: 'Demo Sequence', startTime: 29, duration: 12, thumbnail: '/placeholder.svg' },
+        { id: 'clip-6', type: 'video', name: 'CTA Scene', startTime: 41, duration: 8, thumbnail: '/placeholder.svg' },
+        { id: 'clip-7', type: 'video', name: 'Brand Outro', startTime: 49, duration: 7, thumbnail: '/placeholder.svg' },
+        { id: 'clip-8', type: 'video', name: 'End Card', startTime: 56, duration: 6, thumbnail: '/placeholder.svg' },
       ]
     },
     {
@@ -193,10 +210,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       type: 'audio',
       name: 'Audio',
       clips: [
-        { id: 'audio-clip-1', type: 'audio', name: "I'm going to tell you somethi...", startTime: 0, duration: 3, waveform: generateWaveform(60), caption: "I'm going to tell you something" },
-        { id: 'audio-clip-2', type: 'audio', name: "I wasn't b...", startTime: 3, duration: 2, waveform: generateWaveform(40), caption: "I wasn't born" },
-        { id: 'audio-clip-3', type: 'audio', name: "I don't have a past. I don't ev...", startTime: 5, duration: 3, waveform: generateWaveform(60), caption: "I don't have a past. I don't even exist" },
-        { id: 'audio-clip-4', type: 'audio', name: "and yet I show up online. I create content. I build influence. I help my creators share ideas, promote pro...", startTime: 8, duration: 10, waveform: generateWaveform(200), caption: "and yet I show up online. I create content. I build influence." },
+        { id: 'audio-clip-1', type: 'audio', name: 'Intro VO', startTime: 0, duration: 5, waveform: generateWaveform(100), caption: "I'm going to tell you something shocking. I'm not real." },
+        { id: 'audio-clip-2', type: 'audio', name: 'Origin', startTime: 5, duration: 8, waveform: generateWaveform(160), caption: "I wasn't born. I don't have a past. I don't even exist, and yet I show up online." },
+        { id: 'audio-clip-3', type: 'audio', name: 'Purpose', startTime: 13, duration: 6, waveform: generateWaveform(120), caption: "I create content. I build influence. I help my creators share ideas." },
+        { id: 'audio-clip-4', type: 'audio', name: 'Introduction', startTime: 19, duration: 10, waveform: generateWaveform(200), caption: "Hi, my name is Vicki Revelle and I'm what's called a digital babe." },
+        { id: 'audio-clip-5', type: 'audio', name: 'Problem', startTime: 29, duration: 12, waveform: generateWaveform(240), caption: "Not everyone wants to be the face of their brand. Not everyone wants to share their personal life online." },
+        { id: 'audio-clip-6', type: 'audio', name: 'Solution', startTime: 41, duration: 8, waveform: generateWaveform(160), caption: "That's the trap most creators fall into, but there's a smarter way forward." },
+        { id: 'audio-clip-7', type: 'audio', name: 'CTA', startTime: 49, duration: 7, waveform: generateWaveform(140), caption: "That's where Digital Babes come in. Let us be your virtual presence." },
+        { id: 'audio-clip-8', type: 'audio', name: 'Outro', startTime: 56, duration: 6, waveform: generateWaveform(120), caption: "Start your journey today. Visit digitalbabes.ai" },
       ]
     }
   ]);
@@ -693,42 +714,223 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
           </div>
 
-          {/* Reference Images Upload Area */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
-              <p className="text-sm text-gray-600">
-                Drop your reference image(s) here or <button className="text-primary hover:text-primary/80 font-medium">upload</button>
-              </p>
-              {referenceImages.length > 0 && (
-                <div className="flex gap-2 mt-3">
-                  {referenceImages.map((img, idx) => (
-                    <div key={idx} className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-200">
-                      <button className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                        <X className="w-3 h-3 text-white" />
-                      </button>
+          {/* Compact Prompt Box with Green Border */}
+          <div className="p-3 border-t border-gray-200">
+            <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
+              {/* Video Icon and Textarea */}
+              <div className="flex items-start gap-2 mb-3">
+                <Video className="w-5 h-5 text-brand-green mt-1 flex-shrink-0" />
+                <textarea
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
+                  placeholder="Describe what you want to create..."
+                  className="w-full bg-transparent text-sm focus:outline-none resize-none h-24 placeholder:text-gray-400"
+                />
+              </div>
+
+              {/* Bottom Toolbar Icons */}
+              <div className="flex items-center gap-2">
+                {/* Upload Button */}
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
+                          <Plus className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Upload</p></TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                      <ImageIcon className="w-4 h-4" />
+                      Upload Image
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                      <Video className="w-4 h-4" />
+                      Upload Video
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                      <AudioLines className="w-4 h-4" />
+                      Upload Audio
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Model Selector */}
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
+                          <Box className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Model</p></TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-80 bg-gray-900 border-gray-800 text-white p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-medium">Model</span>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-gray-400">Auto</span>
+                        <div className="w-8 h-4 bg-primary rounded-full relative">
+                          <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+                    <div className="flex gap-1 mb-3 bg-gray-800 rounded-lg p-1">
+                      <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Video</button>
+                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Image</button>
+                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Audio</button>
+                    </div>
+                    <p className="text-xs text-gray-400 mb-3">Each video costs 15-80 credits</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold">H</div>
+                        <div className="flex-1">
+                          <p className="font-medium">Hailuo 2.3</p>
+                          <p className="text-xs text-gray-400">Enhanced quality, smoother</p>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-xs bg-gray-800 px-2 py-0.5 rounded">768P-1080P</span>
+                            <span className="text-xs bg-gray-800 px-2 py-0.5 rounded">6s-10s</span>
+                          </div>
+                        </div>
+                        <Check className="w-5 h-5 text-primary" />
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-          {/* Prompt Input */}
-          <div className="p-4 border-t border-gray-200">
-            <textarea
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              placeholder="Describe your video idea... (e.g., 'Sunlight filtering through trees and a gentle stream flowing')"
-              className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none h-40"
-            />
+                {/* Aspect Ratio Selector */}
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">
+                          <Scan className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                    <DropdownMenuItem 
+                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedRatio('Automatic Ratio')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Scan className="w-4 h-4" />
+                        Automatic Ratio
+                      </div>
+                      {selectedRatio === 'Automatic Ratio' && <Check className="w-4 h-4 text-primary" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedRatio('Landscape')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-3 border border-current rounded-sm" />
+                        Landscape
+                      </div>
+                      {selectedRatio === 'Landscape' && <Check className="w-4 h-4 text-primary" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedRatio('Portrait')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-4 border border-current rounded-sm" />
+                        Portrait
+                      </div>
+                      {selectedRatio === 'Portrait' && <Check className="w-4 h-4 text-primary" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedRatio('Square')}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 border border-current rounded-sm" />
+                        Square
+                      </div>
+                      {selectedRatio === 'Square' && <Check className="w-4 h-4 text-primary" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            {/* Generate Button */}
-            <div className="mt-4">
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-brand-green text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
-                Generate
-                <Star className="w-4 h-4" />
-                30
-              </button>
+                {/* Separator */}
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+
+                {/* Tools Dropdown */}
+                <DropdownMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <button className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                          selectedTool ? 'bg-purple-900/30 text-purple-400' : 'hover:bg-gray-200 text-gray-500'
+                        }`}>
+                          <LayoutGrid className="w-5 h-5" />
+                          {!selectedTool && <span className="text-sm">Tools</span>}
+                          {selectedTool && (
+                            <>
+                              {selectedTool === 'image' && <><ImageIcon className="w-4 h-4" /> Generate Image</>}
+                              {selectedTool === 'video' && <><Video className="w-4 h-4" /> Generate Video</>}
+                              {selectedTool === 'music' && <><Music className="w-4 h-4" /> Generate Music</>}
+                              {selectedTool === 'tts' && <><AudioLines className="w-4 h-4" /> Text to Speech</>}
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
+                                className="ml-1 hover:bg-gray-700 rounded p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </>
+                          )}
+                        </button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Tools</p></TooltipContent>
+                  </Tooltip>
+                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedTool('image')}
+                    >
+                      <ImageIcon className="w-4 h-4 text-purple-400" />
+                      Generate Image
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedTool('video')}
+                    >
+                      <Video className="w-4 h-4 text-purple-400" />
+                      Generate Video
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedTool('music')}
+                    >
+                      <Music className="w-4 h-4 text-purple-400" />
+                      Generate Music
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                      onClick={() => setSelectedTool('tts')}
+                    >
+                      <AudioLines className="w-4 h-4 text-purple-400" />
+                      Text to Speech
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Generate Button */}
+                <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-full font-medium hover:opacity-90 transition-opacity text-sm">
+                  Generate For Free!
+                </button>
+              </div>
             </div>
           </div>
         </div>
