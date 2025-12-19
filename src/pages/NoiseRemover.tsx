@@ -82,6 +82,7 @@ export default function NoiseRemover() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Upload to Cloudinary first
       const formData = new FormData();
       formData.append('file', audioFile);
       formData.append('upload_preset', 'revven');
@@ -94,20 +95,30 @@ export default function NoiseRemover() {
       const uploadData = await uploadResponse.json();
       if (!uploadData.secure_url) throw new Error('Upload failed');
 
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      toast.info('Processing audio with AI...', { duration: 10000 });
 
+      // Call the isolate-audio edge function
+      const { data, error } = await supabase.functions.invoke('isolate-audio', {
+        body: { audio_url: uploadData.secure_url }
+      });
+
+      if (error) throw new Error(error.message || 'Failed to process audio');
+      if (!data?.audio_url) throw new Error('No audio URL returned');
+
+      // Save to database
       await supabase.from('audio_app_usage').insert({
         user_id: user.id,
         app_name: 'noise_remover',
         input_audio_url: uploadData.secure_url,
-        output_audio_url: uploadData.secure_url,
+        output_audio_url: data.audio_url,
         settings: { noise_reduction_level: noiseReduction[0] },
         status: 'completed'
       });
 
-      setOutputUrl(uploadData.secure_url);
+      setOutputUrl(data.audio_url);
       toast.success('Noise removed successfully!');
 
+      // Refresh history
       const { data: history } = await supabase
         .from('audio_app_usage')
         .select('*')
