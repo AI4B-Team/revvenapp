@@ -1758,15 +1758,18 @@ ${content.map((item, index) => {
                 <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
                 
                 <div 
-                  className="flex-1 h-1.5 bg-gray-600 rounded-full overflow-hidden cursor-pointer relative group"
+                  className="flex-1 h-1.5 bg-gray-600 rounded-full cursor-pointer relative group"
                   onClick={handleSeek}
                 >
                   <div 
-                    className="h-full bg-white rounded-full transition-all relative" 
+                    className="h-full bg-white rounded-full transition-all" 
                     style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
-                  >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  />
+                  {/* Draggable handle - positioned based on progress */}
+                  <div 
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-emerald-500 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                    style={{ left: `calc(${isValidDuration(audioDuration) ? (currentTime / audioDuration) * 100 : 0}% - 8px)` }}
+                  />
                 </div>
                 
                 <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
