@@ -53,7 +53,8 @@ const EmailGenerator = () => {
 
       if (error) throw error;
       
-      const content = data.message || '';
+      console.log('Email response:', data);
+      const content = data?.message || '';
       const parts = content.split('---');
       
       if (parts.length >= 2) {
