@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import {
   Play,
   Pause,
@@ -44,6 +45,9 @@ import {
   ChevronDown,
   Cloud,
   Check,
+  Download,
+  Copy,
+  Loader2,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -65,6 +69,7 @@ interface TimelineScene {
   name: string;
   color: string;
   duration: number;
+  startTime: number;
 }
 
 interface TimelineTrack {
@@ -91,6 +96,11 @@ interface AITool {
   toggle?: boolean;
 }
 
+interface HistoryState {
+  transcript: TranscriptSegment[];
+  currentTime: number;
+}
+
 interface VideoEditingCanvasProps {
   video?: string;
   onClose?: () => void;
@@ -100,7 +110,7 @@ interface VideoEditingCanvasProps {
 }
 
 // Sample transcript data with timestamps
-const sampleTranscript: TranscriptSegment[] = [
+const initialTranscript: TranscriptSegment[] = [
   { id: 1, speaker: 'Vicki', startTime: 0, endTime: 5.2, text: "I'm going to tell you something shocking." },
   { id: 2, speaker: 'Vicki', startTime: 5.2, endTime: 8.5, text: "I'm not real. I wasn't born. I don't have a past." },
   { id: 3, speaker: 'Vicki', startTime: 8.5, endTime: 14.0, text: "I don't even exist, and yet I show up online. I create content. I build influence." },
@@ -112,13 +122,13 @@ const sampleTranscript: TranscriptSegment[] = [
 ];
 
 // Timeline scenes data
-const timelineScenes: TimelineScene[] = [
-  { id: 1, name: 'Intro Scene', color: '#10b981', duration: 20 },
-  { id: 2, name: 'Vicki Introduction', color: '#f59e0b', duration: 35 },
-  { id: 3, name: 'Product Showcase', color: '#ef4444', duration: 45 },
-  { id: 4, name: 'Zara Scene', color: '#10b981', duration: 40 },
-  { id: 5, name: 'Bianca Scene', color: '#8b5cf6', duration: 50 },
-  { id: 6, name: 'Closing', color: '#f59e0b', duration: 48.5 },
+const initialTimelineScenes: TimelineScene[] = [
+  { id: 1, name: 'Intro Scene', color: '#10b981', duration: 8.5, startTime: 0 },
+  { id: 2, name: 'Vicki Introduction', color: '#f59e0b', duration: 11.5, startTime: 8.5 },
+  { id: 3, name: 'Value Proposition', color: '#ef4444', duration: 8, startTime: 20 },
+  { id: 4, name: 'Benefits', color: '#10b981', duration: 7, startTime: 28 },
+  { id: 5, name: 'Reality Check', color: '#8b5cf6', duration: 7, startTime: 35 },
+  { id: 6, name: 'Closing', color: '#f59e0b', duration: 8, startTime: 42 },
 ];
 
 // Media library items
@@ -163,21 +173,36 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   activeEditorTab,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(134.4);
-  const [duration] = useState(238.5);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration] = useState(50);
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
   const [zoom, setZoom] = useState(50);
+  const [previewZoom, setPreviewZoom] = useState(100);
   const [activeLeftTab, setActiveLeftTab] = useState('script');
   const [activeMediaTab, setActiveMediaTab] = useState('video');
-  const [selectedTranscriptId, setSelectedTranscriptId] = useState(2);
-  const [transcript] = useState<TranscriptSegment[]>(sampleTranscript);
+  const [selectedTranscriptId, setSelectedTranscriptId] = useState<number | null>(null);
+  const [transcript, setTranscript] = useState<TranscriptSegment[]>(initialTranscript);
   const [showAITools, setShowAITools] = useState(true);
-  const [aiToolStates, setAiToolStates] = useState<Record<number, boolean>>({});
+  const [aiToolStates, setAiToolStates] = useState<Record<number, boolean>>({ 7: true, 8: true });
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isProcessing, setIsProcessing] = useState<number | null>(null);
+  const [timelineScenes] = useState<TimelineScene[]>(initialTimelineScenes);
+  const [selectedSceneId, setSelectedSceneId] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [editingTranscriptId, setEditingTranscriptId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState('');
+  
+  // History for undo/redo
+  const [history, setHistory] = useState<HistoryState[]>([{ transcript: initialTranscript, currentTime: 0 }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const playbackIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Format time helper
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -185,6 +210,84 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`;
   };
 
+  // Save state to history
+  const saveToHistory = useCallback((newTranscript: TranscriptSegment[]) => {
+    const newState: HistoryState = { transcript: newTranscript, currentTime };
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newState);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [history, historyIndex, currentTime]);
+
+  // Undo
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setTranscript(history[newIndex].transcript);
+      toast.success('Undone');
+    } else {
+      toast.info('Nothing to undo');
+    }
+  }, [historyIndex, history]);
+
+  // Redo
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setTranscript(history[newIndex].transcript);
+      toast.success('Redone');
+    } else {
+      toast.info('Nothing to redo');
+    }
+  }, [historyIndex, history]);
+
+  // Reset
+  const handleReset = useCallback(() => {
+    setTranscript(initialTranscript);
+    setCurrentTime(0);
+    setIsPlaying(false);
+    setHistory([{ transcript: initialTranscript, currentTime: 0 }]);
+    setHistoryIndex(0);
+    toast.success('Reset to original');
+  }, []);
+
+  // Playback simulation
+  useEffect(() => {
+    if (isPlaying) {
+      playbackIntervalRef.current = setInterval(() => {
+        setCurrentTime((prev) => {
+          if (prev >= duration) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 0.1 * playbackSpeed;
+        });
+      }, 100);
+    } else {
+      if (playbackIntervalRef.current) {
+        clearInterval(playbackIntervalRef.current);
+      }
+    }
+    return () => {
+      if (playbackIntervalRef.current) {
+        clearInterval(playbackIntervalRef.current);
+      }
+    };
+  }, [isPlaying, duration, playbackSpeed]);
+
+  // Update selected transcript based on current time
+  useEffect(() => {
+    const currentSegment = transcript.find(
+      (seg) => currentTime >= seg.startTime && currentTime < seg.endTime
+    );
+    if (currentSegment && selectedTranscriptId !== currentSegment.id) {
+      setSelectedTranscriptId(currentSegment.id);
+    }
+  }, [currentTime, transcript, selectedTranscriptId]);
+
+  // Handle transcript click
   const handleTranscriptClick = (id: number) => {
     setSelectedTranscriptId(id);
     const segment = transcript.find((t) => t.id === id);
@@ -193,23 +296,205 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     }
   };
 
+  // Handle word click for editing
   const handleWordClick = (segmentId: number, wordIndex: number, word: string) => {
-    console.log(`Clicked word: "${word}" in segment ${segmentId}`);
+    toast.info(`Selected word: "${word}"`);
   };
 
+  // Start editing transcript
+  const handleStartEditTranscript = (segmentId: number, text: string) => {
+    setEditingTranscriptId(segmentId);
+    setEditingText(text);
+  };
+
+  // Save transcript edit
+  const handleSaveTranscriptEdit = (segmentId: number) => {
+    const newTranscript = transcript.map((seg) =>
+      seg.id === segmentId ? { ...seg, text: editingText } : seg
+    );
+    setTranscript(newTranscript);
+    saveToHistory(newTranscript);
+    setEditingTranscriptId(null);
+    setEditingText('');
+    toast.success('Transcript updated');
+  };
+
+  // Delete transcript segment
+  const handleDeleteSegment = (segmentId: number) => {
+    const newTranscript = transcript.filter((seg) => seg.id !== segmentId);
+    setTranscript(newTranscript);
+    saveToHistory(newTranscript);
+    toast.success('Segment deleted');
+  };
+
+  // Split at current position
+  const handleSplit = () => {
+    const segmentToSplit = transcript.find(
+      (seg) => currentTime > seg.startTime && currentTime < seg.endTime
+    );
+    if (segmentToSplit) {
+      const splitRatio = (currentTime - segmentToSplit.startTime) / (segmentToSplit.endTime - segmentToSplit.startTime);
+      const words = segmentToSplit.text.split(' ');
+      const splitIndex = Math.floor(words.length * splitRatio);
+      
+      const firstPart = words.slice(0, splitIndex).join(' ');
+      const secondPart = words.slice(splitIndex).join(' ');
+      
+      const newTranscript = transcript.flatMap((seg) => {
+        if (seg.id === segmentToSplit.id) {
+          return [
+            { ...seg, endTime: currentTime, text: firstPart },
+            { ...seg, id: seg.id + 100, startTime: currentTime, text: secondPart },
+          ];
+        }
+        return seg;
+      });
+      
+      setTranscript(newTranscript);
+      saveToHistory(newTranscript);
+      toast.success('Split at playhead');
+    } else {
+      toast.info('Position playhead within a segment to split');
+    }
+  };
+
+  // Toggle AI tool
   const toggleAiTool = (toolId: number) => {
     setAiToolStates((prev) => ({
       ...prev,
       [toolId]: !prev[toolId],
     }));
+    const tool = aiTools.find((t) => t.id === toolId);
+    if (tool) {
+      toast.success(`${tool.name} ${!aiToolStates[toolId] ? 'enabled' : 'disabled'}`);
+    }
+  };
+
+  // Apply AI tool
+  const handleApplyAiTool = async (tool: AITool) => {
+    setIsProcessing(tool.id);
+    
+    // Simulate processing
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    switch (tool.id) {
+      case 1: // Edit for clarity
+        const clarityTranscript = transcript.map((seg) => ({
+          ...seg,
+          text: seg.text.replace(/\b(um|uh|like|you know|basically|actually)\b/gi, '').replace(/\s+/g, ' ').trim(),
+        }));
+        setTranscript(clarityTranscript);
+        saveToHistory(clarityTranscript);
+        toast.success('Edited for clarity - removed filler words');
+        break;
+      case 2: // Remove filler words
+        const fillerFreeTranscript = transcript.map((seg) => ({
+          ...seg,
+          text: seg.text.replace(/\b(um|uh|er|ah)\b/gi, '').replace(/\s+/g, ' ').trim(),
+        }));
+        setTranscript(fillerFreeTranscript);
+        saveToHistory(fillerFreeTranscript);
+        toast.success('Removed filler words');
+        break;
+      case 3: // Shorten word gaps
+        toast.success('Word gaps shortened');
+        break;
+      case 4: // Studio Sound
+        toast.success('Studio Sound applied - audio enhanced');
+        break;
+      case 5: // Create clips
+        toast.success('3 shareable clips created');
+        break;
+      default:
+        toast.success(`${tool.name} applied`);
+    }
+    
+    setIsProcessing(null);
+  };
+
+  // Zoom controls
+  const handleZoomIn = () => {
+    setPreviewZoom((prev) => Math.min(prev + 25, 200));
+  };
+
+  const handleZoomOut = () => {
+    setPreviewZoom((prev) => Math.max(prev - 25, 50));
+  };
+
+  // Timeline zoom
+  const handleTimelineZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 10, 100));
+  };
+
+  const handleTimelineZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 10, 10));
+  };
+
+  // Skip controls
+  const handleSkipBack = () => {
+    setCurrentTime((prev) => Math.max(prev - 5, 0));
+  };
+
+  const handleSkipForward = () => {
+    setCurrentTime((prev) => Math.min(prev + 5, duration));
+  };
+
+  const handleFrameBack = () => {
+    setCurrentTime((prev) => Math.max(prev - 0.1, 0));
+  };
+
+  const handleFrameForward = () => {
+    setCurrentTime((prev) => Math.min(prev + 0.1, duration));
+  };
+
+  // Fullscreen toggle
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Share
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied to clipboard');
+  };
+
+  // Scene click
+  const handleSceneClick = (scene: TimelineScene) => {
+    setSelectedSceneId(scene.id);
+    setCurrentTime(scene.startTime);
+    toast.info(`Jumped to ${scene.name}`);
+  };
+
+  // Media item click
+  const handleMediaItemClick = (item: MediaItem, type: string) => {
+    toast.success(`Added ${item.name} to timeline`);
+  };
+
+  // Upload handler
+  const handleUpload = () => {
+    toast.info(`Upload ${activeMediaTab} - feature coming soon`);
+  };
+
+  // Get current caption
+  const getCurrentCaption = () => {
+    const current = transcript.find(
+      (seg) => currentTime >= seg.startTime && currentTime < seg.endTime
+    );
+    return current?.text || '';
   };
 
   // Timeline tracks
   const timelineTracks: TimelineTrack[] = [
-    { id: 'video', name: 'Video', icon: Video, color: '#10b981', clips: [{ id: 'v1', start: 0, duration: 238.5, name: 'Main Video' }] },
+    { id: 'video', name: 'Video', icon: Video, color: '#10b981', clips: [{ id: 'v1', start: 0, duration: duration, name: 'Main Video' }] },
     { id: 'transcript', name: 'Text', icon: FileText, color: '#3b82f6', clips: transcript.map((t, i) => ({ id: `t${i}`, start: t.startTime, duration: t.endTime - t.startTime, name: t.text.substring(0, 20) + '...' })) },
-    { id: 'audio', name: 'SFX', icon: Mic, color: '#f59e0b', clips: [{ id: 'a1', start: 0, duration: 5, name: 'Intro' }, { id: 'a2', start: 190, duration: 48, name: 'Outro' }] },
-    { id: 'music', name: 'Music', icon: Music, color: '#ec4899', clips: [{ id: 'm1', start: 0, duration: 238.5, name: 'BG Music' }] },
+    { id: 'audio', name: 'SFX', icon: Mic, color: '#f59e0b', clips: [{ id: 'a1', start: 0, duration: 5, name: 'Intro' }, { id: 'a2', start: 42, duration: 8, name: 'Outro' }] },
+    { id: 'music', name: 'Music', icon: Music, color: '#ec4899', clips: [{ id: 'm1', start: 0, duration: duration, name: 'BG Music' }] },
   ];
 
   const leftTabs = [
@@ -225,7 +510,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     { id: 'audio', label: 'Audio', icon: Music },
   ];
 
-  // Collaborator avatars
   const collaborators = [
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop',
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop',
@@ -234,7 +518,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="h-full flex flex-col bg-white overflow-hidden font-sans">
+      <div ref={containerRef} className="h-full flex flex-col bg-white overflow-hidden font-sans">
         {/* Top Header - Dark Menu Bar */}
         <header className="flex items-center justify-between px-4 py-2 bg-[#1a1a2e] text-white shrink-0">
           <div className="flex items-center gap-4">
@@ -249,41 +533,64 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             <div className="flex items-center gap-1 ml-4">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 hover:bg-white/10 rounded transition-colors">
+                  <button 
+                    onClick={handleUndo}
+                    disabled={historyIndex === 0}
+                    className="p-1.5 hover:bg-white/10 rounded transition-colors disabled:opacity-50"
+                  >
                     <Undo className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent><p>Undo</p></TooltipContent>
+                <TooltipContent><p>Undo (Ctrl+Z)</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 hover:bg-white/10 rounded transition-colors">
+                  <button 
+                    onClick={handleRedo}
+                    disabled={historyIndex >= history.length - 1}
+                    className="p-1.5 hover:bg-white/10 rounded transition-colors disabled:opacity-50"
+                  >
                     <Redo className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent><p>Redo</p></TooltipContent>
+                <TooltipContent><p>Redo (Ctrl+Y)</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 hover:bg-white/10 rounded transition-colors">
+                  <button onClick={handleReset} className="p-1.5 hover:bg-white/10 rounded transition-colors">
                     <RotateCcw className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent><p>Reset</p></TooltipContent>
+                <TooltipContent><p>Reset to original</p></TooltipContent>
               </Tooltip>
             </div>
 
             <div className="flex items-center gap-2 ml-4">
-              <button className="p-1 hover:bg-white/10 rounded">
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <span className="text-sm min-w-[50px] text-center">100%</span>
-              <button className="p-1 hover:bg-white/10 rounded">
-                <ZoomIn className="w-4 h-4" />
-              </button>
-              <button className="p-1 hover:bg-white/10 rounded">
-                <Plus className="w-4 h-4" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button onClick={handleZoomOut} className="p-1 hover:bg-white/10 rounded">
+                    <ZoomOut className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent><p>Zoom out</p></TooltipContent>
+              </Tooltip>
+              <span className="text-sm min-w-[50px] text-center">{previewZoom}%</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button onClick={handleZoomIn} className="p-1 hover:bg-white/10 rounded">
+                    <ZoomIn className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent><p>Zoom in</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button onClick={() => setPreviewZoom(100)} className="p-1 hover:bg-white/10 rounded">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent><p>Reset zoom</p></TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
@@ -333,7 +640,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
               ))}
             </div>
 
-            <button className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors">
+            <button 
+              onClick={handleShare}
+              className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm font-medium transition-colors"
+            >
               <Share2 className="w-4 h-4" />
               Share
             </button>
@@ -374,9 +684,14 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">DIGITAL BABES VSL</h3>
                     <div className="flex items-center gap-2">
-                      <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
-                        <Search className="w-4 h-4" />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
+                            <Search className="w-4 h-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Search transcript</p></TooltipContent>
+                      </Tooltip>
                       <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
@@ -384,7 +699,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   </div>
 
                   {/* Speaker Label */}
-                  <button className="flex items-center gap-2 mb-4 text-sm text-gray-600 hover:text-gray-900">
+                  <button 
+                    onClick={() => toast.info('Add speaker feature coming soon')}
+                    className="flex items-center gap-2 mb-4 text-sm text-gray-600 hover:text-gray-900"
+                  >
                     <Plus className="w-4 h-4" />
                     Add speaker
                   </button>
@@ -413,31 +731,96 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                         </div>
 
                         {/* Editable text */}
-                        <p className="text-sm text-gray-800 leading-relaxed">
-                          {segment.text.split(' ').map((word, idx) => (
-                            <span
-                              key={idx}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleWordClick(segment.id, idx, word);
-                              }}
-                              className={`inline-block mr-1 px-0.5 rounded cursor-text hover:bg-emerald-200/50 ${
-                                selectedTranscriptId === segment.id ? 'hover:bg-emerald-200' : ''
-                              }`}
-                            >
-                              {word}
-                            </span>
-                          ))}
-                        </p>
+                        {editingTranscriptId === segment.id ? (
+                          <div className="flex flex-col gap-2">
+                            <textarea
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                              className="w-full p-2 text-sm border rounded resize-none focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                              rows={3}
+                              autoFocus
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveTranscriptEdit(segment.id)}
+                                className="px-3 py-1 bg-emerald-500 text-white text-xs rounded hover:bg-emerald-600"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setEditingTranscriptId(null)}
+                                className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p 
+                            className="text-sm text-gray-800 leading-relaxed"
+                            onDoubleClick={() => handleStartEditTranscript(segment.id, segment.text)}
+                          >
+                            {segment.text.split(' ').map((word, idx) => (
+                              <span
+                                key={idx}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWordClick(segment.id, idx, word);
+                                }}
+                                className={`inline-block mr-1 px-0.5 rounded cursor-text hover:bg-emerald-200/50 ${
+                                  selectedTranscriptId === segment.id ? 'hover:bg-emerald-200' : ''
+                                }`}
+                              >
+                                {word}
+                              </span>
+                            ))}
+                          </p>
+                        )}
 
                         {/* Action buttons on hover */}
                         <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                          <button className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600">
-                            <Scissors className="w-3.5 h-3.5" />
-                          </button>
-                          <button className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStartEditTranscript(segment.id, segment.text);
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                              >
+                                <Type className="w-3.5 h-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Edit text</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSplit();
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                              >
+                                <Scissors className="w-3.5 h-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Split segment</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSegment(segment.id);
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-red-600"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Delete segment</p></TooltipContent>
+                          </Tooltip>
                         </div>
                       </div>
                     ))}
@@ -466,7 +849,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   </div>
 
                   {/* Upload Button */}
-                  <button className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/50 transition-colors mb-4">
+                  <button 
+                    onClick={handleUpload}
+                    className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/50 transition-colors mb-4"
+                  >
                     <Upload className="w-5 h-5" />
                     <span className="text-sm font-medium">Upload {activeMediaTab}</span>
                   </button>
@@ -477,6 +863,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                       mediaLibrary.video.map((item) => (
                         <div
                           key={item.id}
+                          onClick={() => handleMediaItemClick(item, 'video')}
                           className="group relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all"
                         >
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -495,8 +882,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                       mediaLibrary.image.map((item) => (
                         <div
                           key={item.id}
+                          onClick={() => handleMediaItemClick(item, 'image')}
                           className="group relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all"
                         >
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                           <div className="absolute bottom-2 left-2 right-2">
                             <p className="text-xs text-white font-medium truncate drop-shadow">{item.name}</p>
                           </div>
@@ -506,6 +895,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                       mediaLibrary.audio.map((item) => (
                         <div
                           key={item.id}
+                          onClick={() => handleMediaItemClick(item, 'audio')}
                           className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg cursor-pointer hover:bg-emerald-50 hover:ring-2 hover:ring-emerald-500 transition-all"
                         >
                           <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
@@ -523,20 +913,58 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
               {activeLeftTab === 'captions' && (
                 <div className="p-4">
-                  <div className="text-center py-8">
-                    <Captions className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <h4 className="text-sm font-medium text-gray-600 mb-1">Caption Styles</h4>
-                    <p className="text-xs text-gray-400">Customize caption appearance</p>
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-gray-700">Caption Style</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Classic', 'Bold', 'Minimal', 'Neon'].map((style) => (
+                        <button
+                          key={style}
+                          onClick={() => toast.success(`${style} caption style applied`)}
+                          className="p-4 bg-white border rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                        >
+                          <span className="text-sm font-medium">{style}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="pt-4 border-t">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Caption Position</h4>
+                      <div className="flex gap-2">
+                        {['Top', 'Center', 'Bottom'].map((pos) => (
+                          <button
+                            key={pos}
+                            onClick={() => toast.success(`Captions positioned at ${pos}`)}
+                            className="flex-1 px-3 py-2 bg-gray-100 rounded text-sm hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+                          >
+                            {pos}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
               {activeLeftTab === 'elements' && (
                 <div className="p-4">
-                  <div className="text-center py-8">
-                    <Layers className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <h4 className="text-sm font-medium text-gray-600 mb-1">Elements</h4>
-                    <p className="text-xs text-gray-400">Add shapes, stickers, and more</p>
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-gray-700">Add Elements</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { name: 'Text', icon: Type },
+                        { name: 'Shape', icon: Grid3X3 },
+                        { name: 'Sticker', icon: Sparkles },
+                        { name: 'Logo', icon: Image },
+                      ].map((el) => (
+                        <button
+                          key={el.name}
+                          onClick={() => toast.success(`${el.name} element added`)}
+                          className="flex flex-col items-center gap-2 p-4 bg-white border rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                        >
+                          <el.icon className="w-6 h-6 text-gray-500" />
+                          <span className="text-sm">{el.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -548,44 +976,108 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             {/* Canvas Toolbar */}
             <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                  <Type className="w-4 h-4" />
-                  Write
-                </button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Text tool selected')}
+                      className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                    >
+                      <Type className="w-4 h-4" />
+                      Write
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Add text overlay</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Grid overlay toggled')}
+                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500"
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Toggle grid</p></TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="flex items-center gap-4 text-sm">
-                <button className="flex items-center gap-1 text-gray-600 hover:text-gray-900">
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Position
-                </button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <RotateCcw className="w-4 h-4" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Position controls opened')}
+                      className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+                    >
+                      <SlidersHorizontal className="w-4 h-4" />
+                      Position
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Adjust position</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => setPreviewZoom(100)}
+                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Reset view</p></TooltipContent>
+                </Tooltip>
                 <span className="text-gray-400">|</span>
-                <span className="text-gray-600">100%</span>
+                <span className="text-gray-600">{previewZoom}%</span>
                 <span className="text-gray-400">|</span>
-                <button className="text-gray-600 hover:text-gray-900">Effects</button>
-                <button className="text-gray-600 hover:text-gray-900">Animation</button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <Settings className="w-4 h-4" />
+                <button 
+                  onClick={() => toast.info('Effects panel opened')}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Effects
                 </button>
+                <button 
+                  onClick={() => toast.info('Animation panel opened')}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Animation
+                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Settings opened')}
+                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Video settings</p></TooltipContent>
+                </Tooltip>
               </div>
             </div>
 
             {/* Video Preview Area */}
             <div className="flex-1 flex items-center justify-center p-6 bg-gray-100">
-              <div className="relative w-full max-w-3xl aspect-video bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 rounded-xl overflow-hidden shadow-2xl">
-                {/* Video gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              <div 
+                className="relative w-full max-w-3xl aspect-video bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 rounded-xl overflow-hidden shadow-2xl"
+                style={{ transform: `scale(${previewZoom / 100})`, transformOrigin: 'center' }}
+              >
+                {video ? (
+                  <video
+                    ref={videoRef}
+                    src={video}
+                    className="w-full h-full object-cover"
+                    muted={isMuted}
+                  />
+                ) : (
+                  <>
+                    {/* Video gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
 
-                {/* Abstract shapes for visual interest */}
-                <div className="absolute top-1/4 right-1/4 w-48 h-48 rounded-full bg-emerald-600/30 blur-3xl" />
-                <div className="absolute bottom-1/3 right-1/3 w-32 h-32 rounded-full bg-teal-500/40 blur-2xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full bg-emerald-400/50 blur-xl" />
+                    {/* Abstract shapes for visual interest */}
+                    <div className="absolute top-1/4 right-1/4 w-48 h-48 rounded-full bg-emerald-600/30 blur-3xl" />
+                    <div className="absolute bottom-1/3 right-1/3 w-32 h-32 rounded-full bg-teal-500/40 blur-2xl" />
+                    <div className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full bg-emerald-400/50 blur-xl" />
+                  </>
+                )}
 
                 {/* Play button overlay */}
                 <button
@@ -598,8 +1090,15 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                 </button>
 
                 {/* Current caption display */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-black/70 backdrop-blur-sm rounded-lg">
-                  <p className="text-white text-lg font-medium text-center">I'm not real. I wasn't born.</p>
+                {getCurrentCaption() && (
+                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-black/70 backdrop-blur-sm rounded-lg max-w-[80%]">
+                    <p className="text-white text-lg font-medium text-center">{getCurrentCaption()}</p>
+                  </div>
+                )}
+
+                {/* Timecode overlay */}
+                <div className="absolute top-4 right-4 px-2 py-1 bg-black/50 rounded text-white text-sm font-mono">
+                  {formatTime(currentTime)}
                 </div>
               </div>
             </div>
@@ -607,22 +1106,40 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             {/* Playback Controls */}
             <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white">
               <div className="flex items-center gap-2">
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
-                  <SkipBack className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleSkipBack} className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
+                      <SkipBack className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Skip back 5s</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleFrameBack} className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Previous frame</p></TooltipContent>
+                </Tooltip>
                 <span className="text-sm font-mono text-gray-700 min-w-[100px]">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="px-5 py-2 bg-red-500 hover:bg-red-600 rounded-full text-white text-sm font-medium flex items-center gap-2 transition-colors">
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                  Record
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Recording feature coming soon')}
+                      className="px-5 py-2 bg-red-500 hover:bg-red-600 rounded-full text-white text-sm font-medium flex items-center gap-2 transition-colors"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                      Record
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Record voiceover</p></TooltipContent>
+                </Tooltip>
                 <button
                   onClick={() => setIsPlaying(!isPlaying)}
                   className="p-2 hover:bg-gray-100 rounded-full text-gray-600"
@@ -632,43 +1149,77 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                 <select
                   value={playbackSpeed}
                   onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-                  className="px-2 py-1 text-sm bg-gray-100 rounded border-0 text-gray-600"
+                  className="px-2 py-1 text-sm bg-gray-100 rounded border-0 text-gray-600 cursor-pointer"
                 >
                   <option value={0.5}>0.5x</option>
                   <option value={1}>1x</option>
                   <option value={1.5}>1.5x</option>
                   <option value={2}>2x</option>
                 </select>
-                <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm text-gray-700 transition-colors">
-                  <Scissors className="w-4 h-4" />
-                  Split
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={handleSplit}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm text-gray-700 transition-colors"
+                    >
+                      <Scissors className="w-4 h-4" />
+                      Split
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Split at playhead</p></TooltipContent>
+                </Tooltip>
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setIsMuted(!isMuted)} className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
-                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button onClick={() => setIsMuted(!isMuted)} className="p-1.5 hover:bg-gray-100 rounded text-gray-600">
+                        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>{isMuted ? 'Unmute' : 'Mute'}</p></TooltipContent>
+                  </Tooltip>
                   <input
                     type="range"
                     min="0"
                     max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(Number(e.target.value))}
+                    value={isMuted ? 0 : volume}
+                    onChange={(e) => {
+                      setVolume(Number(e.target.value));
+                      if (Number(e.target.value) > 0) setIsMuted(false);
+                    }}
                     className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
                   />
                 </div>
                 <span className="text-sm text-gray-500">{zoom}%</span>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <ZoomIn className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <Settings className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
-                  <Maximize2 className="w-4 h-4" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleTimelineZoomIn} className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Timeline zoom in</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => toast.info('Export settings')}
+                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Export settings</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleFullscreen} className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Fullscreen</p></TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -701,10 +1252,16 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                       .map((tool) => (
                         <button
                           key={tool.id}
-                          className="w-full flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all text-left group"
+                          onClick={() => handleApplyAiTool(tool)}
+                          disabled={isProcessing !== null}
+                          className="w-full flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all text-left group disabled:opacity-50"
                         >
                           <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-emerald-100 flex items-center justify-center shrink-0">
-                            <tool.icon className="w-4 h-4 text-gray-600 group-hover:text-emerald-600" />
+                            {isProcessing === tool.id ? (
+                              <Loader2 className="w-4 h-4 text-emerald-600 animate-spin" />
+                            ) : (
+                              <tool.icon className="w-4 h-4 text-gray-600 group-hover:text-emerald-600" />
+                            )}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-800">{tool.name}</p>
@@ -719,11 +1276,19 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                 <div className="mb-6">
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Sound good</h4>
                   <div className="space-y-2">
-                    <button className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                    <button 
+                      onClick={() => handleApplyAiTool(aiTools[0])}
+                      disabled={isProcessing !== null}
+                      className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all disabled:opacity-50"
+                    >
                       <Wand2 className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">Edit for clarity</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                    <button 
+                      onClick={() => handleApplyAiTool(aiTools[3])}
+                      disabled={isProcessing !== null}
+                      className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all disabled:opacity-50"
+                    >
                       <Volume2 className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">Studio Sound</span>
                     </button>
@@ -734,15 +1299,24 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                 <div className="mb-6">
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Look good</h4>
                   <div className="space-y-2">
-                    <button className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                    <button 
+                      onClick={() => toast.success('Quick design applied')}
+                      className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all"
+                    >
                       <Wand2 className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">Quick design</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                    <button 
+                      onClick={() => toast.success('Eye contact correction applied')}
+                      className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all"
+                    >
                       <Eye className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">Eye Contact</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                    <button 
+                      onClick={() => toast.success('Speaker centering enabled')}
+                      className="w-full flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all"
+                    >
                       <Grid3X3 className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700 flex items-center gap-2">
                         Center active speaker
@@ -783,7 +1357,18 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Show AI Tools toggle when hidden */}
             </div>
+          )}
+          
+          {!showAITools && (
+            <button
+              onClick={() => setShowAITools(true)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-emerald-500 text-white rounded-full shadow-lg hover:bg-emerald-600 transition-colors"
+            >
+              <Sparkles className="w-5 h-5" />
+            </button>
           )}
         </div>
 
@@ -793,9 +1378,14 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             <div className="flex items-center gap-4">
               <span className="text-xs font-medium text-gray-500">Timeline</span>
               <div className="flex items-center gap-1">
-                <button className="p-1 hover:bg-gray-200 rounded text-gray-500">
-                  <ZoomOut className="w-3.5 h-3.5" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleTimelineZoomOut} className="p-1 hover:bg-gray-200 rounded text-gray-500">
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Zoom out timeline</p></TooltipContent>
+                </Tooltip>
                 <input
                   type="range"
                   min="10"
@@ -804,26 +1394,47 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   onChange={(e) => setZoom(Number(e.target.value))}
                   className="w-24 h-1 rounded-lg cursor-pointer accent-emerald-500"
                 />
-                <button className="p-1 hover:bg-gray-200 rounded text-gray-500">
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={handleTimelineZoomIn} className="p-1 hover:bg-gray-200 rounded text-gray-500">
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Zoom in timeline</p></TooltipContent>
+                </Tooltip>
               </div>
             </div>
             <span className="text-xs text-gray-400">Duration: {formatTime(duration)}</span>
           </div>
 
-          <div ref={timelineRef} className="flex-1 overflow-y-auto">
+          <div ref={timelineRef} className="flex-1 overflow-y-auto relative">
+            {/* Playhead indicator */}
+            <div 
+              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none"
+              style={{ left: `calc(56px + ${(currentTime / duration) * (100 - (56 / timelineRef.current?.clientWidth || 1) * 100)}%)` }}
+            >
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full" />
+            </div>
+
             {timelineTracks.map((track) => (
               <div key={track.id} className="flex h-10 border-b border-gray-100">
                 <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
                   <track.icon className={`w-3 h-3 ${track.id === 'video' ? 'text-emerald-500' : track.id === 'transcript' ? 'text-blue-500' : track.id === 'audio' ? 'text-amber-500' : 'text-pink-500'}`} />
                   <span className="text-[9px] font-medium text-gray-600">{track.name}</span>
                 </div>
-                <div className="flex-1 relative bg-white">
+                <div 
+                  className="flex-1 relative bg-white cursor-pointer"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const newTime = (x / rect.width) * duration;
+                    setCurrentTime(Math.max(0, Math.min(newTime, duration)));
+                  }}
+                >
                   {track.clips.map((clip) => (
                     <div
                       key={clip.id}
-                      className="absolute top-1 bottom-1 rounded cursor-pointer flex items-center px-2 overflow-hidden"
+                      className="absolute top-1 bottom-1 rounded cursor-pointer flex items-center px-2 overflow-hidden hover:opacity-80 transition-opacity"
                       style={{
                         left: `${(clip.start / duration) * 100}%`,
                         width: `${(clip.duration / duration) * 100}%`,
@@ -850,7 +1461,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                 {timelineScenes.map((scene) => (
                   <div
                     key={scene.id}
-                    className="h-full rounded-lg cursor-pointer flex items-center gap-1.5 px-2.5 shrink-0"
+                    onClick={() => handleSceneClick(scene)}
+                    className={`h-full rounded-lg cursor-pointer flex items-center gap-1.5 px-2.5 shrink-0 hover:opacity-80 transition-opacity ${
+                      selectedSceneId === scene.id ? 'ring-2 ring-white ring-offset-1' : ''
+                    }`}
                     style={{
                       width: `${(scene.duration / duration) * 100}%`,
                       minWidth: '80px',
