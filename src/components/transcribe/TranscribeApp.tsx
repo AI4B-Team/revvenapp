@@ -95,6 +95,13 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
+// Helper to format file size
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+};
+
 const ITEMS_PER_PAGE = 20;
 const SCROLL_STORAGE_KEY = 'transcribe-scroll-position';
 const ITEMS_COUNT_STORAGE_KEY = 'transcribe-items-count';
@@ -427,9 +434,22 @@ export default function TranscribeApp() {
       });
       
       // Poll the database for status updates
+      const getRemoteSizeBytes = async (remoteUrl: string): Promise<number | null> => {
+        try {
+          const res = await fetch(remoteUrl, { method: 'HEAD' });
+          const len = res.headers.get('content-length');
+          if (!len) return null;
+          const bytes = parseInt(len, 10);
+          return Number.isFinite(bytes) ? bytes : null;
+        } catch {
+          return null;
+        }
+      };
+
       let attempts = 0;
       const maxAttempts = 60; // 3 minutes max
-      
+      let sizeAttempts = 0;
+
       const checkStatus = async () => {
         attempts++;
         
@@ -442,6 +462,26 @@ export default function TranscribeApp() {
         
         if (queryError) {
           console.error('Error checking status:', queryError);
+        }
+
+        // As soon as we have a URL for the extracted audio, try to resolve its file size
+        if (record?.url && sizeAttempts < 3) {
+          sizeAttempts++;
+          const bytes = await getRemoteSizeBytes(record.url);
+          if (bytes != null) {
+            setTranscripts(prev => prev.map(t =>
+              t.id === recordId
+                ? { ...t, audioUrl: record.url, fileSize: formatFileSize(bytes) }
+                : t
+            ));
+          } else {
+            // Still at least attach the URL for playback/edit flows
+            setTranscripts(prev => prev.map(t =>
+              t.id === recordId
+                ? { ...t, audioUrl: record.url }
+                : t
+            ));
+          }
         }
         
         if (record?.status === 'completed') {
@@ -565,13 +605,6 @@ export default function TranscribeApp() {
     const newTranscriptId = crypto.randomUUID();
     
     try {
-      // Format file size
-      const formatFileSize = (bytes: number): string => {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-      };
-      
       // Create a new processing transcript
       const newTranscript: Transcript = {
         id: newTranscriptId,
@@ -2026,6 +2059,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     
                     // Create audio blob
                     const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                    const recordedFileSize = formatFileSize(audioBlob.size);
                     
                     // Convert to base64
                     const reader = new FileReader();
@@ -2085,6 +2119,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                       thumbnail: null,
                       summary: 'Transcribing with ElevenLabs...',
                       audioUrl: uploadData?.url,
+                      fileSize: recordedFileSize,
                     };
                     
                     setTranscripts(prev => [newTranscript, ...prev]);
