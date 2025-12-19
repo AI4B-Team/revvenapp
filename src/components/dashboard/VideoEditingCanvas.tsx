@@ -1373,7 +1373,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
         </div>
 
         {/* Timeline Section */}
-        <div className="h-40 border-t border-gray-300 bg-white flex flex-col shrink-0">
+        <div className="h-52 border-t border-gray-300 bg-white flex flex-col shrink-0">
           <div className="flex items-center justify-between px-4 py-2 border-b bg-gray-50 border-gray-200">
             <div className="flex items-center gap-4">
               <span className="text-xs font-medium text-gray-500">Timeline</span>
