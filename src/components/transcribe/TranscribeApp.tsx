@@ -55,6 +55,7 @@ interface Transcript {
   thumbnail: string | null;
   summary: string | null;
   audioUrl?: string;
+  fileSize?: string;
 }
 
 const LANGUAGES = [
@@ -1271,6 +1272,12 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                             {transcript.words.toLocaleString()} Words
                           </span>
                         )}
+                        {transcript.fileSize && (
+                          <span className="flex items-center gap-1.5">
+                            <FileText className="w-3.5 h-3.5" />
+                            {transcript.fileSize}
+                          </span>
+                        )}
                       </div>
 
                       {/* Tags */}
@@ -1474,10 +1481,18 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   {/* Bottom content - anchored */}
                   <div className="mt-auto">
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {transcript.duration}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {transcript.duration}
+                        </span>
+                        {transcript.fileSize && (
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-3 h-3" />
+                            {transcript.fileSize}
+                          </span>
+                        )}
+                      </div>
                       <span>{formatDate(transcript.date)}</span>
                     </div>
 
@@ -1932,7 +1947,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-white flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-rose-400" />
-                  Live Transcription
+                  Real-Time Transcription
                 </h3>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input 
