@@ -565,6 +565,13 @@ export default function TranscribeApp() {
     const newTranscriptId = crypto.randomUUID();
     
     try {
+      // Format file size
+      const formatFileSize = (bytes: number): string => {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+      };
+      
       // Create a new processing transcript
       const newTranscript: Transcript = {
         id: newTranscriptId,
@@ -580,6 +587,7 @@ export default function TranscribeApp() {
         tags: ['Upload'],
         thumbnail: null,
         summary: null,
+        fileSize: formatFileSize(selectedFile.size),
       };
       
       setTranscripts(prev => [newTranscript, ...prev]);
@@ -1016,9 +1024,9 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   }`} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
-                <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center justify-center gap-2 mb-4">
+                <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
                   <Upload className="w-[22px] h-[22px] text-emerald-500 flex-shrink-0" />
-                  <span className="text-sm text-gray-500 whitespace-nowrap">Drag & Drop Your Video Or Audio File</span>
+                  <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Drag & Drop Your Video Or Audio File</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
                   <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
