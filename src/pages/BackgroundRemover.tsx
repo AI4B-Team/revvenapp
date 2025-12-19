@@ -18,6 +18,30 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+// DEMO MODE - Set to true to use mock data instead of real API calls
+const DEMO_MODE = true;
+
+const MOCK_HISTORY: UsageRecord[] = [
+  {
+    id: 'mock-1',
+    app_name: 'background_remover',
+    input_audio_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+    output_audio_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800',
+    settings: {},
+    status: 'completed',
+    created_at: new Date(Date.now() - 86400000).toISOString()
+  },
+  {
+    id: 'mock-2',
+    app_name: 'background_remover',
+    input_audio_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400',
+    output_audio_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=800',
+    settings: {},
+    status: 'completed',
+    created_at: new Date(Date.now() - 172800000).toISOString()
+  }
+];
+
 interface UsageRecord {
   id: string;
   app_name: string;
@@ -35,12 +59,14 @@ export default function BackgroundRemover() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
   const [selectedRecord, setSelectedRecord] = useState<UsageRecord | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (DEMO_MODE) return;
+    
     const fetchHistory = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -83,6 +109,31 @@ export default function BackgroundRemover() {
     setIsProcessing(true);
 
     try {
+      if (DEMO_MODE) {
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Use the same image as mock output (in real app this would have transparent bg)
+        const mockOutputUrl = imageUrl;
+        setOutputUrl(mockOutputUrl);
+        
+        // Add to mock history
+        const newRecord: UsageRecord = {
+          id: `mock-${Date.now()}`,
+          app_name: 'background_remover',
+          input_audio_url: imageUrl,
+          output_audio_url: mockOutputUrl,
+          settings: {},
+          status: 'completed',
+          created_at: new Date().toISOString()
+        };
+        setUsageHistory(prev => [newRecord, ...prev]);
+        
+        toast.success('Background removed successfully! (Demo Mode)');
+        setIsProcessing(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -137,6 +188,14 @@ export default function BackgroundRemover() {
 
   const handleDeleteRecord = async (recordId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
+    
+    if (DEMO_MODE) {
+      setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      setSelectedRecord(null);
+      toast.success('Record deleted (Demo Mode)');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('audio_app_usage')

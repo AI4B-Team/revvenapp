@@ -12,6 +12,30 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+// DEMO MODE - Set to true to use mock data instead of real API calls
+const DEMO_MODE = true;
+
+const MOCK_HISTORY: UsageRecord[] = [
+  {
+    id: 'mock-1',
+    app_name: 'noise_remover',
+    input_audio_url: '/audio/samples/jazz.mp3',
+    output_audio_url: '/audio/samples/jazz.mp3',
+    settings: { noise_reduction_level: 0.7 },
+    status: 'completed',
+    created_at: new Date(Date.now() - 86400000).toISOString()
+  },
+  {
+    id: 'mock-2',
+    app_name: 'noise_remover',
+    input_audio_url: '/audio/samples/blues.mp3',
+    output_audio_url: '/audio/samples/blues.mp3',
+    settings: { noise_reduction_level: 0.5 },
+    status: 'completed',
+    created_at: new Date(Date.now() - 172800000).toISOString()
+  }
+];
+
 interface UsageRecord {
   id: string;
   app_name: string;
@@ -29,7 +53,7 @@ export default function NoiseRemover() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [noiseReduction, setNoiseReduction] = useState([0.7]);
 
@@ -37,6 +61,8 @@ export default function NoiseRemover() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (DEMO_MODE) return;
+    
     const fetchHistory = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -79,6 +105,30 @@ export default function NoiseRemover() {
     setIsProcessing(true);
 
     try {
+      if (DEMO_MODE) {
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Use the same audio as mock output
+        setOutputUrl(audioUrl);
+        
+        // Add to mock history
+        const newRecord: UsageRecord = {
+          id: `mock-${Date.now()}`,
+          app_name: 'noise_remover',
+          input_audio_url: audioUrl,
+          output_audio_url: audioUrl,
+          settings: { noise_reduction_level: noiseReduction[0] },
+          status: 'completed',
+          created_at: new Date().toISOString()
+        };
+        setUsageHistory(prev => [newRecord, ...prev]);
+        
+        toast.success('Noise removed successfully! (Demo Mode)');
+        setIsProcessing(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -137,6 +187,12 @@ export default function NoiseRemover() {
   };
 
   const handleDeleteRecord = async (recordId: string) => {
+    if (DEMO_MODE) {
+      setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      toast.success('Record deleted (Demo Mode)');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('audio_app_usage')

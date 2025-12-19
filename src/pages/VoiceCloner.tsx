@@ -13,6 +13,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+// DEMO MODE - Set to true to use mock data instead of real API calls
+const DEMO_MODE = true;
+
 interface UsageRecord {
   id: string;
   app_name: string;
@@ -23,6 +26,23 @@ interface UsageRecord {
   created_at: string;
 }
 
+interface ClonedVoice {
+  id: string;
+  name: string;
+  url: string;
+  created_at: string;
+  elevenlabs_voice_id: string | null;
+}
+
+const MOCK_CLONED_VOICES: ClonedVoice[] = [
+  { id: 'mock-v1', name: 'John Demo', url: '/audio/samples/jazz.mp3', created_at: new Date(Date.now() - 86400000).toISOString(), elevenlabs_voice_id: 'demo-1' },
+  { id: 'mock-v2', name: 'Sarah Demo', url: '/audio/samples/pop.mp3', created_at: new Date(Date.now() - 172800000).toISOString(), elevenlabs_voice_id: 'demo-2' },
+];
+
+const MOCK_HISTORY: UsageRecord[] = [
+  { id: 'mock-h1', app_name: 'voice_cloner', input_audio_url: '/audio/samples/jazz.mp3', output_audio_url: null, settings: { voice_name: 'John Demo' }, status: 'completed', created_at: new Date(Date.now() - 86400000).toISOString() },
+];
+
 export default function VoiceCloner() {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -32,8 +52,8 @@ export default function VoiceCloner() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isCloning, setIsCloning] = useState(false);
-  const [clonedVoices, setClonedVoices] = useState<any[]>([]);
-  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [clonedVoices, setClonedVoices] = useState<any[]>(DEMO_MODE ? MOCK_CLONED_VOICES : []);
+  const [usageHistory, setUsageHistory] = useState<UsageRecord[]>(DEMO_MODE ? MOCK_HISTORY : []);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const [testText, setTestText] = useState('Hello! This is a test of my cloned voice.');
   const [isGeneratingPreview, setIsGeneratingPreview] = useState<string | null>(null);
@@ -50,6 +70,8 @@ export default function VoiceCloner() {
 
   // Fetch usage history
   useEffect(() => {
+    if (DEMO_MODE) return;
+    
     const fetchHistory = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -72,6 +94,8 @@ export default function VoiceCloner() {
 
   // Fetch cloned voices
   useEffect(() => {
+    if (DEMO_MODE) return;
+    
     const fetchClonedVoices = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -155,6 +179,28 @@ export default function VoiceCloner() {
     setIsCloning(true);
 
     try {
+      if (DEMO_MODE) {
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Add to mock cloned voices
+        const newVoice = {
+          id: `mock-${Date.now()}`,
+          name: voiceName.trim(),
+          url: audioUrl || '/audio/samples/pop.mp3',
+          created_at: new Date().toISOString(),
+          elevenlabs_voice_id: `demo-${Date.now()}`
+        };
+        setClonedVoices(prev => [newVoice, ...prev]);
+        
+        toast.success('Voice cloned successfully! (Demo Mode)');
+        setVoiceName('');
+        setAudioFile(null);
+        setAudioUrl(null);
+        setIsCloning(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -301,6 +347,19 @@ export default function VoiceCloner() {
   };
 
   const handleTestVoice = async (voiceId: string, voiceName: string) => {
+    if (DEMO_MODE) {
+      toast.success(`Playing ${voiceName}'s cloned voice (Demo Mode)`);
+      // Play a sample audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      audioRef.current = new Audio('/audio/samples/pop.mp3');
+      audioRef.current.play();
+      audioRef.current.onended = () => setIsPlaying(null);
+      setIsPlaying('/audio/samples/pop.mp3');
+      return;
+    }
+
     if (!voiceId) {
       toast.error('No ElevenLabs voice ID found');
       return;
@@ -347,6 +406,12 @@ export default function VoiceCloner() {
   };
 
   const handleDeleteVoice = async (voiceId: string) => {
+    if (DEMO_MODE) {
+      setClonedVoices(prev => prev.filter(v => v.id !== voiceId));
+      toast.success('Voice deleted (Demo Mode)');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('user_voices')
@@ -363,6 +428,12 @@ export default function VoiceCloner() {
   };
 
   const handleDeleteActivity = async (activityId: string) => {
+    if (DEMO_MODE) {
+      setUsageHistory(prev => prev.filter(a => a.id !== activityId));
+      toast.success('Activity deleted (Demo Mode)');
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('audio_app_usage')
