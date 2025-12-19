@@ -10,7 +10,7 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
-  Star, MoreVertical
+  Star, MoreVertical, Upload, Loader2, VolumeX
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -161,6 +161,10 @@ const TranscriptDetail = () => {
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [identifyingVoice, setIdentifyingVoice] = useState<number | null>(null);
   const [speakerNamesLoaded, setSpeakerNamesLoaded] = useState(false);
+  
+  // Attach audio state
+  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+  const attachAudioInputRef = useRef<HTMLInputElement>(null);
 
   // Get transcript data from URL params
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -515,6 +519,59 @@ const TranscriptDetail = () => {
   useEffect(() => {
     setEditedTitle(title);
   }, [title]);
+
+  // Handle attaching audio file to this transcript
+  const handleAttachAudio = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !id) return;
+
+    setIsUploadingAudio(true);
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+      });
+      reader.readAsDataURL(file);
+      const base64Audio = await base64Promise;
+
+      // Upload to Cloudinary
+      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-audio', {
+        body: {
+          audioData: base64Audio,
+          filename: file.name,
+          contentType: file.type,
+        },
+      });
+
+      if (uploadError) throw uploadError;
+      if (!uploadData?.url) throw new Error('Upload did not return a URL');
+
+      // Update the database record
+      const { error: updateError } = await supabase
+        .from('user_voices')
+        .update({ url: uploadData.url })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      // Update local state so the player appears
+      setResolvedAudioUrl(uploadData.url);
+      toast.success('Audio attached successfully!');
+    } catch (err) {
+      console.error('Error attaching audio:', err);
+      toast.error('Failed to attach audio');
+    } finally {
+      setIsUploadingAudio(false);
+      // Reset input so user can re-select the same file if needed
+      if (attachAudioInputRef.current) {
+        attachAudioInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleExport = (format: string) => {
     toast.success(`Exporting as ${format}...`);
@@ -1625,87 +1682,131 @@ ${content.map((item, index) => {
           <audio ref={audioRef} src={resolvedAudioUrl} preload="metadata" />
         )}
 
+        {/* Hidden file input for attaching audio */}
+        <input
+          ref={attachAudioInputRef}
+          type="file"
+          accept="audio/*,video/*"
+          onChange={handleAttachAudio}
+          className="hidden"
+        />
+
         {/* Fixed Audio Player at Bottom - Dark Sleek Design */}
         <div className={`fixed bottom-0 right-0 bg-[#1a1f2e] border-t border-gray-800 py-3 px-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
-          <div className="flex items-center gap-4">
-            {/* Animated Audio Waves */}
-            <div className="flex items-center gap-1 h-8">
-              <div
-                className="w-1 rounded-full bg-emerald-500"
-                style={{
-                  height: isPlaying ? '24px' : '8px',
-                  animation: isPlaying ? 'audioWave1 0.4s ease-in-out infinite' : 'none',
-                }}
-              />
-              <div
-                className="w-1 rounded-full bg-emerald-500"
-                style={{
-                  height: isPlaying ? '16px' : '12px',
-                  animation: isPlaying ? 'audioWave2 0.4s ease-in-out infinite 0.1s' : 'none',
-                }}
-              />
-              <div
-                className="w-1 rounded-full bg-emerald-500"
-                style={{
-                  height: isPlaying ? '20px' : '10px',
-                  animation: isPlaying ? 'audioWave3 0.4s ease-in-out infinite 0.2s' : 'none',
-                }}
-              />
-              <style>{`
-                @keyframes audioWave1 {
-                  0%, 100% { height: 8px; }
-                  50% { height: 24px; }
-                }
-                @keyframes audioWave2 {
-                  0%, 100% { height: 16px; }
-                  50% { height: 8px; }
-                }
-                @keyframes audioWave3 {
-                  0%, 100% { height: 12px; }
-                  50% { height: 28px; }
-                }
-              `}</style>
-            </div>
-
-            {/* Left: Title & Badge */}
-            <div className="flex items-center gap-3 min-w-[200px]">
-              <div className="flex flex-col">
-                <span className="text-sm text-white font-medium truncate max-w-[150px]">{editedTitle}</span>
-                <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
+          {resolvedAudioUrl ? (
+            <div className="flex items-center gap-4">
+              {/* Animated Audio Waves */}
+              <div className="flex items-center gap-1 h-8">
+                <div
+                  className="w-1 rounded-full bg-emerald-500"
+                  style={{
+                    height: isPlaying ? '24px' : '8px',
+                    animation: isPlaying ? 'audioWave1 0.4s ease-in-out infinite' : 'none',
+                  }}
+                />
+                <div
+                  className="w-1 rounded-full bg-emerald-500"
+                  style={{
+                    height: isPlaying ? '16px' : '12px',
+                    animation: isPlaying ? 'audioWave2 0.4s ease-in-out infinite 0.1s' : 'none',
+                  }}
+                />
+                <div
+                  className="w-1 rounded-full bg-emerald-500"
+                  style={{
+                    height: isPlaying ? '20px' : '10px',
+                    animation: isPlaying ? 'audioWave3 0.4s ease-in-out infinite 0.2s' : 'none',
+                  }}
+                />
+                <style>{`
+                  @keyframes audioWave1 {
+                    0%, 100% { height: 8px; }
+                    50% { height: 24px; }
+                  }
+                  @keyframes audioWave2 {
+                    0%, 100% { height: 16px; }
+                    50% { height: 8px; }
+                  }
+                  @keyframes audioWave3 {
+                    0%, 100% { height: 12px; }
+                    50% { height: 28px; }
+                  }
+                `}</style>
               </div>
-            </div>
 
-            {/* Center: Play Button & Progress */}
-            <div className="flex-1 flex items-center gap-4">
-              <button 
-                onClick={togglePlayPause}
-                className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0 shadow-lg"
-              >
-                {isPlaying ? (
-                  <Pause className="w-5 h-5 text-white" />
-                ) : (
-                  <Play className="w-5 h-5 text-white ml-0.5" />
-                )}
-              </button>
-              
-              <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
-              
-              <div 
-                className="flex-1 h-1.5 bg-gray-600 rounded-full overflow-hidden cursor-pointer relative group"
-                onClick={handleSeek}
-              >
-                <div 
-                  className="h-full bg-white rounded-full transition-all relative" 
-                  style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
-                >
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* Left: Title & Badge */}
+              <div className="flex items-center gap-3 min-w-[200px]">
+                <div className="flex flex-col">
+                  <span className="text-sm text-white font-medium truncate max-w-[150px]">{editedTitle}</span>
+                  <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
                 </div>
               </div>
-              
-              <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
-            </div>
 
-            {/* Right: Controls */}
+              {/* Center: Play Button & Progress */}
+              <div className="flex-1 flex items-center gap-4">
+                <button 
+                  onClick={togglePlayPause}
+                  className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0 shadow-lg"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5 text-white" />
+                  ) : (
+                    <Play className="w-5 h-5 text-white ml-0.5" />
+                  )}
+                </button>
+                
+                <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
+                
+                <div 
+                  className="flex-1 h-1.5 bg-gray-600 rounded-full overflow-hidden cursor-pointer relative group"
+                  onClick={handleSeek}
+                >
+                  <div 
+                    className="h-full bg-white rounded-full transition-all relative" 
+                    style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </div>
+                
+                <span className="text-sm text-gray-400 font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
+              </div>
+            </div>
+          ) : (
+            /* No audio - show attach audio UI */
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                  <VolumeX className="w-5 h-5 text-gray-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-white font-medium">{editedTitle}</span>
+                  <span className="text-xs text-gray-500">No audio file attached</span>
+                </div>
+              </div>
+              <div className="flex-1" />
+              <button
+                onClick={() => attachAudioInputRef.current?.click()}
+                disabled={isUploadingAudio}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isUploadingAudio ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4" />
+                    Attach Audio
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Right: Controls - only show when audio is available */}
+          {resolvedAudioUrl && (
             <div className="flex items-center gap-1">
               {/* Volume */}
               <Popover>
@@ -1895,7 +1996,7 @@ ${content.map((item, index) => {
                 </Tooltip>
               </TooltipProvider>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
