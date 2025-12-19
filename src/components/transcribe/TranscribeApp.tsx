@@ -1355,7 +1355,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         )}
                         {transcript.fileSize && (
                           <span className="flex items-center gap-1.5">
-                            <FileText className="w-3.5 h-3.5" />
+                            <Volume2 className="w-3.5 h-3.5" />
                             {transcript.fileSize}
                           </span>
                         )}
@@ -1569,7 +1569,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         </span>
                         {transcript.fileSize && (
                           <span className="flex items-center gap-1">
-                            <FileText className="w-3 h-3" />
+                            <Volume2 className="w-3 h-3" />
                             {transcript.fileSize}
                           </span>
                         )}
