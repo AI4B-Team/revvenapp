@@ -1836,14 +1836,46 @@ ${content.map((item, index) => {
                   </TooltipProvider>
                   <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
                     <div className="relative h-24 flex items-center justify-center">
+                      <style>{`
+                        .volume-slider {
+                          -webkit-appearance: none;
+                          appearance: none;
+                          width: 80px;
+                          height: 6px;
+                          background: #4b5563;
+                          border-radius: 9999px;
+                          cursor: pointer;
+                          transform: rotate(-90deg);
+                          transform-origin: center;
+                        }
+                        .volume-slider::-webkit-slider-thumb {
+                          -webkit-appearance: none;
+                          appearance: none;
+                          width: 16px;
+                          height: 16px;
+                          border-radius: 50%;
+                          background: white;
+                          border: 2px solid #10b981;
+                          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                          cursor: pointer;
+                        }
+                        .volume-slider::-moz-range-thumb {
+                          width: 16px;
+                          height: 16px;
+                          border-radius: 50%;
+                          background: white;
+                          border: 2px solid #10b981;
+                          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                          cursor: pointer;
+                        }
+                      `}</style>
                       <input
                         type="range"
                         min="0"
                         max="100"
                         value={volume}
                         onChange={(e) => setVolume(parseInt(e.target.value))}
-                        className="w-20 h-1.5 bg-gray-600 rounded-full appearance-none cursor-pointer -rotate-90 origin-center [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-500 [&::-webkit-slider-thumb]:shadow-lg"
-                        style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                        className="volume-slider"
                       />
                     </div>
                   </PopoverContent>
