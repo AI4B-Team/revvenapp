@@ -48,6 +48,10 @@ import {
   Download,
   Copy,
   Loader2,
+  Headphones,
+  AudioWaveform,
+  SplitSquareHorizontal,
+  Sliders,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -163,6 +167,18 @@ const aiTools: AITool[] = [
   { id: 8, name: 'Auto transitions', description: 'Add smooth transitions between clips', icon: RefreshCw, category: 'enhance', toggle: true },
   { id: 9, name: 'Eye Contact', description: 'Correct eye contact in videos', icon: Eye, category: 'look' },
   { id: 10, name: 'Center active speaker', description: 'Keep speaker centered in frame', icon: Grid3X3, category: 'look' },
+];
+
+// Left sidebar icon tabs (8 icons like the reference)
+const leftIconTabs = [
+  { id: 'script', icon: FileText, label: 'Script' },
+  { id: 'music', icon: Music, label: 'Music' },
+  { id: 'voiceover', icon: Mic, label: 'Voiceover' },
+  { id: 'soundfx', icon: Headphones, label: 'Sound FX' },
+  { id: 'captions', icon: Captions, label: 'Captions' },
+  { id: 'transitions', icon: SplitSquareHorizontal, label: 'Transitions' },
+  { id: 'effects', icon: Sliders, label: 'Effects' },
+  { id: 'waveform', icon: AudioWaveform, label: 'Waveform' },
 ];
 
 const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
@@ -489,19 +505,12 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     return current?.text || '';
   };
 
-  // Timeline tracks
+  // Timeline tracks with audio showing text+waveform style
   const timelineTracks: TimelineTrack[] = [
     { id: 'video', name: 'Video', icon: Video, color: '#10b981', clips: [{ id: 'v1', start: 0, duration: duration, name: 'Main Video' }] },
-    { id: 'transcript', name: 'Text', icon: FileText, color: '#3b82f6', clips: transcript.map((t, i) => ({ id: `t${i}`, start: t.startTime, duration: t.endTime - t.startTime, name: t.text.substring(0, 20) + '...' })) },
+    { id: 'transcript', name: 'Text', icon: FileText, color: '#a855f7', clips: transcript.map((t, i) => ({ id: `t${i}`, start: t.startTime, duration: t.endTime - t.startTime, name: t.text.substring(0, 20) + '...' })) },
     { id: 'audio', name: 'SFX', icon: Mic, color: '#f59e0b', clips: [{ id: 'a1', start: 0, duration: 5, name: 'Intro' }, { id: 'a2', start: 42, duration: 8, name: 'Outro' }] },
     { id: 'music', name: 'Music', icon: Music, color: '#ec4899', clips: [{ id: 'm1', start: 0, duration: duration, name: 'BG Music' }] },
-  ];
-
-  const leftTabs = [
-    { id: 'script', label: 'Script', icon: FileText },
-    { id: 'media', label: 'Media', icon: Folder },
-    { id: 'captions', label: 'Captions', icon: Captions },
-    { id: 'elements', label: 'Elements', icon: Layers },
   ];
 
   const mediaTabs = [
@@ -515,6 +524,209 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop',
   ];
+
+  // Render waveform SVG for audio segments
+  const renderWaveform = (segmentWidth: number) => {
+    const bars = Math.max(20, Math.floor(segmentWidth / 4));
+    return (
+      <svg className="absolute inset-0 w-full h-full opacity-60" preserveAspectRatio="none">
+        {Array.from({ length: bars }).map((_, i) => {
+          const height = 20 + Math.random() * 60;
+          return (
+            <rect
+              key={i}
+              x={`${(i / bars) * 100}%`}
+              y={`${50 - height / 2}%`}
+              width={`${100 / bars - 0.5}%`}
+              height={`${height}%`}
+              fill="currentColor"
+              rx="1"
+            />
+          );
+        })}
+      </svg>
+    );
+  };
+
+  // Render content based on active left tab
+  const renderLeftPanelContent = () => {
+    switch (activeLeftTab) {
+      case 'script':
+        return (
+          <div className="p-4">
+            {/* Script Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">DIGITAL BABES VSL</h3>
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Search transcript</p></TooltipContent>
+                </Tooltip>
+                <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Speaker Label */}
+            <button 
+              onClick={() => toast.info('Add speaker feature coming soon')}
+              className="flex items-center gap-2 mb-4 text-sm text-gray-600 hover:text-gray-900"
+            >
+              <Plus className="w-4 h-4" />
+              Add speaker
+            </button>
+
+            {/* Transcript Content */}
+            <div className="space-y-1">
+              {transcript.map((segment) => (
+                <div
+                  key={segment.id}
+                  onClick={() => handleTranscriptClick(segment.id)}
+                  className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
+                    selectedTranscriptId === segment.id
+                      ? 'bg-emerald-50 ring-2 ring-emerald-500'
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  {/* Speaker badge */}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center">
+                      <span className="text-[10px] text-white font-medium">
+                        {segment.speaker.charAt(0)}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-gray-500">{segment.speaker}</span>
+                    <span className="text-xs text-gray-400">{formatTime(segment.startTime)}</span>
+                  </div>
+
+                  {/* Editable text */}
+                  {editingTranscriptId === segment.id ? (
+                    <div className="flex flex-col gap-2">
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        className="w-full p-2 text-sm border rounded resize-none focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        rows={3}
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSaveTranscriptEdit(segment.id)}
+                          className="px-3 py-1 bg-emerald-500 text-white text-xs rounded hover:bg-emerald-600"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingTranscriptId(null)}
+                          className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p 
+                      className="text-sm text-gray-800 leading-relaxed"
+                      onDoubleClick={() => handleStartEditTranscript(segment.id, segment.text)}
+                    >
+                      {segment.text.split(' ').map((word, idx) => (
+                        <span
+                          key={idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWordClick(segment.id, idx, word);
+                          }}
+                          className={`inline-block mr-1 px-0.5 rounded cursor-text hover:bg-emerald-200/50 ${
+                            selectedTranscriptId === segment.id ? 'hover:bg-emerald-200' : ''
+                          }`}
+                        >
+                          {word}
+                        </span>
+                      ))}
+                    </p>
+                  )}
+
+                  {/* Action buttons on hover */}
+                  <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartEditTranscript(segment.id, segment.text);
+                          }}
+                          className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                        >
+                          <Type className="w-3.5 h-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Edit text</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSplit();
+                          }}
+                          className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
+                        >
+                          <Scissors className="w-3.5 h-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Split segment</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSegment(segment.id);
+                          }}
+                          className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Delete segment</p></TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case 'music':
+      case 'voiceover':
+      case 'soundfx':
+        return (
+          <div className="p-4">
+            <div className="text-center py-16">
+              <Image className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-sm font-medium text-gray-700">No Visual Assets</p>
+              <p className="text-xs text-gray-500 mt-2 max-w-[200px] mx-auto">
+                Start building your collection by clicking the generate button below, or by uploading a file <span className="text-pink-500 cursor-pointer hover:underline">here</span>
+              </p>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="p-4">
+            <div className="text-center py-16">
+              <Layers className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-sm font-medium text-gray-700">{leftIconTabs.find(t => t.id === activeLeftTab)?.label}</p>
+              <p className="text-xs text-gray-500 mt-2">Coming soon...</p>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
     <TooltipProvider>
@@ -656,344 +868,118 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
         {/* Main Content Area */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Left Panel - Script/Media/Captions */}
-          <div className="w-[320px] flex flex-col border-r border-gray-200 bg-gray-50 shrink-0">
-            {/* Left Panel Tabs */}
-            <div className="flex border-b border-gray-200 bg-white">
-              {leftTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveLeftTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                    activeLeftTab === tab.id
-                      ? 'text-emerald-600 border-b-2 border-emerald-500 bg-emerald-50/50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
+          {/* Left Vertical Icon Bar (8 icons) */}
+          <div className="w-12 flex flex-col items-center py-2 bg-[#1a1a2e] shrink-0">
+            {leftIconTabs.map((tab, index) => (
+              <React.Fragment key={tab.id}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setActiveLeftTab(tab.id)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                        activeLeftTab === tab.id
+                          ? 'bg-pink-500/20 text-pink-400'
+                          : 'text-gray-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <tab.icon className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right"><p>{tab.label}</p></TooltipContent>
+                </Tooltip>
+                {index === 0 && (
+                  <div className="w-6 h-0.5 bg-pink-500 rounded-full mt-1 mb-2" />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Left Panel - Content Area */}
+          <div className="w-[320px] flex flex-col border-r border-gray-200 bg-[#1a1a2e] shrink-0">
+            {/* Tab Label Header */}
+            <div className="flex items-center px-4 py-3 border-b border-gray-700">
+              <span className="text-white font-medium flex items-center gap-2">
+                {React.createElement(leftIconTabs.find(t => t.id === activeLeftTab)?.icon || FileText, { className: "w-4 h-4" })}
+                {leftIconTabs.find(t => t.id === activeLeftTab)?.label}
+              </span>
+            </div>
+            
+            {/* Content Area with White Background */}
+            <div className="flex-1 overflow-y-auto bg-white">
+              {renderLeftPanelContent()}
             </div>
 
-            {/* Left Panel Content */}
-            <div className="flex-1 overflow-y-auto">
-              {activeLeftTab === 'script' && (
-                <div className="p-4">
-                  {/* Script Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">DIGITAL BABES VSL</h3>
-                    <div className="flex items-center gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
-                            <Search className="w-4 h-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Search transcript</p></TooltipContent>
-                      </Tooltip>
-                      <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Speaker Label */}
-                  <button 
-                    onClick={() => toast.info('Add speaker feature coming soon')}
-                    className="flex items-center gap-2 mb-4 text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add speaker
-                  </button>
-
-                  {/* Transcript Content */}
-                  <div className="space-y-1">
-                    {transcript.map((segment) => (
-                      <div
-                        key={segment.id}
-                        onClick={() => handleTranscriptClick(segment.id)}
-                        className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
-                          selectedTranscriptId === segment.id
-                            ? 'bg-emerald-50 ring-2 ring-emerald-500'
-                            : 'hover:bg-gray-100'
-                        }`}
-                      >
-                        {/* Speaker badge */}
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center">
-                            <span className="text-[10px] text-white font-medium">
-                              {segment.speaker.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="text-xs font-medium text-gray-500">{segment.speaker}</span>
-                          <span className="text-xs text-gray-400">{formatTime(segment.startTime)}</span>
-                        </div>
-
-                        {/* Editable text */}
-                        {editingTranscriptId === segment.id ? (
-                          <div className="flex flex-col gap-2">
-                            <textarea
-                              value={editingText}
-                              onChange={(e) => setEditingText(e.target.value)}
-                              className="w-full p-2 text-sm border rounded resize-none focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                              rows={3}
-                              autoFocus
-                            />
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleSaveTranscriptEdit(segment.id)}
-                                className="px-3 py-1 bg-emerald-500 text-white text-xs rounded hover:bg-emerald-600"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={() => setEditingTranscriptId(null)}
-                                className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <p 
-                            className="text-sm text-gray-800 leading-relaxed"
-                            onDoubleClick={() => handleStartEditTranscript(segment.id, segment.text)}
-                          >
-                            {segment.text.split(' ').map((word, idx) => (
-                              <span
-                                key={idx}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleWordClick(segment.id, idx, word);
-                                }}
-                                className={`inline-block mr-1 px-0.5 rounded cursor-text hover:bg-emerald-200/50 ${
-                                  selectedTranscriptId === segment.id ? 'hover:bg-emerald-200' : ''
-                                }`}
-                              >
-                                {word}
-                              </span>
-                            ))}
-                          </p>
-                        )}
-
-                        {/* Action buttons on hover */}
-                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStartEditTranscript(segment.id, segment.text);
-                                }}
-                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
-                              >
-                                <Type className="w-3.5 h-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Edit text</p></TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSplit();
-                                }}
-                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600"
-                              >
-                                <Scissors className="w-3.5 h-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Split segment</p></TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteSegment(segment.id);
-                                }}
-                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-red-600"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Delete segment</p></TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            {/* Bottom Generation Area */}
+            <div className="p-4 bg-[#1a1a2e] border-t border-gray-700">
+              <p className="text-xs text-gray-400 mb-3">
+                Drag and drop, <span className="text-pink-400 cursor-pointer hover:underline">browse my library</span>, or <span className="text-pink-400 cursor-pointer hover:underline">upload</span>.
+              </p>
+              
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs">
+                  <Video className="w-3 h-3" />
+                  Video
+                  <ChevronDown className="w-3 h-3" />
                 </div>
-              )}
-
-              {activeLeftTab === 'media' && (
-                <div className="p-4">
-                  {/* Media Sub-tabs */}
-                  <div className="flex gap-2 mb-4">
-                    {mediaTabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveMediaTab(tab.id)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          activeMediaTab === tab.id
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Upload Button */}
-                  <button 
-                    onClick={handleUpload}
-                    className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50/50 transition-colors mb-4"
-                  >
-                    <Upload className="w-5 h-5" />
-                    <span className="text-sm font-medium">Upload {activeMediaTab}</span>
-                  </button>
-
-                  {/* Media Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {activeMediaTab === 'video' &&
-                      mediaLibrary.video.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => handleMediaItemClick(item, 'video')}
-                          className="group relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute bottom-2 left-2 right-2">
-                            <p className="text-xs text-white font-medium truncate">{item.name}</p>
-                            <p className="text-xs text-white/70">{item.duration}</p>
-                          </div>
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
-                              <Play className="w-4 h-4 text-gray-800 ml-0.5" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    {activeMediaTab === 'image' &&
-                      mediaLibrary.image.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => handleMediaItemClick(item, 'image')}
-                          className="group relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute bottom-2 left-2 right-2">
-                            <p className="text-xs text-white font-medium truncate drop-shadow">{item.name}</p>
-                          </div>
-                        </div>
-                      ))}
-                    {activeMediaTab === 'audio' &&
-                      mediaLibrary.audio.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => handleMediaItemClick(item, 'audio')}
-                          className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg cursor-pointer hover:bg-emerald-50 hover:ring-2 hover:ring-emerald-500 transition-all"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                            <Music className="w-5 h-5 text-emerald-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                            <p className="text-xs text-gray-500">{item.duration}</p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+                <div className="flex items-center gap-2 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs">
+                  <Sparkles className="w-3 h-3 text-pink-400" />
+                  AIV Consistent
+                  <ChevronDown className="w-3 h-3" />
                 </div>
-              )}
-
-              {activeLeftTab === 'captions' && (
-                <div className="p-4">
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-medium text-gray-700">Caption Style</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {['Classic', 'Bold', 'Minimal', 'Neon'].map((style) => (
-                        <button
-                          key={style}
-                          onClick={() => toast.success(`${style} caption style applied`)}
-                          className="p-4 bg-white border rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
-                        >
-                          <span className="text-sm font-medium">{style}</span>
-                        </button>
-                      ))}
-                    </div>
-                    <div className="pt-4 border-t">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">Caption Position</h4>
-                      <div className="flex gap-2">
-                        {['Top', 'Center', 'Bottom'].map((pos) => (
-                          <button
-                            key={pos}
-                            onClick={() => toast.success(`Captions positioned at ${pos}`)}
-                            className="flex-1 px-3 py-2 bg-gray-100 rounded text-sm hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
-                          >
-                            {pos}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs">
+                  <Grid3X3 className="w-3 h-3" />
+                  Portrait
+                  <ChevronDown className="w-3 h-3" />
                 </div>
-              )}
+              </div>
 
-              {activeLeftTab === 'elements' && (
-                <div className="p-4">
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-medium text-gray-700">Add Elements</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { name: 'Text', icon: Type },
-                        { name: 'Shape', icon: Grid3X3 },
-                        { name: 'Sticker', icon: Sparkles },
-                        { name: 'Logo', icon: Image },
-                      ].map((el) => (
-                        <button
-                          key={el.name}
-                          onClick={() => toast.success(`${el.name} element added`)}
-                          className="flex flex-col items-center gap-2 p-4 bg-white border rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
-                        >
-                          <el.icon className="w-6 h-6 text-gray-500" />
-                          <span className="text-sm">{el.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs">
+                  <RefreshCw className="w-3 h-3" />
+                  5s
+                  <ChevronDown className="w-3 h-3" />
                 </div>
-              )}
+                <div className="flex items-center gap-1 px-2 py-1 rounded bg-gray-800 text-gray-300 text-xs">
+                  <span className="w-4 h-4 rounded-full bg-gray-600 flex items-center justify-center text-[9px]">1</span>
+                  <Plus className="w-3 h-3" />
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 mb-3">
+                Describe your video idea... (e.g., 'Sunlight filtering through trees and a gentle stream flowing') or <span className="text-pink-400 cursor-pointer">surprise me!</span>
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button className="flex-1 py-2.5 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all">
+                  Generate <Sparkles className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-1 px-3 py-2 bg-gray-800 rounded-lg text-xs text-gray-300">
+                  <div className="w-4 h-4 rounded-full bg-yellow-500 flex items-center justify-center">
+                    <span className="text-[8px] text-black">💰</span>
+                  </div>
+                  Cost: 30 credits
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Center - Video Preview */}
-          <div className="flex-1 flex flex-col bg-white min-w-0">
-            {/* Canvas Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-              <div className="flex items-center gap-2">
+          {/* Center Panel - Video Preview */}
+          <div className="flex-1 flex flex-col min-w-0 bg-white">
+            {/* Preview Toolbar */}
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white shrink-0">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setShowAITools(!showAITools)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    showAITools ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  AI Tools
+                </button>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button 
-                      onClick={() => toast.info('Text tool selected')}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                    >
-                      <Type className="w-4 h-4" />
-                      Write
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Add text overlay</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      onClick={() => toast.info('Grid overlay toggled')}
-                      className="p-1.5 hover:bg-gray-100 rounded text-gray-500"
-                    >
+                    <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
                       <Grid3X3 className="w-4 h-4" />
                     </button>
                   </TooltipTrigger>
@@ -1360,8 +1346,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* Show AI Tools toggle when hidden */}
             </div>
           )}
           
@@ -1377,107 +1361,193 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
         {/* Timeline Section */}
         <div className="h-52 border-t border-gray-300 bg-white flex flex-col shrink-0">
-          <div className="flex items-center justify-between px-4 py-2 border-b bg-gray-50 border-gray-200">
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-medium text-gray-500">Timeline</span>
-              <div className="flex items-center gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button onClick={handleTimelineZoomOut} className="p-1 hover:bg-gray-200 rounded text-gray-500">
-                      <ZoomOut className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Zoom out timeline</p></TooltipContent>
-                </Tooltip>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={zoom}
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-24 h-1 rounded-lg cursor-pointer accent-emerald-500"
-                />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button onClick={handleTimelineZoomIn} className="p-1 hover:bg-gray-200 rounded text-gray-500">
-                      <ZoomIn className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Zoom in timeline</p></TooltipContent>
-                </Tooltip>
+          {/* Timeline Header with Ruler */}
+          <div className="flex items-center border-b bg-gray-50 border-gray-200">
+            {/* Add button */}
+            <div className="w-14 shrink-0 flex items-center justify-center border-r border-gray-200 py-2">
+              <button className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            {/* Time Ruler */}
+            <div className="flex-1 relative h-6 overflow-hidden">
+              <div className="absolute inset-0 flex items-end px-2">
+                {Array.from({ length: Math.ceil(duration / 2) + 1 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="flex-shrink-0 text-[10px] text-gray-400 font-mono"
+                    style={{ width: `${100 / (duration / 2)}%` }}
+                  >
+                    {`${Math.floor(i * 2 / 60)}:${(i * 2 % 60).toString().padStart(2, '0')}`}
+                  </div>
+                ))}
               </div>
             </div>
-            <span className="text-xs text-gray-400">Duration: {formatTime(duration)}</span>
           </div>
 
           <div ref={timelineRef} className="flex-1 overflow-y-auto relative">
             {/* Playhead indicator */}
             <div 
-              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none"
-              style={{ left: `calc(56px + ${(currentTime / duration) * (100 - (56 / timelineRef.current?.clientWidth || 1) * 100)}%)` }}
+              className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10 pointer-events-none"
+              style={{ left: `calc(56px + ${(currentTime / duration) * (100 - (56 / (timelineRef.current?.clientWidth || 1)) * 100)}%)` }}
             >
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full" />
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-blue-500" />
             </div>
 
-            {timelineTracks.map((track) => (
-              <div key={track.id} className="flex h-10 border-b border-gray-100">
-                <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
-                  <track.icon className={`w-3 h-3 ${track.id === 'video' ? 'text-emerald-500' : track.id === 'transcript' ? 'text-blue-500' : track.id === 'audio' ? 'text-amber-500' : 'text-pink-500'}`} />
-                  <span className="text-[9px] font-medium text-gray-600">{track.name}</span>
-                </div>
-                <div 
-                  className="flex-1 relative bg-white cursor-pointer"
-                  onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const newTime = (x / rect.width) * duration;
-                    setCurrentTime(Math.max(0, Math.min(newTime, duration)));
-                  }}
-                >
-                  {track.clips.map((clip) => (
-                    <div
-                      key={clip.id}
-                      className="absolute top-1 bottom-1 rounded cursor-pointer flex items-center px-2 overflow-hidden hover:opacity-80 transition-opacity"
-                      style={{
-                        left: `${(clip.start / duration) * 100}%`,
-                        width: `${(clip.duration / duration) * 100}%`,
-                        backgroundColor: `${track.color}20`,
-                        borderLeft: `3px solid ${track.color}`,
-                      }}
+            {/* Video Track with Thumbnails */}
+            <div className="flex h-14 border-b border-gray-100">
+              <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
+                <Video className="w-3 h-3 text-emerald-500" />
+              </div>
+              <div 
+                className="flex-1 relative bg-white cursor-pointer p-1"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const newTime = (x / rect.width) * duration;
+                  setCurrentTime(Math.max(0, Math.min(newTime, duration)));
+                }}
+              >
+                <div className="h-full rounded border-2 border-blue-400 bg-gray-100 flex items-center overflow-hidden">
+                  {/* Simulated video thumbnails */}
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div 
+                      key={i} 
+                      className="flex-1 h-full bg-gradient-to-br from-emerald-600 to-teal-700 border-r border-gray-300/50 flex items-center justify-center"
                     >
-                      <span className="text-[9px] font-medium truncate" style={{ color: track.color }}>
-                        {clip.name}
+                      <span className="text-[8px] text-white/70 font-medium">
+                        {i === 0 ? 'SOMETHING' : i === 3 ? "I WASN'T" : i === 5 ? "I DON'T HAVE" : ''}
                       </span>
                     </div>
                   ))}
                 </div>
               </div>
-            ))}
+            </div>
 
-            {/* Scenes Track */}
-            <div className="flex h-12 border-b border-gray-100">
+            {/* Text/Audio Track with Waveform + Text */}
+            <div className="flex h-16 border-b border-gray-100">
               <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
-                <Film className="w-3 h-3 text-gray-500" />
-                <span className="text-[9px] font-medium text-gray-600">Scenes</span>
+                <Mic className="w-3 h-3 text-purple-500" />
               </div>
-              <div className="flex-1 relative bg-white flex items-center gap-1 px-1 py-1 overflow-x-auto">
-                {timelineScenes.map((scene) => (
+              <div 
+                className="flex-1 relative bg-white cursor-pointer p-1"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const newTime = (x / rect.width) * duration;
+                  setCurrentTime(Math.max(0, Math.min(newTime, duration)));
+                }}
+              >
+                <div className="h-full flex gap-0.5">
+                  {transcript.map((segment, idx) => {
+                    const widthPercent = ((segment.endTime - segment.startTime) / duration) * 100;
+                    const leftPercent = (segment.startTime / duration) * 100;
+                    const isSelected = selectedTranscriptId === segment.id;
+                    
+                    return (
+                      <div
+                        key={segment.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTranscriptClick(segment.id);
+                        }}
+                        className={`absolute top-1 bottom-1 rounded-md cursor-pointer flex flex-col overflow-hidden transition-all ${
+                          isSelected ? 'ring-2 ring-purple-500 z-10' : 'hover:opacity-90'
+                        }`}
+                        style={{
+                          left: `${leftPercent}%`,
+                          width: `${widthPercent}%`,
+                          backgroundColor: isSelected ? '#e9d5ff' : '#f3e8ff',
+                          borderLeft: '2px solid #a855f7',
+                        }}
+                      >
+                        {/* Text */}
+                        <div className="px-1.5 pt-1 text-[9px] text-purple-800 truncate font-medium">
+                          {segment.text.substring(0, 25)}...
+                        </div>
+                        {/* Waveform visualization */}
+                        <div className="flex-1 relative text-purple-400/60">
+                          {renderWaveform(widthPercent * 5)}
+                        </div>
+                        {/* Duration badge */}
+                        {isSelected && (
+                          <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-gray-900 text-white text-[8px] rounded font-mono">
+                            {(segment.endTime - segment.startTime).toFixed(1)}s
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* SFX Track */}
+            <div className="flex h-10 border-b border-gray-100">
+              <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
+                <Headphones className="w-3 h-3 text-amber-500" />
+                <span className="text-[9px] font-medium text-gray-600">SFX</span>
+              </div>
+              <div 
+                className="flex-1 relative bg-white cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const newTime = (x / rect.width) * duration;
+                  setCurrentTime(Math.max(0, Math.min(newTime, duration)));
+                }}
+              >
+                {timelineTracks[2].clips.map((clip) => (
                   <div
-                    key={scene.id}
-                    onClick={() => handleSceneClick(scene)}
-                    className={`h-full rounded-lg cursor-pointer flex items-center gap-1.5 px-2.5 shrink-0 hover:opacity-80 transition-opacity ${
-                      selectedSceneId === scene.id ? 'ring-2 ring-white ring-offset-1' : ''
-                    }`}
+                    key={clip.id}
+                    className="absolute top-1 bottom-1 rounded cursor-pointer flex items-center px-2 overflow-hidden hover:opacity-80 transition-opacity"
                     style={{
-                      width: `${(scene.duration / duration) * 100}%`,
-                      minWidth: '80px',
-                      backgroundColor: scene.color,
+                      left: `${(clip.start / duration) * 100}%`,
+                      width: `${(clip.duration / duration) * 100}%`,
+                      backgroundColor: '#fef3c720',
+                      borderLeft: '3px solid #f59e0b',
                     }}
                   >
-                    <Film className="w-3.5 h-3.5 text-white/80" />
-                    <span className="text-[10px] font-medium text-white truncate">{scene.name}</span>
+                    <span className="text-[9px] font-medium truncate text-amber-600">
+                      {clip.name}
+                    </span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Music Track */}
+            <div className="flex h-10 border-b border-gray-100">
+              <div className="w-14 shrink-0 flex items-center justify-center gap-1 border-r bg-gray-50 border-gray-200">
+                <Music className="w-3 h-3 text-pink-500" />
+                <span className="text-[9px] font-medium text-gray-600">Music</span>
+              </div>
+              <div 
+                className="flex-1 relative bg-white cursor-pointer"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const newTime = (x / rect.width) * duration;
+                  setCurrentTime(Math.max(0, Math.min(newTime, duration)));
+                }}
+              >
+                <div
+                  className="absolute top-1 bottom-1 rounded cursor-pointer flex items-center px-2 overflow-hidden hover:opacity-80 transition-opacity"
+                  style={{
+                    left: '0%',
+                    width: '100%',
+                    backgroundColor: '#10b98120',
+                    borderLeft: '3px solid #10b981',
+                  }}
+                >
+                  <span className="text-[9px] font-medium truncate text-emerald-600">
+                    BG Music
+                  </span>
+                  {/* Waveform for music track */}
+                  <div className="flex-1 h-full relative text-emerald-400/40 ml-2">
+                    {renderWaveform(200)}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
