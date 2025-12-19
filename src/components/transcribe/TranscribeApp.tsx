@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Mic, Upload, Link2, Play, Pause, Download, Edit3, Sparkles, 
   Search, Folder, Tag, Clock, User, Globe, FileText, Copy, 
@@ -94,14 +94,26 @@ const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
+const ITEMS_PER_PAGE = 20;
+const SCROLL_STORAGE_KEY = 'transcribe-scroll-position';
+const ITEMS_COUNT_STORAGE_KEY = 'transcribe-items-count';
+
 export default function TranscribeApp() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<'list' | 'grid'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTranscripts, setSelectedTranscripts] = useState<string[]>([]);
   const [transcripts, setTranscripts] = useState<Transcript[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(() => {
+    // Restore display count from session storage on mount
+    const stored = sessionStorage.getItem(ITEMS_COUNT_STORAGE_KEY);
+    return stored ? parseInt(stored, 10) : ITEMS_PER_PAGE;
+  });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const listContainerRef = useRef<HTMLDivElement>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
@@ -143,9 +155,37 @@ export default function TranscribeApp() {
   // Title editing state
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitleValue, setEditingTitleValue] = useState('');
+
+  // Scroll restoration - restore position after navigating back
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    const savedScrollPosition = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+    if (savedScrollPosition && !isLoading) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition, 10));
+      });
+    }
+  }, [isLoading]);
+
+  // Save scroll position before navigating away
+  const saveScrollPosition = useCallback(() => {
+    sessionStorage.setItem(SCROLL_STORAGE_KEY, String(window.scrollY));
+    sessionStorage.setItem(ITEMS_COUNT_STORAGE_KEY, String(displayCount));
+  }, [displayCount]);
+
+  // Handle "Show more" button click
+  const handleShowMore = () => {
+    setIsLoadingMore(true);
+    // Simulate loading delay for smoother UX
+    setTimeout(() => {
+      setDisplayCount(prev => {
+        const newCount = prev + ITEMS_PER_PAGE;
+        sessionStorage.setItem(ITEMS_COUNT_STORAGE_KEY, String(newCount));
+        return newCount;
+      });
+      setIsLoadingMore(false);
+    }, 300);
+  };
 
   // Load transcripts from database
   useEffect(() => {
@@ -752,6 +792,9 @@ export default function TranscribeApp() {
   };
 
   const handleEdit = (transcript: Transcript) => {
+    // Save scroll position before navigating
+    saveScrollPosition();
+    
     const params = new URLSearchParams({
       title: transcript.title,
       duration: transcript.duration,
@@ -907,6 +950,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
     if (activeFilter === 'processing') return matchesSearch && t.status === 'processing';
     return matchesSearch && t.source === activeFilter;
   });
+
+  // Paginated transcripts - only show displayCount items
+  const displayedTranscripts = filteredTranscripts.slice(0, displayCount);
+  const hasMoreItems = filteredTranscripts.length > displayCount;
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-['Inter',sans-serif]">
@@ -1137,8 +1184,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
           {/* Transcripts List */}
           {activeView === 'list' ? (
-            <div className="space-y-3">
-              {filteredTranscripts.map((transcript, index) => (
+            <div className="space-y-3" ref={listContainerRef}>
+              {displayedTranscripts.map((transcript, index) => (
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
@@ -1347,7 +1394,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
           ) : (
             /* Grid View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTranscripts.map((transcript, index) => (
+              {displayedTranscripts.map((transcript, index) => (
                 <div
                   key={transcript.id}
                   onClick={() => handleEdit(transcript)}
@@ -1522,6 +1569,31 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Show More Button */}
+          {hasMoreItems && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={handleShowMore}
+                disabled={isLoadingMore}
+                className="px-8 py-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 font-medium hover:bg-gray-200 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Show more
+                    <span className="text-sm text-gray-500">
+                      ({displayedTranscripts.length} of {filteredTranscripts.length})
+                    </span>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </section>
