@@ -611,7 +611,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         {/* Left Panel - Tab Content */}
         <div className="w-[500px] bg-white border-r border-gray-200 flex flex-col shrink-0">
           {/* Tabs with Tooltips */}
-          <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
             {tabs.map((tab) => (
               <Tooltip key={tab.id}>
                 <TooltipTrigger asChild>
@@ -661,73 +661,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
           </div>
 
-          {/* Settings Row */}
+          {/* Prompt Input */}
           <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Video Type */}
-              <div className="relative">
-                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                  <Video className="w-4 h-4" />
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* Consistency */}
-              <div className="relative">
-                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* Aspect Ratio */}
-              <div className="relative">
-                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                  <Maximize className="w-4 h-4" />
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* Clip Count */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                <button
-                  onClick={() => setClipCount(Math.max(1, clipCount - 1))}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="text-sm w-6 text-center">{clipCount}</span>
-                <button
-                  onClick={() => setClipCount(clipCount + 1)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Prompt Input */}
-            <div className="mt-4">
-              <textarea
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                placeholder="Describe your video idea... (e.g., 'Sunlight filtering through trees and a gentle stream flowing')"
-                className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none h-24"
-              />
-              {/* Provider Icons */}
-              <div className="flex justify-end mt-2 gap-1">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                  <span className="text-white text-xs">▶</span>
-                </div>
-                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs">G</span>
-                </div>
-              </div>
-            </div>
+            <textarea
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+              placeholder="Describe your video idea... (e.g., 'Sunlight filtering through trees and a gentle stream flowing')"
+              className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green resize-none h-40"
+            />
 
             {/* Generate Button */}
             <div className="mt-4">
-              <button className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity">
+              <button className="w-full flex items-center justify-center gap-2 py-3 bg-brand-green text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
                 Generate
                 <Star className="w-4 h-4" />
                 30
@@ -857,7 +802,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </button>
                 <button
                   onClick={togglePlayback}
-                  className="w-12 h-12 flex items-center justify-center bg-primary rounded-full hover:opacity-90 transition-opacity text-primary-foreground shadow-lg"
+                  className="w-12 h-12 flex items-center justify-center bg-brand-green rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
                 >
                   {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
                 </button>
@@ -901,8 +846,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Timeline */}
             <div className="h-64 overflow-hidden flex">
-              {/* Track Labels - Black Background */}
-              <div className="w-12 bg-black flex flex-col shrink-0">
+              {/* Track Labels - Dark Background matching sidebar */}
+              <div className="w-12 bg-sidebar-background flex flex-col shrink-0">
                 {/* Time Ruler Spacer */}
                 <div className="h-8 border-b border-gray-800 flex items-center justify-center">
                   <Tooltip>
