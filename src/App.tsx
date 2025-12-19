@@ -51,6 +51,12 @@ import NoiseRemover from "./pages/NoiseRemover";
 import BackgroundRemover from "./pages/BackgroundRemover";
 import ImageUpscaler from "./pages/ImageUpscaler";
 import ImageEnhancer from "./pages/ImageEnhancer";
+import BlogWriter from "./pages/BlogWriter";
+import SocialPosts from "./pages/SocialPosts";
+import EmailGenerator from "./pages/EmailGenerator";
+import AdCopyWriter from "./pages/AdCopyWriter";
+import ScriptWriter from "./pages/ScriptWriter";
+import SEOOptimizer from "./pages/SEOOptimizer";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +100,12 @@ const App = () => (
           <Route path="/background-remover" element={<BackgroundRemover />} />
           <Route path="/image-upscaler" element={<ImageUpscaler />} />
           <Route path="/image-enhancer" element={<ImageEnhancer />} />
+          <Route path="/blog-writer" element={<BlogWriter />} />
+          <Route path="/social-posts" element={<SocialPosts />} />
+          <Route path="/email-generator" element={<EmailGenerator />} />
+          <Route path="/ad-copy-writer" element={<AdCopyWriter />} />
+          <Route path="/script-writer" element={<ScriptWriter />} />
+          <Route path="/seo-optimizer" element={<SEOOptimizer />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
