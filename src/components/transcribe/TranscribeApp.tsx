@@ -1683,7 +1683,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   </>
                 ) : (
                   <>
-                    Show more
+                    Show More
                     <span className="text-sm text-gray-500">
                       ({displayedTranscripts.length} of {filteredTranscripts.length})
                     </span>
