@@ -1332,9 +1332,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
         {/* Right Panel - Video Preview & Timeline */}
         <div className="flex-1 flex flex-col bg-gray-100 min-w-0">
-          {/* Video Preview - reduced height */}
-          <div className="flex-1 flex items-center justify-center p-4 min-h-0" style={{ maxHeight: '45vh' }}>
-            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full h-full" style={{ maxWidth: '720px' }}>
+          {/* Video Preview - fills available space */}
+          <div className="flex-1 flex items-center justify-center p-6 min-h-0">
+            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full h-full max-w-[1000px]">
               {/* Video Element */}
               <video
                 ref={videoRef}
@@ -1489,16 +1489,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
             </div>
 
-            {/* Timeline - reduced height for no scrolling */}
-            <div className="h-56 overflow-hidden flex">
+            {/* Timeline - anchored to bottom */}
+            <div className="h-72 overflow-hidden flex">
               {/* Track Labels - Dark Background matching sidebar */}
               <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
                 {/* Time Ruler Spacer */}
-                <div className="h-6 border-b border-gray-800 flex items-center justify-center">
+                <div className="h-8 border-b border-gray-800 flex items-center justify-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button className="p-1 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
-                        <Plus className="w-3 h-3" />
+                      <button className="p-1.5 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
+                        <Plus className="w-4 h-4" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent><p>Add Track</p></TooltipContent>
@@ -1506,11 +1506,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
                 {/* Track Icons */}
                 {tracks.map((track) => (
-                  <div key={track.id} className="h-12 flex items-center justify-center border-b border-gray-800">
-                    {track.id === 'image-1' && <ImageIcon className="w-4 h-4 text-blue-400" />}
-                    {track.id === 'video-1' && <Video className="w-4 h-4 text-yellow-400" />}
-                    {track.id === 'audio-1' && <Volume2 className="w-4 h-4 text-purple-400" />}
-                    {track.id === 'music-1' && <Music className="w-4 h-4 text-green-400" />}
+                  <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
+                    {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
+                    {track.id === 'video-1' && <Video className="w-5 h-5 text-yellow-400" />}
+                    {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
+                    {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
                   </div>
                 ))}
               </div>
@@ -1524,7 +1524,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   onMouseMove={handleTimelineMouseMove}
                   onMouseUp={handleTimelineMouseUp}
                   onMouseLeave={handleTimelineMouseUp}
-                  className="h-6 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
+                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
                 >
                   {/* Plus and Arrow */}
                   <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-1 z-10">
@@ -1560,11 +1560,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
 
                 {/* Tracks */}
-                <div className="overflow-y-auto" style={{ height: 'calc(100% - 24px)' }}>
+                <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)' }}>
                   {tracks.map((track) => (
                     <div
                       key={track.id}
-                      className="flex items-center h-12 border-b border-gray-100 hover:bg-gray-50 relative"
+                      className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
                     >
                       {/* Track Content */}
                       <div className="flex-1 h-full relative">
