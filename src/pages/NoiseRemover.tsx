@@ -427,12 +427,21 @@ export default function NoiseRemover() {
                           </div>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {record.output_audio_url && (
-                              <button
-                                onClick={() => playAudio(record.output_audio_url!)}
-                                className="p-2 rounded-lg hover:bg-background/50"
-                              >
-                                {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => playAudio(record.output_audio_url!)}
+                                  className="p-2 rounded-lg hover:bg-background/50"
+                                >
+                                  {isPlaying === record.output_audio_url ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                </button>
+                                <a
+                                  href={record.output_audio_url}
+                                  download
+                                  className="p-2 rounded-lg hover:bg-background/50"
+                                >
+                                  <Download className="w-4 h-4" />
+                                </a>
+                              </>
                             )}
                             <button
                               onClick={() => handleDeleteRecord(record.id)}
