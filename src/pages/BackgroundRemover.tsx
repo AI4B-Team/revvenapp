@@ -5,12 +5,18 @@ import Header from '@/components/dashboard/Header';
 import { 
   ArrowLeft, Upload, Trash2, 
   Loader2, Download, Sparkles, Scissors,
-  CheckCircle2, Clock, Image as ImageIcon, Play
+  CheckCircle2, Clock, Image as ImageIcon, X, Calendar, Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { removeBackground } from '@/utils/backgroundRemoval';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface UsageRecord {
   id: string;
@@ -30,6 +36,7 @@ export default function BackgroundRemover() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [usageHistory, setUsageHistory] = useState<UsageRecord[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<UsageRecord | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -128,7 +135,8 @@ export default function BackgroundRemover() {
     }
   };
 
-  const handleDeleteRecord = async (recordId: string) => {
+  const handleDeleteRecord = async (recordId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     try {
       const { error } = await supabase
         .from('audio_app_usage')
@@ -138,6 +146,7 @@ export default function BackgroundRemover() {
       if (error) throw error;
 
       setUsageHistory(prev => prev.filter(r => r.id !== recordId));
+      setSelectedRecord(null);
       toast.success('Record deleted');
     } catch (error: any) {
       toast.error(error.message || 'Failed to delete');
@@ -341,9 +350,18 @@ export default function BackgroundRemover() {
                   ) : (
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {usageHistory.map((record) => (
-                        <div key={record.id} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors group">
+                        <div 
+                          key={record.id} 
+                          onClick={() => setSelectedRecord(record)}
+                          className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors group cursor-pointer"
+                        >
                           {record.output_audio_url && (
-                            <img src={record.output_audio_url} alt="Result" className="w-12 h-12 object-cover rounded-lg" />
+                            <div className="relative">
+                              <img src={record.output_audio_url} alt="Result" className="w-12 h-12 object-cover rounded-lg" />
+                              <div className="absolute inset-0 bg-black/40 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Eye className="w-4 h-4 text-white" />
+                              </div>
+                            </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">
@@ -358,13 +376,14 @@ export default function BackgroundRemover() {
                               <a
                                 href={record.output_audio_url}
                                 download
+                                onClick={(e) => e.stopPropagation()}
                                 className="p-2 rounded-lg hover:bg-background/50"
                               >
                                 <Download className="w-4 h-4" />
                               </a>
                             )}
                             <button
-                              onClick={() => handleDeleteRecord(record.id)}
+                              onClick={(e) => handleDeleteRecord(record.id, e)}
                               className="p-2 rounded-lg hover:bg-red-500/10 text-red-400"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -380,6 +399,91 @@ export default function BackgroundRemover() {
           </div>
         </main>
       </div>
+
+      {/* Image Details Modal */}
+      <Dialog open={!!selectedRecord} onOpenChange={() => setSelectedRecord(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center">
+                <Scissors className="w-5 h-5 text-white" />
+              </div>
+              Background Removal Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedRecord && (
+            <div className="space-y-6 mt-4">
+              {/* Status Badge */}
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  selectedRecord.status === 'completed' 
+                    ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}>
+                  {selectedRecord.status === 'completed' ? 'Completed' : 'Failed'}
+                </span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  {new Date(selectedRecord.created_at).toLocaleString()}
+                </div>
+              </div>
+
+              {/* Images Comparison */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Original Image */}
+                {selectedRecord.input_audio_url && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Original Image</h3>
+                    <div className="rounded-xl overflow-hidden bg-muted/50 border border-border">
+                      <img 
+                        src={selectedRecord.input_audio_url} 
+                        alt="Original" 
+                        className="w-full h-auto object-contain max-h-[400px]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Result Image */}
+                {selectedRecord.output_audio_url && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Result (Background Removed)</h3>
+                    <div className="rounded-xl overflow-hidden bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3QgZmlsbD0iI2VlZSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIi8+PHJlY3QgZmlsbD0iI2VlZSIgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiLz48cmVjdCBmaWxsPSIjY2NjIiB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIi8+PHJlY3QgZmlsbD0iI2NjYyIgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIvPjwvc3ZnPg==')] border border-border">
+                      <img 
+                        src={selectedRecord.output_audio_url} 
+                        alt="Result" 
+                        className="w-full h-auto object-contain max-h-[400px]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t border-border">
+                {selectedRecord.output_audio_url && (
+                  <a
+                    href={selectedRecord.output_audio_url}
+                    download="background-removed.png"
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-purple-500 text-white font-medium hover:bg-purple-600 transition-colors"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download PNG
+                  </a>
+                )}
+                <button
+                  onClick={() => handleDeleteRecord(selectedRecord.id)}
+                  className="px-5 py-3 rounded-xl border border-red-500/30 text-red-400 font-medium hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
