@@ -518,7 +518,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
   return (
     <TooltipProvider>
-      <div ref={containerRef} className="h-full flex flex-col bg-white overflow-hidden font-sans">
+      <div ref={containerRef} className="h-screen max-h-screen flex flex-col bg-white overflow-hidden font-sans">
         {/* Top Header - Dark Menu Bar */}
         <header className="flex items-center justify-between px-4 py-2 bg-[#1a1a2e] text-white shrink-0">
           <div className="flex items-center gap-4">
@@ -655,9 +655,9 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
         </header>
 
         {/* Main Content Area */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Left Panel - Script/Media/Captions */}
-          <div className="w-[380px] flex flex-col border-r border-gray-200 bg-gray-50 shrink-0">
+          <div className="w-[320px] flex flex-col border-r border-gray-200 bg-gray-50 shrink-0">
             {/* Left Panel Tabs */}
             <div className="flex border-b border-gray-200 bg-white">
               {leftTabs.map((tab) => (
@@ -1055,7 +1055,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             </div>
 
             {/* Video Preview Area */}
-            <div className="flex-1 flex items-center justify-center p-6 bg-gray-100">
+            <div className="flex-1 min-h-0 flex items-center justify-center p-4 bg-gray-100">
               <div 
                 className="relative w-full max-w-3xl aspect-video bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 rounded-xl overflow-hidden shadow-2xl"
                 style={{ transform: `scale(${previewZoom / 100})`, transformOrigin: 'center' }}
@@ -1104,7 +1104,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
             </div>
 
             {/* Playback Controls */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white">
+            <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-white shrink-0">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1226,7 +1226,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
 
           {/* Right Panel - AI Tools */}
           {showAITools && (
-            <div className="w-[280px] flex flex-col border-l border-gray-200 bg-gray-50 shrink-0">
+            <div className="w-[240px] flex flex-col border-l border-gray-200 bg-gray-50 shrink-0">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-emerald-500" />
@@ -1373,7 +1373,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
         </div>
 
         {/* Timeline Section */}
-        <div className="h-44 border-t border-gray-300 bg-white flex flex-col shrink-0">
+        <div className="h-32 border-t border-gray-300 bg-white flex flex-col shrink-0">
           <div className="flex items-center justify-between px-4 py-2 border-b bg-gray-50 border-gray-200">
             <div className="flex items-center gap-4">
               <span className="text-xs font-medium text-gray-500">Timeline</span>
