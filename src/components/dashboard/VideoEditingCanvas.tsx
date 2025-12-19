@@ -44,6 +44,12 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ScrollText,
+  Heart,
+  Download,
+  Search,
+  Minus,
+  Star,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -62,6 +68,7 @@ interface TimelineClip {
   thumbnail?: string;
   color?: string;
   waveform?: number[];
+  caption?: string;
 }
 
 interface TimelineTrack {
@@ -109,7 +116,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   activeEditorTab,
 }) => {
   // State Management
-  const [activeTab, setActiveTab] = useState<string>('visuals');
+  const [activeTab, setActiveTab] = useState<string>('script');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(78);
@@ -129,7 +136,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
     }
   ]);
   const [chatInput, setChatInput] = useState('');
-  const [isChatExpanded, setIsChatExpanded] = useState(true);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -138,59 +145,47 @@ Hi, my name is Vicki Revelle and I'm what's called a digital babe. I was created
 
 Not everyone wants to share their personal life online. Not everyone has the time or energy to create endless content, and yet without a consistent presence, your brand fades away. That's the trap most creators and entrepreneurs fall into, but there's a smarter way forward. That's where Digital Babes come in.`);
 
-  // Speakers
+  // Speakers (now called Characters)
   const [speakers, setSpeakers] = useState<Speaker[]>([
     { id: '1', name: 'Vicki Revelle', color: '#10B981', avatar: '' }
   ]);
 
   // Video settings
-  const [videoType, setVideoType] = useState('Video');
+  const [videoType, setVideoType] = useState('Img2Vid');
   const [consistency, setConsistency] = useState('AIV Consistent');
   const [aspectRatio, setAspectRatio] = useState('Landscape');
   const [clipDuration, setClipDuration] = useState('5s');
   const [clipCount, setClipCount] = useState(1);
   const [promptText, setPromptText] = useState('');
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
 
-  // Timeline tracks
+  // Sample visuals for the Visuals tab
+  const [visualAssets] = useState([
+    { id: '1', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
+    { id: '2', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
+    { id: '3', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
+    { id: '4', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
+    { id: '5', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: true },
+    { id: '6', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: true },
+    { id: '7', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: true },
+    { id: '8', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
+  ]);
+
+  // Timeline tracks with combined audio/text
   const [tracks, setTracks] = useState<TimelineTrack[]>([
     {
       id: 'video-1',
       type: 'video',
       name: 'Video 1',
       clips: [
-        { id: 'clip-1', type: 'video', name: 'N.', startTime: 0, duration: 5, color: '#EAB308' }
-      ]
-    },
-    {
-      id: 'video-2',
-      type: 'video',
-      name: 'Video 2',
-      clips: []
-    },
-    {
-      id: 'effect-1',
-      type: 'effect',
-      name: 'Effects',
-      clips: [
-        { id: 'effect-clip-1', type: 'effect', name: 'Gradient', startTime: 15, duration: 8, color: 'linear-gradient(90deg, #10B981, #14B8A6)' }
-      ]
-    },
-    {
-      id: 'media-1',
-      type: 'video',
-      name: 'Media',
-      clips: [
-        { id: 'media-1', type: 'video', name: 'AIVideo.com', startTime: 0, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-2', type: 'video', name: 'gentle wind...', startTime: 3, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-3', type: 'video', name: 'Li...', startTime: 6, duration: 2, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-4', type: 'video', name: 'Footsteps...', startTime: 8, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-5', type: 'video', name: 'Subt...', startTime: 11, duration: 2, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-6', type: 'video', name: 'L', startTime: 13, duration: 2, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-7', type: 'video', name: 'Uplo...', startTime: 15, duration: 2, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-8', type: 'video', name: 'Upload yo...', startTime: 17, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-9', type: 'video', name: 'Skiing in sno...', startTime: 20, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-10', type: 'video', name: 'Skis slicing t...', startTime: 23, duration: 3, thumbnail: '/api/placeholder/60/40' },
-        { id: 'media-11', type: 'video', name: 'Skis slicing t...', startTime: 26, duration: 3, thumbnail: '/api/placeholder/60/40' }
+        { id: 'clip-1', type: 'video', name: 'Scene 1', startTime: 0, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-2', type: 'video', name: 'Scene 2', startTime: 2, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-3', type: 'video', name: 'Scene 3', startTime: 4, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-4', type: 'video', name: 'Scene 4', startTime: 6, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-5', type: 'video', name: 'Scene 5', startTime: 8, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-6', type: 'video', name: 'Scene 6', startTime: 10, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-7', type: 'video', name: 'Scene 7', startTime: 12, duration: 2, thumbnail: '/placeholder.svg' },
+        { id: 'clip-8', type: 'video', name: 'Scene 8', startTime: 14, duration: 4, thumbnail: '/placeholder.svg' },
       ]
     },
     {
@@ -198,7 +193,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       type: 'audio',
       name: 'Audio',
       clips: [
-        { id: 'audio-clip-1', type: 'audio', name: 'Voice Over', startTime: 0, duration: 78, waveform: generateWaveform(200) }
+        { id: 'audio-clip-1', type: 'audio', name: "I'm going to tell you somethi...", startTime: 0, duration: 3, waveform: generateWaveform(60), caption: "I'm going to tell you something" },
+        { id: 'audio-clip-2', type: 'audio', name: "I wasn't b...", startTime: 3, duration: 2, waveform: generateWaveform(40), caption: "I wasn't born" },
+        { id: 'audio-clip-3', type: 'audio', name: "I don't have a past. I don't ev...", startTime: 5, duration: 3, waveform: generateWaveform(60), caption: "I don't have a past. I don't even exist" },
+        { id: 'audio-clip-4', type: 'audio', name: "and yet I show up online. I create content. I build influence. I help my creators share ideas, promote pro...", startTime: 8, duration: 10, waveform: generateWaveform(200), caption: "and yet I show up online. I create content. I build influence." },
       ]
     }
   ]);
@@ -359,16 +357,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return () => clearInterval(interval);
   }, [isPlaying, duration]);
 
-  // Tab configuration
+  // Tab configuration matching screenshots
   const tabs = [
+    { id: 'script', icon: ScrollText, label: 'Script' },
     { id: 'visuals', icon: Image, label: 'Visuals' },
     { id: 'music', icon: Music, label: 'Music' },
-    { id: 'voice', icon: Mic, label: 'Voice' },
-    { id: 'sfx', icon: Headphones, label: 'Sound FX' },
-    { id: 'text', icon: Type, label: 'Text' },
+    { id: 'voice', icon: Mic, label: 'Voiceovers' },
+    { id: 'sfx', icon: Headphones, label: 'Sound Effects' },
+    { id: 'text', icon: Type, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
     { id: 'effects', icon: Sparkles, label: 'Effects' },
-    { id: 'analytics', icon: BarChart3, label: 'Analytics' }
+    { id: 'analytics', icon: BarChart3, label: 'Procedural Visualizers' }
   ];
 
   // Render waveform for audio clips
@@ -378,14 +377,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     const step = Math.max(1, Math.floor(clip.waveform.length / barCount));
     
     return (
-      <div className="absolute inset-0 flex items-center justify-evenly px-1">
+      <div className="absolute bottom-0 left-0 right-0 h-6 flex items-end justify-evenly px-1">
         {Array.from({ length: barCount }).map((_, i) => {
           const amplitude = clip.waveform?.[i * step] || 0.5;
           return (
             <div
               key={i}
-              className="w-0.5 bg-emerald-500/60"
-              style={{ height: `${amplitude * 80}%` }}
+              className="w-0.5 bg-gray-500/60"
+              style={{ height: `${amplitude * 100}%` }}
             />
           );
         })}
@@ -393,119 +392,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     );
   };
 
-  return (
-    <TooltipProvider>
-      <div className="flex h-full bg-white text-gray-900 font-sans overflow-hidden">
-        {/* AI Chat Panel - LEFT SIDE */}
-        <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
-          {isChatExpanded ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-emerald-500 to-teal-500">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">LEXI</h3>
-                    <p className="text-xs text-white/80">AI Video Assistant</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsChatExpanded(false)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-              </div>
-              
-              {/* Chat Messages */}
-              <div 
-                ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4"
-              >
-                {chatMessages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.role === 'assistant' 
-                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
-                        : 'bg-gray-200'
-                    }`}>
-                      {message.role === 'assistant' ? (
-                        <Bot className="w-4 h-4 text-white" />
-                      ) : (
-                        <User className="w-4 h-4 text-gray-600" />
-                      )}
-                    </div>
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                      message.role === 'assistant'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Chat Input */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
-                    placeholder="Ask LEXI anything..."
-                    className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-gray-400"
-                  />
-                  <button
-                    onClick={handleChatSubmit}
-                    className="p-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl hover:opacity-90 transition-opacity"
-                  >
-                    <Send className="w-5 h-5 text-white" />
-                  </button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsChatExpanded(true)}
-              className="flex-1 flex items-center justify-center hover:bg-gray-100 transition-colors"
-            >
-              <MessageSquare className="w-5 h-5 text-emerald-500" />
-            </button>
-          )}
-        </div>
-
-        {/* Left Panel - Script Editor */}
-        <div className="w-[500px] bg-white border-r border-gray-200 flex flex-col shrink-0">
-          {/* Tabs */}
-          <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`p-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                  activeTab === tab.id
-                    ? 'bg-white text-emerald-600 shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                }`}
-                title={tab.label}
-              >
-                <tab.icon className="w-4 h-4" />
-                {activeTab === tab.id && (
-                  <span className="text-sm font-medium">{tab.label}</span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-4">
+  // Tab content renderer
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'script':
+        return (
+          <>
             {/* Project Title */}
             <input
               type="text"
@@ -514,14 +406,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               className="text-xl font-bold w-full bg-transparent border-none outline-none mb-4 text-gray-900"
             />
 
-            {/* Speakers Section */}
+            {/* Characters Section (was Speakers) */}
             <div className="mb-4">
-              <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-emerald-600 transition-colors">
+              <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors">
                 <Plus className="w-4 h-4" />
-                Add speaker
+                Add Character
               </button>
               
-              {/* Speaker Tags */}
+              {/* Character Tags */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {speakers.map((speaker) => (
                   <div
@@ -543,17 +435,229 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <textarea
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
-              className="w-full h-64 p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-200"
+              className="w-full h-64 p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-gray-200"
               placeholder="Enter your script here..."
             />
+          </>
+        );
+
+      case 'visuals':
+      case 'music':
+      case 'voice':
+      case 'sfx':
+      case 'text':
+      case 'transitions':
+      case 'effects':
+      case 'analytics':
+        return (
+          <>
+            {/* Upload and Search Row */}
+            <div className="flex items-center gap-2 mb-4">
+              <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                <Upload className="w-4 h-4" />
+                Upload
+              </button>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by description, mode..."
+                  className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                All Assets
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Asset Grid */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {visualAssets.map((asset) => (
+                <div key={asset.id} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-200">
+                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                    <Video className="w-8 h-8 text-gray-500" />
+                  </div>
+                  {asset.inUse && (
+                    <div className="absolute top-1 right-1 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded">
+                      In Use
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1">
+                    <span className="text-white text-xs">{asset.name}</span>
+                  </div>
+                  <div className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    <button className="p-1 bg-black/50 rounded hover:bg-black/70">
+                      <Heart className="w-3 h-3 text-white" />
+                    </button>
+                    <button className="p-1 bg-black/50 rounded hover:bg-black/70">
+                      <Download className="w-3 h-3 text-white" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Video Type Selector */}
+            <div className="border border-gray-200 rounded-lg p-2 mb-4">
+              <div className="flex flex-col gap-1">
+                {['Video', 'Image', 'Img2Vid', 'Upscale', 'Lip Sync'].map((type) => (
+                  <label key={type} className="flex items-center gap-3 px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                      {videoType === type && <div className="w-3 h-3 rounded-full bg-primary" />}
+                    </div>
+                    <Video className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <TooltipProvider>
+      <div className="flex h-full bg-white text-gray-900 font-sans overflow-hidden">
+        {/* AI Chat Panel - LEFT SIDE */}
+        <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
+          {isChatExpanded ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-primary">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-primary-foreground">LEXI</h3>
+                    <p className="text-xs text-primary-foreground/80">AI Video Assistant</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsChatExpanded(false)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-primary-foreground" />
+                </button>
+              </div>
+              
+              {/* Chat Messages */}
+              <div 
+                ref={chatContainerRef}
+                className="flex-1 overflow-y-auto p-4 space-y-4"
+              >
+                {chatMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      message.role === 'assistant' 
+                        ? 'bg-primary' 
+                        : 'bg-gray-200'
+                    }`}>
+                      {message.role === 'assistant' ? (
+                        <Bot className="w-4 h-4 text-primary-foreground" />
+                      ) : (
+                        <User className="w-4 h-4 text-gray-600" />
+                      )}
+                    </div>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      message.role === 'assistant'
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'bg-primary text-primary-foreground'
+                    }`}>
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Chat Input */}
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+                    placeholder="Ask LEXI anything..."
+                    className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400"
+                  />
+                  <button
+                    onClick={handleChatSubmit}
+                    className="p-3 bg-primary rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    <Send className="w-5 h-5 text-primary-foreground" />
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsChatExpanded(true)}
+              className="flex-1 flex items-center justify-center hover:bg-gray-100 transition-colors"
+            >
+              <MessageSquare className="w-5 h-5 text-primary" />
+            </button>
+          )}
+        </div>
+
+        {/* Left Panel - Tab Content */}
+        <div className="w-[500px] bg-white border-r border-gray-200 flex flex-col shrink-0">
+          {/* Tabs with Tooltips */}
+          <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+            {tabs.map((tab) => (
+              <Tooltip key={tab.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`p-2.5 rounded-lg transition-all flex items-center gap-2 ${
+                      activeTab === tab.id
+                        ? 'bg-white text-primary shadow-sm'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {activeTab === tab.id && (
+                      <span className="text-sm font-medium">{tab.label}</span>
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{tab.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
           </div>
 
-          {/* Media Upload Area */}
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {renderTabContent()}
+          </div>
+
+          {/* Reference Images Upload Area */}
           <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-400 transition-colors cursor-pointer">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
               <p className="text-sm text-gray-600">
-                Drag and drop, <button className="text-emerald-600 hover:text-emerald-700 font-medium">browse my library</button>, or <button className="text-emerald-600 hover:text-emerald-700 font-medium">upload</button>.
+                Drop your reference image(s) here or <button className="text-primary hover:text-primary/80 font-medium">upload</button>
               </p>
+              {referenceImages.length > 0 && (
+                <div className="flex gap-2 mt-3">
+                  {referenceImages.map((img, idx) => (
+                    <div key={idx} className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-200">
+                      <button className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                        <X className="w-3 h-3 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -564,7 +668,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <div className="relative">
                 <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
                   <Video className="w-4 h-4" />
-                  {videoType}
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </div>
@@ -573,7 +676,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <div className="relative">
                 <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  {consistency}
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </div>
@@ -582,15 +684,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <div className="relative">
                 <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
                   <Maximize className="w-4 h-4" />
-                  {aspectRatio}
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* Duration */}
-              <div className="relative">
-                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                  ⏱️ {clipDuration}
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </div>
@@ -601,7 +694,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   onClick={() => setClipCount(Math.max(1, clipCount - 1))}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  -
+                  <Minus className="w-4 h-4" />
                 </button>
                 <span className="text-sm w-6 text-center">{clipCount}</span>
                 <button
@@ -615,28 +708,30 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Prompt Input */}
             <div className="mt-4">
-              <input
-                type="text"
+              <textarea
                 value={promptText}
                 onChange={(e) => setPromptText(e.target.value)}
                 placeholder="Describe your video idea... (e.g., 'Sunlight filtering through trees and a gentle stream flowing')"
-                className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none h-24"
               />
-              <button className="text-emerald-600 text-sm mt-2 hover:text-emerald-700 font-medium">
-                or surprise me!
-              </button>
+              {/* Provider Icons */}
+              <div className="flex justify-end mt-2 gap-1">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                  <span className="text-white text-xs">▶</span>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs">G</span>
+                </div>
+              </div>
             </div>
 
             {/* Generate Button */}
-            <div className="flex items-center justify-between mt-4">
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
-                <Wand2 className="w-5 h-5" />
+            <div className="mt-4">
+              <button className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity">
                 Generate
+                <Star className="w-4 h-4" />
+                30
               </button>
-              <div className="ml-4 flex items-center gap-1 text-sm text-gray-500">
-                <span className="text-lg">✨</span>
-                Cost: <span className="font-semibold text-gray-700">30 credits</span>
-              </div>
             </div>
           </div>
         </div>
@@ -649,24 +744,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               {/* Video Placeholder / Preview */}
               <div className="aspect-video w-full bg-gradient-to-br from-gray-800 to-gray-900 relative">
                 {/* Selection Border */}
-                <div className="absolute inset-0 border-4 border-emerald-500 rounded-lg pointer-events-none">
+                <div className="absolute inset-0 border-4 border-primary rounded-lg pointer-events-none">
                   {/* Corner Handles */}
-                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-emerald-500 rounded-sm" />
-                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-emerald-500 rounded-sm" />
-                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-emerald-500 rounded-sm" />
-                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-emerald-500 rounded-sm" />
+                  <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
+                  <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary rounded-sm" />
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary rounded-sm" />
                   {/* Edge Handles */}
-                  <div className="absolute top-1/2 -left-2 w-4 h-4 bg-emerald-500 rounded-sm -translate-y-1/2" />
-                  <div className="absolute top-1/2 -right-2 w-4 h-4 bg-emerald-500 rounded-sm -translate-y-1/2" />
-                  <div className="absolute -top-2 left-1/2 w-4 h-4 bg-emerald-500 rounded-sm -translate-x-1/2" />
-                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-emerald-500 rounded-sm -translate-x-1/2" />
+                  <div className="absolute top-1/2 -left-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
+                  <div className="absolute top-1/2 -right-2 w-4 h-4 bg-primary rounded-sm -translate-y-1/2" />
+                  <div className="absolute -top-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
+                  <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-primary rounded-sm -translate-x-1/2" />
                 </div>
                 
                 {/* Preview Image Placeholder */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                      <Play className="w-12 h-12 text-white ml-1" />
+                    <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
+                      <Play className="w-12 h-12 text-primary-foreground ml-1" />
                     </div>
                     <p className="text-white/70 text-sm">Preview will appear here</p>
                   </div>
@@ -675,7 +770,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 {/* Bottom Overlay with speaker name */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-white text-sm font-medium">Vicki Revelle</span>
                   </div>
                 </div>
@@ -736,7 +831,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                    <button className="p-2 hover:bg-gray-100 rounded-lg text-primary transition-colors">
                       <Sparkles className="w-5 h-5" />
                     </button>
                   </TooltipTrigger>
@@ -762,7 +857,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </button>
                 <button
                   onClick={togglePlayback}
-                  className="w-12 h-12 flex items-center justify-center bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
+                  className="w-12 h-12 flex items-center justify-center bg-primary rounded-full hover:opacity-90 transition-opacity text-primary-foreground shadow-lg"
                 >
                   {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
                 </button>
@@ -787,7 +882,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </button>
                 <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
+                    className="h-full bg-primary rounded-full"
                     style={{ width: `${(zoom - 0.5) * 100}%` }}
                   />
                 </div>
@@ -805,102 +900,142 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Timeline */}
-            <div className="h-64 overflow-hidden">
-              {/* Time Ruler */}
-              <div
-                ref={timelineRef}
-                onClick={handleTimelineClick}
-                className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer"
-              >
-                {/* Playhead Position Marker */}
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-emerald-500 z-10"
-                  style={{ left: `${(currentTime / duration) * 100}%` }}
-                >
-                  <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-emerald-500 rounded-sm rotate-45 -mt-1" />
+            <div className="h-64 overflow-hidden flex">
+              {/* Track Labels - Black Background */}
+              <div className="w-12 bg-black flex flex-col shrink-0">
+                {/* Time Ruler Spacer */}
+                <div className="h-8 border-b border-gray-800 flex items-center justify-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="p-1 hover:bg-gray-800 rounded text-white transition-colors">
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Add Track</p></TooltipContent>
+                  </Tooltip>
                 </div>
-                
-                {/* Time Markers */}
-                <div className="flex items-end h-full px-4">
-                  {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
+                {/* Track Icons */}
+                {tracks.map((track) => (
+                  <div key={track.id} className="h-14 flex items-center justify-center border-b border-gray-800">
+                    {track.type === 'video' && <Video className="w-4 h-4 text-gray-400" />}
+                    {track.type === 'audio' && <Volume2 className="w-4 h-4 text-gray-400" />}
+                    {track.type === 'effect' && <Sparkles className="w-4 h-4 text-gray-400" />}
+                    {track.type === 'text' && <Type className="w-4 h-4 text-gray-400" />}
+                  </div>
+                ))}
+              </div>
+
+              {/* Timeline Content */}
+              <div className="flex-1 overflow-x-auto">
+                {/* Time Ruler */}
+                <div
+                  ref={timelineRef}
+                  onClick={handleTimelineClick}
+                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer"
+                >
+                  {/* Plus and Arrow */}
+                  <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-1 z-10">
+                    <button className="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors">
+                      <Plus className="w-3 h-3" />
+                    </button>
+                    <button className="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors">
+                      <ChevronLeft className="w-3 h-3" />
+                    </button>
+                  </div>
+                  
+                  {/* Playhead Position Marker */}
+                  <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10"
+                    style={{ left: `${(currentTime / duration) * 100}%` }}
+                  >
+                    <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                  </div>
+                  
+                  {/* Time Markers */}
+                  <div className="flex items-end h-full pl-12">
+                    {Array.from({ length: Math.ceil(duration / 2) + 1 }, (_, i) => (
+                      <div
+                        key={i}
+                        className="flex-shrink-0 text-xs text-gray-400 border-l border-gray-300 pl-1"
+                        style={{ width: `${(2 / duration) * 100}%` }}
+                      >
+                        0:{(i * 2).toString().padStart(2, '0')}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tracks */}
+                <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)' }}>
+                  {tracks.map((track) => (
                     <div
-                      key={i}
-                      className="flex-shrink-0 text-xs text-gray-400 border-l border-gray-300 pl-1"
-                      style={{ width: `${(5 / duration) * 100}%` }}
+                      key={track.id}
+                      className="flex items-center h-14 border-b border-gray-100 hover:bg-gray-50 relative"
                     >
-                      {formatTime(i * 5)}
+                      {/* Track Content */}
+                      <div className="flex-1 h-full relative">
+                        {/* Playhead Line */}
+                        <div
+                          className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20 pointer-events-none"
+                          style={{ left: `${(currentTime / duration) * 100}%` }}
+                        />
+                        
+                        {track.clips.map((clip) => (
+                          <div
+                            key={clip.id}
+                            onClick={() => setSelectedClip(clip.id)}
+                            className={`absolute top-1 bottom-1 rounded cursor-pointer transition-all overflow-hidden ${
+                              selectedClip === clip.id 
+                                ? 'ring-2 ring-primary ring-offset-1' 
+                                : 'hover:brightness-110'
+                            }`}
+                            style={{
+                              left: `${(clip.startTime / duration) * 100}%`,
+                              width: `${(clip.duration / duration) * 100}%`,
+                              background: track.type === 'audio' 
+                                ? 'rgba(168, 85, 247, 0.3)'
+                                : clip.color || '#EAB308',
+                            }}
+                          >
+                            {/* Combined Caption + Waveform for Audio Clips */}
+                            {track.type === 'audio' && (
+                              <div className="absolute inset-0 flex flex-col">
+                                {/* Caption Text */}
+                                <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center">
+                                  {clip.caption || clip.name}
+                                </div>
+                                {/* Waveform */}
+                                {clip.waveform && renderWaveform(clip, 200)}
+                              </div>
+                            )}
+                            
+                            {/* Video clips with thumbnails */}
+                            {track.type === 'video' && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center overflow-hidden">
+                                <div className="w-full h-full flex">
+                                  {Array.from({ length: Math.ceil(clip.duration) }).map((_, i) => (
+                                    <div key={i} className="h-full aspect-video bg-gray-600 border-r border-gray-500 flex-shrink-0" />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Duration indicator for selected audio */}
+                            {track.type === 'audio' && selectedClip === clip.id && (
+                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 rounded text-xs text-white">
+                                {clip.duration.toFixed(3)}s
+                              </div>
+                            )}
+                            
+                            {/* Resize handles */}
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
+                            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Tracks */}
-              <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)' }}>
-                {tracks.map((track) => (
-                  <div
-                    key={track.id}
-                    className="flex items-center h-14 border-b border-gray-100 hover:bg-gray-50"
-                  >
-                    {/* Track Label */}
-                    <div className="w-10 h-full flex items-center justify-center border-r border-gray-200 flex-shrink-0">
-                      {track.type === 'video' && <Video className="w-4 h-4 text-gray-400" />}
-                      {track.type === 'audio' && <Volume2 className="w-4 h-4 text-gray-400" />}
-                      {track.type === 'effect' && <Sparkles className="w-4 h-4 text-gray-400" />}
-                      {track.type === 'text' && <Type className="w-4 h-4 text-gray-400" />}
-                    </div>
-                    
-                    {/* Track Content */}
-                    <div className="flex-1 h-full relative px-1">
-                      {/* Playhead Line */}
-                      <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-emerald-500 z-20 pointer-events-none"
-                        style={{ left: `${(currentTime / duration) * 100}%` }}
-                      />
-                      
-                      {track.clips.map((clip) => (
-                        <div
-                          key={clip.id}
-                          onClick={() => setSelectedClip(clip.id)}
-                          className={`absolute top-1 bottom-1 rounded cursor-pointer transition-all overflow-hidden ${
-                            selectedClip === clip.id 
-                              ? 'ring-2 ring-emerald-500 ring-offset-1' 
-                              : 'hover:brightness-110'
-                          }`}
-                          style={{
-                            left: `${(clip.startTime / duration) * 100}%`,
-                            width: `${(clip.duration / duration) * 100}%`,
-                            background: clip.color || (
-                              track.type === 'audio' 
-                                ? '#10B98120' 
-                                : track.type === 'effect' 
-                                  ? 'linear-gradient(90deg, #10B981, #14B8A6)' 
-                                  : '#6B7280'
-                            ),
-                          }}
-                        >
-                          {/* Clip Content */}
-                          {track.type === 'audio' && clip.waveform && renderWaveform(clip, 200)}
-                          
-                          {clip.thumbnail && (
-                            <div className="absolute inset-0 bg-gray-700 flex items-center justify-center">
-                              <span className="text-xs text-white truncate px-1">{clip.name}</span>
-                            </div>
-                          )}
-                          
-                          {!clip.thumbnail && track.type !== 'audio' && (
-                            <div className="absolute inset-0 flex items-center px-2">
-                              <span className="text-xs text-white truncate font-medium">{clip.name}</span>
-                            </div>
-                          )}
-                          
-                          {/* Resize handles */}
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
-                          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 cursor-ew-resize hover:bg-white/60" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>
