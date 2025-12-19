@@ -86,3 +86,6 @@ verify_jwt = true
 
 [functions.process-url-transcription]
 verify_jwt = true
+
+[functions.isolate-audio]
+verify_jwt = true
