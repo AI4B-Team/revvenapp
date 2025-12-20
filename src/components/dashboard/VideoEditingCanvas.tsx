@@ -1744,11 +1744,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
-                        <div className="w-full h-full flex items-center justify-center p-6">
-                          <div className="grid grid-cols-3 gap-4 w-full max-w-4xl">
+                        <div className="w-full h-full flex items-center justify-center p-8">
+                          <div className="grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
                             {/* Upload File Box */}
-                            <div 
-                              className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white cursor-pointer hover:border-gray-400 transition-colors"
+                            <div
+                              className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const input = document.createElement('input');
@@ -1764,45 +1764,40 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 input.click();
                               }}
                             >
-                              {/* Green icon container */}
-                              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
-                                <Upload className="w-7 h-7 text-green-600" />
+                              <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center mb-6">
+                                <Upload className="w-10 h-10 text-emerald-600" />
                               </div>
-                              
-                              <h3 className="text-lg font-semibold text-gray-900 mb-3">Upload File</h3>
-                              
-                              {/* Drag & Drop field */}
-                              <div className="w-full px-4 py-2.5 rounded-lg border border-green-400 bg-green-50 flex items-center gap-2 mb-3">
-                                <Upload className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                <span className="text-sm text-gray-600">Drag & Drop Your Video Or Audio File</span>
+
+                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Upload File</h3>
+
+                              <div className="w-full max-w-[460px] px-5 py-3 rounded-xl border-2 border-gray-300 bg-white flex items-center gap-3 mb-5">
+                                <Upload className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                                <span className="text-base text-gray-600 whitespace-nowrap">Drag & Drop Your Video Or Audio File</span>
                               </div>
-                              
-                              {/* File format badges */}
+
                               <div className="flex items-center gap-2 flex-wrap justify-center">
-                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mp3</span>
-                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.wav</span>
-                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mp4</span>
-                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mov</span>
-                                <span className="px-2 py-1 rounded bg-green-100 text-xs text-green-700">+ more</span>
+                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mp3</span>
+                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.wav</span>
+                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mp4</span>
+                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mov</span>
+                                <span className="px-3 py-1.5 rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">+ more</span>
                               </div>
                             </div>
 
                             {/* Upload Link Box */}
-                            <div className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white">
-                              {/* Green icon container */}
-                              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
-                                <Link2 className="w-7 h-7 text-green-600" />
+                            <div className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/30">
+                              <div className="w-20 h-20 rounded-3xl bg-blue-50 flex items-center justify-center mb-6">
+                                <Link2 className="w-10 h-10 text-blue-600" />
                               </div>
-                              
-                              <h3 className="text-lg font-semibold text-gray-900 mb-3">Upload Link</h3>
-                              
-                              {/* Paste link field */}
-                              <div className="w-full px-4 py-2.5 rounded-lg border border-green-400 bg-green-50 flex items-center gap-2 mb-3">
-                                <Link2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+
+                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Upload Link</h3>
+
+                              <div className="w-full max-w-[460px] px-5 py-3 rounded-xl border-2 border-gray-300 bg-white flex items-center gap-3 mb-5">
+                                <Link2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 <input
                                   type="text"
                                   placeholder="Paste A Supported Public Media Link"
-                                  className="flex-1 bg-transparent text-sm text-gray-600 placeholder:text-gray-500 focus:outline-none"
+                                  className="flex-1 min-w-0 bg-transparent text-base text-gray-600 placeholder:text-gray-500 focus:outline-none"
                                   onClick={(e) => e.stopPropagation()}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
@@ -1824,43 +1819,60 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                   }}
                                 />
                               </div>
-                              
-                              {/* Social platform icons */}
-                              <div className="flex items-center gap-2">
-                                <FaYoutube className="w-5 h-5 text-red-500" />
-                                <FaTiktok className="w-5 h-5 text-gray-900" />
-                                <FaInstagram className="w-5 h-5 text-pink-600" />
-                                <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                <FaVimeo className="w-5 h-5 text-blue-400" />
-                                <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-                                <span className="text-sm text-gray-500">+43</span>
+
+                              <div className="flex items-center justify-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaYoutube className="w-5 h-5 text-red-500" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaTiktok className="w-5 h-5 text-gray-900" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaInstagram className="w-5 h-5 text-pink-600" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                  </svg>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                  </svg>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaVimeo className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+                                  </svg>
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                  <span className="text-sm font-semibold text-gray-500">+43</span>
+                                </div>
                               </div>
                             </div>
 
                             {/* Record Audio Box */}
-                            <div 
-                              className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white cursor-pointer hover:border-gray-400 transition-colors"
+                            <div
+                              className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-rose-300 hover:bg-rose-50/30 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setRecordModalOpen(true);
                               }}
                             >
-                              {/* Pink/red icon container */}
-                              <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mb-4">
-                                <Mic className="w-7 h-7 text-red-500" />
+                              <div className="w-20 h-20 rounded-3xl bg-rose-50 flex items-center justify-center mb-6">
+                                <Mic className="w-10 h-10 text-rose-500" />
                               </div>
-                              
-                              <h3 className="text-lg font-semibold text-gray-900 mb-1">Record Audio</h3>
-                              <p className="text-sm text-gray-500 mb-3">Click To Start Recording</p>
-                              
-                              {/* Live transcription badge */}
-                              <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-100 text-xs font-medium text-red-600">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                                  LIVE
-                                </span>
-                                <span className="text-sm text-gray-600">Real-Time Transcription</span>
+
+                              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Record Audio</h3>
+                              <p className="text-lg text-gray-500 mb-6 whitespace-nowrap">Click To Start Recording</p>
+
+                              <div className="flex items-center gap-3">
+                                <span className="w-2.5 h-2.5 rounded-full bg-rose-300" />
+                                <span className="px-3 py-1.5 rounded-lg bg-rose-500 text-xs font-semibold text-white">LIVE</span>
+                                <span className="text-lg text-gray-500 whitespace-nowrap">Real-Time Transcription</span>
                               </div>
                             </div>
                           </div>
