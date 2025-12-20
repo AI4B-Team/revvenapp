@@ -77,6 +77,58 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   } | null>(null);
   const [snapIndicator, setSnapIndicator] = useState<number | null>(null);
   const [hoveredClip, setHoveredClip] = useState<string | null>(null);
+  const [dropTargetTrack, setDropTargetTrack] = useState<string | null>(null);
+
+  // Handle drop from external sources (like StockVideoPanel)
+  const handleDragOver = useCallback((e: React.DragEvent, trackId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    setDropTargetTrack(trackId);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDropTargetTrack(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, trackId: string) => {
+    e.preventDefault();
+    setDropTargetTrack(null);
+
+    // Check if track is locked
+    const track = tracks.find(t => t.id === trackId);
+    if (track?.locked) return;
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'video') {
+        // Calculate drop position based on mouse position
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const startTime = (x / rect.width) * duration;
+
+        // Create new clip
+        const newClip: TimelineClip = {
+          id: `clip-${Date.now()}`,
+          type: 'video',
+          name: data.name || 'Stock Video',
+          startTime: Math.max(0, startTime),
+          duration: Math.min(data.duration || 5, duration - startTime),
+          thumbnail: data.thumbnail,
+        };
+
+        // Add to track
+        setTracks(prev => prev.map(t => {
+          if (t.id !== trackId) return t;
+          return {
+            ...t,
+            clips: [...t.clips, newClip]
+          };
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to parse drop data:', error);
+    }
+  }, [tracks, duration, setTracks]);
 
   // Format time display
   const formatTime = (seconds: number): string => {
@@ -399,8 +451,15 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               {/* Track Content - Scrollable with zoom */}
               <div className="flex-1 overflow-x-auto overflow-y-hidden">
                 <div 
-                  className={`relative h-full bg-slate-900/50 ${track.locked ? 'opacity-60' : ''}`}
+                  className={`relative h-full transition-colors ${track.locked ? 'opacity-60' : ''} ${
+                    dropTargetTrack === track.id 
+                      ? 'bg-primary/20 ring-2 ring-primary ring-inset' 
+                      : 'bg-slate-900/50'
+                  }`}
                   style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
+                  onDragOver={(e) => handleDragOver(e, track.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, track.id)}
                 >
                   {/* Playhead line */}
                   <motion.div
