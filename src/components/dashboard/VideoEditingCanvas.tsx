@@ -72,6 +72,13 @@ import {
   FileText,
   Captions,
   LayoutTemplate,
+  Wrench,
+  Shapes,
+  Timer,
+  Clock,
+  Layers2,
+  Hash,
+  VolumeIcon,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -225,8 +232,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   // Selected tool for the toolbar
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedPromptTool, setSelectedPromptTool] = useState<'image' | 'video' | 'audio' | null>(null);
   const [selectedRatio, setSelectedRatio] = useState('Automatic Ratio');
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   
   // Clip resizing state
   const [resizingClip, setResizingClip] = useState<{ clipId: string; edge: 'left' | 'right'; startX: number; originalStart: number; originalDuration: number } | null>(null);
@@ -663,17 +672,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return () => clearInterval(interval);
   }, [isPlaying, duration]);
 
-  // Tab configuration with all requested icons
+  // Tab configuration with all requested icons in order
   const tabs = [
     { id: 'script', icon: ScrollText, label: 'Script' },
-    { id: 'image', icon: ImageIcon, label: 'Image' },
     { id: 'video', icon: Video, label: 'Video' },
     { id: 'audio', icon: AudioLines, label: 'Audio' },
+    { id: 'image', icon: ImageIcon, label: 'Image' },
     { id: 'text', icon: Type, label: 'Text' },
-    { id: 'captions', icon: Captions, label: 'Captions' },
+    { id: 'elements', icon: Shapes, label: 'Elements' },
     { id: 'effects', icon: Sparkles, label: 'Effects' },
+    { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
     { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
+    { id: 'tools', icon: Wrench, label: 'Tools' },
   ];
 
   // Sub-menu items for each tab
@@ -685,11 +696,44 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'video':
       case 'audio':
       case 'templates':
+      case 'elements':
+      case 'effects':
+      case 'tools':
         return [{ icon: Search, label: 'Search', action: () => {} }];
       default:
         return [];
     }
   };
+
+  // Elements tab content
+  const renderElementsContent = () => (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+        <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+          <Shapes className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="font-semibold text-gray-900 mb-2">Elements</h3>
+        <p className="text-sm text-gray-500 max-w-[280px]">
+          Add shapes, stickers, and graphic elements to your project
+        </p>
+      </div>
+    </div>
+  );
+
+  // Tools tab content
+  const renderToolsContent = () => (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+        <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+          <Wrench className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="font-semibold text-gray-900 mb-2">Tools</h3>
+        <p className="text-sm text-gray-500 max-w-[280px]">
+          Access advanced editing tools and utilities
+        </p>
+      </div>
+    </div>
+  );
 
   // Render waveform for audio clips
   const renderWaveform = (clip: TimelineClip, width: number, isSelected: boolean) => {
@@ -925,6 +969,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
           </div>
         );
+
+      case 'elements':
+        return renderElementsContent();
+
+      case 'tools':
+        return renderToolsContent();
 
       default:
         return null;
@@ -1168,9 +1218,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Left Panel - Tab Content */}
             <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-              <div className="h-full bg-white border-r border-gray-200 flex flex-col">
+              <div className="h-full bg-white border-r-2 border-gray-400 flex flex-col">
                 {/* Tabs with Tooltips */}
-                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
+                <div className="flex items-center justify-center gap-1 p-2 border-b-2 border-gray-400 bg-gray-50 flex-wrap">
                   {tabs.map((tab) => (
                     <Tooltip key={tab.id}>
                       <TooltipTrigger asChild>
@@ -1197,7 +1247,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Sub-menu section */}
                 {getSubMenuItems(activeTab).length > 0 && (
-                  <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-2 px-4 py-2 border-b-2 border-gray-300 bg-gray-50/50">
                     {getSubMenuItems(activeTab).map((item, index) => (
                       <button
                         key={index}
@@ -1219,31 +1269,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
 
                 {/* Compact Prompt Box with Green Border */}
-                <div className="p-3 border-t border-gray-200">
+                <div className="p-3 border-t-2 border-gray-400">
                   <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
                     <div className="flex items-start gap-2 mb-3">
-                      <div className="flex flex-col gap-2 mt-1 flex-shrink-0">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-0.5">
-                              <Video className="w-5 h-5 text-red-500" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Video Mode</p></TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={handleAutoPrompt}
-                              disabled={isGeneratingPrompt}
-                              className="p-0.5 hover:bg-gray-200 rounded transition-colors disabled:opacity-50"
-                            >
-                              <Shuffle className={`w-5 h-5 text-brand-green ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
-                        </Tooltip>
-                      </div>
                       <textarea
                         value={promptText}
                         onChange={(e) => setPromptText(e.target.value)}
@@ -1254,113 +1282,23 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                     {/* Bottom Toolbar Icons */}
                     <div className="flex items-center gap-1.5 pt-1">
+                      {/* Tool selector - always first */}
                       <DropdownMenu>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <DropdownMenuTrigger asChild>
-                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </DropdownMenuTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Upload</p></TooltipContent>
-                        </Tooltip>
-                        <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                            <ImageIcon className="w-4 h-4" />
-                            Upload Image
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                            <Video className="w-4 h-4" />
-                            Upload Video
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                            <AudioLines className="w-4 h-4" />
-                            Upload Audio
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <DropdownMenu>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                <Box className="w-4 h-4" />
-                              </button>
-                            </DropdownMenuTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Model</p></TooltipContent>
-                        </Tooltip>
-                        <DropdownMenuContent align="start" className="w-80 bg-gray-900 border-gray-800 text-white p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-medium">Model</span>
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="text-gray-400">Auto</span>
-                              <div className="w-8 h-4 bg-primary rounded-full relative">
-                                <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex gap-1 mb-3 bg-gray-800 rounded-lg p-1">
-                            <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Image</button>
-                            <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Video</button>
-                            <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Audio</button>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold">H</div>
-                              <div className="flex-1">
-                                <p className="font-medium">Hailuo 2.3</p>
-                                <p className="text-xs text-gray-400">Enhanced quality, smoother</p>
-                              </div>
-                              <Check className="w-5 h-5 text-primary" />
-                            </div>
-                          </div>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <DropdownMenu>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                                <Scan className="w-4 h-4" />
-                              </button>
-                            </DropdownMenuTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Aspect Ratio</p></TooltipContent>
-                        </Tooltip>
-                        <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                          {['Automatic Ratio', 'Landscape', 'Portrait', 'Square'].map((ratio) => (
-                            <DropdownMenuItem 
-                              key={ratio}
-                              className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
-                              onClick={() => setSelectedRatio(ratio)}
-                            >
-                              <span>{ratio}</span>
-                              {selectedRatio === ratio && <Check className="w-4 h-4 text-primary" />}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <div className="w-px h-5 bg-gray-300" />
-
-                      <DropdownMenu>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                              <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
-                                selectedTool ? 'bg-green-200 text-green-900' : 'hover:bg-gray-200 text-gray-500'
+                              <button className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors ${
+                                selectedPromptTool ? 'bg-green-200 text-green-900' : 'hover:bg-gray-200 text-gray-600'
                               }`}>
-                                <LayoutGrid className="w-4 h-4" />
-                                {!selectedTool && <span className="text-sm">Tools</span>}
-                                {selectedTool && (
+                                {!selectedPromptTool && <LayoutGrid className="w-4 h-4" />}
+                                {selectedPromptTool === 'image' && <ImageIcon className="w-4 h-4" />}
+                                {selectedPromptTool === 'video' && <Video className="w-4 h-4" />}
+                                {selectedPromptTool === 'audio' && <AudioLines className="w-4 h-4" />}
+                                {selectedPromptTool && (
                                   <>
-                                    <span className="text-sm font-medium capitalize">{selectedTool}</span>
+                                    <span className="text-sm font-medium capitalize">{selectedPromptTool}</span>
                                     <button 
-                                      onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
+                                      onClick={(e) => { e.stopPropagation(); setSelectedPromptTool(null); }}
                                       className="ml-1 hover:bg-green-300 rounded p-0.5"
                                     >
                                       <X className="w-3 h-3" />
@@ -1370,22 +1308,184 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </button>
                             </DropdownMenuTrigger>
                           </TooltipTrigger>
-                          <TooltipContent><p>Tools</p></TooltipContent>
+                          <TooltipContent><p>Select Tool</p></TooltipContent>
                         </Tooltip>
                         <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                          {['image', 'video', 'music', 'audio'].map((tool) => (
-                            <DropdownMenuItem 
-                              key={tool}
-                              className="hover:bg-gray-800 cursor-pointer capitalize"
-                              onClick={() => setSelectedTool(tool)}
-                            >
-                              {tool}
-                            </DropdownMenuItem>
-                          ))}
+                          <DropdownMenuItem 
+                            className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                            onClick={() => setSelectedPromptTool('image')}
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                            Image
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                            onClick={() => setSelectedPromptTool('video')}
+                          >
+                            <Video className="w-4 h-4" />
+                            Video
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                            onClick={() => setSelectedPromptTool('audio')}
+                          >
+                            <AudioLines className="w-4 h-4" />
+                            Audio
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
 
+                      {/* Context icons appear when tool is selected */}
+                      {selectedPromptTool && (
+                        <>
+                          <div className="w-px h-5 bg-gray-400" />
+                          
+                          {/* Image tool icons: model, character, reference, ratio, # of images */}
+                          {selectedPromptTool === 'image' && (
+                            <>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Box className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Model</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <User className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Character</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Layers className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Reference</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Scan className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Ratio</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Hash className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p># of Images</p></TooltipContent>
+                              </Tooltip>
+                            </>
+                          )}
+
+                          {/* Video tool icons: model, character, reference, ratio, duration */}
+                          {selectedPromptTool === 'video' && (
+                            <>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Box className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Model</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <User className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Character</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Layers className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Reference</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Scan className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Ratio</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Timer className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Duration</p></TooltipContent>
+                              </Tooltip>
+                            </>
+                          )}
+
+                          {/* Audio tool icons: model, voice, duration, effects */}
+                          {selectedPromptTool === 'audio' && (
+                            <>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Box className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Model</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Mic className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Voice</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Timer className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Duration</p></TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                    <Sparkles className="w-4 h-4" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Effects</p></TooltipContent>
+                              </Tooltip>
+                            </>
+                          )}
+                        </>
+                      )}
+
                       <div className="flex-1" />
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={handleAutoPrompt}
+                            disabled={isGeneratingPrompt}
+                            className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors disabled:opacity-50"
+                          >
+                            <Shuffle className={`w-4 h-4 ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
+                      </Tooltip>
 
                       <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
                         <Sparkles className="w-4 h-4" />
@@ -1422,17 +1522,43 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     
                     {/* Player Controls Overlay */}
                     <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setIsMuted(!isMuted)}
-                            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
-                          >
-                            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>{isMuted ? 'Unmute' : 'Mute'}</p></TooltipContent>
-                      </Tooltip>
+                      {/* Volume with slider */}
+                      <div className="relative">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+                              className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                            >
+                              {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Volume</p></TooltipContent>
+                        </Tooltip>
+                        {showVolumeSlider && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-black/80 rounded-lg">
+                            <div className="h-24 flex flex-col items-center gap-2">
+                              <Slider
+                                orientation="vertical"
+                                value={[isMuted ? 0 : volume * 100]}
+                                onValueChange={([val]) => {
+                                  setVolume(val / 100);
+                                  setIsMuted(val === 0);
+                                  if (videoRef.current) {
+                                    videoRef.current.volume = val / 100;
+                                    videoRef.current.muted = val === 0;
+                                  }
+                                }}
+                                min={0}
+                                max={100}
+                                step={1}
+                                className="h-20"
+                              />
+                              <span className="text-xs text-white">{Math.round(isMuted ? 0 : volume * 100)}%</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenu>
@@ -1612,10 +1738,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
 
-                  {/* Timeline */}
-                  <div className="h-72 overflow-hidden flex">
+                  {/* Timeline - minimum 3 tracks visible with scroll */}
+                  <div className="min-h-[224px] max-h-72 overflow-hidden flex">
                     {/* Track Labels - Dark Background */}
-                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
+                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0 overflow-y-auto">
                       <div className="h-8 border-b border-gray-800 flex items-center justify-center">
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -1655,13 +1781,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
                         style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
                       >
-                        {/* Playhead Position Marker */}
+                        {/* Playhead Position Marker - RED */}
                         <motion.div
-                          className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10"
+                          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
                           style={{ left: `${(currentTime / duration) * 100}%` }}
                           transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
                         >
-                          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
                         </motion.div>
                         
                         {/* Time Markers */}
@@ -1686,9 +1812,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
                           >
                             <div className="flex-1 h-full relative">
-                              {/* Playhead Line */}
+                              {/* Playhead Line - RED */}
                               <motion.div
-                                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20 pointer-events-none"
+                                className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
                                 style={{ left: `${(currentTime / duration) * 100}%` }}
                                 transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
                               />
