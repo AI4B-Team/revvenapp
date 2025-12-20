@@ -2226,14 +2226,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => setRecordModalOpen(true)}
-                            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors text-white shadow-md ${
+                            className={`h-8 px-3 flex items-center justify-center gap-1.5 rounded-full transition-colors text-white shadow-md ${
                               isRecording ? 'bg-red-700 animate-pulse' : 'bg-red-600 hover:bg-red-700'
                             }`}
                           >
-                            <CircleDot className="w-4 h-4" />
+                            <CircleDot className="w-3.5 h-3.5" />
+                            <span className="text-xs font-medium">Record</span>
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Record</p></TooltipContent>
+                        <TooltipContent><p>Record Audio/Video</p></TooltipContent>
                       </Tooltip>
                       <div className="w-px h-6 bg-gray-200" />
                       <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
