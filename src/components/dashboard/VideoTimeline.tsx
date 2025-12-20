@@ -498,7 +498,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       {/* Scrubber/Playhead Bar at Top - gray background */}
       <div className="flex h-6 bg-gray-200 flex-shrink-0 border-b border-gray-300">
         {/* Empty space matching track header width */}
-        <div className="w-[140px] flex-shrink-0 bg-gray-200" />
+        <div className="w-[180px] flex-shrink-0 bg-gray-200" />
         
         {/* Scrubber area - aligned with timeline content */}
         <div 
@@ -538,24 +538,29 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
       {/* Time Ruler with Controls */}
       <div className="flex flex-shrink-0 bg-white">
-        <div className="w-[140px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-3">
+        <div className="w-[180px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-2">
           {/* Add Track Button */}
-          <button 
-            onClick={handleAddTrack}
-            className="flex items-center gap-1 px-1.5 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={handleAddTrack}
+                className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent><p>Add Track</p></TooltipContent>
+          </Tooltip>
 
           {/* Scene Navigation */}
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-px">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={goToPreviousScene}
-                  className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>Previous Scene</p></TooltipContent>
@@ -564,9 +569,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={goToNextScene}
-                  className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>Next Scene</p></TooltipContent>
@@ -575,9 +580,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={jumpToMarker}
-                  className={`p-1.5 rounded transition-colors ${markers.length > 0 ? 'text-amber-500 hover:text-amber-600' : 'text-gray-600 hover:text-gray-900'} hover:bg-gray-100`}
+                  className={`p-1 rounded transition-colors ${markers.length > 0 ? 'text-amber-500 hover:text-amber-600' : 'text-gray-600 hover:text-gray-900'} hover:bg-gray-100`}
                 >
-                  <Flag className="w-4 h-4" />
+                  <Flag className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>{markers.length > 0 ? 'Jump to Marker' : 'Add Marker'}</p></TooltipContent>
@@ -585,14 +590,14 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-0.5 bg-gray-100 rounded p-0.5">
+          <div className="flex items-center bg-gray-100 rounded p-0.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => setViewMode('storyboard')}
-                  className={`p-1.5 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
                 >
-                  <LayoutGrid className="w-4 h-4" />
+                  <LayoutGrid className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>Scenes</p></TooltipContent>
@@ -601,9 +606,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => setViewMode('timeline')}
-                  className={`p-1.5 rounded transition-colors ${viewMode === 'timeline' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
                 >
-                  <Rows3 className="w-4 h-4" />
+                  <Rows3 className="w-3.5 h-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>Timeline</p></TooltipContent>
@@ -803,26 +808,28 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 onDragEnd={handleTrackDragEnd}
                 onDrop={(e) => handleTrackDrop(e, index)}
               >
-              {/* Track Header - Icon only with tooltip */}
-              <div className="w-[140px] flex-shrink-0 bg-white flex items-center px-3 gap-2 border-r border-gray-200">
-                <GripVertical className="w-4 h-4 text-gray-400 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              {/* Track Header - with track number and always visible icons */}
+              <div className="w-[180px] flex-shrink-0 bg-white flex items-center px-2 gap-1.5 border-r border-gray-200">
+                <GripVertical className="w-3 h-3 text-gray-400 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                {/* Track number */}
+                <span className="text-xs font-medium text-gray-500 w-4 flex-shrink-0">{index + 1}</span>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className={`w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 ${track.locked ? 'opacity-50' : ''}`}>
-                      <TrackIcon className={`w-5 h-5 ${trackStyle.color}`} />
+                    <div className={`w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 ${track.locked ? 'opacity-50' : ''}`}>
+                      <TrackIcon className={`w-3.5 h-3.5 ${trackStyle.color}`} />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="right"><p>{track.name}</p></TooltipContent>
                 </Tooltip>
-                {/* Hover icons - shown on hover */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                {/* Always visible icons */}
+                <div className="flex items-center gap-0.5 flex-shrink-0">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackMute(track.id)}
-                        className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${track.muted ? 'text-red-500' : 'text-gray-700'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.muted ? 'text-red-500' : 'text-gray-500'}`}
                       >
-                        <Volume2 className="w-4 h-4" />
+                        <Volume2 className="w-3 h-3" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.muted ? 'Unmute' : 'Mute'}</p></TooltipContent>
@@ -831,9 +838,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackLock(track.id)}
-                        className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${track.locked ? 'text-amber-500' : 'text-gray-700'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.locked ? 'text-amber-500' : 'text-gray-500'}`}
                       >
-                        {track.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                        {track.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
@@ -842,9 +849,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackVisibility(track.id)}
-                        className={`p-1.5 rounded hover:bg-gray-200 transition-colors ${track.visible === false ? 'text-gray-400' : 'text-gray-700'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.visible === false ? 'text-gray-400' : 'text-gray-500'}`}
                       >
-                        {track.visible === false ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {track.visible === false ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.visible === false ? 'Show' : 'Hide'}</p></TooltipContent>
