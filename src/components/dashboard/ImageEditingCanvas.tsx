@@ -41,6 +41,7 @@ import {
   ExternalLink,
   Loader2,
   Clock,
+  UserPlus,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -1543,7 +1544,7 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
               ))}
             </div>
             <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors">
-              <Share2 className="w-4 h-4" />
+              <UserPlus className="w-4 h-4" />
               <span>Share</span>
             </button>
             <button
