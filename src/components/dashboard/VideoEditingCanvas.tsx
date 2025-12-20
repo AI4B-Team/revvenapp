@@ -1197,7 +1197,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default flex-shrink-0">
                   <Cloud className="w-4 h-4 text-green-400 flex-shrink-0" />
                   <span className="text-xs text-green-300 whitespace-nowrap">
-                    Auto Save {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    Auto Saved {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </TooltipTrigger>
