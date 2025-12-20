@@ -386,12 +386,12 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   const renderWaveform = (clip: TimelineClip, isSelected: boolean) => {
     if (!clip.waveform) return null;
     return (
-      <div className="absolute bottom-0 left-0 right-0 h-8 flex items-end px-1 gap-px overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-12 flex items-end px-1 gap-px overflow-hidden">
         {clip.waveform.map((amplitude, i) => (
           <div
             key={i}
-            className={`flex-1 min-w-[1px] rounded-t-sm transition-colors ${
-              isSelected ? 'bg-white/70' : 'bg-white/40'
+            className={`flex-1 min-w-[2px] rounded-t-sm transition-colors ${
+              isSelected ? 'bg-white/80' : 'bg-white/50'
             }`}
             style={{ height: `${amplitude * 100}%` }}
           />
@@ -494,11 +494,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
-      {/* Scrubber/Playhead Bar at Top - aligned with timeline content */}
-      <div className="flex h-6 bg-slate-800 flex-shrink-0 border-b border-slate-700">
+    <div className="flex flex-col h-full bg-white overflow-hidden">
+      {/* Scrubber/Playhead Bar at Top - gray background */}
+      <div className="flex h-6 bg-gray-200 flex-shrink-0 border-b border-gray-300">
         {/* Empty space matching track header width */}
-        <div className="w-[140px] flex-shrink-0 bg-white" />
+        <div className="w-[140px] flex-shrink-0 bg-gray-200" />
         
         {/* Scrubber area - aligned with timeline content */}
         <div 
@@ -507,7 +507,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           onClick={handleProgressBarSeek}
         >
           {/* Track line */}
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-700 mx-2 rounded-full">
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-gray-400 mx-2 rounded-full">
             {/* Progress fill */}
             <div 
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
@@ -783,7 +783,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 <div className="h-1 bg-primary mx-2 rounded-full shadow-lg shadow-primary/50" />
               )}
               <div 
-                className={`flex h-16 border-b border-gray-200 group transition-all ${isDragged ? 'opacity-40 bg-gray-100' : ''}`}
+                className={`flex h-24 border-b border-gray-200 group transition-all ${isDragged ? 'opacity-40 bg-gray-100' : ''}`}
                 draggable
                 onDragStart={(e) => handleTrackDragStart(e, track.id)}
                 onDragOver={(e) => handleTrackDragOver(e, index)}
@@ -845,7 +845,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                   className={`relative h-full transition-colors ${track.locked ? 'opacity-60' : ''} ${
                     dropTargetTrack === track.id 
                       ? 'bg-primary/20 ring-2 ring-primary ring-inset' 
-                      : 'bg-slate-900/50'
+                      : 'bg-gray-100'
                   }`}
                   style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
                   onDragOver={(e) => handleDragOver(e, track.id)}
