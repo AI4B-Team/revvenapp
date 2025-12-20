@@ -1910,6 +1910,69 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               onPause={() => setIsPlaying(false)}
                               muted={isMuted}
                             />
+
+                            {/* Centered Player Controls - visible on hover and in fullscreen */}
+                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${isFullscreen ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}>
+                              <div className="flex items-center gap-4 p-3 rounded-2xl bg-black/60 backdrop-blur-sm">
+                                {/* Rewind 10s */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (videoRef.current) {
+                                          videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+                                        }
+                                      }}
+                                      className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                    >
+                                      <SkipBack className="w-6 h-6" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Rewind 10s</p></TooltipContent>
+                                </Tooltip>
+
+                                {/* Play/Pause */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (videoRef.current) {
+                                          if (isPlaying) {
+                                            videoRef.current.pause();
+                                          } else {
+                                            videoRef.current.play();
+                                          }
+                                        }
+                                      }}
+                                      className="p-4 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+                                    >
+                                      {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>{isPlaying ? 'Pause' : 'Play'}</p></TooltipContent>
+                                </Tooltip>
+
+                                {/* Fast Forward 10s */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (videoRef.current) {
+                                          videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 10);
+                                        }
+                                      }}
+                                      className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                    >
+                                      <SkipForward className="w-6 h-6" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Forward 10s</p></TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </div>
                         
                         {/* Selection indicator and delete button */}
                         {isVideoSelected && (
