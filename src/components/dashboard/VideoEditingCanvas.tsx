@@ -43,6 +43,7 @@ import {
   Bot,
   User,
   Share2,
+  Link2,
   Settings,
   UserPlus,
   ChevronLeft,
@@ -1790,14 +1791,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <div className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white">
                               {/* Green icon container */}
                               <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
-                                <Share2 className="w-7 h-7 text-green-600" />
+                                <Link2 className="w-7 h-7 text-green-600" />
                               </div>
                               
                               <h3 className="text-lg font-semibold text-gray-900 mb-3">Upload Link</h3>
                               
                               {/* Paste link field */}
                               <div className="w-full px-4 py-2.5 rounded-lg border border-green-400 bg-green-50 flex items-center gap-2 mb-3">
-                                <Share2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                <Link2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                                 <input
                                   type="text"
                                   placeholder="Paste A Supported Public Media Link"
