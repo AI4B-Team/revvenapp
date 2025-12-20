@@ -1867,6 +1867,17 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
+                {/* Undo/Redo Buttons - Top Right of Canvas */}
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                  <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">
+                    <RotateCcw className="w-4 h-4" />
+                    <span className="text-sm font-medium">Undo</span>
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm">
+                    <RotateCw className="w-4 h-4" />
+                    <span className="text-sm font-medium">Redo</span>
+                  </button>
+                </div>
                 <div className="absolute inset-0 flex items-center justify-center p-8 canvas-background">
                   {selectedImage ? (
                     <div 
