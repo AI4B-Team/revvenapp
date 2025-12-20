@@ -1098,13 +1098,28 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <span className="text-lg font-bold text-white">Editor</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg hover:bg-violet-500/40 transition-colors">
+                <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
+                  currentViewMode === 'editing' ? 'bg-violet-500/30 hover:bg-violet-500/40' :
+                  currentViewMode === 'viewing' ? 'bg-blue-500/30 hover:bg-blue-500/40' :
+                  currentViewMode === 'commenting' ? 'bg-amber-500/30 hover:bg-amber-500/40' :
+                  'bg-green-500/30 hover:bg-green-500/40'
+                }`}>
                   {currentViewMode === 'editing' && <Pencil className="w-3.5 h-3.5 text-violet-300" />}
                   {currentViewMode === 'viewing' && <Eye className="w-3.5 h-3.5 text-blue-300" />}
                   {currentViewMode === 'commenting' && <MessageSquare className="w-3.5 h-3.5 text-amber-300" />}
                   {currentViewMode === 'admin' && <Settings className="w-3.5 h-3.5 text-green-300" />}
-                  <span className="text-sm font-medium text-violet-200 capitalize">{currentViewMode}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+                  <span className={`text-sm font-medium capitalize ${
+                    currentViewMode === 'editing' ? 'text-violet-200' :
+                    currentViewMode === 'viewing' ? 'text-blue-200' :
+                    currentViewMode === 'commenting' ? 'text-amber-200' :
+                    'text-green-200'
+                  }`}>{currentViewMode}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 ${
+                    currentViewMode === 'editing' ? 'text-violet-300' :
+                    currentViewMode === 'viewing' ? 'text-blue-300' :
+                    currentViewMode === 'commenting' ? 'text-amber-300' :
+                    'text-green-300'
+                  }`} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 z-50">
