@@ -768,7 +768,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         </div>
       ) : (
         /* Timeline View */
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-white">
         {tracks.map((track, index) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
@@ -783,32 +783,33 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 <div className="h-1 bg-primary mx-2 rounded-full shadow-lg shadow-primary/50" />
               )}
               <div 
-                className={`flex h-16 border-b border-slate-700/50 group transition-all ${isDragged ? 'opacity-40 bg-slate-800' : ''}`}
+                className={`flex h-16 border-b border-gray-200 group transition-all ${isDragged ? 'opacity-40 bg-gray-100' : ''}`}
                 draggable
                 onDragStart={(e) => handleTrackDragStart(e, track.id)}
                 onDragOver={(e) => handleTrackDragOver(e, index)}
                 onDragEnd={handleTrackDragEnd}
                 onDrop={(e) => handleTrackDrop(e, index)}
               >
-              {/* Track Header */}
-              <div className="w-[180px] flex-shrink-0 bg-slate-800/80 flex items-center px-2 gap-2 border-r border-slate-700">
-                <GripVertical className="w-4 h-4 text-slate-500 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className={`w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center ${track.locked ? 'opacity-50' : ''}`}>
-                  <TrackIcon className={`w-4 h-4 ${trackStyle.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-medium text-slate-200 truncate ${track.locked ? 'opacity-50' : ''}`}>
-                    {track.name}
-                  </p>
-                </div>
+              {/* Track Header - Icon only with tooltip */}
+              <div className="w-[60px] flex-shrink-0 bg-white flex items-center justify-center px-2 gap-1 border-r border-gray-200">
+                <GripVertical className="w-3 h-3 text-gray-400 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className={`w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center ${track.locked ? 'opacity-50' : ''}`}>
+                      <TrackIcon className={`w-4 h-4 ${trackStyle.color}`} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right"><p>{track.name}</p></TooltipContent>
+                </Tooltip>
+                {/* Hover icons - shown on hover */}
                 <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackMute(track.id)}
-                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.muted ? 'text-red-400' : 'text-slate-400'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.muted ? 'text-red-400' : 'text-gray-400'}`}
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
+                        <Volume2 className="w-3 h-3" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.muted ? 'Unmute' : 'Mute'}</p></TooltipContent>
@@ -817,9 +818,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackLock(track.id)}
-                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.locked ? 'text-amber-400' : 'text-slate-400'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.locked ? 'text-amber-400' : 'text-gray-400'}`}
                       >
-                        {track.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                        {track.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
@@ -828,9 +829,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     <TooltipTrigger asChild>
                       <button 
                         onClick={() => toggleTrackVisibility(track.id)}
-                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.visible === false ? 'text-slate-600' : 'text-slate-400'}`}
+                        className={`p-1 rounded hover:bg-gray-200 transition-colors ${track.visible === false ? 'text-gray-300' : 'text-gray-400'}`}
                       >
-                        {track.visible === false ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {track.visible === false ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.visible === false ? 'Show' : 'Hide'}</p></TooltipContent>

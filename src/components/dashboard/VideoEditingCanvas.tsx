@@ -224,6 +224,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [translateModalOpen, setTranslateModalOpen] = useState(false);
   const [isFreePlan] = useState(true); // Would come from auth context in production
   const [showDeletedText, setShowDeletedText] = useState(false);
+  const [isVideoDeleted, setIsVideoDeleted] = useState(false);
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
@@ -1738,164 +1739,226 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         }
                       }}
                     >
-                      {/* Frame container - dynamically scales to fit available space */}
-                      <div 
-                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center cursor-pointer transition-all ${
-                          isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
-                        }`}
-                        style={{
-                          // Dynamic sizing based on aspect ratio - uses max percentage of container
-                          maxWidth: selectedRatio === '9:16' ? '40%' : selectedRatio === '1:1' ? '70%' : '90%',
-                          maxHeight: '90%',
-                          aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
-                          width: '100%',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Don't select if clicking on controls
-                          if ((e.target as HTMLElement).closest('button')) return;
-                          setIsVideoSelected(true);
-                        }}
-                      >
-                        {/* Video inside the frame - always fully visible with object-contain */}
-                        <video
-                          ref={videoRef}
-                          src={currentVideoSrc}
-                          className="max-w-full max-h-full object-contain"
-                          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                          onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
-                          onEnded={() => setIsPlaying(false)}
-                          onPlay={() => setIsPlaying(true)}
-                          onPause={() => setIsPlaying(false)}
-                          muted={isMuted}
-                        />
-                    
-                    {/* Selection indicator and delete button */}
-                    {isVideoSelected && (
-                      <div className="absolute top-2 right-2 flex items-center gap-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
+                      {/* Show canvas placeholder when video is deleted, otherwise show video */}
+                      {isVideoDeleted ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white p-8">
+                          <div className="w-20 h-20 rounded-2xl bg-gray-800 flex items-center justify-center mb-6">
+                            <Upload className="w-10 h-10 text-gray-500" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white mb-2">Add Media</h3>
+                          <p className="text-sm text-gray-400 text-center mb-6 max-w-xs">
+                            Upload a video file or paste a link to get started
+                          </p>
+                          <div className="flex flex-col gap-3 w-full max-w-xs">
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Remove video from timeline
-                                setTracks(prev => prev.filter(t => t.type !== 'video'));
-                                setIsVideoSelected(false);
-                                toast({ title: 'Video removed', description: 'The video has been removed from the timeline.' });
+                                // Trigger file upload
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'video/*';
+                                input.onchange = (event) => {
+                                  const file = (event.target as HTMLInputElement).files?.[0];
+                                  if (file) {
+                                    const url = URL.createObjectURL(file);
+                                    setIsVideoDeleted(false);
+                                    // Could set video source here
+                                    toast({ title: 'Video uploaded', description: file.name });
+                                  }
+                                };
+                                input.click();
                               }}
-                              className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors shadow-lg"
+                              className="flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium transition-colors"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <FolderOpen className="w-5 h-5" />
+                              Upload Video
                             </button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Delete Video</p></TooltipContent>
-                        </Tooltip>
-                      </div>
-                    )}
-                    
-                    {/* Player Controls Overlay */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                      {/* Volume with slider */}
-                      <div className="relative">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); setShowVolumeSlider(!showVolumeSlider); }}
-                              className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
-                            >
-                              {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Volume</p></TooltipContent>
-                        </Tooltip>
-                        {showVolumeSlider && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-4 bg-gray-900 rounded-lg shadow-xl border border-gray-700">
-                            <div className="flex flex-col items-center gap-3">
-                              <span className="text-xs text-white font-medium">{Math.round(isMuted ? 0 : volume * 100)}%</span>
-                              <div className="h-20 flex items-center">
-                                <input
-                                  type="range"
-                                  min={0}
-                                  max={100}
-                                  value={isMuted ? 0 : volume * 100}
-                                  onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    setVolume(val / 100);
-                                    setIsMuted(val === 0);
-                                    if (videoRef.current) {
-                                      videoRef.current.volume = val / 100;
-                                      videoRef.current.muted = val === 0;
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-px bg-gray-700" />
+                              <span className="text-xs text-gray-500">or</span>
+                              <div className="flex-1 h-px bg-gray-700" />
+                            </div>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Paste video URL..."
+                                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const url = (e.target as HTMLInputElement).value;
+                                    if (url) {
+                                      setIsVideoDeleted(false);
+                                      toast({ title: 'Video loaded from URL' });
                                     }
-                                  }}
-                                  className="w-20 h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer -rotate-90 origin-center accent-brand-green"
-                                  style={{ WebkitAppearance: 'none' }}
-                                />
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setIsMuted(!isMuted);
-                                  if (videoRef.current) {
-                                    videoRef.current.muted = !isMuted;
                                   }
                                 }}
-                                className="text-xs text-gray-400 hover:text-white transition-colors"
-                              >
-                                {isMuted ? 'Unmute' : 'Mute'}
-                              </button>
+                              />
                             </div>
                           </div>
-                        )}
-                      </div>
-                      <DropdownMenu>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                              <button 
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1"
-                              >
-                                <Ratio className="w-4 h-4" />
-                                <span className="text-xs">{selectedRatio}</span>
-                              </button>
-                            </DropdownMenuTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Aspect Ratio</p></TooltipContent>
-                        </Tooltip>
-                        <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
-                          {[
-                            { label: '16:9', className: 'aspect-video' },
-                            { label: '9:16', className: 'aspect-[9/16]' },
-                            { label: '1:1', className: 'aspect-square' },
-                            { label: '4:3', className: 'aspect-[4/3]' },
-                          ].map((r) => (
-                            <DropdownMenuItem 
-                              key={r.label} 
-                              className={`hover:bg-gray-800 cursor-pointer ${selectedRatio === r.label ? 'bg-gray-800' : ''}`}
-                              onClick={() => {
-                                setSelectedRatio(r.label);
-                                setVideoAspectClass(r.className);
-                              }}
-                            >
-                              {r.label} {selectedRatio === r.label && <Check className="w-3 h-3 ml-auto" />}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                        </div>
+                      ) : (
+                        <>
+                          {/* Frame container - dynamically scales to fit available space */}
+                          <div 
+                            className={`relative bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center cursor-pointer transition-all ${
+                              isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
+                            }`}
+                            style={{
+                              // Dynamic sizing based on aspect ratio - uses max percentage of container
+                              maxWidth: selectedRatio === '9:16' ? '40%' : selectedRatio === '1:1' ? '70%' : '90%',
+                              maxHeight: '90%',
+                              aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
+                              width: '100%',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Don't select if clicking on controls
+                              if ((e.target as HTMLElement).closest('button')) return;
+                              setIsVideoSelected(true);
+                            }}
                           >
-                            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</p></TooltipContent>
-                      </Tooltip>
+                            {/* Video inside the frame - always fully visible with object-contain */}
+                            <video
+                              ref={videoRef}
+                              src={currentVideoSrc}
+                              className="max-w-full max-h-full object-contain"
+                              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                              onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
+                              onEnded={() => setIsPlaying(false)}
+                              onPlay={() => setIsPlaying(true)}
+                              onPause={() => setIsPlaying(false)}
+                              muted={isMuted}
+                            />
+                        
+                        {/* Selection indicator and delete button */}
+                        {isVideoSelected && (
+                          <div className="absolute top-2 right-2 flex items-center gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Remove video from timeline and show canvas
+                                    setTracks(prev => prev.filter(t => t.type !== 'video'));
+                                    setIsVideoSelected(false);
+                                    setIsVideoDeleted(true);
+                                    toast({ title: 'Video removed', description: 'The video has been removed from the timeline.' });
+                                  }}
+                                  className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors shadow-lg"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Delete Video</p></TooltipContent>
+                            </Tooltip>
+                          </div>
+                        )}
+                    
+                        {/* Player Controls Overlay */}
+                        <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                          {/* Volume with slider */}
+                          <div className="relative">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); setShowVolumeSlider(!showVolumeSlider); }}
+                                  className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                                >
+                                  {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Volume</p></TooltipContent>
+                            </Tooltip>
+                            {showVolumeSlider && (
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-4 bg-gray-900 rounded-lg shadow-xl border border-gray-700">
+                                <div className="flex flex-col items-center gap-3">
+                                  <span className="text-xs text-white font-medium">{Math.round(isMuted ? 0 : volume * 100)}%</span>
+                                  <div className="h-20 flex items-center">
+                                    <input
+                                      type="range"
+                                      min={0}
+                                      max={100}
+                                      value={isMuted ? 0 : volume * 100}
+                                      onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        setVolume(val / 100);
+                                        setIsMuted(val === 0);
+                                        if (videoRef.current) {
+                                          videoRef.current.volume = val / 100;
+                                          videoRef.current.muted = val === 0;
+                                        }
+                                      }}
+                                      className="w-20 h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer -rotate-90 origin-center accent-brand-green"
+                                      style={{ WebkitAppearance: 'none' }}
+                                    />
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsMuted(!isMuted);
+                                      if (videoRef.current) {
+                                        videoRef.current.muted = !isMuted;
+                                      }
+                                    }}
+                                    className="text-xs text-gray-400 hover:text-white transition-colors"
+                                  >
+                                    {isMuted ? 'Unmute' : 'Mute'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <DropdownMenu>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                  <button 
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1"
+                                  >
+                                    <Ratio className="w-4 h-4" />
+                                    <span className="text-xs">{selectedRatio}</span>
+                                  </button>
+                                </DropdownMenuTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
+                              {[
+                                { label: '16:9', className: 'aspect-video' },
+                                { label: '9:16', className: 'aspect-[9/16]' },
+                                { label: '1:1', className: 'aspect-square' },
+                                { label: '4:3', className: 'aspect-[4/3]' },
+                              ].map((r) => (
+                                <DropdownMenuItem 
+                                  key={r.label} 
+                                  className={`hover:bg-gray-800 cursor-pointer ${selectedRatio === r.label ? 'bg-gray-800' : ''}`}
+                                  onClick={() => {
+                                    setSelectedRatio(r.label);
+                                    setVideoAspectClass(r.className);
+                                  }}
+                                >
+                                  {r.label} {selectedRatio === r.label && <Check className="w-3 h-3 ml-auto" />}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+                                className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                              >
+                                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</p></TooltipContent>
+                          </Tooltip>
+                        </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </div>
-                </div>
 
                   {/* Layout Toolbar Below Video - Part of normal flow, always above timeline */}
                   {isVideoSelected && (
