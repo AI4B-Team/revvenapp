@@ -759,7 +759,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
     { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
-    { id: 'tools', icon: Wrench, label: 'Tools' },
+    { id: 'tools', icon: Wand2, label: 'Tools' },
     { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 
