@@ -1355,7 +1355,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
 
                 {/* Compact Prompt Box with Green Border */}
-                <div className="p-3 border-t-2 border-gray-400">
+                <div className="p-3 border-t border-gray-200">
                   <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
                     <div className="flex items-start gap-2 mb-3">
                       <textarea
