@@ -108,15 +108,16 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable';
-import StockVideoPanel from './StockVideoPanel';
 import VideoTimeline from './VideoTimeline';
-import ImagePanel from './editor/ImagePanel';
 import TextPanel from './editor/TextPanel';
 import CaptionsPanel from './editor/CaptionsPanel';
 import EffectsPanel from './editor/EffectsPanel';
 import TransitionsPanel from './editor/TransitionsPanel';
 import ElementsPanel from './editor/ElementsPanel';
 import TemplatesPanel from './editor/TemplatesPanel';
+import EditorVideoPanel from './editor/EditorVideoPanel';
+import EditorImagePanel from './editor/EditorImagePanel';
+import EditorAudioPanel from './editor/EditorAudioPanel';
 
 // Types
 interface TimelineClip {
@@ -893,8 +894,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <StockVideoPanel />}
-            {visualsSubTab === 'images' && <ImagePanel />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel />}
+            {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
         );
@@ -915,143 +916,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <StockVideoPanel />;
+        return <EditorVideoPanel />;
 
       case 'audio':
-        return (
-          <div className="flex flex-col h-full">
-            {/* Sub-tabs */}
-            <div className="flex gap-1 mb-4 p-1 bg-gray-100 rounded-lg">
-              {[
-                { id: 'voices' as const, label: 'Voices' },
-                { id: 'music' as const, label: 'Music' },
-                { id: 'effects' as const, label: 'Sound Effects' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setAudioSubTab(tab.id)}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    audioSubTab === tab.id
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 mb-4">
-              <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:opacity-90 transition-colors">
-                <Bot className="w-4 h-4" />
-                AI Voice
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
-                <Upload className="w-4 h-4" />
-                Upload
-              </button>
-            </div>
-
-            {/* Sub-tab content */}
-            {audioSubTab === 'voices' && (
-              <div className="flex-1 overflow-y-auto">
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-4 h-4 text-yellow-500" />
-                    <h4 className="font-semibold text-gray-900">Voice</h4>
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
-                      <AudioLines className="w-4 h-4" />
-                      Voice Cloning
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
-                      <Mic className="w-4 h-4" />
-                      Voiceover
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {audioSubTab === 'music' && (
-              <div className="flex-1 overflow-y-auto">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900">Stock Music</h4>
-                  <button className="text-sm text-primary hover:underline">View all →</button>
-                </div>
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  {['All', 'Ambient', 'Chill', 'Happy'].map((cat) => (
-                    <button key={cat} className="px-3 py-1.5 bg-gray-100 rounded-full text-xs hover:bg-gray-200 transition-colors">
-                      {cat}
-                    </button>
-                  ))}
-                  <button className="px-2 py-1.5 text-gray-400">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { name: 'Synthwave Memories', duration: '2:56' },
-                    { name: 'Lofi Background Vlog Hip Hop', duration: '2:01' },
-                    { name: 'Deep House In Cafe', duration: '4:48' },
-                    { name: 'King And Queens, New York', duration: '2:56' },
-                    { name: 'Are U Ok', duration: '1:29' },
-                  ].map((track, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100">
-                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Play className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{track.name}</p>
-                        <p className="text-xs text-gray-500">{track.duration}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {audioSubTab === 'effects' && (
-              <div className="flex-1 overflow-y-auto">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900">Sound Effects</h4>
-                  <button className="text-sm text-primary hover:underline">View all →</button>
-                </div>
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  {['All', 'Cartoon', 'Clicks', 'Magic'].map((cat) => (
-                    <button key={cat} className="px-3 py-1.5 bg-gray-100 rounded-full text-xs hover:bg-gray-200 transition-colors">
-                      {cat}
-                    </button>
-                  ))}
-                  <button className="px-2 py-1.5 text-gray-400">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { name: 'Large Crowd Medium Ovation', duration: '0:10' },
-                    { name: 'Forest Bird Singing', duration: '2:13' },
-                    { name: 'Tune Fm Radio', duration: '0:03' },
-                    { name: 'Fail Error Mistake Out of Time', duration: '0:02' },
-                    { name: 'Mouse Click Computer', duration: '0:00' },
-                  ].map((sfx, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100">
-                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Play className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{sfx.name}</p>
-                        <p className="text-xs text-gray-500">{sfx.duration}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        );
+        return <EditorAudioPanel />;
 
       case 'text':
         return (
@@ -1212,44 +1080,63 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
         {/* Record Modal */}
         <Dialog open={recordModalOpen} onOpenChange={setRecordModalOpen}>
-          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-slate-700">
-              <DialogTitle className="text-lg font-bold text-white">RECORD</DialogTitle>
+          <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md p-0 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <DialogTitle className="text-lg font-bold text-gray-900">Record</DialogTitle>
               <button
                 onClick={() => setRecordModalOpen(false)}
-                className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-400 hover:text-white"
+                className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400 hover:text-gray-900"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="p-4 space-y-3">
-              {/* Screen & Camera */}
+              {/* Voiceover */}
               <button
                 onClick={async () => {
                   try {
-                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     setRecordModalOpen(false);
                     setIsRecording(true);
-                    toast({ title: 'Recording screen and camera', description: 'Recording has started. Click the record button again to stop.' });
-                    // Store streams for later cleanup
-                    (window as any).recordingStreams = [screenStream, cameraStream];
+                    toast({ title: 'Recording voiceover', description: 'Audio capture has begun.' });
+                    (window as any).recordingStreams = [stream];
                   } catch (error) {
-                    toast({ title: 'Permission denied', description: 'Please allow access to screen and camera.', variant: 'destructive' });
+                    toast({ title: 'Microphone access required', description: 'Enable microphone permissions to record.', variant: 'destructive' });
                   }
                 }}
-                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
-                  <div className="relative">
-                    <Box className="w-5 h-5 text-white" />
-                    <Video className="w-3 h-3 text-white absolute -bottom-1 -right-1" />
-                  </div>
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
+                  <Mic className="w-5 h-5 text-gray-700" />
                 </div>
                 <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-white mb-1">Capture Screen & Camera</h4>
-                  <p className="text-sm text-slate-400">Share your screen while showing your face, perfect for tutorials and walkthroughs.</p>
+                  <h4 className="font-semibold text-gray-900 mb-1">Record Voiceover</h4>
+                  <p className="text-sm text-gray-500">Capture professional audio narration using your microphone.</p>
+                </div>
+              </button>
+
+              {/* Webcam */}
+              <button
+                onClick={async () => {
+                  try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    setRecordModalOpen(false);
+                    setIsRecording(true);
+                    toast({ title: 'Recording webcam', description: 'Camera capture has begun.' });
+                    (window as any).recordingStreams = [stream];
+                  } catch (error) {
+                    toast({ title: 'Camera access required', description: 'Enable camera permissions to record.', variant: 'destructive' });
+                  }
+                }}
+                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
+              >
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
+                  <Video className="w-5 h-5 text-gray-700" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-semibold text-gray-900 mb-1">Record Webcam</h4>
+                  <p className="text-sm text-gray-500">Record yourself with your webcam and microphone.</p>
                 </div>
               </button>
 
@@ -1260,68 +1147,48 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
                     setRecordModalOpen(false);
                     setIsRecording(true);
-                    toast({ title: 'Recording screen', description: 'Screen recording has started.' });
+                    toast({ title: 'Recording screen', description: 'Screen capture has begun.' });
                     (window as any).recordingStreams = [stream];
                   } catch (error) {
-                    toast({ title: 'Permission denied', description: 'Please allow screen sharing.', variant: 'destructive' });
+                    toast({ title: 'Screen sharing required', description: 'Allow screen sharing to continue.', variant: 'destructive' });
                   }
                 }}
-                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
-                  <Box className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
+                  <Box className="w-5 h-5 text-gray-700" />
                 </div>
                 <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-white mb-1">Capture Screen</h4>
-                  <p className="text-sm text-slate-400">Record your display with optional audio, ideal for demos and presentations.</p>
+                  <h4 className="font-semibold text-gray-900 mb-1">Capture Screen</h4>
+                  <p className="text-sm text-gray-500">Record your entire screen or a specific window with audio.</p>
                 </div>
               </button>
 
-              {/* Camera Only */}
+              {/* Screen & Camera */}
               <button
                 onClick={async () => {
                   try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     setRecordModalOpen(false);
                     setIsRecording(true);
-                    toast({ title: 'Recording camera', description: 'Camera recording has started.' });
-                    (window as any).recordingStreams = [stream];
+                    toast({ title: 'Recording screen & camera', description: 'Both streams are now being captured.' });
+                    (window as any).recordingStreams = [screenStream, cameraStream];
                   } catch (error) {
-                    toast({ title: 'Permission denied', description: 'Please allow camera and microphone access.', variant: 'destructive' });
+                    toast({ title: 'Permissions required', description: 'Allow both screen and camera access.', variant: 'destructive' });
                   }
                 }}
-                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
-                  <Video className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
+                  <div className="relative">
+                    <Box className="w-5 h-5 text-gray-700" />
+                    <Video className="w-3 h-3 text-gray-700 absolute -bottom-1 -right-1" />
+                  </div>
                 </div>
                 <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-white mb-1">Record Webcam</h4>
-                  <p className="text-sm text-slate-400">Capture video directly from your camera with built-in microphone support.</p>
-                </div>
-              </button>
-
-              {/* Audio Only */}
-              <button
-                onClick={async () => {
-                  try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    setRecordModalOpen(false);
-                    setIsRecording(true);
-                    toast({ title: 'Recording audio', description: 'Audio recording has started.' });
-                    (window as any).recordingStreams = [stream];
-                  } catch (error) {
-                    toast({ title: 'Permission denied', description: 'Please allow microphone access.', variant: 'destructive' });
-                  }
-                }}
-                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
-                  <Mic className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-white mb-1">Record Voiceover</h4>
-                  <p className="text-sm text-slate-400">Capture high-quality audio using your microphone for narration or podcasts.</p>
+                  <h4 className="font-semibold text-gray-900 mb-1">Capture Screen & Camera</h4>
+                  <p className="text-sm text-gray-500">Record your screen with a picture-in-picture webcam overlay.</p>
                 </div>
               </button>
             </div>
