@@ -82,8 +82,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         >
           <Smartphone className="w-4 h-4 text-gray-400" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Resize for social media</p>
-            <p className="text-xs text-gray-500">Create new version for social media</p>
+            <p className="text-sm font-medium text-gray-900">Resize For Social Media</p>
+            <p className="text-xs text-gray-500">Create New Version For Social Media</p>
           </div>
         </button>
       </div>
@@ -223,8 +223,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         >
           <History className="w-4 h-4 text-gray-400" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Restore to a previous version</p>
-            <p className="text-xs text-gray-500">Creates a new project</p>
+            <p className="text-sm font-medium text-gray-900">Restore To A Previous Version</p>
+            <p className="text-xs text-gray-500">Creates A New Project</p>
           </div>
         </button>
       </div>
@@ -240,7 +240,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <Languages className="w-4 h-4 text-violet-500" />
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900">AI Dubbing</p>
-            <p className="text-xs text-gray-500">Translate dialogue to different languages</p>
+            <p className="text-xs text-gray-500">Translate Dialogue To Different Languages</p>
           </div>
           <div className="w-2 h-2 rounded-full bg-violet-400" />
         </button>
@@ -252,7 +252,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <Sparkles className="w-4 h-4 text-violet-500" />
           <div>
             <p className="text-sm font-medium text-gray-900">Clean Audio</p>
-            <p className="text-xs text-gray-500">Remove background noise</p>
+            <p className="text-xs text-gray-500">Remove Background Noise</p>
           </div>
         </button>
       </div>

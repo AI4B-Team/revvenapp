@@ -92,10 +92,10 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         <h3 className="text-sm font-medium text-gray-700 mb-3">Audio Suite</h3>
         
         {[
-          { icon: AudioLines, label: 'Studio Sound', description: 'Remove noise & enhance voice clarity' },
-          { icon: VolumeX, label: 'Clean up speech', description: 'Remove filler words and hesitations' },
-          { icon: ArrowLeftRight, label: 'Tighten pacing', description: 'Reduce pauses and dead air' },
-          { icon: Mic, label: 'Voice isolation', description: 'Separate voice from background' },
+          { icon: AudioLines, label: 'Studio Sound', description: 'Remove Noise And Enhance Voice Clarity' },
+          { icon: VolumeX, label: 'Clean Up Speech', description: 'Remove Filler Words And Hesitations' },
+          { icon: ArrowLeftRight, label: 'Tighten Pacing', description: 'Reduce Pauses And Dead Air' },
+          { icon: Mic, label: 'Voice Isolation', description: 'Separate Voice From Background' },
         ].map(renderToolButton)}
       </div>
 
@@ -104,13 +104,13 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         <h3 className="text-sm font-medium text-gray-700 mb-3">Visual Lab</h3>
         
         {[
-          { icon: Eye, label: 'Eye Contact', description: 'Correct gaze to look at camera' },
-          { icon: Camera, label: 'Face tracking', description: 'Auto-frame speaker in shot' },
-          { icon: Blend, label: 'Background blur', description: 'Add depth to your video', badge: 'Beta' },
-          { icon: Tv, label: 'Virtual backdrop', description: 'Replace background with image' },
-          { icon: Smile, label: 'Beauty mode', description: 'Subtle skin smoothing & enhancement' },
-          { icon: Maximize2, label: 'Auto-crop & zoom', description: 'Dynamic framing for socials' },
-          { icon: Grid, label: 'Multicam sync', description: 'Sync multiple camera angles', badge: 'Beta' },
+          { icon: Eye, label: 'Eye Contact', description: 'Correct Gaze To Look At Camera' },
+          { icon: Camera, label: 'Face Tracking', description: 'Auto-Frame Speaker In Shot' },
+          { icon: Blend, label: 'Background Blur', description: 'Add Depth To Your Video', badge: 'Beta' },
+          { icon: Tv, label: 'Virtual Backdrop', description: 'Replace Background With Image' },
+          { icon: Smile, label: 'Beauty Mode', description: 'Subtle Skin Smoothing And Enhancement' },
+          { icon: Maximize2, label: 'Auto-Crop And Zoom', description: 'Dynamic Framing For Socials' },
+          { icon: Grid, label: 'Multicam Sync', description: 'Sync Multiple Camera Angles', badge: 'Beta' },
         ].map(renderToolButton)}
       </div>
 
@@ -119,10 +119,10 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         <h3 className="text-sm font-medium text-gray-700 mb-3">Repurpose</h3>
         
         {[
-          { icon: Film, label: 'Smart clips', description: 'AI picks viral-worthy moments' },
-          { icon: Star, label: 'Highlight reel', description: 'Auto-generate best moments' },
-          { icon: Languages, label: 'Translate & dub', description: 'Dub video to other languages', highlighted: true },
-          { icon: Layout, label: 'Resize for socials', description: 'Create versions for each platform' },
+          { icon: Film, label: 'Smart Clips', description: 'AI Picks Viral-Worthy Moments' },
+          { icon: Star, label: 'Highlight Reel', description: 'Auto-Generate Best Moments' },
+          { icon: Languages, label: 'Translate And Dub', description: 'Dub Video To Other Languages', highlighted: true },
+          { icon: Layout, label: 'Resize For Socials', description: 'Create Versions For Each Platform' },
         ].map(renderToolButton)}
       </div>
 
@@ -131,11 +131,11 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         <h3 className="text-sm font-medium text-gray-700 mb-3">Publish</h3>
         
         {[
-          { icon: Type, label: 'Generate title', description: 'AI-powered title suggestions' },
-          { icon: AlignLeft, label: 'Summarize', description: 'Create a video summary' },
-          { icon: Youtube, label: 'YouTube SEO', description: 'Optimize for search & discovery' },
-          { icon: Share2, label: 'Social captions', description: 'Generate platform-specific posts' },
-          { icon: Newspaper, label: 'Blog post', description: 'Turn video into written content' },
+          { icon: Type, label: 'Generate Title', description: 'AI-Powered Title Suggestions' },
+          { icon: AlignLeft, label: 'Summarize', description: 'Create A Video Summary' },
+          { icon: Youtube, label: 'YouTube SEO', description: 'Optimize For Search And Discovery' },
+          { icon: Share2, label: 'Social Captions', description: 'Generate Platform-Specific Posts' },
+          { icon: Newspaper, label: 'Blog Post', description: 'Turn Video Into Written Content' },
         ].map(renderToolButton)}
       </div>
 
@@ -144,18 +144,18 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         <h3 className="text-sm font-medium text-gray-700 mb-3">Generate</h3>
         
         {[
-          { icon: ImageIcon, label: 'AI Image', description: 'Generate images from text' },
-          { icon: Video, label: 'AI Video', description: 'Create video clips with AI' },
-          { icon: Mic, label: 'AI Voiceover', description: 'Generate natural voiceovers' },
-          { icon: Captions, label: 'AI Captions', description: 'Auto-generate subtitles' },
-          { icon: Users, label: 'AI Avatar', description: 'Create digital spokesperson' },
+          { icon: ImageIcon, label: 'AI Image', description: 'Generate Images From Text' },
+          { icon: Video, label: 'AI Video', description: 'Create Video Clips With AI' },
+          { icon: Mic, label: 'AI Voiceover', description: 'Generate Natural Voiceovers' },
+          { icon: Captions, label: 'AI Captions', description: 'Auto-Generate Subtitles' },
+          { icon: Users, label: 'AI Avatar', description: 'Create Digital Spokesperson' },
         ].map(renderToolButton)}
       </div>
 
       {/* Show Deleted Toggle */}
       <div className="p-4 border-t border-gray-100 mt-auto">
         <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200">
-          <span className="text-sm font-medium text-gray-700">Show deleted</span>
+          <span className="text-sm font-medium text-gray-700">Show Deleted</span>
           <Switch 
             checked={showDeleted} 
             onCheckedChange={(v) => {
