@@ -649,21 +649,34 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               />
             )}
 
-            {/* Time markers */}
+            {/* Time markers - spaced at 0.5s intervals */}
             <div className="flex items-end h-full">
-              {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 h-full flex items-center"
-                  style={{ width: `${(5 / duration) * 100}%`, minWidth: '80px' }}
-                >
-                  <div className="h-full flex flex-col justify-end border-l border-gray-300">
-                    <span className="text-xs text-gray-600 font-mono pl-2 pb-1 whitespace-nowrap">
-                      {formatTime(i * 5)}
-                    </span>
+              {Array.from({ length: Math.ceil(duration / 0.5) + 1 }, (_, i) => {
+                const time = i * 0.5;
+                const isFullSecond = time % 1 === 0;
+                const mins = Math.floor(time / 60);
+                const secs = Math.floor(time % 60);
+                const decimal = (time % 1).toFixed(1).substring(1);
+                const timeLabel = `${mins}:${secs.toString().padStart(2, '0')}${decimal}`;
+                
+                return (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 h-full flex items-center"
+                    style={{ width: `${(0.5 / duration) * 100}%`, minWidth: '60px' }}
+                  >
+                    <div className={`h-full flex flex-col justify-end ${isFullSecond ? 'border-l border-gray-400' : 'border-l border-gray-300'}`}>
+                      <span className={`text-[10px] font-mono pl-1.5 pb-1 whitespace-nowrap ${isFullSecond ? 'text-gray-700' : 'text-gray-500'}`}>
+                        {timeLabel}
+                      </span>
+                      {/* Small tick marks between labels */}
+                      {!isFullSecond && (
+                        <div className="absolute top-0 left-0 w-px h-2 bg-gray-300" />
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -873,6 +886,71 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                   const isSelected = selectedClip === clip.id;
                   const isHovered = hoveredClip === clip.id;
                   
+                  // For text/audio tracks, render word-based segments like the reference
+                  if (track.type === 'audio' || track.type === 'text') {
+                    // Split caption into words for individual boxes
+                    const words = (clip.caption || clip.name || '').split(' ').filter(w => w.trim());
+                    const wordDuration = clip.duration / Math.max(words.length, 1);
+                    
+                    return (
+                      <div
+                        key={clip.id}
+                        className="absolute top-2 bottom-2 flex items-center gap-0.5"
+                        style={{
+                          left: `${(clip.startTime / duration) * 100}%`,
+                          width: `${(clip.duration / duration) * 100}%`,
+                        }}
+                      >
+                        {words.map((word, wordIndex) => {
+                          const isCurrentWord = currentTime >= clip.startTime + (wordIndex * wordDuration) && 
+                                               currentTime < clip.startTime + ((wordIndex + 1) * wordDuration);
+                          return (
+                            <div
+                              key={`${clip.id}-word-${wordIndex}`}
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
+                              onMouseEnter={() => setHoveredClip(clip.id)}
+                              onMouseLeave={() => setHoveredClip(null)}
+                              className={`h-full flex items-center justify-center px-2 rounded border transition-all cursor-grab active:cursor-grabbing ${
+                                isCurrentWord
+                                  ? 'bg-gray-800 border-gray-600 text-white'
+                                  : isSelected
+                                    ? 'bg-gray-200 border-gray-400 text-gray-800'
+                                    : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                              } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                              style={{ 
+                                flex: `0 0 auto`,
+                                minWidth: 'fit-content',
+                                maxWidth: `${(wordDuration / duration) * 100 * 1.5}%`
+                              }}
+                            >
+                              <span className="text-xs font-medium whitespace-nowrap">{word}</span>
+                              {/* Show duration on current word */}
+                              {isCurrentWord && (
+                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-800 text-white text-[9px] font-mono rounded whitespace-nowrap z-30">
+                                  {wordDuration.toFixed(2)}s
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {/* Resize handles for entire clip */}
+                        {!track.locked && (isSelected || isHovered) && (
+                          <>
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
+                              className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-l z-20"
+                            />
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
+                              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-r z-20"
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // For video/effect tracks, keep original clip style
                   return (
                     <div
                       key={clip.id}
@@ -894,27 +972,14 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       {/* Clip background */}
                       <div className={`absolute inset-0 bg-gradient-to-r ${trackStyle.bg} ${track.visible === false ? 'opacity-40' : ''}`} />
                       
-                      {/* Clip content - Script text above waveform */}
+                      {/* Clip content */}
                       <div className="relative h-full flex flex-col z-10">
-                        {track.type === 'audio' ? (
-                          <>
-                            {/* Script text - easy to read */}
-                            <div className="flex-1 flex items-center px-2 pt-1">
-                              <span className="text-xs text-white font-medium leading-tight line-clamp-2 drop-shadow-sm">
-                                {clip.caption || clip.name}
-                              </span>
-                            </div>
-                            {/* Waveform below */}
-                            {renderWaveform(clip, isSelected)}
-                          </>
-                        ) : (
-                          <div className="flex-1 flex items-center px-2">
-                            <TrackIcon className="w-3 h-3 text-white/60 mr-1.5 flex-shrink-0" />
-                            <span className="text-[10px] text-white/90 font-medium truncate">
-                              {clip.name}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex-1 flex items-center px-2">
+                          <TrackIcon className="w-3 h-3 text-white/60 mr-1.5 flex-shrink-0" />
+                          <span className="text-[10px] text-white/90 font-medium truncate">
+                            {clip.name}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Duration badge on selection */}
