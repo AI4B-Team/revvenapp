@@ -108,6 +108,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable';
+import StockVideoPanel from './StockVideoPanel';
 
 // Types
 interface TimelineClip {
@@ -818,20 +819,22 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'image':
-      case 'video':
         return (
           <div className="flex flex-col h-full">
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
               <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                {activeTab === 'image' ? <ImageIcon className="w-8 h-8 text-gray-400" /> : <Video className="w-8 h-8 text-gray-400" />}
+                <ImageIcon className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">No {activeTab === 'image' ? 'Image' : 'Video'} Assets</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">No Image Assets</h3>
               <p className="text-sm text-gray-500 max-w-[280px]">
                 Start building your collection by clicking the generate button below, or by uploading a file <span className="text-orange-500 cursor-pointer hover:underline">here</span>
               </p>
             </div>
           </div>
         );
+
+      case 'video':
+        return <StockVideoPanel />;
 
       case 'audio':
         return (
