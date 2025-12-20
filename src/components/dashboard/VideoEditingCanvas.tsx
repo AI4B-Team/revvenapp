@@ -1643,7 +1643,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <ResizablePanelGroup direction="vertical" className="h-full">
                 {/* Video Preview Panel */}
                 <ResizablePanel defaultSize={60} minSize={30}>
-                  <div className="h-full flex flex-col bg-gray-100">
+                  <div className="h-full flex flex-col bg-gray-100 relative">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
                       <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
@@ -1880,9 +1880,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
                 </div>
 
-                  {/* Layout Toolbar Below Video - Only visible when video is selected */}
+                  {/* Layout Toolbar Below Video - Fixed position above timeline */}
                   {isVideoSelected && (
-                    <div className="flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100">
+                    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100 z-40">
                       {/* Layout Selector */}
                       <div className="relative">
                         <button 
@@ -1899,7 +1899,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
                             {/* Header with close button */}
                             <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                              <span className="text-sm font-medium text-gray-700">Layout</span>
+                              <div className="flex items-center gap-2">
+                                <LayoutGrid className="w-4 h-4 text-gray-500" />
+                                <span className="text-sm font-medium text-gray-700">Layouts</span>
+                              </div>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(false); }}
                                 className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -1913,6 +1916,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setSelectedLayout(id);
                                 setShowLayoutPanel(false);
                               }}
+                              hideHeader
                             />
                           </div>
                         )}
