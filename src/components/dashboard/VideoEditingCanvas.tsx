@@ -684,7 +684,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
     { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
-    { id: 'tools', icon: Wrench, label: 'Tools' },
+    { id: 'tools', icon: Settings, label: 'Tools' },
   ];
 
   // Sub-menu items for each tab
@@ -1308,16 +1308,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </button>
                             </DropdownMenuTrigger>
                           </TooltipTrigger>
-                          <TooltipContent><p>Select Tool</p></TooltipContent>
+                          <TooltipContent><p>Tools</p></TooltipContent>
                         </Tooltip>
                         <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                          <DropdownMenuItem 
-                            className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                            onClick={() => setSelectedPromptTool('image')}
-                          >
-                            <ImageIcon className="w-4 h-4" />
-                            Image
-                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
                             onClick={() => setSelectedPromptTool('video')}
@@ -1331,6 +1324,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           >
                             <AudioLines className="w-4 h-4" />
                             Audio
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
+                            onClick={() => setSelectedPromptTool('image')}
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                            Image
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -1474,18 +1474,21 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                       <div className="flex-1" />
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={handleAutoPrompt}
-                            disabled={isGeneratingPrompt}
-                            className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors disabled:opacity-50"
-                          >
-                            <Shuffle className={`w-4 h-4 ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
-                      </Tooltip>
+                      {/* Auto prompt only shows when tool is selected */}
+                      {selectedPromptTool && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleAutoPrompt}
+                              disabled={isGeneratingPrompt}
+                              className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors disabled:opacity-50"
+                            >
+                              <Shuffle className={`w-4 h-4 ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
+                        </Tooltip>
+                      )}
 
                       <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
                         <Sparkles className="w-4 h-4" />
@@ -1536,25 +1539,39 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <TooltipContent><p>Volume</p></TooltipContent>
                         </Tooltip>
                         {showVolumeSlider && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-black/80 rounded-lg">
-                            <div className="h-24 flex flex-col items-center gap-2">
-                              <Slider
-                                orientation="vertical"
-                                value={[isMuted ? 0 : volume * 100]}
-                                onValueChange={([val]) => {
-                                  setVolume(val / 100);
-                                  setIsMuted(val === 0);
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-4 bg-gray-900 rounded-lg shadow-xl border border-gray-700">
+                            <div className="flex flex-col items-center gap-3">
+                              <span className="text-xs text-white font-medium">{Math.round(isMuted ? 0 : volume * 100)}%</span>
+                              <div className="h-20 flex items-center">
+                                <input
+                                  type="range"
+                                  min={0}
+                                  max={100}
+                                  value={isMuted ? 0 : volume * 100}
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setVolume(val / 100);
+                                    setIsMuted(val === 0);
+                                    if (videoRef.current) {
+                                      videoRef.current.volume = val / 100;
+                                      videoRef.current.muted = val === 0;
+                                    }
+                                  }}
+                                  className="w-20 h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer -rotate-90 origin-center accent-brand-green"
+                                  style={{ WebkitAppearance: 'none' }}
+                                />
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setIsMuted(!isMuted);
                                   if (videoRef.current) {
-                                    videoRef.current.volume = val / 100;
-                                    videoRef.current.muted = val === 0;
+                                    videoRef.current.muted = !isMuted;
                                   }
                                 }}
-                                min={0}
-                                max={100}
-                                step={1}
-                                className="h-20"
-                              />
-                              <span className="text-xs text-white">{Math.round(isMuted ? 0 : volume * 100)}%</span>
+                                className="text-xs text-gray-400 hover:text-white transition-colors"
+                              >
+                                {isMuted ? 'Unmute' : 'Mute'}
+                              </button>
                             </div>
                           </div>
                         )}
@@ -1739,7 +1756,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Timeline - minimum 3 tracks visible with scroll */}
-                  <div className="min-h-[224px] max-h-72 overflow-hidden flex">
+                  <div className="h-[240px] overflow-hidden flex">
                     {/* Track Labels - Dark Background */}
                     <div className="w-14 bg-sidebar-background flex flex-col shrink-0 overflow-y-auto">
                       <div className="h-8 border-b border-gray-800 flex items-center justify-center">
