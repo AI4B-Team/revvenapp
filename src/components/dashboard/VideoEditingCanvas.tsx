@@ -1637,6 +1637,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     <div 
                       ref={playerContainerRef}
                       className="flex-1 flex items-center justify-center p-4 relative"
+                      onClick={(e) => {
+                        // Deselect video when clicking outside the video container
+                        if (e.target === e.currentTarget) {
+                          setIsVideoSelected(false);
+                        }
+                      }}
                     >
                       {/* Frame container - this is the selected aspect ratio frame */}
                       <div 
@@ -1648,9 +1654,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           height: selectedRatio === '9:16' ? '356px' : selectedRatio === '1:1' ? '350px' : selectedRatio === '4:3' ? '300px' : '253px',
                         }}
                         onClick={(e) => {
+                          e.stopPropagation();
                           // Don't select if clicking on controls
                           if ((e.target as HTMLElement).closest('button')) return;
-                          setIsVideoSelected(!isVideoSelected);
+                          setIsVideoSelected(true);
                         }}
                       >
                         {/* Video inside the frame - always fully visible with object-contain */}
