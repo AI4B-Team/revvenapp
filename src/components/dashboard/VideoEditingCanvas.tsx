@@ -81,6 +81,8 @@ import {
   Hash,
   VolumeIcon,
 } from 'lucide-react';
+import { FaYoutube, FaTiktok, FaInstagram, FaVimeo } from 'react-icons/fa';
+import { SiLoom } from 'react-icons/si';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -770,7 +772,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const getSubMenuItems = (tabId: string) => {
     switch(tabId) {
       case 'script':
-        return [{ icon: Pencil, label: 'Edit', action: () => {} }];
+        return []; // No sub-menu for script
       case 'image':
       case 'video':
       case 'audio':
@@ -1741,58 +1743,85 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white p-8">
-                          <div className="w-20 h-20 rounded-2xl bg-gray-800 flex items-center justify-center mb-6">
-                            <Upload className="w-10 h-10 text-gray-500" />
-                          </div>
-                          <h3 className="text-lg font-semibold text-white mb-2">Add Media</h3>
-                          <p className="text-sm text-gray-400 text-center mb-6 max-w-xs">
-                            Upload a video file or paste a link to get started
-                          </p>
-                          <div className="flex flex-col gap-3 w-full max-w-xs">
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 p-8">
+                          <div className="flex flex-col gap-4 w-full max-w-md">
+                            {/* Click to upload area - dark background like screenshot */}
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Trigger file upload
                                 const input = document.createElement('input');
                                 input.type = 'file';
                                 input.accept = 'video/*';
                                 input.onchange = (event) => {
                                   const file = (event.target as HTMLInputElement).files?.[0];
                                   if (file) {
-                                    const url = URL.createObjectURL(file);
                                     setIsVideoDeleted(false);
-                                    // Could set video source here
                                     toast({ title: 'Video uploaded', description: file.name });
                                   }
                                 };
                                 input.click();
                               }}
-                              className="flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium transition-colors"
+                              className="group p-8 rounded-2xl bg-gray-900 hover:bg-gray-800 border-2 border-dashed border-gray-600 hover:border-gray-500 transition-all duration-300"
                             >
-                              <FolderOpen className="w-5 h-5" />
-                              Upload Video
+                              <div className="flex flex-col items-center text-center">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-lg font-medium text-white">Click to upload</span>
+                                  <Upload className="w-5 h-5 text-white" />
+                                </div>
+                                <p className="text-sm text-gray-400">or, drag and drop a file here</p>
+                              </div>
                             </button>
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-px bg-gray-700" />
-                              <span className="text-xs text-gray-500">or</span>
-                              <div className="flex-1 h-px bg-gray-700" />
-                            </div>
+
+                            {/* Video URL input with social icons - styled like transcribe app */}
                             <div className="relative">
-                              <input
-                                type="text"
-                                placeholder="Paste video URL..."
-                                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    const url = (e.target as HTMLInputElement).value;
-                                    if (url) {
-                                      setIsVideoDeleted(false);
-                                      toast({ title: 'Video loaded from URL' });
+                              <div className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-gray-900 border border-gray-700 hover:border-gray-600 transition-colors">
+                                <input
+                                  type="text"
+                                  placeholder="Paste a video URL (e.g. https://www.instagram.com/reel/...)"
+                                  className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 focus:outline-none"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const url = (e.target as HTMLInputElement).value;
+                                      if (url) {
+                                        setIsVideoDeleted(false);
+                                        toast({ title: 'Video loaded from URL' });
+                                      }
                                     }
-                                  }
-                                }}
-                              />
+                                  }}
+                                  onPaste={(e) => {
+                                    const pastedText = e.clipboardData.getData('text');
+                                    if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
+                                      setTimeout(() => {
+                                        setIsVideoDeleted(false);
+                                        toast({ title: 'Video loaded from URL' });
+                                      }, 100);
+                                    }
+                                  }}
+                                />
+                                <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                              </div>
+                              
+                              {/* Social platform icons */}
+                              <div className="mt-3 flex items-center justify-center gap-2">
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center">
+                                  <FaYoutube className="w-4 h-4 text-red-500" />
+                                </div>
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center">
+                                  <FaInstagram className="w-4 h-4 text-pink-500" />
+                                </div>
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center">
+                                  <FaVimeo className="w-4 h-4 text-blue-400" />
+                                </div>
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center">
+                                  <SiLoom className="w-4 h-4 text-purple-500" />
+                                </div>
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center">
+                                  <FaTiktok className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center text-xs text-gray-400">
+                                  +10
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
