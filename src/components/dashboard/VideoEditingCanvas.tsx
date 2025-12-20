@@ -1132,12 +1132,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 onBlur={() => setIsEditingTitle(false)}
                 onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
                 autoFocus
-                className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-500 focus:outline-none focus:border-slate-400 min-w-[150px]"
+                className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-400 focus:outline-none focus:border-white min-w-[150px]"
               />
             ) : (
               <button
                 onClick={() => setIsEditingTitle(true)}
-                className="text-white text-sm font-medium hover:bg-slate-700/50 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-slate-500 hover:border-white hover:bg-slate-700/50 transition-colors"
               >
                 {projectTitle}
               </button>
@@ -1859,10 +1859,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Timeline - minimum 3 tracks visible with scroll */}
-                  <div className="flex flex-col" style={{ height: 'calc(32px + 4 * 56px)' }}>
-                    <div className="flex flex-1 overflow-hidden">
+                  <div className="flex flex-col min-h-[256px]" style={{ height: '256px' }}>
+                    <div className="flex flex-1 overflow-y-auto">
                     {/* Track Labels - Dark Background */}
-                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0 overflow-y-auto">
+                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
                       <div className="h-8 border-b border-gray-800 flex items-center justify-center">
                         <Tooltip>
                           <TooltipTrigger asChild>
