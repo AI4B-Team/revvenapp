@@ -86,6 +86,12 @@ export default function RecordModal({
   const [isTeleprompterPlaying, setIsTeleprompterPlaying] = useState(false);
   const [teleprompterPosition, setTeleprompterPosition] = useState(0);
 
+  // Background color state (syncs with Background button)
+  const [backgroundColor, setBackgroundColor] = useState('#000000');
+
+  // Prompter window reference
+  const prompterWindowRef = useRef<Window | null>(null);
+
   // Audio visualization
   const [audioLevels, setAudioLevels] = useState<number[]>(Array(40).fill(10));
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -96,6 +102,233 @@ export default function RecordModal({
   const streamRef = useRef<MediaStream | null>(null);
   const teleprompterIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const transcriptionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Open prompter in a separate window
+  const openPrompterWindow = () => {
+    // Close existing window if open
+    if (prompterWindowRef.current && !prompterWindowRef.current.closed) {
+      prompterWindowRef.current.focus();
+      return;
+    }
+
+    const width = 800;
+    const height = 600;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    prompterWindowRef.current = window.open(
+      '',
+      'TeleprompterWindow',
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`
+    );
+
+    if (prompterWindowRef.current) {
+      updatePrompterWindow();
+    }
+  };
+
+  // Update the prompter window content
+  const updatePrompterWindow = () => {
+    if (!prompterWindowRef.current || prompterWindowRef.current.closed) return;
+
+    const doc = prompterWindowRef.current.document;
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Teleprompter</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            background-color: ${backgroundColor};
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+          }
+          .header {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+          }
+          .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.9;
+          }
+          .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+          }
+          .controls button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+          }
+          .controls button.primary {
+            background: #8b5cf6;
+            color: white;
+          }
+          .controls button.primary:hover {
+            background: #7c3aed;
+          }
+          .controls button.secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+          }
+          .controls button.secondary:hover {
+            background: rgba(255,255,255,0.2);
+          }
+          .content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            overflow: hidden;
+            position: relative;
+          }
+          .marker {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 40px;
+            background: #f59e0b;
+            border-radius: 4px;
+          }
+          .text-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            transition: transform 0.1s linear;
+          }
+          .text-container p {
+            font-size: ${teleprompterFontSize}px;
+            line-height: 1.8;
+            opacity: 0.95;
+            white-space: pre-wrap;
+          }
+          .placeholder {
+            opacity: 0.4;
+            font-style: italic;
+          }
+          .footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+          }
+          .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+          }
+          .speed-control input {
+            width: 100px;
+            accent-color: #8b5cf6;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📜 Teleprompter</h1>
+          <div class="controls">
+            <button class="secondary" onclick="window.close()">Close</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="marker"></div>
+          <div class="text-container" id="textContainer" style="transform: translateY(-${teleprompterPosition * 2}px)">
+            ${teleprompterText 
+              ? `<p>${teleprompterText}</p>` 
+              : '<p class="placeholder">Enter your script in the main recording window...</p>'
+            }
+          </div>
+        </div>
+        <div class="footer">
+          <div class="speed-control">
+            <span>Speed:</span>
+            <input type="range" min="10" max="90" value="${teleprompterSpeed}" id="speedSlider" />
+          </div>
+          <div class="speed-control">
+            <span>Font Size:</span>
+            <input type="range" min="16" max="48" value="${teleprompterFontSize}" id="fontSlider" />
+          </div>
+        </div>
+        <script>
+          // Communication with parent window
+          window.addEventListener('message', (e) => {
+            if (e.data.type === 'UPDATE_PROMPTER') {
+              const container = document.getElementById('textContainer');
+              if (container) {
+                container.style.transform = 'translateY(-' + (e.data.position * 2) + 'px)';
+                if (e.data.text !== undefined) {
+                  container.innerHTML = e.data.text 
+                    ? '<p>' + e.data.text + '</p>' 
+                    : '<p class="placeholder">Enter your script in the main recording window...</p>';
+                }
+              }
+              if (e.data.backgroundColor) {
+                document.body.style.backgroundColor = e.data.backgroundColor;
+              }
+            }
+          });
+        </script>
+      </body>
+      </html>
+    `);
+    doc.close();
+  };
+
+  // Sync prompter window with state changes
+  useEffect(() => {
+    if (prompterWindowRef.current && !prompterWindowRef.current.closed) {
+      prompterWindowRef.current.postMessage({
+        type: 'UPDATE_PROMPTER',
+        position: teleprompterPosition,
+        text: teleprompterText,
+        backgroundColor: backgroundColor
+      }, '*');
+    }
+  }, [teleprompterPosition, teleprompterText, backgroundColor]);
+
+  // Close prompter window when modal closes
+  useEffect(() => {
+    if (!isOpen && prompterWindowRef.current && !prompterWindowRef.current.closed) {
+      prompterWindowRef.current.close();
+    }
+  }, [isOpen]);
+
+  // Handle prompter toggle
+  const handlePrompterToggle = () => {
+    if (showTeleprompter) {
+      // Closing prompter
+      if (prompterWindowRef.current && !prompterWindowRef.current.closed) {
+        prompterWindowRef.current.close();
+      }
+      setShowTeleprompter(false);
+    } else {
+      // Opening prompter
+      setShowTeleprompter(true);
+      openPrompterWindow();
+    }
+  };
 
   // Get available microphones
   useEffect(() => {
@@ -528,67 +761,25 @@ export default function RecordModal({
 
           {/* Main content area - audio waves and timer only */}
           <div className="flex flex-col items-center justify-center px-8 py-10">
-            {showTeleprompter ? (
-              <div className="w-full max-w-2xl">
-                {/* Teleprompter content */}
-                <div className="relative h-48 overflow-hidden rounded-lg mb-6">
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-amber-400 rounded-full" />
-                  {teleprompterText ? (
-                    <div
-                      className="absolute inset-x-0 px-6 transition-transform duration-100 ease-linear text-white/90"
-                      style={{
-                        transform: `translateY(-${teleprompterPosition * 2}px)`,
-                        fontSize: `${teleprompterFontSize}px`,
-                        lineHeight: 1.8
-                      }}
-                    >
-                      {teleprompterText}
-                    </div>
-                  ) : (
-                    <textarea
-                      placeholder="Start typing or paste text here..."
-                      value={teleprompterText}
-                      onChange={(e) => setTeleprompterText(e.target.value)}
-                      className="w-full h-full bg-transparent resize-none px-6 py-4 text-white/80 placeholder-white/40 focus:outline-none"
-                      style={{ fontSize: `${teleprompterFontSize}px` }}
-                    />
-                  )}
-                </div>
+            {/* Waveform visualization - only show animated when recording */}
+            <div className="flex items-center justify-center gap-1 h-24 mb-6">
+              {audioLevels.map((level, i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-white/30'}`}
+                  style={{ height: `${isRecording ? level : 10}px` }}
+                />
+              ))}
+            </div>
 
-                {/* Waveform visualization */}
-                <div className="flex items-center justify-center gap-0.5 h-16">
-                  {audioLevels.map((level, i) => (
-                    <div
-                      key={i}
-                      className={`w-1 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-white/30'}`}
-                      style={{ height: `${isRecording ? level : 10}px` }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Waveform visualization - only show animated when recording */}
-                <div className="flex items-center justify-center gap-1 h-24 mb-6">
-                  {audioLevels.map((level, i) => (
-                    <div
-                      key={i}
-                      className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-white/30'}`}
-                      style={{ height: `${isRecording ? level : 10}px` }}
-                    />
-                  ))}
-                </div>
+            {/* Timer */}
+            <div className="text-5xl font-mono font-light text-white mb-2">
+              {formatTime(recordingTime)}
+            </div>
 
-                {/* Timer */}
-                <div className="text-5xl font-mono font-light text-white mb-2">
-                  {formatTime(recordingTime)}
-                </div>
-
-                <p className="text-white/70 text-sm">
-                  {isRecording ? 'Recording...' : 'Click Record To Start'}
-                </p>
-              </>
-            )}
+            <p className="text-white/70 text-sm">
+              {isRecording ? 'Recording...' : 'Click Record To Start'}
+            </p>
           </div>
         </div>
 
@@ -682,17 +873,28 @@ export default function RecordModal({
             </button>
 
             {/* Background */}
-            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center relative">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600" />
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
-              </div>
+            <div className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors relative">
+              <label className="cursor-pointer">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center relative">
+                  <div 
+                    className="w-5 h-5 rounded-full border border-gray-300" 
+                    style={{ backgroundColor: backgroundColor }}
+                  />
+                  <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
+                </div>
+                <input 
+                  type="color" 
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  className="absolute opacity-0 w-0 h-0"
+                />
+              </label>
               <span className="text-xs">Background</span>
-            </button>
+            </div>
 
             {/* Prompter */}
             <button
-              onClick={() => setShowTeleprompter(!showTeleprompter)}
+              onClick={handlePrompterToggle}
               className={`flex flex-col items-center gap-1 transition-colors ${showTeleprompter ? 'text-violet-500' : 'text-gray-500 hover:text-gray-900'}`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${showTeleprompter ? 'bg-violet-100' : 'bg-gray-100'}`}>
@@ -711,94 +913,134 @@ export default function RecordModal({
           </div>
         </div>
 
-        {/* Transcription options - BELOW controls bar */}
-        {!showTeleprompter && (
-          <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
-            {/* Real-time transcription toggle */}
-            <div className="w-full max-w-md mx-auto bg-white rounded-xl p-4 mb-4 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Sparkles className={`w-4 h-4 ${enableTranscription ? 'text-emerald-500' : 'text-gray-400'}`} />
-                  <span className="text-sm font-medium text-gray-900">Real-Time Transcription</span>
-                </div>
-                <Switch
-                  checked={enableTranscription}
-                  onCheckedChange={setEnableTranscription}
-                  className="data-[state=checked]:bg-emerald-500"
+        {/* Transcription options OR Teleprompter Script Input */}
+        <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
+          {showTeleprompter ? (
+            <>
+              {/* Script input for teleprompter */}
+              <div className="w-full max-w-lg mx-auto mb-4">
+                <label className="text-xs text-gray-500 mb-2 block font-medium">Teleprompter Script</label>
+                <textarea
+                  placeholder="Enter your script here... It will appear in the prompter window."
+                  value={teleprompterText}
+                  onChange={(e) => setTeleprompterText(e.target.value)}
+                  className="w-full h-32 bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                 />
               </div>
-              <p className="text-xs text-gray-500">
-                {isRecording && enableTranscription && liveTranscript 
-                  ? liveTranscript.slice(-100) + (liveTranscript.length > 100 ? '...' : '')
-                  : 'Start recording to see your words appear'}
+              <p className="text-xs text-gray-500 text-center">
+                {prompterWindowRef.current && !prompterWindowRef.current.closed 
+                  ? '✓ Prompter window is open - your script will appear there'
+                  : 'Click "Prompter" again to reopen the window'}
               </p>
-              {isTranscribing && (
-                <div className="flex items-center gap-2 mt-2">
-                  <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
-                  <span className="text-xs text-emerald-500">Transcribing...</span>
+            </>
+          ) : (
+            <>
+              {/* Real-time transcription toggle */}
+              <div className="w-full max-w-md mx-auto bg-white rounded-xl p-4 mb-4 border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className={`w-4 h-4 ${enableTranscription ? 'text-emerald-500' : 'text-gray-400'}`} />
+                    <span className="text-sm font-medium text-gray-900">Real-Time Transcription</span>
+                  </div>
+                  <Switch
+                    checked={enableTranscription}
+                    onCheckedChange={setEnableTranscription}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
                 </div>
-              )}
-            </div>
-
-            {/* Language and Quality selectors */}
-            <div className="flex gap-4 w-full max-w-md mx-auto">
-              <div className="flex-1">
-                <label className="text-xs text-gray-500 mb-1 block">Language</label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-200">
-                    {LANGUAGES.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code} className="text-gray-900 hover:bg-gray-100">
-                        {lang.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p className="text-xs text-gray-500">
+                  {isRecording && enableTranscription && liveTranscript 
+                    ? liveTranscript.slice(-100) + (liveTranscript.length > 100 ? '...' : '')
+                    : 'Start recording to see your words appear'}
+                </p>
+                {isTranscribing && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
+                    <span className="text-xs text-emerald-500">Transcribing...</span>
+                  </div>
+                )}
               </div>
-              <div className="flex-1">
-                <label className="text-xs text-gray-500 mb-1 block">Audio Quality</label>
-                <Select value={audioQuality} onValueChange={setAudioQuality}>
-                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-200">
-                    {AUDIO_QUALITIES.map((quality) => (
-                      <SelectItem key={quality.value} value={quality.value} className="text-gray-900 hover:bg-gray-100">
-                        {quality.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Teleprompter Controls (when showing) */}
+              {/* Language and Quality selectors */}
+              <div className="flex gap-4 w-full max-w-md mx-auto">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Language</label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200">
+                      {LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code} className="text-gray-900 hover:bg-gray-100">
+                          {lang.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Audio Quality</label>
+                  <Select value={audioQuality} onValueChange={setAudioQuality}>
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200">
+                      {AUDIO_QUALITIES.map((quality) => (
+                        <SelectItem key={quality.value} value={quality.value} className="text-gray-900 hover:bg-gray-100">
+                          {quality.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Teleprompter Playback Controls (when showing) */}
         {showTeleprompter && (
-          <div className="bg-gray-50 border-t border-gray-200 px-6 py-3">
-            <div className="flex items-center justify-between max-w-lg mx-auto">
+          <div className="bg-white border-t border-gray-200 px-6 py-3">
+            <div className="flex items-center justify-center gap-4 max-w-lg mx-auto">
               <button
                 onClick={() => setTeleprompterPosition(Math.max(0, teleprompterPosition - 20))}
-                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700"
+                className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
 
               <button
                 onClick={() => setIsTeleprompterPlaying(!isTeleprompterPlaying)}
-                className="p-2 bg-violet-500 hover:bg-violet-400 rounded-lg text-white"
+                className={`px-6 py-2.5 rounded-lg text-white font-medium transition-colors flex items-center gap-2 ${
+                  isTeleprompterPlaying ? 'bg-amber-500 hover:bg-amber-400' : 'bg-violet-500 hover:bg-violet-400'
+                }`}
               >
                 {isTeleprompterPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isTeleprompterPlaying ? 'Pause' : 'Play'}
               </button>
 
               <button
                 onClick={() => setTeleprompterPosition(teleprompterPosition + 20)}
-                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700"
+                className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              <div className="w-px h-6 bg-gray-200" />
+
+              <button
+                onClick={() => setTeleprompterPosition(0)}
+                className="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
+                title="Reset to start"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={openPrompterWindow}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 text-sm font-medium transition-colors"
+              >
+                Open Window
               </button>
             </div>
           </div>
