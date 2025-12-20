@@ -23,6 +23,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize,
+  Minimize,
   ChevronDown,
   Plus,
   Send,
@@ -62,6 +63,15 @@ import {
   Cloud,
   Pencil,
   Shuffle,
+  Magnet,
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff,
+  Ratio,
+  FileText,
+  Captions,
+  LayoutTemplate,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +88,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Slider } from '@/components/ui/slider';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 // Types
 interface TimelineClip {
@@ -149,6 +172,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [projectTitle, setProjectTitle] = useState('DIGITAL BABES VSL');
   const [selectedClip, setSelectedClip] = useState<string | null>(null);
+  const [selectedAudioClip, setSelectedAudioClip] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -161,6 +185,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -207,7 +235,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const [tracks, setTracks] = useState<TimelineTrack[]>([
     {
       id: 'image-1',
-      type: 'effect' as const, // Using 'effect' for image track
+      type: 'effect' as const,
       name: 'Images',
       clips: [
         { id: 'img-1', type: 'effect', name: 'Brand Logo', startTime: 0, duration: 3, color: '#3B82F6' },
@@ -249,7 +277,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     },
     {
       id: 'music-1',
-      type: 'text' as const, // Using 'text' for music track
+      type: 'text' as const,
       name: 'Music',
       clips: [
         { id: 'music-clip-1', type: 'text', name: 'Ambient Intro', startTime: 0, duration: 15, color: '#10B981' },
@@ -263,6 +291,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
 
   // Format time display
   const formatTime = (seconds: number): string => {
@@ -282,6 +311,38 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
     setIsPlaying(!isPlaying);
   }, [isPlaying]);
+
+  // Spacebar to play/pause
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
+        e.preventDefault();
+        togglePlayback();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlayback]);
+
+  // Trackpad/wheel zoom
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        setZoom(prev => Math.min(3, Math.max(0.25, prev + delta)));
+      }
+    };
+    const container = timelineRef.current?.parentElement;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, []);
 
   const skipBackward = useCallback(() => {
     const newTime = Math.max(0, currentTime - 5);
@@ -334,9 +395,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
   };
 
-  // Cut clip at playhead
-  const cutClip = () => {
-    if (!selectedClip) return;
+  // Cut/Split clip at playhead
+  const splitClip = () => {
+    if (!selectedClip) {
+      toast({ title: 'Select a clip to split', variant: 'destructive' });
+      return;
+    }
     
     setTracks(tracks.map(track => {
       const clipIndex = track.clips.findIndex(c => c.id === selectedClip);
@@ -345,7 +409,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       const clip = track.clips[clipIndex];
       const cutPoint = currentTime - clip.startTime;
       
-      if (cutPoint <= 0 || cutPoint >= clip.duration) return track;
+      if (cutPoint <= 0 || cutPoint >= clip.duration) {
+        toast({ title: 'Playhead must be within the clip', variant: 'destructive' });
+        return track;
+      }
       
       const newClips = [...track.clips];
       const firstHalf = { ...clip, duration: cutPoint };
@@ -360,6 +427,36 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       return { ...track, clips: newClips };
     }));
     toast({ title: 'Clip split' });
+  };
+
+  // Record toggle
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+    toast({ title: isRecording ? 'Recording stopped' : 'Recording started' });
+  };
+
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!playerContainerRef.current) return;
+    
+    if (!isFullscreen) {
+      if (playerContainerRef.current.requestFullscreen) {
+        playerContainerRef.current.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
+  // Share invitation
+  const handleShareInvite = () => {
+    if (!shareEmail.trim()) return;
+    toast({ title: `Invitation sent to ${shareEmail}` });
+    setShareEmail('');
+    setShareDialogOpen(false);
   };
 
   // Generate auto prompt using AI
@@ -395,13 +492,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
   };
 
-  // Handle timeline click with smooth scrubbing
+  // Handle timeline click with proper calculation
   const handleTimelineClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = Math.min(Math.max(0, percentage * duration * zoom), duration);
+    const timelineWidth = rect.width;
+    const scaledDuration = duration / zoom;
+    const percentage = clickX / timelineWidth;
+    const newTime = Math.min(Math.max(0, percentage * scaledDuration), duration);
     handleTimelineSeek(newTime);
   }, [duration, zoom, handleTimelineSeek]);
 
@@ -417,8 +516,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     if (!isDragging || !timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = Math.min(Math.max(0, percentage * duration * zoom), duration);
+    const timelineWidth = rect.width;
+    const scaledDuration = duration / zoom;
+    const percentage = clickX / timelineWidth;
+    const newTime = Math.min(Math.max(0, percentage * scaledDuration), duration);
     handleTimelineSeek(newTime);
   }, [isDragging, duration, zoom, handleTimelineSeek]);
 
@@ -562,21 +663,36 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return () => clearInterval(interval);
   }, [isPlaying, duration]);
 
-  // Tab configuration matching screenshots
+  // Tab configuration with all requested icons
   const tabs = [
     { id: 'script', icon: ScrollText, label: 'Script' },
-    { id: 'visuals', icon: Image, label: 'Visuals' },
-    { id: 'music', icon: Music, label: 'Music' },
-    { id: 'voice', icon: Mic, label: 'Voiceovers' },
-    { id: 'sfx', icon: Headphones, label: 'Sound Effects' },
-    { id: 'text', icon: Type, label: 'Captions' },
-    { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
+    { id: 'image', icon: ImageIcon, label: 'Image' },
+    { id: 'video', icon: Video, label: 'Video' },
+    { id: 'audio', icon: AudioLines, label: 'Audio' },
+    { id: 'text', icon: Type, label: 'Text' },
+    { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'effects', icon: Sparkles, label: 'Effects' },
-    { id: 'analytics', icon: BarChart3, label: 'Procedural Visualizers' }
+    { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
+    { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
   ];
 
+  // Sub-menu items for each tab
+  const getSubMenuItems = (tabId: string) => {
+    switch(tabId) {
+      case 'script':
+        return [{ icon: Pencil, label: 'Edit', action: () => {} }];
+      case 'image':
+      case 'video':
+      case 'audio':
+      case 'templates':
+        return [{ icon: Search, label: 'Search', action: () => {} }];
+      default:
+        return [];
+    }
+  };
+
   // Render waveform for audio clips
-  const renderWaveform = (clip: TimelineClip, width: number) => {
+  const renderWaveform = (clip: TimelineClip, width: number, isSelected: boolean) => {
     if (!clip.waveform) return null;
     const barCount = Math.floor(width / 3);
     const step = Math.max(1, Math.floor(clip.waveform.length / barCount));
@@ -588,7 +704,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           return (
             <div
               key={i}
-              className="w-0.5 bg-gray-500/60"
+              className={`w-0.5 ${isSelected ? 'bg-purple-400' : 'bg-white/60'}`}
               style={{ height: `${amplitude * 100}%` }}
             />
           );
@@ -627,17 +743,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     { id: '12', name: 'Night Vision', thumbnail: '/placeholder.svg' },
   ];
 
-  const visualizerPresets = [
-    { id: '1', name: 'Tunnel Vortex', thumbnail: '/placeholder.svg', icon: '🌀' },
-    { id: '2', name: 'Mandala', thumbnail: '/placeholder.svg', icon: '✨' },
-    { id: '3', name: 'Kaleidoscope', thumbnail: '/placeholder.svg', icon: '💎' },
-    { id: '4', name: 'Starfield', thumbnail: '/placeholder.svg', icon: '⭐' },
-    { id: '5', name: 'Spiral Galaxy', thumbnail: '/placeholder.svg', icon: '🌌' },
-    { id: '6', name: 'Plasma Flow', thumbnail: '/placeholder.svg', icon: '🔮' },
-    { id: '7', name: 'Cymatics', thumbnail: '/placeholder.svg', icon: '🎵' },
-    { id: '8', name: 'Aurora Borealis', thumbnail: '/placeholder.svg', icon: '🌈' },
-  ];
-
   const captionStylePresets = [
     { id: '1', name: 'Classic', style: 'bg-gray-800' },
     { id: '2', name: 'Yellow Slam', style: 'bg-yellow-500' },
@@ -655,22 +760,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'script':
         return (
           <div className="flex flex-col h-full">
-            {/* Project Title */}
             <input
               type="text"
               value={projectTitle}
               onChange={(e) => setProjectTitle(e.target.value)}
               className="text-xl font-bold w-full bg-transparent border-none outline-none mb-4 text-gray-900"
             />
-
-            {/* Characters Section (was Speakers) */}
             <div className="mb-4">
               <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors">
                 <Plus className="w-4 h-4" />
                 Add Character
               </button>
-              
-              {/* Character Tags */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {speakers.map((speaker) => (
                   <div
@@ -678,17 +778,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     className="flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium"
                     style={{ backgroundColor: `${speaker.color}20`, color: speaker.color }}
                   >
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: speaker.color }}
-                    />
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: speaker.color }} />
                     {speaker.name}
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Script Content - Full height */}
             <textarea
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
@@ -698,15 +793,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
         );
 
-      case 'visuals':
+      case 'image':
+      case 'video':
         return (
           <div className="flex flex-col h-full">
-            {/* Empty state */}
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
               <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <Image className="w-8 h-8 text-gray-400" />
+                {activeTab === 'image' ? <ImageIcon className="w-8 h-8 text-gray-400" /> : <Video className="w-8 h-8 text-gray-400" />}
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">No Visual Assets</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">No {activeTab === 'image' ? 'Image' : 'Video'} Assets</h3>
               <p className="text-sm text-gray-500 max-w-[280px]">
                 Start building your collection by clicking the generate button below, or by uploading a file <span className="text-orange-500 cursor-pointer hover:underline">here</span>
               </p>
@@ -714,10 +809,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
         );
 
-      case 'music':
+      case 'audio':
         return (
           <div className="flex flex-col h-full">
-            {/* Upload and Search Row */}
             <div className="flex items-center gap-2 mb-4">
               <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
                 <Upload className="w-4 h-4" />
@@ -727,52 +821,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search stock music library"
+                  placeholder="Search audio library"
                   className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
-
-            {/* Empty state */}
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
               <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <Music className="w-8 h-8 text-gray-400" />
+                <AudioLines className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Many Ways to Get Music!</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">No Audio Assets</h3>
               <p className="text-sm text-gray-500 max-w-[280px]">
-                Use state of the art AI to generate music, search our library of 25,000+ tracks, or upload your own!
-              </p>
-            </div>
-          </div>
-        );
-
-      case 'voice':
-        return (
-          <div className="flex flex-col h-full">
-            {/* Empty state */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <Mic className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">No Voiceover Assets</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Start building your collection by clicking the generate button below
-              </p>
-            </div>
-          </div>
-        );
-
-      case 'sfx':
-        return (
-          <div className="flex flex-col h-full">
-            {/* Empty state */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <Headphones className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">No Sound Effect Assets</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Start building your collection by clicking the generate button below
+                Use AI to generate audio, search our library, or upload your own!
               </p>
             </div>
           </div>
@@ -781,48 +841,26 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'text':
         return (
           <div className="flex flex-col h-full overflow-y-auto">
-            {/* Text Section */}
             <div className="mb-6">
               <h3 className="font-semibold text-gray-900 mb-3">Text</h3>
               <button className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
                 <Plus className="w-4 h-4" />
                 Add Text
               </button>
-              <p className="text-sm text-gray-500 mt-2">or</p>
-              <p className="text-sm text-gray-500">Select text in the timeline to edit it here</p>
             </div>
+          </div>
+        );
 
-            {/* Subtitles Section */}
+      case 'captions':
+        return (
+          <div className="flex flex-col h-full overflow-y-auto">
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Subtitles</h3>
-              <div className="flex items-center gap-2 mb-3">
-                <Music className="w-4 h-4 text-gray-500" />
-                <span className="text-sm">Music</span>
-                <span className="px-2 py-0.5 bg-green-500 text-white text-xs rounded">New!</span>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-3">Captions</h3>
               <div className="flex gap-2 mb-4">
                 <button className="flex items-center gap-2 px-3 py-2 bg-orange-500/20 text-orange-600 rounded-lg text-sm hover:bg-orange-500/30 transition-colors">
                   <Sparkles className="w-4 h-4" />
-                  Generate Music Captions
+                  Auto Generate
                 </button>
-                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-500 rounded-lg text-sm">
-                  <ScrollText className="w-4 h-4" />
-                  Edit Captions
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Auto generate subtitles from voiceovers</span>
-                <div className="w-10 h-5 bg-gray-300 rounded-full relative cursor-pointer">
-                  <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
-                </div>
-              </div>
-            </div>
-
-            {/* Style Presets */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-semibold text-gray-900">Style Presets</h3>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {captionStylePresets.map((preset) => (
@@ -873,18 +911,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
         );
 
-      case 'analytics':
+      case 'templates':
         return (
-          <div className="flex flex-col h-full overflow-y-auto">
-            <div className="grid grid-cols-4 gap-3">
-              {visualizerPresets.map((preset) => (
-                <div key={preset.id} className="group cursor-pointer">
-                  <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-black mb-1 hover:ring-2 hover:ring-primary transition-all flex items-center justify-center">
-                    <span className="text-3xl">{preset.icon}</span>
-                  </div>
-                  <p className="text-xs text-gray-600 text-center">{preset.name}</p>
-                </div>
-              ))}
+          <div className="flex flex-col h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <LayoutTemplate className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Templates</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Browse and apply pre-made templates to your project
+              </p>
             </div>
           </div>
         );
@@ -897,7 +934,47 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   return (
     <TooltipProvider>
       <div className="flex flex-col h-full bg-white text-gray-900 font-sans overflow-hidden">
-        {/* Top Editor Menu Bar - same as Image Editor */}
+        {/* Share Dialog */}
+        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+          <DialogContent className="bg-white">
+            <DialogHeader>
+              <DialogTitle>Invite Collaborators</DialogTitle>
+              <DialogDescription>
+                Enter an email address to invite someone to collaborate on this project.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 mt-4">
+              <input
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="Enter email address"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <button
+                onClick={handleShareInvite}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Send Invite
+              </button>
+            </div>
+            <div className="mt-4">
+              <p className="text-sm text-gray-500 mb-2">Current collaborators:</p>
+              <div className="flex items-center gap-2">
+                {collaborators.map((avatar, index) => (
+                  <img
+                    key={index}
+                    src={avatar}
+                    alt={`Collaborator ${index + 1}`}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Top Editor Menu Bar */}
         <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-white">Editor</span>
@@ -981,7 +1058,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
           {/* Right Actions */}
           <div className="flex items-center gap-3 ml-auto">
-            {/* Collaborator Avatars */}
             <div className="flex items-center -space-x-2">
               {collaborators.map((avatar, index) => (
                 <img
@@ -992,7 +1068,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 />
               ))}
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors">
+            <button 
+              onClick={() => setShareDialogOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors"
+            >
               <Share2 className="w-4 h-4" />
               <span>Share</span>
             </button>
@@ -1005,720 +1084,708 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
         </div>
 
-        {/* Main Content - horizontal layout */}
+        {/* Main Content - horizontal layout with resizable panels */}
         <div className="flex flex-1 overflow-hidden">
-        {/* AI Chat Panel - LEFT SIDE */}
-        <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
-          {isChatExpanded ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-primary">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary-foreground">LEXI</h3>
-                    <p className="text-xs text-primary-foreground/80">AI Video Assistant</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsChatExpanded(false)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="w-4 h-4 text-primary-foreground" />
-                </button>
-              </div>
-              
-              {/* Chat Messages */}
-              <div 
-                ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4"
-              >
-                {chatMessages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.role === 'assistant' 
-                        ? 'bg-primary' 
-                        : 'bg-gray-200'
-                    }`}>
-                      {message.role === 'assistant' ? (
-                        <Bot className="w-4 h-4 text-primary-foreground" />
-                      ) : (
-                        <User className="w-4 h-4 text-gray-600" />
-                      )}
+          {/* AI Chat Panel - LEFT SIDE */}
+          <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
+            {isChatExpanded ? (
+              <>
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-primary">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                      <Bot className="w-5 h-5 text-primary-foreground" />
                     </div>
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                      message.role === 'assistant'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-primary text-primary-foreground'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                    <div>
+                      <h3 className="font-semibold text-primary-foreground">LEXI</h3>
+                      <p className="text-xs text-primary-foreground/80">AI Video Assistant</p>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              {/* Chat Input */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
-                    placeholder="Ask LEXI anything..."
-                    className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400"
-                  />
                   <button
-                    onClick={handleChatSubmit}
-                    className="p-3 bg-primary rounded-xl hover:opacity-90 transition-opacity"
+                    onClick={() => setIsChatExpanded(false)}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                   >
-                    <Send className="w-5 h-5 text-primary-foreground" />
+                    <X className="w-4 h-4 text-primary-foreground" />
                   </button>
                 </div>
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsChatExpanded(true)}
-              className="flex-1 flex items-center justify-center hover:bg-gray-100 transition-colors"
-            >
-              <MessageSquare className="w-5 h-5 text-primary" />
-            </button>
-          )}
-        </div>
-
-        {/* Left Panel - Tab Content */}
-        <div className="w-[500px] bg-white border-r border-gray-200 flex flex-col shrink-0">
-          {/* Tabs with Tooltips */}
-          <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
-            {tabs.map((tab) => (
-              <Tooltip key={tab.id}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`p-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                      activeTab === tab.id
-                        ? 'bg-white text-primary shadow-sm'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    {activeTab === tab.id && (
-                      <span className="text-sm font-medium">{tab.label}</span>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{tab.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-
-          {/* Content Area - grows to fill available space */}
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col">
-            <div className="flex-1">
-              {renderTabContent()}
-            </div>
-          </div>
-
-          {/* Compact Prompt Box with Green Border */}
-          <div className="p-3 border-t border-gray-200">
-            <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
-              {/* Red Video Icon and Shuffle Icon + Textarea */}
-              <div className="flex items-start gap-2 mb-3">
-                <div className="flex flex-col gap-2 mt-1 flex-shrink-0">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-0.5">
-                        <Video className="w-5 h-5 text-red-500" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Video Mode</p></TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleAutoPrompt}
-                        disabled={isGeneratingPrompt}
-                        className="p-0.5 hover:bg-gray-200 rounded transition-colors disabled:opacity-50"
-                      >
-                        <Shuffle className={`w-5 h-5 text-brand-green ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
-                  </Tooltip>
-                </div>
-                <textarea
-                  value={promptText}
-                  onChange={(e) => setPromptText(e.target.value)}
-                  placeholder="Describe what you want to create..."
-                  className="w-full bg-transparent text-sm focus:outline-none resize-none h-32 placeholder:text-gray-400"
-                />
-              </div>
-
-              {/* Start Frame and End Frame - only show for video */}
-              {selectedTool === 'video' && (
-                <div className="flex gap-3 mb-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 mb-1 block">Start Frame</label>
-                    <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
-                      <Plus className="w-5 h-5 text-gray-400" />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 mb-1 block">End Frame</label>
-                    <div className="w-full h-16 bg-gray-100 border border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-brand-green transition-colors">
-                      <Plus className="w-5 h-5 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom Toolbar Icons */}
-              <div className="flex items-center gap-1.5 pt-1">
-                {/* Upload Button */}
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Upload</p></TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                      <ImageIcon className="w-4 h-4" />
-                      Upload Image
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                      <Video className="w-4 h-4" />
-                      Upload Video
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
-                      <AudioLines className="w-4 h-4" />
-                      Upload Audio
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Model Selector */}
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                          <Box className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Model</p></TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="start" className="w-80 bg-gray-900 border-gray-800 text-white p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium">Model</span>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-400">Auto</span>
-                        <div className="w-8 h-4 bg-primary rounded-full relative">
-                          <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-1 mb-3 bg-gray-800 rounded-lg p-1">
-                      <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Image</button>
-                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Video</button>
-                      <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Audio</button>
-                    </div>
-                    <p className="text-xs text-gray-400 mb-3">Each video costs 15-80 credits</p>
-                    <div className="space-y-2">
-                      <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold">H</div>
-                        <div className="flex-1">
-                          <p className="font-medium">Hailuo 2.3</p>
-                          <p className="text-xs text-gray-400">Enhanced quality, smoother</p>
-                          <div className="flex gap-2 mt-1">
-                            <span className="text-xs bg-gray-800 px-2 py-0.5 rounded">768P-1080P</span>
-                            <span className="text-xs bg-gray-800 px-2 py-0.5 rounded">6s-10s</span>
-                          </div>
-                        </div>
-                        <Check className="w-5 h-5 text-primary" />
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Aspect Ratio Selector */}
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
-                          <Scan className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Aspect Ratio</p></TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                    <DropdownMenuItem 
-                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedRatio('Automatic Ratio')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Scan className="w-4 h-4" />
-                        Automatic Ratio
-                      </div>
-                      {selectedRatio === 'Automatic Ratio' && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedRatio('Landscape')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-4 h-3 border border-current rounded-sm" />
-                        Landscape
-                      </div>
-                      {selectedRatio === 'Landscape' && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedRatio('Portrait')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-4 border border-current rounded-sm" />
-                        Portrait
-                      </div>
-                      {selectedRatio === 'Portrait' && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedRatio('Square')}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 border border-current rounded-sm" />
-                        Square
-                      </div>
-                      {selectedRatio === 'Square' && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Separator */}
-                <div className="w-px h-5 bg-gray-300" />
-
-                {/* Tools Dropdown */}
-                <DropdownMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
-                          selectedTool ? 'bg-green-200 text-green-900' : 'hover:bg-gray-200 text-gray-500'
-                        }`}>
-                          <LayoutGrid className="w-4 h-4" />
-                          {!selectedTool && <span className="text-sm">Tools</span>}
-                          {selectedTool && (
-                            <>
-                              <span className="text-sm font-medium">
-                                {selectedTool === 'image' && 'Image'}
-                                {selectedTool === 'video' && 'Video'}
-                                {selectedTool === 'music' && 'Music'}
-                                {selectedTool === 'audio' && 'Audio'}
-                              </span>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
-                                className="ml-1 hover:bg-green-300 rounded p-0.5"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </>
-                          )}
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Tools</p></TooltipContent>
-                  </Tooltip>
-                  <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
-                    <DropdownMenuItem 
-                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedTool('image')}
-                    >
-                      <ImageIcon className="w-4 h-4 text-purple-400" />
-                      Image
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedTool('video')}
-                    >
-                      <Video className="w-4 h-4 text-purple-400" />
-                      Video
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedTool('audio')}
-                    >
-                      <AudioLines className="w-4 h-4 text-purple-400" />
-                      Audio
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer"
-                      onClick={() => setSelectedTool('music')}
-                    >
-                      <Music className="w-4 h-4 text-purple-400" />
-                      Music
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Spacer */}
-                <div className="flex-1" />
-
-                {/* Generate Button */}
-                <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-full font-medium hover:opacity-90 transition-opacity text-sm">
-                  Generate <Sparkles className="w-4 h-4" /> 20
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Panel - Video Preview & Timeline */}
-        <div className="flex-1 flex flex-col bg-gray-100 min-w-0">
-          {/* Video Preview - fills available space */}
-          <div className="flex-1 flex items-center justify-center p-6 min-h-0">
-            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full h-full max-w-[1000px]">
-              {/* Video Element */}
-              <video
-                ref={videoRef}
-                src={video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
-                className="w-full h-full object-contain"
-                onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
-                onEnded={() => setIsPlaying(false)}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                muted={isMuted}
-              />
-              
-              {/* Bottom Overlay with speaker name */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-white text-sm font-medium">Vicki Revelle</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Timeline Controls */}
-          <div className="bg-white border-t border-gray-200 shrink-0">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-              {/* Left Tools */}
-              <div className="flex items-center gap-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={undo}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                      <Undo className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Undo</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={redo}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                      <Redo className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Redo</p></TooltipContent>
-                </Tooltip>
-                <div className="w-px h-6 bg-gray-200 mx-2" />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={deleteSelectedClip}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Delete</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={cutClip}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                      <Scissors className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Cut</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg text-primary transition-colors">
-                      <Sparkles className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Effects</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                      <Diamond className="w-5 h-5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Keyframe</p></TooltipContent>
-                </Tooltip>
-              </div>
-
-              {/* Center - Playback Controls */}
-              <div className="flex items-center gap-3">
-                {/* Record Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="w-8 h-8 flex items-center justify-center bg-red-600 rounded-full hover:bg-red-700 transition-colors text-white shadow-md">
-                      <CircleDot className="w-4 h-4" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent><p>Record</p></TooltipContent>
-                </Tooltip>
-                <div className="w-px h-6 bg-gray-200" />
-                <button
-                  onClick={skipBackward}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
+                
+                <div 
+                  ref={chatContainerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-4"
                 >
-                  <SkipBack className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={togglePlayback}
-                  className="w-12 h-12 flex items-center justify-center bg-brand-green rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
-                >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-                </button>
-                <button
-                  onClick={skipForward}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <SkipForward className="w-5 h-5" />
-                </button>
-                <span className="text-sm font-mono text-gray-600 min-w-[100px]">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              </div>
-
-              {/* Right - Zoom & View Controls */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <ZoomOut className="w-5 h-5" />
-                </button>
-                <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{ width: `${(zoom - 0.5) * 100}%` }}
-                  />
-                </div>
-                <button
-                  onClick={() => setZoom(Math.min(2, zoom + 0.25))}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <ZoomIn className="w-5 h-5" />
-                </button>
-                <div className="w-px h-6 bg-gray-200 mx-2" />
-                <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                  <Maximize className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Timeline - anchored to bottom */}
-            <div className="h-72 overflow-hidden flex">
-              {/* Track Labels - Dark Background matching sidebar */}
-              <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
-                {/* Time Ruler Spacer */}
-                <div className="h-8 border-b border-gray-800 flex items-center justify-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-1.5 hover:bg-gray-800 rounded text-gray-300 hover:text-white transition-colors">
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Add Track</p></TooltipContent>
-                  </Tooltip>
-                </div>
-                {/* Track Icons */}
-                {tracks.map((track) => (
-                  <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
-                    {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
-                    {track.id === 'video-1' && <Video className="w-5 h-5 text-red-500" />}
-                    {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
-                    {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
-                  </div>
-                ))}
-              </div>
-
-              {/* Timeline Content */}
-              <div className="flex-1 overflow-x-auto">
-                {/* Time Ruler */}
-                <div
-                  ref={timelineRef}
-                  onMouseDown={handleTimelineMouseDown}
-                  onMouseMove={handleTimelineMouseMove}
-                  onMouseUp={handleTimelineMouseUp}
-                  onMouseLeave={handleTimelineMouseUp}
-                  className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
-                >
-                  {/* Plus and Arrow */}
-                  <div className="absolute left-0 top-0 h-full flex items-center gap-1 px-1 z-10">
-                    <button className="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors">
-                      <Plus className="w-3 h-3" />
-                    </button>
-                    <button className="p-1 hover:bg-gray-200 rounded text-gray-600 transition-colors">
-                      <ChevronLeft className="w-3 h-3" />
-                    </button>
-                  </div>
-                  
-                  {/* Playhead Position Marker - with smooth transition */}
-                  <motion.div
-                    className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10"
-                    style={{ left: `${(currentTime / duration) * 100}%` }}
-                    transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
-                  >
-                    <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
-                  </motion.div>
-                  
-                  {/* Time Markers - Fixed spacing with zoom */}
-                  <div className="flex items-end h-full pl-12" style={{ width: `${100 * zoom}%` }}>
-                    {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
-                      <div
-                        key={i}
-                        className="flex-shrink-0 text-xs text-gray-500 border-l border-gray-300 pl-2 h-full flex items-center"
-                        style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
-                      >
-                        {formatTime(i * 5)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tracks */}
-                <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)' }}>
-                  {tracks.map((track) => (
+                  {chatMessages.map((message) => (
                     <div
-                      key={track.id}
-                      className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
+                      key={message.id}
+                      className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
-                      {/* Track Content */}
-                      <div className="flex-1 h-full relative">
-                        {/* Playhead Line - smooth transition */}
-                        <motion.div
-                          className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20 pointer-events-none"
-                          style={{ left: `${(currentTime / duration) * 100}%` }}
-                          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
-                        />
-                        
-                        {track.clips.map((clip) => (
-                          <div
-                            key={clip.id}
-                            onClick={() => setSelectedClip(clip.id)}
-                            className={`absolute top-1 bottom-1 rounded cursor-pointer transition-all overflow-hidden ${
-                              selectedClip === clip.id 
-                                ? 'ring-2 ring-primary ring-offset-1' 
-                                : 'hover:brightness-110'
-                            }`}
-                            style={{
-                              left: `${(clip.startTime / duration) * 100}%`,
-                              width: `${(clip.duration / duration) * 100}%`,
-                              background: track.type === 'audio' 
-                                ? 'rgba(168, 85, 247, 0.3)'
-                                : clip.color || '#EAB308',
-                            }}
-                          >
-                            {/* Combined Caption + Waveform for Audio Clips */}
-                            {track.type === 'audio' && (
-                              <div className="absolute inset-0 flex flex-col">
-                                {/* Caption Text */}
-                                <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center font-medium">
-                                  {clip.caption || clip.name}
-                                </div>
-                                {/* Waveform */}
-                                {clip.waveform && renderWaveform(clip, 200)}
-                              </div>
-                            )}
-                            
-                            {/* Video clips with thumbnails */}
-                            {track.type === 'video' && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center overflow-hidden">
-                                <div className="w-full h-full flex">
-                                  {Array.from({ length: Math.ceil(clip.duration) }).map((_, i) => (
-                                    <div key={i} className="h-full aspect-video bg-gray-600 border-r border-gray-500 flex-shrink-0" />
-                                  ))}
-                                </div>
-                                <div className="absolute inset-0 flex items-center px-2">
-                                  <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Image clips */}
-                            {track.id === 'image-1' && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 flex items-center px-2 overflow-hidden">
-                                <ImageIcon className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
-                                <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                              </div>
-                            )}
-
-                            {/* Music clips */}
-                            {track.id === 'music-1' && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700 flex items-center px-2 overflow-hidden">
-                                <Music className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
-                                <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                              </div>
-                            )}
-                            
-                            {/* Duration indicator for selected clips */}
-                            {selectedClip === clip.id && (
-                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 rounded text-xs text-white">
-                                {clip.duration.toFixed(1)}s
-                              </div>
-                            )}
-                            
-                            {/* Resize handles - functional */}
-                            <div 
-                              onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'left')}
-                              className="absolute left-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
-                            />
-                            <div 
-                              onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'right')}
-                              className="absolute right-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
-                            />
-                          </div>
-                        ))}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        message.role === 'assistant' ? 'bg-primary' : 'bg-gray-200'
+                      }`}>
+                        {message.role === 'assistant' ? (
+                          <Bot className="w-4 h-4 text-primary-foreground" />
+                        ) : (
+                          <User className="w-4 h-4 text-gray-600" />
+                        )}
+                      </div>
+                      <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                        message.role === 'assistant' ? 'bg-gray-100 text-gray-800' : 'bg-primary text-primary-foreground'
+                      }`}>
+                        <p className="text-sm leading-relaxed">{message.content}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+                
+                <div className="p-4 border-t border-gray-200">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+                      placeholder="Ask LEXI anything..."
+                      className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400"
+                    />
+                    <button
+                      onClick={handleChatSubmit}
+                      className="p-3 bg-primary rounded-xl hover:opacity-90 transition-opacity"
+                    >
+                      <Send className="w-5 h-5 text-primary-foreground" />
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsChatExpanded(true)}
+                className="flex-1 flex items-center justify-center hover:bg-gray-100 transition-colors"
+              >
+                <MessageSquare className="w-5 h-5 text-primary" />
+              </button>
+            )}
           </div>
-        </div>
+
+          {/* Resizable panels for left panel and preview */}
+          <ResizablePanelGroup direction="horizontal" className="flex-1">
+            {/* Left Panel - Tab Content */}
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+              <div className="h-full bg-white border-r border-gray-200 flex flex-col">
+                {/* Tabs with Tooltips */}
+                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
+                  {tabs.map((tab) => (
+                    <Tooltip key={tab.id}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`p-2 rounded-lg transition-all flex items-center gap-1.5 ${
+                            activeTab === tab.id
+                              ? 'bg-white text-primary shadow-sm'
+                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                          }`}
+                        >
+                          <tab.icon className="w-4 h-4" />
+                          {activeTab === tab.id && (
+                            <span className="text-xs font-medium">{tab.label}</span>
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{tab.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+
+                {/* Sub-menu section */}
+                {getSubMenuItems(activeTab).length > 0 && (
+                  <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-100 bg-gray-50/50">
+                    {getSubMenuItems(activeTab).map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={item.action}
+                        className="flex items-center gap-1.5 px-2 py-1 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <item.icon className="w-3.5 h-3.5" />
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+                  <div className="flex-1">
+                    {renderTabContent()}
+                  </div>
+                </div>
+
+                {/* Compact Prompt Box with Green Border */}
+                <div className="p-3 border-t border-gray-200">
+                  <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
+                    <div className="flex items-start gap-2 mb-3">
+                      <div className="flex flex-col gap-2 mt-1 flex-shrink-0">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-0.5">
+                              <Video className="w-5 h-5 text-red-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Video Mode</p></TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleAutoPrompt}
+                              disabled={isGeneratingPrompt}
+                              className="p-0.5 hover:bg-gray-200 rounded transition-colors disabled:opacity-50"
+                            >
+                              <Shuffle className={`w-5 h-5 text-brand-green ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <textarea
+                        value={promptText}
+                        onChange={(e) => setPromptText(e.target.value)}
+                        placeholder="Describe what you want to create..."
+                        className="w-full bg-transparent text-sm focus:outline-none resize-none h-32 placeholder:text-gray-400"
+                      />
+                    </div>
+
+                    {/* Bottom Toolbar Icons */}
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Upload</p></TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                            <ImageIcon className="w-4 h-4" />
+                            Upload Image
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                            <Video className="w-4 h-4" />
+                            Upload Video
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="flex items-center gap-3 hover:bg-gray-800 cursor-pointer">
+                            <AudioLines className="w-4 h-4" />
+                            Upload Audio
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                <Box className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Model</p></TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="start" className="w-80 bg-gray-900 border-gray-800 text-white p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="font-medium">Model</span>
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-gray-400">Auto</span>
+                              <div className="w-8 h-4 bg-primary rounded-full relative">
+                                <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 mb-3 bg-gray-800 rounded-lg p-1">
+                            <button className="flex-1 py-1.5 px-3 bg-gray-700 rounded-md text-sm font-medium">Image</button>
+                            <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Video</button>
+                            <button className="flex-1 py-1.5 px-3 text-gray-400 text-sm">Audio</button>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center text-xs font-bold">H</div>
+                              <div className="flex-1">
+                                <p className="font-medium">Hailuo 2.3</p>
+                                <p className="text-xs text-gray-400">Enhanced quality, smoother</p>
+                              </div>
+                              <Check className="w-5 h-5 text-primary" />
+                            </div>
+                          </div>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                <Scan className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                          {['Automatic Ratio', 'Landscape', 'Portrait', 'Square'].map((ratio) => (
+                            <DropdownMenuItem 
+                              key={ratio}
+                              className="flex items-center justify-between hover:bg-gray-800 cursor-pointer"
+                              onClick={() => setSelectedRatio(ratio)}
+                            >
+                              <span>{ratio}</span>
+                              {selectedRatio === ratio && <Check className="w-4 h-4 text-primary" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <div className="w-px h-5 bg-gray-300" />
+
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <button className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
+                                selectedTool ? 'bg-green-200 text-green-900' : 'hover:bg-gray-200 text-gray-500'
+                              }`}>
+                                <LayoutGrid className="w-4 h-4" />
+                                {!selectedTool && <span className="text-sm">Tools</span>}
+                                {selectedTool && (
+                                  <>
+                                    <span className="text-sm font-medium capitalize">{selectedTool}</span>
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); setSelectedTool(null); }}
+                                      className="ml-1 hover:bg-green-300 rounded p-0.5"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </>
+                                )}
+                              </button>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Tools</p></TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="start" className="w-48 bg-gray-900 border-gray-800 text-white">
+                          {['image', 'video', 'music', 'audio'].map((tool) => (
+                            <DropdownMenuItem 
+                              key={tool}
+                              className="hover:bg-gray-800 cursor-pointer capitalize"
+                              onClick={() => setSelectedTool(tool)}
+                            >
+                              {tool}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <div className="flex-1" />
+
+                      <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
+                        <Sparkles className="w-4 h-4" />
+                        Generate
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Right - Video Preview & Timeline */}
+            <ResizablePanel defaultSize={70}>
+              <div className="h-full flex flex-col bg-gray-100">
+                {/* Video Preview Area */}
+                <div 
+                  ref={playerContainerRef}
+                  className="flex-1 flex items-center justify-center p-4 relative"
+                >
+                  <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full aspect-video w-full flex items-center justify-center">
+                    <video
+                      ref={videoRef}
+                      src={video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
+                      className="max-w-full max-h-full object-contain"
+                      onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                      onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
+                      onEnded={() => setIsPlaying(false)}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      muted={isMuted}
+                    />
+                    
+                    {/* Player Controls Overlay */}
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setIsMuted(!isMuted)}
+                            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                          >
+                            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isMuted ? 'Unmute' : 'Mute'}</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors">
+                                <Ratio className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
+                              {['16:9', '9:16', '1:1', '4:3'].map((r) => (
+                                <DropdownMenuItem key={r} className="hover:bg-gray-800 cursor-pointer">
+                                  {r}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={toggleFullscreen}
+                            className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
+                          >
+                            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</p></TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline Controls */}
+                <div className="bg-white border-t border-gray-200 shrink-0">
+                  {/* Toolbar */}
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+                    {/* Left Tools - CapCut style */}
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={undo} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Undo className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Undo (Ctrl+Z)</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={redo} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Redo className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Redo (Ctrl+Y)</p></TooltipContent>
+                      </Tooltip>
+                      <div className="w-px h-6 bg-gray-200 mx-1" />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={splitClip} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Scissors className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Split (S)</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Copy className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Duplicate (Ctrl+D)</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-primary transition-colors">
+                            <Sparkles className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Effects</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Diamond className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Add Keyframe</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Magnet className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Snap to Grid</p></TooltipContent>
+                      </Tooltip>
+                      <div className="w-px h-6 bg-gray-200 mx-1" />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={deleteSelectedClip} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-red-600 transition-colors">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Delete (Del)</p></TooltipContent>
+                      </Tooltip>
+                    </div>
+
+                    {/* Center - Playback Controls */}
+                    <div className="flex items-center gap-3">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={toggleRecording}
+                            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors text-white shadow-md ${
+                              isRecording ? 'bg-red-700 animate-pulse' : 'bg-red-600 hover:bg-red-700'
+                            }`}
+                          >
+                            <CircleDot className="w-4 h-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isRecording ? 'Stop Recording' : 'Start Recording'}</p></TooltipContent>
+                      </Tooltip>
+                      <div className="w-px h-6 bg-gray-200" />
+                      <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                        <SkipBack className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={togglePlayback}
+                        className="w-12 h-12 flex items-center justify-center bg-brand-green rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
+                      >
+                        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                      </button>
+                      <button onClick={skipForward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                        <SkipForward className="w-5 h-5" />
+                      </button>
+                      <span className="text-sm font-mono text-gray-600 min-w-[100px]">
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                      </span>
+                    </div>
+
+                    {/* Right - Zoom Slider & View Controls */}
+                    <div className="flex items-center gap-2">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={() => setZoom(Math.max(0.25, zoom - 0.25))} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <ZoomOut className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Zoom Out</p></TooltipContent>
+                      </Tooltip>
+                      <Slider
+                        value={[zoom]}
+                        onValueChange={([val]) => setZoom(val)}
+                        min={0.25}
+                        max={3}
+                        step={0.05}
+                        className="w-24"
+                      />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={() => setZoom(Math.min(3, zoom + 0.25))} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <ZoomIn className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Zoom In</p></TooltipContent>
+                      </Tooltip>
+                      <div className="w-px h-6 bg-gray-200 mx-2" />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Maximize className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Fit Timeline</p></TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="h-72 overflow-hidden flex">
+                    {/* Track Labels - Dark Background */}
+                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
+                      <div className="h-8 border-b border-gray-800 flex items-center justify-center">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-1.5 hover:bg-gray-800 rounded text-gray-100 hover:text-white transition-colors">
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Add Track</p></TooltipContent>
+                        </Tooltip>
+                      </div>
+                      {tracks.map((track) => (
+                        <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="cursor-pointer">
+                                {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
+                                {track.id === 'video-1' && <Video className="w-5 h-5 text-red-500" />}
+                                {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
+                                {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent><p>{track.name}</p></TooltipContent>
+                          </Tooltip>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Timeline Content */}
+                    <div className="flex-1 overflow-x-auto">
+                      {/* Time Ruler */}
+                      <div
+                        ref={timelineRef}
+                        onMouseDown={handleTimelineMouseDown}
+                        onMouseMove={handleTimelineMouseMove}
+                        onMouseUp={handleTimelineMouseUp}
+                        onMouseLeave={handleTimelineMouseUp}
+                        className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
+                        style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
+                      >
+                        {/* Playhead Position Marker */}
+                        <motion.div
+                          className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-10"
+                          style={{ left: `${(currentTime / duration) * 100}%` }}
+                          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
+                        >
+                          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                        </motion.div>
+                        
+                        {/* Time Markers */}
+                        <div className="flex items-end h-full">
+                          {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
+                            <div
+                              key={i}
+                              className="flex-shrink-0 text-xs text-gray-500 border-l border-gray-300 pl-2 h-full flex items-center"
+                              style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
+                            >
+                              {formatTime(i * 5)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Tracks */}
+                      <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)', width: `${100 * zoom}%`, minWidth: '100%' }}>
+                        {tracks.map((track) => (
+                          <div
+                            key={track.id}
+                            className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
+                          >
+                            <div className="flex-1 h-full relative">
+                              {/* Playhead Line */}
+                              <motion.div
+                                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20 pointer-events-none"
+                                style={{ left: `${(currentTime / duration) * 100}%` }}
+                                transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
+                              />
+                              
+                              {track.clips.map((clip) => {
+                                const isAudioSelected = selectedAudioClip === clip.id;
+                                return (
+                                  <div
+                                    key={clip.id}
+                                    onClick={() => {
+                                      setSelectedClip(clip.id);
+                                      if (track.type === 'audio') {
+                                        setSelectedAudioClip(clip.id);
+                                      }
+                                    }}
+                                    className={`absolute top-1 bottom-1 rounded cursor-pointer transition-all overflow-hidden ${
+                                      selectedClip === clip.id 
+                                        ? 'ring-2 ring-primary ring-offset-1' 
+                                        : 'hover:brightness-110'
+                                    }`}
+                                    style={{
+                                      left: `${(clip.startTime / duration) * 100}%`,
+                                      width: `${(clip.duration / duration) * 100}%`,
+                                      background: track.type === 'audio' 
+                                        ? (isAudioSelected ? 'rgba(168, 85, 247, 0.5)' : 'rgba(168, 85, 247, 0.2)')
+                                        : clip.color || '#EAB308',
+                                    }}
+                                  >
+                                    {/* Audio Clips with waveform */}
+                                    {track.type === 'audio' && (
+                                      <div className="absolute inset-0 flex flex-col">
+                                        <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center font-medium">
+                                          {clip.caption || clip.name}
+                                        </div>
+                                        {clip.waveform && renderWaveform(clip, 200, isAudioSelected)}
+                                      </div>
+                                    )}
+                                    
+                                    {/* Video clips with thumbnails */}
+                                    {track.type === 'video' && (
+                                      <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center overflow-hidden">
+                                        <div className="w-full h-full flex">
+                                          {Array.from({ length: Math.ceil(clip.duration) }).map((_, i) => (
+                                            <div key={i} className="h-full aspect-video bg-gray-600 border-r border-gray-500 flex-shrink-0" />
+                                          ))}
+                                        </div>
+                                        <div className="absolute inset-0 flex items-center px-2">
+                                          <span className="text-xs text-white font-medium truncate">{clip.name}</span>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Image clips */}
+                                    {track.id === 'image-1' && (
+                                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 flex items-center px-2 overflow-hidden">
+                                        <ImageIcon className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
+                                        <span className="text-xs text-white font-medium truncate">{clip.name}</span>
+                                      </div>
+                                    )}
+
+                                    {/* Music clips */}
+                                    {track.id === 'music-1' && (
+                                      <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700 flex items-center px-2 overflow-hidden">
+                                        <Music className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
+                                        <span className="text-xs text-white font-medium truncate">{clip.name}</span>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Duration indicator */}
+                                    {selectedClip === clip.id && (
+                                      <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 rounded text-xs text-white">
+                                        {clip.duration.toFixed(1)}s
+                                      </div>
+                                    )}
+                                    
+                                    {/* Resize handles */}
+                                    <div 
+                                      onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'left')}
+                                      className="absolute left-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
+                                    />
+                                    <div 
+                                      onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'right')}
+                                      className="absolute right-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       </div>
     </TooltipProvider>
