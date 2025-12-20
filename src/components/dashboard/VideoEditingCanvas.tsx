@@ -1314,11 +1314,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           onClick={() => setActiveTab(tab.id)}
                           className={`p-2 rounded-lg transition-all flex items-center gap-1.5 ${
                             activeTab === tab.id
-                              ? 'bg-white text-primary shadow-sm'
-                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                              ? 'bg-white text-gray-900 shadow-sm'
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                           }`}
                         >
-                          <tab.icon className="w-4 h-4" />
+                          <tab.icon className="w-5 h-5" />
                           {activeTab === tab.id && (
                             <span className="text-xs font-medium">{tab.label}</span>
                           )}
