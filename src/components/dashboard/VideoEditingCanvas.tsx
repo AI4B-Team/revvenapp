@@ -225,6 +225,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isFreePlan] = useState(true); // Would come from auth context in production
   const [showDeletedText, setShowDeletedText] = useState(false);
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
+  const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -1142,6 +1143,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            {/* Auto-save Cloud Icon */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default">
+                  <Cloud className="w-4 h-4 text-green-400" />
+                  <span className="text-xs text-green-300">
+                    Saved {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent><p>Project auto-saved to cloud</p></TooltipContent>
+            </Tooltip>
           </div>
 
           {/* Centered Media Type Tabs */}
