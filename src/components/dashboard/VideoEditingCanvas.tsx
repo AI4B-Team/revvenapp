@@ -475,10 +475,23 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     toast({ title: 'Clip split' });
   };
 
-  // Record toggle
+  // Record toggle - now used to stop recording
   const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    toast({ title: isRecording ? 'Recording stopped' : 'Recording started' });
+    if (isRecording) {
+      // Stop all recording streams
+      const streams = (window as any).recordingStreams;
+      if (streams) {
+        streams.forEach((stream: MediaStream) => {
+          stream.getTracks().forEach(track => track.stop());
+        });
+        (window as any).recordingStreams = null;
+      }
+      setIsRecording(false);
+      toast({ title: 'Recording stopped', description: 'Your recording has been saved.' });
+    } else {
+      // Open modal to select recording type
+      setRecordModalOpen(true);
+    }
   };
 
   // Fullscreen toggle
@@ -709,14 +722,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return () => clearInterval(interval);
   }, [isPlaying, duration]);
 
+  // Visuals sub-tab state
+  const [visualsSubTab, setVisualsSubTab] = useState<'videos' | 'images' | 'elements'>('videos');
+
+  // Record modal state
+  const [recordModalOpen, setRecordModalOpen] = useState(false);
+
   // Tab configuration with all requested icons in order
   const tabs = [
     { id: 'script', icon: ScrollText, label: 'Script' },
-    { id: 'video', icon: Video, label: 'Video' },
+    { id: 'visuals', icon: Video, label: 'Visuals' },
     { id: 'audio', icon: AudioLines, label: 'Audio' },
-    { id: 'image', icon: ImageIcon, label: 'Image' },
     { id: 'text', icon: Type, label: 'Text' },
-    { id: 'elements', icon: Shapes, label: 'Elements' },
+    { id: 'translate', icon: FileText, label: 'Translate' },
     { id: 'effects', icon: Sparkles, label: 'Effects' },
     { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
@@ -847,6 +865,37 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               className="w-full flex-1 min-h-[400px] p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-gray-200"
               placeholder="Enter your script here..."
             />
+          </div>
+        );
+
+      case 'visuals':
+        return (
+          <div className="flex flex-col h-full">
+            {/* Sub-tabs */}
+            <div className="flex gap-1 mb-4 p-1 bg-gray-100 rounded-lg">
+              {[
+                { id: 'videos' as const, label: 'Videos' },
+                { id: 'images' as const, label: 'Images' },
+                { id: 'elements' as const, label: 'Elements' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setVisualsSubTab(tab.id)}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    visualsSubTab === tab.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sub-tab content */}
+            {visualsSubTab === 'videos' && <StockVideoPanel />}
+            {visualsSubTab === 'images' && <ImagePanel />}
+            {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
         );
 
@@ -1093,10 +1142,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'elements':
-        return renderElementsContent();
+        return <ElementsPanel />;
 
       case 'tools':
         return renderToolsContent();
+
+      case 'translate':
+        return (
+          <div className="flex flex-col h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <FileText className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Translate</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Translate your video content to different languages
+              </p>
+            </div>
+          </div>
+        );
 
       default:
         return null;
@@ -1142,6 +1206,124 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   />
                 ))}
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Record Modal */}
+        <Dialog open={recordModalOpen} onOpenChange={setRecordModalOpen}>
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-slate-700">
+              <DialogTitle className="text-lg font-bold text-white">RECORD</DialogTitle>
+              <button
+                onClick={() => setRecordModalOpen(false)}
+                className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-400 hover:text-white"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-3">
+              {/* Screen & Camera */}
+              <button
+                onClick={async () => {
+                  try {
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    setRecordModalOpen(false);
+                    setIsRecording(true);
+                    toast({ title: 'Recording screen and camera', description: 'Recording has started. Click the record button again to stop.' });
+                    // Store streams for later cleanup
+                    (window as any).recordingStreams = [screenStream, cameraStream];
+                  } catch (error) {
+                    toast({ title: 'Permission denied', description: 'Please allow access to screen and camera.', variant: 'destructive' });
+                  }
+                }}
+                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
+                  <div className="relative">
+                    <Box className="w-5 h-5 text-white" />
+                    <Video className="w-3 h-3 text-white absolute -bottom-1 -right-1" />
+                  </div>
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-semibold text-white mb-1">Capture Screen & Camera</h4>
+                  <p className="text-sm text-slate-400">Share your screen while showing your face, perfect for tutorials and walkthroughs.</p>
+                </div>
+              </button>
+
+              {/* Screen Only */}
+              <button
+                onClick={async () => {
+                  try {
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                    setRecordModalOpen(false);
+                    setIsRecording(true);
+                    toast({ title: 'Recording screen', description: 'Screen recording has started.' });
+                    (window as any).recordingStreams = [stream];
+                  } catch (error) {
+                    toast({ title: 'Permission denied', description: 'Please allow screen sharing.', variant: 'destructive' });
+                  }
+                }}
+                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
+                  <Box className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-semibold text-white mb-1">Capture Screen</h4>
+                  <p className="text-sm text-slate-400">Record your display with optional audio, ideal for demos and presentations.</p>
+                </div>
+              </button>
+
+              {/* Camera Only */}
+              <button
+                onClick={async () => {
+                  try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    setRecordModalOpen(false);
+                    setIsRecording(true);
+                    toast({ title: 'Recording camera', description: 'Camera recording has started.' });
+                    (window as any).recordingStreams = [stream];
+                  } catch (error) {
+                    toast({ title: 'Permission denied', description: 'Please allow camera and microphone access.', variant: 'destructive' });
+                  }
+                }}
+                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
+                  <Video className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-semibold text-white mb-1">Record Webcam</h4>
+                  <p className="text-sm text-slate-400">Capture video directly from your camera with built-in microphone support.</p>
+                </div>
+              </button>
+
+              {/* Audio Only */}
+              <button
+                onClick={async () => {
+                  try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    setRecordModalOpen(false);
+                    setIsRecording(true);
+                    toast({ title: 'Recording audio', description: 'Audio recording has started.' });
+                    (window as any).recordingStreams = [stream];
+                  } catch (error) {
+                    toast({ title: 'Permission denied', description: 'Please allow microphone access.', variant: 'destructive' });
+                  }
+                }}
+                className="w-full flex items-start gap-4 p-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors group"
+              >
+                <div className="w-10 h-10 flex items-center justify-center bg-slate-700 rounded-lg group-hover:bg-slate-600 transition-colors">
+                  <Mic className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h4 className="font-semibold text-white mb-1">Record Voiceover</h4>
+                  <p className="text-sm text-slate-400">Capture high-quality audio using your microphone for narration or podcasts.</p>
+                </div>
+              </button>
             </div>
           </DialogContent>
         </Dialog>
@@ -1748,29 +1930,35 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <div className="bg-white border-t border-gray-200 shrink-0">
                   {/* Toolbar */}
                   <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-                    {/* Left Tools - Text Editing button + CapCut style icons */}
+                    {/* Left Tools - CapCut style icons */}
                     <div className="flex items-center gap-1">
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-violet-100 hover:bg-violet-200 rounded-lg text-violet-700 font-medium text-sm transition-colors mr-2">
-                        <Pencil className="w-4 h-4" />
-                        Text Edit
-                      </button>
+                      {/* Undo button styled like reference */}
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button onClick={undo} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Undo className="w-5 h-5" />
+                          <button 
+                            onClick={undo} 
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 font-medium text-sm transition-colors shadow-sm"
+                          >
+                            <Undo className="w-4 h-4" />
+                            <span>Undo</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Undo (Ctrl+Z)</p></TooltipContent>
                       </Tooltip>
+                      {/* Redo button styled like reference */}
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button onClick={redo} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Redo className="w-5 h-5" />
+                          <button 
+                            onClick={redo} 
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 font-medium text-sm transition-colors shadow-sm"
+                          >
+                            <Redo className="w-4 h-4" />
+                            <span>Redo</span>
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Redo (Ctrl+Y)</p></TooltipContent>
                       </Tooltip>
-                      <div className="w-px h-6 bg-gray-200 mx-1" />
+                      <div className="w-px h-6 bg-gray-200 mx-2" />
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button onClick={splitClip} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
@@ -1827,7 +2015,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
-                            onClick={toggleRecording}
+                            onClick={() => setRecordModalOpen(true)}
                             className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors text-white shadow-md ${
                               isRecording ? 'bg-red-700 animate-pulse' : 'bg-red-600 hover:bg-red-700'
                             }`}
@@ -1835,7 +2023,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <CircleDot className="w-4 h-4" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>{isRecording ? 'Stop Recording' : 'Start Recording'}</p></TooltipContent>
+                        <TooltipContent><p>Record</p></TooltipContent>
                       </Tooltip>
                       <div className="w-px h-6 bg-gray-200" />
                       <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
