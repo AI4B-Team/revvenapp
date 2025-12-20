@@ -190,6 +190,57 @@ export type Database = {
         }
         Relationships: []
       }
+      explainer_videos: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          duration: number | null
+          error_message: string | null
+          explanation: string | null
+          id: string
+          source_type: string
+          source_url: string | null
+          status: string
+          title: string | null
+          transcript: string | null
+          updated_at: string
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          duration?: number | null
+          error_message?: string | null
+          explanation?: string | null
+          id?: string
+          source_type: string
+          source_url?: string | null
+          status?: string
+          title?: string | null
+          transcript?: string | null
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          duration?: number | null
+          error_message?: string | null
+          explanation?: string | null
+          id?: string
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          title?: string | null
+          transcript?: string | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       generated_images: {
         Row: {
           aspect_ratio: string | null
