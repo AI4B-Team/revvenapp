@@ -70,6 +70,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   setIsDragging,
 }) => {
   const timelineRef = useRef<HTMLDivElement>(null);
+  const playheadRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     clipId: string;
     trackId: string;
@@ -82,6 +83,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   const [dropTargetTrack, setDropTargetTrack] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'timeline' | 'storyboard'>('timeline');
   const [markers, setMarkers] = useState<number[]>([]);
+  const [isPlayheadDragging, setIsPlayheadDragging] = useState(false);
+  
+  // Track reordering state
+  const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
   // Get all scenes/clips from video tracks for navigation
   const scenes = React.useMemo(() => {
@@ -402,6 +408,77 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     onTimeSeek(Math.max(0, Math.min(duration, newTime)));
   }, [duration, onTimeSeek]);
 
+  // Handle playhead drag start
+  const handlePlayheadDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPlayheadDragging(true);
+    setIsDragging(true);
+  }, [setIsDragging]);
+
+  // Handle playhead drag
+  useEffect(() => {
+    if (!isPlayheadDragging || !playheadRef.current) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = playheadRef.current?.parentElement;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const newTime = Math.max(0, Math.min(duration, (x / rect.width) * duration));
+      onTimeSeek(newTime);
+    };
+
+    const handleMouseUp = () => {
+      setIsPlayheadDragging(false);
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isPlayheadDragging, duration, onTimeSeek, setIsDragging]);
+
+  // Track drag and drop handlers
+  const handleTrackDragStart = useCallback((e: React.DragEvent, trackId: string) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', trackId);
+    setDraggedTrackId(trackId);
+  }, []);
+
+  const handleTrackDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTargetIndex(index);
+  }, []);
+
+  const handleTrackDragEnd = useCallback(() => {
+    setDraggedTrackId(null);
+    setDropTargetIndex(null);
+  }, []);
+
+  const handleTrackDrop = useCallback((e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    if (!draggedId) return;
+
+    setTracks(prev => {
+      const draggedIndex = prev.findIndex(t => t.id === draggedId);
+      if (draggedIndex === -1 || draggedIndex === targetIndex) return prev;
+
+      const newTracks = [...prev];
+      const [removed] = newTracks.splice(draggedIndex, 1);
+      newTracks.splice(targetIndex > draggedIndex ? targetIndex - 1 : targetIndex, 0, removed);
+      return newTracks;
+    });
+
+    setDraggedTrackId(null);
+    setDropTargetIndex(null);
+  }, [setTracks]);
+
   // Add new track
   const handleAddTrack = () => {
     const newTrack: TimelineTrack = {
@@ -418,23 +495,39 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
-      {/* Progress Bar at Top */}
+      {/* Scrubber/Playhead Bar at Top */}
       <div 
-        className="h-2 bg-slate-800 cursor-pointer relative group flex-shrink-0"
+        ref={playheadRef}
+        className="h-6 bg-slate-800 cursor-pointer relative group flex-shrink-0 border-b border-slate-700"
         onClick={handleProgressBarSeek}
       >
-        {/* Progress fill */}
+        {/* Track line */}
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-700 mx-2 rounded-full">
+          {/* Progress fill */}
+          <div 
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
+            style={{ width: `${(currentTime / duration) * 100}%` }}
+          />
+        </div>
+        
+        {/* Markers on scrubber */}
+        {markers.map((markerTime, idx) => (
+          <div 
+            key={idx}
+            className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full cursor-pointer hover:scale-125 transition-transform z-10"
+            style={{ left: `calc(${(markerTime / duration) * 100}% - 4px)` }}
+            onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
+          />
+        ))}
+        
+        {/* Draggable Playhead dot */}
         <div 
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400"
-          style={{ width: `${(currentTime / duration) * 100}%` }}
-        />
-        {/* Hover effect */}
-        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
-        {/* Playhead indicator */}
-        <div 
-          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-          style={{ left: `calc(${(currentTime / duration) * 100}% - 6px)` }}
-        />
+          className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing z-20 transition-transform hover:scale-110 ${isPlayheadDragging ? 'scale-125' : ''}`}
+          style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
+          onMouseDown={handlePlayheadDragStart}
+        >
+          <div className="absolute inset-1 bg-rose-500 rounded-full" />
+        </div>
       </div>
 
       {/* Time Ruler with Controls */}
@@ -572,12 +665,22 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
       {/* Tracks */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        {tracks.map((track) => {
+        {tracks.map((track, index) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
+          const isDragged = draggedTrackId === track.id;
+          const isDropTarget = dropTargetIndex === index;
           
           return (
-            <div key={track.id} className="flex h-16 border-b border-slate-700/50 group">
+            <div 
+              key={track.id} 
+              className={`flex h-16 border-b border-slate-700/50 group transition-all ${isDragged ? 'opacity-50' : ''} ${isDropTarget ? 'border-t-2 border-t-primary' : ''}`}
+              draggable
+              onDragStart={(e) => handleTrackDragStart(e, track.id)}
+              onDragOver={(e) => handleTrackDragOver(e, index)}
+              onDragEnd={handleTrackDragEnd}
+              onDrop={(e) => handleTrackDrop(e, index)}
+            >
               {/* Track Header */}
               <div className="w-[180px] flex-shrink-0 bg-slate-800/80 flex items-center px-2 gap-2 border-r border-slate-700">
                 <GripVertical className="w-4 h-4 text-slate-500 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
