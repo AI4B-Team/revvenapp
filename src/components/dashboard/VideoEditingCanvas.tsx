@@ -1644,14 +1644,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         }
                       }}
                     >
-                      {/* Frame container - this is the selected aspect ratio frame */}
+                      {/* Frame container - dynamically scales to fit available space */}
                       <div 
-                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
+                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl flex items-center justify-center cursor-pointer transition-all ${
                           isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
                         }`}
                         style={{
-                          width: selectedRatio === '9:16' ? '200px' : selectedRatio === '1:1' ? '350px' : selectedRatio === '4:3' ? '400px' : '450px',
-                          height: selectedRatio === '9:16' ? '356px' : selectedRatio === '1:1' ? '350px' : selectedRatio === '4:3' ? '300px' : '253px',
+                          // Dynamic sizing based on aspect ratio - uses max percentage of container
+                          maxWidth: selectedRatio === '9:16' ? '40%' : selectedRatio === '1:1' ? '70%' : '90%',
+                          maxHeight: '90%',
+                          aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
+                          width: '100%',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
