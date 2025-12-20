@@ -289,52 +289,59 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900">
+    <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
       {/* Time Ruler */}
-      <div 
-        ref={timelineRef}
-        onClick={handleTimelineClick}
-        className="h-8 bg-slate-800 border-b border-slate-700 relative cursor-pointer select-none flex-shrink-0"
-        style={{ marginLeft: '180px' }}
-      >
-        {/* Playhead */}
-        <motion.div
-          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-30 pointer-events-none"
-          style={{ left: `${(currentTime / duration) * 100}%` }}
-          animate={{ left: `${(currentTime / duration) * 100}%` }}
-          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
+      <div className="flex flex-shrink-0">
+        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700" />
+        <div 
+          ref={timelineRef}
+          onClick={handleTimelineClick}
+          className="flex-1 h-8 bg-slate-800 border-b border-slate-700 relative cursor-pointer select-none overflow-hidden"
         >
-          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500" />
-        </motion.div>
-
-        {/* Snap indicator */}
-        {snapIndicator !== null && (
           <div 
-            className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-20 pointer-events-none"
-            style={{ left: `${(snapIndicator / duration) * 100}%` }}
-          />
-        )}
-
-        {/* Time markers */}
-        <div className="flex items-end h-full">
-          {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 h-full flex items-center"
-              style={{ width: `${(5 / duration) * 100}%`, minWidth: '80px' }}
+            className="h-full relative"
+            style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
+          >
+            {/* Playhead */}
+            <motion.div
+              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-30 pointer-events-none"
+              style={{ left: `${(currentTime / duration) * 100}%` }}
+              animate={{ left: `${(currentTime / duration) * 100}%` }}
+              transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
             >
-              <div className="h-full flex flex-col justify-end border-l border-slate-600">
-                <span className="text-[10px] text-slate-400 font-mono pl-1 pb-1">
-                  {formatTime(i * 5)}
-                </span>
-              </div>
+              <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500" />
+            </motion.div>
+
+            {/* Snap indicator */}
+            {snapIndicator !== null && (
+              <div 
+                className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-20 pointer-events-none"
+                style={{ left: `${(snapIndicator / duration) * 100}%` }}
+              />
+            )}
+
+            {/* Time markers */}
+            <div className="flex items-end h-full">
+              {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 h-full flex items-center"
+                  style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
+                >
+                  <div className="h-full flex flex-col justify-end border-l border-slate-600">
+                    <span className="text-[10px] text-slate-400 font-mono pl-1 pb-1">
+                      {formatTime(i * 5)}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
       {/* Tracks */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {tracks.map((track) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
@@ -389,26 +396,27 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 </div>
               </div>
 
-              {/* Track Content */}
-              <div 
-                className={`flex-1 relative bg-slate-900/50 ${track.locked ? 'opacity-60' : ''}`}
-                style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
-              >
-                {/* Playhead line */}
-                <motion.div
-                  className="absolute top-0 bottom-0 w-0.5 bg-red-500/80 z-20 pointer-events-none"
-                  style={{ left: `${(currentTime / duration) * 100}%` }}
-                  animate={{ left: `${(currentTime / duration) * 100}%` }}
-                  transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
-                />
-
-                {/* Snap indicator line */}
-                {snapIndicator !== null && (
-                  <div 
-                    className="absolute top-0 bottom-0 w-0.5 bg-yellow-400/80 z-10 pointer-events-none"
-                    style={{ left: `${(snapIndicator / duration) * 100}%` }}
+              {/* Track Content - Scrollable with zoom */}
+              <div className="flex-1 overflow-x-auto overflow-y-hidden">
+                <div 
+                  className={`relative h-full bg-slate-900/50 ${track.locked ? 'opacity-60' : ''}`}
+                  style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
+                >
+                  {/* Playhead line */}
+                  <motion.div
+                    className="absolute top-0 bottom-0 w-0.5 bg-red-500/80 z-20 pointer-events-none"
+                    style={{ left: `${(currentTime / duration) * 100}%` }}
+                    animate={{ left: `${(currentTime / duration) * 100}%` }}
+                    transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
                   />
-                )}
+
+                  {/* Snap indicator line */}
+                  {snapIndicator !== null && (
+                    <div 
+                      className="absolute top-0 bottom-0 w-0.5 bg-yellow-400/80 z-10 pointer-events-none"
+                      style={{ left: `${(snapIndicator / duration) * 100}%` }}
+                    />
+                  )}
 
                 {/* Clips */}
                 {track.clips.map((clip) => {
@@ -490,6 +498,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     </div>
                   );
                 })}
+                </div>
               </div>
             </div>
           );
