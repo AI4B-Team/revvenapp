@@ -1103,7 +1103,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
 
           {/* Editable Project Name + 3-dot menu */}
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 ml-4 max-w-[320px] flex-shrink-0">
             {isEditingTitle ? (
               <input
                 type="text"
@@ -1112,19 +1112,20 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 onBlur={() => setIsEditingTitle(false)}
                 onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
                 autoFocus
-                className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-400 focus:outline-none focus:border-white min-w-[150px]"
+                className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-400 focus:outline-none focus:border-white min-w-[150px] max-w-[180px]"
               />
             ) : (
               <button
                 onClick={() => setIsEditingTitle(true)}
-                className="text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-slate-500 hover:border-white hover:bg-slate-700/50 transition-colors"
+                className="text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-slate-500 hover:border-white hover:bg-slate-700/50 transition-colors truncate max-w-[180px]"
+                title={projectTitle}
               >
                 {projectTitle}
               </button>
             )}
             <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <button className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded transition-colors">
+                <button className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded transition-colors flex-shrink-0">
                   <MoreHorizontal className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
@@ -1147,10 +1148,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             {/* Auto-save Cloud Icon */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default">
-                  <Cloud className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-green-300">
-                    Saved {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default flex-shrink-0">
+                  <Cloud className="w-4 h-4 text-green-400 flex-shrink-0" />
+                  <span className="text-xs text-green-300 whitespace-nowrap">
+                    Auto Save {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               </TooltipTrigger>
