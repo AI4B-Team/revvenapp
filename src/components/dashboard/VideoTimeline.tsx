@@ -27,6 +27,7 @@ export interface TimelineClip {
   color?: string;
   waveform?: number[];
   caption?: string;
+  src?: string; // Video/audio source URL
 }
 
 export interface TimelineTrack {
@@ -114,6 +115,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           startTime: Math.max(0, startTime),
           duration: Math.min(data.duration || 5, duration - startTime),
           thumbnail: data.thumbnail,
+          src: data.url, // Store the video URL for playback
         };
 
         // Add to track
