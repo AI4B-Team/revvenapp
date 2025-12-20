@@ -751,12 +751,12 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       }));
                     }
                   }}
-                  className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-slate-800/50 transition-all group"
+                  className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-green-500 hover:bg-slate-800/30 transition-all group"
                 >
-                  <Plus className="w-6 h-6 text-slate-500 group-hover:text-primary transition-colors" />
+                  <Plus className="w-6 h-6 text-slate-500 group-hover:text-green-500 transition-colors" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent><p>Add New Scene</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Add New Scene</p></TooltipContent>
             </Tooltip>
           </div>
         </div>
