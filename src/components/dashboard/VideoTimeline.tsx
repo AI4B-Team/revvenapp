@@ -663,8 +663,76 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         </div>
       </div>
 
-      {/* Tracks */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      {/* Storyboard View */}
+      {viewMode === 'storyboard' ? (
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {scenes.map((clip, index) => {
+              const isSelected = selectedClip === clip.id;
+              const isCurrent = currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration;
+              
+              return (
+                <div
+                  key={clip.id}
+                  onClick={() => {
+                    setSelectedClip(clip.id);
+                    onTimeSeek(clip.startTime);
+                  }}
+                  className={`relative aspect-video rounded-lg overflow-hidden cursor-pointer transition-all group ${
+                    isSelected 
+                      ? 'ring-2 ring-white shadow-lg scale-105' 
+                      : isCurrent 
+                        ? 'ring-2 ring-rose-500' 
+                        : 'hover:ring-2 hover:ring-slate-400'
+                  }`}
+                >
+                  {/* Scene thumbnail */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800">
+                    {clip.thumbnail ? (
+                      <img src={clip.thumbnail} alt={clip.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Video className="w-8 h-8 text-slate-500" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Scene number badge */}
+                  <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white font-medium">
+                    {index + 1}
+                  </div>
+                  
+                  {/* Duration badge */}
+                  <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white font-mono">
+                    {clip.duration.toFixed(1)}s
+                  </div>
+                  
+                  {/* Scene name - shows on hover */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-[10px] text-white truncate">{clip.name}</p>
+                  </div>
+                  
+                  {/* Current playback indicator */}
+                  {isCurrent && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <div className="w-8 h-8 rounded-full bg-rose-500/80 flex items-center justify-center">
+                        <div className="w-0 h-0 border-l-[10px] border-t-[6px] border-b-[6px] border-l-white border-t-transparent border-b-transparent ml-1" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            
+            {/* Add scene button */}
+            <div className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-slate-400 hover:bg-slate-800/50 transition-all">
+              <Plus className="w-6 h-6 text-slate-500" />
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Timeline View */
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {tracks.map((track, index) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
@@ -848,7 +916,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           );
         })}
 
-      </div>
+        </div>
+      )}
     </div>
   );
 };
