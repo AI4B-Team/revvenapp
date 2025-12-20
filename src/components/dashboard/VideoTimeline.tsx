@@ -373,13 +373,13 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     ));
   };
 
-  // Get track icon and color
+  // Get track icon and color - pastel colors for better visibility
   const getTrackStyle = (trackId: string) => {
-    if (trackId.includes('image')) return { icon: ImageIcon, color: 'text-blue-400', bg: 'from-blue-600 to-blue-700' };
-    if (trackId.includes('video')) return { icon: Video, color: 'text-rose-400', bg: 'from-rose-600 to-rose-700' };
-    if (trackId.includes('audio')) return { icon: Volume2, color: 'text-violet-400', bg: 'from-violet-600 to-violet-700' };
-    if (trackId.includes('music')) return { icon: Music, color: 'text-emerald-400', bg: 'from-emerald-600 to-emerald-700' };
-    return { icon: Video, color: 'text-gray-400', bg: 'from-gray-600 to-gray-700' };
+    if (trackId.includes('image')) return { icon: ImageIcon, color: 'text-blue-600', bg: 'from-blue-200 to-blue-300' };
+    if (trackId.includes('video')) return { icon: Video, color: 'text-rose-600', bg: 'from-rose-200 to-rose-300' };
+    if (trackId.includes('audio')) return { icon: Volume2, color: 'text-violet-600', bg: 'from-violet-200 to-violet-300' };
+    if (trackId.includes('music')) return { icon: Music, color: 'text-emerald-600', bg: 'from-emerald-200 to-emerald-300' };
+    return { icon: Video, color: 'text-gray-600', bg: 'from-gray-200 to-gray-300' };
   };
 
   // Render waveform
@@ -655,10 +655,10 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 <div
                   key={i}
                   className="flex-shrink-0 h-full flex items-center"
-                  style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
+                  style={{ width: `${(5 / duration) * 100}%`, minWidth: '80px' }}
                 >
                   <div className="h-full flex flex-col justify-end border-l border-slate-600">
-                    <span className="text-[10px] text-slate-400 font-mono pl-1 pb-1">
+                    <span className="text-xs text-slate-300 font-mono pl-2 pb-1 whitespace-nowrap">
                       {formatTime(i * 5)}
                     </span>
                   </div>
