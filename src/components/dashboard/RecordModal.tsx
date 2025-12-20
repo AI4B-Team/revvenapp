@@ -463,7 +463,7 @@ export default function RecordModal({
   if (!selectedType) {
     return (
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-3xl p-0 overflow-hidden">
+        <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-4xl p-0 overflow-hidden [&>button]:hidden">
           <div className="flex items-center justify-between p-5 border-b border-gray-200">
             <DialogTitle className="text-xl font-bold text-gray-900 whitespace-nowrap">What Would You Like To Record?</DialogTitle>
             <button
@@ -502,7 +502,7 @@ export default function RecordModal({
   // Unified recording view for all types
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl p-0 overflow-hidden">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl p-0 overflow-hidden [&>button]:hidden">
         {/* Header */}
         <div className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
           {/* Back button */}
@@ -526,7 +526,7 @@ export default function RecordModal({
             <div className="w-10 h-1 rounded-full bg-gray-600" />
           </div>
 
-          {/* Main content area */}
+          {/* Main content area - audio waves and timer only */}
           <div className="flex flex-col items-center justify-center px-8 py-10">
             {showTeleprompter ? (
               <div className="w-full max-w-2xl">
@@ -584,68 +584,9 @@ export default function RecordModal({
                   {formatTime(recordingTime)}
                 </div>
 
-                <p className="text-gray-400 text-sm mb-6">
+                <p className="text-gray-400 text-sm">
                   {isRecording ? 'Recording...' : 'Click Record To Start'}
                 </p>
-
-                {/* Real-time transcription toggle */}
-                <div className="w-full max-w-md bg-gray-800/50 rounded-xl p-4 mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-violet-400" />
-                      <span className="text-sm font-medium">Real-Time Transcription</span>
-                    </div>
-                    <Switch
-                      checked={enableTranscription}
-                      onCheckedChange={setEnableTranscription}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {isRecording && enableTranscription && liveTranscript 
-                      ? liveTranscript.slice(-100) + (liveTranscript.length > 100 ? '...' : '')
-                      : 'Start recording to see your words appear'}
-                  </p>
-                  {isTranscribing && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <Loader2 className="w-3 h-3 animate-spin text-violet-400" />
-                      <span className="text-xs text-violet-400">Transcribing...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Language and Quality selectors */}
-                <div className="flex gap-4 w-full max-w-md">
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 mb-1 block">Language</label>
-                    <Select value={language} onValueChange={setLanguage}>
-                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        {LANGUAGES.map((lang) => (
-                          <SelectItem key={lang.code} value={lang.code} className="text-white hover:bg-gray-700">
-                            {lang.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-gray-500 mb-1 block">Audio Quality</label>
-                    <Select value={audioQuality} onValueChange={setAudioQuality}>
-                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        {AUDIO_QUALITIES.map((quality) => (
-                          <SelectItem key={quality.value} value={quality.value} className="text-white hover:bg-gray-700">
-                            {quality.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
               </>
             )}
           </div>
@@ -654,7 +595,28 @@ export default function RecordModal({
         {/* Controls Bar */}
         <div className="bg-gray-800 border-t border-gray-700 px-6 py-4">
           <div className="flex items-center justify-center gap-6">
-            {/* Show Cam */}
+            {/* Record button - FIRST */}
+            <button
+              onClick={isRecording ? handleStopRecording : handleStartRecording}
+              className="flex flex-col items-center gap-1"
+            >
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                isRecording
+                  ? 'bg-white hover:bg-gray-200'
+                  : 'bg-rose-500 hover:bg-rose-400'
+              }`}>
+                {isRecording ? (
+                  <StopCircle className="w-6 h-6 text-gray-900" />
+                ) : (
+                  <Mic className="w-6 h-6 text-white" />
+                )}
+              </div>
+              <span className={`text-xs ${isRecording ? 'text-white' : 'text-rose-400'}`}>
+                {isRecording ? 'Stop' : 'Record'}
+              </span>
+            </button>
+
+            {/* Camera */}
             <button 
               onClick={() => {
                 if (selectedType === 'voiceover') {
@@ -680,28 +642,7 @@ export default function RecordModal({
               }`}>
                 <Video className="w-5 h-5" />
               </div>
-              <span className="text-xs">Show Cam</span>
-            </button>
-
-            {/* Record button */}
-            <button
-              onClick={isRecording ? handleStopRecording : handleStartRecording}
-              className="flex flex-col items-center gap-1"
-            >
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                isRecording
-                  ? 'bg-rose-500 hover:bg-rose-400'
-                  : 'bg-violet-500 hover:bg-violet-400'
-              }`}>
-                {isRecording ? (
-                  <StopCircle className="w-6 h-6 text-white" />
-                ) : (
-                  <Mic className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <span className={`text-xs ${isRecording ? 'text-rose-400' : 'text-violet-400'}`}>
-                {isRecording ? 'Stop' : 'Record'}
-              </span>
+              <span className="text-xs">Camera</span>
             </button>
 
             {/* Screen */}
@@ -769,6 +710,71 @@ export default function RecordModal({
             </button>
           </div>
         </div>
+
+        {/* Transcription options - BELOW controls bar */}
+        {!showTeleprompter && (
+          <div className="bg-gray-900 border-t border-gray-700 px-6 py-4">
+            {/* Real-time transcription toggle */}
+            <div className="w-full max-w-md mx-auto bg-gray-800/50 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className={`w-4 h-4 ${enableTranscription ? 'text-emerald-400' : 'text-gray-500'}`} />
+                  <span className="text-sm font-medium">Real-Time Transcription</span>
+                </div>
+                <Switch
+                  checked={enableTranscription}
+                  onCheckedChange={setEnableTranscription}
+                  className="data-[state=checked]:bg-emerald-500"
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                {isRecording && enableTranscription && liveTranscript 
+                  ? liveTranscript.slice(-100) + (liveTranscript.length > 100 ? '...' : '')
+                  : 'Start recording to see your words appear'}
+              </p>
+              {isTranscribing && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Loader2 className="w-3 h-3 animate-spin text-emerald-400" />
+                  <span className="text-xs text-emerald-400">Transcribing...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Language and Quality selectors */}
+            <div className="flex gap-4 w-full max-w-md mx-auto">
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">Language</label>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {LANGUAGES.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code} className="text-white hover:bg-gray-700">
+                        {lang.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-gray-500 mb-1 block">Audio Quality</label>
+                <Select value={audioQuality} onValueChange={setAudioQuality}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {AUDIO_QUALITIES.map((quality) => (
+                      <SelectItem key={quality.value} value={quality.value} className="text-white hover:bg-gray-700">
+                        {quality.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Teleprompter Controls (when showing) */}
         {showTeleprompter && (
