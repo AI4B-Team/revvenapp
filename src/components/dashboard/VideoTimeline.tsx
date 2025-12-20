@@ -725,9 +725,39 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             })}
             
             {/* Add scene button */}
-            <div className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-slate-400 hover:bg-slate-800/50 transition-all">
-              <Plus className="w-6 h-6 text-slate-500" />
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  onClick={() => {
+                    // Find the last scene's end time or use 0
+                    const lastScene = scenes[scenes.length - 1];
+                    const newStartTime = lastScene ? lastScene.startTime + lastScene.duration : 0;
+                    
+                    // Create new scene in the first video track
+                    const videoTrack = tracks.find(t => t.type === 'video' || t.id.includes('video'));
+                    if (videoTrack) {
+                      const newClip: TimelineClip = {
+                        id: `clip-${Date.now()}`,
+                        type: 'video',
+                        name: `Scene ${scenes.length + 1}`,
+                        startTime: newStartTime,
+                        duration: 5,
+                        thumbnail: undefined,
+                      };
+                      
+                      setTracks(prev => prev.map(t => {
+                        if (t.id !== videoTrack.id) return t;
+                        return { ...t, clips: [...t.clips, newClip] };
+                      }));
+                    }
+                  }}
+                  className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-slate-800/50 transition-all group"
+                >
+                  <Plus className="w-6 h-6 text-slate-500 group-hover:text-primary transition-colors" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent><p>Add New Scene</p></TooltipContent>
+            </Tooltip>
           </div>
         </div>
       ) : (
@@ -737,18 +767,23 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
           const isDragged = draggedTrackId === track.id;
-          const isDropTarget = dropTargetIndex === index;
+          const isDropTargetAbove = dropTargetIndex === index;
+          const isDropTargetBelow = dropTargetIndex === index + 1 && index === tracks.length - 1;
           
           return (
-            <div 
-              key={track.id} 
-              className={`flex h-16 border-b border-slate-700/50 group transition-all ${isDragged ? 'opacity-50' : ''} ${isDropTarget ? 'border-t-2 border-t-primary' : ''}`}
-              draggable
-              onDragStart={(e) => handleTrackDragStart(e, track.id)}
-              onDragOver={(e) => handleTrackDragOver(e, index)}
-              onDragEnd={handleTrackDragEnd}
-              onDrop={(e) => handleTrackDrop(e, index)}
-            >
+            <React.Fragment key={track.id}>
+              {/* Drop indicator line above track */}
+              {isDropTargetAbove && draggedTrackId && (
+                <div className="h-1 bg-primary mx-2 rounded-full shadow-lg shadow-primary/50" />
+              )}
+              <div 
+                className={`flex h-16 border-b border-slate-700/50 group transition-all ${isDragged ? 'opacity-40 bg-slate-800' : ''}`}
+                draggable
+                onDragStart={(e) => handleTrackDragStart(e, track.id)}
+                onDragOver={(e) => handleTrackDragOver(e, index)}
+                onDragEnd={handleTrackDragEnd}
+                onDrop={(e) => handleTrackDrop(e, index)}
+              >
               {/* Track Header */}
               <div className="w-[180px] flex-shrink-0 bg-slate-800/80 flex items-center px-2 gap-2 border-r border-slate-700">
                 <GripVertical className="w-4 h-4 text-slate-500 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -913,6 +948,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 </div>
               </div>
             </div>
+            {/* Drop indicator line below last track */}
+            {isDropTargetBelow && draggedTrackId && (
+              <div className="h-1 bg-primary mx-2 rounded-full shadow-lg shadow-primary/50" />
+            )}
+            </React.Fragment>
           );
         })}
 
