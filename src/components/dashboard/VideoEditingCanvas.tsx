@@ -1660,22 +1660,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Right - Video Preview & Timeline */}
             <ResizablePanel defaultSize={70}>
-              <div className="h-full flex flex-col bg-gray-100">
-                {/* Video Preview Area */}
-                <div 
-                  ref={playerContainerRef}
-                  className="flex-1 flex items-center justify-center p-4 relative"
-                >
-                  <div 
-                    className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
-                      isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
-                    }`}
-                    onClick={(e) => {
-                      // Don't select if clicking on controls
-                      if ((e.target as HTMLElement).closest('button')) return;
-                      setIsVideoSelected(!isVideoSelected);
-                    }}
-                  >
+              <ResizablePanelGroup direction="vertical" className="h-full">
+                {/* Video Preview Panel */}
+                <ResizablePanel defaultSize={60} minSize={30}>
+                  <div className="h-full flex flex-col bg-gray-100">
+                    {/* Video Preview Area */}
+                    <div 
+                      ref={playerContainerRef}
+                      className="flex-1 flex items-center justify-center p-4 relative"
+                    >
+                      <div 
+                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
+                          isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
+                        }`}
+                        onClick={(e) => {
+                          // Don't select if clicking on controls
+                          if ((e.target as HTMLElement).closest('button')) return;
+                          setIsVideoSelected(!isVideoSelected);
+                        }}
+                      >
                     <video
                       ref={videoRef}
                       src={currentVideoSrc}
@@ -1814,11 +1817,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
                 </div>
+              </div>
+            </ResizablePanel>
 
-                {/* Timeline Controls */}
-                <div className="bg-white border-t border-gray-200 shrink-0">
-                  {/* Toolbar */}
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+                <ResizableHandle withHandle className="bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors" />
+
+                {/* Timeline Panel - Resizable upward */}
+                <ResizablePanel defaultSize={40} minSize={20} maxSize={70}>
+                  <div className="h-full bg-white border-t border-gray-200 flex flex-col">
+                    {/* Toolbar */}
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
                     {/* Left Tools - CapCut style icons */}
                     <div className="flex items-center gap-1">
                       {/* Undo button styled like reference */}
@@ -1970,23 +1978,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
 
-                  {/* Professional Timeline Component */}
-                  <div className="h-[280px]">
-                    <VideoTimeline
-                      tracks={tracks}
-                      setTracks={setTracks}
-                      currentTime={currentTime}
-                      duration={duration}
-                      zoom={zoom}
-                      selectedClip={selectedClip}
-                      setSelectedClip={setSelectedClip}
-                      onTimeSeek={handleTimelineSeek}
-                      isDragging={isDragging}
-                      setIsDragging={setIsDragging}
-                    />
+                    {/* Timeline Content */}
+                    <div className="flex-1 overflow-hidden">
+                      <VideoTimeline
+                        tracks={tracks}
+                        setTracks={setTracks}
+                        currentTime={currentTime}
+                        duration={duration}
+                        zoom={zoom}
+                        selectedClip={selectedClip}
+                        setSelectedClip={setSelectedClip}
+                        onTimeSeek={handleTimelineSeek}
+                        isDragging={isDragging}
+                        setIsDragging={setIsDragging}
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
