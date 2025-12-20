@@ -465,7 +465,7 @@ export default function RecordModal({
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-4xl p-0 overflow-hidden [&>button]:hidden">
           <div className="flex items-center justify-between p-5 border-b border-gray-200">
-            <DialogTitle className="text-xl font-bold text-gray-900 whitespace-nowrap">What Would You Like To Record?</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-gray-900 whitespace-nowrap">Choose Recording Mode</DialogTitle>
             <button
               onClick={handleClose}
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
