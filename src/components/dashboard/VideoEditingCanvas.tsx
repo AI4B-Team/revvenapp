@@ -1095,11 +1095,57 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-white">Editor</span>
-            <div className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg">
-              <Pencil className="w-3.5 h-3.5 text-violet-300" />
-              <span className="text-sm font-medium text-violet-200">Editing</span>
-              <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg hover:bg-violet-500/40 transition-colors">
+                  <Pencil className="w-3.5 h-3.5 text-violet-300" />
+                  <span className="text-sm font-medium text-violet-200">Editing</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 z-50">
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-xs text-gray-500 font-medium">Your Access Level</p>
+                </div>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                  <div className="w-2 h-2 rounded-full bg-violet-500" />
+                  <Pencil className="w-4 h-4 text-violet-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Editing</span>
+                    <span className="text-xs text-gray-500">Full edit access</span>
+                  </div>
+                  <Check className="w-4 h-4 ml-auto text-violet-600" />
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-xs text-gray-500 font-medium">Other Views</p>
+                </div>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <Eye className="w-4 h-4 text-blue-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Viewing</span>
+                    <span className="text-xs text-gray-500">View only access</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <MessageSquare className="w-4 h-4 text-amber-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Commenting</span>
+                    <span className="text-xs text-gray-500">View & comment</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <Settings className="w-4 h-4 text-green-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Admin</span>
+                    <span className="text-xs text-gray-500">Full control & settings</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Editable Project Name + 3-dot menu */}
