@@ -37,6 +37,7 @@ interface PexelsVideo {
 interface EditorVideoPanelProps {
   onSelectVideo?: (videoUrl: string, thumbnailUrl: string) => void;
   onOpenReferences?: () => void;
+  onOpenTranslate?: () => void;
 }
 
 const categories = [
@@ -48,7 +49,7 @@ const categories = [
   { label: 'Abstract', query: 'abstract motion' },
 ];
 
-const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOpenReferences }) => {
+const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOpenReferences, onOpenTranslate }) => {
   const [videos, setVideos] = useState<PexelsVideo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -160,7 +161,13 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
         toast.error(`${file.name} is not a video file`);
         return;
       }
-      toast.success(`Uploaded ${file.name}`);
+      toast.success(`Uploaded ${file.name}`, {
+        description: 'Translate audio or add subtitles?',
+        action: onOpenTranslate ? {
+          label: 'Translate',
+          onClick: () => onOpenTranslate(),
+        } : undefined,
+      });
     });
     
     if (fileInputRef.current) {

@@ -120,6 +120,8 @@ import EditorAudioPanel from './editor/EditorAudioPanel';
 import EditorTextPanel from './editor/EditorTextPanel';
 import EditorTranslatePanel from './editor/EditorTranslatePanel';
 import VoiceRecordingModal from './VoiceRecordingModal';
+import ExportDropdown from './editor/ExportDropdown';
+import VideoTranslateModal from './editor/VideoTranslateModal';
 
 // Types
 interface TimelineClip {
@@ -214,6 +216,8 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [shareEmail, setShareEmail] = useState('');
   const [voiceRecordingModalOpen, setVoiceRecordingModalOpen] = useState(false);
   const [isVideoSelected, setIsVideoSelected] = useState(false);
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
+  const [isFreePlan] = useState(true); // Would come from auth context in production
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -898,7 +902,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -920,7 +924,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel />;
+        return <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} />;
 
       case 'audio':
         return <EditorAudioPanel />;
@@ -1181,6 +1185,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           title="Record Voiceover"
         />
 
+        {/* Video Translate Modal */}
+        <VideoTranslateModal
+          open={translateModalOpen}
+          onOpenChange={setTranslateModalOpen}
+          onTranslate={(settings) => {
+            console.log('Translation settings:', settings);
+          }}
+        />
+
         {/* Top Editor Menu Bar */}
         <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
           <div className="flex items-center gap-3">
@@ -1276,17 +1289,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
             <button 
               onClick={() => setShareDialogOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-sm text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors"
             >
               <Share2 className="w-4 h-4" />
               <span>Share</span>
             </button>
-            <button
-              onClick={handleClose}
-              className="p-2 text-slate-300 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <ExportDropdown isFreePlan={isFreePlan} />
           </div>
         </div>
 
@@ -1926,12 +1934,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
                         <SkipBack className="w-5 h-5" />
                       </button>
-                      <button
-                        onClick={togglePlayback}
-                        className="w-12 h-12 flex items-center justify-center bg-brand-green rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
-                      >
-                        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={togglePlayback}
+                            className="w-12 h-12 flex items-center justify-center bg-brand-green rounded-full hover:opacity-90 transition-opacity text-white shadow-lg"
+                          >
+                            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{isPlaying ? 'Pause' : 'Play'} <span className="text-gray-400 ml-1">(Space)</span></p>
+                        </TooltipContent>
+                      </Tooltip>
                       <button onClick={skipForward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
                         <SkipForward className="w-5 h-5" />
                       </button>
