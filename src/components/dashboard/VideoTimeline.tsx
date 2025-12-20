@@ -1,0 +1,513 @@
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
+  Eye, EyeOff, MoreHorizontal, GripVertical 
+} from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+// Types
+export interface TimelineClip {
+  id: string;
+  type: 'video' | 'audio' | 'text' | 'effect';
+  name: string;
+  startTime: number;
+  duration: number;
+  thumbnail?: string;
+  color?: string;
+  waveform?: number[];
+  caption?: string;
+}
+
+export interface TimelineTrack {
+  id: string;
+  type: 'video' | 'audio' | 'text' | 'effect';
+  name: string;
+  clips: TimelineClip[];
+  muted?: boolean;
+  locked?: boolean;
+  visible?: boolean;
+}
+
+interface VideoTimelineProps {
+  tracks: TimelineTrack[];
+  setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>;
+  currentTime: number;
+  duration: number;
+  zoom: number;
+  selectedClip: string | null;
+  setSelectedClip: (id: string | null) => void;
+  onTimeSeek: (time: number) => void;
+  isDragging: boolean;
+  setIsDragging: (dragging: boolean) => void;
+}
+
+const SNAP_THRESHOLD = 5; // pixels
+const MIN_CLIP_DURATION = 0.5;
+
+const VideoTimeline: React.FC<VideoTimelineProps> = ({
+  tracks,
+  setTracks,
+  currentTime,
+  duration,
+  zoom,
+  selectedClip,
+  setSelectedClip,
+  onTimeSeek,
+  isDragging,
+  setIsDragging,
+}) => {
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [dragState, setDragState] = useState<{
+    clipId: string;
+    trackId: string;
+    startX: number;
+    originalStartTime: number;
+    type: 'move' | 'resize-left' | 'resize-right';
+  } | null>(null);
+  const [snapIndicator, setSnapIndicator] = useState<number | null>(null);
+  const [hoveredClip, setHoveredClip] = useState<string | null>(null);
+
+  // Format time display
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const frames = Math.floor((seconds % 1) * 30);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${frames.toString().padStart(2, '0')}`;
+  };
+
+  // Get all clip edges for snapping
+  const getSnapPoints = useCallback((excludeClipId: string) => {
+    const points: number[] = [0]; // Always snap to start
+    tracks.forEach(track => {
+      track.clips.forEach(clip => {
+        if (clip.id !== excludeClipId) {
+          points.push(clip.startTime);
+          points.push(clip.startTime + clip.duration);
+        }
+      });
+    });
+    return points;
+  }, [tracks]);
+
+  // Find nearest snap point
+  const findSnapPoint = useCallback((time: number, excludeClipId: string, pixelWidth: number) => {
+    const snapPoints = getSnapPoints(excludeClipId);
+    const pixelsPerSecond = pixelWidth / duration;
+    
+    for (const point of snapPoints) {
+      const pixelDiff = Math.abs((point - time) * pixelsPerSecond);
+      if (pixelDiff < SNAP_THRESHOLD) {
+        return point;
+      }
+    }
+    return null;
+  }, [getSnapPoints, duration]);
+
+  // Handle timeline click for seeking
+  const handleTimelineClick = useCallback((e: React.MouseEvent) => {
+    if (!timelineRef.current || dragState) return;
+    const rect = timelineRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const newTime = (x / rect.width) * duration;
+    onTimeSeek(Math.max(0, Math.min(duration, newTime)));
+  }, [duration, onTimeSeek, dragState]);
+
+  // Handle drag start for clips
+  const handleClipDragStart = useCallback((
+    e: React.MouseEvent, 
+    clipId: string, 
+    trackId: string, 
+    type: 'move' | 'resize-left' | 'resize-right'
+  ) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const clip = tracks.find(t => t.id === trackId)?.clips.find(c => c.id === clipId);
+    if (!clip) return;
+
+    // Check if track is locked
+    const track = tracks.find(t => t.id === trackId);
+    if (track?.locked) return;
+
+    setSelectedClip(clipId);
+    setDragState({
+      clipId,
+      trackId,
+      startX: e.clientX,
+      originalStartTime: clip.startTime,
+      type,
+    });
+    setIsDragging(true);
+  }, [tracks, setSelectedClip, setIsDragging]);
+
+  // Handle drag move
+  useEffect(() => {
+    if (!dragState || !timelineRef.current) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = timelineRef.current!.getBoundingClientRect();
+      const deltaX = e.clientX - dragState.startX;
+      const timePerPixel = duration / rect.width;
+      const timeDelta = deltaX * timePerPixel;
+
+      const clip = tracks.find(t => t.id === dragState.trackId)?.clips.find(c => c.id === dragState.clipId);
+      if (!clip) return;
+
+      let newStartTime = clip.startTime;
+      let newDuration = clip.duration;
+
+      if (dragState.type === 'move') {
+        newStartTime = Math.max(0, dragState.originalStartTime + timeDelta);
+        
+        // Check for snap
+        const snapPoint = findSnapPoint(newStartTime, dragState.clipId, rect.width);
+        const endSnapPoint = findSnapPoint(newStartTime + clip.duration, dragState.clipId, rect.width);
+        
+        if (snapPoint !== null) {
+          newStartTime = snapPoint;
+          setSnapIndicator(snapPoint);
+        } else if (endSnapPoint !== null) {
+          newStartTime = endSnapPoint - clip.duration;
+          setSnapIndicator(endSnapPoint);
+        } else {
+          setSnapIndicator(null);
+        }
+      } else if (dragState.type === 'resize-left') {
+        const originalEnd = dragState.originalStartTime + clip.duration;
+        newStartTime = Math.max(0, dragState.originalStartTime + timeDelta);
+        newDuration = originalEnd - newStartTime;
+        
+        if (newDuration < MIN_CLIP_DURATION) {
+          newStartTime = originalEnd - MIN_CLIP_DURATION;
+          newDuration = MIN_CLIP_DURATION;
+        }
+        
+        // Snap start
+        const snapPoint = findSnapPoint(newStartTime, dragState.clipId, rect.width);
+        if (snapPoint !== null && originalEnd - snapPoint >= MIN_CLIP_DURATION) {
+          newStartTime = snapPoint;
+          newDuration = originalEnd - snapPoint;
+          setSnapIndicator(snapPoint);
+        } else {
+          setSnapIndicator(null);
+        }
+      } else if (dragState.type === 'resize-right') {
+        newDuration = Math.max(MIN_CLIP_DURATION, clip.duration + timeDelta - (dragState.originalStartTime - clip.startTime));
+        const newEnd = clip.startTime + newDuration;
+        
+        // Snap end
+        const snapPoint = findSnapPoint(newEnd, dragState.clipId, rect.width);
+        if (snapPoint !== null && snapPoint - clip.startTime >= MIN_CLIP_DURATION) {
+          newDuration = snapPoint - clip.startTime;
+          setSnapIndicator(snapPoint);
+        } else {
+          setSnapIndicator(null);
+        }
+      }
+
+      setTracks(prev => prev.map(track => {
+        if (track.id !== dragState.trackId) return track;
+        return {
+          ...track,
+          clips: track.clips.map(c => {
+            if (c.id !== dragState.clipId) return c;
+            return { ...c, startTime: newStartTime, duration: newDuration };
+          })
+        };
+      }));
+    };
+
+    const handleMouseUp = () => {
+      setDragState(null);
+      setIsDragging(false);
+      setSnapIndicator(null);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragState, duration, tracks, setTracks, findSnapPoint, setIsDragging]);
+
+  // Toggle track properties
+  const toggleTrackMute = (trackId: string) => {
+    setTracks(prev => prev.map(t => 
+      t.id === trackId ? { ...t, muted: !t.muted } : t
+    ));
+  };
+
+  const toggleTrackLock = (trackId: string) => {
+    setTracks(prev => prev.map(t => 
+      t.id === trackId ? { ...t, locked: !t.locked } : t
+    ));
+  };
+
+  const toggleTrackVisibility = (trackId: string) => {
+    setTracks(prev => prev.map(t => 
+      t.id === trackId ? { ...t, visible: t.visible === false ? true : false } : t
+    ));
+  };
+
+  // Get track icon and color
+  const getTrackStyle = (trackId: string) => {
+    if (trackId.includes('image')) return { icon: ImageIcon, color: 'text-blue-400', bg: 'from-blue-600 to-blue-700' };
+    if (trackId.includes('video')) return { icon: Video, color: 'text-rose-400', bg: 'from-rose-600 to-rose-700' };
+    if (trackId.includes('audio')) return { icon: Volume2, color: 'text-violet-400', bg: 'from-violet-600 to-violet-700' };
+    if (trackId.includes('music')) return { icon: Music, color: 'text-emerald-400', bg: 'from-emerald-600 to-emerald-700' };
+    return { icon: Video, color: 'text-gray-400', bg: 'from-gray-600 to-gray-700' };
+  };
+
+  // Render waveform
+  const renderWaveform = (clip: TimelineClip, isSelected: boolean) => {
+    if (!clip.waveform) return null;
+    return (
+      <div className="absolute bottom-0 left-0 right-0 h-8 flex items-end px-1 gap-px overflow-hidden">
+        {clip.waveform.map((amplitude, i) => (
+          <div
+            key={i}
+            className={`flex-1 min-w-[1px] rounded-t-sm transition-colors ${
+              isSelected ? 'bg-white/70' : 'bg-white/40'
+            }`}
+            style={{ height: `${amplitude * 100}%` }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-slate-900">
+      {/* Time Ruler */}
+      <div 
+        ref={timelineRef}
+        onClick={handleTimelineClick}
+        className="h-8 bg-slate-800 border-b border-slate-700 relative cursor-pointer select-none flex-shrink-0"
+        style={{ marginLeft: '180px' }}
+      >
+        {/* Playhead */}
+        <motion.div
+          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-30 pointer-events-none"
+          style={{ left: `${(currentTime / duration) * 100}%` }}
+          animate={{ left: `${(currentTime / duration) * 100}%` }}
+          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
+        >
+          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500" />
+        </motion.div>
+
+        {/* Snap indicator */}
+        {snapIndicator !== null && (
+          <div 
+            className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-20 pointer-events-none"
+            style={{ left: `${(snapIndicator / duration) * 100}%` }}
+          />
+        )}
+
+        {/* Time markers */}
+        <div className="flex items-end h-full">
+          {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 h-full flex items-center"
+              style={{ width: `${(5 / duration) * 100}%`, minWidth: '80px' }}
+            >
+              <div className="h-full flex flex-col justify-end border-l border-slate-600">
+                <span className="text-[10px] text-slate-400 font-mono pl-1 pb-1">
+                  {formatTime(i * 5)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tracks */}
+      <div className="flex-1 overflow-y-auto">
+        {tracks.map((track) => {
+          const trackStyle = getTrackStyle(track.id);
+          const TrackIcon = trackStyle.icon;
+          
+          return (
+            <div key={track.id} className="flex h-16 border-b border-slate-700/50 group">
+              {/* Track Header */}
+              <div className="w-[180px] flex-shrink-0 bg-slate-800/80 flex items-center px-2 gap-2 border-r border-slate-700">
+                <GripVertical className="w-4 h-4 text-slate-500 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className={`w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center ${track.locked ? 'opacity-50' : ''}`}>
+                  <TrackIcon className={`w-4 h-4 ${trackStyle.color}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-medium text-slate-200 truncate ${track.locked ? 'opacity-50' : ''}`}>
+                    {track.name}
+                  </p>
+                </div>
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => toggleTrackMute(track.id)}
+                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.muted ? 'text-red-400' : 'text-slate-400'}`}
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>{track.muted ? 'Unmute' : 'Mute'}</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => toggleTrackLock(track.id)}
+                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.locked ? 'text-amber-400' : 'text-slate-400'}`}
+                      >
+                        {track.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>{track.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => toggleTrackVisibility(track.id)}
+                        className={`p-1 rounded hover:bg-slate-700 transition-colors ${track.visible === false ? 'text-slate-600' : 'text-slate-400'}`}
+                      >
+                        {track.visible === false ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>{track.visible === false ? 'Show' : 'Hide'}</p></TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Track Content */}
+              <div 
+                className={`flex-1 relative bg-slate-900/50 ${track.locked ? 'opacity-60' : ''}`}
+                style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
+              >
+                {/* Playhead line */}
+                <motion.div
+                  className="absolute top-0 bottom-0 w-0.5 bg-red-500/80 z-20 pointer-events-none"
+                  style={{ left: `${(currentTime / duration) * 100}%` }}
+                  animate={{ left: `${(currentTime / duration) * 100}%` }}
+                  transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
+                />
+
+                {/* Snap indicator line */}
+                {snapIndicator !== null && (
+                  <div 
+                    className="absolute top-0 bottom-0 w-0.5 bg-yellow-400/80 z-10 pointer-events-none"
+                    style={{ left: `${(snapIndicator / duration) * 100}%` }}
+                  />
+                )}
+
+                {/* Clips */}
+                {track.clips.map((clip) => {
+                  const isSelected = selectedClip === clip.id;
+                  const isHovered = hoveredClip === clip.id;
+                  
+                  return (
+                    <div
+                      key={clip.id}
+                      onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
+                      onMouseEnter={() => setHoveredClip(clip.id)}
+                      onMouseLeave={() => setHoveredClip(null)}
+                      className={`absolute top-1.5 bottom-1.5 rounded-md cursor-grab active:cursor-grabbing transition-all overflow-hidden group/clip ${
+                        isSelected 
+                          ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 shadow-lg shadow-black/30' 
+                          : isHovered
+                            ? 'ring-1 ring-white/30'
+                            : ''
+                      } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                      style={{
+                        left: `${(clip.startTime / duration) * 100}%`,
+                        width: `${(clip.duration / duration) * 100}%`,
+                      }}
+                    >
+                      {/* Clip background */}
+                      <div className={`absolute inset-0 bg-gradient-to-r ${trackStyle.bg} ${track.visible === false ? 'opacity-40' : ''}`} />
+                      
+                      {/* Clip content */}
+                      <div className="relative h-full flex items-center px-2 z-10">
+                        {track.type === 'audio' ? (
+                          <>
+                            <span className="text-[10px] text-white/90 font-medium truncate">
+                              {clip.caption || clip.name}
+                            </span>
+                            {renderWaveform(clip, isSelected)}
+                          </>
+                        ) : (
+                          <>
+                            <TrackIcon className="w-3 h-3 text-white/60 mr-1.5 flex-shrink-0" />
+                            <span className="text-[10px] text-white/90 font-medium truncate">
+                              {clip.name}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Duration badge on selection */}
+                      {isSelected && (
+                        <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded text-[9px] text-white font-mono">
+                          {clip.duration.toFixed(1)}s
+                        </div>
+                      )}
+
+                      {/* Resize handles */}
+                      {!track.locked && (
+                        <>
+                          <div 
+                            onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
+                            className={`absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize transition-all z-20 ${
+                              isSelected || isHovered 
+                                ? 'bg-white/40 hover:bg-white/70' 
+                                : 'bg-transparent hover:bg-white/30'
+                            }`}
+                          >
+                            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-white/60 rounded-full opacity-0 group-hover/clip:opacity-100" />
+                          </div>
+                          <div 
+                            onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
+                            className={`absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize transition-all z-20 ${
+                              isSelected || isHovered 
+                                ? 'bg-white/40 hover:bg-white/70' 
+                                : 'bg-transparent hover:bg-white/30'
+                            }`}
+                          >
+                            <div className="absolute right-0.5 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-white/60 rounded-full opacity-0 group-hover/clip:opacity-100" />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Add Track Button */}
+        <div className="flex h-12 border-b border-slate-700/30">
+          <div className="w-[180px] flex-shrink-0 bg-slate-800/40 flex items-center justify-center border-r border-slate-700">
+            <button className="flex items-center gap-2 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors text-xs">
+              <Plus className="w-3.5 h-3.5" />
+              Add Track
+            </button>
+          </div>
+          <div className="flex-1 bg-slate-900/30" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default VideoTimeline;
