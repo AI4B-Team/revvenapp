@@ -486,42 +486,64 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             {activeTab === 'stock' && (
               <div className="flex flex-col h-full">
                 {/* Stock Search Bar */}
-                <div className="mb-4 flex gap-2">
+                <div className="mb-6 flex gap-3">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Search stock images..."
+                      placeholder="Search millions of stock photos..."
                       value={stockSearchQuery}
                       onChange={(e) => setStockSearchQuery(e.target.value)}
                       onKeyPress={handleStockKeyPress}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     />
                   </div>
                   <Button 
                     onClick={handleStockSearch}
-                    variant="secondary"
-                    size="sm"
+                    className="px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-medium rounded-xl transition-all duration-200 hover:scale-[1.02]"
                   >
+                    <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>
                 </div>
 
+                {/* Quick Category Pills */}
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {['Fashion', 'Nature', 'Business', 'Technology', 'Food', 'Travel', 'Portrait', 'Abstract'].map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setStockSearchQuery(category.toLowerCase());
+                        fetchStockImages(category.toLowerCase(), 1);
+                      }}
+                      className="px-4 py-1.5 text-sm font-medium text-gray-300 bg-gray-800/40 border border-gray-700/50 rounded-full hover:bg-primary/20 hover:border-primary/40 hover:text-white transition-all duration-200"
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Stock Images Grid */}
                 {isLoadingStock && stockImages.length === 0 ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full border-4 border-gray-700 border-t-primary animate-spin" />
+                    </div>
+                    <p className="mt-4 text-gray-400">Loading stunning images...</p>
                   </div>
                 ) : stockImages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center flex-1 text-center">
-                    <ImageIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400 text-lg mb-2">Search for stock images</p>
-                    <p className="text-sm text-gray-500">Access thousands of professional stock images from Pexels</p>
+                  <div className="flex flex-col items-center justify-center flex-1 text-center py-16">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-6">
+                      <ImageIcon className="h-10 w-10 text-gray-500" />
+                    </div>
+                    <p className="text-gray-300 text-xl font-medium mb-2">Discover Stock Images</p>
+                    <p className="text-sm text-gray-500 max-w-md">Search millions of high-quality, royalty-free photos from Pexels</p>
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-6 gap-4 overflow-y-auto flex-1">
-                      {stockImages.map((photo) => {
+                    {/* Masonry-style Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 overflow-y-auto flex-1 auto-rows-max">
+                      {stockImages.map((photo, index) => {
                         const stockImage = {
                           id: `pexels-${photo.id}`,
                           image_url: photo.src.large,
@@ -529,34 +551,54 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                           original_filename: photo.alt || `Photo by ${photo.photographer}`,
                           source: 'pexels'
                         };
+                        const isSelected = selectedImages.some(img => img.id === stockImage.id);
                         
                         return (
                           <div
                             key={photo.id}
-                            className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
-                              selectedImages.some(img => img.id === stockImage.id)
-                                ? 'border-primary ring-2 ring-primary'
-                                : 'border-gray-700 hover:border-green-500'
+                            className={`group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 animate-fade-in ${
+                              isSelected
+                                ? 'ring-2 ring-primary ring-offset-2 ring-offset-[#1a1f2e] scale-[0.98]'
+                                : 'hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10'
                             }`}
+                            style={{ animationDelay: `${(index % 12) * 50}ms` }}
                             onClick={() => handleImageClick(stockImage)}
                           >
-                            <div className="aspect-square">
+                            <div className="aspect-[3/4] bg-gray-800">
                               <img
                                 src={photo.src.medium}
                                 alt={photo.alt || 'Stock photo'}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 loading="lazy"
                               />
                             </div>
-                            {selectedImages.some(img => img.id === stockImage.id) && (
-                              <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                                ✓
+                            
+                            {/* Overlay */}
+                            <div className={`absolute inset-0 transition-all duration-300 ${
+                              isSelected 
+                                ? 'bg-primary/20' 
+                                : 'bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100'
+                            }`} />
+                            
+                            {/* Selected Checkmark */}
+                            {isSelected && (
+                              <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg animate-scale-in">
+                                <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
                               </div>
                             )}
-                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                              <p className="text-xs text-white truncate">
-                                {photo.photographer}
-                              </p>
+                            
+                            {/* Photographer Info */}
+                            <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xs font-bold">
+                                  {photo.photographer.charAt(0).toUpperCase()}
+                                </div>
+                                <p className="text-xs text-white font-medium truncate">
+                                  {photo.photographer}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         );
@@ -564,19 +606,23 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                     </div>
                     
                     {/* Load More Button */}
-                    <div className="mt-4 flex justify-center">
+                    <div className="mt-6 flex justify-center">
                       <Button
                         onClick={loadMoreStock}
-                        variant="outline"
                         disabled={isLoadingStock}
+                        className="px-8 py-2.5 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 rounded-xl text-white font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                        variant="ghost"
                       >
                         {isLoadingStock ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            Loading...
+                            Loading more...
                           </>
                         ) : (
-                          'Load More'
+                          <>
+                            <span>Load More</span>
+                            <span className="ml-2 text-gray-400">↓</span>
+                          </>
                         )}
                       </Button>
                     </div>
