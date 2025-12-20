@@ -495,38 +495,44 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
-      {/* Scrubber/Playhead Bar at Top */}
-      <div 
-        ref={playheadRef}
-        className="h-6 bg-slate-800 cursor-pointer relative group flex-shrink-0 border-b border-slate-700"
-        onClick={handleProgressBarSeek}
-      >
-        {/* Track line */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-700 mx-2 rounded-full">
-          {/* Progress fill */}
-          <div 
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
-            style={{ width: `${(currentTime / duration) * 100}%` }}
-          />
-        </div>
+      {/* Scrubber/Playhead Bar at Top - aligned with timeline content */}
+      <div className="flex h-6 bg-slate-800 flex-shrink-0 border-b border-slate-700">
+        {/* Empty space matching track header width */}
+        <div className="w-[180px] flex-shrink-0 bg-slate-800/80" />
         
-        {/* Markers on scrubber */}
-        {markers.map((markerTime, idx) => (
-          <div 
-            key={idx}
-            className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full cursor-pointer hover:scale-125 transition-transform z-10"
-            style={{ left: `calc(${(markerTime / duration) * 100}% - 4px)` }}
-            onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
-          />
-        ))}
-        
-        {/* Draggable Playhead dot */}
+        {/* Scrubber area - aligned with timeline content */}
         <div 
-          className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing z-20 transition-transform hover:scale-110 ${isPlayheadDragging ? 'scale-125' : ''}`}
-          style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
-          onMouseDown={handlePlayheadDragStart}
+          ref={playheadRef}
+          className="flex-1 cursor-pointer relative group"
+          onClick={handleProgressBarSeek}
         >
-          <div className="absolute inset-1 bg-rose-500 rounded-full" />
+          {/* Track line */}
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-700 mx-2 rounded-full">
+            {/* Progress fill */}
+            <div 
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
+              style={{ width: `${(currentTime / duration) * 100}%` }}
+            />
+          </div>
+          
+          {/* Markers on scrubber */}
+          {markers.map((markerTime, idx) => (
+            <div 
+              key={idx}
+              className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full cursor-pointer hover:scale-125 transition-transform z-10"
+              style={{ left: `calc(${(markerTime / duration) * 100}% - 4px)` }}
+              onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
+            />
+          ))}
+          
+          {/* Draggable Playhead dot */}
+          <div 
+            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing z-20 transition-transform hover:scale-110 ${isPlayheadDragging ? 'scale-125' : ''}`}
+            style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
+            onMouseDown={handlePlayheadDragStart}
+          >
+            <div className="absolute inset-1 bg-rose-500 rounded-full" />
+          </div>
         </div>
       </div>
 
