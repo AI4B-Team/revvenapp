@@ -2,7 +2,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
-  Eye, EyeOff, MoreHorizontal, GripVertical 
+  Eye, EyeOff, MoreHorizontal, GripVertical, LayoutGrid, Rows3,
+  ChevronLeft, ChevronRight, Flag
 } from 'lucide-react';
 import {
   Tooltip,
@@ -79,6 +80,57 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   const [snapIndicator, setSnapIndicator] = useState<number | null>(null);
   const [hoveredClip, setHoveredClip] = useState<string | null>(null);
   const [dropTargetTrack, setDropTargetTrack] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'timeline' | 'storyboard'>('timeline');
+  const [markers, setMarkers] = useState<number[]>([]);
+
+  // Get all scenes/clips from video tracks for navigation
+  const scenes = React.useMemo(() => {
+    return tracks
+      .filter(t => t.type === 'video' || t.id.includes('video'))
+      .flatMap(t => t.clips)
+      .sort((a, b) => a.startTime - b.startTime);
+  }, [tracks]);
+
+  // Navigate to previous scene
+  const goToPreviousScene = useCallback(() => {
+    const currentScene = scenes.findIndex(s => currentTime >= s.startTime && currentTime < s.startTime + s.duration);
+    if (currentScene > 0) {
+      onTimeSeek(scenes[currentScene - 1].startTime);
+    } else if (scenes.length > 0 && currentTime > scenes[0].startTime) {
+      onTimeSeek(scenes[0].startTime);
+    }
+  }, [scenes, currentTime, onTimeSeek]);
+
+  // Navigate to next scene
+  const goToNextScene = useCallback(() => {
+    const nextScene = scenes.find(s => s.startTime > currentTime);
+    if (nextScene) {
+      onTimeSeek(nextScene.startTime);
+    }
+  }, [scenes, currentTime, onTimeSeek]);
+
+  // Add marker at current position
+  const addMarker = useCallback(() => {
+    if (!markers.includes(currentTime)) {
+      setMarkers(prev => [...prev, currentTime].sort((a, b) => a - b));
+    }
+  }, [currentTime, markers]);
+
+  // Jump to nearest marker
+  const jumpToMarker = useCallback(() => {
+    if (markers.length === 0) {
+      addMarker();
+      return;
+    }
+    // Find nearest marker after current time
+    const nextMarker = markers.find(m => m > currentTime + 0.1);
+    if (nextMarker !== undefined) {
+      onTimeSeek(nextMarker);
+    } else {
+      // Loop back to first marker
+      onTimeSeek(markers[0]);
+    }
+  }, [markers, currentTime, onTimeSeek, addMarker]);
 
   // Handle drop from external sources (like StockVideoPanel)
   const handleDragOver = useCallback((e: React.DragEvent, trackId: string) => {
@@ -385,16 +437,79 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         />
       </div>
 
-      {/* Time Ruler with Add Track Button */}
+      {/* Time Ruler with Controls */}
       <div className="flex flex-shrink-0">
-        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center justify-center">
+        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-2">
+          {/* Add Track Button */}
           <button 
             onClick={handleAddTrack}
-            className="flex items-center gap-1.5 px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors text-xs"
+            className="flex items-center gap-1 px-1.5 py-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-medium">Add Track</span>
           </button>
+
+          {/* Scene Navigation */}
+          <div className="flex items-center gap-0.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={goToPreviousScene}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Previous Scene</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={goToNextScene}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Next Scene</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={jumpToMarker}
+                  className={`p-1 rounded transition-colors ${markers.length > 0 ? 'text-amber-400 hover:text-amber-300' : 'text-slate-400 hover:text-white'} hover:bg-slate-700/50`}
+                >
+                  <Flag className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>{markers.length > 0 ? 'Jump to Marker' : 'Add Marker'}</p></TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* View Toggle */}
+          <div className="flex items-center gap-0.5 bg-slate-700/50 rounded p-0.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setViewMode('storyboard')}
+                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Scenes</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setViewMode('timeline')}
+                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <Rows3 className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Timeline</p></TooltipContent>
+            </Tooltip>
+          </div>
         </div>
         <div 
           ref={timelineRef}
@@ -414,6 +529,18 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             >
               <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500" />
             </motion.div>
+
+            {/* Markers */}
+            {markers.map((markerTime, idx) => (
+              <div 
+                key={idx}
+                className="absolute top-0 bottom-0 w-0.5 bg-amber-400 z-20 cursor-pointer hover:bg-amber-300"
+                style={{ left: `${(markerTime / duration) * 100}%` }}
+                onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
+              >
+                <Flag className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-3 h-3 text-amber-400" />
+              </div>
+            ))}
 
             {/* Snap indicator */}
             {snapIndicator !== null && (
