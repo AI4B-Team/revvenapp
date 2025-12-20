@@ -1743,42 +1743,66 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                          <div className="flex flex-col gap-4 w-full max-w-md">
-                            {/* Click To Upload area - gray with green border */}
-                            <button 
+                        <div className="w-full h-full flex items-center justify-center p-6">
+                          <div className="grid grid-cols-3 gap-4 w-full max-w-4xl">
+                            {/* Upload File Box */}
+                            <div 
+                              className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white cursor-pointer hover:border-gray-400 transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const input = document.createElement('input');
                                 input.type = 'file';
-                                input.accept = 'video/*';
+                                input.accept = 'video/*,audio/*';
                                 input.onchange = (event) => {
                                   const file = (event.target as HTMLInputElement).files?.[0];
                                   if (file) {
                                     setIsVideoDeleted(false);
-                                    toast({ title: 'Video uploaded', description: file.name });
+                                    toast({ title: 'File uploaded', description: file.name });
                                   }
                                 };
                                 input.click();
                               }}
-                              className="group p-8 rounded-2xl bg-gray-200 hover:bg-gray-300 border-2 border-dashed border-green-500 hover:border-green-600 transition-all duration-300"
                             >
-                              <div className="flex flex-col items-center text-center">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-lg font-medium text-gray-800">Click To Upload</span>
-                                  <Upload className="w-5 h-5 text-gray-800" />
-                                </div>
-                                <p className="text-sm text-gray-500">or, drag and drop a file here</p>
+                              {/* Green icon container */}
+                              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
+                                <Upload className="w-7 h-7 text-green-600" />
                               </div>
-                            </button>
+                              
+                              <h3 className="text-lg font-semibold text-gray-900 mb-3">Upload File</h3>
+                              
+                              {/* Drag & Drop field */}
+                              <div className="w-full px-4 py-2.5 rounded-lg border border-green-400 bg-green-50 flex items-center gap-2 mb-3">
+                                <Upload className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                <span className="text-sm text-gray-600">Drag & Drop Your Video Or Audio File</span>
+                              </div>
+                              
+                              {/* File format badges */}
+                              <div className="flex items-center gap-2 flex-wrap justify-center">
+                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mp3</span>
+                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.wav</span>
+                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mp4</span>
+                                <span className="px-2 py-1 rounded bg-gray-100 text-xs text-gray-600">.mov</span>
+                                <span className="px-2 py-1 rounded bg-green-100 text-xs text-green-700">+ more</span>
+                              </div>
+                            </div>
 
-                            {/* Video URL input - gray with green border */}
-                            <div className="relative">
-                              <div className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-gray-200 border-2 border-green-500 hover:border-green-600 transition-colors">
+                            {/* Upload Link Box */}
+                            <div className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white">
+                              {/* Green icon container */}
+                              <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center mb-4">
+                                <Share2 className="w-7 h-7 text-green-600" />
+                              </div>
+                              
+                              <h3 className="text-lg font-semibold text-gray-900 mb-3">Upload Link</h3>
+                              
+                              {/* Paste link field */}
+                              <div className="w-full px-4 py-2.5 rounded-lg border border-green-400 bg-green-50 flex items-center gap-2 mb-3">
+                                <Share2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                                 <input
                                   type="text"
-                                  placeholder="Paste Video Link: e.g., https://www.instagram.com/reel/..."
-                                  className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-500 focus:outline-none"
+                                  placeholder="Paste A Supported Public Media Link"
+                                  className="flex-1 bg-transparent text-sm text-gray-600 placeholder:text-gray-500 focus:outline-none"
+                                  onClick={(e) => e.stopPropagation()}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       const url = (e.target as HTMLInputElement).value;
@@ -1798,17 +1822,44 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     }
                                   }}
                                 />
-                                <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
                               </div>
                               
-                              {/* Social platform icons - bigger, no background */}
-                              <div className="mt-4 flex items-center justify-center gap-4">
-                                <FaYoutube className="w-7 h-7 text-red-500" />
-                                <FaInstagram className="w-7 h-7 text-pink-500" />
-                                <FaVimeo className="w-7 h-7 text-blue-400" />
-                                <SiLoom className="w-7 h-7 text-purple-500" />
-                                <FaTiktok className="w-7 h-7 text-gray-700" />
-                                <span className="text-sm text-gray-500">+10</span>
+                              {/* Social platform icons */}
+                              <div className="flex items-center gap-2">
+                                <FaYoutube className="w-5 h-5 text-red-500" />
+                                <FaTiktok className="w-5 h-5 text-gray-900" />
+                                <FaInstagram className="w-5 h-5 text-pink-600" />
+                                <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                <FaVimeo className="w-5 h-5 text-blue-400" />
+                                <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+                                <span className="text-sm text-gray-500">+43</span>
+                              </div>
+                            </div>
+
+                            {/* Record Audio Box */}
+                            <div 
+                              className="flex flex-col items-center p-6 rounded-2xl border-2 border-dashed border-gray-300 bg-white cursor-pointer hover:border-gray-400 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setRecordModalOpen(true);
+                              }}
+                            >
+                              {/* Pink/red icon container */}
+                              <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mb-4">
+                                <Mic className="w-7 h-7 text-red-500" />
+                              </div>
+                              
+                              <h3 className="text-lg font-semibold text-gray-900 mb-1">Record Audio</h3>
+                              <p className="text-sm text-gray-500 mb-3">Click To Start Recording</p>
+                              
+                              {/* Live transcription badge */}
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-100 text-xs font-medium text-red-600">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                  LIVE
+                                </span>
+                                <span className="text-sm text-gray-600">Real-Time Transcription</span>
                               </div>
                             </div>
                           </div>
