@@ -119,6 +119,7 @@ import EditorImagePanel from './editor/EditorImagePanel';
 import EditorAudioPanel from './editor/EditorAudioPanel';
 import EditorTextPanel from './editor/EditorTextPanel';
 import EditorTranslatePanel from './editor/EditorTranslatePanel';
+import VoiceRecordingModal from './VoiceRecordingModal';
 
 // Types
 interface TimelineClip {
@@ -211,6 +212,8 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
+  const [voiceRecordingModalOpen, setVoiceRecordingModalOpen] = useState(false);
+  const [isVideoSelected, setIsVideoSelected] = useState(false);
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -1073,16 +1076,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <div className="p-4 space-y-3">
               {/* Voiceover */}
               <button
-                onClick={async () => {
-                  try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    setRecordModalOpen(false);
-                    setIsRecording(true);
-                    toast({ title: 'Recording voiceover', description: 'Audio capture has begun.' });
-                    (window as any).recordingStreams = [stream];
-                  } catch (error) {
-                    toast({ title: 'Microphone access required', description: 'Enable microphone permissions to record.', variant: 'destructive' });
-                  }
+                onClick={() => {
+                  setRecordModalOpen(false);
+                  setVoiceRecordingModalOpen(true);
                 }}
                 className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
               >
@@ -1091,7 +1087,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </div>
                 <div className="flex-1 text-left">
                   <h4 className="font-semibold text-gray-900 mb-1">Record Voiceover</h4>
-                  <p className="text-sm text-gray-500">Capture professional audio narration using your microphone.</p>
+                  <p className="text-sm text-gray-500">Capture professional audio with teleprompter support.</p>
                 </div>
               </button>
 
@@ -1173,6 +1169,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Voice Recording Modal */}
+        <VoiceRecordingModal
+          isOpen={voiceRecordingModalOpen}
+          onClose={() => setVoiceRecordingModalOpen(false)}
+          onSave={(audioBlob, duration) => {
+            toast({ title: 'Voiceover saved', description: `${duration}s audio recording saved to your project.` });
+            setVoiceRecordingModalOpen(false);
+          }}
+          title="Record Voiceover"
+        />
 
         {/* Top Editor Menu Bar */}
         <div className="h-14 bg-[#2d4a54] flex items-center px-4 gap-4 flex-shrink-0 border-b border-slate-600 relative">
@@ -1659,7 +1666,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   ref={playerContainerRef}
                   className="flex-1 flex items-center justify-center p-4 relative"
                 >
-                  <div className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center`}>
+                  <div 
+                    className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
+                      isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
+                    }`}
+                    onClick={(e) => {
+                      // Don't select if clicking on controls
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      setIsVideoSelected(!isVideoSelected);
+                    }}
+                  >
                     <video
                       ref={videoRef}
                       src={currentVideoSrc}
@@ -1672,6 +1688,29 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       muted={isMuted}
                     />
                     
+                    {/* Selection indicator and delete button */}
+                    {isVideoSelected && (
+                      <div className="absolute top-2 right-2 flex items-center gap-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Remove video from timeline
+                                setTracks(prev => prev.filter(t => t.type !== 'video'));
+                                setIsVideoSelected(false);
+                                toast({ title: 'Video removed', description: 'The video has been removed from the timeline.' });
+                              }}
+                              className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors shadow-lg"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Delete Video</p></TooltipContent>
+                        </Tooltip>
+                      </div>
+                    )}
+                    
                     {/* Player Controls Overlay */}
                     <div className="absolute bottom-4 right-4 flex items-center gap-2">
                       {/* Volume with slider */}
@@ -1679,7 +1718,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button 
-                              onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+                              onClick={(e) => { e.stopPropagation(); setShowVolumeSlider(!showVolumeSlider); }}
                               className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
                             >
                               {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -1711,7 +1750,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 />
                               </div>
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setIsMuted(!isMuted);
                                   if (videoRef.current) {
                                     videoRef.current.muted = !isMuted;
@@ -1729,7 +1769,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <DropdownMenuTrigger asChild>
-                              <button className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1">
+                              <button 
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1"
+                              >
                                 <Ratio className="w-4 h-4" />
                                 <span className="text-xs">{selectedRatio}</span>
                               </button>
@@ -1760,7 +1803,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
-                            onClick={toggleFullscreen}
+                            onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
                             className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors"
                           >
                             {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
