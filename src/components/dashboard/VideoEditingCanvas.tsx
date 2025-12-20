@@ -127,6 +127,7 @@ import AIToolsPanel from './editor/AIToolsPanel';
 import ScriptTextEditor from './editor/ScriptTextEditor';
 import SettingsPanel from './editor/SettingsPanel';
 import LayoutPanel from './editor/LayoutPanel';
+import ClipSettingsPanel from './editor/ClipSettingsPanel';
 
 // Types
 interface TimelineClip {
@@ -265,7 +266,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const [videoAspectClass, setVideoAspectClass] = useState('aspect-video');
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  
+  const [showClipSettings, setShowClipSettings] = useState(false);
   // Clip resizing state
   const [resizingClip, setResizingClip] = useState<{ clipId: string; edge: 'left' | 'right'; startX: number; originalStart: number; originalDuration: number } | null>(null);
 
@@ -1002,19 +1003,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'templates':
-        return (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <LayoutTemplate className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Templates</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Browse and apply pre-made templates to your project
-              </p>
-            </div>
-          </div>
-        );
+        return <TemplatesPanel />;
 
       case 'elements':
         return <ElementsPanel />;
@@ -1579,6 +1568,71 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 {/* Video Preview Panel */}
                 <ResizablePanel defaultSize={60} minSize={30}>
                   <div className="h-full flex flex-col bg-gray-100">
+                    {/* Video Toolbar - appears when video is selected */}
+                    {isVideoSelected && (
+                      <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                              <Layers className="w-4 h-4" />
+                              <ChevronDown className="w-3 h-3 text-gray-400" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white">
+                            <DropdownMenuItem onClick={() => toast({ title: 'Bring to front' })}>Bring to front</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toast({ title: 'Send to back' })}>Send to back</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          Position
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <RotateCw className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <Scan className="w-4 h-4" />
+                        </button>
+                        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
+                          <Minus className="w-3 h-3 text-gray-400 cursor-pointer hover:text-gray-600" onClick={() => setZoomLevel(Math.max(10, zoomLevel - 10))} />
+                          <span className="text-xs text-gray-600 w-10 text-center">{zoomLevel}%</span>
+                          <Plus className="w-3 h-3 text-gray-400 cursor-pointer hover:text-gray-600" onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))} />
+                        </div>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <Ratio className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <SkipBack className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <SkipForward className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                        <div className="w-px h-5 bg-gray-200 mx-1" />
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          Effects
+                        </button>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                          Animation
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setShowClipSettings(true);
+                            setActiveTab('settings');
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                        </button>
+                        <button className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                     {/* Video Preview Area */}
                     <div 
                       ref={playerContainerRef}
