@@ -342,11 +342,60 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     );
   };
 
+  // Handle progress bar seeking
+  const handleProgressBarSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const newTime = (x / rect.width) * duration;
+    onTimeSeek(Math.max(0, Math.min(duration, newTime)));
+  }, [duration, onTimeSeek]);
+
+  // Add new track
+  const handleAddTrack = () => {
+    const newTrack: TimelineTrack = {
+      id: `track-${Date.now()}`,
+      type: 'video',
+      name: `Track ${tracks.length + 1}`,
+      clips: [],
+      muted: false,
+      locked: false,
+      visible: true,
+    };
+    setTracks(prev => [...prev, newTrack]);
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
-      {/* Time Ruler */}
+      {/* Progress Bar at Top */}
+      <div 
+        className="h-2 bg-slate-800 cursor-pointer relative group flex-shrink-0"
+        onClick={handleProgressBarSeek}
+      >
+        {/* Progress fill */}
+        <div 
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400"
+          style={{ width: `${(currentTime / duration) * 100}%` }}
+        />
+        {/* Hover effect */}
+        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
+        {/* Playhead indicator */}
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+          style={{ left: `calc(${(currentTime / duration) * 100}% - 6px)` }}
+        />
+      </div>
+
+      {/* Time Ruler with Add Track Button */}
       <div className="flex flex-shrink-0">
-        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700" />
+        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center justify-center">
+          <button 
+            onClick={handleAddTrack}
+            className="flex items-center gap-1.5 px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors text-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-medium">Add Track</span>
+          </button>
+        </div>
         <div 
           ref={timelineRef}
           onClick={handleTimelineClick}
@@ -505,22 +554,26 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       {/* Clip background */}
                       <div className={`absolute inset-0 bg-gradient-to-r ${trackStyle.bg} ${track.visible === false ? 'opacity-40' : ''}`} />
                       
-                      {/* Clip content */}
-                      <div className="relative h-full flex items-center px-2 z-10">
+                      {/* Clip content - Script text above waveform */}
+                      <div className="relative h-full flex flex-col z-10">
                         {track.type === 'audio' ? (
                           <>
-                            <span className="text-[10px] text-white/90 font-medium truncate">
-                              {clip.caption || clip.name}
-                            </span>
+                            {/* Script text - easy to read */}
+                            <div className="flex-1 flex items-center px-2 pt-1">
+                              <span className="text-xs text-white font-medium leading-tight line-clamp-2 drop-shadow-sm">
+                                {clip.caption || clip.name}
+                              </span>
+                            </div>
+                            {/* Waveform below */}
                             {renderWaveform(clip, isSelected)}
                           </>
                         ) : (
-                          <>
+                          <div className="flex-1 flex items-center px-2">
                             <TrackIcon className="w-3 h-3 text-white/60 mr-1.5 flex-shrink-0" />
                             <span className="text-[10px] text-white/90 font-medium truncate">
                               {clip.name}
                             </span>
-                          </>
+                          </div>
                         )}
                       </div>
 
@@ -565,16 +618,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           );
         })}
 
-        {/* Add Track Button */}
-        <div className="flex h-12 border-b border-slate-700/30">
-          <div className="w-[180px] flex-shrink-0 bg-slate-800/40 flex items-center justify-center border-r border-slate-700">
-            <button className="flex items-center gap-2 px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-md transition-colors text-xs">
-              <Plus className="w-3.5 h-3.5" />
-              Add Track
-            </button>
-          </div>
-          <div className="flex-1 bg-slate-900/30" />
-        </div>
       </div>
     </div>
   );
