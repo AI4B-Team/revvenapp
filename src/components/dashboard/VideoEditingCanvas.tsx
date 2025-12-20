@@ -109,7 +109,6 @@ import {
   ResizableHandle,
 } from '@/components/ui/resizable';
 import VideoTimeline from './VideoTimeline';
-import TextPanel from './editor/TextPanel';
 import CaptionsPanel from './editor/CaptionsPanel';
 import EffectsPanel from './editor/EffectsPanel';
 import TransitionsPanel from './editor/TransitionsPanel';
@@ -118,6 +117,8 @@ import TemplatesPanel from './editor/TemplatesPanel';
 import EditorVideoPanel from './editor/EditorVideoPanel';
 import EditorImagePanel from './editor/EditorImagePanel';
 import EditorAudioPanel from './editor/EditorAudioPanel';
+import EditorTextPanel from './editor/EditorTextPanel';
+import EditorTranslatePanel from './editor/EditorTranslatePanel';
 
 // Types
 interface TimelineClip {
@@ -922,17 +923,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         return <EditorAudioPanel />;
 
       case 'text':
-        return (
-          <div className="flex flex-col h-full overflow-y-auto">
-            <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Text</h3>
-              <button className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-                <Plus className="w-4 h-4" />
-                Add Text
-              </button>
-            </div>
-          </div>
-        );
+        return <EditorTextPanel />;
 
       case 'captions':
         return (
@@ -1016,19 +1007,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         return renderToolsContent();
 
       case 'translate':
-        return (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Translate</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Translate your video content to different languages
-              </p>
-            </div>
-          </div>
-        );
+        return <EditorTranslatePanel />;
 
       default:
         return null;
