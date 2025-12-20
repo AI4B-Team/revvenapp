@@ -76,10 +76,34 @@ serve(async (req) => {
 
       // Clean and normalize URL
       let cleanUrl = sourceUrl.trim();
-      if (cleanUrl.includes("youtube.com/shorts/")) {
-        cleanUrl = cleanUrl.replace("/shorts/", "/watch?v=");
+      
+      // Handle YouTube Shorts URLs - extract video ID and convert to standard watch URL
+      const shortsMatch = cleanUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+      if (shortsMatch) {
+        cleanUrl = `https://www.youtube.com/watch?v=${shortsMatch[1]}`;
+        console.log("Converted Shorts URL to:", cleanUrl);
+      } else if (cleanUrl.includes("youtu.be/")) {
+        // Handle youtu.be short links
+        const youtubeMatch = cleanUrl.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+        if (youtubeMatch) {
+          cleanUrl = `https://www.youtube.com/watch?v=${youtubeMatch[1]}`;
+          console.log("Converted youtu.be URL to:", cleanUrl);
+        }
       }
-      cleanUrl = cleanUrl.split("&")[0];
+      
+      // Remove tracking parameters
+      if (cleanUrl.includes("?")) {
+        const urlObj = new URL(cleanUrl);
+        // Keep only the 'v' parameter for YouTube
+        if (urlObj.hostname.includes("youtube.com")) {
+          const videoId = urlObj.searchParams.get("v");
+          if (videoId) {
+            cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          }
+        }
+      }
+      
+      console.log("Final clean URL:", cleanUrl);
 
       const response = await fetch("https://snap-video3.p.rapidapi.com/download", {
         method: "POST",
