@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Play, Download, Clock, User, Loader2, Video, Plus, Upload } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Plus, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
@@ -123,6 +122,20 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, video: PexelsVideo) => {
+    const videoUrl = getBestVideoFile(video);
+    if (!videoUrl) return;
+    
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'video',
+      url: videoUrl,
+      thumbnail: video.image,
+      duration: video.duration,
+      name: video.user.name
+    }));
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header with upload option */}
@@ -183,15 +196,13 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
           </div>
         ) : (
           <div className="space-y-3">
-            <AnimatePresence mode="popLayout">
               {videos.map((video, index) => (
-                <motion.div
+                <div
                   key={video.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="group relative rounded-xl overflow-hidden cursor-pointer bg-gray-100"
+                  className="group relative rounded-xl overflow-hidden cursor-grab active:cursor-grabbing bg-gray-100 animate-fade-in"
+                  style={{ animationDelay: `${index * 30}ms` }}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, video)}
                   onMouseEnter={() => setHoveredVideo(video.id)}
                   onMouseLeave={() => setHoveredVideo(null)}
                   onClick={() => handleVideoSelect(video)}
@@ -200,11 +211,11 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
                     <img
                       src={video.image}
                       alt="Video thumbnail"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover pointer-events-none"
                     />
                     
                     {/* Overlay on hover */}
-                    <div className={`absolute inset-0 bg-black/50 transition-opacity flex items-center justify-center ${
+                    <div className={`absolute inset-0 bg-black/50 transition-opacity flex items-center justify-center pointer-events-none ${
                       hoveredVideo === video.id ? 'opacity-100' : 'opacity-0'
                     }`}>
                       <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -213,18 +224,18 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
                     </div>
 
                     {/* Duration badge */}
-                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded-md text-xs text-white flex items-center gap-1">
+                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded-md text-xs text-white flex items-center gap-1 pointer-events-none">
                       <Clock className="w-3 h-3" />
                       {formatDuration(video.duration)}
                     </div>
 
                     {/* Add button on hover */}
-                    <div className={`absolute top-2 right-2 transition-opacity ${
+                    <div className={`absolute top-2 right-2 transition-opacity pointer-events-none ${
                       hoveredVideo === video.id ? 'opacity-100' : 'opacity-0'
                     }`}>
-                      <button className="p-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                      <div className="p-2 bg-primary text-white rounded-lg">
                         <Plus className="w-4 h-4" />
-                      </button>
+                      </div>
                     </div>
                   </div>
 
@@ -235,9 +246,8 @@ const StockVideoPanel: React.FC<StockVideoPanelProps> = ({ onSelectVideo }) => {
                       {video.user.name}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </AnimatePresence>
 
             {/* Load more */}
             {hasMore && !isLoading && (
