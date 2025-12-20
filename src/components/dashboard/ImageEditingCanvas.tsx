@@ -1503,31 +1503,33 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
             </div>
           </div>
 
-          {/* Centered Media Type Tabs - properly centered */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6">
-            <button 
-              onClick={() => onTabChange?.('image')}
-              className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
-            >
-              <Image className="w-4 h-4" />
-              <span>Image</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button 
-              onClick={() => onTabChange?.('video')}
-              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
-            >
-              <Video className="w-4 h-4" />
-              <span>Video</span>
-            </button>
-            <span className="text-slate-500">|</span>
-            <button 
-              onClick={() => onTabChange?.('audio')}
-              className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
-            >
-              <Music className="w-4 h-4" />
-              <span>Audio</span>
-            </button>
+          {/* Centered Media Type Tabs - matches Header nav centering */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="flex items-center gap-4 lg:gap-8">
+              <button 
+                onClick={() => onTabChange?.('image')}
+                className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+              >
+                <Image className="w-4 h-4" />
+                <span>Image</span>
+              </button>
+              <span className="text-slate-500 hidden lg:inline">|</span>
+              <button 
+                onClick={() => onTabChange?.('video')}
+                className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+              >
+                <Video className="w-4 h-4" />
+                <span>Video</span>
+              </button>
+              <span className="text-slate-500 hidden lg:inline">|</span>
+              <button 
+                onClick={() => onTabChange?.('audio')}
+                className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+              >
+                <Music className="w-4 h-4" />
+                <span>Audio</span>
+              </button>
+            </div>
           </div>
 
           {/* Right Actions - positioned far right */}
