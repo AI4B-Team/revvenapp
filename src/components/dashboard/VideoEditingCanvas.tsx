@@ -177,7 +177,10 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [zoom, setZoom] = useState(1);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [projectTitle, setProjectTitle] = useState('DIGITAL BABES VSL');
+  const [projectTitle, setProjectTitle] = useState('Untitled Project');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [audioSubTab, setAudioSubTab] = useState<'voices' | 'music' | 'effects'>('voices');
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const [selectedClip, setSelectedClip] = useState<string | null>(null);
   const [selectedAudioClip, setSelectedAudioClip] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -804,30 +807,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'script':
         return (
           <div className="flex flex-col h-full">
-            <input
-              type="text"
-              value={projectTitle}
-              onChange={(e) => setProjectTitle(e.target.value)}
-              className="text-xl font-bold w-full bg-transparent border-none outline-none mb-4 text-gray-900"
-            />
-            <div className="mb-4">
-              <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors">
-                <Plus className="w-4 h-4" />
-                Add Character
-              </button>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {speakers.map((speaker) => (
-                  <div
-                    key={speaker.id}
-                    className="flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium"
-                    style={{ backgroundColor: `${speaker.color}20`, color: speaker.color }}
-                  >
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: speaker.color }} />
-                    {speaker.name}
-                  </div>
-                ))}
-              </div>
-            </div>
             <textarea
               value={scriptContent}
               onChange={(e) => setScriptContent(e.target.value)}
@@ -856,29 +835,136 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'audio':
         return (
           <div className="flex flex-col h-full">
+            {/* Sub-tabs */}
+            <div className="flex gap-1 mb-4 p-1 bg-gray-100 rounded-lg">
+              {[
+                { id: 'voices' as const, label: 'Voices' },
+                { id: 'music' as const, label: 'Music' },
+                { id: 'effects' as const, label: 'Sound Effects' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setAudioSubTab(tab.id)}
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    audioSubTab === tab.id
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Action buttons */}
             <div className="flex items-center gap-2 mb-4">
-              <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:opacity-90 transition-colors">
+                <Bot className="w-4 h-4" />
+                AI Voice
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors">
                 <Upload className="w-4 h-4" />
                 Upload
               </button>
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search audio library"
-                  className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
             </div>
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <AudioLines className="w-8 h-8 text-gray-400" />
+
+            {/* Sub-tab content */}
+            {audioSubTab === 'voices' && (
+              <div className="flex-1 overflow-y-auto">
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-4 h-4 text-yellow-500" />
+                    <h4 className="font-semibold text-gray-900">Voice</h4>
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                      <AudioLines className="w-4 h-4" />
+                      Voice Cloning
+                    </button>
+                    <button className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                      <Mic className="w-4 h-4" />
+                      Voiceover
+                    </button>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">No Audio Assets</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Use AI to generate audio, search our library, or upload your own!
-              </p>
-            </div>
+            )}
+
+            {audioSubTab === 'music' && (
+              <div className="flex-1 overflow-y-auto">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">Stock Music</h4>
+                  <button className="text-sm text-primary hover:underline">View all →</button>
+                </div>
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  {['All', 'Ambient', 'Chill', 'Happy'].map((cat) => (
+                    <button key={cat} className="px-3 py-1.5 bg-gray-100 rounded-full text-xs hover:bg-gray-200 transition-colors">
+                      {cat}
+                    </button>
+                  ))}
+                  <button className="px-2 py-1.5 text-gray-400">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { name: 'Synthwave Memories', duration: '2:56' },
+                    { name: 'Lofi Background Vlog Hip Hop', duration: '2:01' },
+                    { name: 'Deep House In Cafe', duration: '4:48' },
+                    { name: 'King And Queens, New York', duration: '2:56' },
+                    { name: 'Are U Ok', duration: '1:29' },
+                  ].map((track, i) => (
+                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Play className="w-4 h-4 text-gray-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{track.name}</p>
+                        <p className="text-xs text-gray-500">{track.duration}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {audioSubTab === 'effects' && (
+              <div className="flex-1 overflow-y-auto">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">Sound Effects</h4>
+                  <button className="text-sm text-primary hover:underline">View all →</button>
+                </div>
+                <div className="flex gap-2 mb-4 flex-wrap">
+                  {['All', 'Cartoon', 'Clicks', 'Magic'].map((cat) => (
+                    <button key={cat} className="px-3 py-1.5 bg-gray-100 rounded-full text-xs hover:bg-gray-200 transition-colors">
+                      {cat}
+                    </button>
+                  ))}
+                  <button className="px-2 py-1.5 text-gray-400">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { name: 'Large Crowd Medium Ovation', duration: '0:10' },
+                    { name: 'Forest Bird Singing', duration: '2:13' },
+                    { name: 'Tune Fm Radio', duration: '0:03' },
+                    { name: 'Fail Error Mistake Out of Time', duration: '0:02' },
+                    { name: 'Mouse Click Computer', duration: '0:00' },
+                  ].map((sfx, i) => (
+                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100">
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Play className="w-4 h-4 text-gray-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{sfx.name}</p>
+                        <p className="text-xs text-gray-500">{sfx.duration}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -1035,48 +1121,47 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
           </div>
 
-          {/* Undo/Redo & Zoom */}
+          {/* Editable Project Name + 3-dot menu */}
           <div className="flex items-center gap-2 ml-4">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button onClick={undo} className="p-2 text-slate-300 hover:text-white transition-colors">
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={projectTitle}
+                onChange={(e) => setProjectTitle(e.target.value)}
+                onBlur={() => setIsEditingTitle(false)}
+                onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+                autoFocus
+                className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-500 focus:outline-none focus:border-slate-400 min-w-[150px]"
+              />
+            ) : (
+              <button
+                onClick={() => setIsEditingTitle(true)}
+                className="text-white text-sm font-medium hover:bg-slate-700/50 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                {projectTitle}
+              </button>
+            )}
+            <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded transition-colors">
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 bg-white border border-gray-200">
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                  <Copy className="w-4 h-4" />
+                  Duplicate Project
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                  <LayoutTemplate className="w-4 h-4" />
+                  Save as Template
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
                   <RotateCcw className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white"><p>Undo</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button onClick={redo} className="p-2 text-slate-300 hover:text-white transition-colors">
-                  <RotateCw className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white"><p>Redo</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 text-emerald-400 hover:text-emerald-300 transition-colors relative">
-                  <Cloud className="w-4 h-4" />
-                  <Check className="w-2 h-2 absolute bottom-1.5 right-1.5 stroke-[3]" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="bg-black text-white"><p>Saved To Cloud</p></TooltipContent>
-            </Tooltip>
-            <div className="flex items-center gap-1 bg-slate-700/50 rounded-lg px-2 py-1">
-              <button
-                onClick={() => setZoomLevel(Math.max(25, zoomLevel - 10))}
-                className="p-1 text-slate-400 hover:text-white transition-colors"
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-              <span className="text-sm text-slate-200 min-w-[50px] text-center">{zoomLevel}%</span>
-              <button
-                onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}
-                className="p-1 text-slate-400 hover:text-white transition-colors"
-              >
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
+                  Version History
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Centered Media Type Tabs */}
@@ -1614,8 +1699,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <div className="bg-white border-t border-gray-200 shrink-0">
                   {/* Toolbar */}
                   <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-                    {/* Left Tools - CapCut style */}
+                    {/* Left Tools - Text Editing button + CapCut style icons */}
                     <div className="flex items-center gap-1">
+                      <button className="flex items-center gap-2 px-3 py-1.5 bg-violet-100 hover:bg-violet-200 rounded-lg text-violet-700 font-medium text-sm transition-colors mr-2">
+                        <Pencil className="w-4 h-4" />
+                        Text Editing
+                      </button>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button onClick={undo} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
