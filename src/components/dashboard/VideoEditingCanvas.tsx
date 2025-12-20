@@ -1745,10 +1745,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
                         <div className="w-full h-full flex items-center justify-center p-8">
-                          <div className="grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
+                          <div className="grid w-full max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
                             {/* Upload File Box */}
                             <div
-                              className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer"
+                              className="group flex min-h-[320px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-12 text-center transition-colors hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const input = document.createElement('input');
@@ -1770,9 +1770,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                               <h3 className="text-2xl font-semibold text-gray-900 mb-6">Upload File</h3>
 
-                              <div className="w-full max-w-[460px] px-5 py-3 rounded-xl border-2 border-gray-300 bg-white flex items-center gap-3 mb-5">
-                                <Upload className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                                <span className="text-base text-gray-600 whitespace-nowrap">Drag & Drop Your Video Or Audio File</span>
+                              <div className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white mb-6">
+                                <span className="text-base text-gray-600">Drag & Drop Your Video Or Audio File</span>
                               </div>
 
                               <div className="flex items-center gap-2 flex-wrap justify-center">
@@ -1784,20 +1783,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </div>
                             </div>
 
-                            {/* Upload Link Box */}
-                            <div className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/30">
+                            {/* Paste Link Box */}
+                            <div className="group flex min-h-[320px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-12 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/30">
                               <div className="w-20 h-20 rounded-3xl bg-blue-50 flex items-center justify-center mb-6">
                                 <Link2 className="w-10 h-10 text-blue-600" />
                               </div>
 
-                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Upload Link</h3>
+                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Paste Link</h3>
 
-                              <div className="w-full max-w-[460px] px-5 py-3 rounded-xl border-2 border-gray-300 bg-white flex items-center gap-3 mb-5">
-                                <Link2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                              <div className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white mb-6">
                                 <input
                                   type="text"
                                   placeholder="Paste A Supported Public Media Link"
-                                  className="flex-1 min-w-0 bg-transparent text-base text-gray-600 placeholder:text-gray-500 focus:outline-none"
+                                  className="w-full bg-transparent text-base text-gray-600 placeholder:text-gray-500 focus:outline-none text-center"
                                   onClick={(e) => e.stopPropagation()}
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
@@ -1820,59 +1818,32 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 />
                               </div>
 
-                              <div className="flex items-center justify-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaYoutube className="w-5 h-5 text-red-500" />
+                              <div className="flex items-center justify-center gap-3 flex-wrap">
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaYoutube className="w-4 h-4 text-red-500" />
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaTiktok className="w-5 h-5 text-gray-900" />
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaTiktok className="w-4 h-4 text-gray-900" />
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaInstagram className="w-5 h-5 text-pink-600" />
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaInstagram className="w-4 h-4 text-pink-600" />
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                   </svg>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                   </svg>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaVimeo className="w-5 h-5 text-blue-400" />
+                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                  <FaVimeo className="w-4 h-4 text-blue-400" />
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
-                                  </svg>
+                                <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                  <span className="text-xs font-semibold text-gray-500">+43</span>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                  <span className="text-sm font-semibold text-gray-500">+43</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Record Audio Box */}
-                            <div
-                              className="group flex min-h-[360px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-10 text-center transition-colors hover:border-rose-300 hover:bg-rose-50/30 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setRecordModalOpen(true);
-                              }}
-                            >
-                              <div className="w-20 h-20 rounded-3xl bg-rose-50 flex items-center justify-center mb-6">
-                                <Mic className="w-10 h-10 text-rose-500" />
-                              </div>
-
-                              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Record Audio</h3>
-                              <p className="text-lg text-gray-500 mb-6 whitespace-nowrap">Click To Start Recording</p>
-
-                              <div className="flex items-center gap-3">
-                                <span className="w-2.5 h-2.5 rounded-full bg-rose-300" />
-                                <span className="px-3 py-1.5 rounded-lg bg-rose-500 text-xs font-semibold text-white">LIVE</span>
-                                <span className="text-lg text-gray-500 whitespace-nowrap">Real-Time Transcription</span>
                               </div>
                             </div>
                           </div>
