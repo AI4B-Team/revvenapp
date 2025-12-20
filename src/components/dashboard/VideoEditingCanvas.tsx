@@ -44,6 +44,7 @@ import {
   User,
   Share2,
   Settings,
+  UserPlus,
   ChevronLeft,
   ChevronRight,
   ScrollText,
@@ -122,6 +123,8 @@ import EditorTranslatePanel from './editor/EditorTranslatePanel';
 import VoiceRecordingModal from './VoiceRecordingModal';
 import ExportDropdown from './editor/ExportDropdown';
 import VideoTranslateModal from './editor/VideoTranslateModal';
+import AIToolsPanel from './editor/AIToolsPanel';
+import ScriptTextEditor from './editor/ScriptTextEditor';
 
 // Types
 interface TimelineClip {
@@ -218,6 +221,8 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isVideoSelected, setIsVideoSelected] = useState(false);
   const [translateModalOpen, setTranslateModalOpen] = useState(false);
   const [isFreePlan] = useState(true); // Would come from auth context in production
+  const [showDeletedText, setShowDeletedText] = useState(false);
+  const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -784,19 +789,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     </div>
   );
 
-  // Tools tab content
+  // Tools tab content - now uses AIToolsPanel
   const renderToolsContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-        <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-          <Wrench className="w-8 h-8 text-gray-400" />
-        </div>
-        <h3 className="font-semibold text-gray-900 mb-2">Tools</h3>
-        <p className="text-sm text-gray-500 max-w-[280px]">
-          Access advanced editing tools and utilities
-        </p>
-      </div>
-    </div>
+    <AIToolsPanel 
+      onToolAction={(action, settings) => {
+        console.log('Tool action:', action, settings);
+        if (action === 'show-deleted') {
+          setShowDeletedText(settings?.enabled || false);
+        }
+      }}
+    />
   );
 
   // Render waveform for audio clips
@@ -868,11 +870,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'script':
         return (
           <div className="flex flex-col h-full">
-            <textarea
-              value={scriptContent}
-              onChange={(e) => setScriptContent(e.target.value)}
-              className="w-full flex-1 min-h-[400px] p-3 bg-gray-50 rounded-xl text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary border border-gray-200"
-              placeholder="Enter your script here..."
+            <ScriptTextEditor
+              script={scriptContent}
+              onScriptChange={setScriptContent}
+              showDeleted={showDeletedText}
+              onSegmentDelete={(id) => console.log('Delete segment:', id)}
+              onSegmentExport={(id, text) => console.log('Export segment:', id, text)}
             />
           </div>
         );
@@ -1291,7 +1294,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               onClick={() => setShareDialogOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors"
             >
-              <Share2 className="w-4 h-4" />
+              <UserPlus className="w-4 h-4" />
               <span>Share</span>
             </button>
             <ExportDropdown isFreePlan={isFreePlan} />
@@ -1677,27 +1680,33 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       ref={playerContainerRef}
                       className="flex-1 flex items-center justify-center p-4 relative"
                     >
+                      {/* Frame container - this is the selected aspect ratio frame */}
                       <div 
-                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
+                        className={`relative bg-black rounded-xl overflow-hidden shadow-2xl ${videoAspectClass} flex items-center justify-center cursor-pointer transition-all ${
                           isVideoSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2'
                         }`}
+                        style={{
+                          width: selectedRatio === '9:16' ? '200px' : selectedRatio === '1:1' ? '350px' : selectedRatio === '4:3' ? '400px' : '450px',
+                          height: selectedRatio === '9:16' ? '356px' : selectedRatio === '1:1' ? '350px' : selectedRatio === '4:3' ? '300px' : '253px',
+                        }}
                         onClick={(e) => {
                           // Don't select if clicking on controls
                           if ((e.target as HTMLElement).closest('button')) return;
                           setIsVideoSelected(!isVideoSelected);
                         }}
                       >
-                    <video
-                      ref={videoRef}
-                      src={currentVideoSrc}
-                      className="max-w-full max-h-full object-contain"
-                      onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                      onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
-                      onEnded={() => setIsPlaying(false)}
-                      onPlay={() => setIsPlaying(true)}
-                      onPause={() => setIsPlaying(false)}
-                      muted={isMuted}
-                    />
+                        {/* Video inside the frame - always fully visible with object-contain */}
+                        <video
+                          ref={videoRef}
+                          src={currentVideoSrc}
+                          className="max-w-full max-h-full object-contain"
+                          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                          onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
+                          onEnded={() => setIsPlaying(false)}
+                          onPlay={() => setIsPlaying(true)}
+                          onPause={() => setIsPlaying(false)}
+                          muted={isMuted}
+                        />
                     
                     {/* Selection indicator and delete button */}
                     {isVideoSelected && (
@@ -1984,11 +1993,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <div className="w-px h-6 bg-gray-200 mx-2" />
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Maximize className="w-5 h-5" />
+                          <button 
+                            onClick={() => {
+                              // Fit timeline to view - calculate zoom to show entire duration
+                              setZoom(1);
+                              toast({ title: 'Timeline fitted to view' });
+                            }}
+                            className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
+                          >
+                            <Maximize className="w-4 h-4" />
+                            <span className="text-sm font-medium">Fit</span>
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Fit Timeline</p></TooltipContent>
+                        <TooltipContent><p>Fit Timeline to View</p></TooltipContent>
                       </Tooltip>
                     </div>
                   </div>
