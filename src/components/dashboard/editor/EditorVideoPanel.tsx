@@ -34,10 +34,20 @@ interface PexelsVideo {
   }[];
 }
 
+interface UploadedMedia {
+  id: string;
+  name: string;
+  url: string;
+  thumbnail?: string;
+  type: 'video' | 'audio';
+  source: 'upload' | 'url';
+}
+
 interface EditorVideoPanelProps {
   onSelectVideo?: (videoUrl: string, thumbnailUrl: string) => void;
   onOpenReferences?: () => void;
   onOpenTranslate?: () => void;
+  uploadedMedia?: UploadedMedia[];
 }
 
 const categories = [
@@ -49,7 +59,7 @@ const categories = [
   { label: 'Abstract', query: 'abstract motion' },
 ];
 
-const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOpenReferences, onOpenTranslate }) => {
+const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOpenReferences, onOpenTranslate, uploadedMedia = [] }) => {
   const [videos, setVideos] = useState<PexelsVideo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -313,11 +323,62 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
 
       {/* Videos grid */}
       <div className="flex-1 overflow-y-auto">
+        {/* Uploaded Media Section */}
+        {uploadedMedia.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Your Uploads</h4>
+            <div className="space-y-2">
+              {uploadedMedia.filter(m => m.type === 'video').map((media) => (
+                <div
+                  key={media.id}
+                  className="group relative rounded-xl overflow-hidden cursor-grab active:cursor-grabbing bg-gray-100"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/json', JSON.stringify({
+                      type: 'video',
+                      url: media.url,
+                      thumbnail: media.thumbnail || '',
+                      duration: 5,
+                      name: media.name
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                  }}
+                  onClick={() => {
+                    if (onSelectVideo) {
+                      onSelectVideo(media.url, media.thumbnail || '');
+                      toast.success('Video added to timeline');
+                    }
+                  }}
+                >
+                  <div className="aspect-video relative bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center">
+                    {media.thumbnail ? (
+                      <img src={media.thumbnail} alt={media.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Video className="w-8 h-8 text-emerald-500" />
+                    )}
+                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-medium rounded-full">
+                      {media.source === 'upload' ? 'Uploaded' : 'URL'}
+                    </div>
+                  </div>
+                  <div className="p-2">
+                    <p className="text-xs text-gray-700 font-medium truncate">{media.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Stock Videos Section */}
+        {uploadedMedia.length > 0 && (
+          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Stock Videos</h4>
+        )}
+        
         {isLoading && videos.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
-        ) : videos.length === 0 ? (
+        ) : videos.length === 0 && uploadedMedia.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
               <Video className="w-8 h-8 text-gray-400" />
@@ -325,7 +386,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
             <h3 className="font-semibold text-gray-900 mb-2">No videos found</h3>
             <p className="text-sm text-gray-500">Try a different search term</p>
           </div>
-        ) : (
+        ) : videos.length > 0 ? (
           <div className="space-y-3">
             {videos.map((video, index) => (
               <div
@@ -383,7 +444,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
               </div>
             )}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Pexels attribution */}
