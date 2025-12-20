@@ -1121,7 +1121,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
         {/* Input Options - 3 Horizontal Boxes */}
         <section className="mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
             {/* Upload Audio */}
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -1206,7 +1206,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none"
                   />
                 </div>
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {PLATFORMS.slice(0, 7).map((platform, i) => (
                     <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                       <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
