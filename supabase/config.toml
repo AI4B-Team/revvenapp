@@ -98,3 +98,6 @@ verify_jwt = true
 
 [functions.generate-blog]
 verify_jwt = true
+
+[functions.process-explainer-video]
+verify_jwt = true

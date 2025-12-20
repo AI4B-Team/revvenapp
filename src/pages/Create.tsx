@@ -20,6 +20,7 @@ import FilterToolbar from '@/components/dashboard/FilterToolbar';
 import ImageEditingCanvas from '@/components/dashboard/ImageEditingCanvas';
 import CollectionsView from '@/components/dashboard/CollectionsView';
 import SocialContentCalendar from '@/components/dashboard/SocialContentCalendar';
+import ExplainerVideoModal from '@/components/dashboard/ExplainerVideoModal';
 import { socialPlatforms } from '@/components/dashboard/SocialIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -154,6 +155,7 @@ const Create = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioDetailsModalOpen, setAudioDetailsModalOpen] = useState(false);
   const [audioDetailsItem, setAudioDetailsItem] = useState<any>(null);
+  const [explainerVideoModalOpen, setExplainerVideoModalOpen] = useState(false);
   const toggleAudioPlayRef = useRef<(() => void) | null>(null);
   const [selectedAudioMode, setSelectedAudioMode] = useState('All');
   const [filters, setFilters] = useState({
@@ -354,7 +356,8 @@ const Create = () => {
       name: 'Explainer Video', 
       description: 'Create educational videos',
       bgColor: 'bg-tool-blue',
-      emoji: '🎬'
+      emoji: '🎬',
+      onClick: () => setExplainerVideoModalOpen(true)
     },
     { 
       name: 'AI Influencer', 
@@ -1218,6 +1221,12 @@ const Create = () => {
             setAudioDetailsItem((prev: any) => prev ? { ...prev, name: newTitle } : null);
           }
         }}
+      />
+      
+      {/* Explainer Video Modal */}
+      <ExplainerVideoModal
+        isOpen={explainerVideoModalOpen}
+        onClose={() => setExplainerVideoModalOpen(false)}
       />
     </div>
   );
