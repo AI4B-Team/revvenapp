@@ -125,6 +125,8 @@ import ExportDropdown from './editor/ExportDropdown';
 import VideoTranslateModal from './editor/VideoTranslateModal';
 import AIToolsPanel from './editor/AIToolsPanel';
 import ScriptTextEditor from './editor/ScriptTextEditor';
+import SettingsPanel from './editor/SettingsPanel';
+import LayoutPanel from './editor/LayoutPanel';
 
 // Types
 interface TimelineClip {
@@ -742,6 +744,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Record modal state
   const [recordModalOpen, setRecordModalOpen] = useState(false);
 
+  // Layout state
+  const [selectedLayout, setSelectedLayout] = useState<string>('camera');
+  const [showLayoutPanel, setShowLayoutPanel] = useState(false);
+
   // Tab configuration with all requested icons in order
   const tabs = [
     { id: 'script', icon: ScrollText, label: 'Script' },
@@ -753,7 +759,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     { id: 'captions', icon: Captions, label: 'Captions' },
     { id: 'transitions', icon: ArrowLeftRight, label: 'Transitions' },
     { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
-    { id: 'tools', icon: Settings, label: 'Tools' },
+    { id: 'tools', icon: Wrench, label: 'Tools' },
+    { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 
   // Sub-menu items for each tab
@@ -1018,6 +1025,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
       case 'translate':
         return <EditorTranslatePanel />;
+
+      case 'settings':
+        return (
+          <SettingsPanel 
+            aspectRatio={aspectRatio}
+            onAspectRatioChange={setAspectRatio}
+            onSettingChange={(setting, value) => console.log('Setting change:', setting, value)}
+          />
+        );
 
       default:
         return null;
@@ -1834,8 +1850,47 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
                 </div>
-              </div>
-            </ResizablePanel>
+
+                  {/* Layout Toolbar Below Video */}
+                  <div className="flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100">
+                    {/* Layout Selector */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setShowLayoutPanel(!showLayoutPanel)}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 transition-colors"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        <span>Layout</span>
+                        <span className="text-gray-400 text-xs capitalize">{selectedLayout}</span>
+                      </button>
+                      
+                      {/* Layout Panel Popover */}
+                      {showLayoutPanel && (
+                        <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                          <LayoutPanel 
+                            selectedLayout={selectedLayout}
+                            onLayoutSelect={(id) => {
+                              setSelectedLayout(id);
+                              setShowLayoutPanel(false);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Background Color */}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+                      <span className="text-sm text-gray-700">Background</span>
+                      <input 
+                        type="color" 
+                        defaultValue="#000000"
+                        className="w-5 h-5 rounded border-0 cursor-pointer"
+                      />
+                      <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                    </div>
+                  </div>
+                </div>
+                </ResizablePanel>
 
                 <ResizableHandle withHandle className="bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors" />
 
