@@ -18,16 +18,47 @@ import {
   ChevronDown,
   ChevronUp,
   Play,
-  Sliders
+  Sliders,
+  X,
+  Scissors,
+  FileText,
+  PenTool,
+  MessageSquare,
+  Lightbulb,
+  Layout,
+  Film,
+  Search,
+  Star,
+  Type,
+  AlignLeft,
+  RotateCw,
+  BookOpen,
+  Youtube,
+  Share2,
+  Newspaper,
+  ListOrdered,
+  Camera,
+  Grid,
+  Blend,
+  Wand2
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 interface AIToolsPanelProps {
   onToolAction?: (action: string, settings?: any) => void;
+}
+
+interface RecommendedItem {
+  id: string;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  dismissed?: boolean;
 }
 
 const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
@@ -36,271 +67,206 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
   const [silenceMode, setSilenceMode] = useState<'short' | 'long' | 'custom'>('short');
   const [customSilenceThreshold, setCustomSilenceThreshold] = useState(0.7);
   
-  // Toggle states
-  const [cleanAudio, setCleanAudio] = useState(false);
-  const [removeFillerWords, setRemoveFillerWords] = useState(false);
-  const [removeSilences, setRemoveSilences] = useState(false);
-  const [eyeContact, setEyeContact] = useState(false);
-  const [aiBackgroundExpand, setAiBackgroundExpand] = useState(false);
-  const [removeBackground, setRemoveBackground] = useState(false);
-  const [faceFilter, setFaceFilter] = useState(false);
-  const [greenScreen, setGreenScreen] = useState(false);
+  // Recommended items state
+  const [recommendedItems, setRecommendedItems] = useState<RecommendedItem[]>([
+    { id: '1', icon: Scissors, title: 'Edit for clarity', description: 'Remove filler words, digressions, blather — all the obvious cuts' },
+    { id: '2', icon: VolumeX, title: 'Remove filler words', description: 'Remove uhms, uhs, repeated words, and other verbal clutter' },
+    { id: '3', icon: ArrowLeftRight, title: 'Shorten word gaps', description: 'Shrink or cut silences & lapses in conversation' },
+    { id: '4', icon: AudioLines, title: 'Studio Sound', description: 'Remove background noise & enhance voices' },
+    { id: '5', icon: Film, title: 'Create clips', description: 'AI Tools picks your most viral-worthy moments & creates clips that pop' },
+  ]);
 
-  const handleDeleteSilences = () => {
-    const threshold = silenceMode === 'custom' ? customSilenceThreshold : silenceMode === 'short' ? 0.3 : 1.0;
-    toast.success(`Deleting silences longer than ${threshold}s`);
-    onToolAction?.('delete-silences', { threshold, mode: silenceMode });
+  const dismissRecommended = (id: string) => {
+    setRecommendedItems(prev => prev.filter(item => item.id !== id));
+    toast.success('Recommendation dismissed');
   };
 
-  const handleDeleteFillerWords = () => {
-    toast.success('Removing filler words...');
-    onToolAction?.('delete-filler-words', {});
+  const handleToolClick = (tool: string) => {
+    toast.success(`Opening ${tool}...`);
+    onToolAction?.(tool.toLowerCase().replace(/\s+/g, '-'), {});
   };
 
-  const handleToggle = (tool: string, enabled: boolean, setter: (v: boolean) => void) => {
-    setter(enabled);
-    if (enabled) {
-      toast.success(`${tool} enabled`);
-    }
-    onToolAction?.(tool.toLowerCase().replace(/\s+/g, '-'), { enabled });
-  };
+  const visibleRecommendations = recommendedItems.filter(item => !item.dismissed);
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
-      {/* Show Deleted Toggle */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <span className="text-sm font-medium text-gray-700">Show deleted</span>
-        <Switch 
-          checked={showDeleted} 
-          onCheckedChange={setShowDeleted}
-        />
-      </div>
-
-      {/* Delete Silences - Collapsible */}
-      <Collapsible open={deleteSilencesOpen} onOpenChange={setDeleteSilencesOpen}>
-        <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-900">Delete Silences</span>
-          {deleteSilencesOpen ? (
-            <ChevronUp className="w-4 h-4 text-gray-500" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-500" />
-          )}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="p-4 pt-0 space-y-4 bg-gray-50">
-          {/* Mode Selector */}
-          <div className="flex gap-2 mt-3">
-            {(['short', 'long', 'custom'] as const).map((mode) => (
+    <div className="flex flex-col h-full overflow-y-auto bg-white">
+      {/* Recommended Section */}
+      {visibleRecommendations.length > 0 && (
+        <>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-500">Recommended</span>
+            <button 
+              onClick={() => setRecommendedItems([])}
+              className="p-1 hover:bg-gray-100 rounded transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {visibleRecommendations.map((item) => (
               <button
-                key={mode}
-                onClick={() => setSilenceMode(mode)}
-                className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  silenceMode === mode
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                key={item.id}
+                onClick={() => handleToolClick(item.title)}
+                className="w-full flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors text-left group"
               >
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                {mode !== 'custom' && (
-                  <Play className="w-3 h-3 inline ml-1 opacity-60" />
-                )}
+                <item.icon className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); dismissRecommended(item.id); }}
+                  className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-200 rounded transition-all"
+                >
+                  <X className="w-3 h-3 text-gray-400" />
+                </button>
               </button>
             ))}
           </div>
-
-          {/* Custom Slider */}
-          {silenceMode === 'custom' && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">More than</span>
-                <span className="text-sm font-medium text-gray-900">{customSilenceThreshold}s</span>
-              </div>
-              <Slider
-                value={[customSilenceThreshold]}
-                onValueChange={([val]) => setCustomSilenceThreshold(val)}
-                min={0.1}
-                max={3}
-                step={0.1}
-                className="w-full"
-              />
-            </div>
-          )}
-
-          <Button 
-            onClick={handleDeleteSilences}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            Delete
-          </Button>
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Delete Filler Words */}
-      <button
-        onClick={handleDeleteFillerWords}
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left"
-      >
-        <span className="text-sm font-medium text-gray-900">Delete Filler Words</span>
-      </button>
+        </>
+      )}
 
       {/* Sound Good Section */}
-      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sound Good</span>
+      <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sound good</span>
       </div>
 
-      <div className="divide-y divide-gray-100">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Mic className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Clean audio</span>
-          </div>
-          <Switch 
-            checked={cleanAudio} 
-            onCheckedChange={(v) => handleToggle('Clean audio', v, setCleanAudio)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Sliders className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Remove filler words</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-orange-500 font-medium">⚡</span>
-            <Switch 
-              checked={removeFillerWords} 
-              onCheckedChange={(v) => handleToggle('Remove filler words', v, setRemoveFillerWords)}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <VolumeX className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Remove silences</span>
-          </div>
-          <Switch 
-            checked={removeSilences} 
-            onCheckedChange={(v) => handleToggle('Remove silences', v, setRemoveSilences)}
-          />
-        </div>
-      </div>
-
-      {/* Look Good Section */}
-      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Look Good</span>
-      </div>
-
-      <div className="divide-y divide-gray-100">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Eye className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Eye contact</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-orange-500 font-medium">⚡</span>
-            <Switch 
-              checked={eyeContact} 
-              onCheckedChange={(v) => handleToggle('Eye contact', v, setEyeContact)}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Maximize2 className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">AI Background expand</span>
-          </div>
-          <Switch 
-            checked={aiBackgroundExpand} 
-            onCheckedChange={(v) => handleToggle('AI Background expand', v, setAiBackgroundExpand)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Eraser className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Remove background</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-orange-500 font-medium">⚡</span>
-            <Switch 
-              checked={removeBackground} 
-              onCheckedChange={(v) => handleToggle('Remove background', v, setRemoveBackground)}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Smile className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Face filter</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-orange-500 font-medium">⚡</span>
-            <Switch 
-              checked={faceFilter} 
-              onCheckedChange={(v) => handleToggle('Face filter', v, setFaceFilter)}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Tv className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Green screen</span>
-          </div>
-          <Switch 
-            checked={greenScreen} 
-            onCheckedChange={(v) => handleToggle('Green screen', v, setGreenScreen)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <Captions className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">Subtitles</span>
-          </div>
-          <Button variant="outline" size="sm" className="text-xs">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Generate
-          </Button>
-          <span className="text-xs text-gray-400">✦ 0 credits left</span>
-        </div>
-      </div>
-
-      {/* Generate Section */}
-      <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-500" />
-            <span className="text-xs font-semibold text-purple-700 uppercase tracking-wider">Generate</span>
-          </div>
-          <span className="text-xs text-gray-400">✦ 0 credits left</span>
-        </div>
-      </div>
-
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-gray-50">
         {[
-          { icon: ArrowLeftRight, label: 'AI Transitions' },
-          { icon: ImageIcon, label: 'B-roll AI images' },
-          { icon: Users, label: 'Characters' },
-          { icon: AudioLines, label: 'AI Voice' },
-          { icon: Video, label: 'AI Video' },
-          { icon: ImageIcon, label: 'AI Image' },
-          { icon: Languages, label: 'AI Dubbing' },
+          { icon: Scissors, label: 'Edit for clarity' },
+          { icon: AudioLines, label: 'Studio Sound' },
+          { icon: VolumeX, label: 'Remove filler words' },
+          { icon: RotateCw, label: 'Remove retakes' },
+          { icon: ArrowLeftRight, label: 'Shorten word gaps' },
+          { icon: ListOrdered, label: 'Add chapters' },
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
-            onClick={() => {
-              toast.success(`Opening ${label}...`);
-              onToolAction?.(label.toLowerCase().replace(/\s+/g, '-'), {});
-            }}
-            className="w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors text-left"
+            onClick={() => handleToolClick(label)}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
           >
-            <Icon className="w-4 h-4 text-gray-500" />
+            <Icon className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-700">{label}</span>
           </button>
         ))}
+      </div>
+
+      {/* Look Good Section */}
+      <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Look good</span>
+      </div>
+
+      <div className="divide-y divide-gray-50">
+        {[
+          { icon: Wand2, label: 'Quick design', disabled: true },
+          { icon: Eye, label: 'Eye Contact' },
+          { icon: Users, label: 'Center active speaker', badge: 'Beta' },
+          { icon: Tv, label: 'Green screen' },
+          { icon: Grid, label: 'Automatic multicam', disabled: true },
+          { icon: ImageIcon, label: 'Generate an image' },
+          { icon: Video, label: 'Generate a video' },
+          { icon: Blend, label: 'Blur speaker background', badge: 'Beta' },
+        ].map(({ icon: Icon, label, badge, disabled }) => (
+          <button
+            key={label}
+            onClick={() => !disabled && handleToolClick(label)}
+            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={disabled}
+          >
+            <Icon className="w-4 h-4 text-gray-400" />
+            <span className={`text-sm ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>{label}</span>
+            {badge && (
+              <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-gray-100 text-gray-500 font-normal">
+                {badge}
+              </Badge>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Repurpose Section */}
+      <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Repurpose</span>
+      </div>
+
+      <div className="divide-y divide-gray-50">
+        {[
+          { icon: Film, label: 'Create clips' },
+          { icon: Star, label: 'Create highlight reel' },
+          { icon: Search, label: 'Find highlights' },
+          { icon: Languages, label: 'Translate', highlighted: true },
+        ].map(({ icon: Icon, label, highlighted }) => (
+          <button
+            key={label}
+            onClick={() => handleToolClick(label)}
+            className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+              highlighted ? 'bg-amber-50 hover:bg-amber-100' : 'hover:bg-gray-50'
+            }`}
+          >
+            <Icon className={`w-4 h-4 ${highlighted ? 'text-amber-600' : 'text-gray-400'}`} />
+            <span className={`text-sm ${highlighted ? 'text-amber-800 font-medium' : 'text-gray-700'}`}>{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Publish Section */}
+      <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Publish</span>
+      </div>
+
+      <div className="divide-y divide-gray-50">
+        {[
+          { icon: Type, label: 'Draft a title' },
+          { icon: AlignLeft, label: 'Summarize' },
+          { icon: FileText, label: 'Draft show notes' },
+          { icon: Youtube, label: 'Draft YouTube description' },
+          { icon: Share2, label: 'Draft a social post' },
+          { icon: Newspaper, label: 'Draft a blog post' },
+        ].map(({ icon: Icon, label }) => (
+          <button
+            key={label}
+            onClick={() => handleToolClick(label)}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+          >
+            <Icon className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-700">{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Write Section */}
+      <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Write</span>
+      </div>
+
+      <div className="divide-y divide-gray-50">
+        {[
+          { icon: Lightbulb, label: 'Brainstorm' },
+          { icon: PenTool, label: 'Write a script' },
+          { icon: BookOpen, label: 'Write an outline' },
+          { icon: RotateCw, label: 'Rewrite' },
+        ].map(({ icon: Icon, label }) => (
+          <button
+            key={label}
+            onClick={() => handleToolClick(label)}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+          >
+            <Icon className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-700">{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Show Deleted Toggle - at bottom */}
+      <div className="flex items-center justify-between p-4 border-t border-gray-200 mt-auto bg-gray-50">
+        <span className="text-sm font-medium text-gray-600">Show deleted</span>
+        <Switch 
+          checked={showDeleted} 
+          onCheckedChange={(v) => {
+            setShowDeleted(v);
+            onToolAction?.('show-deleted', { enabled: v });
+          }}
+        />
       </div>
     </div>
   );
