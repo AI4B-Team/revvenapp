@@ -120,7 +120,7 @@ import EditorImagePanel from './editor/EditorImagePanel';
 import EditorAudioPanel from './editor/EditorAudioPanel';
 import EditorTextPanel from './editor/EditorTextPanel';
 import EditorTranslatePanel from './editor/EditorTranslatePanel';
-import VoiceRecordingModal from './VoiceRecordingModal';
+import RecordModal from './RecordModal';
 import ExportDropdown from './editor/ExportDropdown';
 import VideoTranslateModal from './editor/VideoTranslateModal';
 import AIToolsPanel from './editor/AIToolsPanel';
@@ -219,7 +219,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState('');
-  const [voiceRecordingModalOpen, setVoiceRecordingModalOpen] = useState(false);
   const [isVideoSelected, setIsVideoSelected] = useState(false);
   const [translateModalOpen, setTranslateModalOpen] = useState(false);
   const [isFreePlan] = useState(true); // Would come from auth context in production
@@ -1084,124 +1083,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         </Dialog>
 
         {/* Record Modal */}
-        <Dialog open={recordModalOpen} onOpenChange={setRecordModalOpen}>
-          <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-md p-0 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <DialogTitle className="text-lg font-bold text-gray-900">Record</DialogTitle>
-              <button
-                onClick={() => setRecordModalOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400 hover:text-gray-900"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-4 space-y-3">
-              {/* Voiceover */}
-              <button
-                onClick={() => {
-                  setRecordModalOpen(false);
-                  setVoiceRecordingModalOpen(true);
-                }}
-                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
-                  <Mic className="w-5 h-5 text-gray-700" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-gray-900 mb-1">Record Voiceover</h4>
-                  <p className="text-sm text-gray-500">Capture professional audio with teleprompter support.</p>
-                </div>
-              </button>
-
-              {/* Webcam */}
-              <button
-                onClick={async () => {
-                  try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    setRecordModalOpen(false);
-                    setIsRecording(true);
-                    toast({ title: 'Recording webcam', description: 'Camera capture has begun.' });
-                    (window as any).recordingStreams = [stream];
-                  } catch (error) {
-                    toast({ title: 'Camera access required', description: 'Enable camera permissions to record.', variant: 'destructive' });
-                  }
-                }}
-                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
-                  <Video className="w-5 h-5 text-gray-700" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-gray-900 mb-1">Record Webcam</h4>
-                  <p className="text-sm text-gray-500">Record yourself with your webcam and microphone.</p>
-                </div>
-              </button>
-
-              {/* Screen Only */}
-              <button
-                onClick={async () => {
-                  try {
-                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                    setRecordModalOpen(false);
-                    setIsRecording(true);
-                    toast({ title: 'Recording screen', description: 'Screen capture has begun.' });
-                    (window as any).recordingStreams = [stream];
-                  } catch (error) {
-                    toast({ title: 'Screen sharing required', description: 'Allow screen sharing to continue.', variant: 'destructive' });
-                  }
-                }}
-                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
-                  <Box className="w-5 h-5 text-gray-700" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-gray-900 mb-1">Capture Screen</h4>
-                  <p className="text-sm text-gray-500">Record your entire screen or a specific window with audio.</p>
-                </div>
-              </button>
-
-              {/* Screen & Camera */}
-              <button
-                onClick={async () => {
-                  try {
-                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                    const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    setRecordModalOpen(false);
-                    setIsRecording(true);
-                    toast({ title: 'Recording screen & camera', description: 'Both streams are now being captured.' });
-                    (window as any).recordingStreams = [screenStream, cameraStream];
-                  } catch (error) {
-                    toast({ title: 'Permissions required', description: 'Allow both screen and camera access.', variant: 'destructive' });
-                  }
-                }}
-                className="w-full flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors group border border-gray-200"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-lg group-hover:bg-gray-300 transition-colors">
-                  <div className="relative">
-                    <Box className="w-5 h-5 text-gray-700" />
-                    <Video className="w-3 h-3 text-gray-700 absolute -bottom-1 -right-1" />
-                  </div>
-                </div>
-                <div className="flex-1 text-left">
-                  <h4 className="font-semibold text-gray-900 mb-1">Capture Screen & Camera</h4>
-                  <p className="text-sm text-gray-500">Record your screen with a picture-in-picture webcam overlay.</p>
-                </div>
-              </button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Voice Recording Modal */}
-        <VoiceRecordingModal
-          isOpen={voiceRecordingModalOpen}
-          onClose={() => setVoiceRecordingModalOpen(false)}
+        <RecordModal
+          isOpen={recordModalOpen}
+          onClose={() => setRecordModalOpen(false)}
           onSave={(audioBlob, duration) => {
-            toast({ title: 'Voiceover saved', description: `${duration}s audio recording saved to your project.` });
-            setVoiceRecordingModalOpen(false);
+            toast({ title: 'Recording saved', description: `${duration}s recording saved to your project.` });
+            setRecordModalOpen(false);
           }}
-          title="Record Voiceover"
         />
 
         {/* Video Translate Modal */}
