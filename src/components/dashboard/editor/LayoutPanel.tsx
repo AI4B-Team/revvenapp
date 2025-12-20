@@ -28,11 +28,13 @@ interface LayoutOption {
 interface LayoutPanelProps {
   onLayoutSelect?: (layoutId: string) => void;
   selectedLayout?: string;
+  hideHeader?: boolean;
 }
 
 const LayoutPanel: React.FC<LayoutPanelProps> = ({
   onLayoutSelect,
-  selectedLayout
+  selectedLayout,
+  hideHeader = false
 }) => {
   const [activeCategory, setActiveCategory] = useState<'speaker' | 'content'>('speaker');
 
@@ -65,16 +67,18 @@ const LayoutPanel: React.FC<LayoutPanelProps> = ({
 
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <LayoutGrid className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-900">Layouts</span>
+      {/* Header - conditionally rendered */}
+      {!hideHeader && (
+        <div className="flex items-center justify-between p-3 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-900">Layouts</span>
+          </div>
+          <button className="text-xs text-gray-500 hover:text-gray-700">
+            ···
+          </button>
         </div>
-        <button className="text-xs text-gray-500 hover:text-gray-700">
-          ···
-        </button>
-      </div>
+      )}
 
       {/* Category Tabs */}
       <div className="flex border-b border-gray-100">
