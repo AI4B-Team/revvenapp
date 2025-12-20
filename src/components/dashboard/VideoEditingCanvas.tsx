@@ -109,6 +109,7 @@ import {
   ResizableHandle,
 } from '@/components/ui/resizable';
 import StockVideoPanel from './StockVideoPanel';
+import VideoTimeline from './VideoTimeline';
 
 // Types
 interface TimelineClip {
@@ -1861,177 +1862,20 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
 
-                  {/* Timeline - minimum 3 tracks visible with scroll */}
-                  <div className="flex flex-col min-h-[256px]" style={{ height: '256px' }}>
-                    <div className="flex flex-1 overflow-y-auto">
-                    {/* Track Labels - Dark Background */}
-                    <div className="w-14 bg-sidebar-background flex flex-col shrink-0">
-                      <div className="h-8 border-b border-gray-800 flex items-center justify-center">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-1.5 hover:bg-gray-800 rounded text-gray-100 hover:text-white transition-colors">
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Add Track</p></TooltipContent>
-                        </Tooltip>
-                      </div>
-                      {tracks.map((track) => (
-                        <div key={track.id} className="h-16 flex items-center justify-center border-b border-gray-800">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="cursor-pointer">
-                                {track.id === 'image-1' && <ImageIcon className="w-5 h-5 text-blue-400" />}
-                                {track.id === 'video-1' && <Video className="w-5 h-5 text-red-500" />}
-                                {track.id === 'audio-1' && <Volume2 className="w-5 h-5 text-purple-400" />}
-                                {track.id === 'music-1' && <Music className="w-5 h-5 text-green-400" />}
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent><p>{track.name}</p></TooltipContent>
-                          </Tooltip>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Timeline Content */}
-                    <div className="flex-1 overflow-x-auto">
-                      {/* Time Ruler */}
-                      <div
-                        ref={timelineRef}
-                        onMouseDown={handleTimelineMouseDown}
-                        onMouseMove={handleTimelineMouseMove}
-                        onMouseUp={handleTimelineMouseUp}
-                        onMouseLeave={handleTimelineMouseUp}
-                        className="h-8 bg-gray-50 border-b border-gray-200 relative cursor-pointer select-none"
-                        style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
-                      >
-                        {/* Playhead Position Marker - RED */}
-                        <motion.div
-                          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
-                          style={{ left: `${(currentTime / duration) * 100}%` }}
-                          transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
-                        >
-                          <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
-                        </motion.div>
-                        
-                        {/* Time Markers */}
-                        <div className="flex items-end h-full">
-                          {Array.from({ length: Math.ceil(duration / 5) + 1 }, (_, i) => (
-                            <div
-                              key={i}
-                              className="flex-shrink-0 text-xs text-gray-500 border-l border-gray-300 pl-2 h-full flex items-center"
-                              style={{ width: `${(5 / duration) * 100}%`, minWidth: '60px' }}
-                            >
-                              {formatTime(i * 5)}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Tracks */}
-                      <div className="overflow-y-auto" style={{ height: 'calc(100% - 32px)', width: `${100 * zoom}%`, minWidth: '100%' }}>
-                        {tracks.map((track) => (
-                          <div
-                            key={track.id}
-                            className="flex items-center h-16 border-b border-gray-100 hover:bg-gray-50 relative"
-                          >
-                            <div className="flex-1 h-full relative">
-                              {/* Playhead Line - RED */}
-                              <motion.div
-                                className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-                                style={{ left: `${(currentTime / duration) * 100}%` }}
-                                transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1 }}
-                              />
-                              
-                              {track.clips.map((clip) => {
-                                const isAudioSelected = selectedAudioClip === clip.id;
-                                return (
-                                  <div
-                                    key={clip.id}
-                                    onClick={() => {
-                                      setSelectedClip(clip.id);
-                                      if (track.type === 'audio') {
-                                        setSelectedAudioClip(clip.id);
-                                      }
-                                    }}
-                                    className={`absolute top-1 bottom-1 rounded cursor-pointer transition-all overflow-hidden ${
-                                      selectedClip === clip.id 
-                                        ? 'ring-2 ring-primary ring-offset-1' 
-                                        : 'hover:brightness-110'
-                                    }`}
-                                    style={{
-                                      left: `${(clip.startTime / duration) * 100}%`,
-                                      width: `${(clip.duration / duration) * 100}%`,
-                                      background: track.type === 'audio' 
-                                        ? (isAudioSelected ? 'rgba(168, 85, 247, 0.5)' : 'rgba(168, 85, 247, 0.2)')
-                                        : clip.color || '#EAB308',
-                                    }}
-                                  >
-                                    {/* Audio Clips with waveform */}
-                                    {track.type === 'audio' && (
-                                      <div className="absolute inset-0 flex flex-col">
-                                        <div className="px-2 py-1 text-xs text-gray-700 truncate flex-1 flex items-center font-medium">
-                                          {clip.caption || clip.name}
-                                        </div>
-                                        {clip.waveform && renderWaveform(clip, 200, isAudioSelected)}
-                                      </div>
-                                    )}
-                                    
-                                    {/* Video clips with thumbnails */}
-                                    {track.type === 'video' && (
-                                      <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-800 flex items-center overflow-hidden">
-                                        <div className="w-full h-full flex">
-                                          {Array.from({ length: Math.ceil(clip.duration) }).map((_, i) => (
-                                            <div key={i} className="h-full aspect-video bg-gray-600 border-r border-gray-500 flex-shrink-0" />
-                                          ))}
-                                        </div>
-                                        <div className="absolute inset-0 flex items-center px-2">
-                                          <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Image clips */}
-                                    {track.id === 'image-1' && (
-                                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 flex items-center px-2 overflow-hidden">
-                                        <ImageIcon className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
-                                        <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                                      </div>
-                                    )}
-
-                                    {/* Music clips */}
-                                    {track.id === 'music-1' && (
-                                      <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700 flex items-center px-2 overflow-hidden">
-                                        <Music className="w-3 h-3 text-white/70 mr-1 flex-shrink-0" />
-                                        <span className="text-xs text-white font-medium truncate">{clip.name}</span>
-                                      </div>
-                                    )}
-                                    
-                                    {/* Duration indicator */}
-                                    {selectedClip === clip.id && (
-                                      <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 rounded text-xs text-white">
-                                        {clip.duration.toFixed(1)}s
-                                      </div>
-                                    )}
-                                    
-                                    {/* Resize handles */}
-                                    <div 
-                                      onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'left')}
-                                      className="absolute left-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
-                                    />
-                                    <div 
-                                      onMouseDown={(e) => handleClipResizeStart(e, clip.id, 'right')}
-                                      className="absolute right-0 top-0 bottom-0 w-2 bg-white/30 cursor-ew-resize hover:bg-white/60 active:bg-white/80 transition-colors" 
-                                    />
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    </div>
+                  {/* Professional Timeline Component */}
+                  <div className="h-[280px]">
+                    <VideoTimeline
+                      tracks={tracks}
+                      setTracks={setTracks}
+                      currentTime={currentTime}
+                      duration={duration}
+                      zoom={zoom}
+                      selectedClip={selectedClip}
+                      setSelectedClip={setSelectedClip}
+                      onTimeSeek={handleTimelineSeek}
+                      isDragging={isDragging}
+                      setIsDragging={setIsDragging}
+                    />
                   </div>
                 </div>
               </div>
