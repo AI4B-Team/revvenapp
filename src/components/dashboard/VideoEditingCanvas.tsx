@@ -1803,44 +1803,57 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
                 </div>
 
-                  {/* Layout Toolbar Below Video */}
-                  <div className="flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100">
-                    {/* Layout Selector */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setShowLayoutPanel(!showLayoutPanel)}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 transition-colors"
-                      >
-                        <LayoutGrid className="w-4 h-4" />
-                        <span>Layout</span>
-                        <span className="text-gray-400 text-xs capitalize">{selectedLayout}</span>
-                      </button>
-                      
-                      {/* Layout Panel Popover */}
-                      {showLayoutPanel && (
-                        <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-                          <LayoutPanel 
-                            selectedLayout={selectedLayout}
-                            onLayoutSelect={(id) => {
-                              setSelectedLayout(id);
-                              setShowLayoutPanel(false);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                  {/* Layout Toolbar Below Video - Only visible when video is selected */}
+                  {isVideoSelected && (
+                    <div className="flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100">
+                      {/* Layout Selector */}
+                      <div className="relative">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(!showLayoutPanel); }}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 transition-colors"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                          <span>Layout</span>
+                          <span className="text-gray-400 text-xs capitalize">{selectedLayout}</span>
+                        </button>
+                        
+                        {/* Layout Panel Popover */}
+                        {showLayoutPanel && (
+                          <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                            {/* Header with close button */}
+                            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                              <span className="text-sm font-medium text-gray-700">Layout</span>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(false); }}
+                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                              >
+                                <X className="w-4 h-4 text-gray-500" />
+                              </button>
+                            </div>
+                            <LayoutPanel 
+                              selectedLayout={selectedLayout}
+                              onLayoutSelect={(id) => {
+                                setSelectedLayout(id);
+                                setShowLayoutPanel(false);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Background Color */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
-                      <span className="text-sm text-gray-700">Background</span>
-                      <input 
-                        type="color" 
-                        defaultValue="#000000"
-                        className="w-5 h-5 rounded border-0 cursor-pointer"
-                      />
-                      <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                      {/* Background Color */}
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+                        <span className="text-sm text-gray-700">Background</span>
+                        <input 
+                          type="color" 
+                          defaultValue="#000000"
+                          className="w-5 h-5 rounded border-0 cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 </ResizablePanel>
 
