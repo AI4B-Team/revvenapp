@@ -1184,29 +1184,27 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   <Link2 className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Paste Link</h3>
-                <div className="mt-3 w-full">
-                  <div className="relative flex items-center justify-center">
-                    <Link2 className="absolute left-4 w-[22px] h-[22px] text-blue-500 pointer-events-none flex-shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Paste A Supported Public Media Link"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && urlInput.trim()) {
-                          e.preventDefault();
-                          handleUrlSubmit(urlInput.trim());
-                        }
-                      }}
-                      onPaste={(e) => {
-                        const pastedText = e.clipboardData.getData('text');
-                        if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
-                          setTimeout(() => handleUrlSubmit(pastedText.trim()), 100);
-                        }
-                      }}
-                      className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-400 text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                    />
-                  </div>
+                <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
+                  <Link2 className="w-[22px] h-[22px] text-blue-500 flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Paste A Supported Public Media Link"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && urlInput.trim()) {
+                        e.preventDefault();
+                        handleUrlSubmit(urlInput.trim());
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData('text');
+                      if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
+                        setTimeout(() => handleUrlSubmit(pastedText.trim()), 100);
+                      }
+                    }}
+                    className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-500 text-center focus:outline-none"
+                  />
                 </div>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                   {PLATFORMS.slice(0, 7).map((platform, i) => (
