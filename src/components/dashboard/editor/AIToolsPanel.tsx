@@ -124,9 +124,9 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         </>
       )}
 
-      {/* Sound Good Section */}
+      {/* Audio Suite Section */}
       <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sound good</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Audio Suite</span>
       </div>
 
       <div className="divide-y divide-gray-50">
@@ -149,9 +149,9 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         ))}
       </div>
 
-      {/* Look Good Section */}
+      {/* Visual Lab Section */}
       <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Look good</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Visual Lab</span>
       </div>
 
       <div className="divide-y divide-gray-50">
