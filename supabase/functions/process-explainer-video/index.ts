@@ -105,14 +105,15 @@ serve(async (req) => {
       
       console.log("Final clean URL:", cleanUrl);
 
+      // Use form-urlencoded format like the working extract-youtube-audio function
       const response = await fetch("https://snap-video3.p.rapidapi.com/download", {
         method: "POST",
         headers: {
           "x-rapidapi-key": RAPIDAPI_KEY,
           "x-rapidapi-host": "snap-video3.p.rapidapi.com",
-          "Content-Type": "application/json"
+          "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: JSON.stringify({ url: cleanUrl })
+        body: `url=${encodeURIComponent(cleanUrl)}`
       });
 
       if (!response.ok) {
@@ -130,26 +131,34 @@ serve(async (req) => {
       const data = await response.json();
       console.log("RapidAPI response:", JSON.stringify(data).substring(0, 500));
 
-      // Find audio or video URL
+      // Find audio or video URL - match the working extract-youtube-audio logic
       let audioUrl = null;
       let videoUrl = null;
 
-      // Try to find audio first
-      if (data.audio && Array.isArray(data.audio) && data.audio.length > 0) {
-        audioUrl = data.audio[0].url || data.audio[0];
-      }
-      if (data.medias && Array.isArray(data.medias)) {
-        for (const media of data.medias) {
-          if (media.type === "audio" && media.url) {
-            audioUrl = media.url;
-            break;
-          }
-          if (media.type === "video" && media.url && !videoUrl) {
-            videoUrl = media.url;
-          }
+      // Extract from medias array (primary source - same as working function)
+      if (data.medias && Array.isArray(data.medias) && data.medias.length > 0) {
+        // Try to find audio format first
+        const audioMedia = data.medias.find((m: any) => 
+          m.extension === 'mp3' || m.extension === 'ogg' || m.type === 'audio'
+        );
+        if (audioMedia && audioMedia.url) {
+          audioUrl = audioMedia.url;
+          console.log("Found audio media:", audioMedia.extension);
+        }
+        
+        // Get video URL as fallback
+        const videoMedia = data.medias.find((m: any) => m.url);
+        if (videoMedia && videoMedia.url) {
+          videoUrl = videoMedia.url;
+          console.log("Found video media:", videoMedia.extension || videoMedia.quality);
         }
       }
-      if (!audioUrl && data.url) {
+      
+      // Fallback to other possible response structures
+      if (!audioUrl && data.audio && Array.isArray(data.audio) && data.audio.length > 0) {
+        audioUrl = data.audio[0].url || data.audio[0];
+      }
+      if (!videoUrl && data.url) {
         videoUrl = data.url;
       }
 
