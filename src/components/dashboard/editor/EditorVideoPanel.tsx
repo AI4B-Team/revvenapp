@@ -1,8 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2 } from 'lucide-react';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { toast } from 'sonner';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
+
+const PLATFORMS = [
+  { name: 'YouTube', icon: FaYoutube, color: '#FF0000' },
+  { name: 'TikTok', icon: FaTiktok, color: '#000000' },
+  { name: 'Instagram', icon: FaInstagram, color: '#E4405F' },
+  { name: 'Facebook', icon: FaFacebook, color: '#1877F2' },
+  { name: 'X', icon: FaXTwitter, color: '#000000' },
+  { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
+  { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
+];
 
 interface PexelsVideo {
   id: number;
@@ -45,6 +57,8 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
   const [activeCategory, setActiveCategory] = useState('trending');
   const [hoveredVideo, setHoveredVideo] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchVideos = async (query: string, pageNum: number = 1, append: boolean = false) => {
@@ -166,11 +180,22 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
     });
   };
 
+  const handleUrlSubmit = () => {
+    if (videoUrl.trim()) {
+      toast.success('Video URL added');
+      if (onSelectVideo) {
+        onSelectVideo(videoUrl.trim(), '');
+      }
+      setVideoUrl('');
+      setShowUrlInput(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Upload area */}
       <div 
-        className={`border-2 border-dashed rounded-xl p-6 mb-4 text-center transition-colors cursor-pointer ${
+        className={`border-2 border-dashed rounded-xl p-6 mb-3 text-center transition-colors cursor-pointer ${
           isDragging ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-gray-400'
         }`}
         onClick={() => onOpenReferences ? onOpenReferences() : fileInputRef.current?.click()}
@@ -180,7 +205,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
       >
         <div className="flex flex-col items-center gap-2">
           <Upload className="w-6 h-6 text-gray-500" />
-          <p className="font-medium text-gray-900">Click to upload</p>
+          <p className="font-medium text-gray-900">Choose A Video</p>
           <p className="text-sm text-gray-500">or drag and drop a file here</p>
         </div>
       </div>
@@ -192,6 +217,62 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ onSelectVideo, onOp
         onChange={handleFileUpload}
         className="hidden"
       />
+
+      {/* Paste Video URL */}
+      <div className="mb-4">
+        {showUrlInput ? (
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                placeholder="Paste video URL..."
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border-0"
+                autoFocus
+              />
+            </div>
+            <button
+              onClick={handleUrlSubmit}
+              className="px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Add
+            </button>
+            <button
+              onClick={() => { setShowUrlInput(false); setVideoUrl(''); }}
+              className="px-3 py-2.5 text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowUrlInput(true)}
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <Link2 className="w-4 h-4" />
+            <span>Paste Video URL</span>
+          </button>
+        )}
+      </div>
+
+      {/* Social Media Platform Icons */}
+      <div className="flex items-center justify-center gap-3 mb-4 py-2">
+        {PLATFORMS.map((platform) => (
+          <button
+            key={platform.name}
+            onClick={() => toast.info(`Import from ${platform.name} coming soon`)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors group"
+            title={platform.name}
+          >
+            <platform.icon 
+              className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors" 
+            />
+          </button>
+        ))}
+      </div>
 
       {/* Search bar */}
       <div className="relative mb-4">
