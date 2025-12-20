@@ -498,7 +498,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       {/* Scrubber/Playhead Bar at Top - aligned with timeline content */}
       <div className="flex h-6 bg-slate-800 flex-shrink-0 border-b border-slate-700">
         {/* Empty space matching track header width */}
-        <div className="w-[180px] flex-shrink-0 bg-slate-800/80" />
+        <div className="w-[100px] flex-shrink-0 bg-white" />
         
         {/* Scrubber area - aligned with timeline content */}
         <div 
@@ -537,12 +537,12 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       </div>
 
       {/* Time Ruler with Controls */}
-      <div className="flex flex-shrink-0">
-        <div className="w-[180px] flex-shrink-0 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-2">
+      <div className="flex flex-shrink-0 bg-white">
+        <div className="w-[100px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-2">
           {/* Add Track Button */}
           <button 
             onClick={handleAddTrack}
-            className="flex items-center gap-1 px-1.5 py-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+            className="flex items-center gap-1 px-1.5 py-1 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
@@ -553,7 +553,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={goToPreviousScene}
-                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                  className="p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -564,7 +564,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={goToNextScene}
-                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded transition-colors"
+                  className="p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -575,7 +575,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={jumpToMarker}
-                  className={`p-1 rounded transition-colors ${markers.length > 0 ? 'text-amber-400 hover:text-amber-300' : 'text-slate-400 hover:text-white'} hover:bg-slate-700/50`}
+                  className={`p-1 rounded transition-colors ${markers.length > 0 ? 'text-amber-500 hover:text-amber-600' : 'text-gray-500 hover:text-gray-900'} hover:bg-gray-100`}
                 >
                   <Flag className="w-4 h-4" />
                 </button>
@@ -585,12 +585,12 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-0.5 bg-slate-700/50 rounded p-0.5">
+          <div className="flex items-center gap-0.5 bg-gray-100 rounded p-0.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => setViewMode('storyboard')}
-                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
                 </button>
@@ -601,7 +601,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => setViewMode('timeline')}
-                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                 >
                   <Rows3 className="w-3.5 h-3.5" />
                 </button>
@@ -613,7 +613,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         <div 
           ref={timelineRef}
           onClick={handleTimelineClick}
-          className="flex-1 h-8 bg-slate-800 border-b border-slate-700 relative cursor-pointer select-none overflow-hidden"
+          className="flex-1 h-8 bg-white border-b border-gray-200 relative cursor-pointer select-none overflow-hidden"
         >
           <div 
             className="h-full relative"
@@ -657,8 +657,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                   className="flex-shrink-0 h-full flex items-center"
                   style={{ width: `${(5 / duration) * 100}%`, minWidth: '80px' }}
                 >
-                  <div className="h-full flex flex-col justify-end border-l border-slate-600">
-                    <span className="text-xs text-slate-300 font-mono pl-2 pb-1 whitespace-nowrap">
+                  <div className="h-full flex flex-col justify-end border-l border-gray-300">
+                    <span className="text-xs text-gray-600 font-mono pl-2 pb-1 whitespace-nowrap">
                       {formatTime(i * 5)}
                     </span>
                   </div>
@@ -791,7 +791,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 onDrop={(e) => handleTrackDrop(e, index)}
               >
               {/* Track Header - Icon only with tooltip */}
-              <div className="w-[60px] flex-shrink-0 bg-white flex items-center justify-center px-2 gap-1 border-r border-gray-200">
+              <div className="w-[100px] flex-shrink-0 bg-white flex items-center justify-center px-2 gap-1 border-r border-gray-200">
                 <GripVertical className="w-3 h-3 text-gray-400 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" />
                 <Tooltip>
                   <TooltipTrigger asChild>

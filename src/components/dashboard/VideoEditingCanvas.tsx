@@ -1743,7 +1743,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 p-8">
+                        <div className="w-full h-full flex flex-col items-center justify-center p-8">
                           <div className="flex flex-col gap-4 w-full max-w-md">
                             {/* Click to upload area - dark background like screenshot */}
                             <button 
