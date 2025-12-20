@@ -6,6 +6,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
 
+const PEXELS_API_KEY = "gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT";
+
+interface PexelsPhoto {
+  id: number;
+  src: {
+    medium: string;
+    large: string;
+    original: string;
+  };
+  photographer: string;
+  alt: string;
+}
+
 interface ReferencesModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,17 +38,72 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const [searchQuery, setSearchQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Pexels stock images state
+  const [stockImages, setStockImages] = useState<PexelsPhoto[]>([]);
+  const [stockSearchQuery, setStockSearchQuery] = useState('');
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
+  const [stockPage, setStockPage] = useState(1);
 
   useEffect(() => {
     if (isOpen) {
       fetchReferences();
       // Initialize with existing selected images
       setSelectedImages(initialSelectedImages);
+      // Load curated stock images on open
+      if (stockImages.length === 0) {
+        fetchStockImages('fashion model photography');
+      }
     } else {
       // Clear selections when modal closes
       setSelectedImages([]);
     }
   }, [isOpen, initialSelectedImages]);
+
+  const fetchStockImages = async (query: string, page: number = 1) => {
+    setIsLoadingStock(true);
+    try {
+      const response = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=30&page=${page}`,
+        {
+          headers: {
+            Authorization: PEXELS_API_KEY
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch stock images');
+      
+      const data = await response.json();
+      if (page === 1) {
+        setStockImages(data.photos || []);
+      } else {
+        setStockImages(prev => [...prev, ...(data.photos || [])]);
+      }
+      setStockPage(page);
+    } catch (error) {
+      console.error('Error fetching Pexels images:', error);
+      toast.error('Failed to load stock images');
+    } finally {
+      setIsLoadingStock(false);
+    }
+  };
+
+  const handleStockSearch = () => {
+    if (stockSearchQuery.trim()) {
+      fetchStockImages(stockSearchQuery.trim(), 1);
+    }
+  };
+
+  const handleStockKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleStockSearch();
+    }
+  };
+
+  const loadMoreStock = () => {
+    fetchStockImages(stockSearchQuery || 'fashion model photography', stockPage + 1);
+  };
 
   const fetchReferences = async () => {
     setIsLoading(true);
@@ -416,10 +484,104 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             )}
 
             {activeTab === 'stock' && (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg mb-2">Stock Images Coming Soon</p>
-                <p className="text-sm text-gray-500">Access thousands of professional stock images</p>
+              <div className="flex flex-col h-full">
+                {/* Stock Search Bar */}
+                <div className="mb-4 flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="Search stock images..."
+                      value={stockSearchQuery}
+                      onChange={(e) => setStockSearchQuery(e.target.value)}
+                      onKeyPress={handleStockKeyPress}
+                      className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleStockSearch}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Search
+                  </Button>
+                </div>
+
+                {/* Stock Images Grid */}
+                {isLoadingStock && stockImages.length === 0 ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : stockImages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center flex-1 text-center">
+                    <ImageIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400 text-lg mb-2">Search for stock images</p>
+                    <p className="text-sm text-gray-500">Access thousands of professional stock images from Pexels</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-6 gap-4 overflow-y-auto flex-1">
+                      {stockImages.map((photo) => {
+                        const stockImage = {
+                          id: `pexels-${photo.id}`,
+                          image_url: photo.src.large,
+                          thumbnail_url: photo.src.medium,
+                          original_filename: photo.alt || `Photo by ${photo.photographer}`,
+                          source: 'pexels'
+                        };
+                        
+                        return (
+                          <div
+                            key={photo.id}
+                            className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
+                              selectedImages.some(img => img.id === stockImage.id)
+                                ? 'border-primary ring-2 ring-primary'
+                                : 'border-gray-700 hover:border-green-500'
+                            }`}
+                            onClick={() => handleImageClick(stockImage)}
+                          >
+                            <div className="aspect-square">
+                              <img
+                                src={photo.src.medium}
+                                alt={photo.alt || 'Stock photo'}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                            {selectedImages.some(img => img.id === stockImage.id) && (
+                              <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                                ✓
+                              </div>
+                            )}
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                              <p className="text-xs text-white truncate">
+                                {photo.photographer}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Load More Button */}
+                    <div className="mt-4 flex justify-center">
+                      <Button
+                        onClick={loadMoreStock}
+                        variant="outline"
+                        disabled={isLoadingStock}
+                      >
+                        {isLoadingStock ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Loading...
+                          </>
+                        ) : (
+                          'Load More'
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
