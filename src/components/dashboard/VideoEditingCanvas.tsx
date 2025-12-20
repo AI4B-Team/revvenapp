@@ -1655,6 +1655,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         // Deselect video when clicking outside the video container
                         if (e.target === e.currentTarget) {
                           setIsVideoSelected(false);
+                          setShowLayoutPanel(false);
                         }
                       }}
                     >
