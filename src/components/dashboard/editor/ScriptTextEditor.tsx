@@ -212,19 +212,6 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
           ))}
         </div>
       </div>
-
-      {/* Bottom Controls */}
-      <div className="border-t border-gray-200 p-3 bg-gray-50 flex items-center gap-4">
-        <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-          <Trash2 className="w-4 h-4" />
-          Edit by Text
-        </button>
-        <div className="w-px h-4 bg-gray-300" />
-        <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-          <X className="w-4 h-4" />
-          Split
-        </button>
-      </div>
     </div>
   );
 };
