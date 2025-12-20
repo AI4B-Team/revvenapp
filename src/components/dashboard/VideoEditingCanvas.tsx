@@ -1658,7 +1658,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <ResizablePanelGroup direction="vertical" className="h-full">
                 {/* Video Preview Panel */}
                 <ResizablePanel defaultSize={60} minSize={30}>
-                  <div className="h-full flex flex-col bg-gray-100 relative">
+                  <div className="h-full flex flex-col bg-gray-100 overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
                       <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
@@ -1895,9 +1895,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
                 </div>
 
-                  {/* Layout Toolbar Below Video - Fixed position above timeline */}
+                  {/* Layout Toolbar Below Video - Part of normal flow, not absolute */}
                   {isVideoSelected && (
-                    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100 z-40">
+                    <div className="flex-shrink-0 flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100">
                       {/* Layout Selector */}
                       <div className="relative">
                         <button 
