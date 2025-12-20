@@ -2,13 +2,13 @@ import React, { useState, useRef } from 'react';
 import { 
   Search, 
   Mic, 
-  Music, 
   Sparkles, 
   Play, 
   Pause, 
   Upload, 
   Check,
-  MoreHorizontal 
+  MoreHorizontal,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,6 +25,11 @@ interface AudioTrack {
   name: string;
   duration: string;
   thumbnail?: string;
+}
+
+interface SoundEffectCategory {
+  name: string;
+  effects: AudioTrack[];
 }
 
 interface EditorAudioPanelProps {
@@ -49,21 +54,63 @@ const musicTracks: AudioTrack[] = [
   { id: '5', name: 'Are U Ok', duration: '1:29' },
 ];
 
-const soundEffects: AudioTrack[] = [
-  { id: '1', name: 'Large Crowd Medium Ovation', duration: '0:10' },
-  { id: '2', name: 'Forest Bird Singing (Nature, Quiet...)', duration: '2:13' },
-  { id: '3', name: 'Tune Fm Radio', duration: '0:03' },
-  { id: '4', name: 'Fail Error Mistake Out of Time So...', duration: '0:02' },
-  { id: '5', name: 'Mouse Click Computer', duration: '0:00' },
+const sfxCategories: SoundEffectCategory[] = [
+  {
+    name: 'Transition',
+    effects: [
+      { id: 't1', name: 'Text Pop Up Sound Effect', duration: '0:11' },
+      { id: 't2', name: 'Right Answer Sound Effect', duration: '0:06' },
+      { id: 't3', name: 'Axe Swing Sound Effect', duration: '0:05' },
+      { id: 't4', name: 'Cartoon Wink Sound Effect', duration: '0:04' },
+      { id: 't5', name: 'Superhero Landing Sound Effect', duration: '0:07' },
+    ]
+  },
+  {
+    name: 'Animation',
+    effects: [
+      { id: 'a1', name: 'Whistle Sound Effect', duration: '0:06' },
+      { id: 'a2', name: 'Text Pop Up Sound Effect', duration: '0:11' },
+      { id: 'a3', name: 'Glass Breaking Explosion Sound Effect', duration: '0:07' },
+      { id: 'a4', name: 'Poker Chips Sound Effect', duration: '0:12' },
+    ]
+  },
+  {
+    name: 'Gaming',
+    effects: [
+      { id: 'g1', name: 'Level Up Achievement', duration: '0:03' },
+      { id: 'g2', name: 'Coin Collect Sound', duration: '0:02' },
+      { id: 'g3', name: 'Game Over Jingle', duration: '0:05' },
+      { id: 'g4', name: 'Power Up Sound', duration: '0:04' },
+    ]
+  },
+  {
+    name: 'Notifications',
+    effects: [
+      { id: 'n1', name: 'Message Received Ding', duration: '0:02' },
+      { id: 'n2', name: 'Success Chime', duration: '0:03' },
+      { id: 'n3', name: 'Error Alert Buzz', duration: '0:02' },
+      { id: 'n4', name: 'Notification Pop', duration: '0:01' },
+    ]
+  },
+  {
+    name: 'Nature',
+    effects: [
+      { id: 'na1', name: 'Forest Bird Singing', duration: '2:13' },
+      { id: 'na2', name: 'Rain on Window', duration: '3:00' },
+      { id: 'na3', name: 'Thunder Rumble', duration: '0:08' },
+      { id: 'na4', name: 'Ocean Waves', duration: '2:30' },
+    ]
+  },
 ];
 
-const musicCategories = ['All', 'Ambient', 'Chill', 'Happy'];
-const sfxCategories = ['All', 'Cartoon', 'Clicks', 'Magic'];
+const sfxCategoryTabs = ['All', 'Transition', 'Animation', 'Gaming', 'Meme', 'Win'];
+const musicCategories = ['All', 'Ambient', 'Chill', 'Happy', 'Epic', 'Corporate'];
 
 const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSelectTrack }) => {
   const [audioSubTab, setAudioSubTab] = useState<'voices' | 'music' | 'effects'>('voices');
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
+  const [playingEffect, setPlayingEffect] = useState<string | null>(null);
   const [voiceSearchQuery, setVoiceSearchQuery] = useState('');
   const [musicSearchQuery, setMusicSearchQuery] = useState('');
   const [sfxSearchQuery, setSfxSearchQuery] = useState('');
@@ -84,8 +131,16 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
       setPlayingVoice(null);
     } else {
       setPlayingVoice(voiceId);
-      // Simulate stopping after a preview
       setTimeout(() => setPlayingVoice(null), 3000);
+    }
+  };
+
+  const handlePlayEffect = (effectId: string) => {
+    if (playingEffect === effectId) {
+      setPlayingEffect(null);
+    } else {
+      setPlayingEffect(effectId);
+      setTimeout(() => setPlayingEffect(null), 2000);
     }
   };
 
@@ -110,6 +165,10 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
     v.name.toLowerCase().includes(voiceSearchQuery.toLowerCase()) ||
     v.description.toLowerCase().includes(voiceSearchQuery.toLowerCase())
   );
+
+  const filteredSfxCategories = activeSfxCat === 'All' 
+    ? sfxCategories 
+    : sfxCategories.filter(cat => cat.name === activeSfxCat);
 
   return (
     <div className="flex flex-col h-full">
@@ -137,7 +196,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
       {/* Voices Tab */}
       {audioSubTab === 'voices' && (
         <div className="flex-1 overflow-y-auto">
-          {/* Voice action buttons */}
           <div className="flex items-center gap-2 mb-4">
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -164,7 +222,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             className="hidden"
           />
 
-          {/* Voice search */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -176,7 +233,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             />
           </div>
 
-          {/* Voice list */}
           <div className="space-y-2">
             {filteredVoices.map((voice) => (
               <div
@@ -217,7 +273,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
       {/* Music Tab */}
       {audioSubTab === 'music' && (
         <div className="flex-1 overflow-y-auto">
-          {/* Music search */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -229,7 +284,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             />
           </div>
 
-          {/* Music categories */}
           <div className="flex gap-2 mb-4 flex-wrap">
             {musicCategories.map((cat) => (
               <button 
@@ -249,7 +303,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             </button>
           </div>
 
-          {/* Music list */}
           <div className="space-y-2">
             {musicTracks.map((track) => (
               <div 
@@ -272,7 +325,6 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
       {/* Sound Effects Tab */}
       {audioSubTab === 'effects' && (
         <div className="flex-1 overflow-y-auto">
-          {/* SFX search */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -284,9 +336,8 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             />
           </div>
 
-          {/* SFX categories */}
           <div className="flex gap-2 mb-4 flex-wrap">
-            {sfxCategories.map((cat) => (
+            {sfxCategoryTabs.map((cat) => (
               <button 
                 key={cat}
                 onClick={() => setActiveSfxCat(cat)}
@@ -304,19 +355,38 @@ const EditorAudioPanel: React.FC<EditorAudioPanelProps> = ({ onSelectVoice, onSe
             </button>
           </div>
 
-          {/* SFX list */}
-          <div className="space-y-2">
-            {soundEffects.map((sfx) => (
-              <div 
-                key={sfx.id} 
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100"
-              >
-                <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Play className="w-4 h-4 text-gray-600" />
+          {/* Categorized sound effects */}
+          <div className="space-y-6">
+            {filteredSfxCategories.map((category) => (
+              <div key={category.name}>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">{category.name}</h4>
+                  <button className="text-sm text-gray-500 hover:text-primary flex items-center gap-1">
+                    View all <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{sfx.name}</p>
-                  <p className="text-xs text-gray-500">{sfx.duration}</p>
+                <div className="space-y-2">
+                  {category.effects.map((sfx) => (
+                    <div 
+                      key={sfx.id} 
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-100"
+                    >
+                      <button
+                        onClick={() => handlePlayEffect(sfx.id)}
+                        className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-300 transition-colors"
+                      >
+                        {playingEffect === sfx.id ? (
+                          <Pause className="w-4 h-4 text-gray-600" />
+                        ) : (
+                          <Play className="w-4 h-4 text-gray-600" />
+                        )}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{sfx.name}</p>
+                        <p className="text-xs text-gray-500">{sfx.duration}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
