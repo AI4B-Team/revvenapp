@@ -226,6 +226,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [showDeletedText, setShowDeletedText] = useState(false);
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
+  const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -1098,8 +1099,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 bg-violet-500/30 px-3 py-1.5 rounded-lg hover:bg-violet-500/40 transition-colors">
-                  <Pencil className="w-3.5 h-3.5 text-violet-300" />
-                  <span className="text-sm font-medium text-violet-200">Editing</span>
+                  {currentViewMode === 'editing' && <Pencil className="w-3.5 h-3.5 text-violet-300" />}
+                  {currentViewMode === 'viewing' && <Eye className="w-3.5 h-3.5 text-blue-300" />}
+                  {currentViewMode === 'commenting' && <MessageSquare className="w-3.5 h-3.5 text-amber-300" />}
+                  {currentViewMode === 'admin' && <Settings className="w-3.5 h-3.5 text-green-300" />}
+                  <span className="text-sm font-medium text-violet-200 capitalize">{currentViewMode}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-violet-300" />
                 </button>
               </DropdownMenuTrigger>
@@ -1107,42 +1111,53 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <div className="px-3 py-2 border-b border-gray-100">
                   <p className="text-xs text-gray-500 font-medium">Your Access Level</p>
                 </div>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('editing')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <div className="w-2 h-2 rounded-full bg-violet-500" />
                   <Pencil className="w-4 h-4 text-violet-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Editing</span>
-                    <span className="text-xs text-gray-500">Full edit access</span>
+                    <span className="text-xs text-gray-500">Full Edit Access</span>
                   </div>
-                  <Check className="w-4 h-4 ml-auto text-violet-600" />
+                  {currentViewMode === 'editing' && <Check className="w-4 h-4 ml-auto text-violet-600" />}
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <div className="px-3 py-2 border-b border-gray-100">
-                  <p className="text-xs text-gray-500 font-medium">Other Views</p>
-                </div>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('viewing')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <div className="w-2 h-2 rounded-full bg-blue-500" />
                   <Eye className="w-4 h-4 text-blue-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Viewing</span>
-                    <span className="text-xs text-gray-500">View only access</span>
+                    <span className="text-xs text-gray-500">View Only Access</span>
                   </div>
+                  {currentViewMode === 'viewing' && <Check className="w-4 h-4 ml-auto text-blue-600" />}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('commenting')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <div className="w-2 h-2 rounded-full bg-amber-500" />
                   <MessageSquare className="w-4 h-4 text-amber-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Commenting</span>
-                    <span className="text-xs text-gray-500">View & comment</span>
+                    <span className="text-xs text-gray-500">View And Comment</span>
                   </div>
+                  {currentViewMode === 'commenting' && <Check className="w-4 h-4 ml-auto text-amber-600" />}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer opacity-60">
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('admin')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <div className="w-2 h-2 rounded-full bg-green-500" />
                   <Settings className="w-4 h-4 text-green-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Admin</span>
-                    <span className="text-xs text-gray-500">Full control & settings</span>
+                    <span className="text-xs text-gray-500">Full Control And Settings</span>
                   </div>
+                  {currentViewMode === 'admin' && <Check className="w-4 h-4 ml-auto text-green-600" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
