@@ -1276,7 +1276,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
             <button 
               onClick={() => setShareDialogOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors border border-gray-500"
             >
               <UserPlus className="w-4 h-4" />
               <span>Share</span>
