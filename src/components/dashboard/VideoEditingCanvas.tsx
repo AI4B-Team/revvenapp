@@ -1922,6 +1922,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               muted={isMuted}
                             />
 
+                            {/* ESC hint for fullscreen */}
+                            {isFullscreen && (
+                              <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-white text-sm font-medium animate-fade-in">
+                                Press <kbd className="px-1.5 py-0.5 bg-white/20 rounded text-xs font-mono mx-1">ESC</kbd> to exit fullscreen
+                              </div>
+                            )}
+
                             {/* Centered Player Controls - visible on hover and in fullscreen */}
                             <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${isFullscreen ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}>
                               <div className="flex items-center gap-4 p-3 rounded-2xl bg-black/60 backdrop-blur-sm">
