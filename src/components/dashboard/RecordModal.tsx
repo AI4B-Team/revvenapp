@@ -502,13 +502,13 @@ export default function RecordModal({
   // Unified recording view for all types
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl p-0 overflow-hidden [&>button]:hidden">
+      <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-5xl p-0 overflow-hidden [&>button]:hidden">
         {/* Header */}
-        <div className="relative bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+        <div className="relative bg-gradient-to-b from-violet-500 via-purple-500 to-blue-500">
           {/* Back button */}
           <button
             onClick={handleBack}
-            className="absolute top-4 left-4 z-10 p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+            className="absolute top-4 left-4 z-10 p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -516,14 +516,14 @@ export default function RecordModal({
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 z-10 p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+            className="absolute top-4 right-4 z-10 p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Handle/Drawer indicator */}
           <div className="flex justify-center pt-3">
-            <div className="w-10 h-1 rounded-full bg-gray-600" />
+            <div className="w-10 h-1 rounded-full bg-white/30" />
           </div>
 
           {/* Main content area - audio waves and timer only */}
@@ -532,10 +532,10 @@ export default function RecordModal({
               <div className="w-full max-w-2xl">
                 {/* Teleprompter content */}
                 <div className="relative h-48 overflow-hidden rounded-lg mb-6">
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-amber-500 rounded-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-amber-400 rounded-full" />
                   {teleprompterText ? (
                     <div
-                      className="absolute inset-x-0 px-6 transition-transform duration-100 ease-linear text-gray-300"
+                      className="absolute inset-x-0 px-6 transition-transform duration-100 ease-linear text-white/90"
                       style={{
                         transform: `translateY(-${teleprompterPosition * 2}px)`,
                         fontSize: `${teleprompterFontSize}px`,
@@ -549,7 +549,7 @@ export default function RecordModal({
                       placeholder="Start typing or paste text here..."
                       value={teleprompterText}
                       onChange={(e) => setTeleprompterText(e.target.value)}
-                      className="w-full h-full bg-transparent resize-none px-6 py-4 text-gray-400 placeholder-gray-600 focus:outline-none"
+                      className="w-full h-full bg-transparent resize-none px-6 py-4 text-white/80 placeholder-white/40 focus:outline-none"
                       style={{ fontSize: `${teleprompterFontSize}px` }}
                     />
                   )}
@@ -560,7 +560,7 @@ export default function RecordModal({
                   {audioLevels.map((level, i) => (
                     <div
                       key={i}
-                      className={`w-1 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-gray-700'}`}
+                      className={`w-1 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-white/30'}`}
                       style={{ height: `${isRecording ? level : 10}px` }}
                     />
                   ))}
@@ -573,7 +573,7 @@ export default function RecordModal({
                   {audioLevels.map((level, i) => (
                     <div
                       key={i}
-                      className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-gray-700'}`}
+                      className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-white' : 'bg-white/30'}`}
                       style={{ height: `${isRecording ? level : 10}px` }}
                     />
                   ))}
@@ -584,7 +584,7 @@ export default function RecordModal({
                   {formatTime(recordingTime)}
                 </div>
 
-                <p className="text-gray-400 text-sm">
+                <p className="text-white/70 text-sm">
                   {isRecording ? 'Recording...' : 'Click Record To Start'}
                 </p>
               </>
@@ -593,7 +593,7 @@ export default function RecordModal({
         </div>
 
         {/* Controls Bar */}
-        <div className="bg-gray-800 border-t border-gray-700 px-6 py-4">
+        <div className="bg-white border-t border-gray-200 px-6 py-4">
           <div className="flex items-center justify-center gap-6">
             {/* Record button - FIRST */}
             <button
@@ -602,16 +602,16 @@ export default function RecordModal({
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                 isRecording
-                  ? 'bg-white hover:bg-gray-200'
+                  ? 'bg-gray-900 hover:bg-gray-800'
                   : 'bg-rose-500 hover:bg-rose-400'
               }`}>
                 {isRecording ? (
-                  <StopCircle className="w-6 h-6 text-gray-900" />
+                  <StopCircle className="w-6 h-6 text-white" />
                 ) : (
                   <Mic className="w-6 h-6 text-white" />
                 )}
               </div>
-              <span className={`text-xs ${isRecording ? 'text-white' : 'text-rose-400'}`}>
+              <span className={`text-xs ${isRecording ? 'text-gray-900' : 'text-rose-500'}`}>
                 {isRecording ? 'Stop' : 'Record'}
               </span>
             </button>
@@ -631,14 +631,14 @@ export default function RecordModal({
               }}
               className={`flex flex-col items-center gap-1 transition-colors ${
                 selectedType === 'camera' || selectedType === 'screen-camera' 
-                  ? 'text-blue-400' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-blue-500' 
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 selectedType === 'camera' || selectedType === 'screen-camera'
-                  ? 'bg-blue-500/20'
-                  : 'bg-gray-700'
+                  ? 'bg-blue-100'
+                  : 'bg-gray-100'
               }`}>
                 <Video className="w-5 h-5" />
               </div>
@@ -658,14 +658,14 @@ export default function RecordModal({
               }}
               className={`flex flex-col items-center gap-1 transition-colors ${
                 selectedType === 'screen' || selectedType === 'screen-camera' 
-                  ? 'text-emerald-400' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-emerald-500' 
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 selectedType === 'screen' || selectedType === 'screen-camera'
-                  ? 'bg-emerald-500/20'
-                  : 'bg-gray-700'
+                  ? 'bg-emerald-100'
+                  : 'bg-gray-100'
               }`}>
                 <Monitor className="w-5 h-5" />
               </div>
@@ -673,8 +673,8 @@ export default function RecordModal({
             </button>
 
             {/* Size */}
-            <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center relative">
+            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center relative">
                 <Monitor className="w-5 h-5" />
                 <span className="absolute -top-0.5 -right-0.5 text-[8px] bg-violet-500 text-white px-1 rounded">16:9</span>
               </div>
@@ -682,10 +682,10 @@ export default function RecordModal({
             </button>
 
             {/* Background */}
-            <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center relative">
+            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center relative">
                 <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600" />
-                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-gray-900 rounded-full border-2 border-gray-700" />
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-violet-500 rounded-full border-2 border-white" />
               </div>
               <span className="text-xs">Background</span>
             </button>
@@ -693,17 +693,17 @@ export default function RecordModal({
             {/* Prompter */}
             <button
               onClick={() => setShowTeleprompter(!showTeleprompter)}
-              className={`flex flex-col items-center gap-1 transition-colors ${showTeleprompter ? 'text-violet-400' : 'text-gray-400 hover:text-white'}`}
+              className={`flex flex-col items-center gap-1 transition-colors ${showTeleprompter ? 'text-violet-500' : 'text-gray-500 hover:text-gray-900'}`}
             >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${showTeleprompter ? 'bg-violet-500/20' : 'bg-gray-700'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${showTeleprompter ? 'bg-violet-100' : 'bg-gray-100'}`}>
                 <FileText className="w-5 h-5" />
               </div>
               <span className="text-xs">Prompter</span>
             </button>
 
             {/* Settings */}
-            <button className="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors">
-              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+            <button className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                 <Settings className="w-5 h-5" />
               </div>
               <span className="text-xs">Settings</span>
@@ -713,13 +713,13 @@ export default function RecordModal({
 
         {/* Transcription options - BELOW controls bar */}
         {!showTeleprompter && (
-          <div className="bg-gray-900 border-t border-gray-700 px-6 py-4">
+          <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
             {/* Real-time transcription toggle */}
-            <div className="w-full max-w-md mx-auto bg-gray-800/50 rounded-xl p-4 mb-4">
+            <div className="w-full max-w-md mx-auto bg-white rounded-xl p-4 mb-4 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className={`w-4 h-4 ${enableTranscription ? 'text-emerald-400' : 'text-gray-500'}`} />
-                  <span className="text-sm font-medium">Real-Time Transcription</span>
+                  <Sparkles className={`w-4 h-4 ${enableTranscription ? 'text-emerald-500' : 'text-gray-400'}`} />
+                  <span className="text-sm font-medium text-gray-900">Real-Time Transcription</span>
                 </div>
                 <Switch
                   checked={enableTranscription}
@@ -734,8 +734,8 @@ export default function RecordModal({
               </p>
               {isTranscribing && (
                 <div className="flex items-center gap-2 mt-2">
-                  <Loader2 className="w-3 h-3 animate-spin text-emerald-400" />
-                  <span className="text-xs text-emerald-400">Transcribing...</span>
+                  <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
+                  <span className="text-xs text-emerald-500">Transcribing...</span>
                 </div>
               )}
             </div>
@@ -745,12 +745,12 @@ export default function RecordModal({
               <div className="flex-1">
                 <label className="text-xs text-gray-500 mb-1 block">Language</label>
                 <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent className="bg-white border-gray-200">
                     {LANGUAGES.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code} className="text-white hover:bg-gray-700">
+                      <SelectItem key={lang.code} value={lang.code} className="text-gray-900 hover:bg-gray-100">
                         {lang.label}
                       </SelectItem>
                     ))}
@@ -760,12 +760,12 @@ export default function RecordModal({
               <div className="flex-1">
                 <label className="text-xs text-gray-500 mb-1 block">Audio Quality</label>
                 <Select value={audioQuality} onValueChange={setAudioQuality}>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent className="bg-white border-gray-200">
                     {AUDIO_QUALITIES.map((quality) => (
-                      <SelectItem key={quality.value} value={quality.value} className="text-white hover:bg-gray-700">
+                      <SelectItem key={quality.value} value={quality.value} className="text-gray-900 hover:bg-gray-100">
                         {quality.label}
                       </SelectItem>
                     ))}
@@ -778,25 +778,25 @@ export default function RecordModal({
 
         {/* Teleprompter Controls (when showing) */}
         {showTeleprompter && (
-          <div className="bg-gray-900 border-t border-gray-700 px-6 py-3">
+          <div className="bg-gray-50 border-t border-gray-200 px-6 py-3">
             <div className="flex items-center justify-between max-w-lg mx-auto">
               <button
                 onClick={() => setTeleprompterPosition(Math.max(0, teleprompterPosition - 20))}
-                className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
               <button
                 onClick={() => setIsTeleprompterPlaying(!isTeleprompterPlaying)}
-                className="p-2 bg-violet-500 hover:bg-violet-400 rounded-lg"
+                className="p-2 bg-violet-500 hover:bg-violet-400 rounded-lg text-white"
               >
                 {isTeleprompterPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </button>
 
               <button
                 onClick={() => setTeleprompterPosition(teleprompterPosition + 20)}
-                className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -806,11 +806,11 @@ export default function RecordModal({
 
         {/* Action Buttons */}
         {recordingTime > 0 && !isRecording && (
-          <div className="bg-gray-800 border-t border-gray-700 px-6 py-4">
+          <div className="bg-white border-t border-gray-200 px-6 py-4">
             <div className="flex justify-end gap-3">
               <button
                 onClick={handleReset}
-                className="px-5 py-2.5 rounded-xl bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 Reset
@@ -818,7 +818,7 @@ export default function RecordModal({
               <button
                 disabled={isSaving || audioChunksRef.current.length === 0}
                 onClick={handleSaveAndTranscribe}
-                className="px-5 py-2.5 rounded-xl bg-rose-600 text-white font-medium hover:bg-rose-500 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-rose-500 text-white font-medium hover:bg-rose-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
