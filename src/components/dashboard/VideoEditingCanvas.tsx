@@ -110,6 +110,13 @@ import {
 } from '@/components/ui/resizable';
 import StockVideoPanel from './StockVideoPanel';
 import VideoTimeline from './VideoTimeline';
+import ImagePanel from './editor/ImagePanel';
+import TextPanel from './editor/TextPanel';
+import CaptionsPanel from './editor/CaptionsPanel';
+import EffectsPanel from './editor/EffectsPanel';
+import TransitionsPanel from './editor/TransitionsPanel';
+import ElementsPanel from './editor/ElementsPanel';
+import TemplatesPanel from './editor/TemplatesPanel';
 
 // Types
 interface TimelineClip {
