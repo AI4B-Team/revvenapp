@@ -69,11 +69,9 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
   
   // Recommended items state
   const [recommendedItems, setRecommendedItems] = useState<RecommendedItem[]>([
-    { id: '1', icon: Scissors, title: 'Edit for clarity', description: 'Remove filler words, digressions, blather — all the obvious cuts' },
-    { id: '2', icon: VolumeX, title: 'Remove filler words', description: 'Remove uhms, uhs, repeated words, and other verbal clutter' },
-    { id: '3', icon: ArrowLeftRight, title: 'Shorten word gaps', description: 'Shrink or cut silences & lapses in conversation' },
-    { id: '4', icon: AudioLines, title: 'Studio Sound', description: 'Remove background noise & enhance voices' },
-    { id: '5', icon: Film, title: 'Create clips', description: 'AI Tools picks your most viral-worthy moments & creates clips that pop' },
+    { id: '1', icon: Sparkles, title: 'Auto-enhance', description: 'One-click optimization for audio, pacing, and visual quality' },
+    { id: '2', icon: AudioLines, title: 'Studio Sound', description: 'Remove background noise & enhance voice clarity' },
+    { id: '3', icon: Film, title: 'Create clips', description: 'AI picks your most viral-worthy moments & creates clips' },
   ]);
 
   const dismissRecommended = (id: string) => {
@@ -133,12 +131,12 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
 
       <div className="divide-y divide-gray-50">
         {[
-          { icon: Scissors, label: 'Edit for clarity' },
           { icon: AudioLines, label: 'Studio Sound' },
-          { icon: VolumeX, label: 'Remove filler words' },
-          { icon: RotateCw, label: 'Remove retakes' },
-          { icon: ArrowLeftRight, label: 'Shorten word gaps' },
-          { icon: ListOrdered, label: 'Add chapters' },
+          { icon: VolumeX, label: 'Clean up speech' },
+          { icon: ArrowLeftRight, label: 'Tighten pacing' },
+          { icon: Mic, label: 'Voice isolation' },
+          { icon: Sliders, label: 'Audio leveling' },
+          { icon: ListOrdered, label: 'Auto chapters' },
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
@@ -158,23 +156,21 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
 
       <div className="divide-y divide-gray-50">
         {[
-          { icon: Wand2, label: 'Quick design', disabled: true },
           { icon: Eye, label: 'Eye Contact' },
-          { icon: Users, label: 'Center active speaker', badge: 'Beta' },
-          { icon: Tv, label: 'Green screen' },
-          { icon: Grid, label: 'Automatic multicam', disabled: true },
-          { icon: ImageIcon, label: 'Generate an image' },
-          { icon: Video, label: 'Generate a video' },
-          { icon: Blend, label: 'Blur speaker background', badge: 'Beta' },
-        ].map(({ icon: Icon, label, badge, disabled }) => (
+          { icon: Camera, label: 'Face tracking' },
+          { icon: Blend, label: 'Background blur', badge: 'Beta' },
+          { icon: Tv, label: 'Virtual backdrop' },
+          { icon: Smile, label: 'Beauty mode' },
+          { icon: Maximize2, label: 'Auto-crop & zoom' },
+          { icon: Grid, label: 'Multicam sync', badge: 'Beta' },
+        ].map(({ icon: Icon, label, badge }) => (
           <button
             key={label}
-            onClick={() => !disabled && handleToolClick(label)}
-            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={disabled}
+            onClick={() => handleToolClick(label)}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
           >
             <Icon className="w-4 h-4 text-gray-400" />
-            <span className={`text-sm ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>{label}</span>
+            <span className="text-sm text-gray-700">{label}</span>
             {badge && (
               <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0 h-4 bg-gray-100 text-gray-500 font-normal">
                 {badge}
@@ -191,10 +187,10 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
 
       <div className="divide-y divide-gray-50">
         {[
-          { icon: Film, label: 'Create clips' },
-          { icon: Star, label: 'Create highlight reel' },
-          { icon: Search, label: 'Find highlights' },
-          { icon: Languages, label: 'Translate', highlighted: true },
+          { icon: Film, label: 'Smart clips' },
+          { icon: Star, label: 'Highlight reel' },
+          { icon: Languages, label: 'Translate & dub', highlighted: true },
+          { icon: Layout, label: 'Resize for socials' },
         ].map(({ icon: Icon, label, highlighted }) => (
           <button
             key={label}
@@ -216,12 +212,11 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
 
       <div className="divide-y divide-gray-50">
         {[
-          { icon: Type, label: 'Draft a title' },
+          { icon: Type, label: 'Generate title' },
           { icon: AlignLeft, label: 'Summarize' },
-          { icon: FileText, label: 'Draft show notes' },
-          { icon: Youtube, label: 'Draft YouTube description' },
-          { icon: Share2, label: 'Draft a social post' },
-          { icon: Newspaper, label: 'Draft a blog post' },
+          { icon: Youtube, label: 'YouTube SEO' },
+          { icon: Share2, label: 'Social captions' },
+          { icon: Newspaper, label: 'Blog post' },
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
@@ -234,17 +229,18 @@ const AIToolsPanel: React.FC<AIToolsPanelProps> = ({ onToolAction }) => {
         ))}
       </div>
 
-      {/* Write Section */}
+      {/* Generate Section */}
       <div className="px-4 py-3 bg-gray-50 border-y border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Write</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Generate</span>
       </div>
 
       <div className="divide-y divide-gray-50">
         {[
-          { icon: Lightbulb, label: 'Brainstorm' },
-          { icon: PenTool, label: 'Write a script' },
-          { icon: BookOpen, label: 'Write an outline' },
-          { icon: RotateCw, label: 'Rewrite' },
+          { icon: ImageIcon, label: 'AI Image' },
+          { icon: Video, label: 'AI Video' },
+          { icon: Mic, label: 'AI Voiceover' },
+          { icon: Captions, label: 'AI Captions' },
+          { icon: Users, label: 'AI Avatar' },
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
