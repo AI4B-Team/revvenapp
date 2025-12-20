@@ -236,7 +236,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Selected tool for the toolbar
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [selectedPromptTool, setSelectedPromptTool] = useState<'image' | 'video' | 'audio' | null>(null);
-  const [selectedRatio, setSelectedRatio] = useState('Automatic Ratio');
+  const [selectedRatio, setSelectedRatio] = useState('16:9');
+  const [videoAspectClass, setVideoAspectClass] = useState('aspect-video');
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   
@@ -1595,7 +1596,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   ref={playerContainerRef}
                   className="flex-1 flex items-center justify-center p-4 relative"
                 >
-                  <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full aspect-video w-full flex items-center justify-center">
+                  <div className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center`}>
                     <video
                       ref={videoRef}
                       src={video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
@@ -1661,25 +1662,38 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           </div>
                         )}
                       </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <DropdownMenu>
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
                             <DropdownMenuTrigger asChild>
-                              <button className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors">
+                              <button className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1">
                                 <Ratio className="w-4 h-4" />
+                                <span className="text-xs">{selectedRatio}</span>
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
-                              {['16:9', '9:16', '1:1', '4:3'].map((r) => (
-                                <DropdownMenuItem key={r} className="hover:bg-gray-800 cursor-pointer">
-                                  {r}
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Aspect Ratio</p></TooltipContent>
-                      </Tooltip>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
+                          {[
+                            { label: '16:9', className: 'aspect-video' },
+                            { label: '9:16', className: 'aspect-[9/16]' },
+                            { label: '1:1', className: 'aspect-square' },
+                            { label: '4:3', className: 'aspect-[4/3]' },
+                          ].map((r) => (
+                            <DropdownMenuItem 
+                              key={r.label} 
+                              className={`hover:bg-gray-800 cursor-pointer ${selectedRatio === r.label ? 'bg-gray-800' : ''}`}
+                              onClick={() => {
+                                setSelectedRatio(r.label);
+                                setVideoAspectClass(r.className);
+                              }}
+                            >
+                              {r.label} {selectedRatio === r.label && <Check className="w-3 h-3 ml-auto" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
@@ -1703,7 +1717,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     <div className="flex items-center gap-1">
                       <button className="flex items-center gap-2 px-3 py-1.5 bg-violet-100 hover:bg-violet-200 rounded-lg text-violet-700 font-medium text-sm transition-colors mr-2">
                         <Pencil className="w-4 h-4" />
-                        Text Editing
+                        Text Edit
                       </button>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -1845,7 +1859,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Timeline - minimum 3 tracks visible with scroll */}
-                  <div className="h-[240px] overflow-hidden flex">
+                  <div className="flex flex-col" style={{ height: 'calc(32px + 4 * 56px)' }}>
+                    <div className="flex flex-1 overflow-hidden">
                     {/* Track Labels - Dark Background */}
                     <div className="w-14 bg-sidebar-background flex flex-col shrink-0 overflow-y-auto">
                       <div className="h-8 border-b border-gray-800 flex items-center justify-center">
@@ -2012,6 +2027,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           </div>
                         ))}
                       </div>
+                    </div>
                     </div>
                   </div>
                 </div>
