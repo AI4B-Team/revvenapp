@@ -1304,9 +1304,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Left Panel - Tab Content */}
             <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-              <div className="h-full bg-white border-r-2 border-gray-400 flex flex-col">
+              <div className="h-full bg-white border-r border-gray-200 flex flex-col">
                 {/* Tabs with Tooltips */}
-                <div className="flex items-center justify-center gap-1 p-2 border-b-2 border-gray-400 bg-gray-50 flex-wrap">
+                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
                   {tabs.map((tab) => (
                     <Tooltip key={tab.id}>
                       <TooltipTrigger asChild>
@@ -1333,7 +1333,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Sub-menu section */}
                 {getSubMenuItems(activeTab).length > 0 && (
-                  <div className="flex items-center gap-2 px-4 py-2 border-b-2 border-gray-300 bg-gray-50/50">
+                  <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 bg-gray-50/50">
                     {getSubMenuItems(activeTab).map((item, index) => (
                       <button
                         key={index}
