@@ -129,6 +129,7 @@ interface TimelineClip {
   color?: string;
   waveform?: number[];
   caption?: string;
+  src?: string; // Video/audio source URL
 }
 
 interface TimelineTrack {
@@ -389,6 +390,29 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       videoRef.current.currentTime = newTime;
     }
   }, []);
+
+  // Find the active video clip based on current playback time
+  const activeVideoClip = React.useMemo(() => {
+    // Find video tracks and get the clip that's currently playing
+    for (const track of tracks) {
+      if (track.type === 'video' || track.id.includes('video')) {
+        for (const clip of track.clips) {
+          if (clip.src && currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration) {
+            return clip;
+          }
+        }
+      }
+    }
+    return null;
+  }, [tracks, currentTime]);
+
+  // Get current video source - use active clip's src if available
+  const currentVideoSrc = React.useMemo(() => {
+    if (activeVideoClip?.src) {
+      return activeVideoClip.src;
+    }
+    return video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  }, [activeVideoClip, video]);
 
   // Undo/Redo
   const undo = () => {
@@ -1610,7 +1634,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   <div className={`relative bg-black rounded-xl overflow-hidden shadow-2xl max-w-full max-h-full ${videoAspectClass} flex items-center justify-center`}>
                     <video
                       ref={videoRef}
-                      src={video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"}
+                      src={currentVideoSrc}
                       className="max-w-full max-h-full object-contain"
                       onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
                       onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
