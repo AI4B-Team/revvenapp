@@ -253,6 +253,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const [promptText, setPromptText] = useState('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
 
+  // Uploaded media files for the Visuals tab
+  const [uploadedMedia, setUploadedMedia] = useState<Array<{
+    id: string;
+    name: string;
+    url: string;
+    thumbnail?: string;
+    type: 'video' | 'audio';
+    source: 'upload' | 'url';
+  }>>([]);
+
   // Sample visuals for the Visuals tab
   const [visualAssets] = useState([
     { id: '1', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
@@ -918,7 +928,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -940,7 +950,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} />;
+        return <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />;
 
       case 'audio':
         return <EditorAudioPanel />;
@@ -1757,8 +1767,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 input.onchange = (event) => {
                                   const file = (event.target as HTMLInputElement).files?.[0];
                                   if (file) {
+                                    const fileUrl = URL.createObjectURL(file);
+                                    const isVideo = file.type.startsWith('video/');
+                                    const newMedia = {
+                                      id: `upload-${Date.now()}`,
+                                      name: file.name,
+                                      url: fileUrl,
+                                      type: isVideo ? 'video' as const : 'audio' as const,
+                                      source: 'upload' as const,
+                                    };
+                                    setUploadedMedia(prev => [newMedia, ...prev]);
                                     setIsVideoDeleted(false);
-                                    toast({ title: 'File uploaded', description: file.name });
+                                    setActiveTab('visuals');
+                                    toast({ title: 'File uploaded', description: `${file.name} added to Visuals` });
                                   }
                                 };
                                 input.click();
@@ -1800,9 +1821,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       const url = (e.target as HTMLInputElement).value;
-                                      if (url) {
+                                      if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                                        const newMedia = {
+                                          id: `url-${Date.now()}`,
+                                          name: url.split('/').pop() || 'Video from URL',
+                                          url: url,
+                                          type: 'video' as const,
+                                          source: 'url' as const,
+                                        };
+                                        setUploadedMedia(prev => [newMedia, ...prev]);
                                         setIsVideoDeleted(false);
-                                        toast({ title: 'Video loaded from URL' });
+                                        setActiveTab('visuals');
+                                        (e.target as HTMLInputElement).value = '';
+                                        toast({ title: 'Video loaded from URL', description: 'Added to Visuals' });
                                       }
                                     }
                                   }}
@@ -1810,8 +1841,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     const pastedText = e.clipboardData.getData('text');
                                     if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
                                       setTimeout(() => {
+                                        const newMedia = {
+                                          id: `url-${Date.now()}`,
+                                          name: pastedText.split('/').pop() || 'Video from URL',
+                                          url: pastedText,
+                                          type: 'video' as const,
+                                          source: 'url' as const,
+                                        };
+                                        setUploadedMedia(prev => [newMedia, ...prev]);
                                         setIsVideoDeleted(false);
-                                        toast({ title: 'Video loaded from URL' });
+                                        setActiveTab('visuals');
+                                        toast({ title: 'Video loaded from URL', description: 'Added to Visuals' });
                                       }, 100);
                                     }
                                   }}
