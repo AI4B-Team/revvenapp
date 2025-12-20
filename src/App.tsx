@@ -58,7 +58,7 @@ import AdCopyWriter from "./pages/AdCopyWriter";
 import ScriptWriter from "./pages/ScriptWriter";
 import SEOOptimizer from "./pages/SEOOptimizer";
 import EbookCreator from "./pages/EbookCreator";
-
+import ExplainerVideo from "./pages/ExplainerVideo";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -108,6 +108,7 @@ const App = () => (
           <Route path="/script-writer" element={<ScriptWriter />} />
           <Route path="/seo-optimizer" element={<SEOOptimizer />} />
           <Route path="/ebook-creator" element={<EbookCreator />} />
+          <Route path="/explainer-video" element={<ExplainerVideo />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
