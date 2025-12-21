@@ -367,14 +367,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   // Calculate total timeline duration based on ALL clips (for timeline display)
   const timelineDuration = React.useMemo(() => {
-    let maxEnd = duration;
+    let maxEnd = 0;
     for (const track of tracks) {
       for (const clip of track.clips) {
         maxEnd = Math.max(maxEnd, clip.startTime + clip.duration);
       }
     }
-    // Add extra 30s buffer for extending clips
-    return maxEnd + 30;
+    // If there are clips, add a small buffer (20% or at least 2s)
+    // If no clips, use default duration
+    if (maxEnd > 0) {
+      return maxEnd + Math.max(2, maxEnd * 0.2);
+    }
+    return duration;
   }, [tracks, duration]);
 
   // Track the currently loaded clip to detect source changes
@@ -2246,7 +2250,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           tracks={tracks}
                           setTracks={setTracks}
                           currentTime={currentTime}
-                          duration={Math.max(30, timelineDuration + 10)}
+                          duration={timelineDuration}
                           zoom={zoom}
                           selectedClip={selectedClip}
                           setSelectedClip={setSelectedClip}
