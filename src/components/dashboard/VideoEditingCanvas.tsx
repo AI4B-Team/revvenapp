@@ -519,150 +519,170 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     setIsVideoDeleted(false);
   }, [tracks]);
 
-  // Export function that records the timeline playback to merge all clips
+  // Export function - plays timeline in real-time and records it
   const handleRecordingExport = useCallback(async (): Promise<Blob | null> => {
     if (sortedVideoClips.length === 0) {
+      toast({ title: 'No clips to export', description: 'Add clips to the timeline first' });
       return null;
     }
 
     return new Promise(async (resolve) => {
       try {
-        // Create a canvas to capture video frames
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        // Get the video container element
+        const videoContainer = document.querySelector('.video-export-container') as HTMLElement;
+        const videoEl = videoRef.current;
         
-        if (!ctx) {
+        if (!videoEl) {
+          toast({ title: 'Export failed', description: 'Video element not found' });
           resolve(null);
           return;
         }
+
+        // Calculate total duration including gaps
+        const totalDuration = Math.max(...sortedVideoClips.map(c => c.startTime + c.duration));
         
-        // Set canvas size
+        // Create a canvas to render frames
+        const canvas = document.createElement('canvas');
         canvas.width = 1280;
         canvas.height = 720;
+        const ctx = canvas.getContext('2d')!;
         
-        // Check if MediaRecorder supports webm
+        // Setup MediaRecorder
+        const stream = canvas.captureStream(30);
+        
         let mimeType = 'video/webm';
-        if (!MediaRecorder.isTypeSupported('video/webm')) {
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
           mimeType = 'video/mp4';
         }
         
-        // Create MediaRecorder from canvas
-        const stream = canvas.captureStream(30);
-        const mediaRecorder = new MediaRecorder(stream, {
+        const recorder = new MediaRecorder(stream, {
           mimeType,
-          videoBitsPerSecond: 2500000
+          videoBitsPerSecond: 3000000
         });
         
         const chunks: Blob[] = [];
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            chunks.push(e.data);
-          }
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
         };
         
-        mediaRecorder.onstop = () => {
+        recorder.onstop = () => {
           const blob = new Blob(chunks, { type: mimeType });
           resolve(blob);
         };
 
-        // Start recording
-        mediaRecorder.start(100); // Collect data every 100ms
+        // Load all video sources into separate elements
+        const videoCache: Map<string, HTMLVideoElement> = new Map();
         
-        // Process clips sequentially
-        const processClips = async () => {
-          const totalDuration = Math.max(...sortedVideoClips.map(c => c.startTime + c.duration));
-          const fps = 30;
-          const frameTime = 1000 / fps;
-          let currentTime = 0;
-          
-          // Create video elements for each clip
-          const videoElements: Map<string, HTMLVideoElement> = new Map();
-          
-          // Preload all videos
-          await Promise.all(sortedVideoClips.map(clip => {
-            return new Promise<void>((res) => {
-              if (!clip.src) {
-                res();
-                return;
-              }
-              const video = document.createElement('video');
-              video.crossOrigin = 'anonymous';
-              video.muted = true;
-              video.preload = 'auto';
-              video.src = clip.src;
-              video.onloadeddata = () => {
-                videoElements.set(clip.id, video);
-                res();
-              };
-              video.onerror = () => res();
-            });
-          }));
-          
-          // Render frames
-          const renderNextFrame = () => {
-            if (currentTime >= totalDuration) {
-              // Stop recording after a brief delay to ensure all frames are captured
-              setTimeout(() => {
-                mediaRecorder.stop();
-              }, 200);
-              return;
-            }
+        // Preload all clips
+        const loadPromises = sortedVideoClips.map(clip => {
+          return new Promise<void>((res) => {
+            if (!clip.src) { res(); return; }
             
-            // Find active clip
-            const activeClip = sortedVideoClips.find(
-              clip => currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration
-            );
+            const vid = document.createElement('video');
+            vid.crossOrigin = 'anonymous';
+            vid.muted = true;
+            vid.playsInline = true;
+            vid.preload = 'auto';
+            vid.src = clip.src;
             
-            // Draw black background
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            if (activeClip) {
-              const videoEl = videoElements.get(activeClip.id);
-              if (videoEl && videoEl.readyState >= 2) {
-                // Calculate clip-relative time
-                const clipTime = currentTime - activeClip.startTime;
-                videoEl.currentTime = clipTime;
-                
-                // Draw video centered on canvas
-                const scale = Math.min(
-                  canvas.width / (videoEl.videoWidth || 1280),
-                  canvas.height / (videoEl.videoHeight || 720)
-                );
-                const w = (videoEl.videoWidth || 1280) * scale;
-                const h = (videoEl.videoHeight || 720) * scale;
-                const x = (canvas.width - w) / 2;
-                const y = (canvas.height - h) / 2;
-                
-                try {
-                  ctx.drawImage(videoEl, x, y, w, h);
-                } catch (e) {
-                  // CORS or other error - draw placeholder
-                  ctx.fillStyle = '#333';
-                  ctx.fillRect(0, 0, canvas.width, canvas.height);
-                  ctx.fillStyle = '#fff';
-                  ctx.font = '24px sans-serif';
-                  ctx.textAlign = 'center';
-                  ctx.fillText(activeClip.name, canvas.width / 2, canvas.height / 2);
-                }
+            vid.oncanplaythrough = () => {
+              videoCache.set(clip.id, vid);
+              res();
+            };
+            vid.onerror = () => {
+              console.error('Failed to load video:', clip.src);
+              res();
+            };
+            vid.load();
+          });
+        });
+        
+        await Promise.all(loadPromises);
+        
+        // Start recording
+        recorder.start(100);
+        
+        toast({ title: 'Recording export...', description: `This will take ~${Math.ceil(totalDuration)}s` });
+        
+        // Play through timeline in real-time
+        let exportTime = 0;
+        const startTime = Date.now();
+        let lastClipId: string | null = null;
+        let currentVideo: HTMLVideoElement | null = null;
+        
+        const renderLoop = () => {
+          const elapsed = (Date.now() - startTime) / 1000;
+          exportTime = elapsed;
+          
+          if (exportTime >= totalDuration) {
+            // Finish recording
+            setTimeout(() => recorder.stop(), 100);
+            return;
+          }
+          
+          // Find active clip
+          const activeClip = sortedVideoClips.find(
+            c => exportTime >= c.startTime && exportTime < c.startTime + c.duration
+          );
+          
+          // Clear canvas with black
+          ctx.fillStyle = '#000';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          if (activeClip) {
+            // Switch video if needed
+            if (activeClip.id !== lastClipId) {
+              lastClipId = activeClip.id;
+              currentVideo = videoCache.get(activeClip.id) || null;
+              if (currentVideo) {
+                currentVideo.currentTime = 0;
+                currentVideo.play().catch(() => {});
               }
             }
             
-            currentTime += frameTime / 1000;
-            setTimeout(renderNextFrame, frameTime);
-          };
+            // Draw current video frame
+            if (currentVideo && currentVideo.readyState >= 2) {
+              const vw = currentVideo.videoWidth || 1280;
+              const vh = currentVideo.videoHeight || 720;
+              const scale = Math.min(canvas.width / vw, canvas.height / vh);
+              const w = vw * scale;
+              const h = vh * scale;
+              const x = (canvas.width - w) / 2;
+              const y = (canvas.height - h) / 2;
+              
+              try {
+                ctx.drawImage(currentVideo, x, y, w, h);
+              } catch (e) {
+                // Draw clip name as fallback
+                ctx.fillStyle = '#333';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#fff';
+                ctx.font = '32px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(activeClip.name, canvas.width / 2, canvas.height / 2);
+              }
+            }
+          } else {
+            // In a gap - pause any playing video
+            if (currentVideo) {
+              currentVideo.pause();
+            }
+            lastClipId = null;
+            currentVideo = null;
+          }
           
-          renderNextFrame();
+          requestAnimationFrame(renderLoop);
         };
         
-        processClips();
+        renderLoop();
         
       } catch (error) {
-        console.error('Recording export error:', error);
+        console.error('Export error:', error);
+        toast({ title: 'Export failed', description: String(error) });
         resolve(null);
       }
     });
-  }, [sortedVideoClips]);
+  }, [sortedVideoClips, toast]);
 
   // Delete selected clip
   const deleteSelectedClip = () => {
