@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
   Eye, EyeOff, MoreHorizontal, MoreVertical, GripVertical, LayoutGrid, Rows3,
-  ChevronLeft, ChevronRight, Flag, Blend, Trash2, Copy, Scissors
+  ChevronLeft, ChevronRight, Flag, ArrowLeftRight, Trash2, Copy, Scissors
 } from 'lucide-react';
 import {
   Tooltip,
@@ -691,17 +691,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               </TooltipTrigger>
               <TooltipContent><p>Next Scene</p></TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={jumpToMarker}
-                  className={`p-1 rounded transition-colors ${markers.length > 0 ? 'text-amber-500 hover:text-amber-600' : 'text-gray-600 hover:text-gray-900'} hover:bg-gray-100`}
-                >
-                  <Flag className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent><p>{markers.length > 0 ? 'Jump to Marker' : 'Add Marker'}</p></TooltipContent>
-            </Tooltip>
           </div>
 
           {/* View Toggle */}
@@ -940,7 +929,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                                 }}
                                 className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
                               >
-                                <Blend className="w-4 h-4 text-gray-700" />
+                                <ArrowLeftRight className="w-4 h-4 text-gray-700" />
                               </button>
                             </TooltipTrigger>
                             <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
@@ -953,63 +942,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               );
             })}
             
-            {/* Gap action icons after last scene (before Add New Scene) */}
-            {scenes.length > 0 && (
-              <div 
-                className="relative flex items-center justify-center mx-1 group/gap"
-                onMouseEnter={() => setHoveredSceneGap(scenes.length)}
-                onMouseLeave={() => setHoveredSceneGap(null)}
-              >
-                {/* Collapsed state - small dot */}
-                <div className={`w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer flex items-center justify-center ${hoveredSceneGap === scenes.length ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                </div>
-                
-                {/* Expanded state - two action buttons */}
-                <AnimatePresence>
-                  {hoveredSceneGap === scenes.length && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute flex flex-col items-center gap-1 z-10"
-                    >
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              insertSceneAtIndex(scenes.length);
-                            }}
-                            className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
-                          >
-                            <Plus className="w-4 h-4 text-gray-700" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top"><p>Insert Scene</p></TooltipContent>
-                      </Tooltip>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // TODO: Add transition functionality
-                              console.log('Add transition after last scene');
-                            }}
-                            className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
-                          >
-                            <Blend className="w-4 h-4 text-gray-700" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
-                      </Tooltip>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
             
             {/* Add scene button */}
             <Tooltip>
