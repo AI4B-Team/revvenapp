@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
 
@@ -41,6 +42,7 @@ interface EditorVideoPanelProps {
   uploadedMedia?: UploadedMedia[];
   onFileUpload?: (files: FileList) => void;
   onUrlSubmit?: (url: string) => void;
+  onAddToTimeline?: (videoUrl: string, name: string, thumbnail?: string, duration?: number) => void;
 }
 
 const categories = [
@@ -68,7 +70,8 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   onOpenTranslate, 
   uploadedMedia = [],
   onFileUpload,
-  onUrlSubmit 
+  onUrlSubmit,
+  onAddToTimeline
 }) => {
   const [videos, setVideos] = useState<PexelsVideo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -230,13 +233,25 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   };
 
   const handleUploadedVideoDragStart = (e: React.DragEvent, video: UploadedMedia) => {
-    e.dataTransfer.setData('application/json', JSON.stringify({
+    const dragData = JSON.stringify({
       type: 'video',
       url: video.url,
       thumbnail: video.thumbnail || '',
-      name: video.name
-    }));
+      name: video.name,
+      duration: 5 // default duration
+    });
+    e.dataTransfer.setData('application/json', dragData);
+    e.dataTransfer.setData('text/plain', dragData); // fallback
     e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const handleAddUploadedVideoToTimeline = (video: UploadedMedia) => {
+    if (onAddToTimeline) {
+      onAddToTimeline(video.url, video.name, video.thumbnail, 5);
+      toast.success(`Added "${video.name}" to timeline`);
+    } else {
+      toast.error('Timeline not available');
+    }
   };
 
   return (
@@ -308,11 +323,12 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
       {uploadedMedia && uploadedMedia.length > 0 && (
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Uploaded Videos</h3>
+          <p className="text-xs text-gray-500 mb-2">Drag to timeline or click + to add</p>
           <div className="grid grid-cols-2 gap-3">
             {uploadedMedia.filter(m => m.type === 'video').map((video) => (
               <div
                 key={video.id}
-                className="relative aspect-video rounded-lg overflow-hidden cursor-pointer group bg-gray-100"
+                className="relative aspect-video rounded-lg overflow-hidden cursor-grab group bg-gray-100 border-2 border-transparent hover:border-primary transition-colors"
                 draggable
                 onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
                 onClick={() => handleUploadedVideoSelect(video)}
@@ -329,11 +345,22 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
                     target.currentTime = 0;
                   }}
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-                  <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
+                  <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-                  <p className="text-xs text-white truncate">{video.name}</p>
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-between">
+                  <p className="text-xs text-white truncate flex-1">{video.name}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 bg-white/20 hover:bg-white/40 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddUploadedVideoToTimeline(video);
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             ))}
