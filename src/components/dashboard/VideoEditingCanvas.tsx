@@ -1507,8 +1507,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3 ml-auto">
-            <div className="flex items-center -space-x-2">
+          <div className="flex items-center gap-2 md:gap-3 ml-auto flex-shrink-0">
+            {/* Collaborators - hide on small screens */}
+            <div className="hidden lg:flex items-center -space-x-2">
               {collaborators.map((avatar, index) => (
                 <img
                   key={index}
@@ -1518,13 +1519,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 />
               ))}
             </div>
+            {/* Share button - hide text on small screens */}
             <button 
               onClick={() => setShareDialogOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors border border-gray-500"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors border border-gray-500"
             >
               <UserPlus className="w-4 h-4" />
-              <span>Share</span>
+              <span className="hidden md:inline">Share</span>
             </button>
+            {/* Export button - always visible */}
             <ExportDropdown 
               isFreePlan={isFreePlan} 
               videoSrc={currentVideoSrc} 
