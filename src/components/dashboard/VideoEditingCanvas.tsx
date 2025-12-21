@@ -460,6 +460,41 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     toast({ title: 'Video loaded to canvas' });
   }, [toast]);
 
+  // Handle adding a video to the timeline
+  const handleAddToTimeline = useCallback((videoUrl: string, name: string, thumbnail?: string, videoDuration?: number) => {
+    const clipDuration = videoDuration || 5;
+    
+    // Find the first video track
+    const videoTrackIndex = tracks.findIndex(t => t.type === 'video' || t.id.includes('video'));
+    if (videoTrackIndex === -1) return;
+    
+    // Calculate start time (add at the end of existing clips)
+    const existingClips = tracks[videoTrackIndex].clips;
+    const lastClipEnd = existingClips.length > 0 
+      ? Math.max(...existingClips.map(c => c.startTime + c.duration))
+      : 0;
+    
+    const newClip: TimelineClip = {
+      id: `clip-${Date.now()}`,
+      type: 'video',
+      name: name || 'Video',
+      startTime: lastClipEnd,
+      duration: clipDuration,
+      thumbnail: thumbnail || '',
+      src: videoUrl,
+    };
+    
+    setTracks(prev => prev.map((track, index) => {
+      if (index !== videoTrackIndex) return track;
+      return {
+        ...track,
+        clips: [...track.clips, newClip]
+      };
+    }));
+    
+    setIsVideoDeleted(false);
+  }, [tracks]);
+
   // Delete selected clip
   const deleteSelectedClip = () => {
     if (selectedClip) {
@@ -893,7 +928,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -915,7 +950,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} />;
 
       case 'audio':
         return <EditorAudioPanel />;
