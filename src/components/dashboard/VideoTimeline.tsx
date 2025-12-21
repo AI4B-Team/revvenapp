@@ -1303,10 +1303,15 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
                       {/* Duration badge and delete button on selection */}
                       {isSelected && (
-                        <div className="absolute bottom-1 right-1 flex items-center gap-1">
+                        <div className="absolute bottom-1 right-1 flex items-center gap-1 z-50">
                           <button
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
+                              e.preventDefault();
                               // Delete this clip
                               setTracks(prev => prev.map(t => ({
                                 ...t,
@@ -1314,7 +1319,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                               })));
                               setSelectedClip(null);
                             }}
-                            className="p-1 bg-red-500/80 hover:bg-red-600 rounded text-white transition-colors"
+                            className="p-1 bg-red-500/80 hover:bg-red-600 rounded text-white transition-colors pointer-events-auto"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
