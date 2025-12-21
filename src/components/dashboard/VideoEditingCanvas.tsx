@@ -310,60 +310,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Clip resizing state
   const [resizingClip, setResizingClip] = useState<{ clipId: string; edge: 'left' | 'right'; startX: number; originalStart: number; originalDuration: number } | null>(null);
 
-  // Timeline tracks with combined audio/text
+  // Timeline tracks - empty by default
   const [tracks, setTracks] = useState<TimelineTrack[]>([
-    {
-      id: 'image-1',
-      type: 'effect' as const,
-      name: 'Images',
-      clips: [
-        { id: 'img-1', type: 'effect', name: 'Brand Logo', startTime: 0, duration: 3, color: '#3B82F6' },
-        { id: 'img-2', type: 'effect', name: 'Product Hero', startTime: 8, duration: 5, color: '#3B82F6' },
-        { id: 'img-3', type: 'effect', name: 'Lifestyle Shot', startTime: 20, duration: 7, color: '#3B82F6' },
-        { id: 'img-4', type: 'effect', name: 'Testimonial BG', startTime: 35, duration: 6, color: '#3B82F6' },
-        { id: 'img-5', type: 'effect', name: 'CTA Graphic', startTime: 50, duration: 8, color: '#3B82F6' },
-      ]
-    },
     {
       id: 'video-1',
       type: 'video',
       name: 'Video 1',
-      clips: [
-        { id: 'clip-1', type: 'video', name: 'Intro', startTime: 0, duration: 5, thumbnail: '/placeholder.svg' },
-        { id: 'clip-2', type: 'video', name: 'Vicki Close-up', startTime: 5, duration: 8, thumbnail: '/placeholder.svg' },
-        { id: 'clip-3', type: 'video', name: 'Product Shot', startTime: 13, duration: 6, thumbnail: '/placeholder.svg' },
-        { id: 'clip-4', type: 'video', name: 'Testimonial', startTime: 19, duration: 10, thumbnail: '/placeholder.svg' },
-        { id: 'clip-5', type: 'video', name: 'Demo Sequence', startTime: 29, duration: 12, thumbnail: '/placeholder.svg' },
-        { id: 'clip-6', type: 'video', name: 'CTA Scene', startTime: 41, duration: 8, thumbnail: '/placeholder.svg' },
-        { id: 'clip-7', type: 'video', name: 'Brand Outro', startTime: 49, duration: 7, thumbnail: '/placeholder.svg' },
-        { id: 'clip-8', type: 'video', name: 'End Card', startTime: 56, duration: 6, thumbnail: '/placeholder.svg' },
-      ]
+      clips: []
     },
     {
       id: 'audio-1',
       type: 'audio',
       name: 'Voiceover',
-      clips: [
-        { id: 'audio-clip-1', type: 'audio', name: 'Intro VO', startTime: 0, duration: 5, waveform: generateWaveform(100), caption: "I'm going to tell you something shocking. I'm not real." },
-        { id: 'audio-clip-2', type: 'audio', name: 'Origin', startTime: 5, duration: 8, waveform: generateWaveform(160), caption: "I wasn't born. I don't have a past. I don't even exist, and yet I show up online." },
-        { id: 'audio-clip-3', type: 'audio', name: 'Purpose', startTime: 13, duration: 6, waveform: generateWaveform(120), caption: "I create content. I build influence. I help my creators share ideas." },
-        { id: 'audio-clip-4', type: 'audio', name: 'Introduction', startTime: 19, duration: 10, waveform: generateWaveform(200), caption: "Hi, my name is Vicki Revelle and I'm what's called a digital babe." },
-        { id: 'audio-clip-5', type: 'audio', name: 'Problem', startTime: 29, duration: 12, waveform: generateWaveform(240), caption: "Not everyone wants to be the face of their brand. Not everyone wants to share their personal life online." },
-        { id: 'audio-clip-6', type: 'audio', name: 'Solution', startTime: 41, duration: 8, waveform: generateWaveform(160), caption: "That's the trap most creators fall into, but there's a smarter way forward." },
-        { id: 'audio-clip-7', type: 'audio', name: 'CTA', startTime: 49, duration: 7, waveform: generateWaveform(140), caption: "That's where Digital Babes come in. Let us be your virtual presence." },
-        { id: 'audio-clip-8', type: 'audio', name: 'Outro', startTime: 56, duration: 6, waveform: generateWaveform(120), caption: "Start your journey today. Visit digitalbabes.ai" },
-      ]
+      clips: []
     },
     {
       id: 'music-1',
       type: 'text' as const,
       name: 'Music',
-      clips: [
-        { id: 'music-clip-1', type: 'text', name: 'Ambient Intro', startTime: 0, duration: 15, color: '#10B981' },
-        { id: 'music-clip-2', type: 'text', name: 'Upbeat Main', startTime: 15, duration: 25, color: '#10B981' },
-        { id: 'music-clip-3', type: 'text', name: 'Emotional Bridge', startTime: 40, duration: 12, color: '#10B981' },
-        { id: 'music-clip-4', type: 'text', name: 'Outro Fade', startTime: 52, duration: 10, color: '#10B981' },
-      ]
+      clips: []
     }
   ]);
 
