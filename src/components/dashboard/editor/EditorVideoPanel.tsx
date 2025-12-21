@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Sparkles } from 'lucide-react';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaTwitter } from 'react-icons/fa';
 import { toast } from 'sonner';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
@@ -48,6 +49,15 @@ const categories = [
   { label: 'Tech', query: 'technology' },
   { label: 'People', query: 'people lifestyle' },
   { label: 'Abstract', query: 'abstract motion' },
+];
+
+const socialPlatforms = [
+  { icon: FaYoutube, color: '#FF0000', name: 'YouTube' },
+  { icon: FaTiktok, color: '#000000', name: 'TikTok' },
+  { icon: FaInstagram, color: '#E4405F', name: 'Instagram' },
+  { icon: FaFacebookF, color: '#1877F2', name: 'Facebook' },
+  { icon: FaVimeoV, color: '#1AB7EA', name: 'Vimeo' },
+  { icon: FaTwitter, color: '#1DA1F2', name: 'Twitter' },
 ];
 
 const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ 
@@ -211,22 +221,25 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Compact Upload & Paste Section */}
-      <div className="space-y-2 mb-4">
-        {/* Upload File */}
+    <div className="flex flex-col h-full bg-white">
+      {/* Click To Upload Section */}
+      <div className="space-y-4 mb-4">
+        {/* Upload Area */}
         <div 
-          className={`border border-dashed rounded-lg p-3 text-center transition-colors cursor-pointer ${
-            isDragging ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-gray-400'
+          className={`bg-gray-900 rounded-xl p-8 text-center transition-all cursor-pointer ${
+            isDragging ? 'ring-2 ring-primary bg-gray-800' : 'hover:bg-gray-800'
           }`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
         >
-          <div className="flex items-center justify-center gap-2">
-            <Upload className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">Upload File</span>
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-semibold text-lg">Click to upload</span>
+              <Upload className="w-5 h-5 text-white" />
+            </div>
+            <p className="text-gray-400 text-sm">or, drag and drop a file here</p>
           </div>
         </div>
         <input
@@ -238,26 +251,38 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
           className="hidden"
         />
 
-        {/* Paste Link */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+        {/* Paste Link Section */}
+        <div className="space-y-3">
+          <div className="relative flex items-center">
             <input
               type="text"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
-              placeholder="Paste Link"
-              className="w-full pl-8 pr-3 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border-0"
+              placeholder="Paste A Supported Public Media Link"
+              className="w-full pl-4 pr-12 py-3 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-200"
             />
+            <button
+              onClick={handleUrlSubmit}
+              disabled={!videoUrl.trim()}
+              className="absolute right-2 p-1.5 text-amber-500 hover:text-amber-600 transition-colors disabled:opacity-50"
+            >
+              <Sparkles className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={handleUrlSubmit}
-            disabled={!videoUrl.trim()}
-            className="px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Add
-          </button>
+
+          {/* Social Platform Icons */}
+          <div className="flex items-center justify-center gap-3">
+            {socialPlatforms.map((platform, index) => (
+              <div
+                key={index}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                title={platform.name}
+              >
+                <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
