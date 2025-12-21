@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download,
@@ -7,14 +7,14 @@ import {
   Music,
   Film,
   ChevronDown,
-  Check,
   Sparkles,
   Crown,
   Gauge,
   HardDrive,
   Settings2,
-  Zap,
-  Loader2,
+  Trash2,
+  ExternalLink,
+  Clock,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { formatDistanceToNow } from 'date-fns';
 
 interface VideoClipInfo {
   id: string;
@@ -48,6 +49,17 @@ interface ExportSettings {
   format: string;
   resolution: string;
   quality: number;
+}
+
+interface RecentExport {
+  id: string;
+  project_title: string;
+  video_url: string;
+  format: string;
+  resolution: string;
+  file_size: number | null;
+  duration: number | null;
+  created_at: string;
 }
 
 const exportTypes = [
@@ -83,8 +95,80 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<string>('');
   const [showClipsList, setShowClipsList] = useState(false);
+  const [recentExports, setRecentExports] = useState<RecentExport[]>([]);
+  const [loadingExports, setLoadingExports] = useState(false);
 
   const currentType = exportTypes.find((t) => t.id === selectedType);
+
+  // Fetch recent exports when dropdown opens
+  useEffect(() => {
+    if (isOpen && activeTab === 'recent') {
+      fetchRecentExports();
+    }
+  }, [isOpen, activeTab]);
+
+  const fetchRecentExports = async () => {
+    setLoadingExports(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_exports')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setRecentExports(data || []);
+    } catch (error) {
+      console.error('Failed to fetch recent exports:', error);
+    } finally {
+      setLoadingExports(false);
+    }
+  };
+
+  const saveExportRecord = async (videoUrl: string, fileSize?: number, duration?: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase.from('user_exports').insert({
+        user_id: user.id,
+        project_title: projectTitle || 'Untitled Export',
+        video_url: videoUrl,
+        format: selectedFormat.toLowerCase(),
+        resolution: selectedResolution,
+        file_size: fileSize,
+        duration: duration
+      });
+    } catch (error) {
+      console.error('Failed to save export record:', error);
+    }
+  };
+
+  const deleteExport = async (exportId: string) => {
+    try {
+      await supabase.from('user_exports').delete().eq('id', exportId);
+      setRecentExports(prev => prev.filter(e => e.id !== exportId));
+      toast.success('Export deleted');
+    } catch (error) {
+      console.error('Failed to delete export:', error);
+      toast.error('Failed to delete export');
+    }
+  };
+
+  const downloadVideo = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getEstimatedSize = () => {
     const baseSize = selectedType === 'video' ? 50 : selectedType === 'audio' ? 5 : 2;
@@ -93,6 +177,12 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
     const min = (baseSize * qualityMultiplier * resMultiplier * 0.5).toFixed(1);
     const max = (baseSize * qualityMultiplier * resMultiplier * 1.5).toFixed(1);
     return `${min} MB — ${max} MB`;
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return 'Unknown';
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(1)} MB`;
   };
 
   const handleExport = async () => {
@@ -138,21 +228,26 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
               if (statusError) throw statusError;
 
               if (statusData?.status === 'done' && statusData?.url) {
-                // Download the merged video using a link
-                const link = document.createElement('a');
-                link.href = statusData.url;
-                link.download = `${(projectTitle || 'export').replace(/\s+/g, '_')}_merged.mp4`;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const filename = `${(projectTitle || 'export').replace(/\s+/g, '_')}_merged.mp4`;
+                
+                // Auto-download the merged video
+                downloadVideo(statusData.url, filename);
+                
+                // Save to recent exports
+                await saveExportRecord(
+                  statusData.url, 
+                  statusData.size || null, 
+                  statusData.duration || null
+                );
                 
                 toast.success('Export completed!', {
-                  description: 'Your merged video is downloading',
+                  description: 'Your video has been downloaded and saved',
                   action: {
-                    label: 'Open Link',
-                    onClick: () => window.open(statusData.url, '_blank'),
+                    label: 'View Exports',
+                    onClick: () => {
+                      setActiveTab('recent');
+                      fetchRecentExports();
+                    },
                   },
                 });
                 break;
@@ -212,25 +307,26 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
   const downloadSingleVideo = async (src: string) => {
     setExportProgress('Downloading...');
     try {
-      const response = await fetch(src);
-      if (!response.ok) throw new Error('Failed to fetch video');
+      const filename = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
       
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      // Download directly
+      downloadVideo(src, filename);
+      
+      // Save to recent exports
+      await saveExportRecord(src);
       
       toast.success('Export completed!', {
         description: `Downloaded as ${selectedFormat}`,
+        action: {
+          label: 'View Exports',
+          onClick: () => {
+            setActiveTab('recent');
+            fetchRecentExports();
+          },
+        },
       });
     } catch (fetchError) {
-      // Try opening in new tab as fallback
-      console.error('Direct download failed:', fetchError);
+      console.error('Download failed:', fetchError);
       window.open(src, '_blank');
       toast.success('Video opened in new tab', {
         description: 'Right-click to save the video',
@@ -489,13 +585,77 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
               exit={{ opacity: 0, y: -10 }}
               className="p-4"
             >
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-14 h-14 rounded-full bg-gray-800 flex items-center justify-center mb-3">
-                  <Download className="w-6 h-6 text-gray-500" />
+              {loadingExports ? (
+                <div className="flex items-center justify-center py-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                  >
+                    <Settings2 className="w-6 h-6 text-gray-400" />
+                  </motion.div>
                 </div>
-                <p className="text-gray-400 text-sm">No recent exports</p>
-                <p className="text-gray-500 text-xs mt-1">Your export history will appear here</p>
-              </div>
+              ) : recentExports.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-14 h-14 rounded-full bg-gray-800 flex items-center justify-center mb-3">
+                    <Download className="w-6 h-6 text-gray-500" />
+                  </div>
+                  <p className="text-gray-400 text-sm">No recent exports</p>
+                  <p className="text-gray-500 text-xs mt-1">Your export history will appear here</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {recentExports.map((exportItem) => (
+                    <div
+                      key={exportItem.id}
+                      className="flex items-center gap-3 p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors group"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                        <Video className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">
+                          {exportItem.project_title}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(exportItem.created_at), { addSuffix: true })}
+                          <span>•</span>
+                          <span>{exportItem.format?.toUpperCase()}</span>
+                          {exportItem.file_size && (
+                            <>
+                              <span>•</span>
+                              <span>{formatFileSize(exportItem.file_size)}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => downloadVideo(exportItem.video_url, `${exportItem.project_title}.${exportItem.format}`)}
+                          className="p-2 hover:bg-gray-600 rounded-lg transition-colors"
+                          title="Download"
+                        >
+                          <Download className="w-4 h-4 text-gray-400" />
+                        </button>
+                        <button
+                          onClick={() => window.open(exportItem.video_url, '_blank')}
+                          className="p-2 hover:bg-gray-600 rounded-lg transition-colors"
+                          title="Open in new tab"
+                        >
+                          <ExternalLink className="w-4 h-4 text-gray-400" />
+                        </button>
+                        <button
+                          onClick={() => deleteExport(exportItem.id)}
+                          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
