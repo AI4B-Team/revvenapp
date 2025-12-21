@@ -1252,9 +1252,29 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                             </div>
                           );
                         })}
-                        {/* Resize handles for entire clip */}
+                        {/* Delete button and resize handles for entire clip */}
                         {!track.locked && (isSelected || isHovered) && (
                           <>
+                            {/* Delete button - positioned at top right */}
+                            <button
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setTracks(prev => prev.map(t => ({
+                                  ...t,
+                                  clips: t.clips.filter(c => c.id !== clip.id)
+                                })));
+                                setSelectedClip(null);
+                              }}
+                              className="absolute -top-1 -right-1 p-1.5 bg-red-500 hover:bg-red-600 rounded-full text-white shadow-lg z-50 pointer-events-auto transition-transform hover:scale-110"
+                              title="Delete clip"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                             <div 
                               onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
                               className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-l z-20"
@@ -1304,28 +1324,32 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                         </div>
                       </div>
 
-                      {/* Duration badge and delete button on selection */}
+                      {/* Delete button - always visible on hover/selection */}
+                      {(isSelected || isHovered) && !track.locked && (
+                        <button
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setTracks(prev => prev.map(t => ({
+                              ...t,
+                              clips: t.clips.filter(c => c.id !== clip.id)
+                            })));
+                            setSelectedClip(null);
+                          }}
+                          className="absolute -top-1 -right-1 p-1.5 bg-red-500 hover:bg-red-600 rounded-full text-white shadow-lg z-50 pointer-events-auto transition-transform hover:scale-110"
+                          title="Delete clip"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {/* Duration badge on selection */}
                       {isSelected && (
-                        <div className="absolute bottom-1 right-1 flex items-center gap-1 z-50">
-                          <button
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              // Delete this clip
-                              setTracks(prev => prev.map(t => ({
-                                ...t,
-                                clips: t.clips.filter(c => c.id !== clip.id)
-                              })));
-                              setSelectedClip(null);
-                            }}
-                            className="p-1 bg-red-500/80 hover:bg-red-600 rounded text-white transition-colors pointer-events-auto"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                        <div className="absolute bottom-1 right-1 z-40">
                           <div className="px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded text-[9px] text-white font-mono">
                             {clip.duration.toFixed(1)}s
                           </div>
