@@ -41,59 +41,45 @@ serve(async (req) => {
 
     console.log('Processing', clips.length, 'clips for project:', projectTitle);
 
-    // Build Shotstack timeline with sequential clips
+    // Build Shotstack timeline with each clip on a separate track (per API docs)
     // Sort clips by startTime to maintain order
     const sortedClips = [...clips].sort((a: VideoClip, b: VideoClip) => a.startTime - b.startTime);
     
-    // Build the timeline clips array for Shotstack
-    // We'll place clips sequentially based on their relative positions
+    // Build tracks array - each clip goes on its own track with sequential start times
     let currentStart = 0;
-    const shotstackClips = sortedClips.map((clip: VideoClip, index: number) => {
-      // Calculate gap from previous clip
-      const previousEnd = index > 0 
-        ? sortedClips[index - 1].startTime + sortedClips[index - 1].duration 
-        : 0;
-      const gap = clip.startTime - previousEnd;
-      
-      // Add gap to current start position
-      if (gap > 0) {
-        currentStart += gap;
-      }
-      
-      const shotstackClip = {
+    const tracks = sortedClips.map((clip: VideoClip, index: number) => {
+      const trackClip = {
         asset: {
           type: 'video',
           src: clip.src,
-          trim: 0, // Start from beginning of each source video
         },
         start: currentStart,
         length: clip.duration,
       };
       
+      // Next clip starts when this one ends
       currentStart += clip.duration;
       
-      return shotstackClip;
+      // Each clip is in its own track
+      return {
+        clips: [trackClip],
+      };
     });
 
     // Calculate total duration
     const totalDuration = currentStart;
     
     console.log('Total duration:', totalDuration, 'seconds');
-    console.log('Shotstack clips:', JSON.stringify(shotstackClips, null, 2));
+    console.log('Shotstack tracks:', JSON.stringify(tracks, null, 2));
 
-    // Create Shotstack edit
+    // Create Shotstack edit - each clip on separate track per documentation
     const editPayload = {
       timeline: {
-        tracks: [
-          {
-            clips: shotstackClips,
-          },
-        ],
+        tracks: tracks,
       },
       output: {
         format: 'mp4',
-        resolution: 'hd', // 1080p
-        aspectRatio: '16:9',
+        resolution: 'sd', // Use SD for sandbox to reduce credit usage
       },
     };
 
