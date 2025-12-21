@@ -52,24 +52,24 @@ serve(async (req) => {
     const statusData = await statusResponse.json();
     console.log('Status response:', statusData);
 
-    // Map JSON2Video status to our expected format
-    // JSON2Video statuses: pending, processing, done, failed
-    let status = statusData.status || 'unknown';
+    // JSON2Video returns nested structure: { success, movie: { status, url, ... } }
+    const movieData = statusData.movie || statusData;
+    let status = movieData.status || 'unknown';
     let url = null;
     let progress = 0;
 
     if (status === 'done') {
-      url = statusData.movie;
+      url = movieData.url;
       progress = 100;
     } else if (status === 'processing') {
-      progress = statusData.progress || 50;
+      progress = movieData.progress || 50;
     } else if (status === 'pending') {
       progress = 0;
     } else if (status === 'failed') {
       return new Response(
         JSON.stringify({ 
           status: 'failed', 
-          error: statusData.error || 'Render failed' 
+          error: movieData.message || 'Render failed' 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
