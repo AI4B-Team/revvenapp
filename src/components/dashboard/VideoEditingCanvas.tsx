@@ -48,7 +48,7 @@ import {
   UserPlus,
   ChevronLeft,
   ChevronRight,
-  ScrollText,
+  FileText,
   Heart,
   Download,
   Search,
@@ -702,7 +702,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   // Tab configuration with all requested icons in order
   const tabs = [
-    { id: 'script', icon: ScrollText, label: 'Script' },
+    { id: 'script', icon: FileText, label: 'Script' },
     { id: 'character', icon: User, label: 'Character' },
     { id: 'visuals', icon: Video, label: 'Visuals' },
     { id: 'audio', icon: AudioLines, label: 'Audio' },
