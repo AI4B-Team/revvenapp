@@ -67,29 +67,26 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     return `${seconds.toFixed(2)}s`;
   };
 
-  const handleSegmentClick = (segmentId: string, e: React.MouseEvent) => {
+  const handleSegmentClick = (segment: ScriptSegment, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (e.shiftKey) {
       // Multi-select with shift
       setSelectedSegments(prev => {
         const next = new Set(prev);
-        if (next.has(segmentId)) {
-          next.delete(segmentId);
+        if (next.has(segment.id)) {
+          next.delete(segment.id);
         } else {
-          next.add(segmentId);
+          next.add(segment.id);
         }
         return next;
       });
     } else {
-      // Single select
-      setSelectedSegments(new Set([segmentId]));
+      // Single click opens edit mode directly
+      setSelectedSegments(new Set([segment.id]));
+      setEditingSegmentId(segment.id);
+      setEditingText(segment.text);
     }
-  };
-
-  const handleSegmentDoubleClick = (segment: ScriptSegment) => {
-    setEditingSegmentId(segment.id);
-    setEditingText(segment.text);
   };
 
   const handleEditSave = () => {
@@ -215,8 +212,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
               >
                 {/* Sentence block */}
                 <div
-                  onClick={(e) => handleSegmentClick(segment.id, e)}
-                  onDoubleClick={() => handleSegmentDoubleClick(segment)}
+                  onClick={(e) => handleSegmentClick(segment, e)}
                   className={`relative flex items-start gap-2 py-2 px-1 rounded-lg transition-all cursor-pointer ${
                     isEditing 
                       ? 'bg-gray-50 ring-2 ring-primary/20' 
