@@ -1316,7 +1316,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     {selectedPromptTool === 'image' && (
                       <div className="flex flex-col gap-1 mb-2">
                         <div className="flex items-center gap-2">
-                          <Video className="w-4 h-4 text-red-400" />
+                          <ImageIcon className="w-4 h-4 text-blue-400" />
                           <span className="text-sm text-gray-400">Describe what you want to create...</span>
                         </div>
                         <Shuffle className="w-4 h-4 text-brand-green" />
