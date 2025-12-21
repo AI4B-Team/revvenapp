@@ -1360,7 +1360,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <UserPlus className="w-4 h-4" />
               <span>Share</span>
             </button>
-            <ExportDropdown isFreePlan={isFreePlan} />
+            <ExportDropdown isFreePlan={isFreePlan} videoSrc={currentVideoSrc} projectTitle={projectTitle} />
             <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors flex-shrink-0">
