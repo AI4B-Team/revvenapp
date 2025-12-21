@@ -44,13 +44,19 @@ const loadFFmpeg = async (onProgress?: ProgressCallback): Promise<FFmpeg> => {
     message: 'Loading video processor...',
   });
 
-  // Load FFmpeg with CDN URLs for WASM files
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  // Use single-threaded version which doesn't require SharedArrayBuffer
+  // This works without special CORS headers (COOP/COEP)
+  const baseURL = 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/umd';
   
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-  });
+  try {
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+    });
+  } catch (loadError) {
+    console.error('FFmpeg load error:', loadError);
+    throw new Error('Failed to load video processor. Please try again.');
+  }
 
   onProgress?.({
     stage: 'loading',
