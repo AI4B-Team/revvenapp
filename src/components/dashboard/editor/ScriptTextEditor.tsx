@@ -223,7 +223,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                 >
                   {/* Timestamp badge (shown inline for some sentences) */}
                   {showTimestamp && (
-                    <span className="flex-shrink-0 inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded font-mono mt-0.5">
+                    <span className="flex-shrink-0 inline-flex items-center px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded font-mono mt-0.5">
                       {formatTime(segment.startTime)}
                     </span>
                   )}
@@ -306,7 +306,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
         {/* End timestamp */}
         {visibleSegments.length > 0 && (
           <div className="mt-4">
-            <span className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded font-mono">
+            <span className="inline-flex items-center px-1.5 py-0.5 bg-green-100 text-green-600 text-[10px] rounded font-mono">
               {formatTime(visibleSegments[visibleSegments.length - 1]?.endTime || 0)}
             </span>
           </div>
