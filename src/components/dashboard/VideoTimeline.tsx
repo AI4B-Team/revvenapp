@@ -2,8 +2,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
-  Eye, EyeOff, MoreHorizontal, GripVertical, LayoutGrid, Rows3,
-  ChevronLeft, ChevronRight, Flag, Blend
+  Eye, EyeOff, MoreHorizontal, MoreVertical, GripVertical, LayoutGrid, Rows3,
+  ChevronLeft, ChevronRight, Flag, Blend, Trash2, Copy, Scissors
 } from 'lucide-react';
 import {
   Tooltip,
@@ -1124,6 +1124,52 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     </TooltipTrigger>
                     <TooltipContent side="top"><p>{track.visible === false ? 'Show' : 'Hide'}</p></TooltipContent>
                   </Tooltip>
+                  
+                  {/* Track menu dropdown */}
+                  <DropdownMenu>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1 rounded hover:bg-gray-200 transition-colors text-gray-500">
+                            <MoreVertical className="w-3 h-3" />
+                          </button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="top"><p>Track Options</p></TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent align="end" className="w-40 bg-popover">
+                      <DropdownMenuItem onClick={() => {
+                        // Duplicate track
+                        const newTrack: TimelineTrack = {
+                          ...track,
+                          id: `track-${Date.now()}`,
+                          name: `${track.name} Copy`,
+                          clips: track.clips.map(c => ({ ...c, id: `clip-${Date.now()}-${Math.random()}` }))
+                        };
+                        setTracks(prev => [...prev.slice(0, index + 1), newTrack, ...prev.slice(index + 1)]);
+                      }}>
+                        <Copy className="w-3.5 h-3.5 mr-2" />
+                        Duplicate Track
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        // Clear all clips from track
+                        setTracks(prev => prev.map(t => t.id === track.id ? { ...t, clips: [] } : t));
+                      }}>
+                        <Scissors className="w-3.5 h-3.5 mr-2" />
+                        Clear Clips
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          // Delete track
+                          setTracks(prev => prev.filter(t => t.id !== track.id));
+                        }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 mr-2" />
+                        Delete Track
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
