@@ -215,6 +215,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [showDeletedText, setShowDeletedText] = useState(false);
   const [isVideoDeleted, setIsVideoDeleted] = useState(false);
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
+  const [selectedUploadedVideoUrl, setSelectedUploadedVideoUrl] = useState<string | null>(null); // Selected uploaded video to play on canvas
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
@@ -461,13 +462,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return null;
   }, [tracks, currentTime]);
 
-  // Get current video source - use active clip's src if available
+  // Get current video source - prioritize selected uploaded video, then active clip's src
   const currentVideoSrc = React.useMemo(() => {
+    if (selectedUploadedVideoUrl) {
+      return selectedUploadedVideoUrl;
+    }
     if (activeVideoClip?.src) {
       return activeVideoClip.src;
     }
     return video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  }, [activeVideoClip, video]);
+  }, [selectedUploadedVideoUrl, activeVideoClip, video]);
 
   // Undo/Redo
   const undo = () => {
@@ -483,6 +487,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       toast({ title: 'Redone' });
     }
   };
+
+  // Handle selecting an uploaded video to play on canvas
+  const handleSelectUploadedVideo = useCallback((videoUrl: string, _thumbnailUrl: string) => {
+    setSelectedUploadedVideoUrl(videoUrl);
+    setIsVideoDeleted(false); // Show the video canvas
+    toast({ title: 'Video loaded to canvas' });
+  }, [toast]);
 
   // Delete selected clip
   const deleteSelectedClip = () => {
@@ -917,7 +928,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -939,7 +950,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} />;
 
       case 'audio':
         return <EditorAudioPanel />;
