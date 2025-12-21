@@ -25,6 +25,7 @@ import {
   Maximize,
   Minimize,
   ChevronDown,
+  ChevronUp,
   Plus,
   Video,
   Upload,
@@ -34,7 +35,7 @@ import {
   Wand2,
   MessageSquare,
   X,
-  Diamond,
+  Flag,
   Layers,
   Copy,
   MoreHorizontal,
@@ -213,6 +214,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
+  const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -699,6 +701,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Tab configuration with all requested icons in order
   const tabs = [
     { id: 'script', icon: ScrollText, label: 'Script' },
+    { id: 'character', icon: User, label: 'Character' },
     { id: 'visuals', icon: Video, label: 'Visuals' },
     { id: 'audio', icon: AudioLines, label: 'Audio' },
     { id: 'text', icon: Type, label: 'Text' },
@@ -832,6 +835,21 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               onSegmentDelete={(id) => console.log('Delete segment:', id)}
               onSegmentExport={(id, text) => console.log('Export segment:', id, text)}
             />
+          </div>
+        );
+
+      case 'character':
+        return (
+          <div className="flex flex-col h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
+                <User className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Characters</h3>
+              <p className="text-sm text-gray-500 max-w-[280px]">
+                Manage your AI characters and digital personas for your videos
+              </p>
+            </div>
           </div>
         );
 
@@ -2081,43 +2099,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Copy className="w-5 h-5" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Duplicate (Ctrl+D)</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded-lg text-primary transition-colors">
-                            <Sparkles className="w-5 h-5" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Effects</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Diamond className="w-5 h-5" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Add Keyframe</p></TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
                             <Magnet className="w-5 h-5" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Snap to Grid</p></TooltipContent>
                       </Tooltip>
-                      <div className="w-px h-6 bg-gray-200 mx-1" />
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button onClick={deleteSelectedClip} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-red-600 transition-colors">
-                            <Trash2 className="w-5 h-5" />
+                          <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <Flag className="w-5 h-5" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent><p>Delete (Del)</p></TooltipContent>
+                        <TooltipContent><p>Add Marker</p></TooltipContent>
                       </Tooltip>
                     </div>
 
@@ -2197,32 +2190,44 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               setZoom(1);
                               toast({ title: 'Timeline fitted to view' });
                             }}
-                            className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
+                            className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 font-medium text-sm transition-colors shadow-sm"
                           >
-                            <Maximize className="w-4 h-4" />
-                            <span className="text-sm font-medium">Fit</span>
+                            Fit
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Fit Timeline to View</p></TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => setIsTimelineMinimized(!isTimelineMinimized)}
+                            className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors"
+                          >
+                            {isTimelineMinimized ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>{isTimelineMinimized ? 'Expand Timeline' : 'Minimize Timeline'}</p></TooltipContent>
                       </Tooltip>
                     </div>
                   </div>
 
                     {/* Timeline Content */}
-                    <div className="flex-1 overflow-hidden">
-                      <VideoTimeline
-                        tracks={tracks}
-                        setTracks={setTracks}
-                        currentTime={currentTime}
-                        duration={duration}
-                        zoom={zoom}
-                        selectedClip={selectedClip}
-                        setSelectedClip={setSelectedClip}
-                        onTimeSeek={handleTimelineSeek}
-                        isDragging={isDragging}
-                        setIsDragging={setIsDragging}
-                      />
-                    </div>
+                    {!isTimelineMinimized && (
+                      <div className="flex-1 overflow-hidden">
+                        <VideoTimeline
+                          tracks={tracks}
+                          setTracks={setTracks}
+                          currentTime={currentTime}
+                          duration={duration}
+                          zoom={zoom}
+                          selectedClip={selectedClip}
+                          setSelectedClip={setSelectedClip}
+                          onTimeSeek={handleTimelineSeek}
+                          isDragging={isDragging}
+                          setIsDragging={setIsDragging}
+                        />
+                      </div>
+                    )}
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
