@@ -128,6 +128,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   // Add marker at current position
   const addMarker = useCallback(() => {
     if (!markers.includes(currentTime)) {
+      setMarkers(prev => [...prev, currentTime].sort((a, b) => a - b));
+    }
+  }, [currentTime, markers]);
 
   // Keyboard shortcut to delete selected clip
   useEffect(() => {
@@ -146,9 +149,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedClip, setTracks, setSelectedClip]);
-      setMarkers(prev => [...prev, currentTime].sort((a, b) => a - b));
-    }
-  }, [currentTime, markers]);
 
   // Jump to nearest marker
   const jumpToMarker = useCallback(() => {
