@@ -26,6 +26,8 @@ import { toast } from 'sonner';
 interface ExportDropdownProps {
   isFreePlan?: boolean;
   onExport?: (settings: ExportSettings) => void;
+  videoSrc?: string;
+  projectTitle?: string;
 }
 
 interface ExportSettings {
@@ -50,7 +52,7 @@ const resolutions = [
   { label: 'Custom', value: 'custom', premium: true },
 ];
 
-const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onExport }) => {
+const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onExport, videoSrc, projectTitle = 'export' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'export' | 'recent'>('export');
   const [selectedType, setSelectedType] = useState<string>('video');
@@ -72,18 +74,45 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onEx
 
   const handleExport = async () => {
     setIsExporting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsExporting(false);
     
-    if (isFreePlan) {
-      toast.success('Export started with watermark', {
-        description: 'Upgrade to remove watermark from exports',
-      });
-    } else {
-      toast.success('Export started', {
-        description: `Exporting as ${selectedFormat} at ${selectedResolution}`,
+    try {
+      // If we have a video source, try to download it
+      if (videoSrc && selectedType === 'video') {
+        const response = await fetch(videoSrc);
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast.success('Export completed!', {
+          description: `Downloaded as ${selectedFormat}`,
+        });
+      } else if (selectedType === 'video' && !videoSrc) {
+        // Simulate export if no video source
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        toast.info('No video to export', {
+          description: 'Add clips to the timeline first',
+        });
+      } else {
+        // For other types, show coming soon
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        toast.info(`${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} export coming soon`);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Export failed', {
+        description: 'Unable to download the file. Please try again.',
       });
     }
+
+    setIsExporting(false);
 
     if (onExport) {
       onExport({
