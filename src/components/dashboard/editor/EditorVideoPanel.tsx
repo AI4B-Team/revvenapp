@@ -222,8 +222,25 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
     }
   };
 
+  const handleUploadedVideoSelect = (video: UploadedMedia) => {
+    if (onSelectVideo) {
+      onSelectVideo(video.url, video.thumbnail || '');
+      toast.success('Video added to timeline');
+    }
+  };
+
+  const handleUploadedVideoDragStart = (e: React.DragEvent, video: UploadedMedia) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'video',
+      url: video.url,
+      thumbnail: video.thumbnail || '',
+      name: video.name
+    }));
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white overflow-y-auto">
       {/* Click To Upload Section */}
       <div className="space-y-4">
         {/* Upload Area */}
@@ -286,6 +303,43 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Uploaded Videos Section */}
+      {uploadedMedia && uploadedMedia.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Uploaded Videos</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {uploadedMedia.filter(m => m.type === 'video').map((video) => (
+              <div
+                key={video.id}
+                className="relative aspect-video rounded-lg overflow-hidden cursor-pointer group bg-gray-100"
+                draggable
+                onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
+                onClick={() => handleUploadedVideoSelect(video)}
+              >
+                <video
+                  src={video.url}
+                  className="w-full h-full object-cover"
+                  muted
+                  preload="metadata"
+                  onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
+                  onMouseLeave={(e) => {
+                    const target = e.target as HTMLVideoElement;
+                    target.pause();
+                    target.currentTime = 0;
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
+                  <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                  <p className="text-xs text-white truncate">{video.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

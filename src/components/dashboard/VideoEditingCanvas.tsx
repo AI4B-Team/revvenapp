@@ -250,6 +250,42 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     source: 'upload' | 'url';
   }>>([]);
 
+  // Fetch user videos from database
+  useEffect(() => {
+    const fetchUserVideos = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: videos, error } = await supabase
+          .from('user_videos')
+          .select('id, url, name, duration')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching user videos:', error);
+          return;
+        }
+
+        if (videos && videos.length > 0) {
+          const formattedVideos = videos.map(video => ({
+            id: video.id,
+            name: video.name,
+            url: video.url,
+            type: 'video' as const,
+            source: 'upload' as const,
+          }));
+          setUploadedMedia(formattedVideos);
+        }
+      } catch (error) {
+        console.error('Error fetching user videos:', error);
+      }
+    };
+
+    fetchUserVideos();
+  }, []);
+
   // Sample visuals for the Visuals tab
   const [visualAssets] = useState([
     { id: '1', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
