@@ -1312,11 +1312,21 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 {/* Compact Prompt Box with Green Border */}
                 <div className="p-3 border-t border-gray-200">
                   <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
+                    {/* Top left icons when image tool is selected */}
+                    {selectedPromptTool === 'image' && (
+                      <div className="flex flex-col gap-1 mb-2">
+                        <div className="flex items-center gap-2">
+                          <Video className="w-4 h-4 text-red-400" />
+                          <span className="text-sm text-gray-400">Describe what you want to create...</span>
+                        </div>
+                        <Shuffle className="w-4 h-4 text-brand-green" />
+                      </div>
+                    )}
                     <div className="flex items-start gap-2 mb-3">
                       <textarea
                         value={promptText}
                         onChange={(e) => setPromptText(e.target.value)}
-                        placeholder="Describe what you want to create..."
+                        placeholder={selectedPromptTool === 'image' ? '' : 'Describe what you want to create...'}
                         className="w-full bg-transparent text-sm focus:outline-none resize-none h-32 placeholder:text-gray-400"
                       />
                     </div>
