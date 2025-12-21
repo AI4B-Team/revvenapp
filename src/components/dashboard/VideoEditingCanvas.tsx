@@ -760,7 +760,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
   }, [activeVideoClip, currentTime, loadedClipId]);
 
-  // Playback timer - respects clip boundaries
+  // Playback timer - plays continuously including gaps (blank frames)
   useEffect(() => {
     let animationFrame: number;
     let lastTime = performance.now();
@@ -772,29 +772,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       setCurrentTime(prev => {
         const newTime = prev + delta;
         
-        // Check if we've passed the end of all clips
-        const maxTime = sortedVideoClips.length > 0 
-          ? Math.max(...sortedVideoClips.map(c => c.startTime + c.duration))
-          : timelineDuration;
-        
-        if (newTime >= maxTime) {
+        // Stop at the end of timeline
+        if (newTime >= timelineDuration) {
           setIsPlaying(false);
-          return maxTime;
+          return timelineDuration;
         }
         
-        // Check if we're within any clip
-        const inClip = sortedVideoClips.some(
-          clip => newTime >= clip.startTime && newTime < clip.startTime + clip.duration
-        );
-        
-        // If we have clips but we're not in any, jump to the next clip
-        if (sortedVideoClips.length > 0 && !inClip) {
-          const nextClip = sortedVideoClips.find(c => c.startTime > prev);
-          if (nextClip) {
-            return nextClip.startTime;
-          }
-        }
-        
+        // No skipping - play through gaps as blank frames
         return newTime;
       });
       
@@ -812,7 +796,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         cancelAnimationFrame(animationFrame);
       }
     };
-  }, [isPlaying, sortedVideoClips, timelineDuration]);
+  }, [isPlaying, timelineDuration]);
 
   // Control video element playback based on isPlaying and activeVideoClip
   useEffect(() => {
@@ -1850,22 +1834,28 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               setIsVideoSelected(true);
                             }}
                           >
-                            {/* Video inside the frame - always fully visible with object-contain */}
-                            <video
-                              ref={videoRef}
-                              src={currentVideoSrc}
-                              className="max-w-full max-h-full object-contain"
-                              onDurationChange={(e) => {
-                                // Only set base duration if no clips exist
-                                if (sortedVideoClips.length === 0) {
-                                  setDuration(e.currentTarget.duration || 78);
-                                }
-                              }}
-                              onEnded={() => {
-                                // When clip ends, let the timeline logic handle advancing
-                              }}
-                              muted={isMuted}
-                            />
+                            {/* Show blank frame when in gap (no active clip), otherwise show video */}
+                            {!activeVideoClip && sortedVideoClips.length > 0 ? (
+                              <div className="w-full h-full bg-black flex items-center justify-center">
+                                {/* Blank frame - black screen during gaps */}
+                              </div>
+                            ) : (
+                              <video
+                                ref={videoRef}
+                                src={currentVideoSrc}
+                                className="max-w-full max-h-full object-contain"
+                                onDurationChange={(e) => {
+                                  // Only set base duration if no clips exist
+                                  if (sortedVideoClips.length === 0) {
+                                    setDuration(e.currentTarget.duration || 78);
+                                  }
+                                }}
+                                onEnded={() => {
+                                  // When clip ends, let the timeline logic handle advancing
+                                }}
+                                muted={isMuted}
+                              />
+                            )}
 
                             {/* ESC hint for fullscreen */}
                             {isFullscreen && (
