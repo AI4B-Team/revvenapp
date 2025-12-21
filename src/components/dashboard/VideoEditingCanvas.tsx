@@ -1332,11 +1332,30 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         </Tooltip>
                       </div>
                     )}
+                    {selectedPromptTool === 'video' && (
+                      <div className="flex flex-col gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Video className="w-4 h-4 text-red-400 cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Video To Prompt</p></TooltipContent>
+                          </Tooltip>
+                          <span className="text-sm text-gray-400">Describe what you want to create...</span>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Shuffle className="w-4 h-4 text-brand-green cursor-pointer" />
+                          </TooltipTrigger>
+                          <TooltipContent><p>Auto Prompt</p></TooltipContent>
+                        </Tooltip>
+                      </div>
+                    )}
                     <div className="flex items-start gap-2 mb-3">
                       <textarea
                         value={promptText}
                         onChange={(e) => setPromptText(e.target.value)}
-                        placeholder={selectedPromptTool === 'image' ? '' : 'Describe what you want to create...'}
+                        placeholder={selectedPromptTool === 'image' || selectedPromptTool === 'video' ? '' : 'Describe what you want to create...'}
                         className="w-full bg-transparent text-sm focus:outline-none resize-none h-32 placeholder:text-gray-400"
                       />
                     </div>
