@@ -519,6 +519,93 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     setIsVideoDeleted(false);
   }, [tracks]);
 
+  // Export function that records the timeline playback to merge all clips
+  const handleRecordingExport = useCallback(async (): Promise<Blob | null> => {
+    if (!videoRef.current || sortedVideoClips.length === 0) {
+      return null;
+    }
+
+    return new Promise(async (resolve) => {
+      try {
+        // Create a canvas to capture video frames
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size based on video
+        canvas.width = 1920;
+        canvas.height = 1080;
+        
+        // Create MediaRecorder from canvas
+        const stream = canvas.captureStream(30);
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=vp9',
+          videoBitsPerSecond: 5000000
+        });
+        
+        const chunks: Blob[] = [];
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
+          }
+        };
+        
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          resolve(blob);
+        };
+
+        // Start recording
+        mediaRecorder.start();
+        
+        // Play through all clips and draw to canvas
+        const totalDuration = Math.max(...sortedVideoClips.map(c => c.startTime + c.duration));
+        let currentExportTime = 0;
+        const fps = 30;
+        const frameInterval = 1000 / fps;
+        
+        const renderFrame = () => {
+          if (currentExportTime >= totalDuration) {
+            mediaRecorder.stop();
+            return;
+          }
+          
+          // Find active clip at current export time
+          const activeClip = sortedVideoClips.find(
+            clip => currentExportTime >= clip.startTime && currentExportTime < clip.startTime + clip.duration
+          );
+          
+          if (activeClip && ctx) {
+            // Draw black background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // If we have video ref and it matches the active clip, draw it
+            if (videoRef.current && activeClip.src === videoRef.current.src) {
+              const video = videoRef.current;
+              const scale = Math.min(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
+              const x = (canvas.width - video.videoWidth * scale) / 2;
+              const y = (canvas.height - video.videoHeight * scale) / 2;
+              ctx.drawImage(video, x, y, video.videoWidth * scale, video.videoHeight * scale);
+            }
+          } else if (ctx) {
+            // Gap - draw black frame
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          
+          currentExportTime += frameInterval / 1000;
+          setTimeout(renderFrame, frameInterval);
+        };
+        
+        renderFrame();
+        
+      } catch (error) {
+        console.error('Recording export error:', error);
+        resolve(null);
+      }
+    });
+  }, [sortedVideoClips]);
+
   // Delete selected clip
   const deleteSelectedClip = () => {
     if (selectedClip) {
@@ -1360,7 +1447,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <UserPlus className="w-4 h-4" />
               <span>Share</span>
             </button>
-            <ExportDropdown isFreePlan={isFreePlan} videoSrc={currentVideoSrc} projectTitle={projectTitle} />
+            <ExportDropdown 
+              isFreePlan={isFreePlan} 
+              videoSrc={currentVideoSrc} 
+              projectTitle={projectTitle}
+              hasMultipleClips={sortedVideoClips.length > 1}
+              onStartRecordingExport={handleRecordingExport}
+            />
             <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors flex-shrink-0">
