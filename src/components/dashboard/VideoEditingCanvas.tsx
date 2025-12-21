@@ -1605,7 +1605,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 )}
 
                 {/* Video Preview Panel */}
-                <ResizablePanel defaultSize={isTimelineMinimized ? 92 : 60} minSize={30}>
+                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 50} minSize={30}>
                   <div className="h-full flex flex-col bg-gray-100 relative z-10">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
@@ -1829,8 +1829,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             }`}
                             style={{
                               // Dynamic sizing based on aspect ratio - uses max percentage of container
-                              maxWidth: selectedRatio === '9:16' ? '40%' : selectedRatio === '1:1' ? '70%' : '90%',
-                              maxHeight: '90%',
+                              maxWidth: selectedRatio === '9:16' ? '35%' : selectedRatio === '1:1' ? '55%' : '80%',
+                              maxHeight: '85%',
                               aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
                               width: '100%',
                             }}
@@ -2059,11 +2059,30 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Timeline Panel - Resizable upward */}
                 <ResizablePanel 
-                  defaultSize={isTimelineMinimized ? 8 : 40} 
-                  minSize={isTimelineMinimized ? 8 : 20} 
-                  maxSize={isTimelineMinimized ? 8 : 70}
+                  defaultSize={isTimelineMinimized ? 15 : 50} 
+                  minSize={isTimelineMinimized ? 15 : 30} 
+                  maxSize={isTimelineMinimized ? 15 : 70}
                   className={isTimelineMinimized ? 'flex-shrink-0' : ''}
                 >
+                  {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
+                  {isVideoSelected && (
+                    <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200">
+                      <button 
+                        onClick={() => setShowLayoutPanel(!showLayoutPanel)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                      >
+                        <Layers className="w-4 h-4" />
+                        Layout
+                      </button>
+                      <button 
+                        onClick={() => toast({ title: 'Background settings' })}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                        Background
+                      </button>
+                    </div>
+                  )}
                   <div className="h-full bg-white border-t border-gray-200 flex flex-col relative z-0">
                     {/* Toolbar */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
