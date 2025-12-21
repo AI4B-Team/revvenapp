@@ -1531,6 +1531,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               projectTitle={projectTitle}
               hasMultipleClips={sortedVideoClips.length > 1}
               onStartRecordingExport={handleRecordingExport}
+              allClips={sortedVideoClips.map(c => ({ id: c.id, name: c.name, src: c.src || '' })).filter(c => c.src)}
             />
             <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
               <DropdownMenuTrigger asChild>
