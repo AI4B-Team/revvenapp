@@ -818,10 +818,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             )}
 
             {/* Time markers - dynamically spaced based on zoom */}
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 overflow-visible">
               {(() => {
-                // Calculate appropriate interval based on zoom and duration
-                const baseInterval = zoom >= 3 ? 1 : zoom >= 2 ? 2 : zoom >= 1 ? 5 : 10;
+                // Calculate appropriate interval - show more markers at higher zoom
+                // For short durations, show every second
+                const baseInterval = duration <= 10 ? 1 : duration <= 30 ? 2 : duration <= 60 ? 5 : 10;
                 const markerCount = Math.ceil(duration / baseInterval) + 1;
                 
                 return Array.from({ length: markerCount }, (_, i) => {
@@ -836,10 +837,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                   return (
                     <div
                       key={i}
-                      className="absolute top-0 bottom-0 flex flex-col justify-end border-l border-gray-400"
+                      className="absolute top-0 bottom-0 flex flex-col justify-end"
                       style={{ left: `${leftPercent}%` }}
                     >
-                      <span className="text-[10px] font-mono pl-1 pb-1 whitespace-nowrap text-gray-700">
+                      <div className="h-full border-l border-gray-400" />
+                      <span className="absolute bottom-0.5 left-1 text-[10px] font-mono whitespace-nowrap text-gray-700 bg-gray-100 px-0.5 rounded">
                         {timeLabel}
                       </span>
                     </div>
