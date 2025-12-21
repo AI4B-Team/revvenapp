@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Sparkles } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaTwitter } from 'react-icons/fa';
 import { toast } from 'sonner';
 
@@ -258,14 +258,14 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               onChange={(e) => setVideoUrl(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
               placeholder="Paste A Supported Public Link"
-              className="w-full px-4 py-3 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-200 text-center placeholder:text-center"
+              className="w-full px-4 py-3 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-400 text-center placeholder:text-center"
             />
             <button
               onClick={handleUrlSubmit}
               disabled={!videoUrl.trim()}
-              className="absolute right-2 p-1.5 text-amber-500 hover:text-amber-600 transition-colors disabled:opacity-50"
+              className="absolute right-2 p-1.5 text-blue-500 hover:text-blue-600 transition-colors disabled:opacity-50"
             >
-              <Sparkles className="w-5 h-5" />
+              <Link2 className="w-5 h-5" />
             </button>
           </div>
 
