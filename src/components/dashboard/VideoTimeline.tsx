@@ -655,7 +655,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       <div className="flex flex-shrink-0 bg-white">
       <div className="w-[180px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-center px-2">
           {/* Centered icons group */}
-          <div className="flex items-center justify-center gap-px">
+          <div className="flex items-center justify-center gap-2">
             {/* Add Track Button */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1236,7 +1236,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       <div className="relative h-full flex flex-col z-10">
                         <div className="flex-1 flex items-center px-2">
                           <TrackIcon className="w-3 h-3 text-gray-700 mr-1.5 flex-shrink-0" />
-                          <span className="text-[10px] text-gray-800 font-semibold truncate">
+                          <span className="text-[10px] text-gray-900 font-bold truncate">
                             {clip.name}
                           </span>
                         </div>

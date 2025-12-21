@@ -1546,63 +1546,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             {/* Right - Video Preview & Timeline */}
             <ResizablePanel defaultSize={70}>
               <div className="h-full relative">
-                {/* Layout/Background Toolbar - Fixed above timeline when player selected */}
               <ResizablePanelGroup direction="vertical" className="h-full relative">
-                {/* Layout/Background buttons that float above the timeline when video is selected */}
-                {isVideoSelected && (
-                  <div className="absolute bottom-0 left-0 right-0 z-[100] flex items-center justify-center gap-3 py-3 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg" style={{ bottom: isTimelineMinimized ? '48px' : '40%' }}>
-                    {/* Layout Selector */}
-                    <div className="relative">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(!showLayoutPanel); }}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors shadow-sm"
-                      >
-                        <LayoutGrid className="w-4 h-4" />
-                        <span>Layout</span>
-                        <span className="text-gray-500 text-xs capitalize">{selectedLayout}</span>
-                      </button>
-                      
-                      {/* Layout Panel Popover */}
-                      {showLayoutPanel && (
-                        <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-[110]">
-                          {/* Header with close button */}
-                          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-2">
-                              <LayoutGrid className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm font-medium text-gray-700">Layouts</span>
-                            </div>
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(false); }}
-                              className="p-1 hover:bg-gray-100 rounded transition-colors"
-                            >
-                              <X className="w-4 h-4 text-gray-500" />
-                            </button>
-                          </div>
-                          <LayoutPanel 
-                            selectedLayout={selectedLayout}
-                            onLayoutSelect={(id) => {
-                              setSelectedLayout(id);
-                              setShowLayoutPanel(false);
-                            }}
-                            hideHeader
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Background Color */}
-                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg shadow-sm">
-                      <span className="text-sm font-medium text-gray-700">Background</span>
-                      <input 
-                        type="color" 
-                        defaultValue="#000000"
-                        className="w-6 h-6 rounded border border-gray-300 cursor-pointer"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-                    </div>
-                  </div>
-                )}
 
                 {/* Video Preview Panel */}
                 <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 50} minSize={30}>
@@ -2071,7 +2015,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         onClick={() => setShowLayoutPanel(!showLayoutPanel)}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
                       >
-                        <Layers className="w-4 h-4" />
+                        <LayoutGrid className="w-4 h-4" />
                         Layout
                       </button>
                       <button 
@@ -2126,11 +2070,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            {/* Custom snap icon - recreated from reference */}
-                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M4 4h4v4H4zM16 4h4v4h-4zM4 16h4v4H4zM16 16h4v4h-4z" />
-                              <path d="M12 4v16M4 12h16" />
-                            </svg>
+                            <Magnet className="w-5 h-5" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Enable Snap</p></TooltipContent>
