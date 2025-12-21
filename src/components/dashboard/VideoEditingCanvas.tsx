@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import mediaPlaceholder from '@/assets/media-placeholder.png';
 import {
   Image,
   Music,
@@ -1670,30 +1671,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
                         <div className="w-full h-full flex flex-col items-center justify-center p-8">
-                          {/* Three people illustration - matching reference image */}
-                          <div className="flex items-end justify-center gap-1 mb-6">
-                            {/* Left person - yellow/amber background */}
-                            <div className="w-20 h-28 rounded-[20px] bg-gradient-to-b from-amber-200 to-amber-300 overflow-hidden flex items-end justify-center relative">
-                              <div className="absolute inset-0 bg-gradient-to-b from-amber-100/50 to-amber-200/50" />
-                              <div className="w-16 h-20 rounded-t-full bg-gradient-to-b from-purple-400 to-purple-500 relative overflow-hidden">
-                                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-purple-200" />
-                              </div>
-                            </div>
-                            {/* Center person - purple/violet background (taller) */}
-                            <div className="w-24 h-36 rounded-[24px] bg-gradient-to-b from-violet-300 to-violet-400 overflow-hidden flex items-end justify-center relative -mt-2 z-10">
-                              <div className="absolute inset-0 bg-gradient-to-b from-violet-200/30 to-violet-300/30" />
-                              <div className="w-20 h-28 rounded-t-full bg-gradient-to-b from-rose-400 to-rose-500 relative overflow-hidden">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-rose-200" />
-                              </div>
-                            </div>
-                            {/* Right person - teal/cyan background */}
-                            <div className="w-20 h-28 rounded-[20px] bg-gradient-to-b from-teal-200 to-teal-300 overflow-hidden flex items-end justify-center relative">
-                              <div className="absolute inset-0 bg-gradient-to-b from-teal-100/50 to-teal-200/50" />
-                              <div className="w-16 h-20 rounded-t-full bg-gradient-to-b from-orange-300 to-orange-400 relative overflow-hidden">
-                                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-orange-200" />
-                              </div>
-                            </div>
-                          </div>
+                          {/* Three people image */}
+                          <img 
+                            src={mediaPlaceholder} 
+                            alt="Add media placeholder" 
+                            className="w-64 h-auto mb-6 object-contain"
+                          />
                           {/* Text */}
                           <p className="text-lg text-gray-600 font-medium text-center">
                             Add Media To The Timeline To Start Creating
