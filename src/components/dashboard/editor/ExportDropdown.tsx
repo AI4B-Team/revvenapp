@@ -14,6 +14,7 @@ import {
   HardDrive,
   Settings2,
   Zap,
+  Loader2,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,11 +23,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface VideoClipInfo {
   id: string;
   name: string;
   src: string;
+  startTime?: number;
+  duration?: number;
 }
 
 interface ExportDropdownProps {
@@ -96,12 +100,80 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
     
     try {
       if (selectedType === 'video') {
-        // If we have multiple clips and a recording function, use it to merge clips
+        // If we have multiple clips, use Shotstack to merge them
         if (hasMultipleClips && allClips.length > 1) {
-          // Multiple clips - show option to download each
-          setShowClipsList(true);
-          setIsExporting(false);
-          return; // Don't close the dropdown
+          setExportProgress('Submitting merge job...');
+          
+          // Call the merge-videos edge function
+          const { data: mergeData, error: mergeError } = await supabase.functions.invoke('merge-videos', {
+            body: {
+              clips: allClips,
+              projectTitle: projectTitle || 'export',
+            },
+          });
+          
+          if (mergeError) {
+            console.error('Merge error:', mergeError);
+            toast.error('Failed to start merge', { description: mergeError.message });
+            setShowClipsList(true); // Fall back to individual downloads
+            setIsExporting(false);
+            return;
+          }
+          
+          if (!mergeData?.renderId) {
+            toast.error('Failed to start merge job');
+            setShowClipsList(true);
+            setIsExporting(false);
+            return;
+          }
+          
+          // Poll for completion
+          const renderId = mergeData.renderId;
+          setExportProgress('Merging clips (this may take a minute)...');
+          
+          let attempts = 0;
+          const maxAttempts = 120; // 2 minutes max
+          
+          const pollStatus = async (): Promise<string | null> => {
+            const { data: statusData, error: statusError } = await supabase.functions.invoke('check-merge-status', {
+              body: { renderId },
+            });
+            
+            if (statusError) {
+              console.error('Status check error:', statusError);
+              return null;
+            }
+            
+            const status = statusData?.status;
+            const progress = statusData?.progress || 0;
+            
+            setExportProgress(`Merging... ${Math.round(progress * 100)}%`);
+            
+            if (status === 'done' && statusData?.url) {
+              return statusData.url;
+            } else if (status === 'failed') {
+              return null;
+            } else if (attempts < maxAttempts) {
+              attempts++;
+              await new Promise(r => setTimeout(r, 1000));
+              return pollStatus();
+            }
+            return null;
+          };
+          
+          const videoUrl = await pollStatus();
+          
+          if (videoUrl) {
+            setExportProgress('Opening download...');
+            window.open(videoUrl, '_blank');
+            toast.success('Export completed!', {
+              description: 'Your merged video is ready',
+            });
+          } else {
+            toast.error('Merge failed or timed out');
+            setShowClipsList(true);
+          }
+          
         } else if (videoSrc) {
           // Single clip - just download directly
           await downloadSingleVideo(videoSrc);
