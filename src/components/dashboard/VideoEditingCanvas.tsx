@@ -2003,13 +2003,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Timeline Panel - Resizable upward */}
                 <ResizablePanel 
-                  defaultSize={isTimelineMinimized ? 15 : 50} 
-                  minSize={isTimelineMinimized ? 15 : 30} 
-                  maxSize={isTimelineMinimized ? 15 : 70}
-                  className={isTimelineMinimized ? 'flex-shrink-0' : ''}
+                  defaultSize={isTimelineMinimized ? 0 : 50} 
+                  minSize={isTimelineMinimized ? 0 : 30} 
+                  maxSize={isTimelineMinimized ? 0 : 70}
+                  className={isTimelineMinimized ? 'h-auto !flex-none' : ''}
                 >
                   {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
-                  {isVideoSelected && (
+                  {isVideoSelected && !isTimelineMinimized && (
                     <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200">
                       <button 
                         onClick={() => setShowLayoutPanel(!showLayoutPanel)}
@@ -2027,7 +2027,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </button>
                     </div>
                   )}
-                  <div className="h-full bg-white border-t border-gray-200 flex flex-col relative z-0">
+                  <div className={`bg-white border-t border-gray-200 flex flex-col relative z-0 ${isTimelineMinimized ? '' : 'h-full'}`}>
                     {/* Toolbar */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
                     {/* Left Tools - CapCut style icons */}
