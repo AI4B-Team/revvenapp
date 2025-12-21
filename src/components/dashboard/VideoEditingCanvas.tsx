@@ -35,7 +35,7 @@ import {
   Wand2,
   MessageSquare,
   X,
-  Flag,
+  Diamond,
   Layers,
   Copy,
   MoreHorizontal,
@@ -80,6 +80,7 @@ import {
   Layers2,
   Hash,
   VolumeIcon,
+  Rows3,
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaVimeo } from 'react-icons/fa';
 import { SiLoom } from 'react-icons/si';
@@ -1543,9 +1544,68 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Right - Video Preview & Timeline */}
             <ResizablePanel defaultSize={70}>
+              <div className="h-full relative">
+                {/* Layout/Background Toolbar - Fixed above timeline when player selected */}
+                {isVideoSelected && (
+                  <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none" style={{ bottom: isTimelineMinimized ? '56px' : undefined }}>
+                    <div className="flex items-center justify-center gap-3 py-2 bg-white/95 backdrop-blur-sm border-t border-gray-100 pointer-events-auto">
+                      {/* Layout Selector */}
+                      <div className="relative">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(!showLayoutPanel); }}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 transition-colors"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                          <span>Layout</span>
+                          <span className="text-gray-400 text-xs capitalize">{selectedLayout}</span>
+                        </button>
+                        
+                        {/* Layout Panel Popover */}
+                        {showLayoutPanel && (
+                          <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                            {/* Header with close button */}
+                            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                              <div className="flex items-center gap-2">
+                                <LayoutGrid className="w-4 h-4 text-gray-500" />
+                                <span className="text-sm font-medium text-gray-700">Layouts</span>
+                              </div>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(false); }}
+                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                              >
+                                <X className="w-4 h-4 text-gray-500" />
+                              </button>
+                            </div>
+                            <LayoutPanel 
+                              selectedLayout={selectedLayout}
+                              onLayoutSelect={(id) => {
+                                setSelectedLayout(id);
+                                setShowLayoutPanel(false);
+                              }}
+                              hideHeader
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Background Color */}
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+                        <span className="text-sm text-gray-700">Background</span>
+                        <input 
+                          type="color" 
+                          defaultValue="#000000"
+                          className="w-5 h-5 rounded border-0 cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               <ResizablePanelGroup direction="vertical" className="h-full">
                 {/* Video Preview Panel */}
-                <ResizablePanel defaultSize={60} minSize={30}>
+                <ResizablePanel defaultSize={isTimelineMinimized ? 92 : 60} minSize={30}>
                   <div className="h-full flex flex-col bg-gray-100 relative z-10">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
@@ -1993,69 +2053,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         </>
                       )}
                     </div>
-
-                  {/* Layout Toolbar Below Video - Part of normal flow, always above timeline */}
-                  {isVideoSelected && (
-                    <div className="flex-shrink-0 flex items-center justify-center gap-3 py-2 bg-white border-t border-gray-100 relative z-20">
-                      {/* Layout Selector */}
-                      <div className="relative">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(!showLayoutPanel); }}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm text-gray-700 transition-colors"
-                        >
-                          <LayoutGrid className="w-4 h-4" />
-                          <span>Layout</span>
-                          <span className="text-gray-400 text-xs capitalize">{selectedLayout}</span>
-                        </button>
-                        
-                        {/* Layout Panel Popover */}
-                        {showLayoutPanel && (
-                          <div className="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-                            {/* Header with close button */}
-                            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                              <div className="flex items-center gap-2">
-                                <LayoutGrid className="w-4 h-4 text-gray-500" />
-                                <span className="text-sm font-medium text-gray-700">Layouts</span>
-                              </div>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setShowLayoutPanel(false); }}
-                                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                              >
-                                <X className="w-4 h-4 text-gray-500" />
-                              </button>
-                            </div>
-                            <LayoutPanel 
-                              selectedLayout={selectedLayout}
-                              onLayoutSelect={(id) => {
-                                setSelectedLayout(id);
-                                setShowLayoutPanel(false);
-                              }}
-                              hideHeader
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Background Color */}
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
-                        <span className="text-sm text-gray-700">Background</span>
-                        <input 
-                          type="color" 
-                          defaultValue="#000000"
-                          className="w-5 h-5 rounded border-0 cursor-pointer"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <Layers className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
                 </ResizablePanel>
-
-                <ResizableHandle withHandle className="bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors" />
+                <ResizableHandle withHandle className={`bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors ${isTimelineMinimized ? 'hidden' : ''}`} />
 
                 {/* Timeline Panel - Resizable upward */}
-                <ResizablePanel defaultSize={40} minSize={20} maxSize={70}>
+                <ResizablePanel 
+                  defaultSize={isTimelineMinimized ? 8 : 40} 
+                  minSize={isTimelineMinimized ? 8 : 20} 
+                  maxSize={isTimelineMinimized ? 8 : 70}
+                  className={isTimelineMinimized ? 'flex-shrink-0' : ''}
+                >
                   <div className="h-full bg-white border-t border-gray-200 flex flex-col relative z-0">
                     {/* Toolbar */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
@@ -2107,7 +2115,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                            <Flag className="w-5 h-5" />
+                            <Diamond className="w-5 h-5" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent><p>Add Marker</p></TooltipContent>
@@ -2231,6 +2239,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
+              </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>

@@ -654,21 +654,48 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       {/* Time Ruler with Controls */}
       <div className="flex flex-shrink-0 bg-white">
         <div className="w-[180px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-2">
-          {/* Add Track Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button 
-                onClick={handleAddTrack}
-                className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent><p>Add Track</p></TooltipContent>
-          </Tooltip>
-
-          {/* Scene Navigation */}
+          {/* Left icons group */}
           <div className="flex items-center gap-px">
+            {/* Add Track Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={handleAddTrack}
+                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Add Track</p></TooltipContent>
+            </Tooltip>
+
+            {/* Timeline Toggle */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setViewMode('timeline')}
+                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
+                >
+                  <Rows3 className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Timeline</p></TooltipContent>
+            </Tooltip>
+
+            {/* Scenes Toggle */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => setViewMode('storyboard')}
+                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent><p>Scenes</p></TooltipContent>
+            </Tooltip>
+
+            {/* Previous Scene */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
@@ -680,6 +707,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               </TooltipTrigger>
               <TooltipContent><p>Previous Scene</p></TooltipContent>
             </Tooltip>
+
+            {/* Next Scene */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
@@ -690,32 +719,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 </button>
               </TooltipTrigger>
               <TooltipContent><p>Next Scene</p></TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* View Toggle */}
-          <div className="flex items-center bg-gray-100 rounded p-0.5">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => setViewMode('storyboard')}
-                  className={`p-1 rounded transition-colors ${viewMode === 'storyboard' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-                >
-                  <LayoutGrid className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent><p>Scenes</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => setViewMode('timeline')}
-                  className={`p-1 rounded transition-colors ${viewMode === 'timeline' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-                >
-                  <Rows3 className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent><p>Timeline</p></TooltipContent>
             </Tooltip>
           </div>
         </div>
