@@ -521,7 +521,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   // Export function that records the timeline playback to merge all clips
   const handleRecordingExport = useCallback(async (): Promise<Blob | null> => {
-    if (!videoRef.current || sortedVideoClips.length === 0) {
+    if (sortedVideoClips.length === 0) {
       return null;
     }
 
@@ -531,15 +531,26 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Set canvas size based on video
-        canvas.width = 1920;
-        canvas.height = 1080;
+        if (!ctx) {
+          resolve(null);
+          return;
+        }
+        
+        // Set canvas size
+        canvas.width = 1280;
+        canvas.height = 720;
+        
+        // Check if MediaRecorder supports webm
+        let mimeType = 'video/webm';
+        if (!MediaRecorder.isTypeSupported('video/webm')) {
+          mimeType = 'video/mp4';
+        }
         
         // Create MediaRecorder from canvas
         const stream = canvas.captureStream(30);
         const mediaRecorder = new MediaRecorder(stream, {
-          mimeType: 'video/webm;codecs=vp9',
-          videoBitsPerSecond: 5000000
+          mimeType,
+          videoBitsPerSecond: 2500000
         });
         
         const chunks: Blob[] = [];
@@ -550,54 +561,101 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         };
         
         mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'video/webm' });
+          const blob = new Blob(chunks, { type: mimeType });
           resolve(blob);
         };
 
         // Start recording
-        mediaRecorder.start();
+        mediaRecorder.start(100); // Collect data every 100ms
         
-        // Play through all clips and draw to canvas
-        const totalDuration = Math.max(...sortedVideoClips.map(c => c.startTime + c.duration));
-        let currentExportTime = 0;
-        const fps = 30;
-        const frameInterval = 1000 / fps;
-        
-        const renderFrame = () => {
-          if (currentExportTime >= totalDuration) {
-            mediaRecorder.stop();
-            return;
-          }
+        // Process clips sequentially
+        const processClips = async () => {
+          const totalDuration = Math.max(...sortedVideoClips.map(c => c.startTime + c.duration));
+          const fps = 30;
+          const frameTime = 1000 / fps;
+          let currentTime = 0;
           
-          // Find active clip at current export time
-          const activeClip = sortedVideoClips.find(
-            clip => currentExportTime >= clip.startTime && currentExportTime < clip.startTime + clip.duration
-          );
+          // Create video elements for each clip
+          const videoElements: Map<string, HTMLVideoElement> = new Map();
           
-          if (activeClip && ctx) {
+          // Preload all videos
+          await Promise.all(sortedVideoClips.map(clip => {
+            return new Promise<void>((res) => {
+              if (!clip.src) {
+                res();
+                return;
+              }
+              const video = document.createElement('video');
+              video.crossOrigin = 'anonymous';
+              video.muted = true;
+              video.preload = 'auto';
+              video.src = clip.src;
+              video.onloadeddata = () => {
+                videoElements.set(clip.id, video);
+                res();
+              };
+              video.onerror = () => res();
+            });
+          }));
+          
+          // Render frames
+          const renderNextFrame = () => {
+            if (currentTime >= totalDuration) {
+              // Stop recording after a brief delay to ensure all frames are captured
+              setTimeout(() => {
+                mediaRecorder.stop();
+              }, 200);
+              return;
+            }
+            
+            // Find active clip
+            const activeClip = sortedVideoClips.find(
+              clip => currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration
+            );
+            
             // Draw black background
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // If we have video ref and it matches the active clip, draw it
-            if (videoRef.current && activeClip.src === videoRef.current.src) {
-              const video = videoRef.current;
-              const scale = Math.min(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
-              const x = (canvas.width - video.videoWidth * scale) / 2;
-              const y = (canvas.height - video.videoHeight * scale) / 2;
-              ctx.drawImage(video, x, y, video.videoWidth * scale, video.videoHeight * scale);
+            if (activeClip) {
+              const videoEl = videoElements.get(activeClip.id);
+              if (videoEl && videoEl.readyState >= 2) {
+                // Calculate clip-relative time
+                const clipTime = currentTime - activeClip.startTime;
+                videoEl.currentTime = clipTime;
+                
+                // Draw video centered on canvas
+                const scale = Math.min(
+                  canvas.width / (videoEl.videoWidth || 1280),
+                  canvas.height / (videoEl.videoHeight || 720)
+                );
+                const w = (videoEl.videoWidth || 1280) * scale;
+                const h = (videoEl.videoHeight || 720) * scale;
+                const x = (canvas.width - w) / 2;
+                const y = (canvas.height - h) / 2;
+                
+                try {
+                  ctx.drawImage(videoEl, x, y, w, h);
+                } catch (e) {
+                  // CORS or other error - draw placeholder
+                  ctx.fillStyle = '#333';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  ctx.fillStyle = '#fff';
+                  ctx.font = '24px sans-serif';
+                  ctx.textAlign = 'center';
+                  ctx.fillText(activeClip.name, canvas.width / 2, canvas.height / 2);
+                }
+              }
             }
-          } else if (ctx) {
-            // Gap - draw black frame
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-          }
+            
+            currentTime += frameTime / 1000;
+            setTimeout(renderNextFrame, frameTime);
+          };
           
-          currentExportTime += frameInterval / 1000;
-          setTimeout(renderFrame, frameInterval);
+          renderNextFrame();
         };
         
-        renderFrame();
+        processClips();
         
       } catch (error) {
         console.error('Recording export error:', error);
