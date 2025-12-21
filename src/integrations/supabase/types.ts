@@ -349,6 +349,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_exports: {
+        Row: {
+          created_at: string
+          duration: number | null
+          file_size: number | null
+          format: string | null
+          id: string
+          project_title: string
+          resolution: string | null
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: number | null
+          file_size?: number | null
+          format?: string | null
+          id?: string
+          project_title: string
+          resolution?: string | null
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number | null
+          file_size?: number | null
+          format?: string | null
+          id?: string
+          project_title?: string
+          resolution?: string | null
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       user_products: {
         Row: {
           cloudinary_public_id: string | null
