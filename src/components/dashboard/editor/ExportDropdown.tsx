@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download,
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
-import { mergeVideosInBrowser, downloadBlob } from '@/utils/browserVideoMerge';
+import { supabase } from '@/integrations/supabase/client';
 
 interface VideoClipInfo {
   id: string;
@@ -100,27 +100,65 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
     
     try {
       if (selectedType === 'video') {
-        // If we have multiple clips, use browser-based FFmpeg to merge them
+        // If we have multiple clips, use server-side merge
         if (hasMultipleClips && allClips.length > 1) {
           try {
-            const mergedBlob = await mergeVideosInBrowser(
-              allClips,
-              projectTitle || 'export',
-              (progress) => {
-                setExportProgress(progress.message);
+            setExportProgress('Starting merge...');
+            
+            // Call the merge-videos edge function
+            const { data: mergeData, error: mergeError } = await supabase.functions.invoke('merge-videos', {
+              body: {
+                clips: allClips.map(clip => ({
+                  src: clip.src,
+                  startTime: clip.startTime || 0,
+                  duration: clip.duration,
+                  name: clip.name
+                })),
+                projectTitle: projectTitle || 'export'
               }
-            );
-            
-            const filename = `${(projectTitle || 'export').replace(/\s+/g, '_')}_merged.${selectedFormat.toLowerCase()}`;
-            downloadBlob(mergedBlob, filename);
-            
-            toast.success('Export completed!', {
-              description: 'Your merged video has been downloaded',
             });
+
+            if (mergeError) throw mergeError;
+            if (!mergeData?.renderId) throw new Error('No render ID returned');
+
+            const renderId = mergeData.renderId;
+            setExportProgress('Processing video...');
+
+            // Poll for completion
+            let attempts = 0;
+            const maxAttempts = 60; // 2 minutes max
+            
+            while (attempts < maxAttempts) {
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              const { data: statusData, error: statusError } = await supabase.functions.invoke('check-merge-status', {
+                body: { renderId }
+              });
+
+              if (statusError) throw statusError;
+
+              if (statusData?.status === 'done' && statusData?.url) {
+                // Download the merged video
+                window.open(statusData.url, '_blank');
+                toast.success('Export completed!', {
+                  description: 'Your merged video is ready',
+                });
+                break;
+              } else if (statusData?.status === 'failed') {
+                throw new Error('Video processing failed');
+              }
+
+              setExportProgress(`Processing... ${statusData?.progress || 0}%`);
+              attempts++;
+            }
+
+            if (attempts >= maxAttempts) {
+              throw new Error('Processing timed out');
+            }
           } catch (mergeError) {
-            console.error('Browser merge error:', mergeError);
+            console.error('Server merge error:', mergeError);
             toast.error('Merge failed', { 
-              description: mergeError instanceof Error ? mergeError.message : 'Please try downloading clips individually' 
+              description: 'Click below to download clips individually' 
             });
             setShowClipsList(true);
           }
