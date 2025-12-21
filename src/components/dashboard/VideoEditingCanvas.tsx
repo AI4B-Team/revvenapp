@@ -1314,12 +1314,22 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
                     {/* Top left icons when image tool is selected */}
                     {selectedPromptTool === 'image' && (
-                      <div className="flex flex-col gap-1 mb-2">
+                      <div className="flex flex-col gap-3 mb-2">
                         <div className="flex items-center gap-2">
-                          <ImageIcon className="w-4 h-4 text-blue-400" />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <ImageIcon className="w-4 h-4 text-blue-400 cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>Image To Prompt</p></TooltipContent>
+                          </Tooltip>
                           <span className="text-sm text-gray-400">Describe what you want to create...</span>
                         </div>
-                        <Shuffle className="w-4 h-4 text-brand-green" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Shuffle className="w-4 h-4 text-brand-green cursor-pointer" />
+                          </TooltipTrigger>
+                          <TooltipContent><p>Auto Prompt</p></TooltipContent>
+                        </Tooltip>
                       </div>
                     )}
                     <div className="flex items-start gap-2 mb-3">
