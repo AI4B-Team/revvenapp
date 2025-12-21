@@ -23,6 +23,12 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 
+interface VideoClipInfo {
+  id: string;
+  name: string;
+  src: string;
+}
+
 interface ExportDropdownProps {
   isFreePlan?: boolean;
   onExport?: (settings: ExportSettings) => void;
@@ -30,6 +36,7 @@ interface ExportDropdownProps {
   projectTitle?: string;
   onStartRecordingExport?: () => Promise<Blob | null>;
   hasMultipleClips?: boolean;
+  allClips?: VideoClipInfo[];
 }
 
 interface ExportSettings {
@@ -60,7 +67,8 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
   videoSrc, 
   projectTitle = 'export',
   onStartRecordingExport,
-  hasMultipleClips = false
+  hasMultipleClips = false,
+  allClips = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'export' | 'recent'>('export');
@@ -70,6 +78,7 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
   const [quality, setQuality] = useState<number>(75);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<string>('');
+  const [showClipsList, setShowClipsList] = useState(false);
 
   const currentType = exportTypes.find((t) => t.id === selectedType);
 
@@ -88,45 +97,11 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
     try {
       if (selectedType === 'video') {
         // If we have multiple clips and a recording function, use it to merge clips
-        if (hasMultipleClips && onStartRecordingExport) {
-          setExportProgress('Recording timeline...');
-          
-          try {
-            const blob = await onStartRecordingExport();
-            
-            if (blob && blob.size > 0) {
-              setExportProgress('Preparing download...');
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${projectTitle.replace(/\s+/g, '_')}.webm`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);
-              
-              toast.success('Export completed!', {
-                description: 'All clips merged and downloaded',
-              });
-            } else {
-              // Fallback: download individual clips
-              toast.info('Merging not supported for these videos', {
-                description: 'Downloading first clip instead',
-              });
-              if (videoSrc) {
-                await downloadSingleVideo(videoSrc);
-              }
-            }
-          } catch (recordError) {
-            console.error('Recording failed:', recordError);
-            // Fallback to single video download
-            if (videoSrc) {
-              toast.info('Using fallback export');
-              await downloadSingleVideo(videoSrc);
-            } else {
-              throw recordError;
-            }
-          }
+        if (hasMultipleClips && allClips.length > 1) {
+          // Multiple clips - show option to download each
+          setShowClipsList(true);
+          setIsExporting(false);
+          return; // Don't close the dropdown
         } else if (videoSrc) {
           // Single clip - just download directly
           await downloadSingleVideo(videoSrc);
@@ -340,30 +315,72 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
                 <span className="text-white font-medium text-sm">{getEstimatedSize()}</span>
               </div>
 
-              {/* Export Button */}
-              <button
-                onClick={handleExport}
-                disabled={isExporting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90 rounded-xl text-white font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isExporting ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+              {/* Clips List for individual download */}
+              {showClipsList && allClips.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      Download Individual Clips
+                    </label>
+                    <button 
+                      onClick={() => setShowClipsList(false)}
+                      className="text-xs text-primary hover:underline"
                     >
-                      <Settings2 className="w-5 h-5" />
-                    </motion.div>
-                    {exportProgress || 'Processing...'}
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-5 h-5" />
-                    Export as {selectedFormat}
-                    <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
-                  </>
-                )}
-              </button>
+                      Back
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {allClips.map((clip, index) => (
+                      <button
+                        key={clip.id}
+                        onClick={() => {
+                          window.open(clip.src, '_blank');
+                          toast.success(`Opening clip ${index + 1}`, {
+                            description: 'Right-click to save the video',
+                          });
+                        }}
+                        className="w-full flex items-center gap-3 p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-sm font-medium truncate">{clip.name}</p>
+                        </div>
+                        <Download className="w-4 h-4 text-gray-400" />
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 text-center">
+                    Tip: Use a video editor to merge clips
+                  </p>
+                </div>
+              ) : (
+                /* Export Button */
+                <button
+                  onClick={handleExport}
+                  disabled={isExporting}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90 rounded-xl text-white font-semibold transition-all shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isExporting ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      >
+                        <Settings2 className="w-5 h-5" />
+                      </motion.div>
+                      {exportProgress || 'Processing...'}
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5" />
+                      Export as {selectedFormat}
+                      <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                    </>
+                  )}
+                </button>
+              )}
 
               {/* Free Plan Watermark Notice */}
               {isFreePlan && (
