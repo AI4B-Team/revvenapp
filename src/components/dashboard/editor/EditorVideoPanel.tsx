@@ -233,22 +233,40 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   };
 
   const handleUploadedVideoDragStart = (e: React.DragEvent, video: UploadedMedia) => {
+    // Try to get duration from the video element if available
+    const videoEl = e.currentTarget.querySelector('video') as HTMLVideoElement | null;
+    const actualDuration = videoEl?.duration && !isNaN(videoEl.duration) ? videoEl.duration : 10;
+    
     const dragData = JSON.stringify({
       type: 'video',
       url: video.url,
       thumbnail: video.thumbnail || '',
       name: video.name,
-      duration: 5 // default duration
+      duration: actualDuration
     });
     e.dataTransfer.setData('application/json', dragData);
-    e.dataTransfer.setData('text/plain', dragData); // fallback
+    e.dataTransfer.setData('text/plain', dragData);
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  const handleAddUploadedVideoToTimeline = (video: UploadedMedia) => {
+  const handleAddUploadedVideoToTimeline = async (video: UploadedMedia) => {
     if (onAddToTimeline) {
-      onAddToTimeline(video.url, video.name, video.thumbnail, 5);
-      toast.success(`Added "${video.name}" to timeline`);
+      // Get actual video duration by loading video metadata
+      const videoEl = document.createElement('video');
+      videoEl.src = video.url;
+      videoEl.preload = 'metadata';
+      
+      videoEl.onloadedmetadata = () => {
+        const actualDuration = videoEl.duration || 10;
+        onAddToTimeline(video.url, video.name, video.thumbnail, actualDuration);
+        toast.success(`Added "${video.name}" (${Math.round(actualDuration)}s) to timeline`);
+      };
+      
+      videoEl.onerror = () => {
+        // Fallback if duration can't be determined
+        onAddToTimeline(video.url, video.name, video.thumbnail, 10);
+        toast.success(`Added "${video.name}" to timeline`);
+      };
     } else {
       toast.error('Timeline not available');
     }
