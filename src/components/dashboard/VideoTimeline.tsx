@@ -653,9 +653,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
       {/* Time Ruler with Controls */}
       <div className="flex flex-shrink-0 bg-white">
-        <div className="w-[180px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-2">
-          {/* Left icons group */}
-          <div className="flex items-center gap-px">
+      <div className="w-[180px] flex-shrink-0 bg-white border-b border-gray-200 flex items-center justify-center px-2">
+          {/* Centered icons group */}
+          <div className="flex items-center justify-center gap-px">
             {/* Add Track Button */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -886,61 +886,63 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     {index + 1}
                   </div>
                   
-                  {/* Gap action icons between scenes */}
-                  <div 
-                    className="relative flex items-center justify-center mx-1 group/gap"
-                    onMouseEnter={() => setHoveredSceneGap(index)}
-                    onMouseLeave={() => setHoveredSceneGap(null)}
-                  >
-                    {/* Collapsed state - small dot */}
-                    <div className={`w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer flex items-center justify-center ${hoveredSceneGap === index ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                  {/* Gap action icons between scenes - only show if not last scene */}
+                  {index < scenes.length - 1 && (
+                    <div 
+                      className="relative flex items-center justify-center mx-1 group/gap"
+                      onMouseEnter={() => setHoveredSceneGap(index)}
+                      onMouseLeave={() => setHoveredSceneGap(null)}
+                    >
+                      {/* Collapsed state - small dot */}
+                      <div className={`w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer flex items-center justify-center ${hoveredSceneGap === index ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                      </div>
+                      
+                      {/* Expanded state - two action buttons */}
+                      <AnimatePresence>
+                        {hoveredSceneGap === index && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute flex flex-col items-center gap-1 z-10"
+                          >
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    insertSceneAtIndex(index + 1);
+                                  }}
+                                  className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                                >
+                                  <Plus className="w-4 h-4 text-gray-700" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top"><p>Insert Scene</p></TooltipContent>
+                            </Tooltip>
+                            
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // TODO: Add transition functionality
+                                    console.log('Add transition after scene', index + 1);
+                                  }}
+                                  className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                                >
+                                  <ArrowLeftRight className="w-4 h-4 text-gray-700" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
+                            </Tooltip>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    
-                    {/* Expanded state - two action buttons */}
-                    <AnimatePresence>
-                      {hoveredSceneGap === index && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute flex flex-col items-center gap-1 z-10"
-                        >
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  insertSceneAtIndex(index + 1);
-                                }}
-                                className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
-                              >
-                                <Plus className="w-4 h-4 text-gray-700" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top"><p>Insert Scene</p></TooltipContent>
-                          </Tooltip>
-                          
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // TODO: Add transition functionality
-                                  console.log('Add transition after scene', index + 1);
-                                }}
-                                className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
-                              >
-                                <ArrowLeftRight className="w-4 h-4 text-gray-700" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
-                          </Tooltip>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  )}
                 </React.Fragment>
               );
             })}
@@ -1006,7 +1008,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                 <div className="h-1 bg-primary mx-2 rounded-full shadow-lg shadow-primary/50" />
               )}
               <div 
-                className={`flex h-24 border-b border-gray-200 group transition-all ${isDragged ? 'opacity-40 bg-gray-100' : ''}`}
+                className={`flex h-16 border-b border-gray-200 group transition-all ${isDragged ? 'opacity-40 bg-gray-100' : ''}`}
                 draggable
                 onDragStart={(e) => handleTrackDragStart(e, track.id)}
                 onDragOver={(e) => handleTrackDragOver(e, index)}
@@ -1233,8 +1235,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       {/* Clip content */}
                       <div className="relative h-full flex flex-col z-10">
                         <div className="flex-1 flex items-center px-2">
-                          <TrackIcon className="w-3 h-3 text-white/60 mr-1.5 flex-shrink-0" />
-                          <span className="text-[10px] text-white/90 font-medium truncate">
+                          <TrackIcon className="w-3 h-3 text-gray-700 mr-1.5 flex-shrink-0" />
+                          <span className="text-[10px] text-gray-800 font-semibold truncate">
                             {clip.name}
                           </span>
                         </div>
