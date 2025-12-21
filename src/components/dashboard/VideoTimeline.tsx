@@ -175,13 +175,14 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         const x = e.clientX - rect.left;
         const startTime = (x / rect.width) * duration;
 
-        // Create new clip
+        // Create new clip with minimum 5s duration
+        const clipDuration = data.duration || 5;
         const newClip: TimelineClip = {
           id: `clip-${Date.now()}`,
           type: 'video',
           name: data.name || 'Stock Video',
           startTime: Math.max(0, startTime),
-          duration: Math.min(data.duration || 5, duration - startTime),
+          duration: Math.max(5, clipDuration), // Ensure minimum 5s duration
           thumbnail: data.thumbnail,
           src: data.url, // Store the video URL for playback
         };
