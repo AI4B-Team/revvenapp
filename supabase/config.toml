@@ -101,3 +101,9 @@ verify_jwt = true
 
 [functions.process-explainer-video]
 verify_jwt = true
+
+[functions.merge-videos]
+verify_jwt = true
+
+[functions.check-merge-status]
+verify_jwt = true
