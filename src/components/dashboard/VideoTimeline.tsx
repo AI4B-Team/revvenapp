@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
   Eye, EyeOff, MoreHorizontal, GripVertical, LayoutGrid, Rows3,
-  ChevronLeft, ChevronRight, Flag
+  ChevronLeft, ChevronRight, Flag, Blend
 } from 'lucide-react';
 import {
   Tooltip,
@@ -88,6 +88,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   // Track reordering state
   const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  
+  // Scene drag state for storyboard view
+  const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null);
+  const [sceneDropIndex, setSceneDropIndex] = useState<number | null>(null);
+  const [hoveredSceneGap, setHoveredSceneGap] = useState<number | null>(null);
 
   // Get all scenes/clips from video tracks for navigation
   const scenes = React.useMemo(() => {
@@ -493,6 +498,114 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     setTracks(prev => [...prev, newTrack]);
   };
 
+  // Scene drag handlers for storyboard view
+  const handleSceneDragStart = useCallback((e: React.DragEvent, clipId: string) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('scene-id', clipId);
+    setDraggedSceneId(clipId);
+  }, []);
+
+  const handleSceneDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setSceneDropIndex(index);
+  }, []);
+
+  const handleSceneDragEnd = useCallback(() => {
+    setDraggedSceneId(null);
+    setSceneDropIndex(null);
+  }, []);
+
+  const handleSceneDrop = useCallback((e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('scene-id');
+    if (!draggedId) return;
+
+    // Find the clip and its track
+    let sourceTrackId: string | null = null;
+    let draggedClip: TimelineClip | null = null;
+    
+    tracks.forEach(track => {
+      const clip = track.clips.find(c => c.id === draggedId);
+      if (clip) {
+        sourceTrackId = track.id;
+        draggedClip = clip;
+      }
+    });
+
+    if (!sourceTrackId || !draggedClip) return;
+
+    // Reorder scenes by adjusting start times
+    const draggedIndex = scenes.findIndex(s => s.id === draggedId);
+    if (draggedIndex === -1 || draggedIndex === targetIndex) {
+      setDraggedSceneId(null);
+      setSceneDropIndex(null);
+      return;
+    }
+
+    // Create new order of scenes
+    const newScenes = [...scenes];
+    const [removed] = newScenes.splice(draggedIndex, 1);
+    newScenes.splice(targetIndex > draggedIndex ? targetIndex - 1 : targetIndex, 0, removed);
+
+    // Recalculate start times based on new order
+    let currentStartTime = 0;
+    const updatedClips = new Map<string, { startTime: number }>();
+    
+    newScenes.forEach(scene => {
+      updatedClips.set(scene.id, { startTime: currentStartTime });
+      currentStartTime += scene.duration;
+    });
+
+    // Update tracks with new start times
+    setTracks(prev => prev.map(track => ({
+      ...track,
+      clips: track.clips.map(clip => {
+        const update = updatedClips.get(clip.id);
+        if (update) {
+          return { ...clip, startTime: update.startTime };
+        }
+        return clip;
+      })
+    })));
+
+    setDraggedSceneId(null);
+    setSceneDropIndex(null);
+  }, [scenes, tracks, setTracks]);
+
+  // Insert scene at specific position
+  const insertSceneAtIndex = useCallback((index: number) => {
+    const videoTrack = tracks.find(t => t.type === 'video' || t.id.includes('video'));
+    if (!videoTrack) return;
+
+    // Calculate where to insert based on existing scenes
+    let insertTime = 0;
+    if (index > 0 && scenes[index - 1]) {
+      insertTime = scenes[index - 1].startTime + scenes[index - 1].duration;
+    }
+
+    const newClip: TimelineClip = {
+      id: `clip-${Date.now()}`,
+      type: 'video',
+      name: `Scene ${scenes.length + 1}`,
+      startTime: insertTime,
+      duration: 5,
+      thumbnail: undefined,
+    };
+
+    // Shift all subsequent scenes forward
+    setTracks(prev => prev.map(track => ({
+      ...track,
+      clips: track.clips.map(clip => {
+        const sceneIndex = scenes.findIndex(s => s.id === clip.id);
+        if (sceneIndex >= index) {
+          return { ...clip, startTime: clip.startTime + 5 };
+        }
+        return clip;
+      }).concat(track.id === videoTrack.id ? [newClip] : [])
+    })));
+  }, [scenes, tracks, setTracks]);
+
   return (
     <div className="flex flex-col h-full bg-white overflow-hidden">
       {/* Scrubber/Playhead Bar at Top - gray background */}
@@ -690,63 +803,211 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       {/* Storyboard View */}
       {viewMode === 'storyboard' ? (
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <div className="flex flex-wrap items-center gap-y-4">
             {scenes.map((clip, index) => {
               const isSelected = selectedClip === clip.id;
               const isCurrent = currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration;
+              const isDragged = draggedSceneId === clip.id;
+              const isDropTarget = sceneDropIndex === index;
               
               return (
-                <div
-                  key={clip.id}
-                  onClick={() => {
-                    setSelectedClip(clip.id);
-                    onTimeSeek(clip.startTime);
-                  }}
-                  className={`relative aspect-video rounded-lg overflow-hidden cursor-pointer transition-all group ${
-                    isSelected 
-                      ? 'ring-2 ring-white shadow-lg scale-105' 
-                      : isCurrent 
-                        ? 'ring-2 ring-rose-500' 
-                        : 'hover:ring-2 hover:ring-slate-400'
-                  }`}
-                >
-                  {/* Scene thumbnail */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800">
-                    {clip.thumbnail ? (
-                      <img src={clip.thumbnail} alt={clip.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Video className="w-8 h-8 text-slate-500" />
+                <React.Fragment key={clip.id}>
+                  {/* Drop indicator before this scene */}
+                  {isDropTarget && draggedSceneId && (
+                    <div className="w-1 h-24 bg-primary rounded-full mx-1 shadow-lg shadow-primary/50" />
+                  )}
+                  
+                  {/* Scene card with drag handle areas */}
+                  <div className="flex items-center">
+                    {/* Left drag handle */}
+                    <div 
+                      className={`w-2 h-20 bg-gray-300 rounded-l-full cursor-grab active:cursor-grabbing hover:bg-gray-400 transition-colors flex-shrink-0 ${isDragged ? 'bg-primary' : ''}`}
+                      draggable
+                      onDragStart={(e) => handleSceneDragStart(e, clip.id)}
+                      onDragEnd={handleSceneDragEnd}
+                    />
+                    
+                    <div
+                      onClick={() => {
+                        setSelectedClip(clip.id);
+                        onTimeSeek(clip.startTime);
+                      }}
+                      onDragOver={(e) => handleSceneDragOver(e, index)}
+                      onDrop={(e) => handleSceneDrop(e, index)}
+                      className={`relative w-32 h-20 rounded-lg overflow-hidden cursor-pointer transition-all group ${
+                        isDragged 
+                          ? 'opacity-40 scale-95' 
+                          : isSelected 
+                            ? 'ring-2 ring-primary shadow-lg scale-105' 
+                            : isCurrent 
+                              ? 'ring-2 ring-rose-500' 
+                              : 'hover:ring-2 hover:ring-slate-400'
+                      }`}
+                    >
+                      {/* Scene thumbnail */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800">
+                        {clip.thumbnail ? (
+                          <img src={clip.thumbnail} alt={clip.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Video className="w-6 h-6 text-slate-500" />
+                          </div>
+                        )}
                       </div>
-                    )}
+                      
+                      {/* Progress bar at bottom */}
+                      {isCurrent && (
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-600">
+                          <div 
+                            className="h-full bg-white transition-all"
+                            style={{ 
+                              width: `${((currentTime - clip.startTime) / clip.duration) * 100}%` 
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Duration badge */}
+                      <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white font-mono">
+                        {clip.duration.toFixed(1)}s
+                      </div>
+                      
+                      {/* Scene name - shows on hover */}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-[10px] text-white truncate">{clip.name}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Right drag handle */}
+                    <div 
+                      className={`w-2 h-20 bg-gray-300 rounded-r-full cursor-grab active:cursor-grabbing hover:bg-gray-400 transition-colors flex-shrink-0 ${isDragged ? 'bg-primary' : ''}`}
+                      draggable
+                      onDragStart={(e) => handleSceneDragStart(e, clip.id)}
+                      onDragEnd={handleSceneDragEnd}
+                    />
                   </div>
                   
-                  {/* Scene number badge */}
-                  <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white font-medium">
+                  {/* Scene number below */}
+                  <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-gray-600 font-medium">
                     {index + 1}
                   </div>
                   
-                  {/* Duration badge */}
-                  <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white font-mono">
-                    {clip.duration.toFixed(1)}s
-                  </div>
-                  
-                  {/* Scene name - shows on hover */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-[10px] text-white truncate">{clip.name}</p>
-                  </div>
-                  
-                  {/* Current playback indicator */}
-                  {isCurrent && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <div className="w-8 h-8 rounded-full bg-rose-500/80 flex items-center justify-center">
-                        <div className="w-0 h-0 border-l-[10px] border-t-[6px] border-b-[6px] border-l-white border-t-transparent border-b-transparent ml-1" />
-                      </div>
+                  {/* Gap action icons between scenes */}
+                  <div 
+                    className="relative flex items-center justify-center mx-1 group/gap"
+                    onMouseEnter={() => setHoveredSceneGap(index)}
+                    onMouseLeave={() => setHoveredSceneGap(null)}
+                  >
+                    {/* Collapsed state - small dot */}
+                    <div className={`w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer flex items-center justify-center ${hoveredSceneGap === index ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
+                      <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                     </div>
-                  )}
-                </div>
+                    
+                    {/* Expanded state - two action buttons */}
+                    <AnimatePresence>
+                      {hoveredSceneGap === index && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute flex flex-col items-center gap-1 z-10"
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  insertSceneAtIndex(index + 1);
+                                }}
+                                className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                              >
+                                <Plus className="w-4 h-4 text-gray-700" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top"><p>Insert Scene</p></TooltipContent>
+                          </Tooltip>
+                          
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // TODO: Add transition functionality
+                                  console.log('Add transition after scene', index + 1);
+                                }}
+                                className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                              >
+                                <Blend className="w-4 h-4 text-gray-700" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
+                          </Tooltip>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </React.Fragment>
               );
             })}
+            
+            {/* Gap action icons after last scene (before Add New Scene) */}
+            {scenes.length > 0 && (
+              <div 
+                className="relative flex items-center justify-center mx-1 group/gap"
+                onMouseEnter={() => setHoveredSceneGap(scenes.length)}
+                onMouseLeave={() => setHoveredSceneGap(null)}
+              >
+                {/* Collapsed state - small dot */}
+                <div className={`w-4 h-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-all cursor-pointer flex items-center justify-center ${hoveredSceneGap === scenes.length ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                </div>
+                
+                {/* Expanded state - two action buttons */}
+                <AnimatePresence>
+                  {hoveredSceneGap === scenes.length && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute flex flex-col items-center gap-1 z-10"
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              insertSceneAtIndex(scenes.length);
+                            }}
+                            className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                          >
+                            <Plus className="w-4 h-4 text-gray-700" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top"><p>Insert Scene</p></TooltipContent>
+                      </Tooltip>
+                      
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // TODO: Add transition functionality
+                              console.log('Add transition after last scene');
+                            }}
+                            className="w-7 h-7 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all"
+                          >
+                            <Blend className="w-4 h-4 text-gray-700" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom"><p>Add Transition</p></TooltipContent>
+                      </Tooltip>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
             
             {/* Add scene button */}
             <Tooltip>
@@ -775,13 +1036,20 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       }));
                     }
                   }}
-                  className="aspect-video rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-green-500 hover:bg-slate-800/30 transition-all group"
+                  onDragOver={(e) => handleSceneDragOver(e, scenes.length)}
+                  onDrop={(e) => handleSceneDrop(e, scenes.length)}
+                  className="w-32 h-20 rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center cursor-pointer hover:border-green-500 hover:bg-slate-800/30 transition-all group"
                 >
                   <Plus className="w-6 h-6 text-slate-500 group-hover:text-green-500 transition-colors" />
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom"><p>Add New Scene</p></TooltipContent>
             </Tooltip>
+            
+            {/* Drop indicator at end */}
+            {sceneDropIndex === scenes.length && draggedSceneId && (
+              <div className="w-1 h-24 bg-primary rounded-full mx-1 shadow-lg shadow-primary/50" />
+            )}
           </div>
         </div>
       ) : (
