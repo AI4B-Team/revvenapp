@@ -90,45 +90,46 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
         // If we have multiple clips and a recording function, use it to merge clips
         if (hasMultipleClips && onStartRecordingExport) {
           setExportProgress('Recording timeline...');
-          const blob = await onStartRecordingExport();
           
-          if (blob) {
-            setExportProgress('Preparing download...');
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectTitle.replace(/\s+/g, '_')}.webm`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+          try {
+            const blob = await onStartRecordingExport();
             
-            toast.success('Export completed!', {
-              description: 'All clips merged and downloaded',
-            });
-          } else {
-            toast.error('Export failed', {
-              description: 'Could not record the timeline',
-            });
+            if (blob && blob.size > 0) {
+              setExportProgress('Preparing download...');
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${projectTitle.replace(/\s+/g, '_')}.webm`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+              
+              toast.success('Export completed!', {
+                description: 'All clips merged and downloaded',
+              });
+            } else {
+              // Fallback: download individual clips
+              toast.info('Merging not supported for these videos', {
+                description: 'Downloading first clip instead',
+              });
+              if (videoSrc) {
+                await downloadSingleVideo(videoSrc);
+              }
+            }
+          } catch (recordError) {
+            console.error('Recording failed:', recordError);
+            // Fallback to single video download
+            if (videoSrc) {
+              toast.info('Using fallback export');
+              await downloadSingleVideo(videoSrc);
+            } else {
+              throw recordError;
+            }
           }
         } else if (videoSrc) {
           // Single clip - just download directly
-          setExportProgress('Downloading...');
-          const response = await fetch(videoSrc);
-          const blob = await response.blob();
-          
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-          
-          toast.success('Export completed!', {
-            description: `Downloaded as ${selectedFormat}`,
-          });
+          await downloadSingleVideo(videoSrc);
         } else {
           toast.info('No video to export', {
             description: 'Add clips to the timeline first',
@@ -159,6 +160,35 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
     }
 
     setIsOpen(false);
+  };
+
+  const downloadSingleVideo = async (src: string) => {
+    setExportProgress('Downloading...');
+    try {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error('Failed to fetch video');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Export completed!', {
+        description: `Downloaded as ${selectedFormat}`,
+      });
+    } catch (fetchError) {
+      // Try opening in new tab as fallback
+      console.error('Direct download failed:', fetchError);
+      window.open(src, '_blank');
+      toast.success('Video opened in new tab', {
+        description: 'Right-click to save the video',
+      });
+    }
   };
 
   return (
