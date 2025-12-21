@@ -285,8 +285,10 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       const rect = timelineRef.current!.getBoundingClientRect();
       const deltaX = e.clientX - dragState.startX;
-      const timePerPixel = duration / rect.width;
-      const timeDelta = deltaX * timePerPixel;
+      // Use a fixed pixels-per-second rate for more predictable resizing
+      // This allows extending beyond the current timeline duration
+      const pixelsPerSecond = (rect.width * zoom) / duration;
+      const timeDelta = deltaX / pixelsPerSecond;
 
       let newStartTime = dragState.originalStartTime;
       let newDuration = dragState.originalDuration;
@@ -327,6 +329,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           setSnapIndicator(null);
         }
       } else if (dragState.type === 'resize-right') {
+        // Allow extending clip to any duration (no max limit)
         newDuration = Math.max(MIN_CLIP_DURATION, dragState.originalDuration + timeDelta);
         const newEnd = dragState.originalStartTime + newDuration;
         
