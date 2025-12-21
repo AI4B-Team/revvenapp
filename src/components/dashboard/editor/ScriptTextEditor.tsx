@@ -1,6 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Trash2, ExternalLink, Play } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
 interface ScriptSegment {
@@ -9,6 +15,7 @@ interface ScriptSegment {
   startTime: number;
   endTime: number;
   deleted?: boolean;
+  selected?: boolean;
 }
 
 interface ScriptTextEditorProps {
@@ -43,174 +50,271 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
         startTime: currentTime,
         endTime: currentTime + duration,
         deleted: false,
+        selected: false,
       };
       currentTime += duration + 0.2; // Small gap between segments
       return segment;
     });
   });
 
-  const [selectedRange, setSelectedRange] = useState<{ start: number; end: number; segmentIds: string[] } | null>(null);
-  const [popupPosition, setPopupPosition] = useState<{ x: number; y: number } | null>(null);
+  const [editingSegmentId, setEditingSegmentId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+  const [selectedSegments, setSelectedSegments] = useState<Set<string>>(new Set());
+  const [keepOnlyMode, setKeepOnlyMode] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (seconds: number): string => {
-    return `${seconds.toFixed(1)}s`;
+    return `${seconds.toFixed(2)}s`;
   };
 
-  const handleTextSelection = useCallback(() => {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !editorRef.current) {
-      setSelectedRange(null);
-      setPopupPosition(null);
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const selectedText = selection.toString().trim();
+  const handleSegmentClick = (segmentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     
-    if (!selectedText) {
-      setSelectedRange(null);
-      setPopupPosition(null);
-      return;
-    }
-
-    // Find which segments are selected
-    const selectedSegmentIds: string[] = [];
-    const segmentElements = editorRef.current.querySelectorAll('[data-segment-id]');
-    
-    segmentElements.forEach((el) => {
-      if (selection.containsNode(el, true)) {
-        const segmentId = el.getAttribute('data-segment-id');
-        if (segmentId) {
-          selectedSegmentIds.push(segmentId);
+    if (e.shiftKey) {
+      // Multi-select with shift
+      setSelectedSegments(prev => {
+        const next = new Set(prev);
+        if (next.has(segmentId)) {
+          next.delete(segmentId);
+        } else {
+          next.add(segmentId);
         }
-      }
-    });
-
-    if (selectedSegmentIds.length > 0) {
-      const rect = range.getBoundingClientRect();
-      const editorRect = editorRef.current.getBoundingClientRect();
-      
-      setSelectedRange({
-        start: 0,
-        end: selectedText.length,
-        segmentIds: selectedSegmentIds,
+        return next;
       });
-      
-      setPopupPosition({
-        x: rect.left + rect.width / 2 - editorRect.left,
-        y: rect.top - editorRect.top - 10,
-      });
+    } else {
+      // Single select
+      setSelectedSegments(new Set([segmentId]));
     }
-  }, []);
+  };
 
-  const handleDelete = () => {
-    if (!selectedRange) return;
+  const handleSegmentDoubleClick = (segment: ScriptSegment) => {
+    setEditingSegmentId(segment.id);
+    setEditingText(segment.text);
+  };
+
+  const handleEditSave = () => {
+    if (!editingSegmentId) return;
     
-    setSegments(prev => 
-      prev.map(seg => 
-        selectedRange.segmentIds.includes(seg.id) 
-          ? { ...seg, deleted: true }
-          : seg
+    setSegments(prev =>
+      prev.map(seg =>
+        seg.id === editingSegmentId ? { ...seg, text: editingText } : seg
       )
     );
     
-    selectedRange.segmentIds.forEach(id => onSegmentDelete?.(id));
-    toast.success('Selected text marked for deletion');
-    setSelectedRange(null);
-    setPopupPosition(null);
-    window.getSelection()?.removeAllRanges();
-  };
-
-  const handleExport = () => {
-    if (!selectedRange) return;
-    
-    const selectedText = segments
-      .filter(seg => selectedRange.segmentIds.includes(seg.id))
-      .map(seg => seg.text)
+    // Update parent script
+    const updatedScript = segments
+      .map(seg => (seg.id === editingSegmentId ? editingText : seg.text))
+      .filter(text => text)
       .join(' ');
+    onScriptChange?.(updatedScript);
     
-    onSegmentExport?.(selectedRange.segmentIds[0], selectedText);
-    toast.success('Selected text exported');
-    setSelectedRange(null);
-    setPopupPosition(null);
-    window.getSelection()?.removeAllRanges();
+    setEditingSegmentId(null);
+    setEditingText('');
   };
 
-  // Listen for selection changes
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleEditSave();
+    } else if (e.key === 'Escape') {
+      setEditingSegmentId(null);
+      setEditingText('');
+    }
+  };
+
+  const handleDeleteSegment = (segmentId: string) => {
+    setSegments(prev =>
+      prev.map(seg =>
+        seg.id === segmentId ? { ...seg, deleted: true } : seg
+      )
+    );
+    onSegmentDelete?.(segmentId);
+    toast.success('Sentence removed');
+  };
+
+  const handleAddToSelection = (segmentId: string) => {
+    setSelectedSegments(prev => new Set([...prev, segmentId]));
+  };
+
+  const handleRemoveFromSelection = (segmentId: string) => {
+    setSelectedSegments(prev => {
+      const next = new Set(prev);
+      next.delete(segmentId);
+      return next;
+    });
+  };
+
+  const handleKeepOnlySelected = () => {
+    setKeepOnlyMode(true);
+    // Mark all non-selected segments as visually muted
+    toast.success('Showing only selected sentences');
+  };
+
+  const handleResetSelection = () => {
+    setSelectedSegments(new Set());
+    setKeepOnlyMode(false);
+  };
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
+      if (!editingSegmentId) {
+        // Don't clear selection when clicking outside
+      }
+    }
+  }, [editingSegmentId]);
+
   useEffect(() => {
-    document.addEventListener('selectionchange', handleTextSelection);
-    return () => document.removeEventListener('selectionchange', handleTextSelection);
-  }, [handleTextSelection]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
 
   // Filter segments based on showDeleted
   const visibleSegments = segments.filter(seg => showDeleted || !seg.deleted);
 
-  return (
-    <div className="relative h-full flex flex-col">
-      {/* Selection Popup */}
-      {popupPosition && selectedRange && (
-        <div
-          className="absolute z-50 flex items-center gap-1 bg-gray-900 text-white rounded-lg shadow-xl px-1 py-1 transform -translate-x-1/2 -translate-y-full"
-          style={{
-            left: popupPosition.x,
-            top: popupPosition.y,
-          }}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="text-white hover:bg-gray-800 px-3 py-1.5 h-auto text-sm"
-          >
-            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-            Delete
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleExport}
-            className="text-white hover:bg-gray-800 px-3 py-1.5 h-auto text-sm"
-          >
-            <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-            Export
-          </Button>
-        </div>
-      )}
+  // Calculate total selection duration
+  const selectionDuration = segments
+    .filter(seg => selectedSegments.has(seg.id))
+    .reduce((acc, seg) => acc + (seg.endTime - seg.startTime), 0);
 
-      {/* Script Editor */}
+  return (
+    <div className="relative h-full flex flex-col bg-white">
+      {/* Header with selection info */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Selection</span>
+          <span className="text-sm font-medium text-gray-900">
+            {selectionDuration > 0 ? `00:${Math.floor(selectionDuration).toString().padStart(2, '0')}` : '00:00'}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleResetSelection}
+          className="text-gray-600 hover:text-gray-900"
+        >
+          Reset
+        </Button>
+      </div>
+
+      {/* Script Editor with sentence blocks */}
       <div 
         ref={editorRef}
-        className="flex-1 overflow-y-auto p-4 bg-white"
+        className="flex-1 overflow-y-auto px-4 py-4"
       >
-        <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 space-y-1">
-          {visibleSegments.map((segment, index) => (
-            <React.Fragment key={segment.id}>
-              <span
-                data-segment-id={segment.id}
-                className={`inline ${
-                  segment.deleted 
-                    ? 'line-through text-gray-400 bg-red-50' 
-                    : 'hover:bg-blue-50 cursor-text'
-                } ${
-                  selectedRange?.segmentIds.includes(segment.id) 
-                    ? 'bg-blue-100' 
-                    : ''
-                }`}
+        <div className="space-y-3">
+          {visibleSegments.map((segment, index) => {
+            const isSelected = selectedSegments.has(segment.id);
+            const isMuted = keepOnlyMode && !isSelected;
+            const isEditing = editingSegmentId === segment.id;
+            const showTimestamp = segment.startTime > 0 && (index === 0 || segments[index - 1]?.endTime !== segment.startTime);
+
+            return (
+              <div
+                key={segment.id}
+                className="group relative"
               >
-                {segment.text}
-              </span>
-              {/* Timestamp indicator between sentences */}
-              {index < visibleSegments.length - 1 && (
-                <span className="inline-flex items-center mx-1.5 px-1.5 py-0.5 bg-gray-100 text-gray-400 text-xs rounded font-mono">
-                  <Play className="w-2 h-2 mr-0.5 opacity-60" />
-                  {formatTime(segment.endTime)}
-                </span>
-              )}
-              {' '}
-            </React.Fragment>
-          ))}
+                {/* Sentence block */}
+                <div
+                  onClick={(e) => handleSegmentClick(segment.id, e)}
+                  onDoubleClick={() => handleSegmentDoubleClick(segment)}
+                  className={`relative flex items-start gap-2 py-2 px-1 rounded-lg transition-all cursor-pointer ${
+                    isEditing 
+                      ? 'bg-gray-50 ring-2 ring-primary/20' 
+                      : isSelected 
+                        ? 'bg-blue-50' 
+                        : 'hover:bg-gray-50'
+                  } ${isMuted ? 'opacity-40' : ''} ${segment.deleted ? 'line-through opacity-30' : ''}`}
+                >
+                  {/* Timestamp badge (shown inline for some sentences) */}
+                  {showTimestamp && (
+                    <span className="flex-shrink-0 inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded font-mono mt-0.5">
+                      {formatTime(segment.startTime)}
+                    </span>
+                  )}
+
+                  {/* Text content */}
+                  {isEditing ? (
+                    <textarea
+                      value={editingText}
+                      onChange={(e) => setEditingText(e.target.value)}
+                      onKeyDown={handleEditKeyDown}
+                      onBlur={handleEditSave}
+                      autoFocus
+                      className="flex-1 resize-none bg-transparent text-gray-800 text-[15px] leading-relaxed focus:outline-none min-h-[24px]"
+                      rows={Math.ceil(editingText.length / 60) || 1}
+                    />
+                  ) : (
+                    <p className={`flex-1 text-[15px] leading-relaxed ${isMuted ? 'text-gray-400' : 'text-gray-800'}`}>
+                      {segment.text}
+                    </p>
+                  )}
+
+                  {/* Delete button - visible on hover */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSegment(segment.id);
+                    }}
+                    className="flex-shrink-0 opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-600 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Context menu for selected segments */}
+                {isSelected && selectedSegments.size === 1 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-44 bg-popover">
+                      <DropdownMenuItem onClick={() => handleAddToSelection(segment.id)}>
+                        <Plus className="w-3.5 h-3.5 mr-2" />
+                        Add To Selection
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleKeepOnlySelected}>
+                        <Check className="w-3.5 h-3.5 mr-2" />
+                        Keep Only Selected
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+
+                {/* Selection indicator when multi-selected */}
+                {isSelected && selectedSegments.size > 1 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48 bg-popover">
+                      <DropdownMenuItem onClick={() => handleRemoveFromSelection(segment.id)}>
+                        <X className="w-3.5 h-3.5 mr-2" />
+                        Remove From Selection
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleKeepOnlySelected}>
+                        <Check className="w-3.5 h-3.5 mr-2" />
+                        Keep Only Selected
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            );
+          })}
         </div>
+
+        {/* End timestamp */}
+        {visibleSegments.length > 0 && (
+          <div className="mt-4">
+            <span className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded font-mono">
+              {formatTime(visibleSegments[visibleSegments.length - 1]?.endTime || 0)}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
