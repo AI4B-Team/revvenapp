@@ -270,7 +270,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
           </div>
 
           {/* Social Platform Icons */}
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 opacity-60">
             {socialPlatforms.map((platform, index) => (
               <div
                 key={index}
