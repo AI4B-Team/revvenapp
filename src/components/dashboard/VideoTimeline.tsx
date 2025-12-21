@@ -54,10 +54,9 @@ interface VideoTimelineProps {
   isDragging: boolean;
   setIsDragging: (dragging: boolean) => void;
 }
-
 const SNAP_THRESHOLD = 5; // pixels
 const MIN_CLIP_DURATION = 0.5;
-const RESIZE_SMOOTHING = 0.15; // Lower = smoother but slower response
+const RESIZE_SMOOTHING = 0.08; // Lower = smoother transitions
 
 const VideoTimeline: React.FC<VideoTimelineProps> = ({
   tracks,
@@ -303,10 +302,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       const rect = timelineRef.current!.getBoundingClientRect();
       const deltaX = e.clientX - dragState.startX;
-      // Use a fixed rate: 50 pixels = 1 second for predictable resizing
-      // This allows extending clips freely without timeline width constraints
-      const PIXELS_PER_SECOND = 50;
-      const timeDelta = deltaX / PIXELS_PER_SECOND;
+      // Use timeline-relative pixels per second for smooth, proportional resizing
+      const pixelsPerSecond = (rect.width * zoom) / duration;
+      const timeDelta = deltaX / pixelsPerSecond;
 
       let newStartTime = dragState.originalStartTime;
       let newDuration = dragState.originalDuration;
@@ -361,14 +359,15 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         }
       }
 
-      // Smooth interpolation for fluid resizing
+      // Smooth interpolation for fluid resizing with easing
       if (isFirstFrame) {
         lastUpdate = { startTime: newStartTime, duration: newDuration };
         isFirstFrame = false;
       } else {
-        // Lerp for smoother transitions
-        lastUpdate.startTime += (newStartTime - lastUpdate.startTime) * (1 - RESIZE_SMOOTHING);
-        lastUpdate.duration += (newDuration - lastUpdate.duration) * (1 - RESIZE_SMOOTHING);
+        // Exponential smoothing for buttery-smooth transitions
+        const smoothFactor = 1 - RESIZE_SMOOTHING;
+        lastUpdate.startTime = lastUpdate.startTime + (newStartTime - lastUpdate.startTime) * smoothFactor;
+        lastUpdate.duration = lastUpdate.duration + (newDuration - lastUpdate.duration) * smoothFactor;
       }
 
       // Cancel any pending animation frame
@@ -1216,7 +1215,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                           style={{
                             left: `${(clip.startTime / duration) * 100}%`,
                             width: `${(clip.duration / duration) * 100}%`,
-                            transition: dragState?.clipId === clip.id ? 'none' : 'left 0.1s ease-out, width 0.1s ease-out',
+                            transition: dragState?.clipId === clip.id 
+                              ? 'none' 
+                              : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                           }}
                         >
                         {words.map((word, wordIndex) => {
@@ -1285,7 +1286,9 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       style={{
                         left: `${(clip.startTime / duration) * 100}%`,
                         width: `${(clip.duration / duration) * 100}%`,
-                        transition: dragState?.clipId === clip.id ? 'none' : 'left 0.1s ease-out, width 0.1s ease-out, box-shadow 0.2s ease',
+                        transition: dragState?.clipId === clip.id 
+                          ? 'box-shadow 0.15s ease' 
+                          : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease',
                       }}
                     >
                       {/* Clip background */}
