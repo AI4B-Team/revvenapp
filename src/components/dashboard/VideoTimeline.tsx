@@ -57,6 +57,7 @@ interface VideoTimelineProps {
 
 const SNAP_THRESHOLD = 5; // pixels
 const MIN_CLIP_DURATION = 0.5;
+const RESIZE_SMOOTHING = 0.15; // Lower = smoother but slower response
 
 const VideoTimeline: React.FC<VideoTimelineProps> = ({
   tracks,
@@ -77,8 +78,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     trackId: string;
     startX: number;
     originalStartTime: number;
+    originalDuration: number;
     type: 'move' | 'resize-left' | 'resize-right';
   } | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const pendingUpdateRef = useRef<{ startTime: number; duration: number } | null>(null);
   const [snapIndicator, setSnapIndicator] = useState<number | null>(null);
   const [hoveredClip, setHoveredClip] = useState<string | null>(null);
   const [dropTargetTrack, setDropTargetTrack] = useState<string | null>(null);
@@ -264,14 +268,18 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       trackId,
       startX: e.clientX,
       originalStartTime: clip.startTime,
+      originalDuration: clip.duration,
       type,
     });
     setIsDragging(true);
   }, [tracks, setSelectedClip, setIsDragging]);
 
-  // Handle drag move
+  // Handle drag move with smooth animation
   useEffect(() => {
     if (!dragState || !timelineRef.current) return;
+
+    let lastUpdate = { startTime: 0, duration: 0 };
+    let isFirstFrame = true;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = timelineRef.current!.getBoundingClientRect();
@@ -279,30 +287,27 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
       const timePerPixel = duration / rect.width;
       const timeDelta = deltaX * timePerPixel;
 
-      const clip = tracks.find(t => t.id === dragState.trackId)?.clips.find(c => c.id === dragState.clipId);
-      if (!clip) return;
-
-      let newStartTime = clip.startTime;
-      let newDuration = clip.duration;
+      let newStartTime = dragState.originalStartTime;
+      let newDuration = dragState.originalDuration;
 
       if (dragState.type === 'move') {
         newStartTime = Math.max(0, dragState.originalStartTime + timeDelta);
         
         // Check for snap
         const snapPoint = findSnapPoint(newStartTime, dragState.clipId, rect.width);
-        const endSnapPoint = findSnapPoint(newStartTime + clip.duration, dragState.clipId, rect.width);
+        const endSnapPoint = findSnapPoint(newStartTime + dragState.originalDuration, dragState.clipId, rect.width);
         
         if (snapPoint !== null) {
           newStartTime = snapPoint;
           setSnapIndicator(snapPoint);
         } else if (endSnapPoint !== null) {
-          newStartTime = endSnapPoint - clip.duration;
+          newStartTime = endSnapPoint - dragState.originalDuration;
           setSnapIndicator(endSnapPoint);
         } else {
           setSnapIndicator(null);
         }
       } else if (dragState.type === 'resize-left') {
-        const originalEnd = dragState.originalStartTime + clip.duration;
+        const originalEnd = dragState.originalStartTime + dragState.originalDuration;
         newStartTime = Math.max(0, dragState.originalStartTime + timeDelta);
         newDuration = originalEnd - newStartTime;
         
@@ -321,32 +326,59 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           setSnapIndicator(null);
         }
       } else if (dragState.type === 'resize-right') {
-        newDuration = Math.max(MIN_CLIP_DURATION, clip.duration + timeDelta - (dragState.originalStartTime - clip.startTime));
-        const newEnd = clip.startTime + newDuration;
+        newDuration = Math.max(MIN_CLIP_DURATION, dragState.originalDuration + timeDelta);
+        const newEnd = dragState.originalStartTime + newDuration;
         
         // Snap end
         const snapPoint = findSnapPoint(newEnd, dragState.clipId, rect.width);
-        if (snapPoint !== null && snapPoint - clip.startTime >= MIN_CLIP_DURATION) {
-          newDuration = snapPoint - clip.startTime;
+        if (snapPoint !== null && snapPoint - dragState.originalStartTime >= MIN_CLIP_DURATION) {
+          newDuration = snapPoint - dragState.originalStartTime;
           setSnapIndicator(snapPoint);
         } else {
           setSnapIndicator(null);
         }
       }
 
-      setTracks(prev => prev.map(track => {
-        if (track.id !== dragState.trackId) return track;
-        return {
-          ...track,
-          clips: track.clips.map(c => {
-            if (c.id !== dragState.clipId) return c;
-            return { ...c, startTime: newStartTime, duration: newDuration };
-          })
-        };
-      }));
+      // Smooth interpolation for fluid resizing
+      if (isFirstFrame) {
+        lastUpdate = { startTime: newStartTime, duration: newDuration };
+        isFirstFrame = false;
+      } else {
+        // Lerp for smoother transitions
+        lastUpdate.startTime += (newStartTime - lastUpdate.startTime) * (1 - RESIZE_SMOOTHING);
+        lastUpdate.duration += (newDuration - lastUpdate.duration) * (1 - RESIZE_SMOOTHING);
+      }
+
+      // Cancel any pending animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      // Use requestAnimationFrame for smooth visual updates
+      animationFrameRef.current = requestAnimationFrame(() => {
+        setTracks(prev => prev.map(track => {
+          if (track.id !== dragState.trackId) return track;
+          return {
+            ...track,
+            clips: track.clips.map(c => {
+              if (c.id !== dragState.clipId) return c;
+              return { 
+                ...c, 
+                startTime: Math.round(lastUpdate.startTime * 100) / 100, 
+                duration: Math.round(lastUpdate.duration * 100) / 100 
+              };
+            })
+          };
+        }));
+      });
     };
 
     const handleMouseUp = () => {
+      // Cancel any pending animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
       setDragState(null);
       setIsDragging(false);
       setSnapIndicator(null);
@@ -357,8 +389,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [dragState, duration, tracks, setTracks, findSnapPoint, setIsDragging]);
+  }, [dragState, duration, setTracks, findSnapPoint, setIsDragging]);
 
   // Toggle track properties
   const toggleTrackMute = (trackId: string) => {
@@ -1152,15 +1187,16 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     const words = (clip.caption || clip.name || '').split(' ').filter(w => w.trim());
                     const wordDuration = clip.duration / Math.max(words.length, 1);
                     
-                    return (
-                      <div
-                        key={clip.id}
-                        className="absolute top-2 bottom-2 flex items-center gap-0.5"
-                        style={{
-                          left: `${(clip.startTime / duration) * 100}%`,
-                          width: `${(clip.duration / duration) * 100}%`,
-                        }}
-                      >
+                      return (
+                        <div
+                          key={clip.id}
+                          className="absolute top-2 bottom-2 flex items-center gap-0.5"
+                          style={{
+                            left: `${(clip.startTime / duration) * 100}%`,
+                            width: `${(clip.duration / duration) * 100}%`,
+                            transition: dragState?.clipId === clip.id ? 'none' : 'left 0.1s ease-out, width 0.1s ease-out',
+                          }}
+                        >
                         {words.map((word, wordIndex) => {
                           const isCurrentWord = currentTime >= clip.startTime + (wordIndex * wordDuration) && 
                                                currentTime < clip.startTime + ((wordIndex + 1) * wordDuration);
@@ -1217,7 +1253,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
                       onMouseEnter={() => setHoveredClip(clip.id)}
                       onMouseLeave={() => setHoveredClip(null)}
-                      className={`absolute top-1.5 bottom-1.5 rounded-md cursor-grab active:cursor-grabbing transition-all overflow-hidden group/clip ${
+                      className={`absolute top-1.5 bottom-1.5 rounded-md cursor-grab active:cursor-grabbing overflow-hidden group/clip ${
                         isSelected 
                           ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 shadow-lg shadow-black/30' 
                           : isHovered
@@ -1227,6 +1263,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                       style={{
                         left: `${(clip.startTime / duration) * 100}%`,
                         width: `${(clip.duration / duration) * 100}%`,
+                        transition: dragState?.clipId === clip.id ? 'none' : 'left 0.1s ease-out, width 0.1s ease-out, box-shadow 0.2s ease',
                       }}
                     >
                       {/* Clip background */}
@@ -1254,23 +1291,27 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                         <>
                           <div 
                             onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
-                            className={`absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize transition-all z-20 ${
+                            className={`absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize z-20 group/handle-left ${
                               isSelected || isHovered 
-                                ? 'bg-white/40 hover:bg-white/70' 
-                                : 'bg-transparent hover:bg-white/30'
-                            }`}
+                                ? 'bg-white/30' 
+                                : 'bg-transparent'
+                            } hover:bg-white/50 active:bg-white/70`}
                           >
-                            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-white/60 rounded-full opacity-0 group-hover/clip:opacity-100" />
+                            <div className={`absolute left-0.5 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full shadow-sm transition-all ${
+                              isSelected || isHovered ? 'opacity-80' : 'opacity-0 group-hover/clip:opacity-60'
+                            } group-hover/handle-left:opacity-100 group-hover/handle-left:h-8`} />
                           </div>
                           <div 
                             onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
-                            className={`absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize transition-all z-20 ${
+                            className={`absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize z-20 group/handle-right ${
                               isSelected || isHovered 
-                                ? 'bg-white/40 hover:bg-white/70' 
-                                : 'bg-transparent hover:bg-white/30'
-                            }`}
+                                ? 'bg-white/30' 
+                                : 'bg-transparent'
+                            } hover:bg-white/50 active:bg-white/70`}
                           >
-                            <div className="absolute right-0.5 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-white/60 rounded-full opacity-0 group-hover/clip:opacity-100" />
+                            <div className={`absolute right-0.5 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full shadow-sm transition-all ${
+                              isSelected || isHovered ? 'opacity-80' : 'opacity-0 group-hover/clip:opacity-60'
+                            } group-hover/handle-right:opacity-100 group-hover/handle-right:h-8`} />
                           </div>
                         </>
                       )}
