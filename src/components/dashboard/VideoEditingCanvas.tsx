@@ -2048,7 +2048,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   className={isTimelineMinimized ? 'h-auto !flex-none' : ''}
                 >
                   {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
-                  {isVideoSelected && !isTimelineMinimized && (
+                  {isVideoSelected && (
                     <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200">
                       <button 
                         onClick={() => setShowLayoutPanel(!showLayoutPanel)}
