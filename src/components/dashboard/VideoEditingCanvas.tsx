@@ -1669,139 +1669,38 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     >
                       {/* Show canvas placeholder when video is deleted, otherwise show video */}
                       {isVideoDeleted ? (
-                        <div className="w-full h-full flex items-center justify-center p-8">
-                          <div className="grid w-full max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
-                            {/* Upload File Box */}
-                            <div
-                              className="group flex min-h-[320px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-12 text-center transition-colors hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.accept = 'video/*,audio/*';
-                                input.onchange = (event) => {
-                                  const file = (event.target as HTMLInputElement).files?.[0];
-                                  if (file) {
-                                    const fileUrl = URL.createObjectURL(file);
-                                    const isVideo = file.type.startsWith('video/');
-                                    const newMedia = {
-                                      id: `upload-${Date.now()}`,
-                                      name: file.name,
-                                      url: fileUrl,
-                                      type: isVideo ? 'video' as const : 'audio' as const,
-                                      source: 'upload' as const,
-                                    };
-                                    setUploadedMedia(prev => [newMedia, ...prev]);
-                                    setIsVideoDeleted(false);
-                                    setActiveTab('visuals');
-                                    toast({ title: 'File uploaded', description: `${file.name} added to Visuals` });
-                                  }
-                                };
-                                input.click();
-                              }}
-                            >
-                              <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center mb-6">
-                                <Upload className="w-10 h-10 text-emerald-600" />
-                              </div>
-
-                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Upload File</h3>
-
-                              <div className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white mb-6">
-                                <span className="text-base text-gray-600">Drag & Drop Your Video Or Audio File</span>
-                              </div>
-
-                              <div className="flex items-center gap-2 flex-wrap justify-center">
-                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mp3</span>
-                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.wav</span>
-                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mp4</span>
-                                <span className="px-3 py-1.5 rounded-full bg-gray-100 text-sm font-medium text-gray-600">.mov</span>
-                                <span className="px-3 py-1.5 rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">+ more</span>
+                        <div className="w-full h-full flex flex-col items-center justify-center p-8">
+                          {/* Three people illustration */}
+                          <div className="flex items-end justify-center gap-3 mb-6">
+                            {/* Left person - purple background */}
+                            <div className="w-24 h-32 rounded-[24px] bg-gradient-to-b from-amber-200 to-amber-300 overflow-hidden flex items-end justify-center">
+                              <div className="w-full h-28 bg-gradient-to-b from-purple-300 to-purple-400 rounded-t-[20px] flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-purple-200 flex items-center justify-center">
+                                  <User className="w-6 h-6 text-purple-600" />
+                                </div>
                               </div>
                             </div>
-
-                            {/* Paste Link Box */}
-                            <div className="group flex min-h-[320px] flex-col items-center rounded-[28px] border-2 border-dashed border-gray-300 bg-white p-12 text-center transition-colors hover:border-blue-300 hover:bg-blue-50/30">
-                              <div className="w-20 h-20 rounded-3xl bg-blue-50 flex items-center justify-center mb-6">
-                                <Link2 className="w-10 h-10 text-blue-600" />
+                            {/* Center person - red/coral background (taller) */}
+                            <div className="w-28 h-40 rounded-[24px] bg-gradient-to-b from-red-300 to-red-400 overflow-hidden flex items-end justify-center -mt-4">
+                              <div className="w-full h-36 bg-gradient-to-b from-red-400 to-red-500 rounded-t-[20px] flex items-center justify-center">
+                                <div className="w-14 h-14 rounded-full bg-red-200 flex items-center justify-center">
+                                  <User className="w-7 h-7 text-red-600" />
+                                </div>
                               </div>
-
-                              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Paste Link</h3>
-
-                              <div className="w-full px-6 py-4 rounded-xl border-2 border-gray-300 bg-white mb-6">
-                                <input
-                                  type="text"
-                                  placeholder="Paste A Supported Public Media Link"
-                                  className="w-full bg-transparent text-base text-gray-600 placeholder:text-gray-500 focus:outline-none text-center"
-                                  onClick={(e) => e.stopPropagation()}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      const url = (e.target as HTMLInputElement).value;
-                                      if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-                                        const newMedia = {
-                                          id: `url-${Date.now()}`,
-                                          name: url.split('/').pop() || 'Video from URL',
-                                          url: url,
-                                          type: 'video' as const,
-                                          source: 'url' as const,
-                                        };
-                                        setUploadedMedia(prev => [newMedia, ...prev]);
-                                        setIsVideoDeleted(false);
-                                        setActiveTab('visuals');
-                                        (e.target as HTMLInputElement).value = '';
-                                        toast({ title: 'Video loaded from URL', description: 'Added to Visuals' });
-                                      }
-                                    }
-                                  }}
-                                  onPaste={(e) => {
-                                    const pastedText = e.clipboardData.getData('text');
-                                    if (pastedText && (pastedText.startsWith('http://') || pastedText.startsWith('https://'))) {
-                                      setTimeout(() => {
-                                        const newMedia = {
-                                          id: `url-${Date.now()}`,
-                                          name: pastedText.split('/').pop() || 'Video from URL',
-                                          url: pastedText,
-                                          type: 'video' as const,
-                                          source: 'url' as const,
-                                        };
-                                        setUploadedMedia(prev => [newMedia, ...prev]);
-                                        setIsVideoDeleted(false);
-                                        setActiveTab('visuals');
-                                        toast({ title: 'Video loaded from URL', description: 'Added to Visuals' });
-                                      }, 100);
-                                    }
-                                  }}
-                                />
-                              </div>
-
-                              <div className="flex items-center justify-center gap-3 flex-wrap">
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaYoutube className="w-4 h-4 text-red-500" />
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaTiktok className="w-4 h-4 text-gray-900" />
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaInstagram className="w-4 h-4 text-pink-600" />
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                  </svg>
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                                  </svg>
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
-                                  <FaVimeo className="w-4 h-4 text-blue-400" />
-                                </div>
-                                <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                  <span className="text-xs font-semibold text-gray-500">+43</span>
+                            </div>
+                            {/* Right person - yellow/lime background */}
+                            <div className="w-24 h-32 rounded-[24px] bg-gradient-to-b from-yellow-200 to-lime-300 overflow-hidden flex items-end justify-center">
+                              <div className="w-full h-28 bg-gradient-to-b from-lime-300 to-lime-400 rounded-t-[20px] flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-lime-200 flex items-center justify-center">
+                                  <User className="w-6 h-6 text-lime-600" />
                                 </div>
                               </div>
                             </div>
                           </div>
+                          {/* Text */}
+                          <p className="text-lg text-gray-600 font-medium text-center">
+                            Add Media To The Timeline To Start Creating
+                          </p>
                         </div>
                       ) : (
                         <>
