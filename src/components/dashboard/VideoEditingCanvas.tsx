@@ -365,12 +365,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return null;
   }, [sortedVideoClips, currentTime]);
 
-  // Calculate total timeline duration based on clips
+  // Calculate total timeline duration based on ALL clips (for timeline display)
   const timelineDuration = React.useMemo(() => {
-    if (sortedVideoClips.length === 0) return duration;
-    const lastClip = sortedVideoClips[sortedVideoClips.length - 1];
-    return Math.max(duration, lastClip.startTime + lastClip.duration);
-  }, [sortedVideoClips, duration]);
+    let maxEnd = duration;
+    for (const track of tracks) {
+      for (const clip of track.clips) {
+        maxEnd = Math.max(maxEnd, clip.startTime + clip.duration);
+      }
+    }
+    // Add extra 30s buffer for extending clips
+    return maxEnd + 30;
+  }, [tracks, duration]);
 
   // Track the currently loaded clip to detect source changes
   const [loadedClipId, setLoadedClipId] = useState<string | null>(null);
