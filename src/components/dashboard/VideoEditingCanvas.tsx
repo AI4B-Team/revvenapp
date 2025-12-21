@@ -344,17 +344,55 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Playback controls
-  const togglePlayback = useCallback(() => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
+  // Get all video clips sorted by start time
+  const sortedVideoClips = React.useMemo(() => {
+    const clips: TimelineClip[] = [];
+    for (const track of tracks) {
+      if (track.type === 'video' || track.id.includes('video')) {
+        clips.push(...track.clips.filter(c => c.src));
       }
     }
+    return clips.sort((a, b) => a.startTime - b.startTime);
+  }, [tracks]);
+
+  // Find the active video clip based on current playback time
+  const activeVideoClip = React.useMemo(() => {
+    for (const clip of sortedVideoClips) {
+      if (currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration) {
+        return clip;
+      }
+    }
+    return null;
+  }, [sortedVideoClips, currentTime]);
+
+  // Calculate total timeline duration based on clips
+  const timelineDuration = React.useMemo(() => {
+    if (sortedVideoClips.length === 0) return duration;
+    const lastClip = sortedVideoClips[sortedVideoClips.length - 1];
+    return Math.max(duration, lastClip.startTime + lastClip.duration);
+  }, [sortedVideoClips, duration]);
+
+  // Track the currently loaded clip to detect source changes
+  const [loadedClipId, setLoadedClipId] = useState<string | null>(null);
+
+  // Playback controls
+  const togglePlayback = useCallback(() => {
+    // If no clips on timeline, don't try to play
+    if (sortedVideoClips.length === 0) {
+      toast({ title: 'No clips on timeline', description: 'Add a video clip to the timeline to play.' });
+      return;
+    }
+    
+    // If not in any clip, jump to first clip
+    if (!activeVideoClip && !isPlaying) {
+      const firstClip = sortedVideoClips[0];
+      if (firstClip) {
+        setCurrentTime(firstClip.startTime);
+      }
+    }
+    
     setIsPlaying(!isPlaying);
-  }, [isPlaying]);
+  }, [isPlaying, sortedVideoClips, activeVideoClip, toast]);
 
   // Spacebar to play/pause
   useEffect(() => {
@@ -391,41 +429,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const skipBackward = useCallback(() => {
     const newTime = Math.max(0, currentTime - 5);
     setCurrentTime(newTime);
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
   }, [currentTime]);
 
   const skipForward = useCallback(() => {
-    const newTime = Math.min(duration, currentTime + 5);
+    const newTime = Math.min(timelineDuration, currentTime + 5);
     setCurrentTime(newTime);
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
-  }, [currentTime, duration]);
+  }, [currentTime, timelineDuration]);
 
   // Handle timeline scrubbing with smooth animation
   const handleTimelineSeek = useCallback((newTime: number) => {
     setCurrentTime(newTime);
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
+    // Video element will be synced by the effect
   }, []);
-
-  // Find the active video clip based on current playback time
-  const activeVideoClip = React.useMemo(() => {
-    // Find video tracks and get the clip that's currently playing
-    for (const track of tracks) {
-      if (track.type === 'video' || track.id.includes('video')) {
-        for (const clip of track.clips) {
-          if (clip.src && currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration) {
-            return clip;
-          }
-        }
-      }
-    }
-    return null;
-  }, [tracks, currentTime]);
 
   // Get current video source - prioritize selected uploaded video, then active clip's src
   const currentVideoSrc = React.useMemo(() => {
@@ -721,22 +736,98 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
   };
 
-  // Playback timer
+  // Sync video element with timeline playback
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime(prev => {
-          if (prev >= duration) {
-            setIsPlaying(false);
-            return 0;
-          }
-          return prev + 0.1;
-        });
-      }, 100);
+    if (!videoRef.current || !activeVideoClip) return;
+    
+    // Calculate the clip-relative time (where we should be within the clip's source video)
+    const clipRelativeTime = currentTime - activeVideoClip.startTime;
+    
+    // If clip changed, update the video source and seek
+    if (loadedClipId !== activeVideoClip.id) {
+      setLoadedClipId(activeVideoClip.id);
+      // Video source will update via currentVideoSrc memo
+      videoRef.current.currentTime = clipRelativeTime;
     }
-    return () => clearInterval(interval);
-  }, [isPlaying, duration]);
+  }, [activeVideoClip, currentTime, loadedClipId]);
+
+  // Playback timer - respects clip boundaries
+  useEffect(() => {
+    let animationFrame: number;
+    let lastTime = performance.now();
+    
+    const tick = (now: number) => {
+      const delta = (now - lastTime) / 1000; // Convert to seconds
+      lastTime = now;
+      
+      setCurrentTime(prev => {
+        const newTime = prev + delta;
+        
+        // Check if we've passed the end of all clips
+        const maxTime = sortedVideoClips.length > 0 
+          ? Math.max(...sortedVideoClips.map(c => c.startTime + c.duration))
+          : timelineDuration;
+        
+        if (newTime >= maxTime) {
+          setIsPlaying(false);
+          return maxTime;
+        }
+        
+        // Check if we're within any clip
+        const inClip = sortedVideoClips.some(
+          clip => newTime >= clip.startTime && newTime < clip.startTime + clip.duration
+        );
+        
+        // If we have clips but we're not in any, jump to the next clip
+        if (sortedVideoClips.length > 0 && !inClip) {
+          const nextClip = sortedVideoClips.find(c => c.startTime > prev);
+          if (nextClip) {
+            return nextClip.startTime;
+          }
+        }
+        
+        return newTime;
+      });
+      
+      if (isPlaying) {
+        animationFrame = requestAnimationFrame(tick);
+      }
+    };
+    
+    if (isPlaying) {
+      animationFrame = requestAnimationFrame(tick);
+    }
+    
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [isPlaying, sortedVideoClips, timelineDuration]);
+
+  // Control video element playback based on isPlaying and activeVideoClip
+  useEffect(() => {
+    if (!videoRef.current) return;
+    
+    if (isPlaying && activeVideoClip) {
+      // Seek to correct position within clip before playing
+      const clipRelativeTime = currentTime - activeVideoClip.startTime;
+      const videoTime = videoRef.current.currentTime;
+      
+      // Only seek if we're more than 0.2s off to avoid stuttering
+      if (Math.abs(videoTime - clipRelativeTime) > 0.2) {
+        videoRef.current.currentTime = clipRelativeTime;
+      }
+      
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
+      }
+    } else {
+      if (!videoRef.current.paused) {
+        videoRef.current.pause();
+      }
+    }
+  }, [isPlaying, activeVideoClip, currentTime]);
 
   // Visuals sub-tab state
   const [visualsSubTab, setVisualsSubTab] = useState<'videos' | 'images' | 'elements'>('videos');
@@ -1755,11 +1846,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               ref={videoRef}
                               src={currentVideoSrc}
                               className="max-w-full max-h-full object-contain"
-                              onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                              onDurationChange={(e) => setDuration(e.currentTarget.duration || 78)}
-                              onEnded={() => setIsPlaying(false)}
-                              onPlay={() => setIsPlaying(true)}
-                              onPause={() => setIsPlaying(false)}
+                              onDurationChange={(e) => {
+                                // Only set base duration if no clips exist
+                                if (sortedVideoClips.length === 0) {
+                                  setDuration(e.currentTarget.duration || 78);
+                                }
+                              }}
+                              onEnded={() => {
+                                // When clip ends, let the timeline logic handle advancing
+                              }}
                               muted={isMuted}
                             />
 
@@ -1779,9 +1874,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (videoRef.current) {
-                                          videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
-                                        }
+                                        const newTime = Math.max(0, currentTime - 10);
+                                        setCurrentTime(newTime);
                                       }}
                                       className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                                     >
@@ -1797,13 +1891,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (videoRef.current) {
-                                          if (isPlaying) {
-                                            videoRef.current.pause();
-                                          } else {
-                                            videoRef.current.play();
-                                          }
-                                        }
+                                        togglePlayback();
                                       }}
                                       className="p-4 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
                                     >
@@ -1819,9 +1907,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (videoRef.current) {
-                                          videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 10);
-                                        }
+                                        const newTime = Math.min(timelineDuration, currentTime + 10);
+                                        setCurrentTime(newTime);
                                       }}
                                       className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
                                     >
