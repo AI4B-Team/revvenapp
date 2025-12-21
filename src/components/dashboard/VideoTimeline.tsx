@@ -285,10 +285,10 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       const rect = timelineRef.current!.getBoundingClientRect();
       const deltaX = e.clientX - dragState.startX;
-      // Use a fixed pixels-per-second rate for more predictable resizing
-      // This allows extending beyond the current timeline duration
-      const pixelsPerSecond = (rect.width * zoom) / duration;
-      const timeDelta = deltaX / pixelsPerSecond;
+      // Use a fixed rate: 50 pixels = 1 second for predictable resizing
+      // This allows extending clips freely without timeline width constraints
+      const PIXELS_PER_SECOND = 50;
+      const timeDelta = deltaX / PIXELS_PER_SECOND;
 
       let newStartTime = dragState.originalStartTime;
       let newDuration = dragState.originalDuration;
