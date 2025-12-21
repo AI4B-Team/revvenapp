@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart } from 'lucide-react';
-import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaTwitter } from 'react-icons/fa';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaGoogleDrive } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { toast } from 'sonner';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
@@ -56,8 +57,9 @@ const socialPlatforms = [
   { icon: FaTiktok, color: '#000000', name: 'TikTok' },
   { icon: FaInstagram, color: '#E4405F', name: 'Instagram' },
   { icon: FaFacebookF, color: '#1877F2', name: 'Facebook' },
+  { icon: FaXTwitter, color: '#000000', name: 'X' },
   { icon: FaVimeoV, color: '#1AB7EA', name: 'Vimeo' },
-  { icon: FaTwitter, color: '#1DA1F2', name: 'Twitter' },
+  { icon: FaGoogleDrive, color: '#4285F4', name: 'Google Drive' },
 ];
 
 const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({ 
@@ -280,6 +282,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
                 <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
               </div>
             ))}
+            <span className="text-gray-500 text-sm font-medium cursor-pointer hover:text-gray-700 transition-colors">+43</span>
           </div>
         </div>
       </div>
