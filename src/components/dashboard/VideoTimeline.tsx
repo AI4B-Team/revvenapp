@@ -128,6 +128,24 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   // Add marker at current position
   const addMarker = useCallback(() => {
     if (!markers.includes(currentTime)) {
+
+  // Keyboard shortcut to delete selected clip
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedClip) {
+        // Don't delete if user is typing in an input
+        if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+        e.preventDefault();
+        setTracks(prev => prev.map(t => ({
+          ...t,
+          clips: t.clips.filter(c => c.id !== selectedClip)
+        })));
+        setSelectedClip(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedClip, setTracks, setSelectedClip]);
       setMarkers(prev => [...prev, currentTime].sort((a, b) => a - b));
     }
   }, [currentTime, markers]);
@@ -1283,10 +1301,26 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                         </div>
                       </div>
 
-                      {/* Duration badge on selection */}
+                      {/* Duration badge and delete button on selection */}
                       {isSelected && (
-                        <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded text-[9px] text-white font-mono">
-                          {clip.duration.toFixed(1)}s
+                        <div className="absolute bottom-1 right-1 flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Delete this clip
+                              setTracks(prev => prev.map(t => ({
+                                ...t,
+                                clips: t.clips.filter(c => c.id !== clip.id)
+                              })));
+                              setSelectedClip(null);
+                            }}
+                            className="p-1 bg-red-500/80 hover:bg-red-600 rounded text-white transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                          <div className="px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded text-[9px] text-white font-mono">
+                            {clip.duration.toFixed(1)}s
+                          </div>
                         </div>
                       )}
 
