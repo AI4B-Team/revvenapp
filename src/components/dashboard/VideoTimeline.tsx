@@ -817,34 +817,35 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               />
             )}
 
-            {/* Time markers - spaced at 0.5s intervals */}
-            <div className="flex items-end h-full">
-              {Array.from({ length: Math.ceil(duration / 0.5) + 1 }, (_, i) => {
-                const time = i * 0.5;
-                const isFullSecond = time % 1 === 0;
-                const mins = Math.floor(time / 60);
-                const secs = Math.floor(time % 60);
-                const decimal = (time % 1).toFixed(1).substring(1);
-                const timeLabel = `${mins}:${secs.toString().padStart(2, '0')}${decimal}`;
+            {/* Time markers - dynamically spaced based on zoom */}
+            <div className="absolute inset-0">
+              {(() => {
+                // Calculate appropriate interval based on zoom and duration
+                const baseInterval = zoom >= 3 ? 1 : zoom >= 2 ? 2 : zoom >= 1 ? 5 : 10;
+                const markerCount = Math.ceil(duration / baseInterval) + 1;
                 
-                return (
-                  <div
-                    key={i}
-                    className="flex-shrink-0 h-full flex items-center"
-                    style={{ width: `${(0.5 / duration) * 100}%`, minWidth: '60px' }}
-                  >
-                    <div className={`h-full flex flex-col justify-end ${isFullSecond ? 'border-l border-gray-400' : 'border-l border-gray-300'}`}>
-                      <span className={`text-[10px] font-mono pl-1.5 pb-1 whitespace-nowrap ${isFullSecond ? 'text-gray-700' : 'text-gray-500'}`}>
+                return Array.from({ length: markerCount }, (_, i) => {
+                  const time = i * baseInterval;
+                  if (time > duration) return null;
+                  
+                  const mins = Math.floor(time / 60);
+                  const secs = Math.floor(time % 60);
+                  const timeLabel = `${mins}:${secs.toString().padStart(2, '0')}`;
+                  const leftPercent = (time / duration) * 100;
+                  
+                  return (
+                    <div
+                      key={i}
+                      className="absolute top-0 bottom-0 flex flex-col justify-end border-l border-gray-400"
+                      style={{ left: `${leftPercent}%` }}
+                    >
+                      <span className="text-[10px] font-mono pl-1 pb-1 whitespace-nowrap text-gray-700">
                         {timeLabel}
                       </span>
-                      {/* Small tick marks between labels */}
-                      {!isFullSecond && (
-                        <div className="absolute top-0 left-0 w-px h-2 bg-gray-300" />
-                      )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           </div>
         </div>
