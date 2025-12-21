@@ -28,6 +28,8 @@ interface ExportDropdownProps {
   onExport?: (settings: ExportSettings) => void;
   videoSrc?: string;
   projectTitle?: string;
+  onStartRecordingExport?: () => Promise<Blob | null>;
+  hasMultipleClips?: boolean;
 }
 
 interface ExportSettings {
@@ -52,7 +54,14 @@ const resolutions = [
   { label: 'Custom', value: 'custom', premium: true },
 ];
 
-const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onExport, videoSrc, projectTitle = 'export' }) => {
+const ExportDropdown: React.FC<ExportDropdownProps> = ({ 
+  isFreePlan = true, 
+  onExport, 
+  videoSrc, 
+  projectTitle = 'export',
+  onStartRecordingExport,
+  hasMultipleClips = false
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'export' | 'recent'>('export');
   const [selectedType, setSelectedType] = useState<string>('video');
@@ -60,6 +69,7 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onEx
   const [selectedResolution, setSelectedResolution] = useState<string>('1920 × 1080');
   const [quality, setQuality] = useState<number>(75);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<string>('');
 
   const currentType = exportTypes.find((t) => t.id === selectedType);
 
@@ -76,30 +86,54 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onEx
     setIsExporting(true);
     
     try {
-      // If we have a video source, try to download it
-      if (videoSrc && selectedType === 'video') {
-        const response = await fetch(videoSrc);
-        const blob = await response.blob();
-        
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast.success('Export completed!', {
-          description: `Downloaded as ${selectedFormat}`,
-        });
-      } else if (selectedType === 'video' && !videoSrc) {
-        // Simulate export if no video source
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        toast.info('No video to export', {
-          description: 'Add clips to the timeline first',
-        });
+      if (selectedType === 'video') {
+        // If we have multiple clips and a recording function, use it to merge clips
+        if (hasMultipleClips && onStartRecordingExport) {
+          setExportProgress('Recording timeline...');
+          const blob = await onStartRecordingExport();
+          
+          if (blob) {
+            setExportProgress('Preparing download...');
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${projectTitle.replace(/\s+/g, '_')}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            toast.success('Export completed!', {
+              description: 'All clips merged and downloaded',
+            });
+          } else {
+            toast.error('Export failed', {
+              description: 'Could not record the timeline',
+            });
+          }
+        } else if (videoSrc) {
+          // Single clip - just download directly
+          setExportProgress('Downloading...');
+          const response = await fetch(videoSrc);
+          const blob = await response.blob();
+          
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${projectTitle.replace(/\s+/g, '_')}.${selectedFormat.toLowerCase()}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          
+          toast.success('Export completed!', {
+            description: `Downloaded as ${selectedFormat}`,
+          });
+        } else {
+          toast.info('No video to export', {
+            description: 'Add clips to the timeline first',
+          });
+        }
       } else {
         // For other types, show coming soon
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -108,11 +142,12 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onEx
     } catch (error) {
       console.error('Export error:', error);
       toast.error('Export failed', {
-        description: 'Unable to download the file. Please try again.',
+        description: 'Unable to export. Please try again.',
       });
     }
 
     setIsExporting(false);
+    setExportProgress('');
 
     if (onExport) {
       onExport({
@@ -289,7 +324,7 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({ isFreePlan = true, onEx
                     >
                       <Settings2 className="w-5 h-5" />
                     </motion.div>
-                    Processing...
+                    {exportProgress || 'Processing...'}
                   </>
                 ) : (
                   <>
