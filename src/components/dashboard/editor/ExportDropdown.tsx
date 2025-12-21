@@ -138,10 +138,22 @@ const ExportDropdown: React.FC<ExportDropdownProps> = ({
               if (statusError) throw statusError;
 
               if (statusData?.status === 'done' && statusData?.url) {
-                // Download the merged video
-                window.open(statusData.url, '_blank');
+                // Download the merged video using a link
+                const link = document.createElement('a');
+                link.href = statusData.url;
+                link.download = `${(projectTitle || 'export').replace(/\s+/g, '_')}_merged.mp4`;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
                 toast.success('Export completed!', {
-                  description: 'Your merged video is ready',
+                  description: 'Your merged video is downloading',
+                  action: {
+                    label: 'Open Link',
+                    onClick: () => window.open(statusData.url, '_blank'),
+                  },
                 });
                 break;
               } else if (statusData?.status === 'failed') {
