@@ -1,17 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Send,
-  Paperclip,
-  Mic,
   RotateCcw,
   RotateCw,
-  Cloud,
   Check,
   Plus,
   Minus,
   Share2,
-  MessageSquare,
   Eraser,
   PaintBucket,
   MousePointer2,
@@ -26,22 +21,20 @@ import {
   Pencil,
   Layers,
   Upload,
-  History,
-  MessageCirclePlus,
   ZoomIn,
   Play,
   Scissors,
   SlidersHorizontal,
   Trash2,
-  HelpCircle,
   Paintbrush,
   Download,
   Save,
   Globe,
   ExternalLink,
   Loader2,
-  Clock,
   UserPlus,
+  HelpCircle,
+  Cloud,
 } from 'lucide-react';
 import {
   Tooltip,
@@ -54,20 +47,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import ReferencesModal from './ReferencesModal';
-import { useResizableTextarea } from '@/hooks/useResizableTextarea';
-import ResizeHandle from '@/components/ui/ResizeHandle';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { removeBackground } from '@/utils/backgroundRemoval';
-
-interface ChatConversation {
-  id: string;
-  created_at: string;
-  preview: string;
-}
 
 interface ImageEditingCanvasProps {
   image?: string;
@@ -75,15 +59,6 @@ interface ImageEditingCanvasProps {
   onSave: () => void;
   onTabChange?: (tab: 'image' | 'video' | 'audio') => void;
   activeEditorTab?: 'image' | 'video' | 'audio';
-}
-
-interface Message {
-  id: string;
-  role: 'assistant' | 'user';
-  content: string;
-  image?: string;
-  isRequest?: boolean;
-  isLoading?: boolean;
 }
 
 interface Creation {
@@ -356,31 +331,13 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [conversationId, setConversationId] = useState<string>(() => crypto.randomUUID());
-  const [isLoadingChat, setIsLoadingChat] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [chatHistory, setChatHistory] = useState<ChatConversation[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatAttachmentInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  
-  // Resizable prompt box (both directions)
-  const { height: chatInputHeight, width: chatInputWidth, isResizing: isChatResizing, handleResizeStart: handleChatResizeStart } = useResizableTextarea({
-    minHeight: 80,
-    maxHeight: 200,
-    initialHeight: 80,
-    minWidth: 250,
-    maxWidth: 500,
-    resizeDirection: 'both',
-  });
 
   const [canvasSettings, setCanvasSettings] = useState<CanvasSettings>({
     mode: 'inpaint',
@@ -411,47 +368,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     denoiseStrength: 50,
     quality: 90,
   });
-
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
-      isRequest: true,
-    },
-  ]);
-
-  // Scroll to bottom when new messages are added
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Load chat history from Supabase
-  useEffect(() => {
-    const loadChatHistory = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('editor_chat_messages')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (data && data.length > 0) {
-        const loadedMessages: Message[] = data.map((msg: any) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          image: msg.image_url,
-        }));
-        setMessages([messages[0], ...loadedMessages]);
-      }
-    };
-
-    loadChatHistory();
-  }, [conversationId]);
 
   // State for creations loaded from database
   const [creations, setCreations] = useState<Creation[]>([]);
@@ -678,401 +594,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
     { id: 'delete', icon: <Trash2 className="w-4 h-4" />, tooltip: 'Delete' },
   ];
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if ((!inputValue.trim() && !attachedImage) || isLoadingChat) return;
-
-    const userMessage = inputValue.trim();
-    const imageToSend = attachedImage || selectedImage;
-    setInputValue('');
-    setAttachedImage(null); // Clear attached image after sending
-
-    // Add user message to chat
-    const userMsgId = crypto.randomUUID();
-    setMessages(prev => [...prev, {
-      id: userMsgId,
-      role: 'user',
-      content: userMessage || 'Image attached',
-      image: imageToSend,
-    }]);
-
-    // Check if this is an image generation/edit request
-    const isImageRequest = userMessage.toLowerCase().includes('generate') || 
-                          userMessage.toLowerCase().includes('create') ||
-                          userMessage.toLowerCase().includes('make') ||
-                          userMessage.toLowerCase().includes('edit') ||
-                          userMessage.toLowerCase().includes('change') ||
-                          userMessage.toLowerCase().includes('add') ||
-                          userMessage.toLowerCase().includes('remove');
-
-    if (isImageRequest && selectedModel === 'Nano Banana') {
-      // Image generation/editing with Nano Banana
-      setIsGeneratingImage(true);
-      setMessages(prev => [...prev, {
-        id: `loading-${Date.now()}`,
-        role: 'assistant',
-        content: 'Generating image...',
-        isLoading: true,
-      }]);
-
-      try {
-        const { data, error } = await supabase.functions.invoke('editor-generate-image', {
-          body: {
-            prompt: userMessage,
-            sourceImage: imageToSend,
-            editInstruction: userMessage,
-          }
-        });
-
-        // Remove loading message
-        setMessages(prev => prev.filter(m => !m.isLoading));
-
-        if (error) throw error;
-
-        if (data.imageUrl) {
-          // Save generated image to database
-          await saveImageToDatabase(data.imageUrl, imageToSend ? 'edited' : 'creation', userMessage);
-          
-          // Show generated image in chat only (don't auto-select on canvas)
-          setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: data.message || 'Here\'s your generated image! It has been saved to your creations.',
-            image: data.imageUrl,
-          }]);
-        } else {
-          setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: data.message || 'I couldn\'t generate an image for that request.',
-          }]);
-        }
-      } catch (error: any) {
-        setMessages(prev => prev.filter(m => !m.isLoading));
-        console.error('Image generation error:', error);
-        toast({
-          title: 'Generation Failed',
-          description: error.message || 'Failed to generate image',
-          variant: 'destructive',
-        });
-        setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: 'Sorry, I couldn\'t generate the image. Please try again.',
-        }]);
-      } finally {
-        setIsGeneratingImage(false);
-      }
-    } else {
-      // Regular chat with AI - use streaming
-      setIsLoadingChat(true);
-      const streamingMsgId = crypto.randomUUID();
-      
-      // Add empty assistant message that we'll update with streamed content
-      setMessages(prev => [...prev, {
-        id: streamingMsgId,
-        role: 'assistant',
-        content: '',
-        isLoading: true,
-      }]);
-
-      try {
-        const chatHistory = messages.filter(m => !m.isLoading).map(m => ({
-          role: m.role,
-          content: m.content,
-          image: m.image,
-        }));
-        chatHistory.push({ role: 'user', content: userMessage || 'Image attached', image: imageToSend });
-
-        // Get user session for auth
-        const { data: { session } } = await supabase.auth.getSession();
-        const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-        const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/editor-chat`;
-        
-        const resp = await fetch(CHAT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({
-            messages: chatHistory,
-            conversationId,
-            imageUrl: imageToSend,
-            stream: true,
-          }),
-        });
-
-        if (!resp.ok || !resp.body) {
-          throw new Error('Failed to start stream');
-        }
-
-        const reader = resp.body.getReader();
-        const decoder = new TextDecoder();
-        let textBuffer = '';
-        let fullContent = '';
-        let streamDone = false;
-
-        while (!streamDone) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          textBuffer += decoder.decode(value, { stream: true });
-
-          // Process line-by-line as data arrives
-          let newlineIndex: number;
-          while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-            let line = textBuffer.slice(0, newlineIndex);
-            textBuffer = textBuffer.slice(newlineIndex + 1);
-
-            if (line.endsWith('\r')) line = line.slice(0, -1);
-            if (line.startsWith(':') || line.trim() === '') continue;
-            if (!line.startsWith('data: ')) continue;
-
-            const jsonStr = line.slice(6).trim();
-            if (jsonStr === '[DONE]') {
-              streamDone = true;
-              break;
-            }
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-              if (content) {
-                fullContent += content;
-                // Update the message with new content token by token
-                setMessages(prev => prev.map(m => 
-                  m.id === streamingMsgId 
-                    ? { ...m, content: fullContent, isLoading: true }
-                    : m
-                ));
-              }
-            } catch {
-              // Incomplete JSON, put it back and wait for more
-              textBuffer = line + '\n' + textBuffer;
-              break;
-            }
-          }
-        }
-
-        // Final flush
-        if (textBuffer.trim()) {
-          for (let raw of textBuffer.split('\n')) {
-            if (!raw) continue;
-            if (raw.endsWith('\r')) raw = raw.slice(0, -1);
-            if (raw.startsWith(':') || raw.trim() === '') continue;
-            if (!raw.startsWith('data: ')) continue;
-            const jsonStr = raw.slice(6).trim();
-            if (jsonStr === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-              if (content) {
-                fullContent += content;
-              }
-            } catch { /* ignore */ }
-          }
-        }
-
-        // Mark message as complete (remove loading state)
-        setMessages(prev => prev.map(m => 
-          m.id === streamingMsgId 
-            ? { ...m, content: fullContent || 'I\'m here to help! What would you like me to do?', isLoading: false }
-            : m
-        ));
-
-      } catch (error: any) {
-        // Remove the streaming message on error
-        setMessages(prev => prev.filter(m => m.id !== streamingMsgId));
-        console.error('Chat error:', error);
-        toast({
-          title: 'Chat Error',
-          description: error.message || 'Failed to get response',
-          variant: 'destructive',
-        });
-        setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
-        }]);
-      } finally {
-        setIsLoadingChat(false);
-      }
-    }
-  };
-
-  // Start new conversation
-  const handleNewChat = () => {
-    setConversationId(crypto.randomUUID());
-    setMessages([{
-      id: '1',
-      role: 'assistant',
-      content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
-      isRequest: true,
-    }]);
-    toast({
-      title: 'New Chat Started',
-      description: 'Starting a fresh conversation with Cora',
-    });
-  };
-
-  // Load chat history
-  const loadChatHistory = async () => {
-    setIsLoadingHistory(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setIsLoadingHistory(false);
-        return;
-      }
-
-      // Get user messages for previews (ascending to get first message per conversation)
-      const { data, error } = await supabase
-        .from('editor_chat_messages')
-        .select('conversation_id, content, created_at, role')
-        .eq('user_id', user.id)
-        .eq('role', 'user')
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      // Group by conversation_id and get first user message as preview
-      const conversations = new Map<string, ChatConversation>();
-      data?.forEach((msg: any) => {
-        if (!conversations.has(msg.conversation_id)) {
-          conversations.set(msg.conversation_id, {
-            id: msg.conversation_id,
-            created_at: msg.created_at,
-            preview: msg.content,
-          });
-        }
-      });
-
-      // Sort by date descending (newest first) and take top 10
-      const sortedConversations = Array.from(conversations.values())
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 10);
-
-      setChatHistory(sortedConversations);
-    } catch (error) {
-      console.error('Failed to load chat history:', error);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  };
-
-  // Load a specific conversation
-  const loadConversation = async (convId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('editor_chat_messages')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('conversation_id', convId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        const loadedMessages: Message[] = data.map((msg: any) => ({
-          id: msg.id,
-          role: msg.role,
-          content: msg.content,
-          image: msg.image_url,
-        }));
-        setConversationId(convId);
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: 'Hi! I\'m Cora, your AI design assistant. I can help you edit images, suggest improvements, or generate new images. What would you like to do?',
-          isRequest: true,
-        }, ...loadedMessages]);
-        toast({
-          title: 'Conversation Loaded',
-          description: 'Previous conversation restored',
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load conversation:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load conversation',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Delete a single conversation
-  const deleteConversation = async (convId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('editor_chat_messages')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('conversation_id', convId);
-
-      if (error) throw error;
-
-      // If deleting current conversation, start new chat
-      if (convId === conversationId) {
-        handleNewChat();
-      }
-
-      // Refresh history
-      await loadChatHistory();
-
-      toast({
-        title: 'Chat Deleted',
-        description: 'Conversation has been removed',
-      });
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete conversation',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Delete all conversations
-  const deleteAllConversations = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('editor_chat_messages')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      // Start fresh
-      handleNewChat();
-      setChatHistory([]);
-
-      toast({
-        title: 'All Chats Deleted',
-        description: 'All conversations have been removed',
-      });
-    } catch (error) {
-      console.error('Failed to delete all conversations:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete conversations',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -1082,34 +603,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         handleSelectFromModal(imageUrl);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  // Handle chat attachment upload
-  const handleChatAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: 'Invalid File',
-          description: 'Please select an image file',
-          variant: 'destructive',
-        });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAttachedImage(reader.result as string);
-        toast({
-          title: 'Image Attached',
-          description: 'Image ready to send with your message',
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-    // Reset input
-    if (chatAttachmentInputRef.current) {
-      chatAttachmentInputRef.current.value = '';
     }
   };
 
@@ -1562,298 +1055,6 @@ const ImageEditingCanvas: React.FC<ImageEditingCanvasProps> = ({ image, onClose,
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Section: Chat + Canvas + Right Panel */}
           <div className="flex-1 flex overflow-hidden">
-            {/* Design Agent Panel - sits on top of creations with gap */}
-            {!isPanelCollapsed && (
-              <div className="flex-shrink-0 bg-slate-50 p-3">
-                <div className="w-[440px] h-full bg-white flex flex-col rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-400 overflow-hidden max-h-[calc(100vh-200px)]">
-                {/* Panel Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 rounded-t-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-slate-700 tracking-wide whitespace-nowrap">Design Agent: Cora</span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-sm text-slate-600 transition-colors">
-                          <span className="font-medium">{selectedModel}</span>
-                          <ChevronDown className="w-3 h-3" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="bg-white border border-slate-200 shadow-lg z-50">
-                        <DropdownMenuItem 
-                          onClick={() => setSelectedModel('Nano Banana')}
-                          className={selectedModel === 'Nano Banana' ? 'bg-emerald-50' : ''}
-                        >
-                          <Sparkles className="w-4 h-4 mr-2 text-emerald-500" />
-                          Nano Banana (Image Gen)
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setSelectedModel('Gemini Flash')}
-                          className={selectedModel === 'Gemini Flash' ? 'bg-emerald-50' : ''}
-                        >
-                          <MessageSquare className="w-4 h-4 mr-2 text-blue-500" />
-                          Gemini Flash (Chat)
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleNewChat}
-                          className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
-                        >
-                          <MessageCirclePlus className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-black text-white"><p>New Chat</p></TooltipContent>
-                    </Tooltip>
-                    <DropdownMenu onOpenChange={(open) => open && loadChatHistory()}>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                          <History className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-lg z-50 w-64">
-                        <div className="px-3 py-2 border-b border-slate-100">
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Chat History</span>
-                        </div>
-                        <div className="max-h-48 overflow-y-auto">
-                          {isLoadingHistory ? (
-                            <div className="flex items-center justify-center py-4">
-                              <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-                            </div>
-                          ) : chatHistory.length > 0 ? (
-                            chatHistory.map((conv) => (
-                              <div 
-                                key={conv.id}
-                                className={`flex items-center justify-between px-2 py-2 hover:bg-slate-50 cursor-pointer group ${conv.id === conversationId ? 'bg-emerald-50' : ''}`}
-                              >
-                                <div 
-                                  className="flex-1 min-w-0"
-                                  onClick={() => loadConversation(conv.id)}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                                    <span className="text-xs text-slate-400">
-                                      {new Date(conv.created_at).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <span className="text-sm text-slate-700 truncate block">{conv.preview}</span>
-                                </div>
-                                <button
-                                  onClick={(e) => deleteConversation(conv.id, e)}
-                                  className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="px-3 py-4 text-center text-sm text-slate-400">
-                              No chat history yet
-                            </div>
-                          )}
-                        </div>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleNewChat} className="text-emerald-600">
-                          <MessageCirclePlus className="w-4 h-4 mr-2" />
-                          Start New Chat
-                        </DropdownMenuItem>
-                        {chatHistory.length > 0 && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={deleteAllConversations} className="text-red-500 hover:text-red-600 hover:bg-red-50">
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete All Chats
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <button
-                      onClick={() => setIsPanelCollapsed(true)}
-                      className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors ml-1 relative z-10"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-                  {messages.map((message) => (
-                    <div key={message.id}>
-                      {message.role === 'assistant' ? (
-                        <div className={`bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-100`}>
-                          <div className="flex items-center gap-2">
-                            {message.isLoading && !message.content ? (
-                              <Loader2 className="w-3 h-3 text-emerald-500 animate-spin" />
-                            ) : (
-                              <Sparkles className="w-3 h-3 text-emerald-500" />
-                            )}
-                            <span className="text-xs text-slate-500 font-medium">Cora</span>
-                            {message.isLoading && message.content && (
-                              <span className="text-xs text-emerald-500">typing...</span>
-                            )}
-                          </div>
-                          <div className="text-sm text-slate-700 leading-relaxed">
-                            {message.content ? (
-                              <span className="whitespace-pre-wrap">{message.content}</span>
-                            ) : (
-                              'Thinking...'
-                            )}
-                            {message.isLoading && message.content && (
-                              <span className="inline-block w-1.5 h-4 bg-emerald-500 ml-0.5 animate-pulse" />
-                            )}
-                          </div>
-                          {message.image && !message.isLoading && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div 
-                                  className="relative rounded-lg overflow-hidden border border-slate-200 max-w-[180px] cursor-pointer hover:border-emerald-400 hover:shadow-md transition-all group"
-                                  onClick={() => handleSelectFromModal(message.image!)}
-                                >
-                                  <img src={message.image} alt="Generated" className="w-full h-auto" />
-                                  <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-white rounded shadow flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-emerald-500 rounded-sm" />
-                                  </div>
-                                  <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/10 transition-colors flex items-center justify-center">
-                                    <span className="text-xs font-medium text-white bg-slate-800/80 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                      Click To Apply
-                                    </span>
-                                  </div>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="bg-slate-900 text-white">
-                                <p>Click To Apply To Canvas</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="bg-emerald-50 rounded-xl p-4 space-y-3 border border-emerald-100 ml-8">
-                          <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                              <span className="text-[10px] text-white font-bold">U</span>
-                            </div>
-                            <span className="text-xs text-emerald-600 font-medium">You</span>
-                          </div>
-                          <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-                            {message.content}
-                          </div>
-                          {message.image && (
-                            <div className="relative rounded-lg overflow-hidden border border-emerald-200 max-w-[180px]">
-                              <img src={message.image} alt="Attached" className="w-full h-auto" />
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input Area */}
-                <div className="p-4 border-t border-slate-200 bg-white">
-                  {/* Attached Image Preview */}
-                  {attachedImage && (
-                    <div className="mb-2 relative inline-block">
-                      <img 
-                        src={attachedImage} 
-                        alt="Attached" 
-                        className="h-16 w-16 object-cover rounded-lg border border-slate-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setAttachedImage(null)}
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-                  <form onSubmit={handleSendMessage}>
-                    <input
-                      type="file"
-                      ref={chatAttachmentInputRef}
-                      onChange={handleChatAttachment}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <div className="relative" style={{ height: chatInputHeight, ...(chatInputWidth && { width: chatInputWidth }) }}>
-                      <textarea
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            if ((inputValue.trim() || attachedImage) && !isLoadingChat && !isGeneratingImage) {
-                              handleSendMessage(e as any);
-                            }
-                          }
-                        }}
-                        placeholder={isLoadingChat || isGeneratingImage ? 'Please wait...' : 'Ask Cora to edit or generate images...'}
-                        disabled={isLoadingChat || isGeneratingImage}
-                        className="w-full h-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 pr-24 text-sm text-slate-700 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all resize-none disabled:opacity-50"
-                      />
-                      <div className="absolute right-2 top-3 flex items-center gap-0.5">
-                        <button 
-                          type="button" 
-                          onClick={() => chatAttachmentInputRef.current?.click()}
-                          className={`p-2 transition-colors ${attachedImage ? 'text-emerald-500' : 'text-slate-400 hover:text-slate-600'}`}
-                        >
-                          <Paperclip className="w-4 h-4" />
-                        </button>
-                        <button 
-                          type="button" 
-                          onClick={handleVoiceRecording}
-                          className={`p-2 transition-colors ${isRecording ? 'text-red-500 animate-pulse' : 'text-slate-400 hover:text-slate-600'}`}
-                        >
-                          <Mic className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="submit"
-                          className={`p-2 rounded-lg transition-all ${
-                            (inputValue.trim() || attachedImage) && !isLoadingChat && !isGeneratingImage
-                              ? 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
-                              : 'text-slate-300 cursor-not-allowed'
-                          }`}
-                          disabled={(!inputValue.trim() && !attachedImage) || isLoadingChat || isGeneratingImage}
-                        >
-                          {isLoadingChat || isGeneratingImage ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Send className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                      <ResizeHandle 
-                        onResizeStart={handleChatResizeStart} 
-                        isResizing={isChatResizing}
-                        variant="subtle"
-                      />
-                      {isChatResizing && <div className="fixed inset-0 cursor-nwse-resize z-50" />}
-                    </div>
-                  </form>
-                </div>
-                </div>
-              </div>
-            )}
-
-            {/* Collapsed State - canvas background with floating button */}
-            {isPanelCollapsed && (
-              <div className="flex-shrink-0 bg-slate-50 p-3">
-                <div className="inline-flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-500">
-                  <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">Design Agent</span>
-                  <button
-                    onClick={() => setIsPanelCollapsed(false)}
-                    className="p-1.5 bg-emerald-500 rounded-lg text-white hover:bg-emerald-600 transition-colors"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Center Area: Canvas */}
             <div className="flex-1 flex flex-col overflow-hidden">
