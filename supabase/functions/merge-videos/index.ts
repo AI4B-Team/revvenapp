@@ -28,76 +28,60 @@ serve(async (req) => {
       );
     }
 
-    const SHOTSTACK_API_KEY = Deno.env.get('SHOTSTACK_API_KEY');
-    const SHOTSTACK_OWNER_ID = Deno.env.get('SHOTSTACK_OWNER_ID');
+    const JSON2VIDEO_API_KEY = Deno.env.get('JSON2VIDEO_API_KEY');
 
-    if (!SHOTSTACK_API_KEY) {
-      console.error('SHOTSTACK_API_KEY not configured');
+    if (!JSON2VIDEO_API_KEY) {
+      console.error('JSON2VIDEO_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: 'Shotstack API key not configured' }),
+        JSON.stringify({ error: 'JSON2Video API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log('Processing', clips.length, 'clips for project:', projectTitle);
 
-    // Build Shotstack timeline with each clip on a separate track (per API docs)
     // Sort clips by startTime to maintain order
     const sortedClips = [...clips].sort((a: VideoClip, b: VideoClip) => a.startTime - b.startTime);
     
-    // Build tracks array - each clip goes on its own track with sequential start times
-    let currentStart = 0;
-    const tracks = sortedClips.map((clip: VideoClip, index: number) => {
-      const trackClip = {
-        asset: {
+    // Build JSON2Video scenes array - each clip becomes a scene
+    const scenes = sortedClips.map((clip: VideoClip) => ({
+      elements: [
+        {
           type: 'video',
           src: clip.src,
-        },
-        start: currentStart,
-        length: clip.duration,
-      };
-      
-      // Next clip starts when this one ends
-      currentStart += clip.duration;
-      
-      // Each clip is in its own track
-      return {
-        clips: [trackClip],
-      };
-    });
+          duration: clip.duration,
+        }
+      ]
+    }));
 
     // Calculate total duration
-    const totalDuration = currentStart;
+    const totalDuration = sortedClips.reduce((sum, clip) => sum + clip.duration, 0);
     
     console.log('Total duration:', totalDuration, 'seconds');
-    console.log('Shotstack tracks:', JSON.stringify(tracks, null, 2));
+    console.log('JSON2Video scenes:', JSON.stringify(scenes, null, 2));
 
-    // Create Shotstack edit - each clip on separate track per documentation
-    const editPayload = {
-      timeline: {
-        tracks: tracks,
-      },
-      output: {
-        format: 'mp4',
-        resolution: 'sd', // Use SD for sandbox to reduce credit usage
-      },
+    // Create JSON2Video project payload
+    const projectPayload = {
+      resolution: 'full-hd',
+      quality: 'high',
+      scenes: scenes,
     };
 
-    console.log('Sending to Shotstack API...');
+    console.log('Sending to JSON2Video API...');
 
-    // Submit render job to Shotstack (using sandbox/stage API for free testing)
-    const renderResponse = await fetch('https://api.shotstack.io/stage/render', {
+    // Submit render job to JSON2Video
+    const renderResponse = await fetch('https://api.json2video.com/v2/movies', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': SHOTSTACK_API_KEY,
+        'x-api-key': JSON2VIDEO_API_KEY,
       },
-      body: JSON.stringify(editPayload),
+      body: JSON.stringify(projectPayload),
     });
 
     if (!renderResponse.ok) {
       const errorText = await renderResponse.text();
-      console.error('Shotstack render error:', renderResponse.status, errorText);
+      console.error('JSON2Video render error:', renderResponse.status, errorText);
       return new Response(
         JSON.stringify({ error: 'Failed to submit render job', details: errorText }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -107,7 +91,7 @@ serve(async (req) => {
     const renderData = await renderResponse.json();
     console.log('Render job submitted:', renderData);
 
-    const renderId = renderData.response?.id;
+    const renderId = renderData.project;
     if (!renderId) {
       return new Response(
         JSON.stringify({ error: 'No render ID returned' }),
