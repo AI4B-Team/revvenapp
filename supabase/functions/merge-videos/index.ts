@@ -99,8 +99,8 @@ serve(async (req) => {
 
     console.log('Sending to Shotstack API...');
 
-    // Submit render job to Shotstack
-    const renderResponse = await fetch('https://api.shotstack.io/v1/render', {
+    // Submit render job to Shotstack (using sandbox/stage API for free testing)
+    const renderResponse = await fetch('https://api.shotstack.io/stage/render', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
