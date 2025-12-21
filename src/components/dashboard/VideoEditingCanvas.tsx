@@ -26,7 +26,6 @@ import {
   Minimize,
   ChevronDown,
   Plus,
-  Send,
   Video,
   Upload,
   FolderOpen,
@@ -40,7 +39,6 @@ import {
   Copy,
   MoreHorizontal,
   GripVertical,
-  Bot,
   User,
   Share2,
   Link2,
@@ -162,12 +160,6 @@ interface Speaker {
   avatar?: string;
 }
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-}
 
 interface VideoEditingCanvasProps {
   video?: string;
@@ -209,16 +201,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [selectedAudioClip, setSelectedAudioClip] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: "Hi! I'm LEXI, your AI video assistant. I can help you edit your video, suggest improvements, generate scripts, or answer questions about your project. What would you like to do?",
-      timestamp: new Date()
-    }
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -345,7 +327,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
   // Format time display
@@ -686,56 +668,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       navigate('/create');
     }
   };
-
-  // Handle chat submit
-  const handleChatSubmit = () => {
-    if (!chatInput.trim()) return;
-    
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: chatInput,
-      timestamp: new Date()
-    };
-    
-    setChatMessages(prev => [...prev, userMessage]);
-    setChatInput('');
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: generateAIResponse(chatInput),
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-  };
-
-  const generateAIResponse = (input: string): string => {
-    const lowerInput = input.toLowerCase();
-    if (lowerInput.includes('cut') || lowerInput.includes('trim')) {
-      return "To cut your video, position the playhead where you want to split, select the clip, then click the scissors icon or press 'C'. You can also drag the edges of clips to trim them.";
-    }
-    if (lowerInput.includes('add') || lowerInput.includes('music') || lowerInput.includes('audio')) {
-      return "To add music, click the Music tab in the left panel. You can browse your library, upload new tracks, or use our AI-generated music. Simply drag any audio to the timeline.";
-    }
-    if (lowerInput.includes('text') || lowerInput.includes('title') || lowerInput.includes('caption')) {
-      return "Click the Text tab to add titles, captions, or subtitles. Choose from our templates or create custom text. You can style fonts, colors, and animations in the properties panel.";
-    }
-    if (lowerInput.includes('export') || lowerInput.includes('render') || lowerInput.includes('download')) {
-      return "When you're ready to export, click the Export button in the top right. You can choose resolution (up to 4K), format (MP4, MOV, WebM), and quality settings. Premium users get priority rendering.";
-    }
-    return "I can help you with video editing, adding effects, generating scripts, or optimizing your content for different platforms. What specific aspect would you like to work on?";
-  };
-
-  // Auto-scroll chat
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [chatMessages]);
 
   // Playback timer
   useEffect(() => {
@@ -1303,84 +1235,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
         {/* Main Content - horizontal layout with resizable panels */}
         <div className="flex flex-1 overflow-hidden">
-          {/* AI Chat Panel - LEFT SIDE */}
-          <div className={`${isChatExpanded ? 'w-80' : 'w-12'} bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
-            {isChatExpanded ? (
-              <>
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-primary">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-primary-foreground">LEXI</h3>
-                      <p className="text-xs text-primary-foreground/80">AI Video Assistant</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsChatExpanded(false)}
-                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4 text-primary-foreground" />
-                  </button>
-                </div>
-                
-                <div 
-                  ref={chatContainerRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
-                >
-                  {chatMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        message.role === 'assistant' ? 'bg-primary' : 'bg-gray-200'
-                      }`}>
-                        {message.role === 'assistant' ? (
-                          <Bot className="w-4 h-4 text-primary-foreground" />
-                        ) : (
-                          <User className="w-4 h-4 text-gray-600" />
-                        )}
-                      </div>
-                      <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                        message.role === 'assistant' ? 'bg-gray-100 text-gray-800' : 'bg-primary text-primary-foreground'
-                      }`}>
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="p-4 border-t border-gray-200">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
-                      placeholder="Ask LEXI anything..."
-                      className="flex-1 px-4 py-3 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-gray-400"
-                    />
-                    <button
-                      onClick={handleChatSubmit}
-                      className="p-3 bg-primary rounded-xl hover:opacity-90 transition-opacity"
-                    >
-                      <Send className="w-5 h-5 text-primary-foreground" />
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <button
-                onClick={() => setIsChatExpanded(true)}
-                className="flex-1 flex items-center justify-center hover:bg-gray-100 transition-colors"
-              >
-                <MessageSquare className="w-5 h-5 text-primary" />
-              </button>
-            )}
-          </div>
-
           {/* Resizable panels for left panel and preview */}
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Left Panel - Tab Content */}

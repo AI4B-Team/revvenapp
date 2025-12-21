@@ -8,6 +8,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
@@ -607,6 +608,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   }, [scenes, tracks, setTracks]);
 
   return (
+    <TooltipProvider>
     <div className="flex flex-col h-full bg-white overflow-hidden">
       {/* Scrubber/Playhead Bar at Top - gray background */}
       <div className="flex h-6 bg-gray-200 flex-shrink-0 border-b border-gray-300">
@@ -1352,6 +1354,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 };
 
