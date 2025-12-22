@@ -1616,7 +1616,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         <div className="flex flex-1 overflow-hidden relative">
           {/* Left Panel - Tab Content (collapsible) */}
           {!isLeftPanelCollapsed && (
-            <div className="w-[520px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+            <div className="w-[560px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
               {/* Tabs with Tooltips */}
               <div className="flex items-center justify-start gap-0.5 px-3 py-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
                 {tabs.map((tab) => (
@@ -1982,7 +1982,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <button
                 onClick={() => setIsLeftPanelCollapsed(!isLeftPanelCollapsed)}
                 className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-5 h-12 bg-gray-200 hover:bg-gray-300 rounded-r-md border border-l-0 border-gray-300 transition-colors"
-                style={{ left: isLeftPanelCollapsed ? 0 : 520 }}
+                style={{ left: isLeftPanelCollapsed ? 0 : 560 }}
               >
                 {isLeftPanelCollapsed ? (
                   <ChevronRight className="w-4 h-4 text-gray-600" />

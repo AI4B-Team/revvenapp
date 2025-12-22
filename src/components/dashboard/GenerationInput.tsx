@@ -3107,7 +3107,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             )}
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Auto Prompt</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3117,7 +3117,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <Bot size={20} strokeWidth={2.5} className="text-violet-500" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Script Agent</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3130,7 +3130,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-orange-500'} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Upload Audio</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3146,7 +3146,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <Video size={20} strokeWidth={2.5} className="text-red-500" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Video-To-Video</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3164,7 +3164,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             )}
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Auto Prompt</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3182,7 +3182,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             <AudioLines size={20} strokeWidth={2.5} className="text-brand-green" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Transcribe</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3202,7 +3202,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             )}
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black">
+                        <TooltipContent className="bg-black border-black text-white">
                           <p>Auto Prompt</p>
                         </TooltipContent>
                       </Tooltip>
@@ -3219,7 +3219,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           <Image size={20} strokeWidth={2.5} className="text-sky-500" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black">
+                      <TooltipContent className="bg-black border-black text-white">
                         <p>Image-To-Prompt</p>
                       </TooltipContent>
                     </Tooltip>
@@ -3237,7 +3237,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                           )}
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-black border-black">
+                      <TooltipContent className="bg-black border-black text-white">
                         <p>Auto Prompt</p>
                       </TooltipContent>
                     </Tooltip>
@@ -6797,7 +6797,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </button>
                     </PopoverTrigger>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-black border-black">
+                  <TooltipContent side="top" className="bg-black border-black text-white">
                     <p>Enhance Prompt</p>
                   </TooltipContent>
                 </Tooltip>
