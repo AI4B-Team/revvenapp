@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -32,12 +32,16 @@ import {
   Loader2,
   Upload,
   Video,
-  X
+  X,
+  Sparkles,
+  TrendingUp,
+  Crown,
+  Play,
+  Settings2,
+  ChevronRight,
+  ArrowRight,
+  FileVideo
 } from "lucide-react";
-
-interface Template {
-  name: string;
-}
 
 interface Language {
   name: string;
@@ -68,6 +72,8 @@ const ViralShorts = () => {
   const [removeSilence, setRemoveSilence] = useState<string>("natural");
   const [enableHookTitle, setEnableHookTitle] = useState(false);
   const [hookTitleText, setHookTitleText] = useState("");
+  const [activeStep, setActiveStep] = useState(1);
+  const [templateFilter, setTemplateFilter] = useState('All');
   
   const [templates, setTemplates] = useState<string[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -77,25 +83,41 @@ const ViralShorts = () => {
   const [pollingId, setPollingId] = useState<string | null>(null);
   
   // Upload states
-  const [sourceType, setSourceType] = useState<'url' | 'upload'>('url');
+  const [sourceType, setSourceType] = useState<'url' | 'upload'>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dropRef = useRef<HTMLLabelElement>(null);
 
-  // Fetch templates and languages on mount
+  // Template metadata
+  const templateMeta: Record<string, { isNew?: boolean; isPremium?: boolean; isTrending?: boolean }> = {
+    'Laura': { isNew: true },
+    'Kelly 2': { isNew: true, isPremium: true },
+    'Caleb': { isNew: true },
+    'Kendrick': { isNew: true },
+    'Sara': { isPremium: true },
+    'Lewis': { isPremium: true, isTrending: true },
+    'Mark': { isPremium: true },
+    'Hormozi 4': { isPremium: true, isTrending: true },
+    'Hormozi 5': { isPremium: true },
+    'Gstaad': { isPremium: true },
+    'Nema': { isPremium: true },
+    'Beast': { isTrending: true },
+    'Hormozi 1': { isTrending: true },
+    'Hormozi 2': { isTrending: true },
+  };
+
   useEffect(() => {
     fetchTemplates();
     fetchLanguages();
   }, []);
 
-  // Poll for project status
   useEffect(() => {
     if (!pollingId) return;
-
     const interval = setInterval(async () => {
       await checkProjectStatus(pollingId);
     }, 5000);
-
     return () => clearInterval(interval);
   }, [pollingId]);
 
@@ -104,19 +126,18 @@ const ViralShorts = () => {
       const { data, error } = await supabase.functions.invoke('viral-shorts', {
         body: { action: 'get-templates' }
       });
-      
       if (error) throw error;
       if (data?.templates) {
         setTemplates(data.templates);
       }
     } catch (error) {
       console.error('Error fetching templates:', error);
-      // Use fallback templates
       setTemplates([
         "Sara", "Daniel", "Dan 2", "Hormozi 4", "Dan", "Devin", "Tayo", "Ella",
         "Tracy", "Luke", "Hormozi 1", "Hormozi 2", "Hormozi 3", "Hormozi 5",
         "Leila", "Jason", "William", "Leon", "Ali", "Beast", "Maya", "Karl",
-        "Iman", "Umi", "David", "Noah", "Gstaad", "Malta", "Nema", "seth"
+        "Iman", "Umi", "David", "Noah", "Gstaad", "Malta", "Nema", "seth",
+        "Laura", "Kelly 2", "Caleb", "Kendrick", "Lewis", "Doug", "CARLOS", "LUKE", "MARK"
       ]);
     }
   };
@@ -126,14 +147,12 @@ const ViralShorts = () => {
       const { data, error } = await supabase.functions.invoke('viral-shorts', {
         body: { action: 'get-languages' }
       });
-      
       if (error) throw error;
       if (data?.languages) {
         setLanguages(data.languages);
       }
     } catch (error) {
       console.error('Error fetching languages:', error);
-      // Use fallback languages
       setLanguages([
         { name: "English", code: "en" },
         { name: "Spanish", code: "es" },
@@ -143,7 +162,7 @@ const ViralShorts = () => {
         { name: "Portuguese", code: "pt" },
         { name: "Dutch", code: "nl" },
         { name: "Russian", code: "ru" },
-        { name: "Chinese (Simplified)", code: "zh" },
+        { name: "Chinese", code: "zh" },
         { name: "Japanese", code: "ja" },
         { name: "Korean", code: "ko" },
         { name: "Arabic", code: "ar" },
@@ -157,13 +176,8 @@ const ViralShorts = () => {
       const { data, error } = await supabase.functions.invoke('viral-shorts', {
         body: { action: 'get-project', projectId }
       });
-
       if (error) throw error;
-
-      setProjects(prev => prev.map(p => 
-        p.id === projectId ? { ...p, ...data } : p
-      ));
-
+      setProjects(prev => prev.map(p => p.id === projectId ? { ...p, ...data } : p));
       if (data.status === 'completed' || data.status === 'failed') {
         setPollingId(null);
         if (data.status === 'completed') {
@@ -177,62 +191,68 @@ const ViralShorts = () => {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('video/')) {
+      handleFileAccept(file);
+    } else {
+      toast.error('Please drop a video file');
+    }
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (max 500MB)
-      if (file.size > 500 * 1024 * 1024) {
-        toast.error('File size must be less than 500MB');
-        return;
-      }
-      // Check file type
-      if (!file.type.startsWith('video/')) {
-        toast.error('Please upload a video file');
-        return;
-      }
-      setUploadedFile(file);
-      // Auto-set title from filename if empty
-      if (!title) {
-        const fileName = file.name.replace(/\.[^/.]+$/, "");
-        setTitle(fileName);
-      }
+    if (file) handleFileAccept(file);
+  };
+
+  const handleFileAccept = (file: File) => {
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error('File size must be less than 500MB');
+      return;
     }
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please upload a video file');
+      return;
+    }
+    setUploadedFile(file);
+    if (!title) {
+      const fileName = file.name.replace(/\.[^/.]+$/, "");
+      setTitle(fileName);
+    }
+    setActiveStep(2);
   };
 
   const uploadVideoToCloudinary = async (file: File): Promise<string> => {
     setIsUploading(true);
     setUploadProgress(10);
-
     try {
-      // Convert file to base64
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
-      
       setUploadProgress(30);
       const base64Data = await base64Promise;
-      
       setUploadProgress(50);
-      
       const { data, error } = await supabase.functions.invoke('upload-video', {
-        body: { 
-          video: base64Data,
-          filename: file.name,
-          duration: 0
-        }
+        body: { video: base64Data, filename: file.name, duration: 0 }
       });
-
       if (error) throw error;
-      
       setUploadProgress(100);
-      
-      if (!data?.video?.url) {
-        throw new Error('No URL returned from upload');
-      }
-
+      if (!data?.video?.url) throw new Error('No URL returned from upload');
       return data.video.url;
     } finally {
       setIsUploading(false);
@@ -241,37 +261,28 @@ const ViralShorts = () => {
 
   const handleCreateProject = async () => {
     let finalVideoUrl = videoUrl;
-
-    // If using upload, first upload the video
     if (sourceType === 'upload') {
       if (!uploadedFile) {
         toast.error('Please upload a video file');
         return;
       }
-      
       try {
         toast.info('Uploading video to cloud...');
         finalVideoUrl = await uploadVideoToCloudinary(uploadedFile);
-        toast.success('Video uploaded successfully!');
+        toast.success('Video uploaded!');
       } catch (error: any) {
-        console.error('Upload error:', error);
         toast.error(error.message || 'Failed to upload video');
         return;
       }
-    } else {
-      if (!finalVideoUrl) {
-        toast.error('Please enter a video URL');
-        return;
-      }
+    } else if (!finalVideoUrl) {
+      toast.error('Please enter a video URL');
+      return;
     }
-
     if (!title) {
       toast.error('Please enter a project title');
       return;
     }
-
     setIsCreating(true);
-
     try {
       const projectData: Record<string, unknown> = {
         action: 'create-project',
@@ -283,24 +294,13 @@ const ViralShorts = () => {
         magicBrolls,
         removeSilencePace: removeSilence,
       };
-
       if (enableHookTitle && hookTitleText) {
-        projectData.hookTitle = {
-          text: hookTitleText,
-          template: "tiktok",
-          top: 45,
-          size: 32
-        };
+        projectData.hookTitle = { text: hookTitleText, template: "tiktok", top: 45, size: 32 };
       } else if (enableHookTitle) {
         projectData.hookTitle = true;
       }
-
-      const { data, error } = await supabase.functions.invoke('viral-shorts', {
-        body: projectData
-      });
-
+      const { data, error } = await supabase.functions.invoke('viral-shorts', { body: projectData });
       if (error) throw error;
-
       if (data?.id) {
         const newProject: Project = {
           id: data.id,
@@ -308,529 +308,580 @@ const ViralShorts = () => {
           status: data.status || 'processing',
           createdAt: data.createdAt || new Date().toISOString()
         };
-        
         setProjects(prev => [newProject, ...prev]);
         setPollingId(data.id);
         toast.success('Project created! Processing your video...');
-        
-        // Clear form
         setVideoUrl("");
         setTitle("");
         setHookTitleText("");
         setUploadedFile(null);
         setUploadProgress(0);
+        setActiveStep(1);
       }
     } catch (error: any) {
-      console.error('Error creating project:', error);
       toast.error(error.message || 'Failed to create project');
     } finally {
       setIsCreating(false);
     }
   };
 
-  const handleExportProject = async (projectId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('viral-shorts', {
-        body: { action: 'export-project', projectId }
-      });
-
-      if (error) throw error;
-      toast.success('Export started!');
-      setPollingId(projectId);
-    } catch (error: any) {
-      console.error('Error exporting project:', error);
-      toast.error(error.message || 'Failed to export project');
-    }
+  const getTemplateStyle = (name: string) => {
+    const styles: Record<string, { bg: string; text: string; font: string; shadow?: string }> = {
+      'Laura': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-yellow-300', font: 'font-black', shadow: 'shadow-lg shadow-yellow-500/20' },
+      'Kelly 2': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-semibold' },
+      'Caleb': { bg: 'bg-gradient-to-br from-gray-700 to-gray-900', text: 'text-orange-400', font: 'font-bold' },
+      'Kendrick': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-green-400', font: 'font-black' },
+      'Lewis': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-orange-500', font: 'font-bold italic' },
+      'Doug': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-orange-400', font: 'font-bold' },
+      'CARLOS': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-bold uppercase tracking-wider' },
+      'LUKE': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-yellow-400', font: 'font-bold italic uppercase' },
+      'MARK': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-orange-500', font: 'font-black' },
+      'Sara': { bg: 'bg-gradient-to-br from-gray-500 to-gray-600', text: 'text-white', font: 'font-semibold' },
+      'Daniel': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-yellow-400', font: 'font-bold' },
+      'Dan 2': { bg: 'bg-gradient-to-br from-yellow-500 to-yellow-600', text: 'text-gray-900', font: 'font-bold' },
+      'Hormozi 4': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-yellow-400', font: 'font-black italic uppercase', shadow: 'shadow-lg shadow-yellow-500/20' },
+      'Dan': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-yellow-400', font: 'font-bold uppercase' },
+      'Devin': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-semibold uppercase tracking-widest' },
+      'Tayo': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-medium' },
+      'Ella': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-yellow-300', font: 'font-bold uppercase' },
+      'Tracy': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-white', font: 'font-semibold uppercase tracking-wide' },
+      'Hormozi 1': { bg: 'bg-gradient-to-br from-blue-600 to-blue-700', text: 'text-white', font: 'font-black uppercase', shadow: 'shadow-lg shadow-blue-500/30' },
+      'Hormozi 2': { bg: 'bg-gradient-to-br from-orange-500 to-red-600', text: 'text-white', font: 'font-black uppercase', shadow: 'shadow-lg shadow-orange-500/30' },
+      'Hormozi 3': { bg: 'bg-gradient-to-br from-stone-400 to-stone-500', text: 'text-gray-800', font: 'font-black uppercase' },
+      'Hormozi 5': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-semibold' },
+      'William': { bg: 'bg-gradient-to-br from-green-500 to-green-600', text: 'text-white', font: 'font-bold uppercase', shadow: 'shadow-lg shadow-green-500/30' },
+      'Leon': { bg: 'bg-gradient-to-br from-orange-500 to-orange-600', text: 'text-white', font: 'font-bold uppercase', shadow: 'shadow-lg shadow-orange-500/30' },
+      'Ali': { bg: 'bg-gradient-to-br from-gray-200 to-gray-300', text: 'text-gray-900', font: 'font-bold' },
+      'Beast': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-white', font: 'font-black italic uppercase' },
+      'Maya': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-pink-400', font: 'font-semibold' },
+      'Karl': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-bold uppercase' },
+      'Iman': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-green-400', font: 'font-medium' },
+      'David': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-white', font: 'font-bold uppercase' },
+      'Noah': { bg: 'bg-gradient-to-br from-gray-700 to-gray-800', text: 'text-yellow-400', font: 'font-black italic uppercase' },
+      'Gstaad': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-green-400', font: 'font-semibold' },
+      'Nema': { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-orange-400', font: 'font-semibold' },
+    };
+    return styles[name] || { bg: 'bg-gradient-to-br from-gray-600 to-gray-700', text: 'text-white', font: 'font-medium' };
   };
+
+  const filteredTemplates = templates.filter(template => {
+    if (templateFilter === 'All') return true;
+    if (templateFilter === 'New') return templateMeta[template]?.isNew;
+    if (templateFilter === 'Premium') return templateMeta[template]?.isPremium;
+    if (templateFilter === 'Trending') return templateMeta[template]?.isTrending;
+    return true;
+  });
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+      case 'completed': return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+      case 'failed': return <XCircle className="w-5 h-5 text-red-500" />;
       case 'processing':
       case 'transcribing':
-      case 'exporting':
-        return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
-      default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
+      case 'exporting': return <Loader2 className="w-5 h-5 text-orange-500 animate-spin" />;
+      default: return <Clock className="w-5 h-5 text-gray-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
+      case 'completed': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+      case 'failed': return 'bg-red-500/10 text-red-600 border-red-500/20';
       case 'processing':
-      case 'transcribing':
-        return 'bg-blue-100 text-blue-800';
-      case 'exporting':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'transcribing': return 'bg-orange-500/10 text-orange-600 border-orange-500/20';
+      case 'exporting': return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
+      default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
     }
   };
 
+  const steps = [
+    { num: 1, title: 'Upload', icon: Upload },
+    { num: 2, title: 'Style', icon: Palette },
+    { num: 3, title: 'Effects', icon: Wand2 },
+  ];
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
       <Sidebar onCollapseChange={setSidebarCollapsed} />
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
-        <main className="flex-1 overflow-auto p-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl">
-                <Flame className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Viral Shorts</h1>
-                <p className="text-gray-600">Create viral short-form videos with AI-powered captions and effects</p>
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-7xl mx-auto p-6 lg:p-8">
+            {/* Hero Header */}
+            <div className="relative mb-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 via-red-600/10 to-transparent rounded-3xl blur-3xl" />
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
+                    <div className="relative p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-2xl shadow-orange-500/25">
+                      <Flame className="w-10 h-10 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-black text-white tracking-tight">
+                      Viral Shorts
+                    </h1>
+                    <p className="text-gray-400 mt-1 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-orange-400" />
+                      AI-powered captions & effects for viral content
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center gap-3">
+                  <Badge variant="outline" className="border-orange-500/30 text-orange-400 bg-orange-500/10 px-3 py-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
+                    30+ Caption Styles
+                  </Badge>
+                  <Badge variant="outline" className="border-purple-500/30 text-purple-400 bg-purple-500/10 px-3 py-1.5">
+                    <Languages className="w-3.5 h-3.5 mr-1.5" />
+                    13+ Languages
+                  </Badge>
+                </div>
               </div>
             </div>
 
-            <Tabs defaultValue="create" className="space-y-6">
-              <TabsList>
-                <TabsTrigger value="create">Create New</TabsTrigger>
-                <TabsTrigger value="projects">My Projects ({projects.length})</TabsTrigger>
+            <Tabs defaultValue="create" className="space-y-8">
+              <TabsList className="bg-gray-800/50 border border-gray-700/50 p-1 rounded-xl">
+                <TabsTrigger value="create" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white rounded-lg px-6">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Create New
+                </TabsTrigger>
+                <TabsTrigger value="projects" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white rounded-lg px-6">
+                  <FileVideo className="w-4 h-4 mr-2" />
+                  My Projects
+                  {projects.length > 0 && (
+                    <span className="ml-2 px-2 py-0.5 text-xs bg-white/20 rounded-full">{projects.length}</span>
+                  )}
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="create">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Input Section */}
-                  <Card className="lg:col-span-2">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Video className="w-5 h-5" />
-                        Video Source
-                      </CardTitle>
-                      <CardDescription>
-                        Upload a video or enter a public URL
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Project Title</Label>
-                        <Input
-                          id="title"
-                          placeholder="My Viral Short"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                        />
-                      </div>
+              <TabsContent value="create" className="animate-fade-in">
+                {/* Progress Steps */}
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  {steps.map((step, idx) => (
+                    <div key={step.num} className="flex items-center">
+                      <button
+                        onClick={() => setActiveStep(step.num)}
+                        className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300 ${
+                          activeStep === step.num
+                            ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/25'
+                            : activeStep > step.num
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:border-gray-600'
+                        }`}
+                      >
+                        <step.icon className="w-5 h-5" />
+                        <span className="font-semibold">{step.title}</span>
+                      </button>
+                      {idx < steps.length - 1 && (
+                        <ChevronRight className="w-5 h-5 text-gray-600 mx-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
 
-                      {/* Source Type Tabs */}
-                      <div className="space-y-3">
-                        <Label>Video Source</Label>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant={sourceType === 'upload' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSourceType('upload')}
-                            className="flex-1"
-                          >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Video
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={sourceType === 'url' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSourceType('url')}
-                            className="flex-1"
-                          >
-                            <Link2 className="w-4 h-4 mr-2" />
-                            Video URL
-                          </Button>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                  {/* Left Column - Upload & Settings */}
+                  <div className="xl:col-span-2 space-y-6">
+                    {/* Upload Section */}
+                    <div className={`bg-gray-800/40 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${activeStep === 1 ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-700/50'}`}>
+                      <div className="p-6 border-b border-gray-700/50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-orange-500/20 rounded-lg">
+                              <Video className="w-5 h-5 text-orange-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-white">Video Source</h3>
+                              <p className="text-sm text-gray-400">Upload your video or paste a URL</p>
+                            </div>
+                          </div>
+                          <div className="flex bg-gray-800 rounded-lg p-1">
+                            <button
+                              onClick={() => setSourceType('upload')}
+                              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                                sourceType === 'upload' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              Upload
+                            </button>
+                            <button
+                              onClick={() => setSourceType('url')}
+                              className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                                sourceType === 'url' ? 'bg-orange-500 text-white' : 'text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              URL
+                            </button>
+                          </div>
                         </div>
                       </div>
+                      <div className="p-6">
+                        <div className="mb-4">
+                          <Label className="text-gray-300">Project Title</Label>
+                          <Input
+                            placeholder="Enter a catchy title..."
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="mt-2 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-orange-500 focus:ring-orange-500/20"
+                          />
+                        </div>
 
-                      {sourceType === 'upload' ? (
-                        <div className="space-y-3">
-                          {uploadedFile ? (
-                            <div className="border-2 border-dashed border-green-300 bg-green-50 rounded-lg p-4">
+                        {sourceType === 'upload' ? (
+                          uploadedFile ? (
+                            <div className="border-2 border-dashed border-emerald-500/50 bg-emerald-500/10 rounded-xl p-6 animate-scale-in">
                               <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-green-100 rounded-lg">
-                                    <Video className="w-6 h-6 text-green-600" />
+                                <div className="flex items-center gap-4">
+                                  <div className="p-3 bg-emerald-500/20 rounded-xl">
+                                    <Video className="w-8 h-8 text-emerald-400" />
                                   </div>
                                   <div>
-                                    <p className="font-medium text-green-900">{uploadedFile.name}</p>
-                                    <p className="text-sm text-green-600">
-                                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                    <p className="font-semibold text-white">{uploadedFile.name}</p>
+                                    <p className="text-sm text-emerald-400">
+                                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to process
                                     </p>
                                   </div>
                                 </div>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setUploadedFile(null)}
-                                >
-                                  <X className="w-4 h-4" />
+                                <Button variant="ghost" size="sm" onClick={() => setUploadedFile(null)} className="text-gray-400 hover:text-white">
+                                  <X className="w-5 h-5" />
                                 </Button>
                               </div>
                               {isUploading && (
-                                <div className="mt-3">
-                                  <Progress value={uploadProgress} className="h-2" />
-                                  <p className="text-xs text-green-600 mt-1">Uploading... {uploadProgress}%</p>
+                                <div className="mt-4">
+                                  <Progress value={uploadProgress} className="h-2 bg-gray-700" />
+                                  <p className="text-sm text-emerald-400 mt-2">Uploading... {uploadProgress}%</p>
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <label className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
-                              <Upload className="w-10 h-10 text-gray-400 mb-3" />
-                              <p className="text-sm font-medium text-gray-700">Click to upload video</p>
-                              <p className="text-xs text-gray-500 mt-1">MP4, MOV, AVI up to 500MB</p>
-                              <input
-                                type="file"
-                                accept="video/*"
-                                className="hidden"
-                                onChange={handleFileSelect}
-                              />
-                            </label>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Label htmlFor="videoUrl">Video URL</Label>
-                          <Input
-                            id="videoUrl"
-                            placeholder="https://example.com/video.mp4 or YouTube URL"
-                            value={videoUrl}
-                            onChange={(e) => setVideoUrl(e.target.value)}
-                          />
-                          <p className="text-xs text-gray-500">
-                            Supports MP4 links, YouTube, Google Drive, and Dropbox
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Template & Language */}
-                  <Card className="lg:col-span-2">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Palette className="w-5 h-5" />
-                        Caption Style
-                      </CardTitle>
-                      <CardDescription>
-                        Choose a caption template style for your video
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Template Filter Tabs */}
-                      <div className="flex gap-2 flex-wrap">
-                        {['All', 'Trend', 'New', 'Premium'].map((filter) => (
-                          <Button
-                            key={filter}
-                            variant={filter === 'All' ? 'default' : 'outline'}
-                            size="sm"
-                            className="text-xs"
-                          >
-                            {filter}
-                          </Button>
-                        ))}
-                      </div>
-
-                      {/* Template Grid */}
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[320px] overflow-y-auto p-1">
-                        {templates.map((template) => {
-                          const isSelected = selectedTemplate === template;
-                          const isNew = ['Laura', 'Kelly 2', 'Caleb', 'Kendrick'].includes(template);
-                          const isPremium = ['Sara', 'Lewis', 'Mark', 'Hormozi 4', 'Hormozi 5', 'Gstaad', 'Nema'].includes(template);
-                          
-                          // Define unique styles for each template
-                          const getTemplateStyle = (name: string) => {
-                            const styles: Record<string, { bg: string; text: string; font: string; effect?: string }> = {
-                              'Laura': { bg: 'bg-gray-600', text: 'text-yellow-300', font: 'font-bold', effect: 'drop-shadow-lg' },
-                              'Kelly 2': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
-                              'Caleb': { bg: 'bg-gray-700', text: 'text-orange-400', font: 'font-bold' },
-                              'Kendrick': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-black' },
-                              'Lewis': { bg: 'bg-gray-600', text: 'text-orange-500', font: 'font-bold italic' },
-                              'Doug': { bg: 'bg-gray-700', text: 'text-orange-400', font: 'font-bold' },
-                              'CARLOS': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold uppercase tracking-wide' },
-                              'LUKE': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold italic uppercase' },
-                              'MARK': { bg: 'bg-gray-600', text: 'text-orange-500', font: 'font-black' },
-                              'Sara': { bg: 'bg-gray-500', text: 'text-white', font: 'font-semibold' },
-                              'Daniel': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold' },
-                              'Dan 2': { bg: 'bg-yellow-500', text: 'text-gray-900', font: 'font-bold' },
-                              'Hormozi 4': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-black italic uppercase' },
-                              'Dan': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold uppercase' },
-                              'Devin': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold uppercase tracking-widest' },
-                              'Tayo': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
-                              'Ella': { bg: 'bg-gray-600', text: 'text-yellow-300', font: 'font-bold uppercase' },
-                              'Tracy': { bg: 'bg-gray-700', text: 'text-white', font: 'font-semibold uppercase tracking-wide' },
-                              'Hormozi 1': { bg: 'bg-blue-600', text: 'text-white', font: 'font-black uppercase' },
-                              'Hormozi 2': { bg: 'bg-orange-500', text: 'text-white', font: 'font-black uppercase' },
-                              'Hormozi 3': { bg: 'bg-stone-400', text: 'text-gray-800', font: 'font-black uppercase' },
-                              'Hormozi 5': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
-                              'William': { bg: 'bg-green-500', text: 'text-white', font: 'font-bold uppercase' },
-                              'Leon': { bg: 'bg-orange-500', text: 'text-white', font: 'font-bold uppercase' },
-                              'Ali': { bg: 'bg-gray-200', text: 'text-gray-900', font: 'font-bold' },
-                              'Beast': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold italic uppercase' },
-                              'Maya': { bg: 'bg-gray-700', text: 'text-pink-400', font: 'font-semibold' },
-                              'Karl': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold uppercase' },
-                              'Iman': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-medium' },
-                              'David': { bg: 'bg-gray-700', text: 'text-white', font: 'font-bold uppercase' },
-                              'Noah': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-black italic uppercase' },
-                              'Gstaad': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-semibold' },
-                              'Nema': { bg: 'bg-gray-600', text: 'text-orange-400', font: 'font-semibold' },
-                              'Umi': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
-                              'Jason': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
-                              'Leila': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
-                              'seth': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium lowercase' },
-                            };
-                            return styles[name] || { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' };
-                          };
-
-                          const style = getTemplateStyle(template);
-
-                          return (
-                            <button
-                              key={template}
-                              onClick={() => setSelectedTemplate(template)}
-                              className={`
-                                relative flex items-center justify-center p-3 rounded-lg transition-all
-                                ${style.bg} ${isSelected ? 'ring-2 ring-orange-500 ring-offset-2' : 'hover:ring-1 hover:ring-gray-400'}
-                              `}
+                            <label
+                              ref={dropRef}
+                              onDragOver={handleDragOver}
+                              onDragLeave={handleDragLeave}
+                              onDrop={handleDrop}
+                              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-12 cursor-pointer transition-all duration-300 ${
+                                isDragging
+                                  ? 'border-orange-500 bg-orange-500/10 scale-[1.02]'
+                                  : 'border-gray-600 hover:border-orange-500/50 hover:bg-gray-800/50'
+                              }`}
                             >
-                              {isNew && (
-                                <span className="absolute -top-1 -left-1 bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold">
-                                  New
-                                </span>
-                              )}
-                              {isPremium && (
-                                <span className="absolute -top-1 -right-1 bg-yellow-400 text-gray-900 rounded-full p-0.5">
-                                  <Zap className="w-2.5 h-2.5" />
-                                </span>
-                              )}
-                              <span className={`${style.text} ${style.font} text-xs ${style.effect || ''}`}>
-                                {template}
-                              </span>
-                            </button>
-                          );
-                        })}
+                              <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-2xl mb-4">
+                                <Upload className="w-10 h-10 text-orange-400" />
+                              </div>
+                              <p className="text-lg font-semibold text-white mb-1">
+                                {isDragging ? 'Drop your video here' : 'Drag & drop your video'}
+                              </p>
+                              <p className="text-sm text-gray-400 mb-4">or click to browse</p>
+                              <Badge variant="outline" className="border-gray-600 text-gray-400">
+                                MP4, MOV, AVI • Max 500MB
+                              </Badge>
+                              <input type="file" accept="video/*" className="hidden" onChange={handleFileSelect} />
+                            </label>
+                          )
+                        ) : (
+                          <div>
+                            <Label className="text-gray-300">Video URL</Label>
+                            <Input
+                              placeholder="https://youtube.com/watch?v=... or direct video link"
+                              value={videoUrl}
+                              onChange={(e) => setVideoUrl(e.target.value)}
+                              className="mt-2 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-orange-500"
+                            />
+                            <p className="text-xs text-gray-500 mt-2">Supports YouTube, Vimeo, Google Drive, and direct MP4 links</p>
+                          </div>
+                        )}
                       </div>
+                    </div>
 
-                      {/* Selected Template Display */}
-                      <div className="flex items-center gap-2 pt-2 border-t">
-                        <span className="text-sm text-gray-500">Selected:</span>
-                        <Badge variant="secondary" className="font-semibold">
-                          {selectedTemplate}
-                        </Badge>
+                    {/* Caption Style Section */}
+                    <div className={`bg-gray-800/40 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${activeStep === 2 ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-700/50'}`}>
+                      <div className="p-6 border-b border-gray-700/50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-500/20 rounded-lg">
+                              <Palette className="w-5 h-5 text-purple-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-white">Caption Style</h3>
+                              <p className="text-sm text-gray-400">Choose your viral caption look</p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="border-purple-500/30 text-purple-400">
+                            {selectedTemplate}
+                          </Badge>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="p-6">
+                        {/* Filter Tabs */}
+                        <div className="flex gap-2 mb-4 flex-wrap">
+                          {['All', 'Trending', 'New', 'Premium'].map((filter) => (
+                            <Button
+                              key={filter}
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setTemplateFilter(filter)}
+                              className={`rounded-full transition-all ${
+                                templateFilter === filter
+                                  ? 'bg-orange-500 text-white hover:bg-orange-600'
+                                  : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+                              }`}
+                            >
+                              {filter === 'Trending' && <TrendingUp className="w-3.5 h-3.5 mr-1.5" />}
+                              {filter === 'Premium' && <Crown className="w-3.5 h-3.5 mr-1.5" />}
+                              {filter === 'New' && <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                              {filter}
+                            </Button>
+                          ))}
+                        </div>
 
-                  {/* Language Selector */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Languages className="w-5 h-5" />
-                        Language
-                      </CardTitle>
-                      <CardDescription>
-                        Select transcription language
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                        {/* Template Grid */}
+                        <ScrollArea className="h-[280px] pr-4">
+                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                            {filteredTemplates.map((template) => {
+                              const isSelected = selectedTemplate === template;
+                              const meta = templateMeta[template] || {};
+                              const style = getTemplateStyle(template);
+
+                              return (
+                                <button
+                                  key={template}
+                                  onClick={() => { setSelectedTemplate(template); setActiveStep(3); }}
+                                  className={`relative group flex items-center justify-center p-4 rounded-xl transition-all duration-300 ${style.bg} ${style.shadow || ''} ${
+                                    isSelected
+                                      ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-gray-900 scale-105'
+                                      : 'hover:scale-105 hover:ring-1 hover:ring-white/20'
+                                  }`}
+                                >
+                                  {meta.isNew && (
+                                    <span className="absolute -top-1.5 -left-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow-lg">
+                                      NEW
+                                    </span>
+                                  )}
+                                  {meta.isPremium && (
+                                    <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 rounded-full p-1 shadow-lg">
+                                      <Zap className="w-2.5 h-2.5" />
+                                    </span>
+                                  )}
+                                  {meta.isTrending && !meta.isPremium && (
+                                    <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-emerald-400 to-cyan-500 text-gray-900 rounded-full p-1 shadow-lg">
+                                      <TrendingUp className="w-2.5 h-2.5" />
+                                    </span>
+                                  )}
+                                  <span className={`${style.text} ${style.font} text-xs text-center leading-tight`}>
+                                    {template}
+                                  </span>
+                                  {isSelected && (
+                                    <div className="absolute inset-0 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                                      <CheckCircle className="w-6 h-6 text-orange-400" />
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </ScrollArea>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Settings & Create */}
+                  <div className="space-y-6">
+                    {/* Language */}
+                    <div className="bg-gray-800/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-500/20 rounded-lg">
+                          <Languages className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white">Language</h3>
+                      </div>
                       <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select language" />
+                        <SelectTrigger className="bg-gray-900/50 border-gray-700 text-white">
+                          <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-gray-800 border-gray-700">
                           {languages.map((lang) => (
-                            <SelectItem key={lang.code} value={lang.code}>
+                            <SelectItem key={lang.code} value={lang.code} className="text-white hover:bg-gray-700">
                               {lang.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                  {/* AI Features */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Wand2 className="w-5 h-5" />
-                        AI Magic Features
-                      </CardTitle>
-                      <CardDescription>
-                        Enable AI-powered enhancements for your video
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-yellow-500" />
-                          <div>
-                            <Label>Magic Zooms</Label>
-                            <p className="text-xs text-gray-500">Auto zoom effects on key moments</p>
+                    {/* AI Features */}
+                    <div className={`bg-gray-800/40 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${activeStep === 3 ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-700/50'} p-6`}>
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
+                          <Wand2 className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-white">AI Magic</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <Zap className="w-5 h-5 text-yellow-400" />
+                            <div>
+                              <p className="text-sm font-medium text-white">Magic Zooms</p>
+                              <p className="text-xs text-gray-500">Auto zoom on key moments</p>
+                            </div>
                           </div>
+                          <Switch checked={magicZooms} onCheckedChange={setMagicZooms} />
                         </div>
-                        <Switch checked={magicZooms} onCheckedChange={setMagicZooms} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Film className="w-4 h-4 text-purple-500" />
-                          <div>
-                            <Label>Magic B-Rolls</Label>
-                            <p className="text-xs text-gray-500">Auto-insert relevant stock footage</p>
+                        <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <Film className="w-5 h-5 text-purple-400" />
+                            <div>
+                              <p className="text-sm font-medium text-white">Magic B-Rolls</p>
+                              <p className="text-xs text-gray-500">AI stock footage</p>
+                            </div>
                           </div>
+                          <Switch checked={magicBrolls} onCheckedChange={setMagicBrolls} />
                         </div>
-                        <Switch checked={magicBrolls} onCheckedChange={setMagicBrolls} />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Scissors className="w-4 h-4 text-red-500" />
-                          <Label>Remove Silence</Label>
+                        <div className="p-3 bg-gray-900/50 rounded-xl">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Scissors className="w-5 h-5 text-red-400" />
+                            <p className="text-sm font-medium text-white">Silence Removal</p>
+                          </div>
+                          <Select value={removeSilence} onValueChange={setRemoveSilence}>
+                            <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-700">
+                              <SelectItem value="natural" className="text-white">Natural</SelectItem>
+                              <SelectItem value="fast" className="text-white">Fast</SelectItem>
+                              <SelectItem value="extra-fast" className="text-white">Extra Fast</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <Select value={removeSilence} onValueChange={setRemoveSilence}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="natural">Natural</SelectItem>
-                            <SelectItem value="fast">Fast</SelectItem>
-                            <SelectItem value="extra-fast">Extra Fast</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                  {/* Hook Title */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Type className="w-5 h-5" />
-                        Hook Title
-                      </CardTitle>
-                      <CardDescription>
-                        Add an attention-grabbing animated opening caption
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label>Enable Hook Title</Label>
+                    {/* Hook Title */}
+                    <div className="bg-gray-800/40 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-cyan-500/20 rounded-lg">
+                            <Type className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">Hook Title</h3>
+                        </div>
                         <Switch checked={enableHookTitle} onCheckedChange={setEnableHookTitle} />
                       </div>
                       {enableHookTitle && (
-                        <div className="space-y-2">
-                          <Label htmlFor="hookText">Custom Hook Text (optional)</Label>
+                        <div className="animate-fade-in">
                           <Input
-                            id="hookText"
-                            placeholder="Stop scrolling — watch this in 30 seconds"
+                            placeholder="Stop scrolling — watch this!"
                             value={hookTitleText}
                             onChange={(e) => setHookTitleText(e.target.value)}
+                            className="bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500"
                           />
-                          <p className="text-xs text-gray-500">Leave empty for AI-generated hook</p>
+                          <p className="text-xs text-gray-500 mt-2">Leave empty for AI-generated hook</p>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
-                </div>
+                    </div>
 
-                {/* Create Button */}
-                <div className="mt-6">
-                  <Button 
-                    size="lg" 
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-                    onClick={handleCreateProject}
-                    disabled={isCreating || isUploading || (!videoUrl && !uploadedFile) || !title}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Uploading Video...
-                      </>
-                    ) : isCreating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Creating Project...
-                      </>
-                    ) : (
-                      <>
-                        <Flame className="w-5 h-5 mr-2" />
-                        Create Viral Short
-                      </>
-                    )}
-                  </Button>
+                    {/* Create Button */}
+                    <Button
+                      size="lg"
+                      className="w-full h-14 text-lg font-bold bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-xl shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] hover:shadow-orange-500/40"
+                      onClick={handleCreateProject}
+                      disabled={isCreating || isUploading || (!videoUrl && !uploadedFile) || !title}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : isCreating ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Flame className="w-5 h-5 mr-2" />
+                          Create Viral Short
+                          <ArrowRight className="w-5 h-5 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </TabsContent>
 
-              <TabsContent value="projects">
+              <TabsContent value="projects" className="animate-fade-in">
                 {projects.length === 0 ? (
-                  <Card>
-                    <CardContent className="flex flex-col items-center justify-center py-16">
-                      <Flame className="w-16 h-16 text-gray-300 mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-700 mb-2">No projects yet</h3>
-                      <p className="text-gray-500 mb-4">Create your first viral short to get started</p>
-                      <Button onClick={() => document.querySelector('[value="create"]')?.dispatchEvent(new Event('click'))}>
-                        Create New Project
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <div className="flex flex-col items-center justify-center py-20 bg-gray-800/30 rounded-2xl border border-gray-700/50">
+                    <div className="p-6 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-3xl mb-6">
+                      <Flame className="w-16 h-16 text-orange-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">No projects yet</h3>
+                    <p className="text-gray-400 mb-6">Create your first viral short to get started</p>
+                    <Button 
+                      className="bg-gradient-to-r from-orange-500 to-red-600"
+                      onClick={() => document.querySelector<HTMLButtonElement>('[value="create"]')?.click()}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Create New Project
+                    </Button>
+                  </div>
                 ) : (
                   <div className="grid gap-4">
                     {projects.map((project) => (
-                      <Card key={project.id}>
-                        <CardContent className="flex items-center justify-between p-4">
-                          <div className="flex items-center gap-4">
+                      <div 
+                        key={project.id} 
+                        className="flex items-center justify-between p-5 bg-gray-800/40 backdrop-blur-xl rounded-xl border border-gray-700/50 hover:border-gray-600 transition-all"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gray-900/50 rounded-xl">
                             {getStatusIcon(project.status)}
-                            <div>
-                              <h3 className="font-semibold">{project.title}</h3>
-                              <p className="text-sm text-gray-500">
-                                Created {new Date(project.createdAt).toLocaleDateString()}
-                              </p>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-white">{project.title}</h3>
+                            <p className="text-sm text-gray-400">
+                              Created {new Date(project.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge className={`${getStatusColor(project.status)} border`}>
+                            {project.status}
+                          </Badge>
+                          {project.status === 'completed' && (
+                            <div className="flex gap-2">
+                              {project.downloadUrl && (
+                                <Button size="sm" variant="outline" className="border-gray-600 text-white hover:bg-gray-700" asChild>
+                                  <a href={project.downloadUrl} download>
+                                    <Download className="w-4 h-4 mr-1" />
+                                    Download
+                                  </a>
+                                </Button>
+                              )}
+                              {project.previewUrl && (
+                                <Button size="sm" className="bg-orange-500 hover:bg-orange-600" asChild>
+                                  <a href={project.previewUrl} target="_blank" rel="noopener noreferrer">
+                                    <Play className="w-4 h-4 mr-1" />
+                                    Watch
+                                  </a>
+                                </Button>
+                              )}
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge className={getStatusColor(project.status)}>
-                              {project.status}
-                            </Badge>
-                            {project.status === 'completed' && (
-                              <div className="flex gap-2">
-                                {project.downloadUrl && (
-                                  <Button size="sm" variant="outline" asChild>
-                                    <a href={project.downloadUrl} download>
-                                      <Download className="w-4 h-4 mr-1" />
-                                      Download
-                                    </a>
-                                  </Button>
-                                )}
-                                {project.previewUrl && (
-                                  <Button size="sm" variant="outline" asChild>
-                                    <a href={project.previewUrl} target="_blank" rel="noopener noreferrer">
-                                      <ExternalLink className="w-4 h-4 mr-1" />
-                                      Preview
-                                    </a>
-                                  </Button>
-                                )}
-                              </div>
-                            )}
-                            {(project.status === 'processing' || project.status === 'transcribing') && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => checkProjectStatus(project.id)}
-                              >
-                                <RefreshCw className="w-4 h-4 mr-1" />
-                                Refresh
-                              </Button>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
+                          )}
+                          {(project.status === 'processing' || project.status === 'transcribing') && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-gray-600 text-white hover:bg-gray-700"
+                              onClick={() => checkProjectStatus(project.id)}
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
