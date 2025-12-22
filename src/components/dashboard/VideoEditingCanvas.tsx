@@ -1907,7 +1907,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </button>
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>{isLeftPanelCollapsed ? 'Show panel' : 'Hide panel'}</p>
+              <p>{isLeftPanelCollapsed ? 'Show' : 'Hide'}</p>
             </TooltipContent>
           </Tooltip>
 
