@@ -515,47 +515,145 @@ const ViralShorts = () => {
                   </Card>
 
                   {/* Template & Language */}
-                  <Card>
+                  <Card className="lg:col-span-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Palette className="w-5 h-5" />
-                        Style & Language
+                        Caption Style
                       </CardTitle>
                       <CardDescription>
-                        Choose a caption template and transcription language
+                        Choose a caption template style for your video
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Caption Template</Label>
-                        <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a template" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {templates.map((template) => (
-                              <SelectItem key={template} value={template}>
+                      {/* Template Filter Tabs */}
+                      <div className="flex gap-2 flex-wrap">
+                        {['All', 'Trend', 'New', 'Premium'].map((filter) => (
+                          <Button
+                            key={filter}
+                            variant={filter === 'All' ? 'default' : 'outline'}
+                            size="sm"
+                            className="text-xs"
+                          >
+                            {filter}
+                          </Button>
+                        ))}
+                      </div>
+
+                      {/* Template Grid */}
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 max-h-[320px] overflow-y-auto p-1">
+                        {templates.map((template) => {
+                          const isSelected = selectedTemplate === template;
+                          const isNew = ['Laura', 'Kelly 2', 'Caleb', 'Kendrick'].includes(template);
+                          const isPremium = ['Sara', 'Lewis', 'Mark', 'Hormozi 4', 'Hormozi 5', 'Gstaad', 'Nema'].includes(template);
+                          
+                          // Define unique styles for each template
+                          const getTemplateStyle = (name: string) => {
+                            const styles: Record<string, { bg: string; text: string; font: string; effect?: string }> = {
+                              'Laura': { bg: 'bg-gray-600', text: 'text-yellow-300', font: 'font-bold', effect: 'drop-shadow-lg' },
+                              'Kelly 2': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
+                              'Caleb': { bg: 'bg-gray-700', text: 'text-orange-400', font: 'font-bold' },
+                              'Kendrick': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-black' },
+                              'Lewis': { bg: 'bg-gray-600', text: 'text-orange-500', font: 'font-bold italic' },
+                              'Doug': { bg: 'bg-gray-700', text: 'text-orange-400', font: 'font-bold' },
+                              'CARLOS': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold uppercase tracking-wide' },
+                              'LUKE': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold italic uppercase' },
+                              'MARK': { bg: 'bg-gray-600', text: 'text-orange-500', font: 'font-black' },
+                              'Sara': { bg: 'bg-gray-500', text: 'text-white', font: 'font-semibold' },
+                              'Daniel': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold' },
+                              'Dan 2': { bg: 'bg-yellow-500', text: 'text-gray-900', font: 'font-bold' },
+                              'Hormozi 4': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-black italic uppercase' },
+                              'Dan': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-bold uppercase' },
+                              'Devin': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold uppercase tracking-widest' },
+                              'Tayo': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
+                              'Ella': { bg: 'bg-gray-600', text: 'text-yellow-300', font: 'font-bold uppercase' },
+                              'Tracy': { bg: 'bg-gray-700', text: 'text-white', font: 'font-semibold uppercase tracking-wide' },
+                              'Hormozi 1': { bg: 'bg-blue-600', text: 'text-white', font: 'font-black uppercase' },
+                              'Hormozi 2': { bg: 'bg-orange-500', text: 'text-white', font: 'font-black uppercase' },
+                              'Hormozi 3': { bg: 'bg-stone-400', text: 'text-gray-800', font: 'font-black uppercase' },
+                              'Hormozi 5': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
+                              'William': { bg: 'bg-green-500', text: 'text-white', font: 'font-bold uppercase' },
+                              'Leon': { bg: 'bg-orange-500', text: 'text-white', font: 'font-bold uppercase' },
+                              'Ali': { bg: 'bg-gray-200', text: 'text-gray-900', font: 'font-bold' },
+                              'Beast': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold italic uppercase' },
+                              'Maya': { bg: 'bg-gray-700', text: 'text-pink-400', font: 'font-semibold' },
+                              'Karl': { bg: 'bg-gray-600', text: 'text-white', font: 'font-bold uppercase' },
+                              'Iman': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-medium' },
+                              'David': { bg: 'bg-gray-700', text: 'text-white', font: 'font-bold uppercase' },
+                              'Noah': { bg: 'bg-gray-600', text: 'text-yellow-400', font: 'font-black italic uppercase' },
+                              'Gstaad': { bg: 'bg-gray-600', text: 'text-green-400', font: 'font-semibold' },
+                              'Nema': { bg: 'bg-gray-600', text: 'text-orange-400', font: 'font-semibold' },
+                              'Umi': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
+                              'Jason': { bg: 'bg-gray-600', text: 'text-white', font: 'font-semibold' },
+                              'Leila': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' },
+                              'seth': { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium lowercase' },
+                            };
+                            return styles[name] || { bg: 'bg-gray-600', text: 'text-white', font: 'font-medium' };
+                          };
+
+                          const style = getTemplateStyle(template);
+
+                          return (
+                            <button
+                              key={template}
+                              onClick={() => setSelectedTemplate(template)}
+                              className={`
+                                relative flex items-center justify-center p-3 rounded-lg transition-all
+                                ${style.bg} ${isSelected ? 'ring-2 ring-orange-500 ring-offset-2' : 'hover:ring-1 hover:ring-gray-400'}
+                              `}
+                            >
+                              {isNew && (
+                                <span className="absolute -top-1 -left-1 bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold">
+                                  New
+                                </span>
+                              )}
+                              {isPremium && (
+                                <span className="absolute -top-1 -right-1 bg-yellow-400 text-gray-900 rounded-full p-0.5">
+                                  <Zap className="w-2.5 h-2.5" />
+                                </span>
+                              )}
+                              <span className={`${style.text} ${style.font} text-xs ${style.effect || ''}`}>
                                 {template}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
-                      <div className="space-y-2">
-                        <Label>Language</Label>
-                        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select language" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {languages.map((lang) => (
-                              <SelectItem key={lang.code} value={lang.code}>
-                                {lang.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+
+                      {/* Selected Template Display */}
+                      <div className="flex items-center gap-2 pt-2 border-t">
+                        <span className="text-sm text-gray-500">Selected:</span>
+                        <Badge variant="secondary" className="font-semibold">
+                          {selectedTemplate}
+                        </Badge>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Language Selector */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Languages className="w-5 h-5" />
+                        Language
+                      </CardTitle>
+                      <CardDescription>
+                        Select transcription language
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((lang) => (
+                            <SelectItem key={lang.code} value={lang.code}>
+                              {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </CardContent>
                   </Card>
 
