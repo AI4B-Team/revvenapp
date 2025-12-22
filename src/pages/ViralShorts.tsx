@@ -74,6 +74,7 @@ const ViralShorts = () => {
   const [hookTitleText, setHookTitleText] = useState("");
   const [activeStep, setActiveStep] = useState(1);
   const [templateFilter, setTemplateFilter] = useState('All');
+  const [captionTab, setCaptionTab] = useState<'choose' | 'edit'>('choose');
   
   const [templates, setTemplates] = useState<string[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -601,85 +602,130 @@ const ViralShorts = () => {
                       {/* Header Tabs - Matching Reference */}
                       <div className="flex items-center justify-between bg-white border-b border-gray-200 px-5 py-3">
                         <div className="flex">
-                          <button className="px-5 py-2.5 text-sm font-semibold text-gray-900 bg-gray-100 rounded-lg border border-gray-200">
+                          <button 
+                            onClick={() => setCaptionTab('choose')}
+                            className={`px-5 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                              captionTab === 'choose' 
+                                ? 'text-gray-900 bg-gray-100 border border-gray-200' 
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                          >
                             Choose Style
                           </button>
-                          <button className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-lg ml-2">
+                          <button 
+                            onClick={() => setCaptionTab('edit')}
+                            className={`px-5 py-2.5 text-sm font-medium rounded-lg ml-2 transition-all ${
+                              captionTab === 'edit' 
+                                ? 'text-gray-900 bg-gray-100 border border-gray-200' 
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                          >
                             Edit Captions
                           </button>
                         </div>
-                        <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors">
+                        <button 
+                          onClick={() => toast.info(`Customizing ${selectedTemplate} - Feature coming soon!`)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors"
+                        >
                           <Settings2 className="w-4 h-4" />
                           Customize {selectedTemplate}
                         </button>
                       </div>
                       
                       <div className="p-5 bg-[#f5f5f5]">
-                        {/* Filter Tabs - Matching Reference */}
-                        <div className="flex gap-4 mb-5">
-                          {['All', 'Trend', 'New', 'Premium', 'Emoji', 'Speakers'].map((filter) => (
-                            <button
-                              key={filter}
-                              onClick={() => setTemplateFilter(filter === 'Trend' ? 'Trending' : filter)}
-                              className={`text-sm font-medium transition-all ${
-                                (filter === 'Trend' ? 'Trending' : filter) === templateFilter || (filter === 'All' && templateFilter === 'All')
-                                  ? 'text-gray-900 bg-white px-3 py-1 rounded-md shadow-sm border border-gray-200'
-                                  : 'text-gray-500 hover:text-gray-700'
-                              }`}
-                            >
-                              {filter}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Template Grid - Premium Style Matching Reference */}
-                        <ScrollArea className="h-[350px]">
-                          <div className="grid grid-cols-3 gap-3 pr-3">
-                            {filteredTemplates.map((template) => {
-                              const isSelected = selectedTemplate === template;
-                              const meta = templateMeta[template] || {};
-                              const style = getTemplateStyle(template);
-
-                              return (
+                        {captionTab === 'choose' ? (
+                          <>
+                            {/* Filter Tabs - Matching Reference */}
+                            <div className="flex gap-4 mb-5">
+                              {['All', 'Trend', 'New', 'Premium', 'Emoji', 'Speakers'].map((filter) => (
                                 <button
-                                  key={template}
-                                  onClick={() => { setSelectedTemplate(template); setActiveStep(3); }}
-                                  className={`relative flex items-center justify-center h-14 rounded-lg transition-all duration-200 ${style.bg} ${
-                                    isSelected
-                                      ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-[#f5f5f5]'
-                                      : 'hover:opacity-90'
+                                  key={filter}
+                                  onClick={() => setTemplateFilter(filter === 'Trend' ? 'Trending' : filter)}
+                                  className={`text-sm font-medium transition-all ${
+                                    (filter === 'Trend' ? 'Trending' : filter) === templateFilter || (filter === 'All' && templateFilter === 'All')
+                                      ? 'text-gray-900 bg-white px-3 py-1 rounded-md shadow-sm border border-gray-200'
+                                      : 'text-gray-500 hover:text-gray-700'
                                   }`}
                                 >
-                                  {/* New Badge - Red pill like reference */}
-                                  {meta.isNew && (
-                                    <span className="absolute -top-1.5 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-semibold z-10">
-                                      New
-                                    </span>
-                                  )}
-                                  
-                                  {/* Premium/Trending Badge - Yellow lightning */}
-                                  {(meta.isPremium || meta.isTrending) && (
-                                    <span className="absolute top-1/2 -translate-y-1/2 right-2.5 bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-900 rounded p-1 shadow-sm">
-                                      <Zap className="w-3 h-3 fill-current" />
-                                    </span>
-                                  )}
-                                  
-                                  {/* Template Name - Styled like reference */}
-                                  <span className={`${style.text} ${style.font} text-sm tracking-wide`}>
-                                    {template}
-                                  </span>
-                                  
-                                  {/* Selection Indicator - Pencil icon like reference */}
-                                  {isSelected && (
-                                    <span className="absolute top-1.5 left-1.5 bg-white/20 rounded p-0.5">
-                                      <CheckCircle className="w-3.5 h-3.5 text-white" />
-                                    </span>
-                                  )}
+                                  {filter}
                                 </button>
-                              );
-                            })}
+                              ))}
+                            </div>
+
+                            {/* Template Grid - Premium Style Matching Reference */}
+                            <ScrollArea className="h-[350px]">
+                              <div className="grid grid-cols-3 gap-3 pr-3">
+                                {filteredTemplates.map((template) => {
+                                  const isSelected = selectedTemplate === template;
+                                  const meta = templateMeta[template] || {};
+                                  const style = getTemplateStyle(template);
+
+                                  return (
+                                    <button
+                                      key={template}
+                                      onClick={() => { setSelectedTemplate(template); setActiveStep(3); }}
+                                      className={`relative flex items-center justify-center h-14 rounded-lg transition-all duration-200 ${style.bg} ${
+                                        isSelected
+                                          ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-[#f5f5f5]'
+                                          : 'hover:opacity-90'
+                                      }`}
+                                    >
+                                      {/* New Badge - Red pill like reference */}
+                                      {meta.isNew && (
+                                        <span className="absolute -top-1.5 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-semibold z-10">
+                                          New
+                                        </span>
+                                      )}
+                                      
+                                      {/* Premium/Trending Badge - Yellow lightning */}
+                                      {(meta.isPremium || meta.isTrending) && (
+                                        <span className="absolute top-1/2 -translate-y-1/2 right-2.5 bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-900 rounded p-1 shadow-sm">
+                                          <Zap className="w-3 h-3 fill-current" />
+                                        </span>
+                                      )}
+                                      
+                                      {/* Template Name - Styled like reference */}
+                                      <span className={`${style.text} ${style.font} text-sm tracking-wide`}>
+                                        {template}
+                                      </span>
+                                      
+                                      {/* Selection Indicator - Pencil icon like reference */}
+                                      {isSelected && (
+                                        <span className="absolute top-1.5 left-1.5 bg-white/20 rounded p-0.5">
+                                          <CheckCircle className="w-3.5 h-3.5 text-white" />
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </ScrollArea>
+                          </>
+                        ) : (
+                          /* Edit Captions Tab Content */
+                          <div className="space-y-4">
+                            <div className="bg-white rounded-xl p-4 border border-gray-200">
+                              <Label className="text-gray-700 font-medium mb-2 block">Caption Text</Label>
+                              <textarea 
+                                className="w-full h-32 p-3 border border-gray-200 rounded-lg text-gray-900 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                placeholder="Your captions will appear here after processing..."
+                              />
+                            </div>
+                            <div className="flex gap-3">
+                              <Button variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100">
+                                <Type className="w-4 h-4 mr-2" />
+                                Font Style
+                              </Button>
+                              <Button variant="outline" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-100">
+                                <Palette className="w-4 h-4 mr-2" />
+                                Colors
+                              </Button>
+                            </div>
+                            <p className="text-gray-500 text-sm text-center">
+                              Upload a video first to edit captions
+                            </p>
                           </div>
-                        </ScrollArea>
+                        )}
                       </div>
                     </div>
                   </div>
