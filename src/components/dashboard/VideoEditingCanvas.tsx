@@ -1574,22 +1574,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <ResizablePanel defaultSize={35} minSize={28} maxSize={50}>
               <div className="h-full bg-white border-r border-gray-200 flex flex-col">
                 {/* Tabs with Tooltips */}
-                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-nowrap overflow-x-auto">
+                <div className="flex items-center justify-center gap-0.5 p-2 border-b border-gray-200 bg-gray-50 flex-nowrap min-w-max">
                   {tabs.map((tab) => (
                     <Tooltip key={tab.id}>
                       <TooltipTrigger asChild>
                         <button
                           onClick={() => setActiveTab(tab.id)}
-                          className={`p-2 rounded-lg transition-all flex items-center gap-1.5 ${
+                          className={`p-2 rounded-lg transition-all flex items-center justify-center flex-shrink-0 ${
                             activeTab === tab.id
-                              ? 'bg-white text-gray-900 shadow-sm'
+                              ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200'
                               : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                           }`}
                         >
                           <tab.icon className="w-5 h-5" />
-                          {activeTab === tab.id && (
-                            <span className="text-xs font-medium">{tab.label}</span>
-                          )}
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
