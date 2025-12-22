@@ -1901,8 +1901,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <ResizablePanelGroup direction="vertical" className="h-full relative">
 
                 {/* Video Preview Panel */}
-                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 50} minSize={30}>
-                  <div className="h-full flex flex-col bg-gray-100 relative z-10">
+                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 55} minSize={40}>
+                  <div className="h-full flex flex-col bg-gray-100 relative z-10 overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
                       <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
@@ -2235,10 +2235,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                 {/* Timeline Panel - Resizable upward */}
                 <ResizablePanel 
-                  defaultSize={isTimelineMinimized ? 0 : 50} 
-                  minSize={isTimelineMinimized ? 0 : 30} 
-                  maxSize={isTimelineMinimized ? 0 : 70}
-                  className={isTimelineMinimized ? 'h-auto !flex-none' : ''}
+                  defaultSize={isTimelineMinimized ? 0 : 45} 
+                  minSize={isTimelineMinimized ? 0 : 20} 
+                  maxSize={isTimelineMinimized ? 0 : 60}
+                  className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden'}
                 >
                   {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
                   {isVideoSelected && (
@@ -2416,7 +2416,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                     {/* Timeline Content */}
                     {!isTimelineMinimized && (
-                      <div className="flex-1 overflow-hidden">
+                      <div className="overflow-hidden">
                         <VideoTimeline
                           tracks={tracks}
                           setTracks={setTracks}
