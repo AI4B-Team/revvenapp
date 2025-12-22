@@ -1052,7 +1052,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         </div>
       ) : (
         /* Timeline View */
-        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-white">
+        <div className="overflow-y-auto overflow-x-hidden bg-white" style={{ maxHeight: `${tracks.length * 64}px` }}>
         {tracks.map((track, index) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
