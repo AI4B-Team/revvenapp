@@ -1618,22 +1618,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           {!isLeftPanelCollapsed && (
             <div className="w-[560px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
               {/* Tabs with Tooltips */}
-              <div className="flex items-center justify-start gap-0.5 px-3 py-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
+              <div className="flex items-center justify-center gap-0.5 px-3 py-2 border-b border-gray-200 bg-gray-50 flex-nowrap">
                 {tabs.map((tab) => (
                   <Tooltip key={tab.id}>
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`p-2 rounded-lg transition-all flex items-center gap-1.5 flex-shrink-0 ${
+                        className={`p-2 rounded-lg transition-all flex items-center justify-center flex-shrink-0 ${
                           activeTab === tab.id
-                            ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200 px-3'
+                            ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200'
                             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                         }`}
                       >
                         <tab.icon className="w-4 h-4" />
-                        {activeTab === tab.id && (
-                          <span className="text-xs font-medium whitespace-nowrap">{tab.label}</span>
-                        )}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
