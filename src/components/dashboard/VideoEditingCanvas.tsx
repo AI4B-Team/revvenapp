@@ -1912,12 +1912,12 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </Tooltip>
 
           {/* Right - Video Preview & Timeline */}
-          <div className="flex-1 h-full relative">
-            <ResizablePanelGroup direction="vertical" className="h-full relative">
+          <div className="flex-1 h-full relative overflow-hidden">
+            <ResizablePanelGroup direction="vertical" className="h-full">
 
                 {/* Video Preview Panel - larger by default so timeline shows ~2 tracks initially */}
                 <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 70} minSize={45}>
-                  <div className="h-full flex flex-col bg-gray-100 relative z-10 overflow-hidden">
+                  <div className="h-full flex flex-col bg-gray-100 relative overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
                       <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
@@ -2253,7 +2253,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   defaultSize={isTimelineMinimized ? 0 : 30} 
                   minSize={isTimelineMinimized ? 0 : 15} 
                   maxSize={isTimelineMinimized ? 0 : 55}
-                  className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden'}
+                  className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden flex flex-col'}
                 >
                   {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
                   {isVideoSelected && (
@@ -2274,7 +2274,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </button>
                     </div>
                   )}
-                  <div className={`bg-white border-t border-gray-200 flex flex-col relative z-0 ${isTimelineMinimized ? '' : 'h-full'}`}>
+                  <div className={`bg-white border-t border-gray-200 flex flex-col ${isTimelineMinimized ? '' : 'h-full overflow-hidden'}`}>
                     {/* Toolbar */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
                     {/* Left Tools - CapCut style icons */}
@@ -2431,7 +2431,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                     {/* Timeline Content */}
                     {!isTimelineMinimized && (
-                      <div className="overflow-hidden">
+                      <div className="flex-1 min-h-0 overflow-hidden">
                         <VideoTimeline
                           tracks={tracks}
                           setTracks={setTracks}
