@@ -1997,11 +1997,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </Tooltip>
 
           {/* Right - Video Preview & Timeline */}
-          <div className="flex-1 h-full relative overflow-hidden">
-            <ResizablePanelGroup direction="vertical" className="h-full">
+          <div className="flex-1 h-full relative overflow-hidden flex flex-col">
+            <ResizablePanelGroup direction="vertical" className="flex-1 min-h-0">
 
                 {/* Video Preview Panel - larger by default so timeline shows ~2 tracks initially */}
-                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 70} minSize={45}>
+                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 65} minSize={35}>
                   <div className="h-full flex flex-col bg-gray-100 relative overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
@@ -2071,7 +2071,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     {/* Video Preview Area */}
                     <div 
                       ref={playerContainerRef}
-                      className="flex-1 flex items-center justify-center p-4 relative"
+                      className="flex-1 min-h-0 flex items-center justify-center p-4 relative overflow-hidden"
                       onClick={(e) => {
                         // Deselect video when clicking outside the video container
                         if (e.target === e.currentTarget) {
@@ -2103,10 +2103,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             }`}
                             style={{
                               // Dynamic sizing based on aspect ratio - uses max percentage of container
-                              maxWidth: selectedRatio === '9:16' ? '35%' : selectedRatio === '1:1' ? '55%' : '80%',
-                              maxHeight: '85%',
+                              maxWidth: selectedRatio === '9:16' ? '35%' : selectedRatio === '1:1' ? '55%' : '75%',
+                              maxHeight: '100%',
                               aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
-                              width: '100%',
+                              width: 'auto',
+                              height: 'auto',
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -2331,14 +2332,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
                 </ResizablePanel>
-                <ResizableHandle withHandle className={`bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors ${isTimelineMinimized ? 'hidden' : ''}`} />
+                <ResizableHandle withHandle className={`bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors shrink-0 ${isTimelineMinimized ? 'hidden' : ''}`} />
 
                 {/* Timeline Panel - small by default (~2 tracks visible), user can drag to expand */}
                 <ResizablePanel 
-                  defaultSize={isTimelineMinimized ? 0 : 30} 
-                  minSize={isTimelineMinimized ? 0 : 15} 
-                  maxSize={isTimelineMinimized ? 0 : 55}
-                  className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden flex flex-col'}
+                  defaultSize={isTimelineMinimized ? 0 : 35} 
+                  minSize={isTimelineMinimized ? 0 : 20} 
+                  maxSize={isTimelineMinimized ? 0 : 65}
+                  className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden flex flex-col min-h-0'}
                 >
                   {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
                   {isVideoSelected && (
