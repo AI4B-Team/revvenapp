@@ -219,7 +219,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
-  const [visibleTrackCount, setVisibleTrackCount] = useState(2); // Default to showing only 2 tracks
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -1898,8 +1897,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <div className="h-full relative">
               <ResizablePanelGroup direction="vertical" className="h-full relative">
 
-                {/* Video Preview Panel - dynamically sized based on timeline visible tracks */}
-                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : Math.max(45, 85 - (visibleTrackCount * 8))} minSize={45}>
+                {/* Video Preview Panel - larger by default so timeline shows ~2 tracks initially */}
+                <ResizablePanel defaultSize={isTimelineMinimized ? 85 : 70} minSize={45}>
                   <div className="h-full flex flex-col bg-gray-100 relative z-10 overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
@@ -2231,9 +2230,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 </ResizablePanel>
                 <ResizableHandle withHandle className={`bg-gray-200 hover:bg-primary/30 data-[resize-handle-active]:bg-primary transition-colors ${isTimelineMinimized ? 'hidden' : ''}`} />
 
-                {/* Timeline Panel - Resizable upward, sized based on visible tracks */}
+                {/* Timeline Panel - small by default (~2 tracks visible), user can drag to expand */}
                 <ResizablePanel 
-                  defaultSize={isTimelineMinimized ? 0 : Math.min(35, 15 + (visibleTrackCount * 8))} 
+                  defaultSize={isTimelineMinimized ? 0 : 30} 
                   minSize={isTimelineMinimized ? 0 : 15} 
                   maxSize={isTimelineMinimized ? 0 : 55}
                   className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden'}
@@ -2426,8 +2425,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           onTimeSeek={handleTimelineSeek}
                           isDragging={isDragging}
                           setIsDragging={setIsDragging}
-                          visibleTrackCount={visibleTrackCount}
-                          onShowMoreTracks={() => setVisibleTrackCount(prev => Math.min(tracks.length, prev + 2))}
                         />
                       </div>
                     )}
