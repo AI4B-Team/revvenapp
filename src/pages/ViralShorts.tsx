@@ -853,7 +853,7 @@ const ViralShorts = () => {
                           {project.status === 'completed' && (
                             <div className="flex gap-2">
                               {project.downloadUrl && (
-                                <Button size="sm" variant="outline" className="border-gray-600 text-white hover:bg-gray-700" asChild>
+                                <Button size="sm" className="bg-gray-700 hover:bg-gray-600 text-white border border-gray-600" asChild>
                                   <a href={project.downloadUrl} download>
                                     <Download className="w-4 h-4 mr-1" />
                                     Download
