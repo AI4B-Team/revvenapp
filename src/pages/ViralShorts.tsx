@@ -29,7 +29,10 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Upload,
+  Video,
+  X
 } from "lucide-react";
 
 interface Template {
@@ -72,6 +75,12 @@ const ViralShorts = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [pollingId, setPollingId] = useState<string | null>(null);
+  
+  // Upload states
+  const [sourceType, setSourceType] = useState<'url' | 'upload'>('url');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch templates and languages on mount
   useEffect(() => {
@@ -168,10 +177,92 @@ const ViralShorts = () => {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        toast.error('File size must be less than 500MB');
+        return;
+      }
+      // Check file type
+      if (!file.type.startsWith('video/')) {
+        toast.error('Please upload a video file');
+        return;
+      }
+      setUploadedFile(file);
+      // Auto-set title from filename if empty
+      if (!title) {
+        const fileName = file.name.replace(/\.[^/.]+$/, "");
+        setTitle(fileName);
+      }
+    }
+  };
+
+  const uploadVideoToCloudinary = async (file: File): Promise<string> => {
+    setIsUploading(true);
+    setUploadProgress(10);
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      setUploadProgress(30);
+      const base64Data = await base64Promise;
+      
+      setUploadProgress(50);
+      
+      const { data, error } = await supabase.functions.invoke('upload-video', {
+        body: { 
+          video: base64Data,
+          filename: file.name,
+          duration: 0
+        }
+      });
+
+      if (error) throw error;
+      
+      setUploadProgress(100);
+      
+      if (!data?.video?.url) {
+        throw new Error('No URL returned from upload');
+      }
+
+      return data.video.url;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleCreateProject = async () => {
-    if (!videoUrl) {
-      toast.error('Please enter a video URL');
-      return;
+    let finalVideoUrl = videoUrl;
+
+    // If using upload, first upload the video
+    if (sourceType === 'upload') {
+      if (!uploadedFile) {
+        toast.error('Please upload a video file');
+        return;
+      }
+      
+      try {
+        toast.info('Uploading video to cloud...');
+        finalVideoUrl = await uploadVideoToCloudinary(uploadedFile);
+        toast.success('Video uploaded successfully!');
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        toast.error(error.message || 'Failed to upload video');
+        return;
+      }
+    } else {
+      if (!finalVideoUrl) {
+        toast.error('Please enter a video URL');
+        return;
+      }
     }
 
     if (!title) {
@@ -186,7 +277,7 @@ const ViralShorts = () => {
         action: 'create-project',
         title,
         language: selectedLanguage,
-        videoUrl,
+        videoUrl: finalVideoUrl,
         templateName: selectedTemplate,
         magicZooms,
         magicBrolls,
@@ -226,6 +317,8 @@ const ViralShorts = () => {
         setVideoUrl("");
         setTitle("");
         setHookTitleText("");
+        setUploadedFile(null);
+        setUploadProgress(0);
       }
     } catch (error: any) {
       console.error('Error creating project:', error);
@@ -310,14 +403,14 @@ const ViralShorts = () => {
               <TabsContent value="create">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Input Section */}
-                  <Card>
+                  <Card className="lg:col-span-2">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Link2 className="w-5 h-5" />
+                        <Video className="w-5 h-5" />
                         Video Source
                       </CardTitle>
                       <CardDescription>
-                        Enter a public video URL (MP4, YouTube, Google Drive)
+                        Upload a video or enter a public URL
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -330,15 +423,94 @@ const ViralShorts = () => {
                           onChange={(e) => setTitle(e.target.value)}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="videoUrl">Video URL</Label>
-                        <Input
-                          id="videoUrl"
-                          placeholder="https://example.com/video.mp4"
-                          value={videoUrl}
-                          onChange={(e) => setVideoUrl(e.target.value)}
-                        />
+
+                      {/* Source Type Tabs */}
+                      <div className="space-y-3">
+                        <Label>Video Source</Label>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant={sourceType === 'upload' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setSourceType('upload')}
+                            className="flex-1"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload Video
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={sourceType === 'url' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setSourceType('url')}
+                            className="flex-1"
+                          >
+                            <Link2 className="w-4 h-4 mr-2" />
+                            Video URL
+                          </Button>
+                        </div>
                       </div>
+
+                      {sourceType === 'upload' ? (
+                        <div className="space-y-3">
+                          {uploadedFile ? (
+                            <div className="border-2 border-dashed border-green-300 bg-green-50 rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-green-100 rounded-lg">
+                                    <Video className="w-6 h-6 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-green-900">{uploadedFile.name}</p>
+                                    <p className="text-sm text-green-600">
+                                      {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setUploadedFile(null)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              {isUploading && (
+                                <div className="mt-3">
+                                  <Progress value={uploadProgress} className="h-2" />
+                                  <p className="text-xs text-green-600 mt-1">Uploading... {uploadProgress}%</p>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <label className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
+                              <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                              <p className="text-sm font-medium text-gray-700">Click to upload video</p>
+                              <p className="text-xs text-gray-500 mt-1">MP4, MOV, AVI up to 500MB</p>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={handleFileSelect}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Label htmlFor="videoUrl">Video URL</Label>
+                          <Input
+                            id="videoUrl"
+                            placeholder="https://example.com/video.mp4 or YouTube URL"
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                          />
+                          <p className="text-xs text-gray-500">
+                            Supports MP4 links, YouTube, Google Drive, and Dropbox
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -476,9 +648,14 @@ const ViralShorts = () => {
                     size="lg" 
                     className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
                     onClick={handleCreateProject}
-                    disabled={isCreating || !videoUrl || !title}
+                    disabled={isCreating || isUploading || (!videoUrl && !uploadedFile) || !title}
                   >
-                    {isCreating ? (
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Uploading Video...
+                      </>
+                    ) : isCreating ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                         Creating Project...
