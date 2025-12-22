@@ -1523,8 +1523,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </Tooltip>
           </div>
 
-          {/* Centered Media Type Tabs - matches Header nav centering */}
-          <div className="flex-1 flex items-center justify-center">
+          {/* Centered Media Type Tabs - absolute center to align with Header nav */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex">
             <div className="flex items-center gap-4 lg:gap-8">
               <button 
                 onClick={() => onTabChange?.('image')}
