@@ -1575,7 +1575,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           {!isLeftPanelCollapsed && (
             <div className="w-[400px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
               {/* Tabs with Tooltips */}
-              <div className="flex items-center justify-center gap-0.5 p-2 border-b border-gray-200 bg-gray-50 flex-nowrap min-w-max">
+              <div className="flex items-center justify-center gap-1 px-3 py-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
                 {tabs.map((tab) => (
                   <Tooltip key={tab.id}>
                     <TooltipTrigger asChild>
@@ -1672,7 +1672,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Bottom Toolbar Icons */}
-                  <div className="flex items-center gap-1.5 pt-1">
+                  <div className="flex items-center flex-wrap gap-1.5 pt-2 px-1">
                     {/* Tool selector - always first */}
                     <DropdownMenu>
                       <Tooltip>
