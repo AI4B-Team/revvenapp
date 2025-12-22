@@ -368,7 +368,8 @@ const Create = () => {
       name: 'Viral Shorts', 
       description: 'Create viral short-form videos',
       bgColor: 'bg-tool-purple',
-      emoji: '🔥'
+      emoji: '🔥',
+      onClick: () => navigate('/viral-shorts')
     },
   ];
 

@@ -107,3 +107,15 @@ verify_jwt = true
 
 [functions.check-merge-status]
 verify_jwt = true
+
+[functions.viral-shorts]
+verify_jwt = true
+
+[functions.download-video]
+verify_jwt = true
+
+[functions.change-voice]
+verify_jwt = true
+
+[functions.generate-transcript-summary]
+verify_jwt = true
