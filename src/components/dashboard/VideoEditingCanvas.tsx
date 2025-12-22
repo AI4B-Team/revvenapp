@@ -1573,9 +1573,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         <div className="flex flex-1 min-h-0 overflow-hidden relative">
           {/* Left Panel - Tab Content (collapsible) */}
           {!isLeftPanelCollapsed && (
-            <div className="w-auto min-w-[320px] max-w-[450px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+            <div className="w-[380px] min-w-[380px] max-w-[450px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
               {/* Tabs with Tooltips */}
-              <div className="flex items-center justify-center gap-0.5 p-2 border-b border-gray-200 bg-gray-50 overflow-x-auto">
+              <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
                 {tabs.map((tab) => (
                   <Tooltip key={tab.id}>
                     <TooltipTrigger asChild>
@@ -1897,7 +1897,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               <button
                 onClick={() => setIsLeftPanelCollapsed(!isLeftPanelCollapsed)}
                 className={`absolute top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-5 h-12 bg-gray-200 hover:bg-gray-300 rounded-r-md border border-l-0 border-gray-300 transition-all ${
-                  isLeftPanelCollapsed ? 'left-0' : 'left-[320px]'
+                  isLeftPanelCollapsed ? 'left-0' : 'left-[380px]'
                 }`}
               >
                 {isLeftPanelCollapsed ? (
@@ -1912,10 +1912,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </TooltipContent>
           </Tooltip>
 
-          {/* Right - Video Preview & Timeline - using flex column instead of resizable to prevent overlap */}
-          <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden">
+          {/* Right - Video Preview & Timeline - CSS Grid to prevent overlap */}
+          <div className="flex-1 min-w-0 h-full grid overflow-hidden" style={{ gridTemplateRows: isTimelineMinimized ? '1fr' : '1fr auto' }}>
             {/* Video Preview Section - takes remaining space */}
-            <div className={`flex-1 min-h-0 flex flex-col bg-gray-100 relative overflow-hidden ${isTimelineMinimized ? '' : ''}`}>
+            <div className="flex flex-col bg-gray-100 relative overflow-hidden min-h-0">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
                       <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
@@ -2245,35 +2245,31 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               </div>
             </div>
 
-            {/* Resize Handle */}
+            {/* Timeline Section - fixed height, grid row prevents overlap */}
             {!isTimelineMinimized && (
-              <div className="h-1.5 bg-gray-200 hover:bg-primary/30 cursor-row-resize transition-colors flex-shrink-0" />
-            )}
-
-            {/* Timeline Section - fixed height that doesn't overlap player */}
-            <div className={`flex-shrink-0 flex flex-col bg-white border-t border-gray-200 overflow-hidden transition-all ${isTimelineMinimized ? 'h-0' : 'h-[280px]'}`}>
-              {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
-              {isVideoSelected && (
-                <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
-                  <button 
-                    onClick={() => setShowLayoutPanel(!showLayoutPanel)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                    Layout
-                  </button>
-                  <button 
-                    onClick={() => toast({ title: 'Background settings' })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
-                  >
-                    <ImageIcon className="w-4 h-4" />
-                    Background
-                  </button>
-                </div>
-              )}
-              <div className={`bg-white flex flex-col ${isTimelineMinimized ? '' : 'flex-1 min-h-0 overflow-hidden'}`}>
-                    {/* Toolbar */}
-                    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
+              <div className="h-[280px] flex flex-col bg-white border-t border-gray-200 overflow-hidden">
+                {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
+                {isVideoSelected && (
+                  <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+                    <button 
+                      onClick={() => setShowLayoutPanel(!showLayoutPanel)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                      Layout
+                    </button>
+                    <button 
+                      onClick={() => toast({ title: 'Background settings' })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      Background
+                    </button>
+                  </div>
+                )}
+                <div className="bg-white flex flex-col flex-1 min-h-0 overflow-hidden">
+                  {/* Toolbar */}
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 shrink-0">
                     {/* Left Tools - CapCut style icons */}
                     <div className="flex items-center gap-1">
                       {/* Undo button styled like reference */}
@@ -2401,7 +2397,6 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <TooltipTrigger asChild>
                           <button 
                             onClick={() => {
-                              // Fit timeline to view - calculate zoom to show entire duration
                               setZoom(1);
                               toast({ title: 'Timeline fitted to view' });
                             }}
@@ -2426,27 +2421,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     </div>
                   </div>
 
-                    {/* Timeline Content */}
-                    {!isTimelineMinimized && (
-                      <div className="flex-1 min-h-0 overflow-hidden">
-                        <VideoTimeline
-                          tracks={tracks}
-                          setTracks={setTracks}
-                          currentTime={currentTime}
-                          duration={timelineDuration}
-                          zoom={zoom}
-                          selectedClip={selectedClip}
-                          setSelectedClip={setSelectedClip}
-                          onTimeSeek={handleTimelineSeek}
-                          isDragging={isDragging}
-                          setIsDragging={setIsDragging}
-                        />
-                      </div>
-                    )}
+                  {/* Timeline Content */}
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <VideoTimeline
+                      tracks={tracks}
+                      setTracks={setTracks}
+                      currentTime={currentTime}
+                      duration={timelineDuration}
+                      zoom={zoom}
+                      selectedClip={selectedClip}
+                      setSelectedClip={setSelectedClip}
+                      onTimeSeek={handleTimelineSeek}
+                      isDragging={isDragging}
+                      setIsDragging={setIsDragging}
+                    />
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </TooltipProvider>
