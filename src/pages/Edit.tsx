@@ -56,6 +56,7 @@ const Edit = () => {
               onSave={handleSave}
               onTabChange={handleEditorTabChange}
               activeEditorTab={editorTab}
+              isSidebarCollapsed={isSidebarCollapsed}
             />
           )}
           {editorTab === 'audio' && (
