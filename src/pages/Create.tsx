@@ -364,6 +364,12 @@ const Create = () => {
       emoji: '🤖',
       onClick: () => navigate('/ai-influencer')
     },
+    { 
+      name: 'Viral Shorts', 
+      description: 'Create viral short-form videos',
+      bgColor: 'bg-tool-purple',
+      emoji: '🔥'
+    },
   ];
 
   const audioTools = [
