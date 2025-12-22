@@ -59,6 +59,7 @@ import ScriptWriter from "./pages/ScriptWriter";
 import SEOOptimizer from "./pages/SEOOptimizer";
 import EbookCreator from "./pages/EbookCreator";
 import ExplainerVideo from "./pages/ExplainerVideo";
+import ViralShorts from "./pages/ViralShorts";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -109,6 +110,7 @@ const App = () => (
           <Route path="/seo-optimizer" element={<SEOOptimizer />} />
           <Route path="/ebook-creator" element={<EbookCreator />} />
           <Route path="/explainer-video" element={<ExplainerVideo />} />
+          <Route path="/viral-shorts" element={<ViralShorts />} />
           <Route path="/assets" element={<Assets />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/login" element={<Login />} />
