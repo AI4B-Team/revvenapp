@@ -1624,13 +1624,16 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`p-2 rounded-lg transition-all flex items-center justify-center flex-shrink-0 ${
+                        className={`p-2 rounded-lg transition-all flex items-center gap-1.5 flex-shrink-0 ${
                           activeTab === tab.id
-                            ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200'
+                            ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200 px-3'
                             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                         }`}
                       >
                         <tab.icon className="w-4 h-4" />
+                        {activeTab === tab.id && (
+                          <span className="text-xs font-medium whitespace-nowrap">{tab.label}</span>
+                        )}
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
