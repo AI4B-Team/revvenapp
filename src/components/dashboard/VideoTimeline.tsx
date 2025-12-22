@@ -665,7 +665,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
   return (
     <TooltipProvider>
-    <div className="flex flex-col h-full bg-white overflow-hidden">
+    <div className="flex flex-col h-full bg-white overflow-hidden max-h-full">
       {/* Scrubber/Playhead Bar at Top - gray background */}
       <div className="flex h-6 bg-gray-200 flex-shrink-0 border-b border-gray-300">
         {/* Empty space matching track header width */}
