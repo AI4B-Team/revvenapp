@@ -597,49 +597,44 @@ const ViralShorts = () => {
                     </div>
 
                     {/* Caption Style Section */}
-                    <div className={`bg-gray-800/40 backdrop-blur-xl rounded-2xl border transition-all duration-300 ${activeStep === 2 ? 'border-orange-500/50 ring-2 ring-orange-500/20' : 'border-gray-700/50'}`}>
-                      <div className="p-6 border-b border-gray-700/50">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-purple-500/20 rounded-lg">
-                              <Palette className="w-5 h-5 text-purple-400" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">Caption Style</h3>
-                              <p className="text-sm text-gray-400">Choose your viral caption look</p>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="border-purple-500/30 text-purple-400">
-                            {selectedTemplate}
-                          </Badge>
+                    <div className={`bg-white rounded-2xl border transition-all duration-300 ${activeStep === 2 ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-gray-200'} shadow-xl`}>
+                      {/* Header Tabs */}
+                      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                        <div className="flex gap-1">
+                          <button className="px-4 py-2 text-sm font-semibold text-gray-900 bg-gray-100 rounded-lg">
+                            Choose Style
+                          </button>
+                          <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                            Edit Captions
+                          </button>
                         </div>
+                        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                          <Settings2 className="w-4 h-4" />
+                          Customize {selectedTemplate}
+                        </button>
                       </div>
+                      
                       <div className="p-6">
                         {/* Filter Tabs */}
-                        <div className="flex gap-2 mb-4 flex-wrap">
-                          {['All', 'Trending', 'New', 'Premium'].map((filter) => (
-                            <Button
+                        <div className="flex gap-3 mb-6">
+                          {['All', 'Trend', 'New', 'Premium', 'Emoji', 'Speakers'].map((filter) => (
+                            <button
                               key={filter}
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setTemplateFilter(filter)}
-                              className={`rounded-full transition-all ${
-                                templateFilter === filter
-                                  ? 'bg-orange-500 text-white hover:bg-orange-600'
-                                  : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+                              onClick={() => setTemplateFilter(filter === 'Trend' ? 'Trending' : filter)}
+                              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
+                                (filter === 'Trend' ? 'Trending' : filter) === templateFilter || (filter === 'All' && templateFilter === 'All')
+                                  ? 'bg-gray-900 text-white'
+                                  : 'text-gray-600 hover:bg-gray-100'
                               }`}
                             >
-                              {filter === 'Trending' && <TrendingUp className="w-3.5 h-3.5 mr-1.5" />}
-                              {filter === 'Premium' && <Crown className="w-3.5 h-3.5 mr-1.5" />}
-                              {filter === 'New' && <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
                               {filter}
-                            </Button>
+                            </button>
                           ))}
                         </div>
 
-                        {/* Template Grid */}
-                        <ScrollArea className="h-[280px] pr-4">
-                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        {/* Template Grid - Premium Style */}
+                        <ScrollArea className="h-[400px] pr-4">
+                          <div className="grid grid-cols-3 gap-4">
                             {filteredTemplates.map((template) => {
                               const isSelected = selectedTemplate === template;
                               const meta = templateMeta[template] || {};
@@ -649,34 +644,43 @@ const ViralShorts = () => {
                                 <button
                                   key={template}
                                   onClick={() => { setSelectedTemplate(template); setActiveStep(3); }}
-                                  className={`relative group flex items-center justify-center p-4 rounded-xl transition-all duration-300 ${style.bg} ${style.shadow || ''} ${
+                                  className={`relative group flex items-center justify-center h-16 rounded-lg transition-all duration-200 ${style.bg} ${
                                     isSelected
-                                      ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-gray-900 scale-105'
-                                      : 'hover:scale-105 hover:ring-1 hover:ring-white/20'
+                                      ? 'ring-2 ring-orange-500 ring-offset-2'
+                                      : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1'
                                   }`}
                                 >
+                                  {/* New Badge */}
                                   {meta.isNew && (
-                                    <span className="absolute -top-1.5 -left-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow-lg">
-                                      NEW
+                                    <span className="absolute -top-2 left-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded font-bold">
+                                      New
                                     </span>
                                   )}
+                                  
+                                  {/* Premium Badge */}
                                   {meta.isPremium && (
-                                    <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 rounded-full p-1 shadow-lg">
-                                      <Zap className="w-2.5 h-2.5" />
+                                    <span className="absolute top-1/2 -translate-y-1/2 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 rounded p-1">
+                                      <Zap className="w-3 h-3" />
                                     </span>
                                   )}
+                                  
+                                  {/* Trending Badge */}
                                   {meta.isTrending && !meta.isPremium && (
-                                    <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-emerald-400 to-cyan-500 text-gray-900 rounded-full p-1 shadow-lg">
-                                      <TrendingUp className="w-2.5 h-2.5" />
+                                    <span className="absolute top-1/2 -translate-y-1/2 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 rounded p-1">
+                                      <Zap className="w-3 h-3" />
                                     </span>
                                   )}
-                                  <span className={`${style.text} ${style.font} text-xs text-center leading-tight`}>
+                                  
+                                  {/* Template Name */}
+                                  <span className={`${style.text} ${style.font} text-base`}>
                                     {template}
                                   </span>
+                                  
+                                  {/* Selection Indicator */}
                                   {isSelected && (
-                                    <div className="absolute inset-0 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                                      <CheckCircle className="w-6 h-6 text-orange-400" />
-                                    </div>
+                                    <span className="absolute top-1 left-1 text-orange-500">
+                                      <CheckCircle className="w-4 h-4" />
+                                    </span>
                                   )}
                                 </button>
                               );
