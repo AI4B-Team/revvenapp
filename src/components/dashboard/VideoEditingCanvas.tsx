@@ -1696,7 +1696,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <TooltipTrigger asChild>
                             <Video className="w-4 h-4 text-red-400 cursor-pointer" />
                           </TooltipTrigger>
-                          <TooltipContent><p>Video To Prompt</p></TooltipContent>
+                          <TooltipContent><p>Video-To-Video</p></TooltipContent>
                         </Tooltip>
                         <span className="text-sm text-gray-400">Describe what you want to create...</span>
                       </div>
