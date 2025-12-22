@@ -53,6 +53,8 @@ interface VideoTimelineProps {
   onTimeSeek: (time: number) => void;
   isDragging: boolean;
   setIsDragging: (dragging: boolean) => void;
+  visibleTrackCount?: number;
+  onShowMoreTracks?: () => void;
 }
 const SNAP_THRESHOLD = 5; // pixels
 const MIN_CLIP_DURATION = 0.5;
@@ -69,6 +71,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   onTimeSeek,
   isDragging,
   setIsDragging,
+  visibleTrackCount,
+  onShowMoreTracks,
 }) => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
@@ -1052,8 +1056,8 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         </div>
       ) : (
         /* Timeline View */
-        <div className="overflow-y-auto overflow-x-hidden bg-white" style={{ maxHeight: `${tracks.length * 64}px` }}>
-        {tracks.map((track, index) => {
+        <div className="overflow-y-auto overflow-x-hidden bg-white" style={{ maxHeight: visibleTrackCount ? `${visibleTrackCount * 64}px` : `${tracks.length * 64}px` }}>
+        {tracks.slice(0, visibleTrackCount || tracks.length).map((track, index) => {
           const trackStyle = getTrackStyle(track.id);
           const TrackIcon = trackStyle.icon;
           const isDragged = draggedTrackId === track.id;
@@ -1401,6 +1405,18 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             </React.Fragment>
           );
         })}
+
+        {/* Show More Tracks Button */}
+        {visibleTrackCount && visibleTrackCount < tracks.length && onShowMoreTracks && (
+          <div 
+            onClick={onShowMoreTracks}
+            className="flex items-center justify-center h-8 bg-gray-50 border-t border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+          >
+            <span className="text-xs text-gray-600 font-medium">
+              Show {tracks.length - visibleTrackCount} more track{tracks.length - visibleTrackCount > 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
 
         </div>
       )}
