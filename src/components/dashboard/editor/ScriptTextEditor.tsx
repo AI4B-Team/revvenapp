@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ interface ScriptSegment {
   endTime: number;
   deleted?: boolean;
   selected?: boolean;
+  hidden?: boolean;
 }
 
 interface ScriptTextEditorProps {
@@ -129,6 +130,22 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     toast.success('Sentence removed');
   };
 
+  const handleHideSegment = (segmentId: string) => {
+    setSegments(prev =>
+      prev.map(seg =>
+        seg.id === segmentId ? { ...seg, hidden: !seg.hidden } : seg
+      )
+    );
+    toast.success('Line visibility toggled');
+  };
+
+  const handleEditClick = (segment: ScriptSegment, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedSegments(new Set([segment.id]));
+    setEditingSegmentId(segment.id);
+    setEditingText(segment.text);
+  };
+
   const handleAddToSelection = (segmentId: string) => {
     setSelectedSegments(prev => new Set([...prev, segmentId]));
   };
@@ -219,7 +236,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                       : isSelected 
                         ? 'bg-blue-50' 
                         : 'hover:bg-gray-50'
-                  } ${isMuted ? 'opacity-40' : ''} ${segment.deleted ? 'line-through opacity-30' : ''}`}
+                  } ${isMuted ? 'opacity-40' : ''} ${segment.deleted ? 'line-through opacity-30' : ''} ${segment.hidden ? 'opacity-30 bg-gray-100' : ''}`}
                 >
                   {/* Timestamp badge (shown inline for some sentences) */}
                   {showTimestamp && (
@@ -240,21 +257,46 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                       rows={Math.ceil(editingText.length / 60) || 1}
                     />
                   ) : (
-                    <p className={`flex-1 text-[15px] leading-relaxed ${isMuted ? 'text-gray-400' : 'text-gray-800'}`}>
+                    <p className={`flex-1 text-[15px] leading-relaxed ${isMuted ? 'text-gray-400' : 'text-gray-800'} ${segment.hidden ? 'italic' : ''}`}>
                       {segment.text}
                     </p>
                   )}
 
-                  {/* Delete button - visible on hover */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteSegment(segment.id);
-                    }}
-                    className="flex-shrink-0 opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-600 transition-opacity"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  {/* Hover action icons */}
+                  <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Pencil/Edit icon */}
+                    <button
+                      onClick={(e) => handleEditClick(segment, e)}
+                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="Edit"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Eye/Hide icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleHideSegment(segment.id);
+                      }}
+                      className="p-1 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                      title={segment.hidden ? 'Show' : 'Hide'}
+                    >
+                      {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                    
+                    {/* Delete icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteSegment(segment.id);
+                      }}
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      title="Delete"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Context menu for selected segments */}
