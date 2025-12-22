@@ -85,6 +85,8 @@ import {
   Rows3,
   PanelLeftClose,
   PanelLeft,
+  Zap,
+  Loader2,
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaVimeo } from 'react-icons/fa';
 import { SiLoom } from 'react-icons/si';
@@ -111,6 +113,11 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -193,6 +200,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   // State Management
   const [activeTab, setActiveTab] = useState<string>('script');
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(15); // Short default for better clip visibility
@@ -808,6 +816,41 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       setIsGeneratingPrompt(false);
     }
   };
+
+  // Handle enhance prompt with AI
+  const handleEnhancePrompt = async (isFast: boolean = false) => {
+    if (isEnhancing || !promptText.trim()) return;
+    
+    setIsEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-prompt', {
+        body: { 
+          prompt: promptText,
+          contentType: selectedPromptTool || 'video',
+          enhanceLevel: isFast ? 'fast' : 'deep'
+        }
+      });
+
+      if (error) throw error;
+      if (data?.enhancedPrompt) {
+        setPromptText(data.enhancedPrompt);
+        toast({
+          title: isFast ? "Prompt enhanced" : "Deep enhancement complete",
+          description: "Your prompt has been improved with AI.",
+        });
+      }
+    } catch (error) {
+      console.error('Error enhancing prompt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to enhance prompt. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
 
   // Handle timeline click with proper calculation
   const handleTimelineClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -1868,21 +1911,60 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
                     <div className="flex-1" />
 
-                    {/* Auto prompt only shows when tool is selected */}
-                    {selectedPromptTool && (
+                    {/* AI Enhance Dropdown */}
+                    <Popover>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button 
-                            onClick={handleAutoPrompt}
-                            disabled={isGeneratingPrompt}
-                            className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors disabled:opacity-50"
-                          >
-                            <Shuffle className={`w-4 h-4 ${isGeneratingPrompt ? 'animate-spin' : ''}`} />
-                          </button>
+                          <PopoverTrigger asChild>
+                            <button 
+                              disabled={isEnhancing || !promptText.trim()}
+                              className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium flex items-center gap-1.5 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+                            >
+                              {isEnhancing ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Sparkles className="w-4 h-4" />
+                              )}
+                              AI
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
+                          </PopoverTrigger>
                         </TooltipTrigger>
-                        <TooltipContent><p>Generate Auto Prompt</p></TooltipContent>
+                        <TooltipContent side="top">
+                          <p>Enhance Prompt</p>
+                        </TooltipContent>
                       </Tooltip>
-                    )}
+                      <PopoverContent className="w-56 bg-white border-gray-200 z-50">
+                        <div className="space-y-1">
+                          <button 
+                            onClick={() => handleEnhancePrompt(true)}
+                            disabled={isEnhancing || !promptText.trim()}
+                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-yellow-500" />
+                              <div>
+                                <div className="font-medium">Fast Enhance</div>
+                                <div className="text-xs text-gray-500">Quick improvement</div>
+                              </div>
+                            </div>
+                          </button>
+                          <button 
+                            onClick={() => handleEnhancePrompt(false)}
+                            disabled={isEnhancing || !promptText.trim()}
+                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-500" />
+                              <div>
+                                <div className="font-medium">Deep Enhance</div>
+                                <div className="text-xs text-gray-500">Detailed refinement</div>
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
                       <Sparkles className="w-4 h-4" />
