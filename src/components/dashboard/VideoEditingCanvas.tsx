@@ -1571,10 +1571,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           {/* Resizable panels for left panel and preview */}
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Left Panel - Tab Content */}
-            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+            <ResizablePanel defaultSize={35} minSize={28} maxSize={50}>
               <div className="h-full bg-white border-r border-gray-200 flex flex-col">
                 {/* Tabs with Tooltips */}
-                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-wrap">
+                <div className="flex items-center justify-center gap-1 p-2 border-b border-gray-200 bg-gray-50 flex-nowrap overflow-x-auto">
                   {tabs.map((tab) => (
                     <Tooltip key={tab.id}>
                       <TooltipTrigger asChild>
