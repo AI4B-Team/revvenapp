@@ -1256,28 +1256,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         return <EditorTextPanel />;
 
       case 'captions':
-        return (
-          <div className="flex flex-col h-full overflow-y-auto">
-            <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Captions</h3>
-              <div className="flex gap-2 mb-4">
-                <button className="flex items-center gap-2 px-3 py-2 bg-orange-500/20 text-orange-600 rounded-lg text-sm hover:bg-orange-500/30 transition-colors">
-                  <Sparkles className="w-4 h-4" />
-                  Auto Generate
-                </button>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {captionStylePresets.map((preset) => (
-                  <div key={preset.id} className="aspect-video rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                    <div className={`w-full h-full ${preset.style} flex items-center justify-center`}>
-                      <span className="text-white text-xs font-medium">{preset.name}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
+        return <CaptionsPanel onApplyCaptions={(captions) => console.log('Captions applied:', captions)} currentTime={currentTime} duration={duration} />;
 
       case 'transitions':
         return (
