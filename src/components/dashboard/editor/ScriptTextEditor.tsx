@@ -502,12 +502,14 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                 {/* Sentence block */}
                 <div
                   onClick={(e) => handleSegmentClick(segment, e)}
-                  className={`relative flex items-start gap-2 py-2 px-1 rounded-lg transition-all cursor-pointer ${
+                  className={`relative flex items-start gap-2 py-2 px-2 rounded-lg transition-all cursor-pointer ${
                     isEditing 
                       ? 'bg-gray-50 ring-2 ring-primary/20' 
-                      : isSelected 
-                        ? 'bg-blue-50' 
-                        : highlightClass || 'hover:bg-gray-50'
+                      : showToolbar
+                        ? 'bg-indigo-100 ring-2 ring-indigo-300'
+                        : isSelected 
+                          ? 'bg-blue-50' 
+                          : highlightClass || 'hover:bg-gray-50'
                   } ${isMuted ? 'opacity-40' : ''} ${segment.deleted ? 'line-through opacity-30' : ''} ${segment.hidden ? 'opacity-30 bg-gray-100' : ''}`}
                 >
                   {/* Timestamp badge (shown inline for some sentences) */}
@@ -576,159 +578,52 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                   )}
                 </div>
 
-                {/* Floating Edit Toolbar - appears when segment is clicked */}
+                {/* Floating Edit Toolbar - appears ABOVE sentence when clicked */}
                 {showToolbar && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 animate-fade-in">
-                    <div className="flex items-center gap-1 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200">
-                      {/* Create Clip button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCreateClip(segment);
-                        }}
-                        className="flex items-center gap-1.5 px-2 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
-                      >
-                        <Scissors className="w-4 h-4" />
-                        <span className="font-medium">Create clip</span>
-                      </button>
-
-                      {/* Duration */}
-                      <span className="text-sm text-gray-500 px-2 font-mono">
-                        {formatDuration(segmentDuration)}
-                      </span>
-
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-
-                      {/* Delete button */}
+                  <div className="absolute left-0 right-0 bottom-full mb-2 z-50 animate-fade-in flex justify-center">
+                    <div className="flex items-center gap-1 px-2 py-1.5 bg-slate-800 rounded-lg shadow-lg">
+                      {/* Remove button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteSegment(segment.id);
                         }}
-                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <X className="w-4 h-4" />
+                        <span>Remove</span>
                       </button>
 
-                      {/* Highlight color selector */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="flex items-center gap-1 p-1 hover:bg-gray-100 rounded transition-colors mx-1">
-                            <div className={`w-5 h-5 rounded ${
-                              segmentHighlights[segment.id] === 'yellow' ? 'bg-yellow-400' :
-                              segmentHighlights[segment.id] === 'green' ? 'bg-green-400' :
-                              segmentHighlights[segment.id] === 'blue' ? 'bg-blue-400' :
-                              segmentHighlights[segment.id] === 'red' ? 'bg-red-400' :
-                              'bg-gray-300'
-                            }`} />
-                            <ChevronDown className="w-3 h-3 text-gray-500" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="center" className="w-32 bg-popover">
-                          <div className="px-2 py-1.5 text-xs font-medium text-gray-500">Highlight</div>
-                          <DropdownMenuSeparator />
-                          {highlightColorOptions.map((option) => (
-                            <DropdownMenuItem 
-                              key={option.name}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSegmentHighlights(prev => ({
-                                  ...prev,
-                                  [segment.id]: option.color
-                                }));
-                              }}
-                              className="flex items-center gap-2 cursor-pointer"
-                            >
-                              <div className={`w-4 h-4 rounded ${option.dotClass}`} />
-                              <span>{option.name}</span>
-                              {segmentHighlights[segment.id] === option.color && (
-                                <Check className="w-3 h-3 ml-auto" />
-                              )}
-                            </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSegmentHighlights(prev => {
-                                const newHighlights = { ...prev };
-                                delete newHighlights[segment.id];
-                                return newHighlights;
-                              });
-                            }}
-                            className="flex items-center gap-2 cursor-pointer text-gray-500"
-                          >
-                            <X className="w-4 h-4" />
-                            <span>Clear</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {/* More options dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
-                            <ChevronDown className="w-4 h-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="center" className="w-44 bg-popover">
-                          <DropdownMenuItem onClick={() => handleEditClick(segment, {} as React.MouseEvent)}>
-                            <Pencil className="w-3.5 h-3.5 mr-2" />
-                            Edit Text
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleHideSegment(segment.id)}>
-                            {segment.hidden ? <Eye className="w-3.5 h-3.5 mr-2" /> : <EyeOff className="w-3.5 h-3.5 mr-2" />}
-                            {segment.hidden ? 'Show' : 'Hide'}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleAddToSelection(segment.id)}>
-                            <Plus className="w-3.5 h-3.5 mr-2" />
-                            Add To Selection
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleKeepOnlySelected}>
-                            <Check className="w-3.5 h-3.5 mr-2" />
-                            Keep Only Selected
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
                       {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
+                      <div className="w-px h-5 bg-slate-600 mx-1" />
 
-                      {/* Copy button */}
+                      {/* Rephrase button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleCopySegment(segment);
+                          toast.info('Rephrasing with AI...');
                         }}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                        title="Copy"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
                       >
-                        <Copy className="w-4 h-4" />
+                        <Pencil className="w-4 h-4" />
+                        <span>Rephrase</span>
+                        <span className="ml-1 w-5 h-5 rounded bg-orange-500 flex items-center justify-center text-[10px]">AI</span>
                       </button>
 
-                      {/* More options */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 bg-popover">
-                          <DropdownMenuItem onClick={() => handleRemoveFromSelection(segment.id)}>
-                            <X className="w-3.5 h-3.5 mr-2" />
-                            Remove From Selection
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
-                            onSegmentExport?.(segment.id, segment.text);
-                            toast.success('Exported segment');
-                          }}>
-                            <Scissors className="w-3.5 h-3.5 mr-2" />
-                            Export As Clip
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-slate-600 mx-1" />
+
+                      {/* Download Clip button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCreateClip(segment);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span>Download Clip</span>
+                      </button>
                     </div>
                   </div>
                 )}
