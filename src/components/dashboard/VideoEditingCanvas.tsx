@@ -1542,25 +1542,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <div className="flex items-center gap-4 lg:gap-8">
               <button 
                 onClick={() => onTabChange?.('image')}
-                className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+                className={`flex items-center gap-2 font-semibold text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
               >
-                <Image className="w-4 h-4" />
+                <Image className="w-5 h-5" strokeWidth={2.5} />
                 <span>Image</span>
               </button>
               <span className="text-slate-500 hidden lg:inline">|</span>
               <button 
                 onClick={() => onTabChange?.('video')}
-                className={`flex items-center gap-2 text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+                className={`flex items-center gap-2 font-semibold text-sm ${activeEditorTab === 'video' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
               >
-                <Video className="w-4 h-4" />
+                <Video className="w-5 h-5" strokeWidth={2.5} />
                 <span>Video</span>
               </button>
               <span className="text-slate-500 hidden lg:inline">|</span>
               <button 
                 onClick={() => onTabChange?.('audio')}
-                className={`flex items-center gap-2 text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
+                className={`flex items-center gap-2 font-semibold text-sm ${activeEditorTab === 'audio' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
               >
-                <Music className="w-4 h-4" />
+                <Music className="w-5 h-5" strokeWidth={2.5} />
                 <span>Audio</span>
               </button>
             </div>
@@ -1582,17 +1582,17 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             {/* Share button - hide text on small screens */}
             <button 
               onClick={() => setShareDialogOpen(true)}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-medium transition-colors border border-gray-500"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
             >
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-5 h-5" strokeWidth={2.5} />
               <span className="hidden md:inline">Share</span>
             </button>
             {/* Publish button */}
             <button 
               onClick={() => toast({ title: 'Publishing...', description: 'Your project will be published shortly' })}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-medium transition-colors border border-slate-400"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" strokeWidth={2.5} />
               <span className="hidden md:inline">Publish</span>
             </button>
             {/* Export button - always visible */}
@@ -1613,7 +1613,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors flex-shrink-0">
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreVertical className="w-5 h-5" strokeWidth={2.5} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200">
