@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, MoreVertical, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -84,10 +85,10 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
 
   const highlightColorOptions = [
-    { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-200', dotClass: 'bg-yellow-400' },
-    { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-200', dotClass: 'bg-green-400' },
-    { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-200', dotClass: 'bg-blue-400' },
-    { name: 'Red', color: 'red' as HighlightColor, bgClass: 'bg-red-200', dotClass: 'bg-red-400' },
+    { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-100', dotClass: 'bg-yellow-200' },
+    { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-100', dotClass: 'bg-green-200' },
+    { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-100', dotClass: 'bg-blue-200' },
+    { name: 'Red', color: 'red' as HighlightColor, bgClass: 'bg-red-100', dotClass: 'bg-red-200' },
   ];
 
   const highlightColors = [
@@ -280,10 +281,10 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       }
       
       // Add highlighted text
-      const highlightBg = highlight.color === 'yellow' ? 'bg-yellow-200' :
-                         highlight.color === 'green' ? 'bg-green-200' :
-                         highlight.color === 'blue' ? 'bg-blue-200' :
-                         highlight.color === 'red' ? 'bg-red-200' : '';
+      const highlightBg = highlight.color === 'yellow' ? 'bg-yellow-100' :
+                         highlight.color === 'green' ? 'bg-green-100' :
+                         highlight.color === 'blue' ? 'bg-blue-100' :
+                         highlight.color === 'red' ? 'bg-red-100' : '';
       parts.push(
         <mark key={`highlight-${idx}`} className={`${highlightBg} px-0.5 rounded`}>
           {segment.text.slice(highlight.start, highlight.end)}
@@ -539,178 +540,186 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                     </p>
                   )}
 
-                  {/* Hover action icons (hidden when toolbar is showing) */}
-                  {!showToolbar && (
-                    <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {/* Pencil/Edit icon */}
-                      <button
-                        onClick={(e) => handleEditClick(segment, e)}
-                        className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      
-                      {/* Eye/Hide icon */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleHideSegment(segment.id);
-                        }}
-                        className="p-1 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
-                        title={segment.hidden ? 'Show' : 'Hide'}
-                      >
-                        {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                      
-                      {/* Delete icon */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSegment(segment.id);
-                        }}
-                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 {/* Floating Edit Toolbar - appears ABOVE sentence when clicked */}
                 {showToolbar && (
-                  <div className="absolute left-0 right-0 bottom-full mb-2 z-50 animate-fade-in flex justify-center">
-                    <div className="flex items-center gap-1 px-3 py-2 bg-white rounded-xl shadow-xl border border-gray-200">
-                      {/* Edit button */}
-                      <button
-                        onClick={(e) => handleEditClick(segment, e)}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        <span>Edit</span>
-                      </button>
+                  <TooltipProvider delayDuration={200}>
+                    <div className="absolute left-0 right-0 bottom-full mb-2 z-50 animate-fade-in flex justify-center">
+                      <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
+                        {/* Edit button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleEditClick(segment, e)}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Edit</TooltipContent>
+                        </Tooltip>
 
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-
-                      {/* Hide button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleHideSegment(segment.id);
-                        }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                        title={segment.hidden ? 'Show' : 'Hide'}
-                      >
-                        {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        <span>{segment.hidden ? 'Show' : 'Hide'}</span>
-                      </button>
-
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-
-                      {/* Highlight color dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Highlight"
-                          >
-                            <div className="flex -space-x-1">
-                              <div className="w-3 h-3 rounded-full bg-yellow-400 border border-white" />
-                              <div className="w-3 h-3 rounded-full bg-green-400 border border-white" />
-                            </div>
-                            <span>Highlight</span>
-                            <ChevronDown className="w-3 h-3" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="center" className="w-36 bg-popover">
-                          {highlightColorOptions.map((item) => (
-                            <DropdownMenuItem 
-                              key={item.name}
+                        {/* Rephrase button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setSegmentHighlights(prev => ({
-                                  ...prev,
-                                  [segment.id]: item.color
-                                }));
-                                toast.success(`${item.name} highlight applied`);
+                                toast.info('Rephrasing with AI...');
+                              }}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              <Bot className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Rephrase</TooltipContent>
+                        </Tooltip>
+
+                        {/* Highlight color dropdown */}
+                        <DropdownMenu>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                >
+                                  <div className="flex -space-x-1">
+                                    <div className="w-3 h-3 rounded-full bg-yellow-200 border border-gray-600" />
+                                    <div className="w-3 h-3 rounded-full bg-green-200 border border-gray-600" />
+                                  </div>
+                                </button>
+                              </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">Highlight</TooltipContent>
+                          </Tooltip>
+                          <DropdownMenuContent align="center" className="w-36 bg-popover">
+                            {highlightColorOptions.map((item) => (
+                              <DropdownMenuItem 
+                                key={item.name}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSegmentHighlights(prev => ({
+                                    ...prev,
+                                    [segment.id]: item.color
+                                  }));
+                                  toast.success(`${item.name} highlight applied`);
+                                }}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <div className={`w-4 h-4 rounded ${item.dotClass}`} />
+                                <span>{item.name}</span>
+                              </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSegmentHighlights(prev => {
+                                  const next = { ...prev };
+                                  delete next[segment.id];
+                                  return next;
+                                });
+                                toast.success('Highlight removed');
                               }}
                               className="flex items-center gap-2 cursor-pointer"
                             >
-                              <div className={`w-4 h-4 rounded ${item.dotClass}`} />
-                              <span>{item.name}</span>
+                              <X className="w-4 h-4 text-gray-400" />
+                              <span>Remove</span>
                             </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSegmentHighlights(prev => {
-                                const next = { ...prev };
-                                delete next[segment.id];
-                                return next;
-                              });
-                              toast.success('Highlight removed');
-                            }}
-                            className="flex items-center gap-2 cursor-pointer"
-                          >
-                            <X className="w-4 h-4 text-gray-400" />
-                            <span>Remove</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
 
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
+                        {/* Remove button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteSegment(segment.id);
+                              }}
+                              className="p-2 text-gray-300 hover:bg-red-600 hover:text-white rounded-md transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Remove</TooltipContent>
+                        </Tooltip>
 
-                      {/* Remove button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteSegment(segment.id);
-                        }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                        title="Remove"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span>Remove</span>
-                      </button>
+                        {/* Download Clip button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCreateClip(segment);
+                              }}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Download</TooltipContent>
+                        </Tooltip>
 
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
+                        {/* Divider */}
+                        <div className="w-px h-5 bg-gray-600 mx-1" />
 
-                      {/* Rephrase button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toast.info('Rephrasing with AI...');
-                        }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        <span>Rephrase</span>
-                        <span className="ml-1 px-1.5 py-0.5 rounded bg-orange-500 text-white text-[10px] font-medium">AI</span>
-                      </button>
-
-                      {/* Divider */}
-                      <div className="w-px h-5 bg-gray-200 mx-1" />
-
-                      {/* Download Clip button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCreateClip(segment);
-                        }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Download Clip</span>
-                      </button>
+                        {/* More options dropdown */}
+                        <DropdownMenu>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">More options</TooltipContent>
+                          </Tooltip>
+                          <DropdownMenuContent align="end" className="w-44 bg-popover">
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleHideSegment(segment.id);
+                              }}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              {segment.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                              <span>{segment.hidden ? 'Show' : 'Hide'}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopySegment(segment);
+                              }}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <Copy className="w-4 h-4" />
+                              <span>Copy</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleAddToSelection(segment.id)}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span>Add to Selection</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={handleKeepOnlySelected}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <Check className="w-4 h-4" />
+                              <span>Keep Only Selected</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
-                  </div>
+                  </TooltipProvider>
                 )}
 
                 {/* Context menu for selected segments (when toolbar not showing) */}
