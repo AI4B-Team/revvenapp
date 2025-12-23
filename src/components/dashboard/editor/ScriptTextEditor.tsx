@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 interface ScriptSegment {
@@ -62,10 +63,18 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   const [editingText, setEditingText] = useState('');
   const [selectedSegments, setSelectedSegments] = useState<Set<string>>(new Set());
   const [keepOnlyMode, setKeepOnlyMode] = useState(false);
+  const [activeToolbarSegment, setActiveToolbarSegment] = useState<string | null>(null);
+  const [segmentToggles, setSegmentToggles] = useState<Record<string, boolean>>({});
   const editorRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (seconds: number): string => {
     return `${seconds.toFixed(2)}s`;
+  };
+
+  const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleSegmentClick = (segment: ScriptSegment, e: React.MouseEvent) => {
@@ -82,11 +91,11 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
         }
         return next;
       });
+      setActiveToolbarSegment(null);
     } else {
-      // Single click opens edit mode directly
+      // Single click shows toolbar
       setSelectedSegments(new Set([segment.id]));
-      setEditingSegmentId(segment.id);
-      setEditingText(segment.text);
+      setActiveToolbarSegment(segment.id);
     }
   };
 
@@ -117,6 +126,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     } else if (e.key === 'Escape') {
       setEditingSegmentId(null);
       setEditingText('');
+      setActiveToolbarSegment(null);
     }
   };
 
@@ -127,6 +137,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       )
     );
     onSegmentDelete?.(segmentId);
+    setActiveToolbarSegment(null);
     toast.success('Sentence removed');
   };
 
@@ -144,6 +155,24 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     setSelectedSegments(new Set([segment.id]));
     setEditingSegmentId(segment.id);
     setEditingText(segment.text);
+    setActiveToolbarSegment(null);
+  };
+
+  const handleCreateClip = (segment: ScriptSegment) => {
+    onSegmentExport?.(segment.id, segment.text);
+    toast.success('Clip created from selection');
+  };
+
+  const handleCopySegment = (segment: ScriptSegment) => {
+    navigator.clipboard.writeText(segment.text);
+    toast.success('Copied to clipboard');
+  };
+
+  const handleToggleSegment = (segmentId: string) => {
+    setSegmentToggles(prev => ({
+      ...prev,
+      [segmentId]: !prev[segmentId]
+    }));
   };
 
   const handleAddToSelection = (segmentId: string) => {
@@ -167,12 +196,13 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   const handleResetSelection = () => {
     setSelectedSegments(new Set());
     setKeepOnlyMode(false);
+    setActiveToolbarSegment(null);
   };
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
     if (editorRef.current && !editorRef.current.contains(e.target as Node)) {
       if (!editingSegmentId) {
-        // Don't clear selection when clicking outside
+        setActiveToolbarSegment(null);
       }
     }
   }, [editingSegmentId]);
@@ -221,6 +251,8 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
             const isMuted = keepOnlyMode && !isSelected;
             const isEditing = editingSegmentId === segment.id;
             const showTimestamp = segment.startTime > 0 && (index === 0 || segments[index - 1]?.endTime !== segment.startTime);
+            const showToolbar = activeToolbarSegment === segment.id && !isEditing;
+            const segmentDuration = segment.endTime - segment.startTime;
 
             return (
               <div
@@ -262,45 +294,157 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                     </p>
                   )}
 
-                  {/* Hover action icons */}
-                  <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {/* Pencil/Edit icon */}
-                    <button
-                      onClick={(e) => handleEditClick(segment, e)}
-                      className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      title="Edit"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    
-                    {/* Eye/Hide icon */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleHideSegment(segment.id);
-                      }}
-                      className="p-1 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
-                      title={segment.hidden ? 'Show' : 'Hide'}
-                    >
-                      {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                    
-                    {/* Delete icon */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteSegment(segment.id);
-                      }}
-                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                      title="Delete"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Hover action icons (hidden when toolbar is showing) */}
+                  {!showToolbar && (
+                    <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Pencil/Edit icon */}
+                      <button
+                        onClick={(e) => handleEditClick(segment, e)}
+                        className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Eye/Hide icon */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHideSegment(segment.id);
+                        }}
+                        className="p-1 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                        title={segment.hidden ? 'Show' : 'Hide'}
+                      >
+                        {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                      
+                      {/* Delete icon */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSegment(segment.id);
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Context menu for selected segments */}
-                {isSelected && selectedSegments.size === 1 && (
+                {/* Floating Edit Toolbar - appears when segment is clicked */}
+                {showToolbar && (
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 animate-fade-in">
+                    <div className="flex items-center gap-1 px-3 py-2 bg-white rounded-lg shadow-lg border border-gray-200">
+                      {/* Create Clip button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCreateClip(segment);
+                        }}
+                        className="flex items-center gap-1.5 px-2 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                      >
+                        <Scissors className="w-4 h-4" />
+                        <span className="font-medium">Create clip</span>
+                      </button>
+
+                      {/* Duration */}
+                      <span className="text-sm text-gray-500 px-2 font-mono">
+                        {formatDuration(segmentDuration)}
+                      </span>
+
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSegment(segment.id);
+                        }}
+                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      {/* Toggle switch */}
+                      <Switch
+                        checked={segmentToggles[segment.id] ?? true}
+                        onCheckedChange={() => handleToggleSegment(segment.id)}
+                        className="mx-1"
+                      />
+
+                      {/* Dropdown arrow */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-44 bg-popover">
+                          <DropdownMenuItem onClick={() => handleEditClick(segment, {} as React.MouseEvent)}>
+                            <Pencil className="w-3.5 h-3.5 mr-2" />
+                            Edit Text
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleHideSegment(segment.id)}>
+                            {segment.hidden ? <Eye className="w-3.5 h-3.5 mr-2" /> : <EyeOff className="w-3.5 h-3.5 mr-2" />}
+                            {segment.hidden ? 'Show' : 'Hide'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleAddToSelection(segment.id)}>
+                            <Plus className="w-3.5 h-3.5 mr-2" />
+                            Add To Selection
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={handleKeepOnlySelected}>
+                            <Check className="w-3.5 h-3.5 mr-2" />
+                            Keep Only Selected
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                      {/* Copy button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopySegment(segment);
+                        }}
+                        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                        title="Copy"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+
+                      {/* More options */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 bg-popover">
+                          <DropdownMenuItem onClick={() => handleRemoveFromSelection(segment.id)}>
+                            <X className="w-3.5 h-3.5 mr-2" />
+                            Remove From Selection
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            onSegmentExport?.(segment.id, segment.text);
+                            toast.success('Exported segment');
+                          }}>
+                            <Scissors className="w-3.5 h-3.5 mr-2" />
+                            Export As Clip
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                )}
+
+                {/* Context menu for selected segments (when toolbar not showing) */}
+                {isSelected && selectedSegments.size === 1 && !showToolbar && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
