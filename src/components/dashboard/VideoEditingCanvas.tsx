@@ -559,13 +559,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     toast({ title: 'Video loaded to canvas' });
   }, [toast]);
 
-  // Handle adding a video to the timeline
-  const handleAddToTimeline = useCallback((videoUrl: string, name: string, thumbnail?: string, videoDuration?: number) => {
+  // Handle adding a video to the timeline - separates audio and includes transcript
+  const handleAddToTimeline = useCallback(async (videoUrl: string, name: string, thumbnail?: string, videoDuration?: number) => {
     const clipDuration = videoDuration || 5;
+    const clipId = `clip-${Date.now()}`;
+    const audioClipId = `audio-${Date.now()}`;
     
     // Find the first video track
     const videoTrackIndex = tracks.findIndex(t => t.type === 'video' || t.id.includes('video'));
     if (videoTrackIndex === -1) return;
+    
+    // Find or create an audio track for the separated audio
+    let audioTrackIndex = tracks.findIndex(t => t.type === 'audio' || t.id.includes('audio'));
     
     // Calculate start time (add at the end of existing clips)
     const existingClips = tracks[videoTrackIndex].clips;
@@ -573,8 +578,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       ? Math.max(...existingClips.map(c => c.startTime + c.duration))
       : 0;
     
-    const newClip: TimelineClip = {
-      id: `clip-${Date.now()}`,
+    // Create video clip
+    const newVideoClip: TimelineClip = {
+      id: clipId,
       type: 'video',
       name: name || 'Video',
       startTime: lastClipEnd,
@@ -583,15 +589,97 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       src: videoUrl,
     };
     
-    setTracks(prev => prev.map((track, index) => {
-      if (index !== videoTrackIndex) return track;
-      return {
-        ...track,
-        clips: [...track.clips, newClip]
-      };
-    }));
+    // Create audio clip with placeholder caption (will be updated with transcript)
+    const newAudioClip: TimelineClip = {
+      id: audioClipId,
+      type: 'audio',
+      name: `${name || 'Video'} - Audio`,
+      startTime: lastClipEnd,
+      duration: clipDuration,
+      src: videoUrl,
+      caption: 'Transcribing audio...', // Placeholder while transcribing
+      waveform: generateWaveform(40),
+    };
+    
+    // Add both clips to their respective tracks
+    setTracks(prev => {
+      const newTracks = [...prev];
+      
+      // Add video clip
+      if (videoTrackIndex !== -1) {
+        newTracks[videoTrackIndex] = {
+          ...newTracks[videoTrackIndex],
+          clips: [...newTracks[videoTrackIndex].clips, newVideoClip]
+        };
+      }
+      
+      // Add audio clip
+      if (audioTrackIndex !== -1) {
+        newTracks[audioTrackIndex] = {
+          ...newTracks[audioTrackIndex],
+          clips: [...newTracks[audioTrackIndex].clips, newAudioClip]
+        };
+      } else {
+        // Create a new audio track if none exists
+        const newAudioTrack: TimelineTrack = {
+          id: `audio-track-${Date.now()}`,
+          type: 'audio',
+          name: 'Audio',
+          clips: [newAudioClip],
+          muted: false,
+          locked: false,
+        };
+        newTracks.push(newAudioTrack);
+      }
+      
+      return newTracks;
+    });
     
     setIsVideoDeleted(false);
+    
+    // Transcribe the audio in the background
+    try {
+      const response = await supabase.functions.invoke('transcribe-audio', {
+        body: { audioUrl: videoUrl }
+      });
+      
+      if (response.data?.text) {
+        const transcriptText = response.data.text;
+        
+        // Update the audio clip with the transcript
+        setTracks(prev => prev.map(track => {
+          if (track.type !== 'audio' && !track.id.includes('audio')) return track;
+          return {
+            ...track,
+            clips: track.clips.map(clip => {
+              if (clip.id !== audioClipId) return clip;
+              return {
+                ...clip,
+                caption: transcriptText,
+              };
+            })
+          };
+        }));
+        
+        sonnerToast.success('Audio transcribed successfully');
+      }
+    } catch (error) {
+      console.error('Error transcribing audio:', error);
+      // Update clip to show transcription failed
+      setTracks(prev => prev.map(track => {
+        if (track.type !== 'audio' && !track.id.includes('audio')) return track;
+        return {
+          ...track,
+          clips: track.clips.map(clip => {
+            if (clip.id !== audioClipId) return clip;
+            return {
+              ...clip,
+              caption: name || 'Audio (transcription unavailable)',
+            };
+          })
+        };
+      }));
+    }
   }, [tracks]);
 
   // Export function - plays timeline in real-time and records it
