@@ -306,7 +306,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pl-[var(--app-sidebar-width,16rem)]" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
@@ -645,7 +645,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
         {/* Right Side - Upload Section */}
         <div 
-          className="w-[420px] bg-gray-50 border-l border-gray-200 flex flex-col"
+          className="w-[520px] bg-gray-50 border-l border-gray-200 flex flex-col"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -731,9 +731,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 
                 {/* Zoom and Record Buttons */}
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
-                    <SiZoom style={{ width: '24px', height: '24px' }} className="text-blue-600" />
-                    <span className="text-sm font-medium">Import From Zoom</span>
+                  <button className="flex items-center justify-center gap-3 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
+                    <SiZoom style={{ width: '32px', height: '32px' }} className="text-blue-600" />
+                    <span className="text-sm font-medium whitespace-nowrap">Import From Zoom</span>
                   </button>
                   <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
                     <Video className="w-5 h-5 text-red-500" />
