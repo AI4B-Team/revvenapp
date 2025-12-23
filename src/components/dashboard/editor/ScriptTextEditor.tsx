@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+
+type HighlightColor = 'yellow' | 'green' | 'blue' | 'purple' | null;
 
 interface ScriptSegment {
   id: string;
@@ -65,7 +69,17 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   const [keepOnlyMode, setKeepOnlyMode] = useState(false);
   const [activeToolbarSegment, setActiveToolbarSegment] = useState<string | null>(null);
   const [segmentToggles, setSegmentToggles] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [segmentHighlights, setSegmentHighlights] = useState<Record<string, HighlightColor>>({});
   const editorRef = useRef<HTMLDivElement>(null);
+
+  const highlightColors = [
+    { name: 'Select all', color: null, bgClass: '', dotClass: 'bg-yellow-300 bg-green-300' },
+    { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-100', dotClass: 'bg-yellow-400' },
+    { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-100', dotClass: 'bg-green-400' },
+    { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-100', dotClass: 'bg-blue-400' },
+    { name: 'Purple', color: 'purple' as HighlightColor, bgClass: 'bg-purple-100', dotClass: 'bg-purple-400' },
+  ];
 
   const formatTime = (seconds: number): string => {
     return `${seconds.toFixed(2)}s`;
@@ -212,32 +226,141 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
-  // Filter segments based on showDeleted
-  const visibleSegments = segments.filter(seg => showDeleted || !seg.deleted);
+  // Filter segments based on showDeleted and search query
+  const visibleSegments = segments.filter(seg => {
+    if (!showDeleted && seg.deleted) return false;
+    if (searchQuery && !seg.text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
   // Calculate total selection duration
   const selectionDuration = segments
     .filter(seg => selectedSegments.has(seg.id))
     .reduce((acc, seg) => acc + (seg.endTime - seg.startTime), 0);
 
+  const handleCopyAll = () => {
+    const allText = visibleSegments.map(seg => seg.text).join(' ');
+    navigator.clipboard.writeText(allText);
+    toast.success('Script copied to clipboard');
+  };
+
+  const handleDownload = () => {
+    const allText = visibleSegments.map(seg => seg.text).join('\n\n');
+    const blob = new Blob([allText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Script downloaded');
+  };
+
+  const handleHighlightColor = (color: HighlightColor) => {
+    if (color === null) {
+      // Select all - highlight all segments with different colors
+      const newHighlights: Record<string, HighlightColor> = {};
+      visibleSegments.forEach((seg, index) => {
+        const colors: HighlightColor[] = ['yellow', 'green', 'blue', 'purple'];
+        newHighlights[seg.id] = colors[index % colors.length];
+      });
+      setSegmentHighlights(newHighlights);
+      toast.success('All segments highlighted');
+    } else {
+      // Apply color to selected segments
+      if (selectedSegments.size > 0) {
+        const newHighlights = { ...segmentHighlights };
+        selectedSegments.forEach(id => {
+          newHighlights[id] = color;
+        });
+        setSegmentHighlights(newHighlights);
+        toast.success(`Highlight applied`);
+      } else {
+        toast.info('Select segments first to apply highlight');
+      }
+    }
+  };
+
+  const getHighlightClass = (segmentId: string): string => {
+    const color = segmentHighlights[segmentId];
+    switch (color) {
+      case 'yellow': return 'bg-yellow-100';
+      case 'green': return 'bg-green-100';
+      case 'blue': return 'bg-blue-100';
+      case 'purple': return 'bg-purple-100';
+      default: return '';
+    }
+  };
+
   return (
     <div className="relative h-full flex flex-col bg-white">
-      {/* Header with selection info */}
+      {/* Header with search and actions */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Selection</span>
-          <span className="text-sm font-medium text-gray-900">
-            {selectionDuration > 0 ? `00:${Math.floor(selectionDuration).toString().padStart(2, '0')}` : '00:00'}
-          </span>
+        {/* Search bar */}
+        <div className="flex items-center gap-2 flex-1 max-w-xs">
+          <Search className="w-4 h-4 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0 text-sm placeholder:text-gray-400 px-0"
+          />
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleResetSelection}
-          className="text-gray-600 hover:text-gray-900"
-        >
-          Reset
-        </Button>
+
+        {/* Action icons */}
+        <div className="flex items-center gap-1">
+          {/* Copy button */}
+          <button
+            onClick={handleCopyAll}
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            title="Copy all"
+          >
+            <Copy className="w-5 h-5" />
+          </button>
+
+          {/* Download button */}
+          <button
+            onClick={handleDownload}
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            title="Download"
+          >
+            <Download className="w-5 h-5" />
+          </button>
+
+          {/* Highlight dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                title="Highlight options"
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 bg-popover">
+              <div className="px-2 py-1.5 text-xs font-medium text-gray-500">Highlight</div>
+              <DropdownMenuSeparator />
+              {highlightColors.map((item) => (
+                <DropdownMenuItem 
+                  key={item.name}
+                  onClick={() => handleHighlightColor(item.color)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  {item.color === null ? (
+                    <div className="flex -space-x-1">
+                      <div className="w-3 h-3 rounded-full bg-yellow-300" />
+                      <div className="w-3 h-3 rounded-full bg-green-300" />
+                    </div>
+                  ) : (
+                    <div className={`w-4 h-4 rounded ${item.dotClass}`} />
+                  )}
+                  <span>{item.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Script Editor with sentence blocks */}
@@ -253,6 +376,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
             const showTimestamp = segment.startTime > 0 && (index === 0 || segments[index - 1]?.endTime !== segment.startTime);
             const showToolbar = activeToolbarSegment === segment.id && !isEditing;
             const segmentDuration = segment.endTime - segment.startTime;
+            const highlightClass = getHighlightClass(segment.id);
 
             return (
               <div
@@ -267,7 +391,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                       ? 'bg-gray-50 ring-2 ring-primary/20' 
                       : isSelected 
                         ? 'bg-blue-50' 
-                        : 'hover:bg-gray-50'
+                        : highlightClass || 'hover:bg-gray-50'
                   } ${isMuted ? 'opacity-40' : ''} ${segment.deleted ? 'line-through opacity-30' : ''} ${segment.hidden ? 'opacity-30 bg-gray-100' : ''}`}
                 >
                   {/* Timestamp badge (shown inline for some sentences) */}
