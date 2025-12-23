@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users, Search } from "lucide-react";
+import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users, Search, Link, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeo } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import { SiZoom, SiAirplayvideo } from 'react-icons/si';
 import { toast } from "sonner";
 import { validateFile, createPreviewUrl, MAX_IMAGES } from "@/utils/imageUtils";
 
@@ -37,6 +40,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const [isUploading, setIsUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [mediaLink, setMediaLink] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Pexels stock images state
@@ -316,40 +320,40 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
       {/* Modal */}
       <div 
-        className="relative bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-[95vw] h-[90vh] overflow-hidden flex"
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[95vw] h-[90vh] overflow-hidden flex"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Side - Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+          <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-semibold text-white mb-1">References</h2>
-              <p className="text-sm text-gray-400">Upload Or Select An Image</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-1">References</h2>
+              <p className="text-sm text-gray-500">Upload Or Select An Image</p>
             </div>
             <div className="w-64">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search References"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="px-6 py-4 border-b border-gray-800">
+          <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setActiveTab('history')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === 'history'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 <History className="w-4 h-4" />
@@ -359,8 +363,8 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 onClick={() => setActiveTab('stock')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === 'stock'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 <ImageIcon className="w-4 h-4" />
@@ -370,8 +374,8 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 onClick={() => setActiveTab('community')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
                   activeTab === 'community'
-                    ? 'text-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 <Users className="w-4 h-4" />
@@ -387,7 +391,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 {/* Upload Area */}
                 {uploadedFiles.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-medium text-gray-400 mb-3">New Uploads</h3>
+                    <h3 className="text-sm font-medium text-gray-500 mb-3">New Uploads</h3>
                     <div className="grid grid-cols-6 gap-4">
                       {uploadedFiles.map((file) => (
                         <div
@@ -395,7 +399,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                           className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
                             selectedImages.some(img => img.id === file.id)
                               ? 'border-primary ring-2 ring-primary'
-                              : 'border-gray-700 hover:border-green-500'
+                              : 'border-gray-200 hover:border-green-500'
                           }`}
                           onClick={() => handleImageClick(file)}
                         >
@@ -407,12 +411,11 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                                <Upload className="text-gray-600" size={24} />
+                              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                <Upload className="text-gray-400" size={24} />
                               </div>
                             )}
                           </div>
-                          {/* Removed delete button */}
                           {selectedImages.some(img => img.id === file.id) && (
                             <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                               ✓
@@ -435,10 +438,10 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 ) : filteredReferences.length === 0 && uploadedFiles.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="mb-4">
-                      <Upload className="h-16 w-16 text-gray-600 mx-auto mb-3" />
+                      <Upload className="h-16 w-16 text-gray-400 mx-auto mb-3" />
                     </div>
-                    <p className="text-gray-400 mb-2">No reference images yet</p>
-                    <p className="text-sm text-gray-500">Upload your first reference image to get started</p>
+                    <p className="text-gray-600 mb-2">No reference images yet</p>
+                    <p className="text-sm text-gray-400">Upload your first reference image to get started</p>
                   </div>
                 ) : (
                   <div>
@@ -451,7 +454,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                               className={`relative group rounded-lg overflow-hidden border-2 cursor-pointer transition ${
                                 selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id
                                   ? 'border-primary ring-2 ring-primary'
-                                  : 'border-gray-700 hover:border-green-500'
+                                  : 'border-gray-200 hover:border-green-500'
                               }`}
                               onClick={() => handleImageClick(reference)}
                             >
@@ -462,7 +465,6 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              {/* Removed delete button */}
                               {(selectedImages.some(img => img.id === reference.id) || selectedReference?.id === reference.id) && (
                                 <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                                   ✓
@@ -495,7 +497,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                       value={stockSearchQuery}
                       onChange={(e) => setStockSearchQuery(e.target.value)}
                       onKeyPress={handleStockKeyPress}
-                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     />
                   </div>
                   <Button 
@@ -516,7 +518,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                         setStockSearchQuery(category.toLowerCase());
                         fetchStockImages(category.toLowerCase(), 1);
                       }}
-                      className="px-4 py-1.5 text-sm font-medium text-gray-300 bg-gray-800/40 border border-gray-700/50 rounded-full hover:bg-primary/20 hover:border-primary/40 hover:text-white transition-all duration-200"
+                      className="px-4 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-full hover:bg-primary/20 hover:border-primary/40 hover:text-gray-900 transition-all duration-200"
                     >
                       {category}
                     </button>
@@ -527,16 +529,16 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 {isLoadingStock && stockImages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16">
                     <div className="relative">
-                      <div className="w-16 h-16 rounded-full border-4 border-gray-700 border-t-primary animate-spin" />
+                      <div className="w-16 h-16 rounded-full border-4 border-gray-200 border-t-primary animate-spin" />
                     </div>
-                    <p className="mt-4 text-gray-400">Loading stunning images...</p>
+                    <p className="mt-4 text-gray-500">Loading stunning images...</p>
                   </div>
                 ) : stockImages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center flex-1 text-center py-16">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-6">
-                      <ImageIcon className="h-10 w-10 text-gray-500" />
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
+                      <ImageIcon className="h-10 w-10 text-gray-400" />
                     </div>
-                    <p className="text-gray-300 text-xl font-medium mb-2">Discover Stock Images</p>
+                    <p className="text-gray-700 text-xl font-medium mb-2">Discover Stock Images</p>
                     <p className="text-sm text-gray-500 max-w-md">Search millions of high-quality, royalty-free photos from Pexels</p>
                   </div>
                 ) : (
@@ -558,13 +560,13 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                             key={photo.id}
                             className={`group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300 animate-fade-in ${
                               isSelected
-                                ? 'ring-2 ring-primary ring-offset-2 ring-offset-[#1a1f2e] scale-[0.98]'
+                                ? 'ring-2 ring-primary ring-offset-2 ring-offset-white scale-[0.98]'
                                 : 'hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/10'
                             }`}
                             style={{ animationDelay: `${(index % 12) * 50}ms` }}
                             onClick={() => handleImageClick(stockImage)}
                           >
-                            <div className="aspect-[3/4] bg-gray-800">
+                            <div className="aspect-[3/4] bg-gray-100">
                               <img
                                 src={photo.src.medium}
                                 alt={photo.alt || 'Stock photo'}
@@ -610,7 +612,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                       <Button
                         onClick={loadMoreStock}
                         disabled={isLoadingStock}
-                        className="px-8 py-2.5 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 rounded-xl text-white font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                        className="px-8 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-xl text-gray-700 font-medium transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
                         variant="ghost"
                       >
                         {isLoadingStock ? (
@@ -633,9 +635,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
             {activeTab === 'community' && (
               <div className="flex flex-col items-center justify-center h-full text-center">
-                <Upload className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg mb-2">Community Styles Coming Soon</p>
-                <p className="text-sm text-gray-500">Discover and share styles with the community</p>
+                <Upload className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 text-lg mb-2">Community Styles Coming Soon</p>
+                <p className="text-sm text-gray-400">Discover and share styles with the community</p>
               </div>
             )}
           </div>
@@ -643,25 +645,24 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
         {/* Right Side - Upload Section */}
         <div 
-          className="w-[560px] bg-[#151a27] border-l border-gray-800 flex flex-col"
+          className="w-[420px] bg-gray-50 border-l border-gray-200 flex flex-col"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
           <div 
-            className={`flex-1 p-6 flex flex-col justify-center transition-colors ${
+            className={`flex-1 p-6 flex flex-col transition-colors overflow-y-auto ${
               isDragging ? 'bg-primary/10 border-2 border-dashed border-primary' : ''
             }`}
           >
             {selectedImages.length > 0 ? (
-              <div className="flex flex-col items-center justify-center">
-                <h3 className="text-lg font-semibold text-white mb-6 self-start">Selected Images ({selectedImages.length}/14)</h3>
-                <div className="grid grid-cols-2 gap-6 justify-items-center items-center max-h-[400px] overflow-y-auto">
+              <div className="flex flex-col">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Selected Images ({selectedImages.length}/14)</h3>
+                <div className="grid grid-cols-2 gap-4 justify-items-center items-center max-h-[400px] overflow-y-auto mb-6">
                   {selectedImages.map((image, index) => (
                     <div
                       key={image.id}
-                      className="relative rounded-lg overflow-hidden border-2 border-primary"
-                      style={{ aspectRatio: '1/1', width: '220px', height: '220px' }}
+                      className="relative rounded-lg overflow-hidden border-2 border-primary w-full aspect-square"
                     >
                       <img
                         src={image.thumbnail_url || image.image_url || image.preview}
@@ -679,30 +680,72 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 </div>
               </div>
             ) : (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center h-full text-center cursor-pointer hover:bg-gray-800/30 transition-colors rounded-lg"
-              >
-                <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center mb-6">
-                  <Upload className="w-12 h-12 text-gray-400" />
+              <div className="flex flex-col gap-5">
+                {/* Paste Link Field */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Paste A Supported Public Media Link"
+                    value={mediaLink}
+                    onChange={(e) => setMediaLink(e.target.value)}
+                    className="w-full px-4 py-3 pr-10 bg-white border border-gray-300 rounded-full text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-primary"
+                  />
+                  <Link className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
                 
-                <h3 className="text-xl font-semibold text-white mb-3">
-                  {isDragging ? 'Drop Images Here' : 'Upload Up To 14 Images'}
-                </h3>
-                <p className="text-gray-400 mb-2">
-                  {isDragging 
-                    ? 'Release to upload your images' 
-                    : 'Click to upload or drag and drop'
-                  }
-                </p>
-                <p className="text-sm text-gray-500">PNG, JPG Or WEBP Up To 10MB</p>
+                {/* Social Icons */}
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+                    <FaYoutube className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
+                    <FaTiktok className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center">
+                    <FaInstagram className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                    <FaFacebookF className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
+                    <FaXTwitter className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                    <FaVimeo className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                    <SiAirplayvideo className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm text-gray-500">+43</span>
+                </div>
+                
+                {/* Click To Upload Box */}
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-primary/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"
+                >
+                  <Upload className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Click To Upload</h3>
+                  <p className="text-sm text-gray-500">or, drag and drop a file here</p>
+                </div>
+                
+                {/* Zoom and Record Buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
+                    <SiZoom style={{ width: '24px', height: '24px' }} className="text-blue-600" />
+                    <span className="text-sm font-medium">Import From Zoom</span>
+                  </button>
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
+                    <Video className="w-5 h-5 text-red-500" />
+                    <span className="text-sm font-medium">Record</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
           {/* Bottom Buttons */}
-          <div className="p-6 border-t border-gray-800 space-y-3">
+          <div className="p-6 border-t border-gray-200 space-y-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -716,7 +759,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               variant="outline"
-              className="w-full bg-transparent border-2 border-white text-white hover:bg-white/10"
+              className="w-full bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-100"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -727,7 +770,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
             <Button
               onClick={handleUse}
               disabled={selectedImages.length === 0}
-              className="w-full bg-white hover:bg-gray-100 text-black"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Use
             </Button>
