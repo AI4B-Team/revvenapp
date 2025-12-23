@@ -89,7 +89,8 @@ import {
   Zap,
   Loader2,
 } from 'lucide-react';
-import { FaYoutube, FaTiktok, FaInstagram, FaVimeo } from 'react-icons/fa';
+import { FaYoutube, FaTiktok, FaInstagram, FaVimeo, FaFacebookF } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { SiLoom } from 'react-icons/si';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -1058,6 +1059,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   // Layout state
   const [selectedLayout, setSelectedLayout] = useState<string>('camera');
   const [showLayoutPanel, setShowLayoutPanel] = useState(false);
+  const [showCanvasPopover, setShowCanvasPopover] = useState(false);
+  const [canvasFitMode, setCanvasFitMode] = useState<'fit' | 'fill'>('fit');
 
   // Tab configuration with all requested icons in order
   const tabs = [
@@ -2135,9 +2138,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             }`}
                             style={{
                               // Dynamic sizing based on aspect ratio - uses max percentage of container
-                              maxWidth: selectedRatio === '9:16' ? '35%' : selectedRatio === '1:1' ? '55%' : '75%',
+                              maxWidth: selectedRatio === '9:16' ? '35%' : selectedRatio === '4:5' ? '45%' : selectedRatio === '1:1' ? '55%' : '75%',
                               maxHeight: '100%',
-                              aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
+                              aspectRatio: selectedRatio === '9:16' ? '9/16' : selectedRatio === '4:5' ? '4/5' : selectedRatio === '1:1' ? '1/1' : selectedRatio === '4:3' ? '4/3' : '16/9',
                               width: 'auto',
                               height: 'auto',
                             }}
@@ -2328,8 +2331,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             </Tooltip>
                             <DropdownMenuContent className="bg-gray-900 border-gray-800 text-white">
                               {[
+                                { label: 'Original', className: 'aspect-video' },
                                 { label: '16:9', className: 'aspect-video' },
                                 { label: '9:16', className: 'aspect-[9/16]' },
+                                { label: '4:5', className: 'aspect-[4/5]' },
                                 { label: '1:1', className: 'aspect-square' },
                                 { label: '4:3', className: 'aspect-[4/3]' },
                               ].map((r) => (
@@ -2373,9 +2378,155 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   maxSize={isTimelineMinimized ? 0 : 65}
                   className={isTimelineMinimized ? 'h-auto !flex-none' : 'overflow-hidden flex flex-col min-h-0'}
                 >
-                  {/* Layout/Background buttons - positioned just above timeline header when video is selected */}
+                  {/* Original/Layout/Background buttons - positioned just above timeline header when video is selected */}
                   {isVideoSelected && (
                     <div className="flex items-center justify-center gap-2 py-2 bg-gray-50 border-b border-gray-200">
+                      {/* Original/Canvas Button with Popover */}
+                      <Popover open={showCanvasPopover} onOpenChange={setShowCanvasPopover}>
+                        <PopoverTrigger asChild>
+                          <button 
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                          >
+                            <Box className="w-4 h-4" />
+                            {selectedRatio === 'Original' ? 'Original' : selectedRatio}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-0 bg-gray-900 border-gray-700 text-white" align="center">
+                          <div className="p-3 border-b border-gray-700 flex items-center justify-between">
+                            <span className="font-semibold">Canvas</span>
+                            <button 
+                              onClick={() => setShowCanvasPopover(false)}
+                              className="p-1 hover:bg-gray-800 rounded transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="p-2 space-y-1">
+                            {/* Original option */}
+                            <button
+                              onClick={() => {
+                                setSelectedRatio('Original');
+                                setVideoAspectClass('aspect-video');
+                                setShowCanvasPopover(false);
+                              }}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                selectedRatio === 'Original' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <Box className="w-5 h-5" />
+                              <span className="font-medium">Original</span>
+                            </button>
+                            
+                            {/* 9:16 option */}
+                            <button
+                              onClick={() => {
+                                setSelectedRatio('9:16');
+                                setVideoAspectClass('aspect-[9/16]');
+                                setShowCanvasPopover(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                selectedRatio === '9:16' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 border-2 border-current rounded-sm" style={{ aspectRatio: '9/16', height: '20px', width: 'auto' }} />
+                                <span className="font-medium">9:16</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <FaInstagram className="w-4 h-4" />
+                                <FaTiktok className="w-4 h-4" />
+                                <FaFacebookF className="w-4 h-4" />
+                              </div>
+                            </button>
+                            
+                            {/* 4:5 option */}
+                            <button
+                              onClick={() => {
+                                setSelectedRatio('4:5');
+                                setVideoAspectClass('aspect-[4/5]');
+                                setShowCanvasPopover(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                selectedRatio === '4:5' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 border-2 border-current rounded-sm" style={{ aspectRatio: '4/5', height: '20px', width: 'auto' }} />
+                                <span className="font-medium">4:5</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <FaXTwitter className="w-4 h-4" />
+                              </div>
+                            </button>
+                            
+                            {/* 1:1 option */}
+                            <button
+                              onClick={() => {
+                                setSelectedRatio('1:1');
+                                setVideoAspectClass('aspect-square');
+                                setShowCanvasPopover(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                selectedRatio === '1:1' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 border-2 border-current rounded-sm" />
+                                <span className="font-medium">1:1</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <FaInstagram className="w-4 h-4" />
+                                <FaFacebookF className="w-4 h-4" />
+                              </div>
+                            </button>
+                            
+                            {/* 16:9 option */}
+                            <button
+                              onClick={() => {
+                                setSelectedRatio('16:9');
+                                setVideoAspectClass('aspect-video');
+                                setShowCanvasPopover(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                                selectedRatio === '16:9' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 border-2 border-current rounded-sm" style={{ aspectRatio: '16/9', width: '20px', height: 'auto' }} />
+                                <span className="font-medium">16:9</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <FaYoutube className="w-4 h-4" />
+                                <FaFacebookF className="w-4 h-4" />
+                                <FaXTwitter className="w-4 h-4" />
+                              </div>
+                            </button>
+                          </div>
+                          
+                          {/* Fit/Fill options */}
+                          <div className="p-2 border-t border-gray-700 space-y-1">
+                            <button
+                              onClick={() => setCanvasFitMode('fit')}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                canvasFitMode === 'fit' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <Scan className="w-5 h-5" />
+                              <span className="font-medium">Fit</span>
+                            </button>
+                            <button
+                              onClick={() => setCanvasFitMode('fill')}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                canvasFitMode === 'fill' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                              }`}
+                            >
+                              <Maximize className="w-5 h-5" />
+                              <span className="font-medium">Fill</span>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
                       <button 
                         onClick={() => setShowLayoutPanel(!showLayoutPanel)}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
