@@ -277,6 +277,29 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
+      {/* Search Bar and Upload Button */}
+      <div className="flex items-center gap-2 mb-4">
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 px-4 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="w-4 h-4" />
+          <span className="text-sm font-medium">Upload</span>
+        </Button>
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Search by description, model..."
+            className="w-full pl-9 pr-4 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 placeholder:text-gray-400"
+          />
+        </div>
+      </div>
+
       {/* Click To Upload Section */}
       <div className="space-y-4">
         {/* Upload Area with Link Input Inside */}
