@@ -336,7 +336,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               >
                 <Filter className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  {filterType === 'all' ? 'All' : filterType === 'favorite' ? 'Favorite' : 'In Use'}
+                  {filterType === 'all' ? 'All' : filterType === 'favorite' ? 'Favorites' : 'In Use'}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -352,7 +352,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
                 className={filterType === 'favorite' ? 'bg-primary/10 text-primary' : ''}
               >
                 <Heart className="w-4 h-4 mr-2 text-red-500" />
-                Favorite
+                Favorites
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setFilterType('in-use')}
@@ -457,7 +457,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
       {/* Uploaded Videos Section */}
       {hasUploadedVideos && (
         <div className="mt-2">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             {uploadedMedia
               .filter(m => m.type === 'video')
               .filter(video => {

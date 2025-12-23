@@ -144,6 +144,7 @@ import ScriptTextEditor from './editor/ScriptTextEditor';
 import SettingsPanel from './editor/SettingsPanel';
 import LayoutPanel from './editor/LayoutPanel';
 import ClipSettingsPanel from './editor/ClipSettingsPanel';
+import ReferencesModal from './ReferencesModal';
 
 // Types
 interface TimelineClip {
@@ -234,6 +235,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
+  const [showReferencesModal, setShowReferencesModal] = useState(false);
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -256,7 +258,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
   const [promptText, setPromptText] = useState('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
 
-  // Uploaded media files for the Visuals tab
+  // Uploaded media files for the Visuals tab - with sample videos for preview
   const [uploadedMedia, setUploadedMedia] = useState<Array<{
     id: string;
     name: string;
@@ -264,7 +266,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     thumbnail?: string;
     type: 'video' | 'audio';
     source: 'upload' | 'url';
-  }>>([]);
+  }>>([
+    { id: 'sample-1', name: 'Product Demo', url: 'https://videos.pexels.com/video-files/3015488/3015488-hd_1920_1080_24fps.mp4', type: 'video', source: 'upload' },
+    { id: 'sample-2', name: 'Brand Intro', url: 'https://videos.pexels.com/video-files/2795173/2795173-uhd_2560_1440_24fps.mp4', type: 'video', source: 'upload' },
+    { id: 'sample-3', name: 'Marketing Clip', url: 'https://videos.pexels.com/video-files/3571264/3571264-uhd_2732_1440_30fps.mp4', type: 'video', source: 'upload' },
+    { id: 'sample-4', name: 'Social Ad', url: 'https://videos.pexels.com/video-files/4779529/4779529-hd_1920_1080_30fps.mp4', type: 'video', source: 'upload' },
+    { id: 'sample-5', name: 'Promo Video', url: 'https://videos.pexels.com/video-files/5752729/5752729-hd_1920_1080_30fps.mp4', type: 'video', source: 'upload' },
+    { id: 'sample-6', name: 'Lifestyle B-Roll', url: 'https://videos.pexels.com/video-files/4434240/4434240-hd_1280_720_30fps.mp4', type: 'video', source: 'upload' },
+  ]);
 
   // Fetch user videos from database
   useEffect(() => {
@@ -1280,7 +1289,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={() => setShowReferencesModal(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -1302,7 +1311,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={() => setShowReferencesModal(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />;
 
       case 'audio':
         return <EditorAudioPanel />;
@@ -2759,6 +2768,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
         </div>
       </div>
+
+      {/* References Modal */}
+      <ReferencesModal
+        isOpen={showReferencesModal}
+        onClose={() => setShowReferencesModal(false)}
+        onSelectReference={(url) => {
+          // Add the selected reference as a new uploaded video
+          const newVideo = {
+            id: `ref-${Date.now()}`,
+            name: 'Reference Video',
+            url: url,
+            type: 'video' as const,
+            source: 'url' as const,
+          };
+          setUploadedMedia(prev => [...prev, newVideo]);
+          setShowReferencesModal(false);
+          sonnerToast.success('Video added to library');
+        }}
+      />
     </TooltipProvider>
   );
 };
