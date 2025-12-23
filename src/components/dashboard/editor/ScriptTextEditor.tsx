@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal, MoreVertical, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal, Bot } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, MoreVertical, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -570,7 +570,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                               }}
                               className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
                             >
-                              <Bot className="w-4 h-4" />
+                              <ShoppingBag className="w-4 h-4" />
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="text-xs">Rephrase</TooltipContent>
