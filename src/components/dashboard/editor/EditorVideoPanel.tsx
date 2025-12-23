@@ -401,8 +401,6 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
       {/* Uploaded Videos Section */}
       {hasUploadedVideos && (
         <div className="mt-2">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Uploaded Videos</h3>
-          <p className="text-xs text-gray-500 mb-2">Drag to timeline or click + to add</p>
           <div className="grid grid-cols-2 gap-3">
             {uploadedMedia.filter(m => m.type === 'video').map((video) => {
               const inUse = isVideoInUse(video.url);
