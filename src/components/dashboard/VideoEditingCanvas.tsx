@@ -302,6 +302,31 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     fetchUserVideos();
   }, []);
 
+  // Handle deleting uploaded media
+  const handleDeleteMedia = async (mediaId: string) => {
+    try {
+      // Remove from local state
+      setUploadedMedia(prev => prev.filter(m => m.id !== mediaId));
+      
+      // Also delete from database
+      const { error } = await supabase
+        .from('user_videos')
+        .delete()
+        .eq('id', mediaId);
+      
+      if (error) {
+        console.error('Error deleting video:', error);
+        sonnerToast.error('Failed to delete video');
+        return;
+      }
+      
+      sonnerToast.success('Video deleted');
+    } catch (error) {
+      console.error('Error deleting media:', error);
+      sonnerToast.error('Failed to delete media');
+    }
+  };
+
   // Sample visuals for the Visuals tab
   const [visualAssets] = useState([
     { id: '1', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
@@ -1242,7 +1267,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -1264,7 +1289,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} />;
 
       case 'audio':
         return <EditorAudioPanel />;

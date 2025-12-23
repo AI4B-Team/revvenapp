@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot, Check } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot, Check, Trash2 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiZoom } from 'react-icons/si';
@@ -46,6 +46,7 @@ interface EditorVideoPanelProps {
   onAddToTimeline?: (videoUrl: string, name: string, thumbnail?: string, duration?: number) => void;
   onOpenRecord?: () => void;
   timelineClipUrls?: string[];
+  onDeleteMedia?: (mediaId: string) => void;
 }
 
 const categories = [
@@ -76,7 +77,8 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   onUrlSubmit,
   onAddToTimeline,
   onOpenRecord,
-  timelineClipUrls = []
+  timelineClipUrls = [],
+  onDeleteMedia
 }) => {
   // Check if a video URL is in use on the timeline
   const isVideoInUse = (videoUrl: string) => {
@@ -434,6 +436,20 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
                       <span className="text-xs font-medium text-white">In Use</span>
                     </div>
                   )}
+                  
+                  {/* Delete Button Overlay */}
+                  <button
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onDeleteMedia) {
+                        onDeleteMedia(video.id);
+                      }
+                    }}
+                    title="Delete video"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-white" />
+                  </button>
                   
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
                     <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
