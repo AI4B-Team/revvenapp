@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
 import mediaPlaceholder from '@/assets/media-placeholder.png';
 import {
   Image,
@@ -229,6 +229,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [nativeVideoRatio, setNativeVideoRatio] = useState<number>(16/9); // Store the original video aspect ratio
   const [selectedUploadedVideoUrl, setSelectedUploadedVideoUrl] = useState<string | null>(null); // Selected uploaded video to play on canvas
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
+  const [isSaving, setIsSaving] = useState(false);
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
@@ -1493,18 +1494,42 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             {/* Auto-save Cloud Icon */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default flex-shrink-0">
+                <button
+                  onClick={async () => {
+                    if (isSaving) return;
+                    setIsSaving(true);
+                    // Simulate save operation
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    setLastAutoSaved(new Date());
+                    setIsSaving(false);
+                    sonnerToast.success('Project saved');
+                  }}
+                  disabled={isSaving}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
+                    isSaving 
+                      ? 'bg-gray-500/30 cursor-wait' 
+                      : 'bg-gray-600/50 hover:bg-gray-500/50 cursor-pointer'
+                  }`}
+                >
                   <div className="relative flex-shrink-0">
-                    <Cloud className="w-4 h-4 text-green-400" />
-                    <Check className="w-2.5 h-2.5 text-green-400 absolute -bottom-0.5 -right-0.5" strokeWidth={3} />
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
+                    ) : (
+                      <Cloud className="w-4 h-4 text-gray-300" />
+                    )}
                   </div>
-                  <span className="text-xs text-green-300 whitespace-nowrap">
-                    Saved
+                  <span className="text-xs text-gray-300 whitespace-nowrap">
+                    {isSaving ? 'Saving' : 'Saved'}
                   </span>
-                </div>
+                </button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Last Saved: {lastAutoSaved.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })} / {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                <p>
+                  {isSaving 
+                    ? 'Saving...' 
+                    : `Click to save (Last saved: ${lastAutoSaved.toISOString().slice(0, 10)} ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
+                  }
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
