@@ -375,7 +375,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
             className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
             onClick={() => toast.info('Zoom import coming soon')}
           >
-            <SiZoom className="w-4 h-4 text-[#2D8CFF]" />
+            <SiZoom className="w-5 h-5 text-[#2D8CFF]" />
             <span className="text-sm font-medium">Import From Zoom</span>
           </Button>
           <Button
