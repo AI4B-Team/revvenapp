@@ -14,6 +14,12 @@ import { toast } from 'sonner';
 
 type HighlightColor = 'yellow' | 'green' | 'blue' | 'purple' | null;
 
+interface TextHighlight {
+  start: number;
+  end: number;
+  color: HighlightColor;
+}
+
 interface ScriptSegment {
   id: string;
   text: string;
@@ -22,6 +28,7 @@ interface ScriptSegment {
   deleted?: boolean;
   selected?: boolean;
   hidden?: boolean;
+  highlights?: TextHighlight[];
 }
 
 interface ScriptTextEditorProps {
@@ -71,14 +78,21 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   const [segmentToggles, setSegmentToggles] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [segmentHighlights, setSegmentHighlights] = useState<Record<string, HighlightColor>>({});
+  const [textSelection, setTextSelection] = useState<{ segmentId: string; start: number; end: number; text: string } | null>(null);
+  const [highlightPickerPosition, setHighlightPickerPosition] = useState<{ x: number; y: number } | null>(null);
+  const [activeHighlightColor, setActiveHighlightColor] = useState<HighlightColor>('yellow');
   const editorRef = useRef<HTMLDivElement>(null);
+
+  const highlightColorOptions = [
+    { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-200', dotClass: 'bg-yellow-400' },
+    { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-200', dotClass: 'bg-green-400' },
+    { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-200', dotClass: 'bg-blue-400' },
+    { name: 'Purple', color: 'purple' as HighlightColor, bgClass: 'bg-purple-200', dotClass: 'bg-purple-400' },
+  ];
 
   const highlightColors = [
     { name: 'Select all', color: null, bgClass: '', dotClass: 'bg-yellow-300 bg-green-300' },
-    { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-100', dotClass: 'bg-yellow-400' },
-    { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-100', dotClass: 'bg-green-400' },
-    { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-100', dotClass: 'bg-blue-400' },
-    { name: 'Purple', color: 'purple' as HighlightColor, bgClass: 'bg-purple-100', dotClass: 'bg-purple-400' },
+    ...highlightColorOptions,
   ];
 
   const formatTime = (seconds: number): string => {
@@ -187,6 +201,108 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       ...prev,
       [segmentId]: !prev[segmentId]
     }));
+  };
+
+  // Handle text selection within a segment
+  const handleTextMouseUp = (segmentId: string, e: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim().length > 0) {
+      const selectedText = selection.toString();
+      const range = selection.getRangeAt(0);
+      
+      // Get the text node and calculate offsets
+      const textContent = segments.find(s => s.id === segmentId)?.text || '';
+      const selectedIndex = textContent.indexOf(selectedText);
+      
+      if (selectedIndex !== -1) {
+        setTextSelection({
+          segmentId,
+          start: selectedIndex,
+          end: selectedIndex + selectedText.length,
+          text: selectedText
+        });
+        
+        // Position the highlight picker near the selection
+        const rect = range.getBoundingClientRect();
+        setHighlightPickerPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.bottom + 8
+        });
+      }
+    }
+  };
+
+  // Apply highlight to selected text
+  const applyTextHighlight = (color: HighlightColor) => {
+    if (!textSelection) return;
+    
+    setSegments(prev => prev.map(seg => {
+      if (seg.id === textSelection.segmentId) {
+        const existingHighlights = seg.highlights || [];
+        const newHighlight: TextHighlight = {
+          start: textSelection.start,
+          end: textSelection.end,
+          color
+        };
+        return {
+          ...seg,
+          highlights: [...existingHighlights, newHighlight]
+        };
+      }
+      return seg;
+    }));
+    
+    setTextSelection(null);
+    setHighlightPickerPosition(null);
+    toast.success('Text highlighted');
+  };
+
+  // Render text with highlights
+  const renderHighlightedText = (segment: ScriptSegment, isMuted: boolean) => {
+    const highlights = segment.highlights || [];
+    if (highlights.length === 0) {
+      return <span className={isMuted ? 'text-gray-400' : 'text-gray-800'}>{segment.text}</span>;
+    }
+
+    // Sort highlights by start position
+    const sortedHighlights = [...highlights].sort((a, b) => a.start - b.start);
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    sortedHighlights.forEach((highlight, idx) => {
+      // Add non-highlighted text before this highlight
+      if (highlight.start > lastIndex) {
+        parts.push(
+          <span key={`text-${idx}`} className={isMuted ? 'text-gray-400' : 'text-gray-800'}>
+            {segment.text.slice(lastIndex, highlight.start)}
+          </span>
+        );
+      }
+      
+      // Add highlighted text
+      const highlightBg = highlight.color === 'yellow' ? 'bg-yellow-200' :
+                         highlight.color === 'green' ? 'bg-green-200' :
+                         highlight.color === 'blue' ? 'bg-blue-200' :
+                         highlight.color === 'purple' ? 'bg-purple-200' : '';
+      parts.push(
+        <mark key={`highlight-${idx}`} className={`${highlightBg} px-0.5 rounded`}>
+          {segment.text.slice(highlight.start, highlight.end)}
+        </mark>
+      );
+      
+      lastIndex = highlight.end;
+    });
+
+    // Add remaining non-highlighted text
+    if (lastIndex < segment.text.length) {
+      parts.push(
+        <span key="text-end" className={isMuted ? 'text-gray-400' : 'text-gray-800'}>
+          {segment.text.slice(lastIndex)}
+        </span>
+      );
+    }
+
+    return <>{parts}</>;
   };
 
   const handleAddToSelection = (segmentId: string) => {
@@ -413,8 +529,11 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                       rows={Math.ceil(editingText.length / 60) || 1}
                     />
                   ) : (
-                    <p className={`flex-1 text-[15px] leading-relaxed ${isMuted ? 'text-gray-400' : 'text-gray-800'} ${segment.hidden ? 'italic' : ''}`}>
-                      {segment.text}
+                    <p 
+                      className={`flex-1 text-[15px] leading-relaxed ${segment.hidden ? 'italic' : ''} select-text`}
+                      onMouseUp={(e) => handleTextMouseUp(segment.id, e)}
+                    >
+                      {renderHighlightedText(segment, isMuted)}
                     </p>
                   )}
 
@@ -622,6 +741,42 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
           </div>
         )}
       </div>
+
+      {/* Floating Highlight Color Picker */}
+      {highlightPickerPosition && textSelection && (
+        <div
+          className="fixed z-[100] animate-fade-in"
+          style={{
+            left: highlightPickerPosition.x,
+            top: highlightPickerPosition.y,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <div className="flex items-center gap-1 px-2 py-1.5 bg-white rounded-lg shadow-lg border border-gray-200">
+            {highlightColorOptions.map((option) => (
+              <button
+                key={option.name}
+                onClick={() => applyTextHighlight(option.color)}
+                className={`w-6 h-6 rounded ${option.dotClass} hover:ring-2 hover:ring-offset-1 hover:ring-gray-300 transition-all ${
+                  activeHighlightColor === option.color ? 'ring-2 ring-offset-1 ring-gray-400' : ''
+                }`}
+                title={option.name}
+              />
+            ))}
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <button
+              onClick={() => {
+                setTextSelection(null);
+                setHighlightPickerPosition(null);
+              }}
+              className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+              title="Cancel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

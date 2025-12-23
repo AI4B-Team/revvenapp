@@ -47,6 +47,7 @@ import {
   Link2,
   Settings,
   UserPlus,
+  Send,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -1578,6 +1579,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             >
               <UserPlus className="w-4 h-4" />
               <span className="hidden md:inline">Share</span>
+            </button>
+            {/* Publish button */}
+            <button 
+              onClick={() => toast({ title: 'Publishing...', description: 'Your project will be published shortly' })}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-medium transition-colors border border-slate-400"
+            >
+              <Send className="w-4 h-4" />
+              <span className="hidden md:inline">Publish</span>
             </button>
             {/* Export button - always visible */}
             <ExportDropdown 
