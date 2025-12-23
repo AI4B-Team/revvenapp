@@ -327,6 +327,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     }
   };
 
+  // Favorite media IDs state (stored locally for now)
+  const [favoriteMediaIds, setFavoriteMediaIds] = useState<string[]>([]);
+
+  // Handle toggling favorite status
+  const handleToggleFavorite = (mediaId: string) => {
+    setFavoriteMediaIds(prev => {
+      if (prev.includes(mediaId)) {
+        return prev.filter(id => id !== mediaId);
+      }
+      return [...prev, mediaId];
+    });
+  };
+
   // Sample visuals for the Visuals tab
   const [visualAssets] = useState([
     { id: '1', name: 'AI Video', thumbnail: '/placeholder.svg', inUse: false },
@@ -1267,7 +1280,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -1289,7 +1302,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />;
 
       case 'audio':
         return <EditorAudioPanel />;

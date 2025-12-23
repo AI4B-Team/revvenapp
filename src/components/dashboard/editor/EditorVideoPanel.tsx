@@ -1,10 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot, Check, Trash2 } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot, Check, Trash2, Filter } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiZoom } from 'react-icons/si';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const PEXELS_API_KEY = 'gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT';
 
@@ -47,6 +53,8 @@ interface EditorVideoPanelProps {
   onOpenRecord?: () => void;
   timelineClipUrls?: string[];
   onDeleteMedia?: (mediaId: string) => void;
+  favoriteMediaIds?: string[];
+  onToggleFavorite?: (mediaId: string) => void;
 }
 
 const categories = [
@@ -78,8 +86,17 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   onAddToTimeline,
   onOpenRecord,
   timelineClipUrls = [],
-  onDeleteMedia
+  onDeleteMedia,
+  favoriteMediaIds = [],
+  onToggleFavorite
 }) => {
+  // Filter state
+  const [filterType, setFilterType] = useState<'all' | 'favorite' | 'in-use'>('all');
+  
+  // Check if a video is favorited
+  const isVideoFavorited = (videoId: string) => {
+    return favoriteMediaIds.includes(videoId);
+  };
   // Check if a video URL is in use on the timeline
   const isVideoInUse = (videoUrl: string) => {
     return timelineClipUrls.some(clipUrl => clipUrl === videoUrl);
@@ -309,6 +326,43 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               className="w-full pl-9 pr-4 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 placeholder:text-gray-400"
             />
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className={`flex items-center gap-2 px-3 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0 ${
+                  filterType !== 'all' ? 'bg-primary/10 border-primary text-primary' : ''
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {filterType === 'all' ? 'All' : filterType === 'favorite' ? 'Favorite' : 'In Use'}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white">
+              <DropdownMenuItem 
+                onClick={() => setFilterType('all')}
+                className={filterType === 'all' ? 'bg-primary/10 text-primary' : ''}
+              >
+                All
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setFilterType('favorite')}
+                className={filterType === 'favorite' ? 'bg-primary/10 text-primary' : ''}
+              >
+                <Heart className="w-4 h-4 mr-2 text-red-500" />
+                Favorite
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setFilterType('in-use')}
+                className={filterType === 'in-use' ? 'bg-primary/10 text-primary' : ''}
+              >
+                <Check className="w-4 h-4 mr-2 text-emerald-500" />
+                In Use
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
 
@@ -404,73 +458,104 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
       {hasUploadedVideos && (
         <div className="mt-2">
           <div className="grid grid-cols-2 gap-3">
-            {uploadedMedia.filter(m => m.type === 'video').map((video) => {
-              const inUse = isVideoInUse(video.url);
-              return (
-                <div
-                  key={video.id}
-                  className={`relative aspect-video rounded-lg overflow-hidden cursor-grab group bg-gray-100 border-2 transition-colors ${
-                    inUse ? 'border-emerald-500' : 'border-transparent hover:border-primary'
-                  }`}
-                  draggable
-                  onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
-                  onClick={() => handleUploadedVideoSelect(video)}
-                >
-                  <video
-                    src={video.url}
-                    className="w-full h-full object-cover"
-                    muted
-                    preload="metadata"
-                    onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
-                    onMouseLeave={(e) => {
-                      const target = e.target as HTMLVideoElement;
-                      target.pause();
-                      target.currentTime = 0;
-                    }}
-                  />
-                  
-                  {/* In Use Overlay */}
-                  {inUse && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-emerald-500 rounded-md shadow-md">
-                      <Check className="w-3 h-3 text-white" />
-                      <span className="text-xs font-medium text-white">In Use</span>
-                    </div>
-                  )}
-                  
-                  {/* Delete Button Overlay */}
-                  <button
-                    className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onDeleteMedia) {
-                        onDeleteMedia(video.id);
-                      }
-                    }}
-                    title="Delete video"
+            {uploadedMedia
+              .filter(m => m.type === 'video')
+              .filter(video => {
+                const inUse = isVideoInUse(video.url);
+                const isFavorite = isVideoFavorited(video.id);
+                if (filterType === 'favorite') return isFavorite;
+                if (filterType === 'in-use') return inUse;
+                return true;
+              })
+              .map((video) => {
+                const inUse = isVideoInUse(video.url);
+                const isFavorite = isVideoFavorited(video.id);
+                return (
+                  <div
+                    key={video.id}
+                    className={`relative aspect-video rounded-lg overflow-hidden cursor-grab group bg-gray-100 border-2 transition-colors ${
+                      inUse ? 'border-emerald-500' : 'border-transparent hover:border-primary'
+                    }`}
+                    draggable
+                    onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
+                    onClick={() => handleUploadedVideoSelect(video)}
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-white" />
-                  </button>
-                  
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
-                    <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-between">
-                    <p className="text-xs text-white truncate flex-1">{video.name}</p>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 w-6 p-0 bg-white/20 hover:bg-white/40 text-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddUploadedVideoToTimeline(video);
+                    <video
+                      src={video.url}
+                      className="w-full h-full object-cover"
+                      muted
+                      preload="metadata"
+                      onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
+                      onMouseLeave={(e) => {
+                        const target = e.target as HTMLVideoElement;
+                        target.pause();
+                        target.currentTime = 0;
                       }}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+                    />
+                    
+                    {/* In Use Overlay */}
+                    {inUse && (
+                      <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-emerald-500 rounded-md shadow-md">
+                        <Check className="w-3 h-3 text-white" />
+                        <span className="text-xs font-medium text-white">In Use</span>
+                      </div>
+                    )}
+                    
+                    {/* Top Right Controls - Favorite and Delete */}
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 z-10">
+                      {/* Favorite Button */}
+                      <button
+                        className={`p-1.5 rounded-md shadow-md transition-all ${
+                          isFavorite 
+                            ? 'bg-red-500 opacity-100' 
+                            : 'bg-black/50 hover:bg-black/70 opacity-0 group-hover:opacity-100'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onToggleFavorite) {
+                            onToggleFavorite(video.id);
+                          }
+                        }}
+                        title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'text-white fill-white' : 'text-white'}`} />
+                      </button>
+                      
+                      {/* Delete Button */}
+                      <button
+                        className="p-1.5 bg-red-500 hover:bg-red-600 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onDeleteMedia) {
+                            onDeleteMedia(video.id);
+                          }
+                        }}
+                        title="Delete video"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    </div>
+                    
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
+                      <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-between">
+                      <p className="text-xs text-white truncate flex-1">{video.name}</p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 bg-white/20 hover:bg-white/40 text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddUploadedVideoToTimeline(video);
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
