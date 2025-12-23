@@ -1514,13 +1514,18 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-green-500/20 cursor-default flex-shrink-0">
-                  <Cloud className="w-4 h-4 text-green-400 flex-shrink-0" />
+                  <div className="relative flex-shrink-0">
+                    <Cloud className="w-4 h-4 text-green-400" />
+                    <Check className="w-2.5 h-2.5 text-green-400 absolute -bottom-0.5 -right-0.5" strokeWidth={3} />
+                  </div>
                   <span className="text-xs text-green-300 whitespace-nowrap">
-                    Auto Saved {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    Saved
                   </span>
                 </div>
               </TooltipTrigger>
-              <TooltipContent><p>Project auto-saved to cloud</p></TooltipContent>
+              <TooltipContent>
+                <p>Last Saved: {lastAutoSaved.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })} / {lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+              </TooltipContent>
             </Tooltip>
           </div>
 
