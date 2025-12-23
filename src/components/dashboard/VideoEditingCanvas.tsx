@@ -1511,14 +1511,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       : 'bg-green-500/20 hover:bg-green-500/30 cursor-pointer'
                   }`}
                 >
-                  <div className="relative flex-shrink-0">
+                  <div className="flex-shrink-0">
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
                     ) : (
-                      <>
-                        <Cloud className="w-4 h-4 text-green-400" />
-                        <Check className="w-2.5 h-2.5 text-green-400 absolute -bottom-0.5 -right-0.5" strokeWidth={3} />
-                      </>
+                      <Cloud className="w-4 h-4 text-green-400" />
                     )}
                   </div>
                   <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
@@ -1530,7 +1527,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <p>
                   {isSaving 
                     ? 'Saving...' 
-                    : `Click To Save (Last Saved: ${lastAutoSaved.toISOString().slice(0, 10)} ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
+                    : `Click To Save (Last Saved: ${(lastAutoSaved.getMonth() + 1).toString().padStart(2, '0')}/${lastAutoSaved.getDate().toString().padStart(2, '0')}/${lastAutoSaved.getFullYear()} // ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
                   }
                 </p>
               </TooltipContent>
