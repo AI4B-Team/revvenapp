@@ -677,7 +677,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                                 </button>
                               </DropdownMenuTrigger>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">More options</TooltipContent>
+                            <TooltipContent side="top" className="text-xs">More Options</TooltipContent>
                           </Tooltip>
                           <DropdownMenuContent align="end" className="w-44 bg-popover">
                             <DropdownMenuItem 
