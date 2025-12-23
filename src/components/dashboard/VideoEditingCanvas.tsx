@@ -369,6 +369,19 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     return clips.sort((a, b) => a.startTime - b.startTime);
   }, [tracks]);
 
+  // Get all clip URLs currently on the timeline (for "In Use" indicators)
+  const timelineClipUrls = React.useMemo(() => {
+    const urls: string[] = [];
+    for (const track of tracks) {
+      for (const clip of track.clips) {
+        if (clip.src) {
+          urls.push(clip.src);
+        }
+      }
+    }
+    return urls;
+  }, [tracks]);
+
   // Find the active video clip based on current playback time
   const activeVideoClip = React.useMemo(() => {
     for (const clip of sortedVideoClips) {
@@ -1226,7 +1239,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} />}
             {visualsSubTab === 'images' && <EditorImagePanel />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -1248,7 +1261,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} />;
 
       case 'audio':
         return <EditorAudioPanel />;

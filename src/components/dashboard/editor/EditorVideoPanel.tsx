@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot } from 'lucide-react';
+import { Search, Play, Clock, User, Loader2, Video, Upload, Link2, Heart, Plus, CircleDot, Check } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeoV, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiZoom } from 'react-icons/si';
@@ -45,6 +45,7 @@ interface EditorVideoPanelProps {
   onUrlSubmit?: (url: string) => void;
   onAddToTimeline?: (videoUrl: string, name: string, thumbnail?: string, duration?: number) => void;
   onOpenRecord?: () => void;
+  timelineClipUrls?: string[];
 }
 
 const categories = [
@@ -74,8 +75,13 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
   onFileUpload,
   onUrlSubmit,
   onAddToTimeline,
-  onOpenRecord
+  onOpenRecord,
+  timelineClipUrls = []
 }) => {
+  // Check if a video URL is in use on the timeline
+  const isVideoInUse = (videoUrl: string) => {
+    return timelineClipUrls.some(clipUrl => clipUrl === videoUrl);
+  };
   const [videos, setVideos] = useState<PexelsVideo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -389,45 +395,59 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Uploaded Videos</h3>
           <p className="text-xs text-gray-500 mb-2">Drag to timeline or click + to add</p>
           <div className="grid grid-cols-2 gap-3">
-            {uploadedMedia.filter(m => m.type === 'video').map((video) => (
-              <div
-                key={video.id}
-                className="relative aspect-video rounded-lg overflow-hidden cursor-grab group bg-gray-100 border-2 border-transparent hover:border-primary transition-colors"
-                draggable
-                onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
-                onClick={() => handleUploadedVideoSelect(video)}
-              >
-                <video
-                  src={video.url}
-                  className="w-full h-full object-cover"
-                  muted
-                  preload="metadata"
-                  onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
-                  onMouseLeave={(e) => {
-                    const target = e.target as HTMLVideoElement;
-                    target.pause();
-                    target.currentTime = 0;
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
-                  <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-between">
-                  <p className="text-xs text-white truncate flex-1">{video.name}</p>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 w-6 p-0 bg-white/20 hover:bg-white/40 text-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddUploadedVideoToTimeline(video);
+            {uploadedMedia.filter(m => m.type === 'video').map((video) => {
+              const inUse = isVideoInUse(video.url);
+              return (
+                <div
+                  key={video.id}
+                  className={`relative aspect-video rounded-lg overflow-hidden cursor-grab group bg-gray-100 border-2 transition-colors ${
+                    inUse ? 'border-emerald-500' : 'border-transparent hover:border-primary'
+                  }`}
+                  draggable
+                  onDragStart={(e) => handleUploadedVideoDragStart(e, video)}
+                  onClick={() => handleUploadedVideoSelect(video)}
+                >
+                  <video
+                    src={video.url}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                    onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLVideoElement;
+                      target.pause();
+                      target.currentTime = 0;
                     }}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                  />
+                  
+                  {/* In Use Overlay */}
+                  {inUse && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-emerald-500 rounded-md shadow-md">
+                      <Check className="w-3 h-3 text-white" />
+                      <span className="text-xs font-medium text-white">In Use</span>
+                    </div>
+                  )}
+                  
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
+                    <Play className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent flex items-center justify-between">
+                    <p className="text-xs text-white truncate flex-1">{video.name}</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 w-6 p-0 bg-white/20 hover:bg-white/40 text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddUploadedVideoToTimeline(video);
+                      }}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
