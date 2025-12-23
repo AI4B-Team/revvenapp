@@ -214,12 +214,19 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
       const data = JSON.parse(jsonData);
       if (data.type === 'video') {
-        // Calculate drop position based on mouse position
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        // Adjust for zoom level
-        const adjustedX = x / zoom;
-        const startTime = (adjustedX / (rect.width / zoom)) * duration;
+        // Check if this is the first clip on the track
+        const existingClips = track?.clips || [];
+        const isFirstClip = existingClips.length === 0;
+        
+        let startTime = 0;
+        if (!isFirstClip) {
+          // Calculate drop position based on mouse position
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          // Adjust for zoom level
+          const adjustedX = x / zoom;
+          startTime = (adjustedX / (rect.width / zoom)) * duration;
+        }
 
         // Create new clip with actual video duration
         const clipDuration = data.duration || 5;
