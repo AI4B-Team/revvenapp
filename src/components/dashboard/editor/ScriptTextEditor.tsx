@@ -581,21 +581,106 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                 {/* Floating Edit Toolbar - appears ABOVE sentence when clicked */}
                 {showToolbar && (
                   <div className="absolute left-0 right-0 bottom-full mb-2 z-50 animate-fade-in flex justify-center">
-                    <div className="flex items-center gap-1 px-2 py-1.5 bg-slate-800 rounded-lg shadow-lg">
+                    <div className="flex items-center gap-1 px-3 py-2 bg-white rounded-xl shadow-xl border border-gray-200">
+                      {/* Edit button */}
+                      <button
+                        onClick={(e) => handleEditClick(segment, e)}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        <span>Edit</span>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                      {/* Hide button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHideSegment(segment.id);
+                        }}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                        title={segment.hidden ? 'Show' : 'Hide'}
+                      >
+                        {segment.hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        <span>{segment.hidden ? 'Show' : 'Hide'}</span>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                      {/* Highlight color dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Highlight"
+                          >
+                            <div className="flex -space-x-1">
+                              <div className="w-3 h-3 rounded-full bg-yellow-400 border border-white" />
+                              <div className="w-3 h-3 rounded-full bg-green-400 border border-white" />
+                            </div>
+                            <span>Highlight</span>
+                            <ChevronDown className="w-3 h-3" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-36 bg-popover">
+                          {highlightColorOptions.map((item) => (
+                            <DropdownMenuItem 
+                              key={item.name}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSegmentHighlights(prev => ({
+                                  ...prev,
+                                  [segment.id]: item.color
+                                }));
+                                toast.success(`${item.name} highlight applied`);
+                              }}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <div className={`w-4 h-4 rounded ${item.dotClass}`} />
+                              <span>{item.name}</span>
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSegmentHighlights(prev => {
+                                const next = { ...prev };
+                                delete next[segment.id];
+                                return next;
+                              });
+                              toast.success('Highlight removed');
+                            }}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <X className="w-4 h-4 text-gray-400" />
+                            <span>Remove</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Divider */}
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
+
                       {/* Remove button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteSegment(segment.id);
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+                        title="Remove"
                       >
-                        <X className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                         <span>Remove</span>
                       </button>
 
                       {/* Divider */}
-                      <div className="w-px h-5 bg-slate-600 mx-1" />
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
 
                       {/* Rephrase button */}
                       <button
@@ -603,15 +688,15 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                           e.stopPropagation();
                           toast.info('Rephrasing with AI...');
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Pencil className="w-4 h-4" />
                         <span>Rephrase</span>
-                        <span className="ml-1 w-5 h-5 rounded bg-orange-500 flex items-center justify-center text-[10px]">AI</span>
+                        <span className="ml-1 px-1.5 py-0.5 rounded bg-orange-500 text-white text-[10px] font-medium">AI</span>
                       </button>
 
                       {/* Divider */}
-                      <div className="w-px h-5 bg-slate-600 mx-1" />
+                      <div className="w-px h-5 bg-gray-200 mx-1" />
 
                       {/* Download Clip button */}
                       <button
@@ -619,7 +704,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                           e.stopPropagation();
                           handleCreateClip(segment);
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white hover:bg-slate-700 rounded transition-colors"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Download className="w-4 h-4" />
                         <span>Download Clip</span>
