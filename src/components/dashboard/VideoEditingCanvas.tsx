@@ -195,7 +195,6 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   onSave,
   onTabChange,
   activeEditorTab,
-  isSidebarCollapsed = false,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1525,17 +1524,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </Tooltip>
           </div>
 
-          {/* Centered Media Type Tabs - offset to align with Header nav which centers in viewport */}
-          <div 
-            className="absolute top-1/2 -translate-y-1/2 hidden md:flex transition-all duration-300"
-            style={{ 
-              left: '50%',
-              // Offset by half the sidebar width to align with viewport center
-              // Sidebar is 256px expanded, 64px collapsed
-              marginLeft: isSidebarCollapsed ? '-32px' : '-128px'
-            }}
-          >
-            <div className="flex items-center gap-4 lg:gap-8 -translate-x-1/2">
+          {/* Centered Media Type Tabs */}
+          <div className="hidden md:flex flex-1 items-center justify-center min-w-0">
+            <div className="flex items-center gap-4 lg:gap-8">
               <button 
                 onClick={() => onTabChange?.('image')}
                 className={`flex items-center gap-2 font-medium text-sm ${activeEditorTab === 'image' ? 'text-white' : 'text-slate-400 hover:text-white'} transition-colors`}
@@ -1563,7 +1554,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2 md:gap-3 ml-auto flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
             {/* Collaborators - hide on small screens */}
             <div className="hidden lg:flex items-center -space-x-2">
               {collaborators.map((avatar, index) => (
