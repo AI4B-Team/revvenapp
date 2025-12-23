@@ -165,19 +165,35 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     }
   }, [markers, currentTime, onTimeSeek, addMarker]);
 
-  // Handle drop from external sources (like StockVideoPanel)
+  // Handle drop from external sources (like EditorVideoPanel)
   const handleDragOver = useCallback((e: React.DragEvent, trackId: string) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    setDropTargetTrack(trackId);
-  }, []);
+    e.stopPropagation();
+    
+    // Check if this track can accept video drops
+    const track = tracks.find(t => t.id === trackId);
+    if (track?.locked) {
+      e.dataTransfer.dropEffect = 'none';
+      return;
+    }
+    
+    // Allow drop on video tracks
+    if (track?.type === 'video' || trackId.includes('video')) {
+      e.dataTransfer.dropEffect = 'copy';
+      setDropTargetTrack(trackId);
+    } else {
+      e.dataTransfer.dropEffect = 'none';
+    }
+  }, [tracks]);
 
-  const handleDragLeave = useCallback(() => {
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
     setDropTargetTrack(null);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent, trackId: string) => {
     e.preventDefault();
+    e.stopPropagation();
     setDropTargetTrack(null);
 
     // Check if track is locked
@@ -185,23 +201,36 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     if (track?.locked) return;
 
     try {
-      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      // Try application/json first, then text/plain as fallback
+      let jsonData = e.dataTransfer.getData('application/json');
+      if (!jsonData) {
+        jsonData = e.dataTransfer.getData('text/plain');
+      }
+      
+      if (!jsonData) {
+        console.log('No drag data found');
+        return;
+      }
+
+      const data = JSON.parse(jsonData);
       if (data.type === 'video') {
         // Calculate drop position based on mouse position
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const startTime = (x / rect.width) * duration;
+        // Adjust for zoom level
+        const adjustedX = x / zoom;
+        const startTime = (adjustedX / (rect.width / zoom)) * duration;
 
-        // Create new clip with minimum 5s duration
+        // Create new clip with actual video duration
         const clipDuration = data.duration || 5;
         const newClip: TimelineClip = {
           id: `clip-${Date.now()}`,
           type: 'video',
-          name: data.name || 'Stock Video',
+          name: data.name || 'Video Clip',
           startTime: Math.max(0, startTime),
-          duration: Math.max(5, clipDuration), // Ensure minimum 5s duration
+          duration: Math.max(1, clipDuration),
           thumbnail: data.thumbnail,
-          src: data.url, // Store the video URL for playback
+          src: data.url,
         };
 
         // Add to track
@@ -212,11 +241,14 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             clips: [...t.clips, newClip]
           };
         }));
+        
+        // Select the new clip
+        setSelectedClip(newClip.id);
       }
     } catch (error) {
       console.error('Failed to parse drop data:', error);
     }
-  }, [tracks, duration, setTracks]);
+  }, [tracks, duration, zoom, setTracks, setSelectedClip]);
 
   // Format time display
   const formatTime = (seconds: number): string => {
