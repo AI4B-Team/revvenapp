@@ -651,12 +651,12 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
           onDragLeave={handleDragLeave}
         >
           <div 
-            className={`flex-1 p-6 flex flex-col transition-colors overflow-y-auto ${
+            className={`flex-1 p-6 flex flex-col items-center justify-center transition-colors overflow-y-auto ${
               isDragging ? 'bg-primary/10 border-2 border-dashed border-primary' : ''
             }`}
           >
             {selectedImages.length > 0 ? (
-              <div className="flex flex-col">
+              <div className="flex flex-col w-full">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Selected Images ({selectedImages.length}/14)</h3>
                 <div className="grid grid-cols-2 gap-4 justify-items-center items-center max-h-[400px] overflow-y-auto mb-6">
                   {selectedImages.map((image, index) => (
@@ -680,7 +680,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-5 w-full max-w-md">
                 {/* Paste Link Field */}
                 <div className="relative">
                   <input
@@ -693,8 +693,8 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                   <Link className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
                 
-                {/* Social Icons */}
-                <div className="flex items-center justify-center gap-3">
+                {/* Social Icons - Faded */}
+                <div className="flex items-center justify-center gap-3 opacity-50">
                   <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
                     <FaYoutube className="w-4 h-4 text-white" />
                   </div>
