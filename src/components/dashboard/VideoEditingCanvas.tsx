@@ -1508,17 +1508,20 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
                     isSaving 
                       ? 'bg-gray-500/30 cursor-wait' 
-                      : 'bg-gray-600/50 hover:bg-gray-500/50 cursor-pointer'
+                      : 'bg-green-500/20 hover:bg-green-500/30 cursor-pointer'
                   }`}
                 >
                   <div className="relative flex-shrink-0">
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
                     ) : (
-                      <Cloud className="w-4 h-4 text-gray-300" />
+                      <>
+                        <Cloud className="w-4 h-4 text-green-400" />
+                        <Check className="w-2.5 h-2.5 text-green-400 absolute -bottom-0.5 -right-0.5" strokeWidth={3} />
+                      </>
                     )}
                   </div>
-                  <span className="text-xs text-gray-300 whitespace-nowrap">
+                  <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
                     {isSaving ? 'Saving' : 'Saved'}
                   </span>
                 </button>
@@ -1527,7 +1530,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                 <p>
                   {isSaving 
                     ? 'Saving...' 
-                    : `Click to save (Last saved: ${lastAutoSaved.toISOString().slice(0, 10)} ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
+                    : `Click To Save (Last Saved: ${lastAutoSaved.toISOString().slice(0, 10)} ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
                   }
                 </p>
               </TooltipContent>
