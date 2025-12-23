@@ -72,6 +72,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 }) => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{
     clipId: string;
     trackId: string;
@@ -88,6 +89,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   const [viewMode, setViewMode] = useState<'timeline' | 'storyboard'>('timeline');
   const [markers, setMarkers] = useState<number[]>([]);
   const [isPlayheadDragging, setIsPlayheadDragging] = useState(false);
+  const [scrollLeft, setScrollLeft] = useState(0);
   
   // Track reordering state
   const [draggedTrackId, setDraggedTrackId] = useState<string | null>(null);
@@ -97,6 +99,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
   const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null);
   const [sceneDropIndex, setSceneDropIndex] = useState<number | null>(null);
   const [hoveredSceneGap, setHoveredSceneGap] = useState<number | null>(null);
+
+  // Handle scroll sync
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    setScrollLeft(e.currentTarget.scrollLeft);
+  }, []);
 
   // Get all scenes/clips from video tracks for navigation
   const scenes = React.useMemo(() => {
@@ -522,7 +529,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
     if (!isPlayheadDragging || !playheadRef.current) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const container = playheadRef.current?.parentElement;
+      const container = playheadRef.current;
       if (!container) return;
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
