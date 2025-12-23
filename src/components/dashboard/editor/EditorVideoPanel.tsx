@@ -281,117 +281,126 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
     }
   };
 
+  const hasUploadedVideos = uploadedMedia && uploadedMedia.filter(m => m.type === 'video').length > 0;
+
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
-      {/* Search Bar and Upload Button */}
-      <div className="flex items-center gap-2 mb-4">
-        <Button
-          variant="outline"
-          className="flex items-center gap-2 px-4 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="w-4 h-4" />
-          <span className="text-sm font-medium">Upload</span>
-        </Button>
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Search Assets"
-            className="w-full pl-9 pr-4 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 placeholder:text-gray-400"
-          />
-        </div>
-      </div>
-
-      {/* Paste Link Section - Above Upload Box */}
-      <div className="space-y-3 mb-4">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
-            placeholder="Paste A Supported Public Media Link"
-            className="w-full px-4 py-2.5 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 text-center placeholder:text-center"
-          />
-          <button
-            onClick={handleUrlSubmit}
-            disabled={!videoUrl.trim()}
-            className="absolute right-2 p-1.5 text-blue-500 hover:text-blue-600 transition-colors disabled:opacity-50"
+      {/* Search Bar and Upload Button - Only show when files are uploaded */}
+      {hasUploadedVideos && (
+        <div className="flex items-center gap-2 mb-4">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 px-4 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0"
+            onClick={onOpenReferences}
           >
-            <Link2 className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Social Platform Icons */}
-        <div className="flex items-center justify-center gap-2.5 opacity-60">
-          {socialPlatforms.map((platform, index) => (
-            <div
-              key={index}
-              className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-              title={platform.name}
-            >
-              <platform.icon className="w-3.5 h-3.5" style={{ color: platform.color }} />
-            </div>
-          ))}
-          <span className="text-gray-500 text-xs font-medium cursor-pointer hover:text-gray-700 transition-colors">+43</span>
-        </div>
-      </div>
-
-      {/* Click To Upload Section */}
-      <div className="space-y-4">
-        {/* Upload Area */}
-        <div 
-          className={`bg-white rounded-xl p-6 text-center transition-all cursor-pointer border-2 border-dashed ${
-            isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-400 hover:bg-emerald-50 hover:border-emerald-500'
-          }`}
-          onClick={() => fileInputRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-        >
-          <div className="flex flex-col items-center justify-center gap-2">
-            <Upload className="w-8 h-8 text-emerald-500 mb-1" />
-            <span className="text-gray-900 font-semibold text-lg">Click To Upload</span>
-            <p className="text-gray-500 text-sm">or, drag and drop a file here</p>
+            <Upload className="w-4 h-4" />
+            <span className="text-sm font-medium">Upload</span>
+          </Button>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Search Assets"
+              className="w-full pl-9 pr-4 py-2 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 placeholder:text-gray-400"
+            />
           </div>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={handleFileUpload}
-          className="hidden"
-        />
+      )}
 
-        {/* Import & Record Buttons */}
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
-            onClick={() => toast.info('Zoom import coming soon')}
-          >
-            <SiZoom className="w-5 h-5 text-[#2D8CFF]" />
-            <span className="text-sm font-medium">Import From Zoom</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
-            onClick={onOpenRecord}
-          >
-            <CircleDot className="w-4 h-4 text-red-500" />
-            <span className="text-sm font-medium">Record</span>
-          </Button>
-        </div>
-      </div>
+      {/* Upload Elements - Only show when NO files are uploaded */}
+      {!hasUploadedVideos && (
+        <>
+          {/* Paste Link Section - Above Upload Box */}
+          <div className="space-y-3 mb-4">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+                placeholder="Paste A Supported Public Media Link"
+                className="w-full px-4 py-2.5 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border border-gray-300 text-center placeholder:text-center"
+              />
+              <button
+                onClick={handleUrlSubmit}
+                disabled={!videoUrl.trim()}
+                className="absolute right-2 p-1.5 text-blue-500 hover:text-blue-600 transition-colors disabled:opacity-50"
+              >
+                <Link2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Social Platform Icons */}
+            <div className="flex items-center justify-center gap-2.5 opacity-60">
+              {socialPlatforms.map((platform, index) => (
+                <div
+                  key={index}
+                  className="w-7 h-7 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                  title={platform.name}
+                >
+                  <platform.icon className="w-3.5 h-3.5" style={{ color: platform.color }} />
+                </div>
+              ))}
+              <span className="text-gray-500 text-xs font-medium cursor-pointer hover:text-gray-700 transition-colors">+43</span>
+            </div>
+          </div>
+
+          {/* Click To Upload Section */}
+          <div className="space-y-4">
+            {/* Upload Area */}
+            <div 
+              className={`bg-white rounded-xl p-6 text-center transition-all cursor-pointer border-2 border-dashed ${
+                isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-400 hover:bg-emerald-50 hover:border-emerald-500'
+              }`}
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+            >
+              <div className="flex flex-col items-center justify-center gap-2">
+                <Upload className="w-8 h-8 text-emerald-500 mb-1" />
+                <span className="text-gray-900 font-semibold text-lg">Click To Upload</span>
+                <p className="text-gray-500 text-sm">or, drag and drop a file here</p>
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+
+            {/* Import & Record Buttons */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
+                onClick={() => toast.info('Zoom import coming soon')}
+              >
+                <SiZoom className="text-[#2D8CFF]" style={{ width: '24px', height: '24px' }} />
+                <span className="text-sm font-medium">Import From Zoom</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
+                onClick={onOpenRecord}
+              >
+                <CircleDot className="w-4 h-4 text-red-500" />
+                <span className="text-sm font-medium">Record</span>
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Uploaded Videos Section */}
-      {uploadedMedia && uploadedMedia.length > 0 && (
-        <div className="mt-6">
+      {hasUploadedVideos && (
+        <div className="mt-2">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Uploaded Videos</h3>
           <p className="text-xs text-gray-500 mb-2">Drag to timeline or click + to add</p>
           <div className="grid grid-cols-2 gap-3">
