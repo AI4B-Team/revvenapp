@@ -12,7 +12,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
-type HighlightColor = 'yellow' | 'green' | 'blue' | 'purple' | null;
+type HighlightColor = 'yellow' | 'green' | 'blue' | 'red' | null;
 
 interface TextHighlight {
   start: number;
@@ -87,7 +87,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
     { name: 'Yellow', color: 'yellow' as HighlightColor, bgClass: 'bg-yellow-200', dotClass: 'bg-yellow-400' },
     { name: 'Green', color: 'green' as HighlightColor, bgClass: 'bg-green-200', dotClass: 'bg-green-400' },
     { name: 'Blue', color: 'blue' as HighlightColor, bgClass: 'bg-blue-200', dotClass: 'bg-blue-400' },
-    { name: 'Purple', color: 'purple' as HighlightColor, bgClass: 'bg-purple-200', dotClass: 'bg-purple-400' },
+    { name: 'Red', color: 'red' as HighlightColor, bgClass: 'bg-red-200', dotClass: 'bg-red-400' },
   ];
 
   const highlightColors = [
@@ -283,7 +283,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       const highlightBg = highlight.color === 'yellow' ? 'bg-yellow-200' :
                          highlight.color === 'green' ? 'bg-green-200' :
                          highlight.color === 'blue' ? 'bg-blue-200' :
-                         highlight.color === 'purple' ? 'bg-purple-200' : '';
+                         highlight.color === 'red' ? 'bg-red-200' : '';
       parts.push(
         <mark key={`highlight-${idx}`} className={`${highlightBg} px-0.5 rounded`}>
           {segment.text.slice(highlight.start, highlight.end)}
@@ -377,7 +377,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       // Select all - highlight all segments with different colors
       const newHighlights: Record<string, HighlightColor> = {};
       visibleSegments.forEach((seg, index) => {
-        const colors: HighlightColor[] = ['yellow', 'green', 'blue', 'purple'];
+        const colors: HighlightColor[] = ['yellow', 'green', 'blue', 'red'];
         newHighlights[seg.id] = colors[index % colors.length];
       });
       setSegmentHighlights(newHighlights);
@@ -403,7 +403,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       case 'yellow': return 'bg-yellow-100';
       case 'green': return 'bg-green-100';
       case 'blue': return 'bg-blue-100';
-      case 'purple': return 'bg-purple-100';
+      case 'red': return 'bg-red-100';
       default: return '';
     }
   };
@@ -413,14 +413,14 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
       {/* Header with search and actions */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
         {/* Search bar */}
-        <div className="flex items-center gap-2 flex-1 max-w-xs">
+        <div className="flex items-center gap-2 flex-1 max-w-xs px-3 py-1.5 border border-gray-300 rounded-lg">
           <Search className="w-4 h-4 text-gray-400" />
           <Input
             type="text"
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0 text-sm placeholder:text-gray-400 px-0"
+            className="h-6 border-0 bg-transparent shadow-none focus-visible:ring-0 text-sm placeholder:text-gray-400 px-0"
           />
         </div>
 
@@ -430,7 +430,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
           <button
             onClick={handleCopyAll}
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-            title="Copy all"
+            title="Copy Script"
           >
             <Copy className="w-5 h-5" />
           </button>
@@ -439,7 +439,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
           <button
             onClick={handleDownload}
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-            title="Download"
+            title="Download Script"
           >
             <Download className="w-5 h-5" />
           </button>
@@ -449,7 +449,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
             <DropdownMenuTrigger asChild>
               <button
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                title="Highlight options"
+                title="Highlight Filter"
               >
                 <SlidersHorizontal className="w-5 h-5" />
               </button>
@@ -612,14 +612,61 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                         <Trash2 className="w-4 h-4" />
                       </button>
 
-                      {/* Toggle switch */}
-                      <Switch
-                        checked={segmentToggles[segment.id] ?? true}
-                        onCheckedChange={() => handleToggleSegment(segment.id)}
-                        className="mx-1"
-                      />
+                      {/* Highlight color selector */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="flex items-center gap-1 p-1 hover:bg-gray-100 rounded transition-colors mx-1">
+                            <div className={`w-5 h-5 rounded ${
+                              segmentHighlights[segment.id] === 'yellow' ? 'bg-yellow-400' :
+                              segmentHighlights[segment.id] === 'green' ? 'bg-green-400' :
+                              segmentHighlights[segment.id] === 'blue' ? 'bg-blue-400' :
+                              segmentHighlights[segment.id] === 'red' ? 'bg-red-400' :
+                              'bg-gray-300'
+                            }`} />
+                            <ChevronDown className="w-3 h-3 text-gray-500" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-32 bg-popover">
+                          <div className="px-2 py-1.5 text-xs font-medium text-gray-500">Highlight</div>
+                          <DropdownMenuSeparator />
+                          {highlightColorOptions.map((option) => (
+                            <DropdownMenuItem 
+                              key={option.name}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSegmentHighlights(prev => ({
+                                  ...prev,
+                                  [segment.id]: option.color
+                                }));
+                              }}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <div className={`w-4 h-4 rounded ${option.dotClass}`} />
+                              <span>{option.name}</span>
+                              {segmentHighlights[segment.id] === option.color && (
+                                <Check className="w-3 h-3 ml-auto" />
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSegmentHighlights(prev => {
+                                const newHighlights = { ...prev };
+                                delete newHighlights[segment.id];
+                                return newHighlights;
+                              });
+                            }}
+                            className="flex items-center gap-2 cursor-pointer text-gray-500"
+                          >
+                            <X className="w-4 h-4" />
+                            <span>Clear</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
-                      {/* Dropdown arrow */}
+                      {/* More options dropdown */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
