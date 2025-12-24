@@ -2449,7 +2449,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </TooltipTrigger>
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
-                            <PopoverContent className="w-[520px] p-0 bg-white z-50" align="start">
+                            <PopoverContent className="w-[220px] p-0 bg-white z-50" align="start">
                               <div className="relative">
                                 <img
                                   src={layerOrderOptions}
