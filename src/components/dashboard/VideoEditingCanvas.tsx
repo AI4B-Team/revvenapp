@@ -3160,7 +3160,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <span className="font-semibold text-gray-900">Layout</span>
                             <label className="flex items-center gap-2 text-sm text-gray-600">
                               <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
-                              Apply to all
+                              Apply To All
                             </label>
                           </div>
                           <div className="p-3 grid grid-cols-4 gap-2">
@@ -3292,7 +3292,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </div>
                               <label className="flex items-center gap-2 text-sm text-gray-600">
                                 <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-300 text-purple-600" />
-                                Apply to all
+                                Apply To All
                               </label>
                             </div>
                           </div>
