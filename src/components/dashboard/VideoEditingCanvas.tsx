@@ -3408,19 +3408,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-purple-500 hover:bg-gray-50 transition-colors"
                             >
                               <EyeOff className="w-5 h-5" />
-                              <span className="font-medium">Hide safe zone</span>
-                            </button>
-                            <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                              <FaTiktok className="w-5 h-5" />
-                              <span className="font-medium">TikTok</span>
+                              <span className="font-medium">Hide Safe Zone</span>
                             </button>
                             <button
                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                               <FaInstagram className="w-5 h-5 text-pink-500" />
                               <span className="font-medium">Reels</span>
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <FaFacebookF className="w-5 h-5 text-blue-600" />
+                              <span className="font-medium">Facebook</span>
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <FaTiktok className="w-5 h-5" />
+                              <span className="font-medium">TikTok</span>
                             </button>
                             <button
                               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
