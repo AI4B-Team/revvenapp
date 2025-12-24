@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast as sonnerToast } from 'sonner';
 import mediaPlaceholder from '@/assets/media-placeholder.png';
+import layerOrderOptions from '@/assets/layer-order-options.png';
 import {
   Image,
   Music,
@@ -2448,86 +2449,68 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </TooltipTrigger>
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
-                            <PopoverContent className="w-auto p-2 bg-white z-50" align="start">
-                              <div className="flex items-center gap-0 border border-gray-200 rounded-2xl px-5 py-4">
-                                {/* 1st - Bring Forward: single dark diamond with soft reflection */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button 
-                                      onClick={() => toast({ title: 'Bring Forward' })}
-                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
-                                    >
-                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Soft reflection/shadow below */}
-                                        <path d="M18 22L8 27L18 32L28 27L18 22Z" fill="#E8E8EB" opacity="0.6"/>
-                                        {/* Main dark diamond */}
-                                        <path d="M18 8L8 13L18 18L28 13L18 8Z" fill="#9CA3AF"/>
-                                      </svg>
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent><p>Bring Forward</p></TooltipContent>
-                                </Tooltip>
-                                
-                                {/* 2nd - Send Backward: light diamond on top, gray shadow below */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button 
-                                      onClick={() => toast({ title: 'Send Backward' })}
-                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
-                                    >
-                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Bottom layer - medium gray */}
-                                        <path d="M18 18L8 23L18 28L28 23L18 18Z" fill="#C4C4CC"/>
-                                        {/* Top layer - very light */}
-                                        <path d="M18 8L8 13L18 18L28 13L18 8Z" fill="#E8E8EB" stroke="#DCDCE0" strokeWidth="0.5"/>
-                                      </svg>
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent><p>Send Backward</p></TooltipContent>
-                                </Tooltip>
-                                
-                                {/* Divider */}
-                                <div className="w-px h-12 bg-gray-200 mx-4"></div>
-                                
-                                {/* 3rd - Bring To Front: 3 stacked layers, dark top */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button 
-                                      onClick={() => toast({ title: 'Bring To Front' })}
-                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
-                                    >
-                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Bottom layer - lightest */}
-                                        <path d="M18 24L8 29L18 34L28 29L18 24Z" fill="#E8E8EB"/>
-                                        {/* Middle layer */}
-                                        <path d="M18 16L8 21L18 26L28 21L18 16Z" fill="#D4D4D8"/>
-                                        {/* Top layer - dark */}
-                                        <path d="M18 4L8 9L18 14L28 9L18 4Z" fill="#71717A"/>
-                                      </svg>
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent><p>Bring To Front</p></TooltipContent>
-                                </Tooltip>
-                                
-                                {/* 4th - Send To Back: 3 stacked layers, all light grays */}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button 
-                                      onClick={() => toast({ title: 'Send To Back' })}
-                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
-                                    >
-                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Bottom layer - lightest */}
-                                        <path d="M18 24L8 29L18 34L28 29L18 24Z" fill="#E8E8EB"/>
-                                        {/* Middle layer */}
-                                        <path d="M18 16L8 21L18 26L28 21L18 16Z" fill="#D4D4D8"/>
-                                        {/* Top layer - medium gray */}
-                                        <path d="M18 4L8 9L18 14L28 9L18 4Z" fill="#A1A1AA"/>
-                                      </svg>
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent><p>Send To Back</p></TooltipContent>
-                                </Tooltip>
+                            <PopoverContent className="w-[520px] p-0 bg-white z-50" align="start">
+                              <div className="relative">
+                                <img
+                                  src={layerOrderOptions}
+                                  alt="Layer order options"
+                                  className="block w-full h-auto"
+                                  loading="lazy"
+                                />
+
+                                {/* Click/hover targets over the 4 icons in the image */}
+                                <div className="absolute inset-0 grid grid-cols-[1fr,1fr,0.45fr,1fr,1fr]">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        type="button"
+                                        aria-label="Bring Forward"
+                                        onClick={() => toast({ title: 'Bring Forward' })}
+                                        className="h-full w-full"
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Bring Forward</p></TooltipContent>
+                                  </Tooltip>
+
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        type="button"
+                                        aria-label="Send Backward"
+                                        onClick={() => toast({ title: 'Send Backward' })}
+                                        className="h-full w-full"
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Send Backward</p></TooltipContent>
+                                  </Tooltip>
+
+                                  {/* Divider column (matches image divider) */}
+                                  <div />
+
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        type="button"
+                                        aria-label="Bring To Front"
+                                        onClick={() => toast({ title: 'Bring To Front' })}
+                                        className="h-full w-full"
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Bring To Front</p></TooltipContent>
+                                  </Tooltip>
+
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        type="button"
+                                        aria-label="Send To Back"
+                                        onClick={() => toast({ title: 'Send To Back' })}
+                                        className="h-full w-full"
+                                      />
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Send To Back</p></TooltipContent>
+                                  </Tooltip>
+                                </div>
                               </div>
                             </PopoverContent>
                           </Popover>
