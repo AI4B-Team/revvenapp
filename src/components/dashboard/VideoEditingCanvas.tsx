@@ -2051,7 +2051,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Bottom Toolbar Icons */}
-                  <div className="flex items-center gap-1.5 pt-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 pt-2 flex-nowrap overflow-hidden">
                     {/* Tool selector - always first */}
                     <DropdownMenu>
                       <Tooltip>
@@ -2296,7 +2296,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </>
                     )}
 
-                    <div className="flex-1 min-w-[20px]" />
+                    <div className="flex-1 min-w-[8px]" />
 
                     {/* AI Enhance Dropdown */}
                     <Popover>
@@ -2305,14 +2305,13 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <PopoverTrigger asChild>
                             <button 
                               disabled={isEnhancing || !promptText.trim()}
-                              className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium flex items-center gap-1.5 transition text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+                              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-1 transition disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 shrink-0"
                             >
                               {isEnhancing ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
                                 <Sparkles className="w-4 h-4" />
                               )}
-                              AI
                               <ChevronDown className="w-3 h-3" />
                             </button>
                           </PopoverTrigger>
@@ -2353,23 +2352,24 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </PopoverContent>
                     </Popover>
 
-                    <button 
-                      onClick={handleGenerate}
-                      disabled={isGenerating || !promptText.trim()}
-                      className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          Generate
-                        </>
-                      )}
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleGenerate}
+                          disabled={isGenerating || !promptText.trim()}
+                          className="p-1.5 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        >
+                          {isGenerating ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p>{isGenerating ? 'Generating...' : 'Generate'}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               </div>
