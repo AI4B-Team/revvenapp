@@ -2448,36 +2448,38 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </TooltipTrigger>
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
-                            <PopoverContent className="w-auto p-3 bg-white z-50" align="start">
-                              <div className="flex items-center gap-0 border border-gray-200 rounded-xl p-1.5">
-                                {/* Send to back - single layer, lightest */}
+                            <PopoverContent className="w-auto p-2 bg-white z-50" align="start">
+                              <div className="flex items-center gap-0 border border-gray-200 rounded-2xl px-3 py-2">
+                                {/* Send to back - single solid layer with faint reflection */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Send to back' })}
-                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Main solid layer */}
+                                        <path d="M16 8L6 13L16 18L26 13L16 8Z" fill="#A1A1AA" stroke="#A1A1AA" strokeWidth="1"/>
+                                        {/* Faint reflection below */}
+                                        <path d="M6 17L16 22L26 17" stroke="#E4E4E7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent><p>Send to back</p></TooltipContent>
                                 </Tooltip>
                                 
-                                {/* Send backward - two layers */}
+                                {/* Send backward - two layers, top light, bottom faint */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Send backward' })}
-                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#D1D5DB" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Top layer - light filled */}
+                                        <path d="M16 6L6 11L16 16L26 11L16 6Z" fill="#E4E4E7" stroke="#D4D4D8" strokeWidth="1"/>
+                                        {/* Bottom layer - slightly darker */}
+                                        <path d="M16 12L6 17L16 22L26 17L16 12Z" fill="#D4D4D8" stroke="#D4D4D8" strokeWidth="1" opacity="0.7"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
@@ -2485,36 +2487,42 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 </Tooltip>
                                 
                                 {/* Divider */}
-                                <div className="w-px h-8 bg-gray-200 mx-1"></div>
+                                <div className="w-px h-10 bg-gray-200 mx-2"></div>
                                 
-                                {/* Bring forward - three layers, top highlighted */}
+                                {/* Bring forward - three layers, dark top */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Bring forward' })}
-                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#6B7280" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Bottom layer - lightest */}
+                                        <path d="M6 21L16 26L26 21" stroke="#E4E4E7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        {/* Middle layer */}
+                                        <path d="M6 17L16 22L26 17" stroke="#D4D4D8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        {/* Top layer - dark solid */}
+                                        <path d="M16 6L6 11L16 16L26 11L16 6Z" fill="#71717A" stroke="#71717A" strokeWidth="1"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent><p>Bring forward</p></TooltipContent>
                                 </Tooltip>
                                 
-                                {/* Bring to front - three layers stacked */}
+                                {/* Bring to front - three stacked layers, all visible */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Bring to front' })}
-                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 17L12 22L22 17" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M2 12L12 17L22 12" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Bottom layer */}
+                                        <path d="M16 18L6 23L16 28L26 23L16 18Z" fill="#E4E4E7" stroke="#E4E4E7" strokeWidth="1"/>
+                                        {/* Middle layer */}
+                                        <path d="M16 12L6 17L16 22L26 17L16 12Z" fill="#D4D4D8" stroke="#D4D4D8" strokeWidth="1"/>
+                                        {/* Top layer */}
+                                        <path d="M16 6L6 11L16 16L26 11L16 6Z" fill="#A1A1AA" stroke="#A1A1AA" strokeWidth="1"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
