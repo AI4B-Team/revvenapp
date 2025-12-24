@@ -242,6 +242,8 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'image' | 'upload'>('color');
   const [backgroundColor, setBackgroundColor] = useState('#000000');
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  const [videoPosition, setVideoPosition] = useState<'fill' | 'fit' | 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'>('fit');
+  const [videoShape, setVideoShape] = useState<'original' | 'circle' | 'square' | 'portrait' | 'landscape'>('original');
   
   // Generation settings state
   const [selectedModel, setSelectedModel] = useState('auto');
@@ -2437,18 +2439,54 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             </DropdownMenuContent>
                           </DropdownMenu>
 
-                          {/* Position button */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={() => toast({ title: 'Position', description: 'Adjust element position on canvas' })}
-                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
-                              >
+                          {/* Position dropdown */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
                                 Position
                               </button>
-                            </TooltipTrigger>
-                            <TooltipContent><p>Position</p></TooltipContent>
-                          </Tooltip>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-48 p-2 bg-white z-50" align="start">
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => { setVideoPosition('fill'); toast({ title: 'Fill scene editor' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'fill' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Fill scene editor
+                                </button>
+                                <button
+                                  onClick={() => { setVideoPosition('fit'); toast({ title: 'Fit scene editor' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'fit' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Fit scene editor
+                                </button>
+                                <button
+                                  onClick={() => { setVideoPosition('bottom-left'); toast({ title: 'Position: Bottom left' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'bottom-left' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Bottom left
+                                </button>
+                                <button
+                                  onClick={() => { setVideoPosition('bottom-right'); toast({ title: 'Position: Bottom right' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'bottom-right' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Bottom right
+                                </button>
+                                <button
+                                  onClick={() => { setVideoPosition('top-left'); toast({ title: 'Position: Top left' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'top-left' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Top left
+                                </button>
+                                <button
+                                  onClick={() => { setVideoPosition('top-right'); toast({ title: 'Position: Top right' }); }}
+                                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${videoPosition === 'top-right' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  Top right
+                                </button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
 
                           {/* Duplicate/Copy button */}
                           <Tooltip>
@@ -2510,59 +2548,63 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <TooltipContent><p>Zoom</p></TooltipContent>
                           </Tooltip>
 
-                          {/* Ratio dropdown */}
+                          {/* Ratio/Shape dropdown */}
                           <Popover>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <PopoverTrigger asChild>
                                   <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                                    <Ratio className="w-4 h-4" />
+                                    {videoShape === 'circle' && <div className="w-4 h-4 border-2 border-gray-600 rounded-full" />}
+                                    {videoShape === 'square' && <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />}
+                                    {videoShape === 'portrait' && <div className="w-3 h-4 border-2 border-gray-600 rounded-sm" />}
+                                    {videoShape === 'landscape' && <div className="w-5 h-3 border-2 border-gray-600 rounded-sm" />}
+                                    {videoShape === 'original' && <Ratio className="w-4 h-4" />}
                                   </button>
                                 </PopoverTrigger>
                               </TooltipTrigger>
-                              <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                              <TooltipContent><p>Shape / Aspect Ratio</p></TooltipContent>
                             </Tooltip>
                             <PopoverContent className="w-48 p-2 bg-white z-50" align="center">
                               <div className="space-y-1">
                                 <button
-                                  onClick={() => { setSelectedRatio('1:1'); setVideoAspectClass('aspect-square'); }}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '1:1' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                  onClick={() => { setVideoShape('circle'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${videoShape === 'circle' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
                                 >
-                                  <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />
+                                  {videoShape === 'circle' && <Check className="w-4 h-4 text-gray-600" />}
+                                  {videoShape !== 'circle' && <div className="w-4 h-4 border-2 border-gray-600 rounded-full" />}
                                   <span>Circle</span>
-                                  {selectedRatio === '1:1' && <Check className="w-4 h-4 ml-auto text-primary" />}
                                 </button>
                                 <button
-                                  onClick={() => { setSelectedRatio('1:1'); setVideoAspectClass('aspect-square'); }}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '1:1' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                  onClick={() => { setVideoShape('square'); setSelectedRatio('1:1'); setVideoAspectClass('aspect-square'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${videoShape === 'square' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
                                 >
-                                  <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />
+                                  {videoShape === 'square' && <Check className="w-4 h-4 text-gray-600" />}
+                                  {videoShape !== 'square' && <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />}
                                   <span>Square</span>
-                                  {selectedRatio === '1:1' && <Check className="w-4 h-4 ml-auto text-primary" />}
                                 </button>
                                 <button
-                                  onClick={() => { setSelectedRatio('9:16'); setVideoAspectClass('aspect-[9/16]'); }}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '9:16' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                  onClick={() => { setVideoShape('portrait'); setSelectedRatio('9:16'); setVideoAspectClass('aspect-[9/16]'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${videoShape === 'portrait' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
                                 >
-                                  <div className="w-3 h-4 border-2 border-gray-600 rounded-sm" />
+                                  {videoShape === 'portrait' && <Check className="w-4 h-4 text-gray-600" />}
+                                  {videoShape !== 'portrait' && <div className="w-3 h-4 border-2 border-gray-600 rounded-sm" />}
                                   <span>Portrait</span>
-                                  {selectedRatio === '9:16' && <Check className="w-4 h-4 ml-auto text-primary" />}
                                 </button>
                                 <button
-                                  onClick={() => { setSelectedRatio('16:9'); setVideoAspectClass('aspect-video'); }}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '16:9' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                  onClick={() => { setVideoShape('landscape'); setSelectedRatio('16:9'); setVideoAspectClass('aspect-video'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${videoShape === 'landscape' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
                                 >
-                                  <div className="w-5 h-3 border-2 border-gray-600 rounded-sm" />
+                                  {videoShape === 'landscape' && <Check className="w-4 h-4 text-gray-600" />}
+                                  {videoShape !== 'landscape' && <div className="w-5 h-3 border-2 border-gray-600 rounded-sm" />}
                                   <span>Landscape</span>
-                                  {selectedRatio === '16:9' && <Check className="w-4 h-4 ml-auto text-primary" />}
                                 </button>
                                 <button
-                                  onClick={() => { setSelectedRatio('Original'); setVideoAspectClass('aspect-video'); }}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === 'Original' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                  onClick={() => { setVideoShape('original'); setSelectedRatio('Original'); setVideoAspectClass('aspect-video'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${videoShape === 'original' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
                                 >
-                                  <Box className="w-4 h-4 text-gray-600" />
+                                  {videoShape === 'original' && <Check className="w-4 h-4 text-gray-600" />}
+                                  {videoShape !== 'original' && <Box className="w-4 h-4 text-gray-600" />}
                                   <span>Original</span>
-                                  {selectedRatio === 'Original' && <Check className="w-4 h-4 ml-auto text-primary" />}
                                 </button>
                               </div>
                             </PopoverContent>
