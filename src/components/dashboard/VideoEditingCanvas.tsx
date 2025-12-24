@@ -205,6 +205,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [activeTab, setActiveTab] = useState<string>('script');
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(15); // Short default for better clip visibility
@@ -236,6 +237,72 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [showReferencesModal, setShowReferencesModal] = useState(false);
+  
+  // Generation settings state
+  const [selectedModel, setSelectedModel] = useState('auto');
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('16:9');
+  const [numberOfImages, setNumberOfImages] = useState(1);
+  const [videoDuration, setVideoDuration] = useState('5s');
+  
+  // Generated images state
+  const [generatedImages, setGeneratedImages] = useState<Array<{
+    id: string;
+    prompt: string;
+    image_url: string | null;
+    status: string;
+    created_at: string;
+  }>>([]);
+  
+  // Fetch generated images
+  const fetchGeneratedImages = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: images, error } = await supabase
+        .from('generated_images')
+        .select('id, prompt, image_url, status, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching generated images:', error);
+        return;
+      }
+
+      if (images) {
+        setGeneratedImages(images);
+      }
+    } catch (error) {
+      console.error('Error fetching generated images:', error);
+    }
+  }, []);
+
+  // Initial fetch and realtime subscription for generated images
+  useEffect(() => {
+    fetchGeneratedImages();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('generated-images-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'generated_images'
+        },
+        () => {
+          fetchGeneratedImages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchGeneratedImages]);
   
   // Script content
   const [scriptContent, setScriptContent] = useState(`I'm going to tell you something shocking. I'm not real. I wasn't born. I don't have a past. I don't even exist, and yet I show up online. I create content. I build influence. I help my creators share ideas, promote products, and grow a brand without them ever needing to step in front of the camera.
@@ -1000,6 +1067,99 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       });
     } finally {
       setIsEnhancing(false);
+    }
+  };
+
+  // Handle generate with AI
+  const handleGenerate = async () => {
+    if (isGenerating || !promptText.trim()) {
+      toast({
+        title: "Prompt required",
+        description: "Please enter a description to generate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to generate content",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      if (selectedPromptTool === 'image' || !selectedPromptTool) {
+        // Generate image
+        const { data, error } = await supabase.functions.invoke('generate-image', {
+          body: { 
+            prompt: promptText.trim(),
+            aspectRatio: selectedAspectRatio,
+            model: selectedModel,
+            numberOfImages: numberOfImages,
+          }
+        });
+
+        if (error) throw error;
+
+        sonnerToast.success(`${numberOfImages} ${numberOfImages === 1 ? 'image' : 'images'} generating!`);
+        
+        // Switch to visuals tab and images subtab to show the generating images
+        setActiveTab('visuals');
+        setVisualsSubTab('images');
+        
+        // Refresh generated images to show the pending ones
+        fetchGeneratedImages();
+        
+      } else if (selectedPromptTool === 'video') {
+        // Generate video
+        const { data, error } = await supabase.functions.invoke('generate-video', {
+          body: { 
+            prompt: promptText.trim(),
+            aspectRatio: selectedAspectRatio,
+            duration: videoDuration,
+          }
+        });
+
+        if (error) throw error;
+
+        sonnerToast.success('Video generating!');
+        
+        // Switch to visuals tab and videos subtab
+        setActiveTab('visuals');
+        setVisualsSubTab('videos');
+        
+      } else if (selectedPromptTool === 'audio') {
+        // Generate audio/voiceover
+        const { data, error } = await supabase.functions.invoke('generate-voiceover', {
+          body: {
+            text: promptText.trim(),
+            voice: 'Roger',
+            voiceName: 'Roger',
+          }
+        });
+
+        if (error) throw error;
+
+        sonnerToast.success('Voiceover generating!');
+        setActiveTab('audio');
+      }
+      
+    } catch (error: any) {
+      console.error("Generation error:", error);
+      toast({
+        title: "Generation failed",
+        description: error.message || "Failed to generate. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -1953,17 +2113,36 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         {/* Image tool icons: model, character, reference, ratio, # of images */}
                         {selectedPromptTool === 'image' && (
                           <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors flex items-center gap-1">
                                   <Box className="w-4 h-4" />
+                                  <span className="text-xs">{selectedModel === 'auto' ? 'Auto' : selectedModel}</span>
                                 </button>
-                              </TooltipTrigger>
-                              <TooltipContent><p>Model</p></TooltipContent>
-                            </Tooltip>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-48 bg-white border-gray-200">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-semibold text-gray-500 mb-2">Model</p>
+                                  {['auto', 'flux', 'grok', 'recraft', 'ideogram'].map(model => (
+                                    <button
+                                      key={model}
+                                      onClick={() => setSelectedModel(model)}
+                                      className={`w-full px-3 py-1.5 text-sm text-left rounded-md transition ${
+                                        selectedModel === model ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-gray-100'
+                                      }`}
+                                    >
+                                      {model === 'auto' ? 'Auto (Recommended)' : model.charAt(0).toUpperCase() + model.slice(1)}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                <button 
+                                  onClick={() => setShowReferencesModal(true)}
+                                  className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors"
+                                >
                                   <User className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>
@@ -1971,28 +2150,63 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             </Tooltip>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                                <button 
+                                  onClick={() => setShowReferencesModal(true)}
+                                  className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors"
+                                >
                                   <Layers className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent><p>Reference</p></TooltipContent>
                             </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors flex items-center gap-1">
                                   <Scan className="w-4 h-4" />
+                                  <span className="text-xs">{selectedAspectRatio}</span>
                                 </button>
-                              </TooltipTrigger>
-                              <TooltipContent><p>Ratio</p></TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors">
+                              </PopoverTrigger>
+                              <PopoverContent className="w-40 bg-white border-gray-200">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-semibold text-gray-500 mb-2">Aspect Ratio</p>
+                                  {['1:1', '16:9', '9:16', '4:3', '3:4', '21:9'].map(ratio => (
+                                    <button
+                                      key={ratio}
+                                      onClick={() => setSelectedAspectRatio(ratio)}
+                                      className={`w-full px-3 py-1.5 text-sm text-left rounded-md transition ${
+                                        selectedAspectRatio === ratio ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-gray-100'
+                                      }`}
+                                    >
+                                      {ratio}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors flex items-center gap-1">
                                   <Hash className="w-4 h-4" />
+                                  <span className="text-xs">{numberOfImages}</span>
                                 </button>
-                              </TooltipTrigger>
-                              <TooltipContent><p># of Images</p></TooltipContent>
-                            </Tooltip>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-32 bg-white border-gray-200">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-semibold text-gray-500 mb-2"># of Images</p>
+                                  {[1, 2, 3, 4].map(num => (
+                                    <button
+                                      key={num}
+                                      onClick={() => setNumberOfImages(num)}
+                                      className={`w-full px-3 py-1.5 text-sm text-left rounded-md transition ${
+                                        numberOfImages === num ? 'bg-brand-green/10 text-brand-green' : 'hover:bg-gray-100'
+                                      }`}
+                                    >
+                                      {num} {num === 1 ? 'Image' : 'Images'}
+                                    </button>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </>
                         )}
 
@@ -2139,9 +2353,22 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </PopoverContent>
                     </Popover>
 
-                    <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
-                      <Sparkles className="w-4 h-4" />
-                      Generate
+                    <button 
+                      onClick={handleGenerate}
+                      disabled={isGenerating || !promptText.trim()}
+                      className="flex items-center gap-2 px-4 py-2 bg-brand-green text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Generate
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
