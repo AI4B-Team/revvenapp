@@ -121,6 +121,11 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
@@ -1810,49 +1815,56 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             )}
             
             {/* Auto-save Cloud Icon */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={async () => {
-                    if (isSaving) return;
-                    setIsSaving(true);
-                    // Simulate save operation
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    setLastAutoSaved(new Date());
-                    setIsSaving(false);
-                    sonnerToast.success('Project saved');
-                  }}
-                  disabled={isSaving}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
-                    isSaving 
-                      ? 'bg-gray-500/30 cursor-wait' 
-                      : 'bg-green-500/20 hover:bg-green-500/30 cursor-pointer'
-                  }`}
-                >
-                  <div className="flex-shrink-0">
-                    {isSaving ? (
-                      <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
-                    ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" className="text-green-400" />
-                        <polyline points="9 12 11 14 15 10" className="text-green-400" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
-                    {isSaving ? 'Saving' : 'Saved'}
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
+            <HoverCard openDelay={100} closeDelay={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HoverCardTrigger asChild>
+                    <button
+                      onClick={async () => {
+                        if (isSaving) return;
+                        setIsSaving(true);
+                        // Simulate save operation
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        setLastAutoSaved(new Date());
+                        setIsSaving(false);
+                        sonnerToast.success('Project saved');
+                      }}
+                      disabled={isSaving}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
+                        isSaving 
+                          ? 'bg-gray-500/30 cursor-wait' 
+                          : 'bg-green-500/20 hover:bg-green-500/30 cursor-pointer'
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {isSaving ? (
+                          <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
+                        ) : (
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" className="text-green-400" />
+                            <polyline points="9 12 11 14 15 10" className="text-green-400" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
+                        {isSaving ? 'Saving' : 'Saved'}
+                      </span>
+                    </button>
+                  </HoverCardTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="mb-1">
+                  <p>Save Project</p>
+                </TooltipContent>
+              </Tooltip>
+              <HoverCardContent side="bottom" align="start" className="w-auto p-2 bg-popover border border-border">
+                <p className="text-xs text-muted-foreground whitespace-nowrap">
                   {isSaving 
                     ? 'Saving...' 
                     : `Click To Save (Last Saved: ${(lastAutoSaved.getMonth() + 1).toString().padStart(2, '0')}/${lastAutoSaved.getDate().toString().padStart(2, '0')}/${lastAutoSaved.getFullYear()} // ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
                   }
                 </p>
-              </TooltipContent>
-            </Tooltip>
+              </HoverCardContent>
+            </HoverCard>
           </div>
 
           {/* Centered Media Type Tabs */}
