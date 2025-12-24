@@ -48,21 +48,32 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
   const [stockSearchQuery, setStockSearchQuery] = useState('');
   const [isLoadingStock, setIsLoadingStock] = useState(false);
   const [stockPage, setStockPage] = useState(1);
+  
+  // Track if we've already fetched to prevent duplicate calls
+  const hasFetchedRef = useRef(false);
 
+  // Handle modal open/close - only fetch once when opening
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       fetchReferences();
-      // Initialize with existing selected images
-      setSelectedImages(initialSelectedImages);
       // Load curated stock images on open
       if (stockImages.length === 0) {
         fetchStockImages('fashion model photography');
       }
-    } else {
-      // Clear selections when modal closes
+    } else if (!isOpen) {
+      // Reset when modal closes
+      hasFetchedRef.current = false;
       setSelectedImages([]);
     }
-  }, [isOpen, initialSelectedImages]);
+  }, [isOpen]);
+  
+  // Handle initial selected images separately to avoid infinite loops
+  useEffect(() => {
+    if (isOpen && initialSelectedImages.length > 0) {
+      setSelectedImages(initialSelectedImages);
+    }
+  }, [isOpen]);
 
   const fetchStockImages = async (query: string, page: number = 1) => {
     setIsLoadingStock(true);
