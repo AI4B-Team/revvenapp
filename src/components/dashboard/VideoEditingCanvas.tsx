@@ -2449,37 +2449,37 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
                             <PopoverContent className="w-auto p-2 bg-white z-50" align="start">
-                              <div className="flex items-center gap-0 border border-gray-200 rounded-2xl px-4 py-3">
-                                {/* 1st - Bring Forward: dark filled diamond with faint shadow below */}
+                              <div className="flex items-center gap-0 border border-gray-200 rounded-2xl px-5 py-4">
+                                {/* 1st - Bring Forward: single dark diamond with soft reflection */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Bring Forward' })}
-                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
+                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Shadow/reflection below */}
-                                        <path d="M16 18L6 23L16 28L26 23L16 18Z" fill="#E4E4E7" opacity="0.5"/>
-                                        {/* Main dark filled layer */}
-                                        <path d="M16 6L6 11L16 16L26 11L16 6Z" fill="#9CA3AF"/>
+                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Soft reflection/shadow below */}
+                                        <path d="M18 22L8 27L18 32L28 27L18 22Z" fill="#E8E8EB" opacity="0.6"/>
+                                        {/* Main dark diamond */}
+                                        <path d="M18 8L8 13L18 18L28 13L18 8Z" fill="#9CA3AF"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent><p>Bring Forward</p></TooltipContent>
                                 </Tooltip>
                                 
-                                {/* 2nd - Send Backward: light top diamond, darker shadow below */}
+                                {/* 2nd - Send Backward: light diamond on top, gray shadow below */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Send Backward' })}
-                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
+                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Bottom shadow layer */}
-                                        <path d="M16 16L6 21L16 26L26 21L16 16Z" fill="#D4D4D8"/>
-                                        {/* Top light layer */}
-                                        <path d="M16 6L6 11L16 16L26 11L16 6Z" fill="#E4E4E7" stroke="#D4D4D8" strokeWidth="0.5"/>
+                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Bottom layer - medium gray */}
+                                        <path d="M18 18L8 23L18 28L28 23L18 18Z" fill="#C4C4CC"/>
+                                        {/* Top layer - very light */}
+                                        <path d="M18 8L8 13L18 18L28 13L18 8Z" fill="#E8E8EB" stroke="#DCDCE0" strokeWidth="0.5"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
@@ -2487,42 +2487,42 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 </Tooltip>
                                 
                                 {/* Divider */}
-                                <div className="w-px h-10 bg-gray-300 mx-3"></div>
+                                <div className="w-px h-12 bg-gray-200 mx-4"></div>
                                 
-                                {/* 3rd - Bring To Front: three layers, dark top, lighter middle and bottom */}
+                                {/* 3rd - Bring To Front: 3 stacked layers, dark top */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Bring To Front' })}
-                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
+                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         {/* Bottom layer - lightest */}
-                                        <path d="M16 20L6 25L16 30L26 25L16 20Z" fill="#E4E4E7"/>
+                                        <path d="M18 24L8 29L18 34L28 29L18 24Z" fill="#E8E8EB"/>
                                         {/* Middle layer */}
-                                        <path d="M16 14L6 19L16 24L26 19L16 14Z" fill="#D4D4D8"/>
+                                        <path d="M18 16L8 21L18 26L28 21L18 16Z" fill="#D4D4D8"/>
                                         {/* Top layer - dark */}
-                                        <path d="M16 4L6 9L16 14L26 9L16 4Z" fill="#71717A"/>
+                                        <path d="M18 4L8 9L18 14L28 9L18 4Z" fill="#71717A"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
                                   <TooltipContent><p>Bring To Front</p></TooltipContent>
                                 </Tooltip>
                                 
-                                {/* 4th - Send To Back: three stacked layers, all light grays */}
+                                {/* 4th - Send To Back: 3 stacked layers, all light grays */}
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button 
                                       onClick={() => toast({ title: 'Send To Back' })}
-                                      className="p-3 hover:bg-gray-50 rounded-xl transition-colors"
+                                      className="px-4 py-2 hover:bg-gray-50 rounded-xl transition-colors"
                                     >
-                                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        {/* Bottom layer */}
-                                        <path d="M16 20L6 25L16 30L26 25L16 20Z" fill="#E4E4E7"/>
+                                      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        {/* Bottom layer - lightest */}
+                                        <path d="M18 24L8 29L18 34L28 29L18 24Z" fill="#E8E8EB"/>
                                         {/* Middle layer */}
-                                        <path d="M16 14L6 19L16 24L26 19L16 14Z" fill="#D4D4D8"/>
-                                        {/* Top layer */}
-                                        <path d="M16 4L6 9L16 14L26 9L16 4Z" fill="#A1A1AA"/>
+                                        <path d="M18 16L8 21L18 26L28 21L18 16Z" fill="#D4D4D8"/>
+                                        {/* Top layer - medium gray */}
+                                        <path d="M18 4L8 9L18 14L28 9L18 4Z" fill="#A1A1AA"/>
                                       </svg>
                                     </button>
                                   </TooltipTrigger>
