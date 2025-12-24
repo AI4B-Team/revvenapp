@@ -3391,18 +3391,46 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         </PopoverContent>
                       </Popover>
 
-                      {/* Speakers/Hosts button */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
+                      {/* Safe Zone button */}
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button 
-                            onClick={() => toast({ title: 'Speakers', description: 'Manage speakers/hosts' })}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
                           >
-                            <UserPlus className="w-4 h-4" />
+                            <EyeOff className="w-4 h-4" />
+                            <span>Safe Zone</span>
+                            <ChevronUp className="w-3 h-3" />
                           </button>
-                        </TooltipTrigger>
-                        <TooltipContent><p>Manage Speakers</p></TooltipContent>
-                      </Tooltip>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-56 p-2 bg-white z-50" align="center">
+                          <div className="space-y-1">
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-purple-500 hover:bg-gray-50 transition-colors"
+                            >
+                              <EyeOff className="w-5 h-5" />
+                              <span className="font-medium">Hide safe zone</span>
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <FaTiktok className="w-5 h-5" />
+                              <span className="font-medium">TikTok</span>
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <FaInstagram className="w-5 h-5 text-pink-500" />
+                              <span className="font-medium">Reels</span>
+                            </button>
+                            <button
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <FaYoutube className="w-5 h-5 text-red-500" />
+                              <span className="font-medium">Shorts</span>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   )}
                   <div className={`bg-white border-t border-gray-200 flex flex-col ${isTimelineMinimized ? '' : 'h-full overflow-hidden'}`}>
