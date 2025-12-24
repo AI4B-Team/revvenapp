@@ -2051,7 +2051,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   </div>
 
                   {/* Bottom Toolbar Icons */}
-                  <div className="flex items-center gap-1.5 pt-2 flex-nowrap min-w-0">
+                  <div className="flex items-center gap-1.5 pt-2 flex-wrap">
                     {/* Tool selector - always first */}
                     <DropdownMenu>
                       <Tooltip>
@@ -2296,7 +2296,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                       </>
                     )}
 
-                    <div className="flex-1" />
+                    <div className="flex-1 min-w-[20px]" />
 
                     {/* AI Enhance Dropdown */}
                     <Popover>
