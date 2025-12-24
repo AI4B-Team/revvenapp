@@ -2448,71 +2448,78 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               </TooltipTrigger>
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
-                            <PopoverContent className="w-64 p-4 bg-white z-50" align="start">
-                              <div className="space-y-4">
-                                {/* Position row */}
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-600 text-sm">Position</span>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-md font-medium">
-                                        Bring Forward
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>Current layer position</p></TooltipContent>
-                                  </Tooltip>
-                                </div>
+                            <PopoverContent className="w-auto p-3 bg-white z-50" align="start">
+                              <div className="flex items-center gap-0 border border-gray-200 rounded-xl p-1.5">
+                                {/* Send to back - single layer, lightest */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button 
+                                      onClick={() => toast({ title: 'Send to back' })}
+                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Send to back</p></TooltipContent>
+                                </Tooltip>
                                 
-                                {/* Layer icons row */}
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-600 text-sm">Layer</span>
-                                  <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button 
-                                          onClick={() => toast({ title: 'Send to back' })}
-                                          className="p-2 hover:bg-white rounded-md transition-colors"
-                                        >
-                                          <Layers className="w-5 h-5 text-gray-300" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Send to back</p></TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button 
-                                          onClick={() => toast({ title: 'Send backward' })}
-                                          className="p-2 hover:bg-white rounded-md transition-colors"
-                                        >
-                                          <Layers className="w-5 h-5 text-gray-400" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Send backward</p></TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button 
-                                          onClick={() => toast({ title: 'Bring forward' })}
-                                          className="p-2 bg-white rounded-md shadow-sm transition-colors"
-                                        >
-                                          <Layers className="w-5 h-5 text-gray-600" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Bring forward</p></TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button 
-                                          onClick={() => toast({ title: 'Bring to front' })}
-                                          className="p-2 hover:bg-white rounded-md transition-colors"
-                                        >
-                                          <Layers className="w-5 h-5 text-gray-500" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent><p>Bring to front</p></TooltipContent>
-                                    </Tooltip>
-                                  </div>
-                                </div>
+                                {/* Send backward - two layers */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button 
+                                      onClick={() => toast({ title: 'Send backward' })}
+                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#D1D5DB" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Send backward</p></TooltipContent>
+                                </Tooltip>
+                                
+                                {/* Divider */}
+                                <div className="w-px h-8 bg-gray-200 mx-1"></div>
+                                
+                                {/* Bring forward - three layers, top highlighted */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button 
+                                      onClick={() => toast({ title: 'Bring forward' })}
+                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 17L12 22L22 17" stroke="#E5E7EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#6B7280" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Bring forward</p></TooltipContent>
+                                </Tooltip>
+                                
+                                {/* Bring to front - three layers stacked */}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button 
+                                      onClick={() => toast({ title: 'Bring to front' })}
+                                      className="p-2.5 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 17L12 22L22 17" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M2 12L12 17L22 12" stroke="#D1D5DB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#9CA3AF" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent><p>Bring to front</p></TooltipContent>
+                                </Tooltip>
                               </div>
                             </PopoverContent>
                           </Popover>
