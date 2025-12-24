@@ -2436,25 +2436,86 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         </div>
                         <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
                           {/* Layers dropdown */}
-                          <DropdownMenu>
+                          <Popover>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <DropdownMenuTrigger asChild>
+                                <PopoverTrigger asChild>
                                   <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
                                     <Layers className="w-4 h-4" />
                                     <ChevronDown className="w-3 h-3 text-gray-400" />
                                   </button>
-                                </DropdownMenuTrigger>
+                                </PopoverTrigger>
                               </TooltipTrigger>
                               <TooltipContent><p>Layer Order</p></TooltipContent>
                             </Tooltip>
-                            <DropdownMenuContent className="bg-white z-50">
-                              <DropdownMenuItem onClick={() => toast({ title: 'Bring to front' })}>Bring to front</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast({ title: 'Send to back' })}>Send to back</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast({ title: 'Bring forward' })}>Bring forward</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast({ title: 'Send backward' })}>Send backward</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                            <PopoverContent className="w-64 p-4 bg-white z-50" align="start">
+                              <div className="space-y-4">
+                                {/* Position row */}
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-600 text-sm">Position</span>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-md font-medium">
+                                        Bring Forward
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Current layer position</p></TooltipContent>
+                                  </Tooltip>
+                                </div>
+                                
+                                {/* Layer icons row */}
+                                <div className="flex items-center justify-between">
+                                  <span className="text-gray-600 text-sm">Layer</span>
+                                  <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button 
+                                          onClick={() => toast({ title: 'Send to back' })}
+                                          className="p-2 hover:bg-white rounded-md transition-colors"
+                                        >
+                                          <Layers className="w-5 h-5 text-gray-300" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Send to back</p></TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button 
+                                          onClick={() => toast({ title: 'Send backward' })}
+                                          className="p-2 hover:bg-white rounded-md transition-colors"
+                                        >
+                                          <Layers className="w-5 h-5 text-gray-400" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Send backward</p></TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button 
+                                          onClick={() => toast({ title: 'Bring forward' })}
+                                          className="p-2 bg-white rounded-md shadow-sm transition-colors"
+                                        >
+                                          <Layers className="w-5 h-5 text-gray-600" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Bring forward</p></TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button 
+                                          onClick={() => toast({ title: 'Bring to front' })}
+                                          className="p-2 hover:bg-white rounded-md transition-colors"
+                                        >
+                                          <Layers className="w-5 h-5 text-gray-500" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent><p>Bring to front</p></TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
 
                           {/* Position dropdown */}
                           <Popover>
