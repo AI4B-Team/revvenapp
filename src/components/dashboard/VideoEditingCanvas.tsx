@@ -89,9 +89,12 @@ import {
   Zap,
   Loader2,
 } from 'lucide-react';
-import { FaYoutube, FaTiktok, FaInstagram, FaVimeo, FaFacebookF } from 'react-icons/fa';
+import { FaYoutube, FaTiktok, FaInstagram, FaVimeo, FaFacebookF, FaLinkedin, FaSnapchatGhost } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiLoom } from 'react-icons/si';
+
+// Safe Zone types
+type SafeZoneType = 'none' | 'reels' | 'facebook' | 'tiktok' | 'shorts' | 'linkedin' | 'snapchat';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -150,6 +153,7 @@ import SettingsPanel from './editor/SettingsPanel';
 import LayoutPanel from './editor/LayoutPanel';
 import ClipSettingsPanel from './editor/ClipSettingsPanel';
 import ReferencesModal from './ReferencesModal';
+import SafeZoneOverlay from './SafeZoneOverlay';
 
 // Types
 interface TimelineClip {
@@ -242,6 +246,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [showReferencesModal, setShowReferencesModal] = useState(false);
+  const [activeSafeZone, setActiveSafeZone] = useState<SafeZoneType>('none');
   
   // Background settings state
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'image' | 'upload'>('color');
@@ -2792,6 +2797,9 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                               />
                             )}
 
+                            {/* Safe Zone Overlay */}
+                            <SafeZoneOverlay platform={activeSafeZone} />
+
                             {/* ESC hint for fullscreen */}
                             {isFullscreen && (
                               <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-white text-sm font-medium animate-fade-in">
@@ -3397,7 +3405,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <button 
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
                           >
-                            <EyeOff className="w-4 h-4" />
+                            {activeSafeZone === 'none' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4 text-purple-500" />}
                             <span>Safe Zone</span>
                             <ChevronUp className="w-3 h-3" />
                           </button>
@@ -3405,34 +3413,74 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <PopoverContent className="w-56 p-2 bg-white z-50" align="center">
                           <div className="space-y-1">
                             <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-purple-500 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveSafeZone('none')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'none' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
                             >
-                              <EyeOff className="w-5 h-5" />
-                              <span className="font-medium">Hide Safe Zone</span>
+                              <div className="flex items-center gap-3">
+                                <EyeOff className="w-5 h-5" />
+                                <span className="font-medium">Hide Safe Zone</span>
+                              </div>
+                              {activeSafeZone === 'none' && <Check className="w-4 h-4" />}
                             </button>
                             <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveSafeZone('reels')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'reels' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
                             >
-                              <FaInstagram className="w-5 h-5 text-pink-500" />
-                              <span className="font-medium">Reels</span>
+                              <div className="flex items-center gap-3">
+                                <FaInstagram className="w-5 h-5 text-pink-500" />
+                                <span className="font-medium">Reels</span>
+                              </div>
+                              {activeSafeZone === 'reels' && <Check className="w-4 h-4" />}
                             </button>
                             <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveSafeZone('facebook')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'facebook' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
                             >
-                              <FaFacebookF className="w-5 h-5 text-blue-600" />
-                              <span className="font-medium">Facebook</span>
+                              <div className="flex items-center gap-3">
+                                <FaFacebookF className="w-5 h-5 text-blue-600" />
+                                <span className="font-medium">Facebook</span>
+                              </div>
+                              {activeSafeZone === 'facebook' && <Check className="w-4 h-4" />}
                             </button>
                             <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveSafeZone('tiktok')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'tiktok' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
                             >
-                              <FaTiktok className="w-5 h-5" />
-                              <span className="font-medium">TikTok</span>
+                              <div className="flex items-center gap-3">
+                                <FaTiktok className="w-5 h-5" />
+                                <span className="font-medium">TikTok</span>
+                              </div>
+                              {activeSafeZone === 'tiktok' && <Check className="w-4 h-4" />}
                             </button>
                             <button
-                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveSafeZone('shorts')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'shorts' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
                             >
-                              <FaYoutube className="w-5 h-5 text-red-500" />
-                              <span className="font-medium">Shorts</span>
+                              <div className="flex items-center gap-3">
+                                <FaYoutube className="w-5 h-5 text-red-500" />
+                                <span className="font-medium">Shorts</span>
+                              </div>
+                              {activeSafeZone === 'shorts' && <Check className="w-4 h-4" />}
+                            </button>
+                            <button
+                              onClick={() => setActiveSafeZone('linkedin')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'linkedin' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <FaLinkedin className="w-5 h-5 text-blue-700" />
+                                <span className="font-medium">LinkedIn</span>
+                              </div>
+                              {activeSafeZone === 'linkedin' && <Check className="w-4 h-4" />}
+                            </button>
+                            <button
+                              onClick={() => setActiveSafeZone('snapchat')}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${activeSafeZone === 'snapchat' ? 'bg-purple-50 text-purple-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <FaSnapchatGhost className="w-5 h-5 text-yellow-400" />
+                                <span className="font-medium">Snapchat</span>
+                              </div>
+                              {activeSafeZone === 'snapchat' && <Check className="w-4 h-4" />}
                             </button>
                           </div>
                         </PopoverContent>
