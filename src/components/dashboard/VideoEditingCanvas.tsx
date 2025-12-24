@@ -238,6 +238,11 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [showReferencesModal, setShowReferencesModal] = useState(false);
   
+  // Background settings state
+  const [backgroundTab, setBackgroundTab] = useState<'color' | 'image' | 'upload'>('color');
+  const [backgroundColor, setBackgroundColor] = useState('#000000');
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  
   // Generation settings state
   const [selectedModel, setSelectedModel] = useState('auto');
   const [selectedAspectRatio, setSelectedAspectRatio] = useState('16:9');
@@ -2405,67 +2410,261 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                   <div className="h-full flex flex-col bg-gray-100 relative overflow-hidden">
                     {/* Video Toolbar - appears when video is selected */}
                     {isVideoSelected && (
-                      <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                              <Layers className="w-4 h-4" />
-                              <ChevronDown className="w-3 h-3 text-gray-400" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="bg-white">
-                            <DropdownMenuItem onClick={() => toast({ title: 'Bring to front' })}>Bring to front</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toast({ title: 'Send to back' })}>Send to back</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          Position
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <Copy className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <RotateCw className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <Scan className="w-4 h-4" />
-                        </button>
-                        <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg">
-                          <Minus className="w-3 h-3 text-gray-400 cursor-pointer hover:text-gray-600" onClick={() => setZoomLevel(Math.max(10, zoomLevel - 10))} />
-                          <span className="text-xs text-gray-600 w-10 text-center">{zoomLevel}%</span>
-                          <Plus className="w-3 h-3 text-gray-400 cursor-pointer hover:text-gray-600" onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))} />
+                      <div className="flex flex-col">
+                        {/* Replace media tooltip bar */}
+                        <div className="flex items-center justify-center py-1.5 bg-gray-800 text-white text-sm font-medium">
+                          Replace media
                         </div>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <Ratio className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <SkipBack className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <SkipForward className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          <Volume2 className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-5 bg-gray-200 mx-1" />
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          Effects
-                        </button>
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
-                          Animation
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setShowClipSettings(true);
-                            setActiveTab('settings');
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
-                        >
-                          <Settings className="w-4 h-4" />
-                        </button>
-                        <button className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1 py-2 px-4 bg-white border-b border-gray-200">
+                          {/* Layers dropdown */}
+                          <DropdownMenu>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                                    <Layers className="w-4 h-4" />
+                                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Layer Order</p></TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent className="bg-white z-50">
+                              <DropdownMenuItem onClick={() => toast({ title: 'Bring to front' })}>Bring to front</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Send to back' })}>Send to back</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Bring forward' })}>Bring forward</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Send backward' })}>Send backward</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          {/* Position button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => toast({ title: 'Position', description: 'Adjust element position on canvas' })}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                Position
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Position</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* Duplicate/Copy button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => {
+                                  toast({ title: 'Duplicated', description: 'Element duplicated' });
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Duplicate</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* Rotate button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={(e) => {
+                                  if (e.shiftKey) {
+                                    toast({ title: 'Rotated counter-clockwise' });
+                                  } else {
+                                    toast({ title: 'Rotated clockwise' });
+                                  }
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                <RotateCw className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="font-medium">Rotate</p>
+                              <p className="text-xs text-gray-400">Hold ⇧ to switch directions</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          {/* Crop button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => toast({ title: 'Crop mode', description: 'Entering crop mode' })}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                <Scan className="w-4 h-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Enter crop mode</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* Zoom control */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg cursor-pointer">
+                                <span className="text-sm text-gray-700 font-medium">{zoomLevel}%</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Zoom</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* Ratio dropdown */}
+                          <Popover>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <PopoverTrigger asChild>
+                                  <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors">
+                                    <Ratio className="w-4 h-4" />
+                                  </button>
+                                </PopoverTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Aspect Ratio</p></TooltipContent>
+                            </Tooltip>
+                            <PopoverContent className="w-48 p-2 bg-white z-50" align="center">
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => { setSelectedRatio('1:1'); setVideoAspectClass('aspect-square'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '1:1' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />
+                                  <span>Circle</span>
+                                  {selectedRatio === '1:1' && <Check className="w-4 h-4 ml-auto text-primary" />}
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedRatio('1:1'); setVideoAspectClass('aspect-square'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '1:1' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  <div className="w-4 h-4 border-2 border-gray-600 rounded-sm" />
+                                  <span>Square</span>
+                                  {selectedRatio === '1:1' && <Check className="w-4 h-4 ml-auto text-primary" />}
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedRatio('9:16'); setVideoAspectClass('aspect-[9/16]'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '9:16' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  <div className="w-3 h-4 border-2 border-gray-600 rounded-sm" />
+                                  <span>Portrait</span>
+                                  {selectedRatio === '9:16' && <Check className="w-4 h-4 ml-auto text-primary" />}
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedRatio('16:9'); setVideoAspectClass('aspect-video'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === '16:9' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  <div className="w-5 h-3 border-2 border-gray-600 rounded-sm" />
+                                  <span>Landscape</span>
+                                  {selectedRatio === '16:9' && <Check className="w-4 h-4 ml-auto text-primary" />}
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedRatio('Original'); setVideoAspectClass('aspect-video'); }}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedRatio === 'Original' ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                                >
+                                  <Box className="w-4 h-4 text-gray-600" />
+                                  <span>Original</span>
+                                  {selectedRatio === 'Original' && <Check className="w-4 h-4 ml-auto text-primary" />}
+                                </button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+
+                          {/* Flip Horizontal button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => toast({ title: 'Flipped horizontally' })}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3" />
+                                  <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
+                                  <path d="M12 20v2" />
+                                  <path d="M12 14v2" />
+                                  <path d="M12 8v2" />
+                                  <path d="M12 2v2" />
+                                </svg>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Flip horizontal</p></TooltipContent>
+                          </Tooltip>
+
+                          <div className="w-px h-5 bg-gray-200 mx-1" />
+
+                          {/* Effects button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => setActiveTab('effects')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                Effects
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Apply Effects</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* Animation button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => toast({ title: 'Animation', description: 'Opening animation panel' })}
+                                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                              >
+                                Animation
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Add Animations</p></TooltipContent>
+                          </Tooltip>
+
+                          {/* More options dropdown */}
+                          <DropdownMenu>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                              </TooltipTrigger>
+                              <TooltipContent><p>More Options</p></TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent className="bg-white z-50 w-48">
+                              <DropdownMenuItem onClick={() => toast({ title: 'Lock element' })}>
+                                <Lock className="w-4 h-4 mr-2" /> Lock
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Hide element' })}>
+                                <EyeOff className="w-4 h-4 mr-2" /> Hide
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => toast({ title: 'Copy style' })}>
+                                <Copy className="w-4 h-4 mr-2" /> Copy Style
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast({ title: 'Paste style' })}>
+                                <Copy className="w-4 h-4 mr-2" /> Paste Style
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setShowClipSettings(true);
+                                  setActiveTab('settings');
+                                }}
+                              >
+                                <Settings className="w-4 h-4 mr-2" /> Settings
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setTracks(prev => prev.filter(t => t.type !== 'video'));
+                                  setIsVideoSelected(false);
+                                  setIsVideoDeleted(true);
+                                  toast({ title: 'Video removed' });
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                     )}
                     {/* Video Preview Area */}
@@ -2892,20 +3091,264 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         </PopoverContent>
                       </Popover>
 
-                      <button 
-                        onClick={() => setShowLayoutPanel(!showLayoutPanel)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
-                      >
-                        <LayoutGrid className="w-4 h-4" />
-                        Layout
-                      </button>
-                      <button 
-                        onClick={() => toast({ title: 'Background settings' })}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
-                      >
-                        <ImageIcon className="w-4 h-4" />
-                        Background
-                      </button>
+                      {/* Layouts Popover */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button 
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                          >
+                            <LayoutGrid className="w-4 h-4" />
+                            Layouts
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-0 bg-white z-50" align="center">
+                          <div className="p-3 border-b border-gray-200 flex items-center justify-between">
+                            <span className="font-semibold text-gray-900">Layout</span>
+                            <label className="flex items-center gap-2 text-sm text-gray-600">
+                              <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
+                              Apply to all
+                            </label>
+                          </div>
+                          <div className="p-3 grid grid-cols-4 gap-2">
+                            {/* Layout options - single speaker */}
+                            <button 
+                              onClick={() => { setSelectedLayout('single-top'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-blue-100 rounded-lg hover:border-blue-400 bg-blue-50 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1">
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="h-3 bg-blue-200 rounded" />
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('circle-top'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1 items-center">
+                                <div className="w-6 h-6 rounded-full bg-gray-300 border-2 border-gray-400" />
+                                <div className="flex-1 w-full bg-gray-200 rounded" />
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('dual-horizontal'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1">
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="h-4 bg-gray-200 rounded" />
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('circle-bottom'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1 items-center">
+                                <div className="flex-1 w-full bg-gray-200 rounded" />
+                                <div className="w-6 h-6 rounded-full bg-gray-300 border-2 border-gray-400" />
+                              </div>
+                            </button>
+                            {/* More layout options - dual speakers */}
+                            <button 
+                              onClick={() => { setSelectedLayout('dual-bottom'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1">
+                                <div className="h-4 bg-gray-200 rounded" />
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-4 h-4 text-white" />
+                                </div>
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('dual-vertical'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex flex-col gap-1">
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-3 h-3 text-white" />
+                                </div>
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-3 h-3 text-white" />
+                                </div>
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('side-by-side'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] flex gap-1">
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-3 h-3 text-white" />
+                                </div>
+                                <div className="flex-1 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-3 h-3 text-white" />
+                                </div>
+                              </div>
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedLayout('pip-corner'); toast({ title: 'Layout applied' }); }}
+                              className="p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                            >
+                              <div className="w-full aspect-[3/4] bg-gray-200 rounded relative">
+                                <div className="absolute bottom-1 right-1 w-4 h-4 bg-blue-400 rounded flex items-center justify-center">
+                                  <User className="w-2 h-2 text-white" />
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Background Popover */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button 
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                          >
+                            <div className="w-4 h-4 bg-black rounded-sm" />
+                            Background
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-0 bg-white z-50" align="center">
+                          <div className="p-3 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="flex gap-4">
+                                <button 
+                                  onClick={() => setBackgroundTab('color')}
+                                  className={`text-sm font-medium ${backgroundTab === 'color' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                  Color
+                                </button>
+                                <button 
+                                  onClick={() => setBackgroundTab('image')}
+                                  className={`text-sm font-medium ${backgroundTab === 'image' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                  Image
+                                </button>
+                                <button 
+                                  onClick={() => setBackgroundTab('upload')}
+                                  className={`text-sm font-medium ${backgroundTab === 'upload' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600 hover:text-gray-900'}`}
+                                >
+                                  Upload
+                                </button>
+                              </div>
+                              <label className="flex items-center gap-2 text-sm text-gray-600">
+                                <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-300 text-purple-600" />
+                                Apply to all
+                              </label>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            {backgroundTab === 'color' && (
+                              <div className="space-y-4">
+                                {/* Color gradient picker area */}
+                                <div 
+                                  className="w-full h-40 rounded-lg cursor-crosshair"
+                                  style={{ 
+                                    background: 'linear-gradient(to bottom, transparent, black), linear-gradient(to right, white, red)' 
+                                  }}
+                                  onClick={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                    setBackgroundColor(`hsl(${x * 3.6}, ${100 - y}%, ${50 - y/2}%)`);
+                                  }}
+                                />
+                                {/* Hue slider */}
+                                <div className="h-3 rounded-full" style={{ background: 'linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red)' }} />
+                                {/* Opacity slider */}
+                                <div className="h-3 rounded-full bg-gradient-to-r from-transparent to-gray-900" />
+                                {/* RGB values */}
+                                <div className="flex items-center gap-2 text-sm">
+                                  <span className="font-medium">RGB</span>
+                                  <input type="text" value="0" className="w-12 px-2 py-1 border rounded text-center" readOnly />
+                                  <input type="text" value="0" className="w-12 px-2 py-1 border rounded text-center" readOnly />
+                                  <input type="text" value="0" className="w-12 px-2 py-1 border rounded text-center" readOnly />
+                                  <input type="text" value="100" className="w-12 px-2 py-1 border rounded text-center" readOnly />
+                                  <span>%</span>
+                                </div>
+                                {/* Color swatches */}
+                                <div className="grid grid-cols-8 gap-2">
+                                  {['#000000', '#1a1a1a', '#333333', '#4a5568', '#718096', '#a0aec0', '#cbd5e0', '#f7fafc',
+                                    '#fff5f5', '#fed7d7', '#feebc8', '#fefcbf', '#c6f6d5', '#b2f5ea', '#bee3f8', '#e9d8fd',
+                                    '#fbb6ce', '#fc8181', '#f6ad55', '#ecc94b', '#68d391', '#4fd1c5', '#63b3ed', '#b794f4'].map((color) => (
+                                    <button
+                                      key={color}
+                                      onClick={() => setBackgroundColor(color)}
+                                      className={`w-6 h-6 rounded-full border-2 ${backgroundColor === color ? 'border-purple-500' : 'border-transparent'}`}
+                                      style={{ backgroundColor: color }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {backgroundTab === 'image' && (
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  'https://images.unsplash.com/photo-1557683316-973673baf926?w=200',
+                                  'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200',
+                                  'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=200',
+                                  'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=200',
+                                  'https://images.unsplash.com/photo-1557682260-96773eb01377?w=200',
+                                  'https://images.unsplash.com/photo-1558470598-a5dda9640f68?w=200',
+                                  'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=200',
+                                  'https://images.unsplash.com/photo-1614849286521-4c58b2f0ff15?w=200'
+                                ].map((img, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => { setBackgroundImage(img); toast({ title: 'Background applied' }); }}
+                                    className="rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                                  >
+                                    <img src={img} alt={`Background ${i + 1}`} className="w-full h-24 object-cover" />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            {backgroundTab === 'upload' && (
+                              <div 
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-400 transition-colors"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = 'image/*';
+                                  input.onchange = (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file) {
+                                      const url = URL.createObjectURL(file);
+                                      setBackgroundImage(url);
+                                      toast({ title: 'Background uploaded' });
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                              >
+                                <Upload className="w-8 h-8 mx-auto text-gray-400 mb-3" />
+                                <p className="text-sm text-gray-600">
+                                  Drop JPG, PNG, JPEG<br />
+                                  or <span className="text-purple-600 underline">browse file</span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Speakers/Hosts button */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={() => toast({ title: 'Speakers', description: 'Manage speakers/hosts' })}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
+                          >
+                            <UserPlus className="w-4 h-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Manage Speakers</p></TooltipContent>
+                      </Tooltip>
                     </div>
                   )}
                   <div className={`bg-white border-t border-gray-200 flex flex-col ${isTimelineMinimized ? '' : 'h-full overflow-hidden'}`}>
