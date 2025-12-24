@@ -1666,7 +1666,10 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
                     ) : (
-                      <Cloud className="w-4 h-4 text-green-400" />
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" className="text-green-400" />
+                        <polyline points="9 12 11 14 15 10" className="text-green-400" />
+                      </svg>
                     )}
                   </div>
                   <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
