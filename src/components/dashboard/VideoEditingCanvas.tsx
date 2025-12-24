@@ -2162,7 +2162,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <Popover>
                               <PopoverTrigger asChild>
                                 <button className="p-1.5 hover:bg-gray-200 rounded-md text-gray-500 transition-colors flex items-center gap-1">
-                                  <Scan className="w-4 h-4" />
+                                  <Box className="w-4 h-4" />
                                   <span className="text-xs">{selectedAspectRatio}</span>
                                 </button>
                               </PopoverTrigger>
@@ -2687,8 +2687,8 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                     onClick={(e) => e.stopPropagation()}
                                     className="p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white transition-colors flex items-center gap-1"
                                   >
-                                    <Ratio className="w-4 h-4" />
-                                    <span className="text-xs">{selectedRatio}</span>
+                                    <Box className="w-4 h-4" />
+                                    <span className="text-xs">Ratio: {selectedRatio}</span>
                                   </button>
                                 </DropdownMenuTrigger>
                               </TooltipTrigger>
@@ -2753,15 +2753,15 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-sm text-gray-700 transition-colors shadow-sm"
                           >
                             <Box className="w-4 h-4" />
-                            {selectedRatio === 'Original' ? 'Original' : selectedRatio}
+                            Ratio: {selectedRatio === 'Original' ? 'Original' : selectedRatio}
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-64 p-0 bg-gray-900 border-gray-700 text-white" align="center">
-                          <div className="p-3 border-b border-gray-700 flex items-center justify-between">
+                        <PopoverContent className="w-64 p-0 bg-white border-gray-200 text-gray-900" align="center">
+                          <div className="p-3 border-b border-gray-200 flex items-center justify-between">
                             <span className="font-semibold">Canvas</span>
                             <button 
                               onClick={() => setShowCanvasPopover(false)}
-                              className="p-1 hover:bg-gray-800 rounded transition-colors"
+                              className="p-1 hover:bg-gray-100 rounded transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -2775,7 +2775,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setShowCanvasPopover(false);
                               }}
                               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                                selectedRatio === 'Original' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                selectedRatio === 'Original' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <Box className="w-5 h-5" />
@@ -2790,7 +2790,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setShowCanvasPopover(false);
                               }}
                               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                                selectedRatio === '9:16' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                selectedRatio === '9:16' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -2812,7 +2812,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setShowCanvasPopover(false);
                               }}
                               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                                selectedRatio === '4:5' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                selectedRatio === '4:5' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -2832,7 +2832,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setShowCanvasPopover(false);
                               }}
                               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                                selectedRatio === '1:1' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                selectedRatio === '1:1' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -2853,7 +2853,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                                 setShowCanvasPopover(false);
                               }}
                               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                                selectedRatio === '16:9' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                selectedRatio === '16:9' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -2869,11 +2869,11 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           </div>
                           
                           {/* Fit/Fill options */}
-                          <div className="p-2 border-t border-gray-700 space-y-1">
+                          <div className="p-2 border-t border-gray-200 space-y-1">
                             <button
                               onClick={() => setCanvasFitMode('fit')}
                               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                                canvasFitMode === 'fit' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                canvasFitMode === 'fit' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <Scan className="w-5 h-5" />
@@ -2882,7 +2882,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                             <button
                               onClick={() => setCanvasFitMode('fill')}
                               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                                canvasFitMode === 'fill' ? 'bg-purple-600/30 text-purple-400' : 'hover:bg-gray-800'
+                                canvasFitMode === 'fill' ? 'bg-purple-100 text-purple-600' : 'hover:bg-gray-100'
                               }`}
                             >
                               <Maximize className="w-5 h-5" />
