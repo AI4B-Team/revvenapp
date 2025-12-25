@@ -1568,10 +1568,10 @@ ${content.map((item, index) => {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-all ${
+                        className={`px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-all border ${
                           activeTab === tab.id 
-                            ? 'bg-emerald-500/10 text-emerald-600' 
-                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-300' 
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 border-gray-200'
                         }`}
                       >
                         <tab.icon className="w-4 h-4" />
@@ -1686,9 +1686,9 @@ ${content.map((item, index) => {
                 </div>
                 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto" ref={transcriptContainerRef}>
+                <div className="flex-1 overflow-y-auto pt-12" ref={transcriptContainerRef}>
                   {activeTab === 'transcript' && (
-                    <div className="space-y-1 pr-2">
+                    <div className="space-y-1 pr-2 overflow-visible">
                       {isTranslating && (
                         <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
@@ -1701,11 +1701,11 @@ ${content.map((item, index) => {
                         const isInSelection = selectedLines.has(i);
                         
                         return (
-                          <div key={i} className="relative">
+                          <div key={i} className="relative overflow-visible">
                             {/* Floating Toolbar - appears between segments */}
                             {isSelected && editingLineIndex !== i && (
                               <TooltipProvider delayDuration={200}>
-                                <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
+                                <div className={`absolute left-1/2 -translate-x-1/2 z-50 animate-fade-in ${i === 0 ? 'top-full mt-2' : '-top-5'}`}>
                                   <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
                                     {/* Play */}
                                     <Tooltip>
@@ -1888,11 +1888,11 @@ ${content.map((item, index) => {
                             
                             {/* Segment Content */}
                             <div 
-                              className={`group flex gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
+                              className={`group flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer ${
                                 isSelected 
-                                  ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' 
+                                  ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200' 
                                   : isInSelection
-                                    ? 'bg-blue-50/50 border-blue-200'
+                                    ? 'bg-blue-50/50 border-blue-300'
                                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                               } ${isHidden ? 'opacity-40' : ''}`}
                               onClick={(e) => {
