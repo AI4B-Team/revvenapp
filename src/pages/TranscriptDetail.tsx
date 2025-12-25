@@ -1532,15 +1532,24 @@ ${content.map((item, index) => {
                             </PopoverTrigger>
                             <PopoverContent className="w-12 p-3 bg-white border-gray-200" side="top">
                               <div className="relative h-24 flex items-center justify-center">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="100"
-                                  value={volume}
-                                  onChange={(e) => setVolume(parseInt(e.target.value))}
-                                  className="w-20 h-1.5 bg-gray-200 rounded-full cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-500 [&::-webkit-slider-thumb]:rounded-full"
-                                  style={{ transform: 'rotate(-90deg)' }}
-                                />
+                                <div className="relative w-20 h-2 bg-gray-200 rounded-full" style={{ transform: 'rotate(-90deg)' }}>
+                                  <div 
+                                    className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full"
+                                    style={{ width: `${volume}%` }}
+                                  />
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={volume}
+                                    onChange={(e) => setVolume(parseInt(e.target.value))}
+                                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                  />
+                                  <div 
+                                    className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow border-2 border-emerald-500 pointer-events-none"
+                                    style={{ left: `calc(${volume}% - 6px)` }}
+                                  />
+                                </div>
                               </div>
                             </PopoverContent>
                           </Popover>
