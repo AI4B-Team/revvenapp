@@ -781,38 +781,48 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
         {/* Empty space matching track header width */}
         <div className="w-[180px] flex-shrink-0 bg-gray-200" />
         
-        {/* Scrubber area - aligned with timeline content */}
+        {/* Scrubber area - aligned with timeline content, with internal zoom matching timeline */}
         <div 
           ref={playheadRef}
-          className="flex-1 cursor-pointer relative group"
+          className="flex-1 cursor-pointer relative group overflow-hidden"
           onClick={handleProgressBarSeek}
         >
-          {/* Track line */}
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-gray-400 mx-2 rounded-full">
-            {/* Progress fill */}
-            <div 
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
-              style={{ width: `${(currentTime / duration) * 100}%` }}
-            />
-          </div>
-          
-          {/* Markers on scrubber */}
-          {markers.map((markerTime, idx) => (
-            <div 
-              key={idx}
-              className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full cursor-pointer hover:scale-125 transition-transform z-10"
-              style={{ left: `calc(${(markerTime / duration) * 100}% - 4px)` }}
-              onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
-            />
-          ))}
-          
-          {/* Draggable Playhead dot */}
+          {/* Inner container that zooms to match timeline */}
           <div 
-            className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing z-20 transition-transform hover:scale-110 ${isPlayheadDragging ? 'scale-125' : ''}`}
-            style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
-            onMouseDown={handlePlayheadDragStart}
+            className="h-full relative"
+            style={{ width: `${100 * zoom}%`, minWidth: '100%' }}
           >
-            <div className="absolute inset-1 bg-rose-500 rounded-full" />
+            {/* Track line */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-gray-400 mx-2 rounded-full">
+              {/* Progress fill */}
+              <motion.div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded-full"
+                style={{ width: `${(currentTime / duration) * 100}%` }}
+                animate={{ width: `${(currentTime / duration) * 100}%` }}
+                transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.05, stiffness: 400, damping: 35 }}
+              />
+            </div>
+            
+            {/* Markers on scrubber */}
+            {markers.map((markerTime, idx) => (
+              <div 
+                key={idx}
+                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-amber-400 rounded-full cursor-pointer hover:scale-125 transition-transform z-10"
+                style={{ left: `calc(${(markerTime / duration) * 100}% - 4px)` }}
+                onClick={(e) => { e.stopPropagation(); onTimeSeek(markerTime); }}
+              />
+            ))}
+            
+            {/* Draggable Playhead dot - synced with timeline playhead */}
+            <motion.div 
+              className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg cursor-grab active:cursor-grabbing z-20 hover:scale-110 ${isPlayheadDragging ? 'scale-125' : ''}`}
+              style={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
+              animate={{ left: `calc(${(currentTime / duration) * 100}% - 8px)` }}
+              transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.05, stiffness: 400, damping: 35 }}
+              onMouseDown={handlePlayheadDragStart}
+            >
+              <div className="absolute inset-1 bg-rose-500 rounded-full" />
+            </motion.div>
           </div>
         </div>
       </div>
@@ -902,7 +912,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-30 pointer-events-none"
               style={{ left: `${(currentTime / duration) * 100}%` }}
               animate={{ left: `${(currentTime / duration) * 100}%` }}
-              transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
+              transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.05, stiffness: 400, damping: 35 }}
             >
               <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500" />
             </motion.div>
@@ -1299,7 +1309,7 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     className="absolute top-0 bottom-0 w-0.5 bg-red-500/80 z-20 pointer-events-none"
                     style={{ left: `${(currentTime / duration) * 100}%` }}
                     animate={{ left: `${(currentTime / duration) * 100}%` }}
-                    transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.1, stiffness: 300, damping: 30 }}
+                    transition={{ type: isDragging ? 'tween' : 'spring', duration: isDragging ? 0 : 0.05, stiffness: 400, damping: 35 }}
                   />
 
                   {/* Snap indicator line */}
