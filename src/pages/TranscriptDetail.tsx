@@ -10,7 +10,7 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
-  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw
+  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,7 +180,11 @@ const TranscriptDetail = () => {
   // Like state
   const [isLiked, setIsLiked] = useState(false);
 
-  // Get transcript data from URL params
+  // Selected transcript line for toolbar
+  const [selectedLineIndex, setSelectedLineIndex] = useState<number | null>(null);
+  const [hiddenLines, setHiddenLines] = useState<Set<number>>(new Set());
+  const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
+  const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const title = searchParams.get('title') || 'Untitled Transcript';
   const duration = searchParams.get('duration') || '00:00';
   const speakers = parseInt(searchParams.get('speakers') || '1');
@@ -1152,18 +1156,18 @@ ${content.map((item, index) => {
           <main className="flex-1 overflow-hidden bg-white">
           <div className="h-full flex flex-col">
             {/* Header Section */}
-            <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white">
+            <div className="px-6 pt-6 pb-5 border-b border-gray-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/30">
               {/* Back Button */}
               <button 
                 onClick={() => navigate('/transcribe')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-3 transition-colors text-sm"
+                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 transition-colors text-sm group"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                 <span className="font-medium">Back To Transcripts</span>
               </button>
               
               {/* Title Section - Spans Both Columns */}
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-6">
                 <div className="flex-1">
                   {isEditingTitle ? (
                     <div className="flex items-center gap-2 max-w-2xl">
@@ -1182,21 +1186,74 @@ ${content.map((item, index) => {
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                      <h1 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight">
                         {editedTitle}
                       </h1>
                       <button 
                         onClick={() => setIsEditingTitle(true)}
-                        className="p-1.5 rounded-lg hover:bg-gray-200/80 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                     </div>
                   )}
-                  <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5" />
-                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                  <div className="flex items-center gap-4 mt-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                      <Users className="w-3.5 h-3.5 text-blue-500" />
+                      <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                      <Globe className="w-3.5 h-3.5 text-purple-500" />
+                      <span>{language}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
+                      <Play className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="font-mono text-emerald-700">{duration}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Quick Actions in Header */}
+                <div className="flex items-center gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleCopy}
+                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy Transcript</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleDownload}
+                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Download</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleShare}
+                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Share</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
@@ -1629,87 +1686,280 @@ ${content.map((item, index) => {
                 </div>
                 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto" ref={transcriptContainerRef}>
                   {activeTab === 'transcript' && (
-                    <div className="space-y-3 pr-2">
+                    <div className="space-y-1 pr-2">
                       {isTranslating && (
                         <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
                           <span className="ml-3 text-gray-500">Translating...</span>
                         </div>
                       )}
-                      {!isTranslating && displayContent.map((item, i) => (
-                        <div 
-                          key={i} 
-                          className="group flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
-                          onClick={() => jumpToTime(item.time)}
-                        >
-                          <div className="flex-shrink-0 w-16">
-                            <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded hover:bg-emerald-500/20 transition-colors">
-                              {item.time}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-500 mb-1">{item.speaker}</p>
-                            {editingLineIndex === i ? (
-                              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                                <textarea
-                                  value={editedContent[i].text}
-                                  onChange={(e) => {
-                                    const newContent = [...editedContent];
-                                    newContent[i] = { ...newContent[i], text: e.target.value };
-                                    setEditedContent(newContent);
-                                  }}
-                                  className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
-                                  rows={2}
-                                  autoFocus
-                                />
-                                <div className="flex items-center gap-2">
-                                  <button 
-                                    onClick={() => handleSaveLine(i)}
-                                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
-                                  >
-                                    <Check className="w-3.5 h-3.5" />
-                                    Save
-                                  </button>
-                                  <button 
-                                    onClick={() => handleCancelLineEdit(i)}
-                                    className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-300 transition-colors flex items-center gap-1.5"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                    Cancel
-                                  </button>
+                      {!isTranslating && displayContent.map((item, i) => {
+                        const isSelected = selectedLineIndex === i;
+                        const isHidden = hiddenLines.has(i);
+                        const isInSelection = selectedLines.has(i);
+                        
+                        return (
+                          <div key={i} className="relative">
+                            {/* Floating Toolbar - appears between segments */}
+                            {isSelected && editingLineIndex !== i && (
+                              <TooltipProvider delayDuration={200}>
+                                <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
+                                  <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
+                                    {/* Play */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            jumpToTime(item.time);
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Play className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Play Clip</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Edit */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingLineIndex(i);
+                                            setSelectedLineIndex(null);
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Pencil className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Edit</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Hide */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setHiddenLines(prev => {
+                                              const next = new Set(prev);
+                                              if (next.has(i)) {
+                                                next.delete(i);
+                                              } else {
+                                                next.add(i);
+                                              }
+                                              return next;
+                                            });
+                                            toast.success(isHidden ? 'Line shown' : 'Line hidden');
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          {isHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">{isHidden ? 'Show' : 'Hide'}</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Copy */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText(item.text);
+                                            toast.success('Copied to clipboard');
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Copy className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Copy</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Highlight colors */}
+                                    <button
+                                      className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                    >
+                                      <div className="flex -space-x-1">
+                                        <div className="w-3 h-3 rounded-full bg-yellow-200 border border-gray-600" />
+                                        <div className="w-3 h-3 rounded-full bg-green-200 border border-gray-600" />
+                                      </div>
+                                    </button>
+                                    
+                                    {/* Delete */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const newContent = [...editedContent];
+                                            newContent.splice(i, 1);
+                                            setEditedContent(newContent);
+                                            setSelectedLineIndex(null);
+                                            toast.success('Line removed');
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-red-600 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Remove</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Download */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            const blob = new Blob([item.text], { type: 'text/plain' });
+                                            const url = URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            a.download = `segment-${item.time}.txt`;
+                                            a.click();
+                                            URL.revokeObjectURL(url);
+                                            toast.success('Segment downloaded');
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Download className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Download</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Divider */}
+                                    <div className="w-px h-5 bg-gray-600 mx-1" />
+                                    
+                                    {/* More Options */}
+                                    <DropdownMenu>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <DropdownMenuTrigger asChild>
+                                            <button className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors">
+                                              <MoreVertical className="w-4 h-4" />
+                                            </button>
+                                          </DropdownMenuTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="text-xs">More Options</TooltipContent>
+                                      </Tooltip>
+                                      <DropdownMenuContent align="end" className="w-44 bg-white border-gray-200">
+                                        <DropdownMenuItem 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedLines(prev => new Set([...prev, i]));
+                                            toast.success('Added to selection');
+                                          }}
+                                          className="flex items-center gap-2 cursor-pointer"
+                                        >
+                                          <Plus className="w-4 h-4" />
+                                          <span>Add To Selection</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            // Keep only selected lines
+                                            const linesToKeep = new Set(selectedLines);
+                                            linesToKeep.add(i);
+                                            const newContent = editedContent.filter((_, idx) => linesToKeep.has(idx));
+                                            setEditedContent(newContent);
+                                            setSelectedLines(new Set());
+                                            setSelectedLineIndex(null);
+                                            toast.success('Kept only selected lines');
+                                          }}
+                                          className="flex items-center gap-2 cursor-pointer"
+                                        >
+                                          <Check className="w-4 h-4" />
+                                          <span>Keep Only Selected</span>
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <p className="text-gray-900 leading-relaxed">{renderHighlightedText(item, i)}</p>
+                              </TooltipProvider>
                             )}
-                          </div>
-                          {editingLineIndex !== i && (
-                            <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigator.clipboard.writeText(item.text);
-                                  toast.success('Line copied!');
-                                }}
-                                className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-                              >
-                                <Copy className="w-4 h-4" />
-                              </button>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditingLineIndex(i);
-                                }}
-                                className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
+                            
+                            {/* Segment Content */}
+                            <div 
+                              className={`group flex gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
+                                isSelected 
+                                  ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' 
+                                  : isInSelection
+                                    ? 'bg-blue-50/50 border-blue-200'
+                                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              } ${isHidden ? 'opacity-40' : ''}`}
+                              onClick={(e) => {
+                                if (editingLineIndex === i) return;
+                                e.stopPropagation();
+                                setSelectedLineIndex(isSelected ? null : i);
+                              }}
+                            >
+                              <div className="flex-shrink-0 w-16">
+                                <span 
+                                  className={`text-xs font-mono px-2 py-1 rounded cursor-pointer transition-colors ${
+                                    isSelected 
+                                      ? 'text-blue-600 bg-blue-500/20 hover:bg-blue-500/30'
+                                      : 'text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20'
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    jumpToTime(item.time);
+                                  }}
+                                >
+                                  {item.time}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm font-medium mb-1 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}>
+                                  {item.speaker}
+                                </p>
+                                {editingLineIndex === i ? (
+                                  <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                                    <textarea
+                                      value={editedContent[i].text}
+                                      onChange={(e) => {
+                                        const newContent = [...editedContent];
+                                        newContent[i] = { ...newContent[i], text: e.target.value };
+                                        setEditedContent(newContent);
+                                      }}
+                                      className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
+                                      rows={2}
+                                      autoFocus
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <button 
+                                        onClick={() => handleSaveLine(i)}
+                                        className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
+                                      >
+                                        <Check className="w-3.5 h-3.5" />
+                                        Save
+                                      </button>
+                                      <button 
+                                        onClick={() => handleCancelLineEdit(i)}
+                                        className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-300 transition-colors flex items-center gap-1.5"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className={`leading-relaxed ${isHidden ? 'italic' : ''} ${isSelected ? 'text-gray-800' : 'text-gray-900'}`}>
+                                    {renderHighlightedText(item, i)}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
