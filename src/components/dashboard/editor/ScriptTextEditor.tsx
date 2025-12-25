@@ -732,27 +732,6 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                           </Tooltip>
                           <DropdownMenuContent align="end" className="w-44 bg-popover">
                             <DropdownMenuItem 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleHideSegment(segment.id);
-                              }}
-                              className="flex items-center gap-2 cursor-pointer"
-                            >
-                              {segment.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                              <span>{segment.hidden ? 'Show' : 'Hide'}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCopySegment(segment);
-                              }}
-                              className="flex items-center gap-2 cursor-pointer"
-                            >
-                              <Copy className="w-4 h-4" />
-                              <span>Copy</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
                               onClick={() => handleAddToSelection(segment.id)}
                               className="flex items-center gap-2 cursor-pointer"
                             >
