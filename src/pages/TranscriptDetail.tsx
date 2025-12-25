@@ -1683,8 +1683,8 @@ ${content.map((item, index) => {
                     ))}
                   </div>
                   
-                  {/* Sub-tabs row for Transcript tab - Original / New Language */}
-                  {activeTab === 'transcript' && selectedTranslation && (
+                  {/* Sub-tabs row - Original / New Language (visible on all tabs when translation exists) */}
+                  {selectedTranslation && (
                     <div className="flex items-center gap-1 mt-3">
                       <button 
                         onClick={() => setActiveTranslationTab('original')}
