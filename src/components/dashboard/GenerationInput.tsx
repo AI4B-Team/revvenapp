@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -6867,9 +6867,15 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                         {isTranscribing ? 'Transcribing...' : isRevoicing ? 'Translating...' : 'Generating...'}
                       </>
                     ) : isAudioMode && selectedAudioMode === 'Transcribe' ? (
-                      "Transcribe"
+                      <>
+                        <Send className="h-4 w-4" />
+                        Transcribe
+                      </>
                     ) : (
-                      "Generate For Free!"
+                      <>
+                        <Send className="h-4 w-4" />
+                        Generate For Free!
+                      </>
                     )}
                   </button>
                 </TooltipTrigger>
