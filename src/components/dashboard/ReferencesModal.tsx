@@ -700,7 +700,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                     placeholder="Paste A Supported Public Media Link"
                     value={mediaLink}
                     onChange={(e) => setMediaLink(e.target.value)}
-                    className="w-full px-4 py-3 pr-10 bg-white border border-gray-300 rounded-full text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-3 pr-10 bg-white border-2 border-dashed border-gray-400 rounded-xl text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-primary text-center placeholder:text-center"
                   />
                   <Link className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
