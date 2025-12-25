@@ -209,6 +209,9 @@ const TranscriptDetail = () => {
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const [showReplyFor, setShowReplyFor] = useState<string | null>(null);
   
+  // Highlight colors per line
+  const [lineHighlights, setLineHighlights] = useState<Record<number, string>>({});
+  
   // Segment playback - track when to stop playing a segment
   const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -281,10 +284,22 @@ const TranscriptDetail = () => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // Render text with word-level highlighting (karaoke-style)
+  // Render text with word-level highlighting (karaoke-style) and user highlights
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
+    const highlightColor = lineHighlights[segmentIndex];
+    
+    // Map highlight color names to Tailwind classes
+    const highlightClasses: Record<string, string> = {
+      yellow: 'bg-yellow-200',
+      green: 'bg-green-200',
+      blue: 'bg-blue-200',
+      pink: 'bg-pink-200',
+    };
+    
+    const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
+    
     if (!isPlaying) {
-      return <span>{item.text}</span>;
+      return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{item.text}</span>;
     }
 
     const segmentStartTime = parseTimeToSeconds(item.time);
@@ -293,7 +308,7 @@ const TranscriptDetail = () => {
 
     // Only highlight while we're inside this segment
     if (currentTime < segmentStartTime || currentTime >= segmentEndTime) {
-      return <span>{item.text}</span>;
+      return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{item.text}</span>;
     }
 
     const words = item.text.split(/\s+/).filter(Boolean);
@@ -1194,6 +1209,22 @@ ${content.map((item, index) => {
     activeSummaryTab,
   ]);
 
+  // Click outside handler to deselect line (but not when editing)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Don't deselect if we're currently editing a line
+      if (editingLineIndex !== null) return;
+      
+      // Check if click is outside the transcript container
+      if (transcriptContainerRef.current && !transcriptContainerRef.current.contains(event.target as Node)) {
+        setSelectedLineIndex(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [editingLineIndex]);
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar 
@@ -2078,34 +2109,43 @@ ${content.map((item, index) => {
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              setLineHighlights(prev => ({ ...prev, [i]: 'yellow' }));
                                               toast.success('Highlighted in yellow');
                                             }}
-                                            className="w-6 h-6 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform"
+                                            className={`w-6 h-6 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'yellow' ? 'ring-2 ring-yellow-500 ring-offset-1' : ''}`}
                                           />
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              setLineHighlights(prev => ({ ...prev, [i]: 'green' }));
                                               toast.success('Highlighted in green');
                                             }}
-                                            className="w-6 h-6 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform"
+                                            className={`w-6 h-6 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'green' ? 'ring-2 ring-green-500 ring-offset-1' : ''}`}
                                           />
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              setLineHighlights(prev => ({ ...prev, [i]: 'blue' }));
                                               toast.success('Highlighted in blue');
                                             }}
-                                            className="w-6 h-6 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform"
+                                            className={`w-6 h-6 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'blue' ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
                                           />
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              setLineHighlights(prev => ({ ...prev, [i]: 'pink' }));
                                               toast.success('Highlighted in pink');
                                             }}
-                                            className="w-6 h-6 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform"
+                                            className={`w-6 h-6 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'pink' ? 'ring-2 ring-pink-500 ring-offset-1' : ''}`}
                                           />
                                           <button
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              setLineHighlights(prev => {
+                                                const next = { ...prev };
+                                                delete next[i];
+                                                return next;
+                                              });
                                               toast.success('Highlight removed');
                                             }}
                                             className="w-6 h-6 rounded-full bg-gray-100 border-2 border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
