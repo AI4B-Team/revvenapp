@@ -462,19 +462,25 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     {
       id: 'video-1',
       type: 'video',
-      name: 'Video 1',
+      name: 'Video',
+      clips: []
+    },
+    {
+      id: 'text-1',
+      type: 'text',
+      name: 'Text',
+      clips: []
+    },
+    {
+      id: 'transcript-1',
+      type: 'text' as const,
+      name: 'Transcript',
       clips: []
     },
     {
       id: 'audio-1',
       type: 'audio',
-      name: 'Voiceover',
-      clips: []
-    },
-    {
-      id: 'music-1',
-      type: 'text' as const,
-      name: 'Music',
+      name: 'Audio',
       clips: []
     }
   ]);
