@@ -1152,80 +1152,82 @@ ${content.map((item, index) => {
           <main className="flex-1 overflow-hidden bg-white">
           <div className="h-full flex flex-col">
             {/* Header Section */}
-            <div className="px-6 pt-6">
+            <div className="px-6 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white">
               {/* Back Button */}
               <button 
                 onClick={() => navigate('/transcribe')}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-3 transition-colors text-sm"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
                 <span className="font-medium">Back To Transcripts</span>
               </button>
               
               {/* Title Section - Spans Both Columns */}
-              <div className="mb-6">
-                <div className="flex items-start gap-2">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
                   {isEditingTitle ? (
-                    <div className="flex items-center gap-2 flex-1 max-w-2xl">
+                    <div className="flex items-center gap-2 max-w-2xl">
                       <Input
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
-                        className="text-xl font-semibold h-10"
+                        className="text-2xl font-bold h-12"
                         autoFocus
                       />
-                      <button onClick={handleSaveTitle} className="p-1.5 rounded-lg hover:bg-gray-100 text-emerald-500">
+                      <button onClick={handleSaveTitle} className="p-2 rounded-lg hover:bg-gray-100 text-emerald-500">
                         <Check className="w-5 h-5" />
                       </button>
-                      <button onClick={handleCancelTitleEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                      <button onClick={handleCancelTitleEdit} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
                         <X className="w-5 h-5" />
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-xl font-semibold text-gray-900">
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-2xl font-bold text-gray-900 leading-tight">
                         {editedTitle}
                       </h1>
                       <button 
                         onClick={() => setIsEditingTitle(true)}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-gray-200/80 text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                     </div>
                   )}
+                  <p className="text-sm text-gray-500 mt-1.5 flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5" />
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                </p>
               </div>
             </div>
             
             {/* 2-Column Layout */}
-            <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-6">
+            <div className="flex-1 flex overflow-hidden px-6 py-6 gap-6">
               {/* Left Column - Media Player */}
-              <div className="w-[400px] flex-shrink-0 flex flex-col">
+              <div className="w-[480px] flex-shrink-0 flex flex-col">
                 <div className="sticky top-0">
                   {/* Media Player Card */}
                   <div className="rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
                     {/* Waveform Visualization Area */}
-                    <div className="relative aspect-square p-8 flex items-center justify-center">
+                    <div className="relative aspect-[4/3] p-8 flex items-center justify-center group/waveform">
                       {/* Audio Waveform Visualization */}
                       <div className="flex items-center justify-center gap-[3px] h-32">
-                        {[...Array(40)].map((_, i) => {
+                        {[...Array(50)].map((_, i) => {
                           const heightPattern = [
                             0.3, 0.5, 0.4, 0.6, 0.8, 0.6, 0.9, 0.7, 0.5, 0.8,
                             1, 0.9, 0.7, 0.5, 0.3, 0.2, 0.3, 0.5, 0.8, 1,
                             0.8, 0.6, 0.9, 1, 0.8, 0.6, 0.4, 0.3, 0.5, 0.7,
-                            0.9, 1, 0.8, 0.5, 0.3, 0.2, 0.4, 0.6, 0.8, 0.5
+                            0.9, 1, 0.8, 0.5, 0.3, 0.2, 0.4, 0.6, 0.8, 0.5,
+                            0.7, 0.9, 0.6, 0.4, 0.8, 1, 0.7, 0.5, 0.3, 0.6
                           ];
-                          const height = heightPattern[i] * 100;
+                          const height = heightPattern[i % heightPattern.length] * 100;
                           return (
                             <div
                               key={i}
                               className="w-[4px] rounded-full bg-emerald-400/80 transition-all duration-300"
                               style={{
                                 height: `${height}%`,
-                                animation: isPlaying ? `waveformPulse 1s ease-in-out infinite ${i * 0.05}s` : 'none',
+                                animation: isPlaying ? `waveformPulse 1s ease-in-out infinite ${i * 0.04}s` : 'none',
                               }}
                             />
                           );
@@ -1245,7 +1247,7 @@ ${content.map((item, index) => {
                         {duration}
                       </div>
                       
-                      {/* Play Button Overlay */}
+                      {/* Play Button Overlay - shows when not playing */}
                       {!isPlaying && resolvedAudioUrl && (
                         <button
                           onClick={togglePlayPause}
@@ -1256,12 +1258,24 @@ ${content.map((item, index) => {
                           </div>
                         </button>
                       )}
+                      
+                      {/* Pause Button Overlay - shows on hover when playing */}
+                      {isPlaying && resolvedAudioUrl && (
+                        <button
+                          onClick={togglePlayPause}
+                          className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 group-hover/waveform:opacity-100 group-hover/waveform:bg-black/10 transition-all duration-200"
+                        >
+                          <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                            <Pause className="w-7 h-7 text-emerald-600" />
+                          </div>
+                        </button>
+                      )}
                     </div>
                     
-                    {/* Playback Controls */}
+                    {/* Playback Controls - All in one row */}
                     {resolvedAudioUrl && (
                       <div className="p-4 bg-white/80 border-t border-gray-200/50">
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-3">
                           <button 
                             onClick={togglePlayPause}
                             className="w-10 h-10 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0"
@@ -1292,14 +1306,12 @@ ${content.map((item, index) => {
                           </div>
                           
                           <span className="text-xs text-gray-600 font-mono min-w-[36px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
-                        </div>
-                        
-                        {/* Speed Control */}
-                        <div className="flex items-center justify-center gap-2">
+                          
+                          {/* Speed Control */}
                           <select 
                             value={playbackSpeed}
                             onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                            className="px-2 py-1 rounded-lg bg-gray-100 border-0 text-xs text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-200 transition-colors"
+                            className="px-2 py-1.5 rounded-lg bg-gray-100 border-0 text-xs text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-200 transition-colors flex-shrink-0"
                           >
                             <option value={0.5}>0.5x</option>
                             <option value={0.75}>0.75x</option>
@@ -1308,6 +1320,28 @@ ${content.map((item, index) => {
                             <option value={1.5}>1.5x</option>
                             <option value={2}>2x</option>
                           </select>
+                          
+                          {/* Volume Control */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex-shrink-0">
+                                <Volume2 className="w-4 h-4 text-gray-600" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-12 p-3 bg-white border-gray-200" side="top">
+                              <div className="relative h-24 flex items-center justify-center">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={volume}
+                                  onChange={(e) => setVolume(parseInt(e.target.value))}
+                                  className="w-20 h-1.5 bg-gray-200 rounded-full cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-500 [&::-webkit-slider-thumb]:rounded-full"
+                                  style={{ transform: 'rotate(-90deg)' }}
+                                />
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         </div>
                       </div>
                     )}
@@ -1378,32 +1412,7 @@ ${content.map((item, index) => {
                           <TooltipContent>Share</TooltipContent>
                         </Tooltip>
                         
-                        {/* Volume */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                                  <Volume2 className="w-4 h-4" />
-                                </button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-12 p-3 bg-white border-gray-200" side="top">
-                                <div className="relative h-24 flex items-center justify-center">
-                                  <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={volume}
-                                    onChange={(e) => setVolume(parseInt(e.target.value))}
-                                    className="w-20 h-1.5 bg-gray-200 rounded-full cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-500 [&::-webkit-slider-thumb]:rounded-full"
-                                    style={{ transform: 'rotate(-90deg)' }}
-                                  />
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          </TooltipTrigger>
-                          <TooltipContent>Volume</TooltipContent>
-                        </Tooltip>
+                        {/* Favorite */}
                         
                         {/* Favorite */}
                         <Tooltip>
