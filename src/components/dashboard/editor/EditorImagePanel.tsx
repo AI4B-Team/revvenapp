@@ -5,7 +5,7 @@ import FileFormatIcons from '@/components/ui/FileFormatIcons';
 
 interface EditorImagePanelProps {
   onSelectImage?: (imageUrl: string, thumbnailUrl: string) => void;
-  onOpenReferences?: () => void;
+  onOpenReferences?: (filter?: 'all' | 'images' | 'videos') => void;
 }
 
 const EditorImagePanel: React.FC<EditorImagePanelProps> = ({ onSelectImage, onOpenReferences }) => {
@@ -48,7 +48,7 @@ const EditorImagePanel: React.FC<EditorImagePanelProps> = ({ onSelectImage, onOp
         className={`bg-white rounded-xl p-8 text-center transition-all cursor-pointer border-2 border-dashed ${
           isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-400 hover:bg-emerald-50 hover:border-emerald-500'
         }`}
-        onClick={() => onOpenReferences ? onOpenReferences() : fileInputRef.current?.click()}
+        onClick={() => onOpenReferences ? onOpenReferences('images') : fileInputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}

@@ -256,6 +256,7 @@ const VideoEditingCanvas: React.FC<VideoEditingCanvasProps> = ({
   const [isTimelineMinimized, setIsTimelineMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [showReferencesModal, setShowReferencesModal] = useState(false);
+  const [referencesModalFilter, setReferencesModalFilter] = useState<'all' | 'images' | 'videos'>('all');
   const [activeSafeZone, setActiveSafeZone] = useState<SafeZoneType>('none');
   
   // Background settings state
@@ -1646,7 +1647,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Sub-tab content */}
             {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={() => setShowReferencesModal(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
-            {visualsSubTab === 'images' && <EditorImagePanel />}
+            {visualsSubTab === 'images' && <EditorImagePanel onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
         );
@@ -3829,6 +3830,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       <ReferencesModal
         isOpen={showReferencesModal}
         onClose={() => setShowReferencesModal(false)}
+        initialMediaFilter={referencesModalFilter}
         onSelectReference={(url) => {
           // Add the selected reference as a new uploaded video
           const newVideo = {
