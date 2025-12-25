@@ -487,9 +487,22 @@ export default function RecordModal({
 
   const handleStartRecording = async () => {
     try {
+      // First, check if we have permission
+      const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      
+      if (permissionStatus.state === 'denied') {
+        toast.error('Microphone access denied. Please enable microphone permissions in your browser settings.', {
+          duration: 5000,
+          description: 'Go to your browser settings → Site Settings → Microphone and allow access for this site.'
+        });
+        return;
+      }
+
       const constraints: MediaStreamConstraints = {
         audio: selectedMic ? { deviceId: { exact: selectedMic } } : true
       };
+      
+      // Request mic access - this will trigger the browser permission popup
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       audioChunksRef.current = [];
@@ -517,9 +530,24 @@ export default function RecordModal({
       setIsRecording(true);
       setRecordingTime(0);
       setTeleprompterPosition(0);
-    } catch (err) {
+      
+      toast.success('Recording started! Speak clearly into your microphone.');
+    } catch (err: any) {
       console.error('Error accessing microphone:', err);
-      toast.error('Could not access microphone');
+      
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        toast.error('Microphone permission required', {
+          duration: 5000,
+          description: 'Please click "Allow" when prompted to grant microphone access, or check your browser settings.'
+        });
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        toast.error('No microphone found', {
+          duration: 5000,
+          description: 'Please connect a microphone and try again.'
+        });
+      } else {
+        toast.error('Could not access microphone. Please check your permissions.');
+      }
     }
   };
 

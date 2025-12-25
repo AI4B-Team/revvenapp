@@ -1400,30 +1400,30 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
 
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span className="flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" />
+                          <Clock className="w-3.5 h-3.5 text-emerald-500" />
                           {transcript.duration}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
+                          <Calendar className="w-3.5 h-3.5 text-blue-500" />
                           {formatDate(transcript.date)}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5" />
+                          <Users className="w-3.5 h-3.5 text-purple-500" />
                           {transcript.speakers} {transcript.speakers === 1 ? 'Speaker' : 'Speakers'}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5" />
+                          <Globe className="w-3.5 h-3.5 text-orange-500" />
                           {transcript.language}
                         </span>
                         {transcript.words && (
                           <span className="flex items-center gap-1.5">
-                            <Hash className="w-3.5 h-3.5" />
+                            <Hash className="w-3.5 h-3.5 text-pink-500" />
                             {transcript.words.toLocaleString()} Words
                           </span>
                         )}
                         {transcript.fileSize && (
                           <span className="flex items-center gap-1.5">
-                            <Volume2 className="w-3.5 h-3.5" />
+                            <Volume2 className="w-3.5 h-3.5 text-cyan-500" />
                             {transcript.fileSize}
                           </span>
                         )}
@@ -1640,12 +1640,12 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                       <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
+                          <Clock className="w-3 h-3 text-emerald-500" />
                           {transcript.duration}
                         </span>
                         {transcript.fileSize && (
                           <span className="flex items-center gap-1">
-                            <Volume2 className="w-3 h-3" />
+                            <Volume2 className="w-3 h-3 text-cyan-500" />
                             {transcript.fileSize}
                           </span>
                         )}
@@ -2795,15 +2795,15 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
               <h2 className="text-xl font-semibold text-white">{transcript.title}</h2>
               <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
+                  <Clock className="w-3.5 h-3.5 text-emerald-500" />
                   {transcript.duration}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" />
+                  <Users className="w-3.5 h-3.5 text-purple-500" />
                   {transcript.speakers} Speakers
                 </span>
                 <span className="flex items-center gap-1">
-                  <Globe className="w-3.5 h-3.5" />
+                  <Globe className="w-3.5 h-3.5 text-orange-500" />
                   {transcript.language}
                 </span>
               </div>
