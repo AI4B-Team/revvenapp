@@ -738,6 +738,52 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                   <Upload className="w-8 h-8 text-primary mb-3" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Click To Upload</h3>
                   <p className="text-sm text-gray-500">or, drag and drop a file here</p>
+                  
+                  {/* File format icons */}
+                  <div className="flex items-center gap-2 mt-3">
+                    {/* JPG */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-blue-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-blue-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-blue-500">JPG</span>
+                      </div>
+                    </div>
+                    {/* PNG */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-purple-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-purple-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-purple-500">PNG</span>
+                      </div>
+                    </div>
+                    {/* GIF */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-orange-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-orange-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-orange-500">GIF</span>
+                      </div>
+                    </div>
+                    {/* BMP */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-teal-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-teal-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-teal-500">BMP</span>
+                      </div>
+                    </div>
+                    {/* MP4 */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-emerald-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-emerald-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-emerald-500">MP4</span>
+                      </div>
+                    </div>
+                    {/* MOV */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-12 bg-rose-100 rounded-md flex items-center justify-center relative">
+                        <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-rose-200 border-l-[8px] border-l-transparent"></div>
+                        <span className="text-[9px] font-bold text-rose-500">MOV</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Zoom and Record Buttons */}

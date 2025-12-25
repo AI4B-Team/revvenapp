@@ -416,11 +416,57 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
             >
-              <div className="flex flex-col items-center justify-center gap-2">
-                <Upload className="w-8 h-8 text-emerald-500 mb-1" />
-                <span className="text-gray-900 font-semibold text-lg">Click To Upload</span>
-                <p className="text-gray-500 text-sm">or, drag and drop a file here</p>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <Upload className="w-8 h-8 text-emerald-500 mb-1" />
+              <span className="text-gray-900 font-semibold text-lg">Click To Upload</span>
+              <p className="text-gray-500 text-sm">or, drag and drop a file here</p>
+              
+              {/* File format icons */}
+              <div className="flex items-center gap-2 mt-3">
+                {/* JPG */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-blue-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-blue-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-blue-500">JPG</span>
+                  </div>
+                </div>
+                {/* PNG */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-purple-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-purple-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-purple-500">PNG</span>
+                  </div>
+                </div>
+                {/* GIF */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-orange-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-orange-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-orange-500">GIF</span>
+                  </div>
+                </div>
+                {/* BMP */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-teal-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-teal-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-teal-500">BMP</span>
+                  </div>
+                </div>
+                {/* MP4 */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-emerald-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-emerald-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-emerald-500">MP4</span>
+                  </div>
+                </div>
+                {/* MOV */}
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-12 bg-rose-100 rounded-md flex items-center justify-center relative">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-rose-200 border-l-[8px] border-l-transparent"></div>
+                    <span className="text-[9px] font-bold text-rose-500">MOV</span>
+                  </div>
+                </div>
               </div>
+            </div>
             </div>
             <input
               ref={fileInputRef}
