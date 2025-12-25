@@ -38,7 +38,7 @@ interface UploadedMedia {
   name: string;
   url: string;
   thumbnail?: string;
-  type: 'video' | 'audio';
+  type: 'video' | 'audio' | 'image';
   source: 'upload' | 'url';
   inUse?: boolean;
 }
