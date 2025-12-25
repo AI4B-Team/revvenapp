@@ -2303,50 +2303,9 @@ ${content.map((item, index) => {
                   {activeTab === 'summary' && (
                     <div className="pr-2">
                       <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-emerald-500" />
-                            <h3 className="font-semibold text-gray-900">AI Summary</h3>
-                          </div>
-                          {aiSummary && Object.keys(summaryTranslations).length > 0 && (
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <button 
-                                onClick={() => {
-                                  summaryTabManuallySelectedRef.current = true;
-                                  setActiveSummaryTab('original');
-                                }}
-                                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                                  activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                              >
-                                Original
-                              </button>
-                              {Object.keys(summaryTranslations).map(lang => (
-                                <div key={lang} className="flex items-center">
-                                  <button 
-                                    onClick={() => {
-                                      summaryTabManuallySelectedRef.current = true;
-                                      setActiveSummaryTab(lang);
-                                    }}
-                                    className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                                      activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                                    }`}
-                                  >
-                                    <Languages className="w-3.5 h-3.5" />
-                                    {lang}
-                                  </button>
-                                  <button
-                                    onClick={() => handleRemoveSummaryTranslation(lang)}
-                                    className={`px-2 py-1.5 rounded-r-full text-sm font-medium transition-colors ${
-                                      activeSummaryTab === lang ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                                    }`}
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                        <div className="flex items-center gap-2 mb-4">
+                          <Sparkles className="w-5 h-5 text-emerald-500" />
+                          <h3 className="font-semibold text-gray-900">AI Summary</h3>
                         </div>
                         
                         {isGeneratingSummary ? (
