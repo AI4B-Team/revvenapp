@@ -1896,7 +1896,7 @@ ${content.map((item, index) => {
                                               <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-medium">
                                                 Y
                                               </div>
-                                              <span className="text-xs font-medium text-gray-700">Add a comment</span>
+                                              <span className="text-xs font-medium text-gray-700">Add A Comment</span>
                                             </div>
                                             <textarea
                                               placeholder="Type your comment..."
