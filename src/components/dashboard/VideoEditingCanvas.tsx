@@ -167,6 +167,8 @@ interface TimelineClip {
   color?: string;
   waveform?: number[];
   caption?: string;
+  translatedCaption?: string; // Translated text for dual-language display
+  translationLanguage?: string; // Target language code
   src?: string; // Video/audio source URL
 }
 

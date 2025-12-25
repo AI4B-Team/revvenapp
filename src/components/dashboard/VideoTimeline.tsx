@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Music, Volume2, ImageIcon, Plus, Lock, Unlock, 
   Eye, EyeOff, MoreHorizontal, MoreVertical, GripVertical, LayoutGrid, Rows3,
-  ChevronLeft, ChevronRight, Flag, ArrowLeftRight, Trash2, Copy, Scissors
+  ChevronLeft, ChevronRight, Flag, ArrowLeftRight, Trash2, Copy, Scissors, Languages, Captions
 } from 'lucide-react';
 import {
   Tooltip,
@@ -29,6 +29,8 @@ export interface TimelineClip {
   color?: string;
   waveform?: number[];
   caption?: string;
+  translatedCaption?: string; // Translated text for dual-language display
+  translationLanguage?: string; // Target language code
   src?: string; // Video/audio source URL
 }
 
@@ -1410,36 +1412,52 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     );
                   }
                   
-                  // For TEXT tracks - show text overlay with T icon (like reference image top row)
+                  // For TEXT tracks - show text overlay with CC icon, and translated text below if exists
                   if (track.type === 'text' || track.id.includes('text') || track.id.includes('caption')) {
+                    const hasTranslation = !!clip.translatedCaption;
+                    
                     return (
                       <div
                         key={clip.id}
                         onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
                         onMouseEnter={() => setHoveredClip(clip.id)}
                         onMouseLeave={() => setHoveredClip(null)}
-                        className={`absolute top-1 bottom-1 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden border ${
-                          isSelected 
-                            ? 'ring-2 ring-gray-500 border-gray-400 bg-gray-50' 
-                            : isHovered
-                              ? 'ring-1 ring-gray-400 border-gray-300 bg-gray-50'
-                              : 'border-gray-300 bg-white'
-                        } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                        className={`absolute rounded-lg cursor-grab active:cursor-grabbing overflow-hidden flex flex-col ${
+                          track.locked ? 'cursor-not-allowed' : ''
+                        }`}
                         style={{
                           left: `${(clip.startTime / duration) * 100}%`,
                           width: `${(clip.duration / duration) * 100}%`,
+                          top: '2px',
+                          bottom: '2px',
                           transition: dragState?.clipId === clip.id 
                             ? 'none' 
                             : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
                       >
-                        {/* Text clip content */}
-                        <div className="h-full flex items-center px-2 gap-2">
-                          <span className="text-gray-600 font-serif font-bold text-sm flex-shrink-0">T</span>
-                          <span className="text-xs text-gray-800 font-medium truncate">
+                        {/* Original caption - purple background like reference */}
+                        <div className={`flex-1 rounded-t-lg ${hasTranslation ? 'rounded-b-none' : 'rounded-b-lg'} bg-violet-600 flex items-center px-3 gap-2 ${
+                          isSelected 
+                            ? 'ring-2 ring-white' 
+                            : isHovered
+                              ? 'ring-1 ring-white/50'
+                              : ''
+                        }`}>
+                          <Captions className="w-4 h-4 text-white/80 flex-shrink-0" />
+                          <span className="text-sm text-white font-medium truncate">
                             {clip.caption || clip.name}
                           </span>
                         </div>
+                        
+                        {/* Translated caption - darker purple, only shown when translation exists */}
+                        {hasTranslation && (
+                          <div className="flex-1 rounded-b-lg bg-violet-800 flex items-center px-3 gap-2 border-t border-violet-500/50">
+                            <Languages className="w-4 h-4 text-violet-300 flex-shrink-0" />
+                            <span className="text-sm text-violet-100 font-medium truncate">
+                              {clip.translatedCaption}
+                            </span>
+                          </div>
+                        )}
                         
                         {/* Delete button and resize handles */}
                         {!track.locked && (isSelected || isHovered) && (
@@ -1462,11 +1480,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                             </button>
                             <div 
                               onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
-                              className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-l z-20"
+                              className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-400/50 hover:bg-violet-300/70 rounded-l z-20"
                             />
                             <div 
                               onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
-                              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-r z-20"
+                              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-400/50 hover:bg-violet-300/70 rounded-r z-20"
                             />
                           </>
                         )}
