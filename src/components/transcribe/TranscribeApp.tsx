@@ -1240,9 +1240,10 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   {[...Array(28)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-all duration-300"
+                      className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-colors duration-300 animate-[audioWave_1s_ease-in-out_infinite]"
                       style={{
                         height: `${Math.sin((i / 28) * Math.PI * 3) * 6 + 8}px`,
+                        animationDelay: `${i * 0.05}s`,
                       }}
                     />
                   ))}
