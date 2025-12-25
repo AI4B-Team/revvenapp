@@ -736,7 +736,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                               className="flex items-center gap-2 cursor-pointer"
                             >
                               <Plus className="w-4 h-4" />
-                              <span>Add to Selection</span>
+                              <span>Add To Selection</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={handleKeepOnlySelected}
