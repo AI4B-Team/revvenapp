@@ -10,7 +10,7 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
-  Star, MoreVertical, Upload, Loader2, VolumeX
+  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -176,6 +176,9 @@ const TranscriptDetail = () => {
   // Progress bar dragging
   const [isDragging, setIsDragging] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
+  
+  // Like state
+  const [isLiked, setIsLiked] = useState(false);
 
   // Get transcript data from URL params
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -1146,10 +1149,11 @@ ${content.map((item, index) => {
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
-        <main className="flex-1 overflow-hidden bg-white">
+          <main className="flex-1 overflow-hidden bg-white">
           <div className="h-full flex flex-col">
-            {/* Back Button */}
+            {/* Header Section */}
             <div className="px-6 pt-6">
+              {/* Back Button */}
               <button 
                 onClick={() => navigate('/transcribe')}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
@@ -1157,6 +1161,43 @@ ${content.map((item, index) => {
                 <ArrowLeft className="w-5 h-5" />
                 <span className="font-medium">Back To Transcripts</span>
               </button>
+              
+              {/* Title Section - Spans Both Columns */}
+              <div className="mb-6">
+                <div className="flex items-start gap-2">
+                  {isEditingTitle ? (
+                    <div className="flex items-center gap-2 flex-1 max-w-2xl">
+                      <Input
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                        className="text-xl font-semibold h-10"
+                        autoFocus
+                      />
+                      <button onClick={handleSaveTitle} className="p-1.5 rounded-lg hover:bg-gray-100 text-emerald-500">
+                        <Check className="w-5 h-5" />
+                      </button>
+                      <button onClick={handleCancelTitleEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-xl font-semibold text-gray-900">
+                        {editedTitle}
+                      </h1>
+                      <button 
+                        onClick={() => setIsEditingTitle(true)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
             </div>
             
             {/* 2-Column Layout */}
@@ -1272,46 +1313,46 @@ ${content.map((item, index) => {
                     )}
                   </div>
                   
-                  {/* Title & Info */}
+                  {/* Action Buttons */}
                   <div className="mt-4">
-                    <div className="flex items-start gap-2">
-                      {isEditingTitle ? (
-                        <div className="flex items-center gap-2 flex-1">
-                          <Input
-                            value={editedTitle}
-                            onChange={(e) => setEditedTitle(e.target.value)}
-                            className="text-lg font-semibold h-9"
-                            autoFocus
-                          />
-                          <button onClick={handleSaveTitle} className="p-1.5 rounded-lg hover:bg-gray-100 text-emerald-500">
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button onClick={handleCancelTitleEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex-1">
-                          <h2 className="text-lg font-semibold text-gray-900 leading-tight">
-                            {editedTitle}
-                            <button 
-                              onClick={() => setIsEditingTitle(true)}
-                              className="p-1 ml-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors inline-flex align-middle"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                          </h2>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 mt-1">
-                      {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                    
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex items-center flex-wrap gap-2">
                       <TooltipProvider>
+                        {/* Info/Details */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
+                            >
+                              <Info className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Details</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Heart/Like */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setIsLiked(!isLiked)}
+                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
+                            >
+                              <Heart className={`w-4 h-4 ${isLiked ? 'text-red-500 fill-red-500' : ''}`} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{isLiked ? 'Unlike' : 'Like'}</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Remix */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                              <RefreshCw className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remix</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Download */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button 
@@ -1324,15 +1365,7 @@ ${content.map((item, index) => {
                           <TooltipContent>Download</TooltipContent>
                         </Tooltip>
                         
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                              <Star className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Favorite</TooltipContent>
-                        </Tooltip>
-                        
+                        {/* Share */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button 
@@ -1345,15 +1378,7 @@ ${content.map((item, index) => {
                           <TooltipContent>Share</TooltipContent>
                         </Tooltip>
                         
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                              <RotateCcw className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Regenerate</TooltipContent>
-                        </Tooltip>
-                        
+                        {/* Volume */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Popover>
@@ -1380,6 +1405,27 @@ ${content.map((item, index) => {
                           <TooltipContent>Volume</TooltipContent>
                         </Tooltip>
                         
+                        {/* Favorite */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                              <Star className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Favorite</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Regenerate */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Regenerate</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* More Options */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <DropdownMenu>
@@ -1389,6 +1435,10 @@ ${content.map((item, index) => {
                                 </button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="bg-popover border-border">
+                                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                                  <Info className="w-4 h-4" />
+                                  View Details
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
                                   <Video className="w-4 h-4" />
                                   Create Video
