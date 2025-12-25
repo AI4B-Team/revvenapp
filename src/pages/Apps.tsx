@@ -101,6 +101,7 @@ const Apps = () => {
   ];
 
   const videoApps = [
+    { name: 'Sessions', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/sessions') },
     { name: 'Video Downloader', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=300&fit=crop', badge: 'AI', onClick: () => navigate('/video-downloader') },
     { name: 'Video Resizer', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop', timestamp: '01:32' },
     { name: 'Motion-Sync', category: 'Video Tools', thumbnail: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=300&fit=crop', badge: 'AI' },

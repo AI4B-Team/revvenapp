@@ -921,12 +921,13 @@ const JoinMeetingModal: React.FC<{
 
 // Main Sessions App Props
 interface SessionsAppProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  standalone?: boolean;
 }
 
 // Main Sessions App Component
-const SessionsApp: React.FC<SessionsAppProps> = ({ isOpen, onClose }) => {
+const SessionsApp: React.FC<SessionsAppProps> = ({ isOpen = true, onClose = () => {}, standalone = false }) => {
   const [activeView, setActiveView] = useState('home');
   const [isInMeeting, setIsInMeeting] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -955,76 +956,90 @@ const SessionsApp: React.FC<SessionsAppProps> = ({ isOpen, onClose }) => {
     setMeetings([...meetings, newMeeting]);
   };
 
+  const content = (
+    <div className={`${standalone ? 'h-full' : 'h-full w-full'} flex`}>
+      {/* Sidebar */}
+      <Sidebar activeView={activeView} onViewChange={setActiveView} />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
+          <div className="flex items-center gap-4">
+            {!standalone && (
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+            <h1 className="text-xl font-semibold text-gray-900 capitalize">
+              {isInMeeting ? 'Session Meeting' : `Sessions - ${activeView}`}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text"
+                placeholder="Search by keywords"
+                className="w-64 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 border border-gray-200"
+              />
+            </div>
+            <Avatar 
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150" 
+              name="User" 
+              size="md"
+            />
+          </div>
+        </header>
+
+        {/* Content Area */}
+        {isInMeeting ? (
+          <MeetingRoom 
+            participants={mockParticipants}
+            onLeaveMeeting={handleLeaveMeeting}
+          />
+        ) : (
+          <HomeView 
+            onStartMeeting={handleStartMeeting}
+            onJoinMeeting={() => setShowJoinModal(true)}
+            onScheduleMeeting={() => setShowScheduleModal(true)}
+            meetings={meetings}
+          />
+        )}
+      </div>
+
+      {/* Modals */}
+      <ScheduleMeetingModal 
+        isOpen={showScheduleModal}
+        onClose={() => setShowScheduleModal(false)}
+        onSave={handleSaveMeeting}
+      />
+      <JoinMeetingModal 
+        isOpen={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        onJoin={() => {
+          setShowJoinModal(false);
+          handleStartMeeting();
+        }}
+      />
+    </div>
+  );
+
+  if (standalone) {
+    return (
+      <div className="h-full w-full bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        {content}
+      </div>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-white text-gray-900 max-w-[95vw] w-[1400px] h-[90vh] p-0 overflow-hidden [&>button]:hidden">
-        <div className="h-full w-full flex">
-          {/* Sidebar */}
-          <Sidebar activeView={activeView} onViewChange={setActiveView} />
-
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col min-w-0">
-            {/* Header */}
-            <header className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-                <h1 className="text-xl font-semibold text-gray-900 capitalize">
-                  {isInMeeting ? 'Session Meeting' : `Sessions - ${activeView}`}
-                </h1>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input 
-                    type="text"
-                    placeholder="Search by keywords"
-                    className="w-64 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 border border-gray-200"
-                  />
-                </div>
-                <Avatar 
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150" 
-                  name="User" 
-                  size="md"
-                />
-              </div>
-            </header>
-
-            {/* Content Area */}
-            {isInMeeting ? (
-              <MeetingRoom 
-                participants={mockParticipants}
-                onLeaveMeeting={handleLeaveMeeting}
-              />
-            ) : (
-              <HomeView 
-                onStartMeeting={handleStartMeeting}
-                onJoinMeeting={() => setShowJoinModal(true)}
-                onScheduleMeeting={() => setShowScheduleModal(true)}
-                meetings={meetings}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Modals */}
-        <ScheduleMeetingModal 
-          isOpen={showScheduleModal}
-          onClose={() => setShowScheduleModal(false)}
-          onSave={handleSaveMeeting}
-        />
-        <JoinMeetingModal 
-          isOpen={showJoinModal}
-          onClose={() => setShowJoinModal(false)}
-          onJoin={() => {
-            setShowJoinModal(false);
-            handleStartMeeting();
-          }}
-        />
+        {content}
       </DialogContent>
     </Dialog>
   );
