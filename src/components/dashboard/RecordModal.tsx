@@ -28,7 +28,7 @@ interface RecordModalProps {
   title?: string;
 }
 
-type RecordingType = 'voiceover' | 'camera' | 'screen' | 'screen-camera' | null;
+type RecordingType = 'voiceover' | 'camera' | 'screen' | 'screen-camera' | 'session' | null;
 
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -689,6 +689,20 @@ export default function RecordModal({
           </div>
         </div>
       )
+    },
+    {
+      id: 'session' as const,
+      label: 'Session',
+      icon: Globe,
+      description: 'Record a live session',
+      gradient: 'from-rose-500/10 to-rose-600/10',
+      hoverGradient: 'from-rose-500/20 to-rose-600/20',
+      iconColor: 'text-rose-500',
+      visual: (
+        <div className="w-14 h-10 rounded-lg bg-gradient-to-br from-rose-400 to-rose-500 flex items-center justify-center">
+          <Globe className="w-5 h-5 text-white" />
+        </div>
+      )
     }
   ];
 
@@ -708,7 +722,7 @@ export default function RecordModal({
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {recordingOptions.map((option) => (
                 <button
                   key={option.id}
