@@ -560,6 +560,38 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                           <TooltipContent side="top" className="text-xs">Edit</TooltipContent>
                         </Tooltip>
 
+                        {/* Hide button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleHideSegment(segment.id);
+                              }}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              {segment.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">{segment.hidden ? 'Show' : 'Hide'}</TooltipContent>
+                        </Tooltip>
+
+                        {/* Copy button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopySegment(segment);
+                              }}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Copy</TooltipContent>
+                        </Tooltip>
+
                         {/* Rephrase button */}
                         <Tooltip>
                           <TooltipTrigger asChild>
