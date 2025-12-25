@@ -1227,19 +1227,19 @@ ${content.map((item, index) => {
                   )}
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
                       <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Users className="w-3.5 h-3.5 text-blue-500" />
+                      <Users className="w-3.5 h-3.5 text-purple-500" />
                       <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Globe className="w-3.5 h-3.5 text-purple-500" />
+                      <Globe className="w-3.5 h-3.5 text-orange-500" />
                       <span>{language}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
-                      <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="font-mono text-emerald-700">{duration}</span>
                     </div>
                   </div>
