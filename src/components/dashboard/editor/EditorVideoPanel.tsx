@@ -45,7 +45,7 @@ interface UploadedMedia {
 
 interface EditorVideoPanelProps {
   onSelectVideo?: (videoUrl: string, thumbnailUrl: string) => void;
-  onOpenReferences?: () => void;
+  onOpenReferences?: (filter?: 'all' | 'images' | 'videos') => void;
   onOpenTranslate?: () => void;
   uploadedMedia?: UploadedMedia[];
   onFileUpload?: (files: FileList) => void;
@@ -311,7 +311,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
           <Button
             variant="outline"
             className="flex items-center gap-2 px-4 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0"
-            onClick={onOpenReferences}
+            onClick={() => onOpenReferences?.('videos')}
           >
             <Upload className="w-4 h-4" />
             <span className="text-sm font-medium">Upload</span>
@@ -412,7 +412,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               className={`bg-white rounded-xl p-6 text-center transition-all cursor-pointer border-2 border-dashed ${
                 isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-400 hover:bg-emerald-50 hover:border-emerald-500'
               }`}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => onOpenReferences ? onOpenReferences('videos') : fileInputRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
