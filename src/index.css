@@ -116,6 +116,12 @@ All colors MUST be HSL.
     50% { transform: scaleY(1); }
   }
 
+  /* Audio wave animation for transcribe page */
+  @keyframes audioWave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.5); }
+  }
+
   /* Small equalizer bars for player */
   @keyframes equalizer {
     0%, 100% { height: 4px; }
