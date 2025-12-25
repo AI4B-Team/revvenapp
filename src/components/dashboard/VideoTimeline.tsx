@@ -1667,6 +1667,45 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                     </div>
                   );
                 })}
+                
+                {/* Add Scene button at the end of video tracks */}
+                {(track.type === 'video' || track.id.includes('video')) && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          // Find the last clip's end time in this track
+                          const lastClip = track.clips.reduce((latest, clip) => {
+                            const clipEnd = clip.startTime + clip.duration;
+                            return clipEnd > (latest?.startTime + latest?.duration || 0) ? clip : latest;
+                          }, track.clips[0]);
+                          const newStartTime = lastClip ? lastClip.startTime + lastClip.duration : 0;
+                          
+                          const newClip: TimelineClip = {
+                            id: `clip-${Date.now()}`,
+                            type: 'video',
+                            name: `Scene ${track.clips.length + 1}`,
+                            startTime: newStartTime,
+                            duration: 5,
+                            thumbnail: undefined,
+                          };
+                          
+                          setTracks(prev => prev.map(t => {
+                            if (t.id !== track.id) return t;
+                            return { ...t, clips: [...t.clips, newClip] };
+                          }));
+                        }}
+                        className="absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg border-2 border-dashed border-gray-400 flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/10 transition-all group/add"
+                        style={{
+                          left: `calc(${((track.clips.reduce((max, clip) => Math.max(max, clip.startTime + clip.duration), 0)) / duration) * 100}% + 8px)`,
+                        }}
+                      >
+                        <Plus className="w-4 h-4 text-gray-400 group-hover/add:text-primary transition-colors" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top"><p>Add Scene</p></TooltipContent>
+                  </Tooltip>
+                )}
                 </div>
               </div>
             </div>
