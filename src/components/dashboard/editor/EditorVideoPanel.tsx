@@ -379,7 +379,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
                 onChange={(e) => setVideoUrl(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
                 placeholder="Paste A Supported Public Media Link"
-                className="w-full px-4 py-2.5 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border-2 border-dashed border-gray-400 text-center placeholder:text-center"
+                className="w-full px-4 py-2.5 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 border-2 border-dashed border-gray-400 hover:border-emerald-500 hover:bg-emerald-50 transition-colors text-center placeholder:text-center"
               />
               <button
                 onClick={handleUrlSubmit}
