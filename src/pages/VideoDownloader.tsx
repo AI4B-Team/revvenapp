@@ -109,7 +109,7 @@ const VideoDownloader = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Video Downloader</h1>
-                  <p className="text-sm text-muted-foreground">Download videos from 50+ platforms</p>
+                  <p className="text-sm text-muted-foreground">Download Videos From 50+ Platforms</p>
                 </div>
               </div>
             </div>
@@ -121,7 +121,7 @@ const VideoDownloader = () => {
             <div className="bg-card rounded-2xl p-8 border border-border mb-8">
               <div className="flex items-center gap-2 mb-6">
                 <Sparkles className="h-5 w-5 text-primary" />
-                <span className="text-foreground font-medium">Paste your video URL</span>
+                <span className="text-foreground font-medium">Paste Your Video Link</span>
               </div>
 
               <div className="flex gap-3">
@@ -252,7 +252,7 @@ const VideoDownloader = () => {
                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <Download className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Ready to download</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Ready To Download</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
                   Paste a video URL above to fetch download options. We support YouTube, TikTok, Instagram, Facebook, Twitter, and 50+ more platforms.
                 </p>
