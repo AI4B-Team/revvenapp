@@ -1235,6 +1235,19 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   <span className="px-1.5 py-0.5 rounded bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wide">Live</span>
                   Real-Time Transcription
                 </div>
+                {/* Audio Wave Graphic */}
+                <div className="mt-4 flex items-center justify-center gap-[3px] h-8">
+                  {[...Array(24)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-all duration-300"
+                      style={{
+                        height: `${Math.sin((i / 24) * Math.PI * 3) * 12 + 14}px`,
+                        animationDelay: `${i * 0.05}s`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </button>
           </div>
