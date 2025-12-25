@@ -20,6 +20,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import SessionsApp from './SessionsApp';
 
 interface RecordModalProps {
   isOpen: boolean;
@@ -64,6 +65,7 @@ export default function RecordModal({
   title = 'Record'
 }: RecordModalProps) {
   const [selectedType, setSelectedType] = useState<RecordingType>(null);
+  const [showSessionsApp, setShowSessionsApp] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -709,40 +711,57 @@ export default function RecordModal({
   // Render type selection view
   if (!selectedType) {
     return (
-      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-4xl p-0 overflow-hidden [&>button]:hidden">
-          <div className="flex items-center justify-between p-5 border-b border-gray-200">
-            <DialogTitle className="text-xl font-bold text-gray-900 whitespace-nowrap">Choose Recording Mode</DialogTitle>
-            <button
-              onClick={handleClose}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {recordingOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => setSelectedType(option.id)}
-                  className={`group relative p-6 rounded-2xl border-2 border-dashed transition-all duration-300 border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-white`}
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 bg-gradient-to-br ${option.gradient} group-hover:${option.hoverGradient}`}>
-                      {option.visual}
-                    </div>
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
-                      {option.label}
-                    </span>
-                  </div>
-                </button>
-              ))}
+      <>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+          <DialogContent className="bg-white border-gray-200 text-gray-900 max-w-4xl p-0 overflow-hidden [&>button]:hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200">
+              <DialogTitle className="text-xl font-bold text-gray-900 whitespace-nowrap">Choose Recording Mode</DialogTitle>
+              <button
+                onClick={handleClose}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-900"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {recordingOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => {
+                      if (option.id === 'session') {
+                        setShowSessionsApp(true);
+                      } else {
+                        setSelectedType(option.id);
+                      }
+                    }}
+                    className={`group relative p-6 rounded-2xl border-2 border-dashed transition-all duration-300 border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-white`}
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 bg-gradient-to-br ${option.gradient} group-hover:${option.hoverGradient}`}>
+                        {option.visual}
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
+                        {option.label}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Sessions App */}
+        <SessionsApp 
+          isOpen={showSessionsApp} 
+          onClose={() => {
+            setShowSessionsApp(false);
+            handleClose();
+          }} 
+        />
+      </>
     );
   }
 
