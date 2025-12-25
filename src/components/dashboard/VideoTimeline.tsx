@@ -261,17 +261,17 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           src: data.url,
         };
 
-        // Create script/text clip
-        const newTextClip: TimelineClip = {
-          id: `text-${clipId}`,
+        // Create transcript clip (word-based)
+        const newTranscriptClip: TimelineClip = {
+          id: `transcript-${clipId}`,
           type: 'text',
-          name: `${data.name || 'Video'} Script`,
+          name: `${data.name || 'Video'} Transcript`,
           startTime: Math.max(0, startTime),
           duration: Math.max(1, clipDuration),
-          caption: 'Script placeholder...',
+          caption: 'Transcribing audio...',
         };
 
-        // Update tracks - add video to video track, audio to audio track, text to text/music track
+        // Update tracks - add video to video track, audio to audio track, transcript to transcript track
         setTracks(prev => {
           let updatedTracks = [...prev];
           
@@ -300,20 +300,20 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
             });
           }
           
-          // Find or create text/script track and add text clip
-          const textTrackIndex = updatedTracks.findIndex(t => t.type === 'text' || t.id.includes('music') || t.id.includes('text'));
-          if (textTrackIndex !== -1) {
-            updatedTracks[textTrackIndex] = {
-              ...updatedTracks[textTrackIndex],
-              clips: [...updatedTracks[textTrackIndex].clips, newTextClip]
+          // Find or create transcript track and add transcript clip
+          const transcriptTrackIndex = updatedTracks.findIndex(t => t.id.includes('transcript'));
+          if (transcriptTrackIndex !== -1) {
+            updatedTracks[transcriptTrackIndex] = {
+              ...updatedTracks[transcriptTrackIndex],
+              clips: [...updatedTracks[transcriptTrackIndex].clips, newTranscriptClip]
             };
           } else {
-            // Create new text track if none exists
+            // Create new transcript track if none exists
             updatedTracks.push({
-              id: `text-${Date.now()}`,
+              id: `transcript-${Date.now()}`,
               type: 'text',
-              name: 'Script',
-              clips: [newTextClip]
+              name: 'Transcript',
+              clips: [newTranscriptClip]
             });
           }
           
@@ -1325,65 +1325,127 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                   const isSelected = selectedClip === clip.id;
                   const isHovered = hoveredClip === clip.id;
                   
-                  // For text/audio tracks, render word-based segments like the reference
-                  if (track.type === 'audio' || track.type === 'text') {
-                    // Split caption into words for individual boxes
-                    const words = (clip.caption || clip.name || '').split(' ').filter(w => w.trim());
-                    const wordDuration = clip.duration / Math.max(words.length, 1);
-                    
-                      return (
-                        <div
-                          key={clip.id}
-                          className="absolute top-2 bottom-2 flex items-center gap-0.5"
-                          style={{
-                            left: `${(clip.startTime / duration) * 100}%`,
-                            width: `${(clip.duration / duration) * 100}%`,
-                            transition: dragState?.clipId === clip.id 
-                              ? 'none' 
-                              : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
-                          }}
-                        >
-                        {words.map((word, wordIndex) => {
-                          const isCurrentWord = currentTime >= clip.startTime + (wordIndex * wordDuration) && 
-                                               currentTime < clip.startTime + ((wordIndex + 1) * wordDuration);
-                          return (
-                            <div
-                              key={`${clip.id}-word-${wordIndex}`}
-                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
-                              onMouseEnter={() => setHoveredClip(clip.id)}
-                              onMouseLeave={() => setHoveredClip(null)}
-                              className={`h-full flex items-center justify-center px-2 rounded border transition-all cursor-grab active:cursor-grabbing ${
-                                isCurrentWord
-                                  ? 'bg-gray-800 border-gray-600 text-white'
-                                  : isSelected
-                                    ? 'bg-gray-200 border-gray-400 text-gray-800'
-                                    : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
-                              } ${track.locked ? 'cursor-not-allowed' : ''}`}
-                              style={{ 
-                                flex: `0 0 auto`,
-                                minWidth: 'fit-content',
-                                maxWidth: `${(wordDuration / duration) * 100 * 1.5}%`
-                              }}
-                            >
-                              <span className="text-xs font-medium whitespace-nowrap">{word}</span>
-                              {/* Show duration on current word */}
-                              {isCurrentWord && (
-                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-gray-800 text-white text-[9px] font-mono rounded whitespace-nowrap z-30">
-                                  {wordDuration.toFixed(2)}s
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                        {/* Delete button and resize handles for entire clip */}
+                  // For AUDIO tracks - show waveform visualization
+                  if (track.type === 'audio' || track.id.includes('audio')) {
+                    return (
+                      <div
+                        key={clip.id}
+                        onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
+                        onMouseEnter={() => setHoveredClip(clip.id)}
+                        onMouseLeave={() => setHoveredClip(null)}
+                        className={`absolute top-1 bottom-1 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden ${
+                          isSelected 
+                            ? 'ring-2 ring-violet-400 ring-offset-1 ring-offset-gray-100' 
+                            : isHovered
+                              ? 'ring-1 ring-violet-300'
+                              : ''
+                        } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                        style={{
+                          left: `${(clip.startTime / duration) * 100}%`,
+                          width: `${(clip.duration / duration) * 100}%`,
+                          transition: dragState?.clipId === clip.id 
+                            ? 'none' 
+                            : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                      >
+                        {/* Audio clip background - lavender/purple like reference */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-violet-100 to-violet-200" />
+                        
+                        {/* Waveform visualization */}
+                        <div className="absolute inset-0 flex items-center justify-center px-1">
+                          {(clip.waveform || Array.from({ length: 80 }, () => Math.random() * 0.8 + 0.2)).map((amplitude, i) => {
+                            const isAtPlayhead = currentTime >= clip.startTime + (i / 80) * clip.duration && 
+                                                 currentTime < clip.startTime + ((i + 1) / 80) * clip.duration;
+                            return (
+                              <div
+                                key={i}
+                                className={`flex-1 mx-px rounded-full transition-colors ${
+                                  isAtPlayhead ? 'bg-violet-900' : 'bg-violet-600/80'
+                                }`}
+                                style={{ 
+                                  height: `${Math.max(4, amplitude * 100)}%`,
+                                  minWidth: '2px',
+                                  maxWidth: '4px',
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                        
+                        {/* Time indicator */}
+                        <div className="absolute bottom-0.5 left-1 px-1 py-0.5 bg-violet-900/80 rounded text-[9px] text-white font-mono">
+                          {clip.duration.toFixed(1)}s
+                        </div>
+                        
+                        {/* Delete button and resize handles */}
                         {!track.locked && (isSelected || isHovered) && (
                           <>
-                            {/* Delete button - positioned at top right */}
                             <button
-                              onMouseDown={(e) => {
+                              onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
+                                setTracks(prev => prev.map(t => ({
+                                  ...t,
+                                  clips: t.clips.filter(c => c.id !== clip.id)
+                                })));
+                                setSelectedClip(null);
                               }}
+                              className="absolute -top-1 -right-1 p-1.5 bg-red-500 hover:bg-red-600 rounded-full text-white shadow-lg z-50 pointer-events-auto transition-transform hover:scale-110"
+                              title="Delete clip"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
+                              className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-500/50 hover:bg-violet-600/70 rounded-l z-20"
+                            />
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
+                              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-500/50 hover:bg-violet-600/70 rounded-r z-20"
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // For TEXT tracks - show text overlay with T icon (like reference image top row)
+                  if (track.type === 'text' || track.id.includes('text') || track.id.includes('caption')) {
+                    return (
+                      <div
+                        key={clip.id}
+                        onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
+                        onMouseEnter={() => setHoveredClip(clip.id)}
+                        onMouseLeave={() => setHoveredClip(null)}
+                        className={`absolute top-1 bottom-1 rounded-lg cursor-grab active:cursor-grabbing overflow-hidden border ${
+                          isSelected 
+                            ? 'ring-2 ring-gray-500 border-gray-400 bg-gray-50' 
+                            : isHovered
+                              ? 'ring-1 ring-gray-400 border-gray-300 bg-gray-50'
+                              : 'border-gray-300 bg-white'
+                        } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                        style={{
+                          left: `${(clip.startTime / duration) * 100}%`,
+                          width: `${(clip.duration / duration) * 100}%`,
+                          transition: dragState?.clipId === clip.id 
+                            ? 'none' 
+                            : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                      >
+                        {/* Text clip content */}
+                        <div className="h-full flex items-center px-2 gap-2">
+                          <span className="text-gray-600 font-serif font-bold text-sm flex-shrink-0">T</span>
+                          <span className="text-xs text-gray-800 font-medium truncate">
+                            {clip.caption || clip.name}
+                          </span>
+                        </div>
+                        
+                        {/* Delete button and resize handles */}
+                        {!track.locked && (isSelected || isHovered) && (
+                          <>
+                            <button
+                              onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -1405,6 +1467,82 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
                             <div 
                               onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
                               className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-gray-400/50 hover:bg-gray-500/70 rounded-r z-20"
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // For TRANSCRIPT/MUSIC tracks - show word-based segments (like reference middle row)
+                  if (track.id.includes('music') || track.id.includes('transcript')) {
+                    const words = (clip.caption || clip.name || '').split(' ').filter(w => w.trim());
+                    const wordDuration = clip.duration / Math.max(words.length, 1);
+                    
+                    return (
+                      <div
+                        key={clip.id}
+                        className="absolute top-2 bottom-2 flex items-center gap-0.5"
+                        style={{
+                          left: `${(clip.startTime / duration) * 100}%`,
+                          width: `${(clip.duration / duration) * 100}%`,
+                          transition: dragState?.clipId === clip.id 
+                            ? 'none' 
+                            : 'left 0.15s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                      >
+                        {words.map((word, wordIndex) => {
+                          const isCurrentWord = currentTime >= clip.startTime + (wordIndex * wordDuration) && 
+                                               currentTime < clip.startTime + ((wordIndex + 1) * wordDuration);
+                          return (
+                            <div
+                              key={`${clip.id}-word-${wordIndex}`}
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'move')}
+                              onMouseEnter={() => setHoveredClip(clip.id)}
+                              onMouseLeave={() => setHoveredClip(null)}
+                              className={`h-full flex items-center justify-center px-2 rounded border transition-all cursor-grab active:cursor-grabbing ${
+                                isCurrentWord
+                                  ? 'bg-violet-600 border-violet-500 text-white'
+                                  : isSelected
+                                    ? 'bg-violet-100 border-violet-300 text-violet-800'
+                                    : 'bg-violet-50 border-violet-200 text-violet-700 hover:border-violet-300'
+                              } ${track.locked ? 'cursor-not-allowed' : ''}`}
+                              style={{ 
+                                flex: `0 0 auto`,
+                                minWidth: 'fit-content',
+                                maxWidth: `${(wordDuration / duration) * 100 * 1.5}%`
+                              }}
+                            >
+                              <span className="text-xs font-medium whitespace-nowrap">{word}</span>
+                            </div>
+                          );
+                        })}
+                        {/* Delete button and resize handles for entire clip */}
+                        {!track.locked && (isSelected || isHovered) && (
+                          <>
+                            <button
+                              onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setTracks(prev => prev.map(t => ({
+                                  ...t,
+                                  clips: t.clips.filter(c => c.id !== clip.id)
+                                })));
+                                setSelectedClip(null);
+                              }}
+                              className="absolute -top-1 -right-1 p-1.5 bg-red-500 hover:bg-red-600 rounded-full text-white shadow-lg z-50 pointer-events-auto transition-transform hover:scale-110"
+                              title="Delete clip"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-left')}
+                              className="absolute left-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-400/50 hover:bg-violet-500/70 rounded-l z-20"
+                            />
+                            <div 
+                              onMouseDown={(e) => handleClipDragStart(e, clip.id, track.id, 'resize-right')}
+                              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-ew-resize bg-violet-400/50 hover:bg-violet-500/70 rounded-r z-20"
                             />
                           </>
                         )}
