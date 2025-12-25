@@ -1236,14 +1236,13 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   Real-Time Transcription
                 </div>
                 {/* Audio Wave Graphic */}
-                <div className="mt-4 flex items-center justify-center gap-[3px] h-8">
-                  {[...Array(24)].map((_, i) => (
+                <div className="mt-3 flex items-center justify-center gap-[2px] h-5">
+                  {[...Array(28)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-1 bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-all duration-300"
+                      className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-all duration-300"
                       style={{
-                        height: `${Math.sin((i / 24) * Math.PI * 3) * 12 + 14}px`,
-                        animationDelay: `${i * 0.05}s`,
+                        height: `${Math.sin((i / 28) * Math.PI * 3) * 6 + 8}px`,
                       }}
                     />
                   ))}
