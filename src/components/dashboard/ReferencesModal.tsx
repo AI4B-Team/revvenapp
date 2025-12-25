@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users, Search, Link, Video } from "lucide-react";
+import { Upload, Trash2, Loader2, X, History, Image as ImageIcon, Users, Search, Link, Video, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebookF, FaVimeo } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -34,6 +34,7 @@ interface ReferencesModalProps {
 
 const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, selectedReference, initialSelectedImages = [] }: ReferencesModalProps) => {
   const [activeTab, setActiveTab] = useState('history');
+  const [mediaFilter, setMediaFilter] = useState<'all' | 'images' | 'videos'>('all');
   const [references, setReferences] = useState<any[]>([]);
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
@@ -341,7 +342,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
           <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-1">References</h2>
-              <p className="text-sm text-gray-500">Upload Or Select An Image</p>
+              <p className="text-sm text-gray-500">Upload Or Select A File</p>
             </div>
             <div className="w-64">
               <div className="relative">
@@ -359,40 +360,79 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
 
           {/* Tabs */}
           <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-                  activeTab === 'history'
-                    ? 'text-gray-900'
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <History className="w-4 h-4" />
-                Creations
-              </button>
-              <button
-                onClick={() => setActiveTab('stock')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-                  activeTab === 'stock'
-                    ? 'text-gray-900'
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <ImageIcon className="w-4 h-4" />
-                Stock
-              </button>
-              <button
-                onClick={() => setActiveTab('community')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
-                  activeTab === 'community'
-                    ? 'text-gray-900'
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                Community
-              </button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setActiveTab('history')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'history'
+                      ? 'text-gray-900'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <History className="w-4 h-4" />
+                  Creations
+                </button>
+                <button
+                  onClick={() => setActiveTab('stock')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'stock'
+                      ? 'text-gray-900'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  Stock
+                </button>
+                <button
+                  onClick={() => setActiveTab('community')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${
+                    activeTab === 'community'
+                      ? 'text-gray-900'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  Community
+                </button>
+              </div>
+              
+              {/* Media Filter Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setMediaFilter('all')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                    mediaFilter === 'all'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Filter className="w-3.5 h-3.5" />
+                  All
+                </button>
+                <button
+                  onClick={() => setMediaFilter('images')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                    mediaFilter === 'images'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  Images
+                </button>
+                <button
+                  onClick={() => setMediaFilter('videos')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                    mediaFilter === 'videos'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  Videos
+                </button>
+              </div>
             </div>
           </div>
 
