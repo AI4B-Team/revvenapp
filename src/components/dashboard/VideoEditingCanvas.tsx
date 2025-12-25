@@ -1646,7 +1646,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
             </div>
 
             {/* Sub-tab content */}
-            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={() => setShowReferencesModal(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
+            {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
             {visualsSubTab === 'images' && <EditorImagePanel onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
@@ -1668,7 +1668,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         );
 
       case 'video':
-        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={() => setShowReferencesModal(true)} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />;
+        return <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />;
 
       case 'audio':
         return <EditorAudioPanel />;
