@@ -240,7 +240,8 @@ const TranscriptDetail = () => {
       return;
     }
     const startSeconds = parseTimeToSeconds(startTimeStr);
-    const endSeconds = endTimeStr ? parseTimeToSeconds(endTimeStr) : startSeconds + 5;
+    // Add 1.5 seconds buffer to avoid cutting off final words
+    const endSeconds = endTimeStr ? parseTimeToSeconds(endTimeStr) + 1.5 : startSeconds + 5;
     
     audioRef.current.currentTime = startSeconds;
     setSegmentEndTime(endSeconds);
@@ -1389,19 +1390,13 @@ ${content.map((item, index) => {
                       </Popover>
                       
                       {/* Download Button - last */}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={handleDownload}
-                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Download</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <button 
+                        onClick={handleDownload}
+                        className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center gap-1.5 text-sm font-medium"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
                     </div>
                   </div>
                 </div>
