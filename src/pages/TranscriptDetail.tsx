@@ -1146,656 +1146,759 @@ ${content.map((item, index) => {
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
-        <main className="flex-1 overflow-auto bg-white pb-32">
-          <div className="max-w-6xl mx-auto px-6 py-8">
+        <main className="flex-1 overflow-hidden bg-white">
+          <div className="h-full flex flex-col">
             {/* Back Button */}
-            <button 
-              onClick={() => navigate('/transcribe')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back To Transcripts</span>
-            </button>
-
-            {/* Header */}
-            <div className="flex items-start gap-6 mb-8 pb-6 border-b border-gray-300">
-              <div className="flex items-center gap-4 flex-1 min-w-0">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-7 h-7 text-emerald-500" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    {isEditingTitle ? (
-                      <div className="flex items-center gap-2">
-                        <Input
-                          value={editedTitle}
-                          onChange={(e) => setEditedTitle(e.target.value)}
-                          className="text-2xl font-bold h-10 w-96"
-                          autoFocus
-                        />
-                        <button onClick={handleSaveTitle} className="p-1.5 rounded-lg hover:bg-gray-100 text-emerald-500">
-                          <Check className="w-5 h-5" />
-                        </button>
-                        <button onClick={handleCancelTitleEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="pr-4">
-                        <h1 className="text-2xl font-bold text-gray-900 break-words inline">
-                          {editedTitle}
-                        </h1>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button 
-                                onClick={() => setIsEditingTitle(true)}
-                                className="p-1 ml-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors inline-flex align-middle"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>Rename</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {speakers} {speakers === 1 ? 'Speaker' : 'Speakers'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Globe className="w-4 h-4" />
-                      {language}
-                    </span>
-                  </div>
-                  {/* Translation tabs */}
-                  {selectedTranslation && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <button 
-                        onClick={() => setActiveTranslationTab('original')}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                          activeTranslationTab === 'original'
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        Original
-                      </button>
-                      <button 
-                        onClick={() => setActiveTranslationTab('translated')}
-                        className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                          activeTranslationTab === 'translated'
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                        }`}
-                      >
-                        <Languages className="w-3.5 h-3.5" />
-                        {selectedTranslation}
-                      </button>
-                      <button 
-                        onClick={handleRemoveTranslation}
-                        className={`px-2 py-1.5 rounded-r-full transition-colors ${
-                          activeTranslationTab === 'translated'
-                            ? 'bg-purple-600 text-white hover:bg-purple-700'
-                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                        }`}
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <TooltipProvider>
-                  {/* Create Dropdown Button */}
-                  <DropdownMenu>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <button 
-                            className="px-4 py-2.5 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors flex items-center gap-2"
-                          >
-                            <Wand2 className="w-4 h-4" />
-                            Create
-                            <ChevronDown className="w-4 h-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Create Content</TooltipContent>
-                    </Tooltip>
-                    <DropdownMenuContent align="end" className="w-48 bg-popover border-border">
-                      <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
-                        <Video className="w-4 h-4" />
-                        Video
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
-                        <UserCircle className="w-4 h-4" />
-                        UGC
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
-                        <FileEdit className="w-4 h-4" />
-                        Post
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
-                        <BookOpen className="w-4 h-4" />
-                        Ebook
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Download Button */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleDownload}
-                        className="px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Download</TooltipContent>
-                  </Tooltip>
-
-                  {/* Translate Button */}
-                  <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <PopoverTrigger asChild>
-                          <button 
-                            className="px-4 py-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-2"
-                          >
-                            <Languages className="w-4 h-4" />
-                            Translate
-                          </button>
-                        </PopoverTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Translate</TooltipContent>
-                    </Tooltip>
-                    <PopoverContent className="w-64 p-0 bg-white" align="end">
-                        <div className="p-3 border-b border-gray-200">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <Input
-                            placeholder="Search Languages..."
-                            value={languageSearch}
-                            onChange={(e) => setLanguageSearch(e.target.value)}
-                            className="pl-9"
-                          />
-                        </div>
-                      </div>
-                      <div className="max-h-64 overflow-y-auto">
-                        {filteredLanguages.map(lang => (
-                          <button
-                            key={lang}
-                            onClick={() => handleTranslate(lang)}
-                            disabled={isTranslating}
-                            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                          >
-                            {lang}
-                          </button>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
-                  {/* Copy Icon */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleCopy}
-                        className="p-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Copy Transcript</TooltipContent>
-                  </Tooltip>
-
-                  {/* Share Icon */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleShare}
-                        className="p-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Share</TooltipContent>
-                  </Tooltip>
-
-                  {/* Delete Icon */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleDelete}
-                        className="p-2.5 rounded-xl bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Delete</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+            <div className="px-6 pt-6">
+              <button 
+                onClick={() => navigate('/transcribe')}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">Back To Transcripts</span>
+              </button>
             </div>
-
-            {/* Tabs - Centered */}
-            <div className="flex items-center justify-center gap-1 mb-6 border-b border-gray-300 pb-4">
-              {[
-                { id: 'transcript', label: 'Transcript', icon: FileText },
-                { id: 'summary', label: 'Summary', icon: Sparkles },
-                { id: 'speakers', label: 'Speakers', icon: Users },
-                { id: 'chat', label: 'AI Chat', icon: MessageSquare },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
-                    activeTab === tab.id 
-                      ? 'bg-emerald-500/10 text-emerald-600' 
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Content */}
-            <div className="min-h-[400px]">
-              {activeTab === 'transcript' && (
-                <div className="space-y-3">
-                  {isTranslating && (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
-                      <span className="ml-3 text-gray-500">Translating...</span>
-                    </div>
-                  )}
-                  {!isTranslating && displayContent.map((item, i) => (
-                    <div 
-                      key={i} 
-                      className="group flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer"
-                      onClick={() => jumpToTime(item.time)}
-                    >
-                      <div className="flex-shrink-0 w-20">
-                        <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded hover:bg-emerald-500/20 transition-colors">
-                          {item.time}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-500 mb-1">{item.speaker}</p>
-                        {editingLineIndex === i ? (
-                          <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                            <textarea
-                              value={editedContent[i].text}
-                              onChange={(e) => {
-                                const newContent = [...editedContent];
-                                newContent[i] = { ...newContent[i], text: e.target.value };
-                                setEditedContent(newContent);
+            
+            {/* 2-Column Layout */}
+            <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-6">
+              {/* Left Column - Media Player */}
+              <div className="w-[400px] flex-shrink-0 flex flex-col">
+                <div className="sticky top-0">
+                  {/* Media Player Card */}
+                  <div className="rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
+                    {/* Waveform Visualization Area */}
+                    <div className="relative aspect-square p-8 flex items-center justify-center">
+                      {/* Audio Waveform Visualization */}
+                      <div className="flex items-center justify-center gap-[3px] h-32">
+                        {[...Array(40)].map((_, i) => {
+                          const heightPattern = [
+                            0.3, 0.5, 0.4, 0.6, 0.8, 0.6, 0.9, 0.7, 0.5, 0.8,
+                            1, 0.9, 0.7, 0.5, 0.3, 0.2, 0.3, 0.5, 0.8, 1,
+                            0.8, 0.6, 0.9, 1, 0.8, 0.6, 0.4, 0.3, 0.5, 0.7,
+                            0.9, 1, 0.8, 0.5, 0.3, 0.2, 0.4, 0.6, 0.8, 0.5
+                          ];
+                          const height = heightPattern[i] * 100;
+                          return (
+                            <div
+                              key={i}
+                              className="w-[4px] rounded-full bg-emerald-400/80 transition-all duration-300"
+                              style={{
+                                height: `${height}%`,
+                                animation: isPlaying ? `waveformPulse 1s ease-in-out infinite ${i * 0.05}s` : 'none',
                               }}
-                              className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
-                              rows={2}
-                              autoFocus
                             />
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={() => handleSaveLine(i)}
-                                className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                Save
-                              </button>
-                              <button 
-                                onClick={() => handleCancelLineEdit(i)}
-                                className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-300 transition-colors flex items-center gap-1.5"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-gray-900 leading-relaxed">{renderHighlightedText(item, i)}</p>
-                        )}
+                          );
+                        })}
                       </div>
-                      {editingLineIndex !== i && (
-                        <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigator.clipboard.writeText(item.text);
-                              toast.success('Line copied!');
-                            }}
-                            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-                          >
-                            <Copy className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingLineIndex(i);
-                            }}
-                            className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'summary' && (
-                <div className="w-full">
-                  <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-emerald-500" />
-                        <h3 className="font-semibold text-gray-900">AI Summary</h3>
-                      </div>
-                      {aiSummary && Object.keys(summaryTranslations).length > 0 && (
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <button 
-                            onClick={() => {
-                              summaryTabManuallySelectedRef.current = true;
-                              setActiveSummaryTab('original');
-                            }}
-                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                              activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
-                          >
-                            Original
-                          </button>
-                          {Object.keys(summaryTranslations).map(lang => (
-                            <div key={lang} className="flex items-center">
-                              <button 
-                                onClick={() => {
-                                  summaryTabManuallySelectedRef.current = true;
-                                  setActiveSummaryTab(lang);
-                                }}
-                                className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                                  activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                                }`}
-                              >
-                                <Languages className="w-3.5 h-3.5" />
-                                {lang}
-                              </button>
-                              <button
-                                onClick={() => handleRemoveSummaryTranslation(lang)}
-                                className={`px-2 py-1.5 rounded-r-full text-sm font-medium transition-colors ${
-                                  activeSummaryTab === lang ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                                }`}
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {isGeneratingSummary ? (
-                      <div className="flex items-center gap-2 text-gray-500">
-                        <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                        Generating summary with GPT-4o...
-                      </div>
-                    ) : isTranslatingSummary ? (
-                      <div className="flex items-center gap-2 text-gray-500">
-                        <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                        Translating summary with GPT-4o...
-                      </div>
-                    ) : activeSummaryTab === 'original' ? (
-                      aiSummary ? (
-                        <p key="original-summary" className="text-gray-700 leading-relaxed mb-4">
-                          {aiSummary}
-                        </p>
-                      ) : (
-                        <p className="text-gray-500 italic">No summary available</p>
-                      )
-                    ) : summaryTranslations[activeSummaryTab] ? (
-                      <p key={`translated-summary-${activeSummaryTab}`} className="text-gray-700 leading-relaxed mb-4">
-                        {summaryTranslations[activeSummaryTab]}
-                      </p>
-                    ) : (
-                      <p className="text-gray-500 italic">No translation available</p>
-                    )}
-                    <button 
-                      onClick={() => {
-                        setActiveSummaryTab('original');
-                        // Clear old translations when regenerating summary
-                        setSummaryTranslations({});
-                        if (id) {
-                          localStorage.removeItem(`summary-translations-${id}`);
+                      
+                      <style>{`
+                        @keyframes waveformPulse {
+                          0%, 100% { transform: scaleY(1); }
+                          50% { transform: scaleY(0.6); }
                         }
-                        const transcriptText = originalContent.map(c => c.text).join(' ');
-                        if (transcriptText) generateAISummary(transcriptText);
-                      }}
-                      disabled={isGeneratingSummary || isTranslatingSummary || originalContent.length === 0}
-                      className="text-sm text-emerald-600 hover:text-emerald-500 flex items-center gap-1 disabled:opacity-50"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Regenerate Summary
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="p-5 rounded-xl bg-gray-50 border border-gray-300">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-blue-500" />
-                        Key Points
-                      </h4>
-                      <ul className="space-y-2">
-                        {['Mobile app testing phase completed', 'Launch campaign targeting January', '40% projected user engagement increase'].map((point, i) => (
-                          <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                            <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                            {point}
-                          </li>
-                        ))}
-                      </ul>
+                      `}</style>
+                      
+                      {/* Duration Badge */}
+                      <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-gray-900/80 text-white text-sm font-mono flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {duration}
+                      </div>
+                      
+                      {/* Play Button Overlay */}
+                      {!isPlaying && resolvedAudioUrl && (
+                        <button
+                          onClick={togglePlayPause}
+                          className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors"
+                        >
+                          <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                            <Play className="w-7 h-7 text-emerald-600 ml-1" />
+                          </div>
+                        </button>
+                      )}
                     </div>
-                    <div className="p-5 rounded-xl bg-gray-50 border border-gray-300">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-500" />
-                        Action Items
-                      </h4>
-                      <ul className="space-y-2">
-                        {['Finalize Q1 resource allocation', 'Schedule follow-up meeting', 'Review marketing materials'].map((item, i) => (
-                          <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                            <div className="w-4 h-4 rounded border border-amber-500/50 flex-shrink-0 mt-0.5" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    
+                    {/* Playback Controls */}
+                    {resolvedAudioUrl && (
+                      <div className="p-4 bg-white/80 border-t border-gray-200/50">
+                        <div className="flex items-center gap-3 mb-3">
+                          <button 
+                            onClick={togglePlayPause}
+                            className="w-10 h-10 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0"
+                          >
+                            {isPlaying ? (
+                              <Pause className="w-5 h-5 text-white" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white ml-0.5" />
+                            )}
+                          </button>
+                          
+                          <span className="text-xs text-gray-600 font-mono min-w-[36px]">{formatTime(currentTime)}</span>
+                          
+                          <div 
+                            ref={progressBarRef}
+                            className="flex-1 h-2 bg-gray-200 rounded-full cursor-pointer relative group"
+                            onMouseDown={handleDragStart}
+                            onClick={handleSeek}
+                          >
+                            <div 
+                              className="h-full bg-emerald-500 rounded-full" 
+                              style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
+                            />
+                            <div 
+                              className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow border-2 border-emerald-500 hover:scale-125 transition-transform ${isDragging ? 'scale-125' : ''}`}
+                              style={{ left: `calc(${isValidDuration(audioDuration) ? (currentTime / audioDuration) * 100 : 0}% - 6px)` }}
+                            />
+                          </div>
+                          
+                          <span className="text-xs text-gray-600 font-mono min-w-[36px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
+                        </div>
+                        
+                        {/* Speed Control */}
+                        <div className="flex items-center justify-center gap-2">
+                          <select 
+                            value={playbackSpeed}
+                            onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
+                            className="px-2 py-1 rounded-lg bg-gray-100 border-0 text-xs text-gray-700 focus:outline-none cursor-pointer hover:bg-gray-200 transition-colors"
+                          >
+                            <option value={0.5}>0.5x</option>
+                            <option value={0.75}>0.75x</option>
+                            <option value={1}>1x</option>
+                            <option value={1.25}>1.25x</option>
+                            <option value={1.5}>1.5x</option>
+                            <option value={2}>2x</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="p-5 rounded-xl bg-gray-50 border border-gray-300">
-                    <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      <Languages className="w-4 h-4 text-purple-500" />
-                      Translate Summary
-                    </h4>
-                    <div className="flex items-center gap-3">
-                      <select 
-                        value={selectedSummaryLang}
-                        onChange={(e) => setSelectedSummaryLang(e.target.value)}
-                        className="flex-1 px-3 py-2 rounded-xl bg-white border border-gray-300 text-sm text-gray-700 focus:outline-none focus:border-emerald-500"
+                  
+                  {/* Title & Info */}
+                  <div className="mt-4">
+                    <div className="flex items-start gap-2">
+                      {isEditingTitle ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            value={editedTitle}
+                            onChange={(e) => setEditedTitle(e.target.value)}
+                            className="text-lg font-semibold h-9"
+                            autoFocus
+                          />
+                          <button onClick={handleSaveTitle} className="p-1.5 rounded-lg hover:bg-gray-100 text-emerald-500">
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button onClick={handleCancelTitleEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex-1">
+                          <h2 className="text-lg font-semibold text-gray-900 leading-tight">
+                            {editedTitle}
+                            <button 
+                              onClick={() => setIsEditingTitle(true)}
+                              className="p-1 ml-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors inline-flex align-middle"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          </h2>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <p className="text-sm text-gray-500 mt-1">
+                      {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2 mt-4">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleDownload}
+                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Download</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                              <Star className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Favorite</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleShare}
+                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Share</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Regenerate</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                                  <Volume2 className="w-4 h-4" />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-12 p-3 bg-white border-gray-200" side="top">
+                                <div className="relative h-24 flex items-center justify-center">
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={volume}
+                                    onChange={(e) => setVolume(parseInt(e.target.value))}
+                                    className="w-20 h-1.5 bg-gray-200 rounded-full cursor-pointer appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-500 [&::-webkit-slider-thumb]:rounded-full"
+                                    style={{ transform: 'rotate(-90deg)' }}
+                                  />
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </TooltipTrigger>
+                          <TooltipContent>Volume</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
+                                  <MoreVertical className="w-4 h-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-popover border-border">
+                                <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
+                                  <Video className="w-4 h-4" />
+                                  Create Video
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
+                                  <UserCircle className="w-4 h-4" />
+                                  Create UGC
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleCopy} className="flex items-center gap-2 cursor-pointer">
+                                  <Copy className="w-4 h-4" />
+                                  Copy Transcript
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 cursor-pointer text-red-600">
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TooltipTrigger>
+                          <TooltipContent>More</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    
+                    {/* No Audio State */}
+                    {!resolvedAudioUrl && (
+                      <button
+                        onClick={() => attachAudioInputRef.current?.click()}
+                        disabled={isUploadingAudio}
+                        className="mt-4 w-full px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                       >
-                        {LANGUAGES.map(lang => (
-                          <option key={lang} value={lang}>{lang}</option>
-                        ))}
-                      </select>
-                      <button 
-                        onClick={() => translateSummary(selectedSummaryLang)}
-                        disabled={isTranslatingSummary || !aiSummary}
-                        className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-600 text-sm font-medium hover:bg-purple-500/30 transition-colors disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {isTranslatingSummary && (
-                          <div className="w-3 h-3 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                        {isUploadingAudio ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            Attach Audio
+                          </>
                         )}
-                        Translate
                       </button>
-                    </div>
+                    )}
                   </div>
                 </div>
-              )}
-
-              {activeTab === 'speakers' && (
-                <div className="w-full">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Speakers</h3>
-                  <p className="text-gray-500 mb-6">Identify & Label Speakers For Better Organization</p>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-8">
-                    {speakerData.slice(0, speakers).map((speaker) => (
-                      <div key={speaker.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-300">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${speaker.bgLight} ${speaker.textColor}`}>
-                          <User className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            value={speakerNames[speaker.id] || speaker.name}
-                            onChange={(e) => handleSpeakerNameChange(speaker.id, e.target.value)}
-                            onBlur={() => {
-                              // Ensure changes are saved on blur
-                              if (id && Object.keys(speakerNames).length > 0) {
-                                localStorage.setItem(`speaker-names-${id}`, JSON.stringify(speakerNames));
-                              }
-                            }}
-                            className="w-full bg-transparent text-gray-900 font-medium focus:outline-none border-b border-transparent focus:border-emerald-500 transition-colors"
-                            placeholder={speaker.name}
-                          />
-                          <p className="text-xs text-gray-500 mt-0.5">Spoke For ~{speaker.minutes} minutes</p>
-                        </div>
-                        <button 
-                          onClick={() => handleIdentifyVoice(speaker.id)}
-                          disabled={identifyingVoice === speaker.id}
-                          className="px-3 py-1.5 rounded-lg bg-gray-100 border border-gray-300 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                        >
-                          {identifyingVoice === speaker.id ? (
-                            <>
-                              <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                              Identifying...
-                            </>
-                          ) : (
-                            <>
-                              <Mic className="w-3.5 h-3.5" />
-                              Identify Voice
-                            </>
-                          )}
-                        </button>
-                      </div>
+              </div>
+              
+              {/* Right Column - Transcript Content */}
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Header with tabs and actions */}
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+                  {/* Tabs */}
+                  <div className="flex items-center gap-1">
+                    {[
+                      { id: 'transcript', label: 'Transcript', icon: FileText },
+                      { id: 'summary', label: 'Summary', icon: Sparkles },
+                      { id: 'speakers', label: 'Speakers', icon: Users },
+                      { id: 'chat', label: 'AI Chat', icon: MessageSquare },
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-all ${
+                          activeTab === tab.id 
+                            ? 'bg-emerald-500/10 text-emerald-600' 
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                        }`}
+                      >
+                        <tab.icon className="w-4 h-4" />
+                        {tab.label}
+                      </button>
                     ))}
                   </div>
-
-                  {/* Speaker Time Chart */}
-                  <div className="p-5 rounded-xl bg-gray-50 border border-gray-300">
-                    <h4 className="text-sm font-medium text-gray-900 mb-4">Speaking Time Distribution</h4>
-                    <div className="space-y-3">
-                      {speakerData.slice(0, speakers).map((speaker) => (
-                        <div key={speaker.id} className="flex items-center gap-3">
-                          <div className="w-24 text-sm text-gray-600">{speakerNames[speaker.id] || speaker.name}</div>
-                          <div className="flex-1 h-6 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${speaker.color} rounded-full transition-all duration-500`}
-                              style={{ width: `${(speaker.minutes / totalSpeakingMinutes) * 100}%` }}
+                  
+                  {/* Right Actions */}
+                  <div className="flex items-center gap-2">
+                    {/* Translation tabs */}
+                    {selectedTranslation && (
+                      <div className="flex items-center gap-1 mr-2">
+                        <button 
+                          onClick={() => setActiveTranslationTab('original')}
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                            activeTranslationTab === 'original'
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          Original
+                        </button>
+                        <button 
+                          onClick={() => setActiveTranslationTab('translated')}
+                          className={`px-2.5 py-1 rounded-l-full text-xs font-medium flex items-center gap-1 transition-colors ${
+                            activeTranslationTab === 'translated'
+                              ? 'bg-purple-500 text-white'
+                              : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                          }`}
+                        >
+                          <Languages className="w-3 h-3" />
+                          {selectedTranslation}
+                        </button>
+                        <button 
+                          onClick={handleRemoveTranslation}
+                          className={`px-1.5 py-1 rounded-r-full transition-colors ${
+                            activeTranslationTab === 'translated'
+                              ? 'bg-purple-600 text-white hover:bg-purple-700'
+                              : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                          }`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Create Button */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="px-3 py-1.5 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5">
+                          <Wand2 className="w-3.5 h-3.5" />
+                          Create
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
+                        <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
+                          <Video className="w-4 h-4" />
+                          Video
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
+                          <UserCircle className="w-4 h-4" />
+                          UGC
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
+                          <FileEdit className="w-4 h-4" />
+                          Post
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
+                          <BookOpen className="w-4 h-4" />
+                          Ebook
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    {/* Translate Button */}
+                    <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
+                      <PopoverTrigger asChild>
+                        <button className="px-3 py-1.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1.5">
+                          <Languages className="w-3.5 h-3.5" />
+                          Translate
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-0 bg-white" align="end">
+                        <div className="p-3 border-b border-gray-200">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                              placeholder="Search Languages..."
+                              value={languageSearch}
+                              onChange={(e) => setLanguageSearch(e.target.value)}
+                              className="pl-9"
                             />
                           </div>
-                          <div className="w-16 text-sm text-gray-500 text-right">{speaker.minutes} min</div>
+                        </div>
+                        <div className="max-h-64 overflow-y-auto">
+                          {filteredLanguages.map(lang => (
+                            <button
+                              key={lang}
+                              onClick={() => handleTranslate(lang)}
+                              disabled={isTranslating}
+                              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                            >
+                              {lang}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto">
+                  {activeTab === 'transcript' && (
+                    <div className="space-y-3 pr-2">
+                      {isTranslating && (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
+                          <span className="ml-3 text-gray-500">Translating...</span>
+                        </div>
+                      )}
+                      {!isTranslating && displayContent.map((item, i) => (
+                        <div 
+                          key={i} 
+                          className="group flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+                          onClick={() => jumpToTime(item.time)}
+                        >
+                          <div className="flex-shrink-0 w-16">
+                            <span className="text-xs font-mono text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded hover:bg-emerald-500/20 transition-colors">
+                              {item.time}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-500 mb-1">{item.speaker}</p>
+                            {editingLineIndex === i ? (
+                              <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+                                <textarea
+                                  value={editedContent[i].text}
+                                  onChange={(e) => {
+                                    const newContent = [...editedContent];
+                                    newContent[i] = { ...newContent[i], text: e.target.value };
+                                    setEditedContent(newContent);
+                                  }}
+                                  className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
+                                  rows={2}
+                                  autoFocus
+                                />
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={() => handleSaveLine(i)}
+                                    className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                    Save
+                                  </button>
+                                  <button 
+                                    onClick={() => handleCancelLineEdit(i)}
+                                    className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-300 transition-colors flex items-center gap-1.5"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-gray-900 leading-relaxed">{renderHighlightedText(item, i)}</p>
+                            )}
+                          </div>
+                          {editingLineIndex !== i && (
+                            <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(item.text);
+                                  toast.success('Line copied!');
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingLineIndex(i);
+                                }}
+                                className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Total Speaking Time</span>
-                        <span className="font-medium text-gray-900">{totalSpeakingMinutes} minutes</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  )}
 
-              {activeTab === 'chat' && (
-                <div className="max-w-3xl w-full">
-                  {/* Chat Messages */}
-                  <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
-                    <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
-                      <p className="text-sm text-emerald-700">
-                        Ask me anything about this transcript! I can help you find specific information, extract insights, or answer questions about what was discussed.
-                      </p>
-                    </div>
-                    
-                    {chatMessages.map((msg, i) => (
-                      <div 
-                        key={i} 
-                        className={`p-4 rounded-xl max-w-md ${
-                          msg.role === 'user' 
-                            ? 'bg-gray-100 border border-gray-300 ml-auto' 
-                            : 'bg-emerald-500/10 border border-emerald-500/20'
-                        }`}
-                      >
-                        <p className={`text-sm ${msg.role === 'user' ? 'text-gray-700' : 'text-emerald-700'}`}>
-                          {msg.content}
-                        </p>
+                  {activeTab === 'summary' && (
+                    <div className="pr-2">
+                      <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-emerald-500" />
+                            <h3 className="font-semibold text-gray-900">AI Summary</h3>
+                          </div>
+                          {aiSummary && Object.keys(summaryTranslations).length > 0 && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button 
+                                onClick={() => {
+                                  summaryTabManuallySelectedRef.current = true;
+                                  setActiveSummaryTab('original');
+                                }}
+                                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                                  activeSummaryTab === 'original' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                              >
+                                Original
+                              </button>
+                              {Object.keys(summaryTranslations).map(lang => (
+                                <div key={lang} className="flex items-center">
+                                  <button 
+                                    onClick={() => {
+                                      summaryTabManuallySelectedRef.current = true;
+                                      setActiveSummaryTab(lang);
+                                    }}
+                                    className={`px-3 py-1.5 rounded-l-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                                      activeSummaryTab === lang ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                                    }`}
+                                  >
+                                    <Languages className="w-3.5 h-3.5" />
+                                    {lang}
+                                  </button>
+                                  <button
+                                    onClick={() => handleRemoveSummaryTranslation(lang)}
+                                    className={`px-2 py-1.5 rounded-r-full text-sm font-medium transition-colors ${
+                                      activeSummaryTab === lang ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                                    }`}
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {isGeneratingSummary ? (
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                            <span className="text-gray-600">Generating summary...</span>
+                          </div>
+                        ) : aiSummary ? (
+                          <p className="text-gray-700 leading-relaxed">
+                            {activeSummaryTab === 'original' ? aiSummary : summaryTranslations[activeSummaryTab] || aiSummary}
+                          </p>
+                        ) : (
+                          <p className="text-gray-500">No summary available. Click regenerate to generate one.</p>
+                        )}
+                        
+                        <button 
+                          onClick={() => generateAISummary(originalContent.map(c => c.text).join(' '))}
+                          disabled={isGeneratingSummary}
+                          className="mt-4 text-sm text-emerald-600 hover:text-emerald-500 flex items-center gap-1 disabled:opacity-50"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          Regenerate Summary
+                        </button>
                       </div>
-                    ))}
-                    
-                    {isChatLoading && (
-                      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
-                        <div className="flex items-center gap-2 text-emerald-600">
-                          <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                          <span className="text-sm">Thinking...</span>
+
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
+                          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4 text-blue-500" />
+                            Key Points
+                          </h4>
+                          <ul className="space-y-2">
+                            {['Main topic discussed', 'Key decisions made', 'Action items identified'].map((point, i) => (
+                              <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                                {point}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
+                          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-amber-500" />
+                            Action Items
+                          </h4>
+                          <ul className="space-y-2">
+                            {['Follow up on discussion', 'Schedule next meeting', 'Review materials'].map((item, i) => (
+                              <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                <div className="w-4 h-4 rounded border border-amber-500/30 flex-shrink-0 mt-0.5" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  {/* Chat Input */}
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && sendChatMessage(chatInput)}
-                      placeholder="Ask a question about this transcript..."
-                      className="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500"
-                      disabled={isChatLoading}
-                    />
-                    <button 
-                      onClick={() => sendChatMessage(chatInput)}
-                      disabled={isChatLoading || !chatInput.trim()}
-                      className="px-4 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50"
-                    >
-                      <Wand2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                  
-                  {/* Quick Suggestions */}
-                  <div className="flex items-center gap-2 mt-3 flex-wrap">
-                    <span className="text-xs text-gray-500">Try:</span>
-                    {['What was decided?', 'Action items', 'Key metrics', 'Main topics'].map((q, i) => (
-                      <button 
-                        key={i} 
-                        onClick={() => sendChatMessage(q)}
-                        disabled={isChatLoading}
-                        className="px-3 py-1 rounded-lg bg-gray-100 border border-gray-300 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors disabled:opacity-50"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
+
+                      <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <Languages className="w-4 h-4 text-purple-500" />
+                          Translate Summary
+                        </h4>
+                        <div className="flex items-center gap-3">
+                          <select 
+                            value={selectedSummaryLang}
+                            onChange={(e) => setSelectedSummaryLang(e.target.value)}
+                            className="flex-1 px-3 py-2 rounded-xl bg-white border border-gray-200 text-sm text-gray-700 focus:outline-none"
+                          >
+                            {LANGUAGES.map(lang => (
+                              <option key={lang} value={lang}>{lang}</option>
+                            ))}
+                          </select>
+                          <button 
+                            onClick={() => translateSummary(selectedSummaryLang)}
+                            disabled={isTranslatingSummary || !aiSummary}
+                            className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-600 text-sm font-medium hover:bg-purple-500/30 transition-colors disabled:opacity-50"
+                          >
+                            {isTranslatingSummary ? 'Translating...' : 'Translate'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'speakers' && (
+                    <div className="pr-2">
+                      <p className="text-gray-500 mb-6">Identify and label speakers for better organization</p>
+                      <div className="space-y-4">
+                        {speakerData.map((speaker) => (
+                          <div key={speaker.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${speaker.bgLight}`}>
+                              <User className={`w-5 h-5 ${speaker.textColor}`} />
+                            </div>
+                            <div className="flex-1">
+                              <input
+                                type="text"
+                                value={speakerNames[speaker.id] || `Speaker ${speaker.id}`}
+                                onChange={(e) => handleSpeakerNameChange(speaker.id, e.target.value)}
+                                className="w-full bg-transparent text-gray-900 font-medium focus:outline-none"
+                              />
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                Spoke for ~{speaker.minutes} minutes ({Math.round((speaker.minutes / totalSpeakingMinutes) * 100)}%)
+                              </p>
+                            </div>
+                            <button 
+                              onClick={() => handleIdentifyVoice(speaker.id)}
+                              disabled={identifyingVoice === speaker.id}
+                              className="px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors disabled:opacity-50"
+                            >
+                              {identifyingVoice === speaker.id ? (
+                                <span className="flex items-center gap-1">
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  Identifying...
+                                </span>
+                              ) : (
+                                'Identify Voice'
+                              )}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'chat' && (
+                    <div className="h-full flex flex-col pr-2">
+                      {/* Chat Messages */}
+                      <div className="flex-1 space-y-4 mb-4 overflow-y-auto">
+                        {chatMessages.length === 0 && (
+                          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
+                            <p className="text-sm text-emerald-700">
+                              Ask me anything about this transcript! I can help you find specific information, extract insights, or answer questions about what was discussed.
+                            </p>
+                          </div>
+                        )}
+                        
+                        {chatMessages.map((msg, i) => (
+                          <div 
+                            key={i} 
+                            className={`p-4 rounded-xl max-w-md ${
+                              msg.role === 'user' 
+                                ? 'bg-gray-100 border border-gray-200 ml-auto' 
+                                : 'bg-emerald-500/10 border border-emerald-500/20'
+                            }`}
+                          >
+                            <p className={`text-sm ${msg.role === 'user' ? 'text-gray-700' : 'text-emerald-700'}`}>
+                              {msg.content}
+                            </p>
+                          </div>
+                        ))}
+                        
+                        {isChatLoading && (
+                          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 max-w-md">
+                            <div className="flex items-center gap-2 text-emerald-600">
+                              <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                              <span className="text-sm">Thinking...</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Chat Input */}
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && sendChatMessage(chatInput)}
+                          placeholder="Ask a question about this transcript..."
+                          className="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                          disabled={isChatLoading}
+                        />
+                        <button 
+                          onClick={() => sendChatMessage(chatInput)}
+                          disabled={isChatLoading || !chatInput.trim()}
+                          className="px-4 py-3 rounded-xl bg-emerald-500 text-white font-medium hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                        >
+                          <Wand2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                      
+                      {/* Quick Suggestions */}
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
+                        <span className="text-xs text-gray-500">Try:</span>
+                        {['What was decided?', 'Action items', 'Key metrics', 'Main topics'].map((q, i) => (
+                          <button 
+                            key={i} 
+                            onClick={() => sendChatMessage(q)}
+                            disabled={isChatLoading}
+                            className="px-3 py-1 rounded-lg bg-gray-100 border border-gray-200 text-xs text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors disabled:opacity-50"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </main>
@@ -1814,324 +1917,6 @@ ${content.map((item, index) => {
           className="hidden"
         />
 
-        {/* Fixed Audio Player at Bottom - Dark Sleek Design */}
-        <div className={`fixed bottom-0 right-0 bg-[#1a1f2e] border-t border-gray-800 py-3 px-4 z-50 transition-all duration-300 ${isSidebarCollapsed ? 'left-16' : 'left-64'}`}>
-          {resolvedAudioUrl ? (
-            <div className="flex items-center gap-4">
-              {/* Animated Audio Waves */}
-              <div className="flex items-center gap-1 h-8">
-                <div
-                  className="w-1 rounded-full bg-emerald-500"
-                  style={{
-                    height: isPlaying ? '24px' : '8px',
-                    animation: isPlaying ? 'audioWave1 0.4s ease-in-out infinite' : 'none',
-                  }}
-                />
-                <div
-                  className="w-1 rounded-full bg-emerald-500"
-                  style={{
-                    height: isPlaying ? '16px' : '12px',
-                    animation: isPlaying ? 'audioWave2 0.4s ease-in-out infinite 0.1s' : 'none',
-                  }}
-                />
-                <div
-                  className="w-1 rounded-full bg-emerald-500"
-                  style={{
-                    height: isPlaying ? '20px' : '10px',
-                    animation: isPlaying ? 'audioWave3 0.4s ease-in-out infinite 0.2s' : 'none',
-                  }}
-                />
-                <style>{`
-                  @keyframes audioWave1 {
-                    0%, 100% { height: 8px; }
-                    50% { height: 24px; }
-                  }
-                  @keyframes audioWave2 {
-                    0%, 100% { height: 16px; }
-                    50% { height: 8px; }
-                  }
-                  @keyframes audioWave3 {
-                    0%, 100% { height: 12px; }
-                    50% { height: 28px; }
-                  }
-                `}</style>
-              </div>
-
-              {/* Left: Title & Badge */}
-              <div className="flex items-center gap-3 min-w-[180px] max-w-[220px]">
-                <div className="flex flex-col">
-                  <span className="text-sm text-white font-medium truncate max-w-[200px]">{editedTitle}</span>
-                  <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded w-fit">Transcription</span>
-                </div>
-              </div>
-
-              {/* Center: Play Button & Progress */}
-              <div className="flex-1 flex items-center gap-4">
-                <button 
-                  onClick={togglePlayPause}
-                  className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors flex-shrink-0 shadow-lg"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-5 h-5 text-white" />
-                  ) : (
-                    <Play className="w-5 h-5 text-white ml-0.5" />
-                  )}
-                </button>
-                
-                <span className="text-sm text-white font-mono min-w-[40px]">{formatTime(currentTime)}</span>
-                
-                <div 
-                  ref={progressBarRef}
-                  className="flex-1 h-4 bg-transparent cursor-pointer relative group flex items-center"
-                  onMouseDown={handleDragStart}
-                  onClick={handleSeek}
-                >
-                  {/* Track background */}
-                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 bg-gray-600 rounded-full" />
-                  {/* Progress fill */}
-                  <div 
-                    className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 bg-white rounded-full" 
-                    style={{ width: isValidDuration(audioDuration) ? `${(currentTime / audioDuration) * 100}%` : '0%' }}
-                  />
-                  {/* Draggable handle */}
-                  <div 
-                    className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-emerald-500 hover:scale-125 transition-transform ${isDragging ? 'scale-125' : ''}`}
-                    style={{ left: `calc(${isValidDuration(audioDuration) ? (currentTime / audioDuration) * 100 : 0}% - 8px)` }}
-                  />
-                </div>
-                
-                <span className="text-sm text-white font-mono min-w-[40px]">{isValidDuration(audioDuration) ? formatTime(audioDuration) : duration}</span>
-              </div>
-
-              {/* Right: Controls */}
-              <div className="flex items-center gap-1">
-                {/* Volume */}
-                <Popover>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <PopoverTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                            <Volume2 className="w-5 h-5" />
-                          </button>
-                        </PopoverTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Volume</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <PopoverContent className="w-12 p-3 bg-gray-800 border-gray-700" side="top">
-                    <div className="relative h-24 flex items-center justify-center">
-                      <style>{`
-                        .volume-slider {
-                          -webkit-appearance: none;
-                          appearance: none;
-                          width: 80px;
-                          height: 6px;
-                          background: #4b5563;
-                          border-radius: 9999px;
-                          cursor: pointer;
-                          transform: rotate(-90deg);
-                          transform-origin: center;
-                        }
-                        .volume-slider::-webkit-slider-thumb {
-                          -webkit-appearance: none;
-                          appearance: none;
-                          width: 16px;
-                          height: 16px;
-                          border-radius: 50%;
-                          background: white;
-                          border: 2px solid #10b981;
-                          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                          cursor: pointer;
-                        }
-                        .volume-slider::-moz-range-thumb {
-                          width: 16px;
-                          height: 16px;
-                          border-radius: 50%;
-                          background: white;
-                          border: 2px solid #10b981;
-                          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                          cursor: pointer;
-                        }
-                      `}</style>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={volume}
-                        onChange={(e) => setVolume(parseInt(e.target.value))}
-                        className="volume-slider"
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Speed */}
-                <select 
-                  value={playbackSpeed}
-                  onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                  className="px-2 py-1.5 rounded-lg bg-gray-700/50 border-0 text-sm text-white focus:outline-none cursor-pointer hover:bg-gray-700 transition-colors"
-                >
-                  <option value={0.5}>0.5x</option>
-                  <option value={0.75}>0.75x</option>
-                  <option value={1}>1x</option>
-                  <option value={1.25}>1.25x</option>
-                  <option value={1.5}>1.5x</option>
-                  <option value={2}>2x</option>
-                </select>
-
-                {/* Favorite */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                        <Star className="w-5 h-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Favorite</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                {/* Create */}
-                <DropdownMenu>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                            <Wand2 className="w-5 h-5" />
-                          </button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Create</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
-                    <DropdownMenuItem 
-                      onClick={() => handleCreate('video')}
-                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                    >
-                      <Video className="w-4 h-4 mr-2" />
-                      Video
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => handleCreate('ugc')}
-                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                    >
-                      <UserCircle className="w-4 h-4 mr-2" />
-                      UGC
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => handleCreate('post')}
-                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                    >
-                      <FileEdit className="w-4 h-4 mr-2" />
-                      Post
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => handleCreate('ebook')}
-                      className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700 cursor-pointer"
-                    >
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Ebook
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {/* Download */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleDownload}
-                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                      >
-                        <Download className="w-5 h-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Download</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                {/* Copy */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleCopy}
-                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                      >
-                        <Copy className="w-5 h-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Copy</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                {/* Share */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleShare}
-                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                      >
-                        <Share2 className="w-5 h-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Share</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                {/* Delete */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={handleDelete}
-                        className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>Delete</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-          ) : (
-            /* No audio - show attach audio UI */
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                  <VolumeX className="w-5 h-5 text-gray-500" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm text-white font-medium">{editedTitle}</span>
-                  <span className="text-xs text-gray-500">No audio file attached</span>
-                </div>
-              </div>
-              <div className="flex-1" />
-              <button
-                onClick={() => attachAudioInputRef.current?.click()}
-                disabled={isUploadingAudio}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                {isUploadingAudio ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    Attach Audio
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Download Modal - Matching listing page */}
