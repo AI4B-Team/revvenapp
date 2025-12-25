@@ -1637,7 +1637,7 @@ ${content.map((item, index) => {
                               </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-10 p-2 bg-white border-gray-200" side="top">
-                              <div className="relative h-40 flex items-center justify-center">
+                              <div className="relative h-24 flex items-center justify-center">
                                 <div className="relative h-full w-2 bg-gray-300 rounded-full flex flex-col-reverse">
                                   <div 
                                     className="absolute bottom-0 left-0 w-full bg-emerald-500 rounded-full"
