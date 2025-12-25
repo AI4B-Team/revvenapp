@@ -1225,63 +1225,185 @@ ${content.map((item, index) => {
                       </button>
                     </div>
                   )}
-                  <div className="flex items-center gap-4 mt-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                      <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                        <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                        <Users className="w-3.5 h-3.5 text-purple-500" />
+                        <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                        <Globe className="w-3.5 h-3.5 text-orange-500" />
+                        <span>{language}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
+                        <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                        <span className="font-mono text-emerald-700">{duration}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Users className="w-3.5 h-3.5 text-purple-500" />
-                      <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Globe className="w-3.5 h-3.5 text-orange-500" />
-                      <span>{language}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
-                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                      <span className="font-mono text-emerald-700">{duration}</span>
+                    
+                    {/* Action Buttons - aligned right */}
+                    <div className="flex items-center gap-2">
+                      <TooltipProvider>
+                        {/* Like */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setIsLiked(!isLiked)}
+                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                            >
+                              <Heart className={`w-4 h-4 ${isLiked ? 'text-red-500 fill-red-500' : ''}`} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{isLiked ? 'Unlike' : 'Like'}</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Favorite */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
+                              <Star className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Favorite</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Remix */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm">
+                              <RefreshCw className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Remix</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Copy */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleCopy}
+                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Copy Transcript</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Share */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleShare}
+                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Share</TooltipContent>
+                        </Tooltip>
+                        
+                        {/* Delete */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleDelete}
+                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      {/* Separator */}
+                      <div className="w-px h-6 bg-gray-200 mx-1" />
+                      
+                      {/* Create Button */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5">
+                            <Wand2 className="w-3.5 h-3.5" />
+                            Create
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
+                          <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
+                            <Video className="w-4 h-4" />
+                            Video
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
+                            <UserCircle className="w-4 h-4" />
+                            UGC
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
+                            <FileEdit className="w-4 h-4" />
+                            Post
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
+                            <BookOpen className="w-4 h-4" />
+                            Ebook
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      {/* Translate Button */}
+                      <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
+                        <PopoverTrigger asChild>
+                          <button className="px-3 py-2 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1.5">
+                            <Languages className="w-3.5 h-3.5" />
+                            Translate
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-0 bg-white" align="end">
+                          <div className="p-3 border-b border-gray-200">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <Input
+                                placeholder="Search Languages..."
+                                value={languageSearch}
+                                onChange={(e) => setLanguageSearch(e.target.value)}
+                                className="pl-9"
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-64 overflow-y-auto">
+                            {filteredLanguages.map(lang => (
+                              <button
+                                key={lang}
+                                onClick={() => handleTranslate(lang)}
+                                disabled={isTranslating}
+                                className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                              >
+                                {lang}
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      
+                      {/* Download Button - last */}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={handleDownload}
+                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Download</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
-                </div>
-                
-                {/* Quick Actions in Header */}
-                <div className="flex items-center gap-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleCopy}
-                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Copy Transcript</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleDownload}
-                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Download</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button 
-                          onClick={handleShare}
-                          className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>Share</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 </div>
               </div>
             </div>
@@ -1432,160 +1554,34 @@ ${content.map((item, index) => {
                     )}
                   </div>
                   
-                  {/* Action Buttons */}
-                  <div className="mt-4">
-                    <div className="flex w-full items-center justify-center flex-wrap gap-2">
-                      <TooltipProvider>
-                        {/* Info/Details */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
-                            >
-                              <Info className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Details</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Heart/Like */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={() => setIsLiked(!isLiked)}
-                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
-                            >
-                              <Heart className={`w-4 h-4 ${isLiked ? 'text-red-500 fill-red-500' : ''}`} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{isLiked ? 'Unlike' : 'Like'}</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Remix */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                              <RefreshCw className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Remix</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Download */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={handleDownload}
-                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Download</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Share */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={handleShare}
-                              className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors"
-                            >
-                              <Share2 className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Share</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Favorite */}
-                        
-                        {/* Favorite */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                              <Star className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Favorite</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Regenerate */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                              <RotateCcw className="w-4 h-4" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>Regenerate</TooltipContent>
-                        </Tooltip>
-                        
-                        {/* More Options */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors">
-                                  <MoreVertical className="w-4 h-4" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-popover border-border">
-                                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                                  <Info className="w-4 h-4" />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
-                                  <Video className="w-4 h-4" />
-                                  Create Video
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
-                                  <UserCircle className="w-4 h-4" />
-                                  Create UGC
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleCopy} className="flex items-center gap-2 cursor-pointer">
-                                  <Copy className="w-4 h-4" />
-                                  Copy Transcript
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 cursor-pointer text-red-600">
-                                  <Trash2 className="w-4 h-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TooltipTrigger>
-                          <TooltipContent>More</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    
-                    {/* No Audio State */}
-                    {!resolvedAudioUrl && (
-                      <button
-                        onClick={() => attachAudioInputRef.current?.click()}
-                        disabled={isUploadingAudio}
-                        className="mt-4 w-full px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                      >
-                        {isUploadingAudio ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Uploading...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4" />
-                            Attach Audio
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
+                  {/* No Audio State */}
+                  {!resolvedAudioUrl && (
+                    <button
+                      onClick={() => attachAudioInputRef.current?.click()}
+                      disabled={isUploadingAudio}
+                      className="mt-4 w-full px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isUploadingAudio ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4" />
+                          Attach Audio
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
               
               {/* Right Column - Transcript Content */}
               <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {/* Header with tabs and actions */}
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
-                  {/* Tabs */}
+                {/* Header with tabs */}
+                <div className="mb-4 pb-4 border-b border-gray-200">
+                  {/* Main Tabs Row */}
                   <div className="flex items-center gap-1">
                     {[
                       { id: 'transcript', label: 'Transcript', icon: FileText },
@@ -1608,109 +1604,42 @@ ${content.map((item, index) => {
                     ))}
                   </div>
                   
-                  {/* Right Actions */}
-                  <div className="flex items-center gap-2">
-                    {/* Translation tabs */}
-                    {selectedTranslation && (
-                      <div className="flex items-center gap-1 mr-2">
-                        <button 
-                          onClick={() => setActiveTranslationTab('original')}
-                          className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                            activeTranslationTab === 'original'
-                              ? 'bg-emerald-500 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        >
-                          Original
-                        </button>
-                        <button 
-                          onClick={() => setActiveTranslationTab('translated')}
-                          className={`px-2.5 py-1 rounded-l-full text-xs font-medium flex items-center gap-1 transition-colors ${
-                            activeTranslationTab === 'translated'
-                              ? 'bg-purple-500 text-white'
-                              : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                          }`}
-                        >
-                          <Languages className="w-3 h-3" />
-                          {selectedTranslation}
-                        </button>
-                        <button 
-                          onClick={handleRemoveTranslation}
-                          className={`px-1.5 py-1 rounded-r-full transition-colors ${
-                            activeTranslationTab === 'translated'
-                              ? 'bg-purple-600 text-white hover:bg-purple-700'
-                              : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
-                          }`}
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
-                    
-                    {/* Create Button */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="px-3 py-1.5 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5">
-                          <Wand2 className="w-3.5 h-3.5" />
-                          Create
-                          <ChevronDown className="w-3.5 h-3.5" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
-                        <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
-                          <Video className="w-4 h-4" />
-                          Video
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
-                          <UserCircle className="w-4 h-4" />
-                          UGC
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
-                          <FileEdit className="w-4 h-4" />
-                          Post
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
-                          <BookOpen className="w-4 h-4" />
-                          Ebook
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    
-                    {/* Translate Button */}
-                    <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
-                      <PopoverTrigger asChild>
-                        <button className="px-3 py-1.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors flex items-center gap-1.5">
-                          <Languages className="w-3.5 h-3.5" />
-                          Translate
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 p-0 bg-white" align="end">
-                        <div className="p-3 border-b border-gray-200">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                              placeholder="Search Languages..."
-                              value={languageSearch}
-                              onChange={(e) => setLanguageSearch(e.target.value)}
-                              className="pl-9"
-                            />
-                          </div>
-                        </div>
-                        <div className="max-h-64 overflow-y-auto">
-                          {filteredLanguages.map(lang => (
-                            <button
-                              key={lang}
-                              onClick={() => handleTranslate(lang)}
-                              disabled={isTranslating}
-                              className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                            >
-                              {lang}
-                            </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
+                  {/* Sub-tabs row for Transcript tab - Original / New Language */}
+                  {activeTab === 'transcript' && selectedTranslation && (
+                    <div className="flex items-center gap-1 mt-3">
+                      <button 
+                        onClick={() => setActiveTranslationTab('original')}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                          activeTranslationTab === 'original'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Original
+                      </button>
+                      <button 
+                        onClick={() => setActiveTranslationTab('translated')}
+                        className={`px-3 py-1.5 rounded-l-full text-xs font-medium flex items-center gap-1 transition-colors ${
+                          activeTranslationTab === 'translated'
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                        }`}
+                      >
+                        <Languages className="w-3 h-3" />
+                        {selectedTranslation}
+                      </button>
+                      <button 
+                        onClick={handleRemoveTranslation}
+                        className={`px-1.5 py-1.5 rounded-r-full transition-colors ${
+                          activeTranslationTab === 'translated'
+                            ? 'bg-purple-600 text-white hover:bg-purple-700'
+                            : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                        }`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Content Area */}
