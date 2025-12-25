@@ -1943,7 +1943,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         )}
                       </div>
                       <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
-                        {isSaving ? 'Saving' : 'Saved'}
+                        {isSaving ? 'Saving' : 'Auto-Saved'}
                       </span>
                     </button>
                   </HoverCardTrigger>
