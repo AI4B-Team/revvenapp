@@ -1744,7 +1744,6 @@ ${content.map((item, index) => {
                                         side="bottom"
                                         align="start"
                                         onClick={(e) => e.stopPropagation()}
-                                        onPointerDownOutside={(e) => e.preventDefault()}
                                       >
                                         <div className="max-h-80 overflow-y-auto">
                                           {/* Existing Comments */}
@@ -2152,7 +2151,7 @@ ${content.map((item, index) => {
                             
                             {/* Segment Content */}
                             <div 
-                              className={`group flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                              className={`group relative flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer ${
                                 isSelected 
                                   ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 ring-inset' 
                                   : isInSelection
@@ -2165,6 +2164,19 @@ ${content.map((item, index) => {
                                 setSelectedLineIndex(isSelected ? null : i);
                               }}
                             >
+                              {/* Comment indicator - shows when there are unresolved comments */}
+                              {lineComments[i]?.some(c => !c.resolved) && (
+                                <div className="absolute -top-2 -right-2 z-10">
+                                  <div className="relative">
+                                    <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-md border-2 border-white">
+                                      <MessageSquare className="w-3.5 h-3.5 text-white" />
+                                    </div>
+                                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-red-500 text-[9px] text-white rounded-full flex items-center justify-center font-bold border border-white">
+                                      {lineComments[i].filter(c => !c.resolved).length}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                               <div className="flex-shrink-0 w-16">
                                 <span 
                                   className={`text-xs font-mono px-2 py-1 rounded cursor-pointer transition-colors ${
