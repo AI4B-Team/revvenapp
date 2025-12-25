@@ -359,7 +359,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
     name: string;
     url: string;
     thumbnail?: string;
-    type: 'video' | 'audio';
+    type: 'video' | 'audio' | 'image';
     source: 'upload' | 'url';
   }>>([
     { id: 'sample-1', name: 'Product Demo', url: 'https://videos.pexels.com/video-files/3015488/3015488-hd_1920_1080_24fps.mp4', type: 'video', source: 'upload' },
@@ -1647,7 +1647,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
 
             {/* Sub-tab content */}
             {visualsSubTab === 'videos' && <EditorVideoPanel onSelectVideo={handleSelectUploadedVideo} onOpenTranslate={() => setTranslateModalOpen(true)} onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} uploadedMedia={uploadedMedia} onAddToTimeline={handleAddToTimeline} onOpenRecord={() => setRecordModalOpen(true)} timelineClipUrls={timelineClipUrls} onDeleteMedia={handleDeleteMedia} favoriteMediaIds={favoriteMediaIds} onToggleFavorite={handleToggleFavorite} />}
-            {visualsSubTab === 'images' && <EditorImagePanel onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} />}
+            {visualsSubTab === 'images' && <EditorImagePanel 
+              onOpenReferences={(filter) => { setReferencesModalFilter(filter || 'all'); setShowReferencesModal(true); }} 
+              uploadedImages={uploadedMedia.filter(m => m.type === 'image').map(m => ({ id: m.id, name: m.name, url: m.url, thumbnail: m.thumbnail }))}
+              onAddToTimeline={(url, name, thumbnail) => handleAddToTimeline(url, name, thumbnail, 5)}
+              onDeleteImage={(id) => handleDeleteMedia(id)}
+              favoriteImageIds={favoriteMediaIds}
+              onToggleFavorite={handleToggleFavorite}
+            />}
             {visualsSubTab === 'elements' && <ElementsPanel />}
           </div>
         );
@@ -3831,6 +3838,20 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         isOpen={showReferencesModal}
         onClose={() => setShowReferencesModal(false)}
         initialMediaFilter={referencesModalFilter}
+        onImagesSelect={(images) => {
+          // Add the selected images to uploaded media
+          const newImages = images.map((img, index) => ({
+            id: `ref-img-${Date.now()}-${index}`,
+            name: img.original_filename || img.name || `Image ${index + 1}`,
+            url: img.image_url || img.url || img.preview || '',
+            thumbnail: img.thumbnail_url || img.image_url || img.url || img.preview || '',
+            type: 'image' as const,
+            source: 'url' as const,
+          }));
+          setUploadedMedia(prev => [...prev, ...newImages]);
+          setShowReferencesModal(false);
+          sonnerToast.success(`${images.length} image${images.length > 1 ? 's' : ''} added to library`);
+        }}
         onSelectReference={(url) => {
           // Add the selected reference as a new uploaded video
           const newVideo = {
