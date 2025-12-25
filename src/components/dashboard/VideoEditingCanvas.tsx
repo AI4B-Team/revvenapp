@@ -2477,7 +2477,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           {isGenerating ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <Sparkles className="w-4 h-4" />
+                            <Send className="w-4 h-4" />
                           )}
                         </button>
                       </TooltipTrigger>
