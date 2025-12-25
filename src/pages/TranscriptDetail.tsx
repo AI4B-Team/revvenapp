@@ -1530,9 +1530,9 @@ ${content.map((item, index) => {
                                 <Volume2 className="w-4 h-4 text-gray-600" />
                               </button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-12 p-3 bg-white border-gray-200" side="top">
-                              <div className="relative h-24 flex items-center justify-center">
-                                <div className="relative w-20 h-2 bg-gray-200 rounded-full" style={{ transform: 'rotate(-90deg)' }}>
+                            <PopoverContent className="w-14 p-3 bg-white border-gray-200" side="top">
+                              <div className="relative h-28 flex items-center justify-center">
+                                <div className="relative w-28 h-2 bg-gray-200 rounded-full" style={{ transform: 'rotate(-90deg)' }}>
                                   <div 
                                     className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full"
                                     style={{ width: `${volume}%` }}
