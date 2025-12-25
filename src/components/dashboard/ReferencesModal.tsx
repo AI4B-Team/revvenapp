@@ -30,11 +30,12 @@ interface ReferencesModalProps {
   onImagesSelect?: (images: any[]) => void;
   selectedReference?: any;
   initialSelectedImages?: any[];
+  initialMediaFilter?: 'all' | 'images' | 'videos';
 }
 
-const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, selectedReference, initialSelectedImages = [] }: ReferencesModalProps) => {
+const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, selectedReference, initialSelectedImages = [], initialMediaFilter = 'all' }: ReferencesModalProps) => {
   const [activeTab, setActiveTab] = useState('history');
-  const [mediaFilter, setMediaFilter] = useState<'all' | 'images' | 'videos'>('all');
+  const [mediaFilter, setMediaFilter] = useState<'all' | 'images' | 'videos'>(initialMediaFilter);
   const [references, setReferences] = useState<any[]>([]);
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
@@ -63,12 +64,14 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
       if (stockImages.length === 0) {
         fetchStockImages('fashion model photography');
       }
+      // Set initial media filter when opening
+      setMediaFilter(initialMediaFilter);
     } else if (!isOpen) {
       // Reset when modal closes
       hasFetchedRef.current = false;
       setSelectedImages([]);
     }
-  }, [isOpen]);
+  }, [isOpen, initialMediaFilter]);
   
   // Handle initial selected images separately to avoid infinite loops
   useEffect(() => {
