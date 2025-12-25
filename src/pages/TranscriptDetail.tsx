@@ -1744,14 +1744,70 @@ ${content.map((item, index) => {
                                     </Tooltip>
                                     
                                     {/* Highlight colors */}
-                                    <button
-                                      className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
-                                    >
-                                      <div className="flex -space-x-1">
-                                        <div className="w-3 h-3 rounded-full bg-yellow-200 border border-gray-600" />
-                                        <div className="w-3 h-3 rounded-full bg-green-200 border border-gray-600" />
-                                      </div>
-                                    </button>
+                                    <Popover>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <PopoverTrigger asChild>
+                                            <button
+                                              onClick={(e) => e.stopPropagation()}
+                                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                            >
+                                              <div className="flex -space-x-1">
+                                                <div className="w-3 h-3 rounded-full bg-yellow-200 border border-gray-600" />
+                                                <div className="w-3 h-3 rounded-full bg-green-200 border border-gray-600" />
+                                              </div>
+                                            </button>
+                                          </PopoverTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="text-xs">Highlight</TooltipContent>
+                                      </Tooltip>
+                                      <PopoverContent 
+                                        className="w-auto p-2 bg-white border-gray-200" 
+                                        side="bottom"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onPointerDownOutside={(e) => e.preventDefault()}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.success('Highlighted in yellow');
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform"
+                                          />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.success('Highlighted in green');
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform"
+                                          />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.success('Highlighted in blue');
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform"
+                                          />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.success('Highlighted in pink');
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform"
+                                          />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.success('Highlight removed');
+                                            }}
+                                            className="w-6 h-6 rounded-full bg-gray-100 border-2 border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
+                                          >
+                                            <X className="w-3 h-3 text-gray-500" />
+                                          </button>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
                                     
                                     {/* Delete */}
                                     <Tooltip>
