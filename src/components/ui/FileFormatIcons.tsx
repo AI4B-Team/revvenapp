@@ -16,16 +16,18 @@ const FileFormatIcons: React.FC = () => {
         <div key={format.label} className="relative">
           {/* Document body */}
           <div className="relative w-10 h-12">
-            <svg viewBox="0 0 40 48" className="w-full h-full">
+            <svg viewBox="0 0 40 48" className="w-full h-full drop-shadow-sm">
               {/* Paper background */}
               <path 
                 d="M0 4 C0 1.79 1.79 0 4 0 L28 0 L40 12 L40 44 C40 46.21 38.21 48 36 48 L4 48 C1.79 48 0 46.21 0 44 Z" 
-                fill="#f3f4f6" 
+                fill="#e5e7eb"
+                stroke="#d1d5db"
+                strokeWidth="1"
               />
               {/* Folded corner */}
               <path 
                 d="M28 0 L28 8 C28 10.21 29.79 12 32 12 L40 12 Z" 
-                fill="#d1d5db" 
+                fill="#c4c7cc"
               />
             </svg>
           </div>
