@@ -3711,9 +3711,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                         <TooltipContent><p>Record Audio/Video</p></TooltipContent>
                       </Tooltip>
                       <div className="w-px h-6 bg-gray-200" />
-                      <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                        <SkipBack className="w-5 h-5" />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={skipBackward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <SkipBack className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Previous Scene</p></TooltipContent>
+                      </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
@@ -3727,9 +3732,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
                           <p>{isPlaying ? 'Pause' : 'Play'} <span className="text-gray-400 ml-1">(Space)</span></p>
                         </TooltipContent>
                       </Tooltip>
-                      <button onClick={skipForward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
-                        <SkipForward className="w-5 h-5" />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={skipForward} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors">
+                            <SkipForward className="w-5 h-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>Next Scene</p></TooltipContent>
+                      </Tooltip>
                       <span className="text-sm font-mono text-gray-600 min-w-[100px]">
                         {formatTime(currentTime)} / {formatTime(duration)}
                       </span>

@@ -872,32 +872,6 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
               </TooltipTrigger>
               <TooltipContent><p>Scenes</p></TooltipContent>
             </Tooltip>
-
-            {/* Previous Scene */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={goToPreviousScene}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent><p>Previous Scene</p></TooltipContent>
-            </Tooltip>
-
-            {/* Next Scene */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={goToNextScene}
-                  className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent><p>Next Scene</p></TooltipContent>
-            </Tooltip>
           </div>
         </div>
         <div 
