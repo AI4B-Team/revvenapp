@@ -332,6 +332,13 @@ const Create = () => {
 
   const videoTools = [
     { 
+      name: 'Sessions', 
+      description: 'Video conferencing',
+      bgColor: 'bg-tool-green',
+      emoji: '📹',
+      onClick: () => navigate('/sessions')
+    },
+    { 
       name: 'Video Downloader', 
       description: 'Download videos',
       bgColor: 'bg-tool-blue',
