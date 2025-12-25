@@ -5,7 +5,7 @@ import Header from '@/components/dashboard/Header';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
-  ArrowLeft, Play, Pause, FileText, Clock, Users, Globe,
+  ArrowLeft, Play, Pause, FileText, Clock, Calendar, Users, Globe,
   FileDown, Share2, ChevronDown, Copy, Edit3, Sparkles,
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
@@ -1199,7 +1199,7 @@ ${content.map((item, index) => {
                   )}
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                      <Calendar className="w-3.5 h-3.5 text-emerald-500" />
                       <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
@@ -1211,7 +1211,7 @@ ${content.map((item, index) => {
                       <span>{language}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
-                      <Play className="w-3.5 h-3.5 text-emerald-600" />
+                      <Clock className="w-3.5 h-3.5 text-emerald-600" />
                       <span className="font-mono text-emerald-700">{duration}</span>
                     </div>
                   </div>
@@ -1406,7 +1406,7 @@ ${content.map((item, index) => {
                   
                   {/* Action Buttons */}
                   <div className="mt-4">
-                    <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex w-full items-center justify-center flex-wrap gap-2">
                       <TooltipProvider>
                         {/* Info/Details */}
                         <Tooltip>
@@ -1686,9 +1686,9 @@ ${content.map((item, index) => {
                 </div>
                 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto pt-12" ref={transcriptContainerRef}>
+                <div className="flex-1 overflow-y-auto" ref={transcriptContainerRef}>
                   {activeTab === 'transcript' && (
-                    <div className="space-y-1 pr-2 overflow-visible">
+                    <div className="space-y-1 px-2 overflow-visible">
                       {isTranslating && (
                         <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
@@ -1701,11 +1701,11 @@ ${content.map((item, index) => {
                         const isInSelection = selectedLines.has(i);
                         
                         return (
-                          <div key={i} className="relative overflow-visible">
+                          <div key={i} className={`relative overflow-visible transition-[margin] duration-200 ${i === 0 && isSelected ? 'mt-10' : ''}`}>
                             {/* Floating Toolbar - appears between segments */}
                             {isSelected && editingLineIndex !== i && (
                               <TooltipProvider delayDuration={200}>
-                                <div className={`absolute left-1/2 -translate-x-1/2 z-50 animate-fade-in ${i === 0 ? 'top-full mt-2' : '-top-5'}`}>
+                                <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
                                   <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
                                     {/* Play */}
                                     <Tooltip>
@@ -1890,7 +1890,7 @@ ${content.map((item, index) => {
                             <div 
                               className={`group flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer ${
                                 isSelected 
-                                  ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200' 
+                                  ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 ring-inset' 
                                   : isInSelection
                                     ? 'bg-blue-50/50 border-blue-300'
                                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
