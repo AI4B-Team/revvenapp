@@ -185,6 +185,9 @@ const TranscriptDetail = () => {
   const [hiddenLines, setHiddenLines] = useState<Set<number>>(new Set());
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Segment playback - track when to stop playing a segment
+  const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
   const title = searchParams.get('title') || 'Untitled Transcript';
   const duration = searchParams.get('duration') || '00:00';
   const speakers = parseInt(searchParams.get('speakers') || '1');
@@ -222,11 +225,28 @@ const TranscriptDetail = () => {
     }
     const seconds = parseTimeToSeconds(timeStr);
     audioRef.current.currentTime = seconds;
+    setSegmentEndTime(null); // Clear any segment end time
     if (!isPlaying) {
       audioRef.current.play();
       setIsPlaying(true);
     }
     toast.success(`Jumped to ${timeStr}`);
+  };
+
+  // Play only a specific segment (from start to end time)
+  const playSegmentOnly = (startTimeStr: string, endTimeStr?: string) => {
+    if (!audioRef.current || !resolvedAudioUrl) {
+      toast.error('No audio available to play');
+      return;
+    }
+    const startSeconds = parseTimeToSeconds(startTimeStr);
+    const endSeconds = endTimeStr ? parseTimeToSeconds(endTimeStr) : startSeconds + 5;
+    
+    audioRef.current.currentTime = startSeconds;
+    setSegmentEndTime(endSeconds);
+    audioRef.current.play();
+    setIsPlaying(true);
+    toast.success(`Playing segment ${startTimeStr} - ${endTimeStr || ''}`);
   };
 
   // Format seconds to MM:SS
@@ -316,13 +336,21 @@ const TranscriptDetail = () => {
     let rafId = 0;
     const tick = () => {
       setCurrentTime(audio.currentTime);
+      
+      // Stop playback when reaching segment end time
+      if (segmentEndTime !== null && audio.currentTime >= segmentEndTime) {
+        audio.pause();
+        setIsPlaying(false);
+        setSegmentEndTime(null);
+      }
+      
       rafId = requestAnimationFrame(tick);
     };
 
     rafId = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(rafId);
-  }, [isPlaying]);
+  }, [isPlaying, segmentEndTime]);
 
   // Handle play/pause
   const togglePlayPause = () => {
@@ -1713,7 +1741,7 @@ ${content.map((item, index) => {
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            jumpToTime(item.time);
+                                            playSegmentOnly(item.time, item.endTime);
                                           }}
                                           className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
                                         >
