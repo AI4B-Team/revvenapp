@@ -2072,7 +2072,7 @@ Not everyone wants to share their personal life online. Not everyone has the tim
         <div className="flex flex-1 overflow-hidden relative">
           {/* Left Panel - Tab Content (collapsible) */}
           {!isLeftPanelCollapsed && (
-            <div className="w-[560px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+            <div className="w-[560px] h-full bg-white border-r border-gray-200 flex flex-col flex-shrink-0 min-h-0 overflow-hidden">
               {/* Tabs with Tooltips */}
               <div className="flex items-center justify-start gap-1 px-2 py-2.5 border-b border-gray-200 bg-gray-50 flex-nowrap overflow-x-auto">
                 {tabs.map((tab) => (
@@ -2116,14 +2116,14 @@ Not everyone wants to share their personal life online. Not everyone has the tim
               )}
 
               {/* Content Area */}
-              <div className="flex-1 overflow-y-auto p-4 flex flex-col">
-                <div className="flex-1">
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
                   {renderTabContent()}
                 </div>
               </div>
 
               {/* Compact Prompt Box with Green Border */}
-              <div className="p-3 border-t border-gray-200">
+              <div className="p-3 border-t border-gray-200 flex-shrink-0">
                 <div className="border-2 border-brand-green rounded-xl p-3 bg-gray-50">
                   {/* Top left icons when image tool is selected */}
                   {selectedPromptTool === 'image' && (
