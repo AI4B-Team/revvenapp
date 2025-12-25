@@ -156,7 +156,14 @@ import ClipSettingsPanel from './editor/ClipSettingsPanel';
 import ReferencesModal from './ReferencesModal';
 import SafeZoneOverlay from './SafeZoneOverlay';
 
-// Types
+// Import agent images
+import brianAvatar from '@/assets/agents/brian.png';
+import keishaAvatar from '@/assets/agents/keisha.png';
+import damoiAvatar from '@/assets/agents/damoi.png';
+import dolmarAvatar from '@/assets/agents/dolmar.png';
+import francisAvatar from '@/assets/agents/francis.png';
+import richAvatar from '@/assets/agents/rich.png';
+
 interface TimelineClip {
   id: string;
   type: 'video' | 'audio' | 'text' | 'effect';
@@ -1526,14 +1533,89 @@ Not everyone wants to share their personal life online. Not everyone has the tim
       case 'character':
         return (
           <div className="flex flex-col h-full">
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                <User className="w-8 h-8 text-gray-400" />
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Avatar</h2>
+              <button className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium transition-colors">
+                <Plus className="w-4 h-4" />
+                Create Avatar
+              </button>
+            </div>
+            
+            {/* Search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            
+            {/* Tabs */}
+            <div className="flex gap-4 mb-4 border-b border-gray-200">
+              <button className="pb-2 text-sm font-medium text-gray-900 border-b-2 border-gray-900">
+                My Avatars
+              </button>
+              <button className="pb-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                Public Avatars
+              </button>
+            </div>
+            
+            {/* My Avatars Section */}
+            <div className="flex-1 overflow-y-auto">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">My Avatars</h3>
+              
+              {/* Build Your Avatar Card */}
+              <div className="relative bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-6 overflow-hidden">
+                <div className="relative z-10">
+                  <h4 className="font-semibold text-gray-900 mb-1">Build Your Avatar</h4>
+                  <button className="flex items-center gap-1 text-sm text-white bg-primary hover:bg-primary/90 px-4 py-1.5 rounded-lg transition-colors">
+                    Create Now
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="absolute right-0 top-0 bottom-0 w-32 opacity-30">
+                  <img 
+                    src={referenceImages[0] || ''} 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Characters</h3>
-              <p className="text-sm text-gray-500 max-w-[280px]">
-                Manage your AI characters and digital personas for your videos
-              </p>
+              
+              {/* Public Avatars Section */}
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-700">Public Avatars</h3>
+                <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                  <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M6 6v14a2 2 0 002 2h8a2 2 0 002-2V6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Avatar Grid */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { name: 'Brian', image: brianAvatar },
+                  { name: 'Keisha', image: keishaAvatar },
+                  { name: 'Damoi', image: damoiAvatar },
+                  { name: 'Dolmar', image: dolmarAvatar },
+                  { name: 'Francis', image: francisAvatar },
+                  { name: 'Rich', image: richAvatar },
+                ].map((avatar) => (
+                  <div key={avatar.name} className="group cursor-pointer">
+                    <div className="aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 mb-2 ring-2 ring-transparent hover:ring-primary transition-all">
+                      <img 
+                        src={avatar.image} 
+                        alt={avatar.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-700 text-center font-medium">{avatar.name}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
