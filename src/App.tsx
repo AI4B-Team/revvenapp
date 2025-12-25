@@ -60,6 +60,7 @@ import SEOOptimizer from "./pages/SEOOptimizer";
 import EbookCreator from "./pages/EbookCreator";
 import ExplainerVideo from "./pages/ExplainerVideo";
 import ViralShorts from "./pages/ViralShorts";
+import Sessions from "./pages/Sessions";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -90,6 +91,7 @@ const App = () => (
           <Route path="/marketing" element={<Marketing />} />
           <Route path="/community" element={<Community />} />
           <Route path="/apps" element={<Apps />} />
+          <Route path="/sessions" element={<Sessions />} />
           <Route path="/video-downloader" element={<VideoDownloader />} />
           <Route path="/versus" element={<Versus />} />
           <Route path="/transcribe" element={<Transcribe />} />
