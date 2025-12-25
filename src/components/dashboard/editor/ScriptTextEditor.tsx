@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Plus, Check, MoreHorizontal, MoreVertical, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal, ShoppingBag } from 'lucide-react';
+import { X, Plus, Check, MoreHorizontal, MoreVertical, Pencil, Eye, EyeOff, Scissors, Trash2, Copy, ChevronDown, Search, Download, SlidersHorizontal, ShoppingBag, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -38,6 +38,7 @@ interface ScriptTextEditorProps {
   onScriptChange?: (script: string) => void;
   onSegmentDelete?: (segmentId: string) => void;
   onSegmentExport?: (segmentId: string, text: string) => void;
+  onPlaySegment?: (startTime: number, endTime: number) => void;
   showDeleted?: boolean;
 }
 
@@ -47,6 +48,7 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
   onScriptChange,
   onSegmentDelete,
   onSegmentExport,
+  onPlaySegment,
   showDeleted = false,
 }) => {
   // Parse script into segments with timestamps
@@ -547,6 +549,23 @@ const ScriptTextEditor: React.FC<ScriptTextEditorProps> = ({
                   <TooltipProvider delayDuration={200}>
                     <div className="absolute left-0 right-0 bottom-full mb-2 z-50 animate-fade-in flex justify-center">
                       <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
+                        {/* Play button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onPlaySegment?.(segment.startTime, segment.endTime);
+                                toast.success('Playing segment');
+                              }}
+                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                            >
+                              <Play className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Play Clip</TooltipContent>
+                        </Tooltip>
+
                         {/* Edit button */}
                         <Tooltip>
                           <TooltipTrigger asChild>
