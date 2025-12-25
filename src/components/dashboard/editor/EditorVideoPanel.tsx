@@ -437,7 +437,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-gray-400 hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
                 onClick={() => toast.info('Zoom import coming soon')}
               >
                 <SiZoom className="text-[#2D8CFF]" style={{ width: '24px', height: '24px' }} />
@@ -445,7 +445,7 @@ const EditorVideoPanel: React.FC<EditorVideoPanelProps> = ({
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-gray-300 hover:bg-gray-50"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-gray-400 hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
                 onClick={onOpenRecord}
               >
                 <CircleDot className="w-4 h-4 text-red-500" />

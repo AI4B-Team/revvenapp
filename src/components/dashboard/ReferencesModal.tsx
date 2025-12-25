@@ -700,7 +700,7 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                     placeholder="Paste A Supported Public Media Link"
                     value={mediaLink}
                     onChange={(e) => setMediaLink(e.target.value)}
-                    className="w-full px-4 py-3 pr-10 bg-white border-2 border-dashed border-gray-400 hover:border-primary hover:bg-primary/5 rounded-xl text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-primary transition-colors text-center placeholder:text-center"
+                    className="w-full px-4 py-3 pr-10 bg-white border-2 border-dashed border-gray-400 hover:border-emerald-500 hover:bg-emerald-50 rounded-xl text-gray-700 text-sm placeholder-gray-400 focus:outline-none focus:border-emerald-500 transition-colors text-center placeholder:text-center"
                   />
                   <Link className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
@@ -734,9 +734,9 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 {/* Click To Upload Box */}
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-primary/50 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"
+                  className="border-2 border-dashed border-gray-400 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
                 >
-                  <Upload className="w-8 h-8 text-primary mb-3" />
+                  <Upload className="w-8 h-8 text-emerald-500 mb-3" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Click To Upload</h3>
                   <p className="text-sm text-gray-500">or, drag and drop a file here</p>
                   <FileFormatIcons />
@@ -744,11 +744,11 @@ const ReferencesModal = ({ isOpen, onClose, onSelectReference, onImagesSelect, s
                 
                 {/* Zoom and Record Buttons */}
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center gap-3 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
+                  <button className="flex items-center justify-center gap-3 px-4 py-3 border-2 border-dashed border-gray-400 rounded-xl text-gray-700 hover:border-emerald-500 hover:bg-emerald-50 transition-colors">
                     <SiZoom style={{ width: '32px', height: '32px' }} className="text-blue-600" />
                     <span className="text-sm font-medium whitespace-nowrap">Import From Zoom</span>
                   </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-primary/50 rounded-xl text-gray-700 hover:bg-primary/5 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-400 rounded-xl text-gray-700 hover:border-emerald-500 hover:bg-emerald-50 transition-colors">
                     <Video className="w-5 h-5 text-red-500" />
                     <span className="text-sm font-medium">Record</span>
                   </button>
