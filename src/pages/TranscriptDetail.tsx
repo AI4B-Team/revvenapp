@@ -186,6 +186,20 @@ const TranscriptDetail = () => {
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   
+  // Comments state (Google Docs style)
+  interface Comment {
+    id: string;
+    text: string;
+    author: string;
+    createdAt: Date;
+    resolved: boolean;
+    replies: { id: string; text: string; author: string; createdAt: Date }[];
+  }
+  const [lineComments, setLineComments] = useState<Record<number, Comment[]>>({});
+  const [commentInput, setCommentInput] = useState('');
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
+  const [showReplyFor, setShowReplyFor] = useState<string | null>(null);
+  
   // Segment playback - track when to stop playing a segment
   const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -1700,6 +1714,239 @@ ${content.map((item, index) => {
                                       </TooltipTrigger>
                                       <TooltipContent side="top" className="text-xs">Edit</TooltipContent>
                                     </Tooltip>
+                                    
+                                    {/* Comment */}
+                                    <Popover>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <PopoverTrigger asChild>
+                                            <button
+                                              onClick={(e) => e.stopPropagation()}
+                                              className={`p-2 rounded-md transition-colors relative ${
+                                                lineComments[i]?.some(c => !c.resolved)
+                                                  ? 'text-amber-400 hover:bg-gray-700 hover:text-amber-300'
+                                                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                              }`}
+                                            >
+                                              <MessageSquare className="w-4 h-4" />
+                                              {lineComments[i]?.filter(c => !c.resolved).length > 0 && (
+                                                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 text-[9px] text-white rounded-full flex items-center justify-center font-medium">
+                                                  {lineComments[i].filter(c => !c.resolved).length}
+                                                </span>
+                                              )}
+                                            </button>
+                                          </PopoverTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="text-xs">Comment</TooltipContent>
+                                      </Tooltip>
+                                      <PopoverContent 
+                                        className="w-80 p-0 bg-white border-gray-200 shadow-xl" 
+                                        side="bottom"
+                                        align="start"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onPointerDownOutside={(e) => e.preventDefault()}
+                                      >
+                                        <div className="max-h-80 overflow-y-auto">
+                                          {/* Existing Comments */}
+                                          {lineComments[i]?.map((comment) => (
+                                            <div 
+                                              key={comment.id} 
+                                              className={`p-3 border-b border-gray-100 ${comment.resolved ? 'bg-gray-50 opacity-60' : ''}`}
+                                            >
+                                              <div className="flex items-start justify-between gap-2">
+                                                <div className="flex items-center gap-2">
+                                                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium">
+                                                    {comment.author.charAt(0).toUpperCase()}
+                                                  </div>
+                                                  <div>
+                                                    <p className="text-xs font-medium text-gray-900">{comment.author}</p>
+                                                    <p className="text-[10px] text-gray-400">
+                                                      {new Date(comment.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                  {!comment.resolved && (
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setLineComments(prev => ({
+                                                          ...prev,
+                                                          [i]: prev[i].map(c => 
+                                                            c.id === comment.id ? { ...c, resolved: true } : c
+                                                          )
+                                                        }));
+                                                        toast.success('Comment resolved');
+                                                      }}
+                                                      className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-gray-100 rounded"
+                                                    >
+                                                      <Check className="w-3.5 h-3.5" />
+                                                    </button>
+                                                  )}
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setLineComments(prev => ({
+                                                        ...prev,
+                                                        [i]: prev[i].filter(c => c.id !== comment.id)
+                                                      }));
+                                                      toast.success('Comment deleted');
+                                                    }}
+                                                    className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
+                                                  >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                              <p className={`text-sm text-gray-700 mt-2 ${comment.resolved ? 'line-through' : ''}`}>
+                                                {comment.text}
+                                              </p>
+                                              
+                                              {/* Replies */}
+                                              {comment.replies.length > 0 && (
+                                                <div className="mt-2 ml-4 space-y-2 border-l-2 border-gray-200 pl-3">
+                                                  {comment.replies.map((reply) => (
+                                                    <div key={reply.id} className="text-xs">
+                                                      <div className="flex items-center gap-1.5">
+                                                        <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-white text-[8px] font-medium">
+                                                          {reply.author.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <span className="font-medium text-gray-700">{reply.author}</span>
+                                                        <span className="text-gray-400">·</span>
+                                                        <span className="text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
+                                                      </div>
+                                                      <p className="text-gray-600 mt-0.5">{reply.text}</p>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
+                                              
+                                              {/* Reply Input */}
+                                              {!comment.resolved && (
+                                                <>
+                                                  {showReplyFor === comment.id ? (
+                                                    <div className="mt-2 flex gap-1.5">
+                                                      <Input
+                                                        placeholder="Reply..."
+                                                        value={replyInputs[comment.id] || ''}
+                                                        onChange={(e) => setReplyInputs(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                                        className="h-7 text-xs"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                      />
+                                                      <Button
+                                                        size="sm"
+                                                        className="h-7 px-2"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          if (!replyInputs[comment.id]?.trim()) return;
+                                                          setLineComments(prev => ({
+                                                            ...prev,
+                                                            [i]: prev[i].map(c => 
+                                                              c.id === comment.id 
+                                                                ? { 
+                                                                    ...c, 
+                                                                    replies: [...c.replies, {
+                                                                      id: crypto.randomUUID(),
+                                                                      text: replyInputs[comment.id],
+                                                                      author: 'You',
+                                                                      createdAt: new Date()
+                                                                    }]
+                                                                  } 
+                                                                : c
+                                                            )
+                                                          }));
+                                                          setReplyInputs(prev => ({ ...prev, [comment.id]: '' }));
+                                                          setShowReplyFor(null);
+                                                          toast.success('Reply added');
+                                                        }}
+                                                      >
+                                                        <Check className="w-3 h-3" />
+                                                      </Button>
+                                                      <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-7 px-2"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          setShowReplyFor(null);
+                                                        }}
+                                                      >
+                                                        <X className="w-3 h-3" />
+                                                      </Button>
+                                                    </div>
+                                                  ) : (
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowReplyFor(comment.id);
+                                                      }}
+                                                      className="text-xs text-blue-500 hover:text-blue-600 mt-2"
+                                                    >
+                                                      Reply
+                                                    </button>
+                                                  )}
+                                                </>
+                                              )}
+                                            </div>
+                                          ))}
+                                          
+                                          {/* Add Comment */}
+                                          <div className="p-3">
+                                            <div className="flex items-center gap-2 mb-2">
+                                              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-medium">
+                                                Y
+                                              </div>
+                                              <span className="text-xs font-medium text-gray-700">Add a comment</span>
+                                            </div>
+                                            <textarea
+                                              placeholder="Type your comment..."
+                                              value={commentInput}
+                                              onChange={(e) => setCommentInput(e.target.value)}
+                                              onClick={(e) => e.stopPropagation()}
+                                              className="w-full p-2 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-emerald-500"
+                                              rows={2}
+                                            />
+                                            <div className="flex justify-end gap-2 mt-2">
+                                              <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setCommentInput('');
+                                                }}
+                                                className="h-7 text-xs"
+                                              >
+                                                Cancel
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (!commentInput.trim()) return;
+                                                  const newComment = {
+                                                    id: crypto.randomUUID(),
+                                                    text: commentInput,
+                                                    author: 'You',
+                                                    createdAt: new Date(),
+                                                    resolved: false,
+                                                    replies: []
+                                                  };
+                                                  setLineComments(prev => ({
+                                                    ...prev,
+                                                    [i]: [...(prev[i] || []), newComment]
+                                                  }));
+                                                  setCommentInput('');
+                                                  toast.success('Comment added');
+                                                }}
+                                                className="h-7 text-xs bg-emerald-500 hover:bg-emerald-600"
+                                              >
+                                                Comment
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
                                     
                                     {/* Hide */}
                                     <Tooltip>
