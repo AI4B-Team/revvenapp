@@ -95,10 +95,10 @@ const EditorImagePanel: React.FC<EditorImagePanelProps> = ({
   const hasUploadedImages = uploadedImages.length > 0;
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-y-auto">
+    <div className="flex flex-col h-full bg-white overflow-hidden">
       {/* Search Bar and Upload Button - Only show when files are uploaded */}
       {hasUploadedImages && (
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 flex-shrink-0">
           <Button
             variant="outline"
             className="flex items-center gap-2 px-4 py-2 border-gray-300 hover:bg-gray-50 flex-shrink-0"
@@ -183,7 +183,8 @@ const EditorImagePanel: React.FC<EditorImagePanelProps> = ({
 
       {/* Uploaded Images Grid */}
       {hasUploadedImages && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2">
           {filteredImages.map((image) => {
             const isFavorite = isImageFavorited(image.id);
             return (
@@ -248,6 +249,7 @@ const EditorImagePanel: React.FC<EditorImagePanelProps> = ({
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </div>
