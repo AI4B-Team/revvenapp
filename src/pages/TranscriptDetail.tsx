@@ -1636,12 +1636,12 @@ ${content.map((item, index) => {
                                 <Volume2 className="w-4 h-4 text-gray-600" />
                               </button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-14 p-3 bg-white border-gray-200" side="top">
-                              <div className="relative h-36 flex items-center justify-center">
-                                <div className="relative w-32 h-2 bg-gray-300 rounded-full" style={{ transform: 'rotate(-90deg)' }}>
+                            <PopoverContent className="w-10 p-2 bg-white border-gray-200" side="top">
+                              <div className="relative h-40 flex items-center justify-center">
+                                <div className="relative h-full w-2 bg-gray-300 rounded-full flex flex-col-reverse">
                                   <div 
-                                    className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full"
-                                    style={{ width: `${volume}%` }}
+                                    className="absolute bottom-0 left-0 w-full bg-emerald-500 rounded-full"
+                                    style={{ height: `${volume}%` }}
                                   />
                                   <input
                                     type="range"
@@ -1649,11 +1649,12 @@ ${content.map((item, index) => {
                                     max="100"
                                     value={volume}
                                     onChange={(e) => setVolume(parseInt(e.target.value))}
-                                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                                    className="absolute top-0 left-1/2 -translate-x-1/2 h-full w-full opacity-0 cursor-pointer"
+                                    style={{ writingMode: 'vertical-lr', direction: 'rtl' }}
                                   />
                                   <div 
-                                    className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow border-2 border-emerald-500 pointer-events-none"
-                                    style={{ left: `calc(${volume}% - 6px)` }}
+                                    className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow border-2 border-emerald-500 pointer-events-none"
+                                    style={{ bottom: `calc(${volume}% - 6px)` }}
                                   />
                                 </div>
                               </div>
