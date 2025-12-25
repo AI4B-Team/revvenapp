@@ -237,8 +237,11 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
 
         // Create new clip with actual video duration
         const clipDuration = data.duration || 5;
-        const newClip: TimelineClip = {
-          id: `clip-${Date.now()}`,
+        const clipId = `clip-${Date.now()}`;
+        
+        // Create video clip
+        const newVideoClip: TimelineClip = {
+          id: clipId,
           type: 'video',
           name: data.name || 'Video Clip',
           startTime: Math.max(0, startTime),
@@ -247,17 +250,78 @@ const VideoTimeline: React.FC<VideoTimelineProps> = ({
           src: data.url,
         };
 
-        // Add to track
-        setTracks(prev => prev.map(t => {
-          if (t.id !== trackId) return t;
-          return {
-            ...t,
-            clips: [...t.clips, newClip]
-          };
-        }));
+        // Create audio clip for the same video
+        const newAudioClip: TimelineClip = {
+          id: `audio-${clipId}`,
+          type: 'audio',
+          name: `${data.name || 'Video'} Audio`,
+          startTime: Math.max(0, startTime),
+          duration: Math.max(1, clipDuration),
+          waveform: Array.from({ length: 50 }, () => Math.random() * 0.8 + 0.2),
+          src: data.url,
+        };
+
+        // Create script/text clip
+        const newTextClip: TimelineClip = {
+          id: `text-${clipId}`,
+          type: 'text',
+          name: `${data.name || 'Video'} Script`,
+          startTime: Math.max(0, startTime),
+          duration: Math.max(1, clipDuration),
+          caption: 'Script placeholder...',
+        };
+
+        // Update tracks - add video to video track, audio to audio track, text to text/music track
+        setTracks(prev => {
+          let updatedTracks = [...prev];
+          
+          // Add video clip to the target video track
+          updatedTracks = updatedTracks.map(t => {
+            if (t.id === trackId) {
+              return { ...t, clips: [...t.clips, newVideoClip] };
+            }
+            return t;
+          });
+          
+          // Find or create audio track and add audio clip
+          const audioTrackIndex = updatedTracks.findIndex(t => t.type === 'audio' || t.id.includes('audio'));
+          if (audioTrackIndex !== -1) {
+            updatedTracks[audioTrackIndex] = {
+              ...updatedTracks[audioTrackIndex],
+              clips: [...updatedTracks[audioTrackIndex].clips, newAudioClip]
+            };
+          } else {
+            // Create new audio track if none exists
+            updatedTracks.push({
+              id: `audio-${Date.now()}`,
+              type: 'audio',
+              name: 'Audio',
+              clips: [newAudioClip]
+            });
+          }
+          
+          // Find or create text/script track and add text clip
+          const textTrackIndex = updatedTracks.findIndex(t => t.type === 'text' || t.id.includes('music') || t.id.includes('text'));
+          if (textTrackIndex !== -1) {
+            updatedTracks[textTrackIndex] = {
+              ...updatedTracks[textTrackIndex],
+              clips: [...updatedTracks[textTrackIndex].clips, newTextClip]
+            };
+          } else {
+            // Create new text track if none exists
+            updatedTracks.push({
+              id: `text-${Date.now()}`,
+              type: 'text',
+              name: 'Script',
+              clips: [newTextClip]
+            });
+          }
+          
+          return updatedTracks;
+        });
         
-        // Select the new clip
-        setSelectedClip(newClip.id);
+        // Select the new video clip
+        setSelectedClip(newVideoClip.id);
       }
     } catch (error) {
       console.error('Failed to parse drop data:', error);
