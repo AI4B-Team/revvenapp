@@ -536,6 +536,61 @@ const TranscriptDetail = () => {
       </span>
     );
   };
+
+  const renderStaticHighlightedText = (text: string, segmentIndex: number) => {
+    const highlightColor = lineHighlights[segmentIndex];
+    const segmentTextHighlights = textHighlights[segmentIndex] || [];
+
+    const highlightClasses: Record<string, string> = {
+      yellow: 'bg-yellow-200',
+      green: 'bg-green-200',
+      blue: 'bg-blue-200',
+      pink: 'bg-pink-200',
+    };
+
+    const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
+
+    const allHighlights: TextHighlight[] = [...segmentTextHighlights];
+    if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
+      allHighlights.push({ start: textSelection.start, end: textSelection.end, color: 'selection' });
+    }
+
+    if (allHighlights.length === 0) {
+      return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{text}</span>;
+    }
+
+    const sortedHighlights = [...allHighlights].sort((a, b) => a.start - b.start);
+    const parts: React.ReactNode[] = [];
+    let lastEnd = 0;
+
+    sortedHighlights.forEach((hl, idx) => {
+      if (hl.end <= lastEnd) return;
+      const effectiveStart = Math.max(hl.start, lastEnd);
+
+      if (effectiveStart > lastEnd) {
+        parts.push(<span key={`edit-text-${idx}-before`}>{text.substring(lastEnd, effectiveStart)}</span>);
+      }
+
+      const hlClass =
+        hl.color === 'selection'
+          ? 'bg-blue-100 border-b-2 border-blue-400'
+          : (highlightClasses[hl.color] || 'bg-yellow-200');
+
+      parts.push(
+        <span key={`edit-hl-${idx}`} className={`${hlClass} px-0.5 rounded`}>
+          {text.substring(effectiveStart, hl.end)}
+        </span>
+      );
+
+      lastEnd = hl.end;
+    });
+
+    if (lastEnd < text.length) {
+      parts.push(<span key="edit-text-end">{text.substring(lastEnd)}</span>);
+    }
+
+    return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{parts}</span>;
+  };
   
   // Handle text selection within a segment for text-level highlighting
   const handleTextSelection = (segmentIndex: number) => {
@@ -606,7 +661,7 @@ const TranscriptDetail = () => {
         return;
       }
     }
-    
+
     // Then check textSelection state
     if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
       applyTextHighlight(color);
@@ -616,6 +671,49 @@ const TranscriptDetail = () => {
     // Fall back to line-level highlight
     setLineHighlights(prev => ({ ...prev, [segmentIndex]: color }));
     toast.success(`Highlighted in ${color}`);
+  };
+
+  const removeHighlightForSegment = (segmentIndex: number) => {
+    // Prefer removing within the current selection (pending or active)
+    const pending = pendingHighlightSelectionRef.current;
+    const pendingRange = pending && pending.segmentIndex === segmentIndex ? pending : null;
+
+    const selectionRange =
+      pendingRange && pendingRange.start !== pendingRange.end
+        ? { start: pendingRange.start, end: pendingRange.end }
+        : (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end
+            ? { start: textSelection.start, end: textSelection.end }
+            : null);
+
+    if (selectionRange) {
+      const { start, end } = selectionRange;
+      setTextHighlights(prev => {
+        const existing = prev[segmentIndex] || [];
+        const nextForSeg = existing.filter((hl) => hl.end <= start || hl.start >= end);
+        return {
+          ...prev,
+          [segmentIndex]: nextForSeg,
+        };
+      });
+    } else if ((textHighlights[segmentIndex]?.length ?? 0) > 0) {
+      // No selection: clear all text-level highlights for this segment
+      setTextHighlights(prev => ({
+        ...prev,
+        [segmentIndex]: [],
+      }));
+    } else {
+      // No text-level highlights: clear line-level highlight
+      setLineHighlights(prev => {
+        const next = { ...prev };
+        delete next[segmentIndex];
+        return next;
+      });
+    }
+
+    pendingHighlightSelectionRef.current = null;
+    setTextSelection(null);
+    window.getSelection()?.removeAllRanges();
+    toast.success('Highlight removed');
   };
   
   // AI Writer actions (smart: uses selected text if any, otherwise whole segment)
@@ -2518,12 +2616,7 @@ ${content.map((item, index) => {
                                             }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setLineHighlights(prev => {
-                                                const next = { ...prev };
-                                                delete next[i];
-                                                return next;
-                                              });
-                                              toast.success('Highlight removed');
+                                              removeHighlightForSegment(i);
                                             }}
                                             className="w-6 h-6 rounded-full bg-gray-100 border-2 border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
                                           >
@@ -3046,38 +3139,47 @@ ${content.map((item, index) => {
                                 </p>
                                 {editingLineIndex === i ? (
                                   <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
-                                    <textarea
-                                      ref={(el) => {
-                                        editTextareaRefs.current[i] = el;
-                                      }}
-                                      value={editedContent[i].text}
-                                      onChange={(e) => {
-                                        const newContent = [...editedContent];
-                                        newContent[i] = { ...newContent[i], text: e.target.value };
-                                        setEditedContent(newContent);
-                                      }}
-                                      onSelect={(e) => {
-                                        const el = e.currentTarget;
-                                        const start = el.selectionStart ?? 0;
-                                        const end = el.selectionEnd ?? 0;
-                                        if (start === end) {
-                                          setTextSelection(null);
-                                          pendingHighlightSelectionRef.current = null;
-                                          return;
-                                        }
+                                    <div className="relative">
+                                      <div
+                                        aria-hidden
+                                        className="pointer-events-none absolute inset-0 w-full p-2 rounded-lg border border-transparent text-gray-900 leading-relaxed whitespace-pre-wrap break-words"
+                                      >
+                                        {renderStaticHighlightedText(editedContent[i].text, i)}
+                                      </div>
+                                      <textarea
+                                        ref={(el) => {
+                                          editTextareaRefs.current[i] = el;
+                                        }}
+                                        value={editedContent[i].text}
+                                        onChange={(e) => {
+                                          const newContent = [...editedContent];
+                                          newContent[i] = { ...newContent[i], text: e.target.value };
+                                          setEditedContent(newContent);
+                                        }}
+                                        onSelect={(e) => {
+                                          const el = e.currentTarget;
+                                          const start = el.selectionStart ?? 0;
+                                          const end = el.selectionEnd ?? 0;
+                                          if (start === end) {
+                                            setTextSelection(null);
+                                            pendingHighlightSelectionRef.current = null;
+                                            return;
+                                          }
 
-                                        setTextSelection({
-                                          segmentIndex: i,
-                                          start,
-                                          end,
-                                          text: el.value.substring(start, end),
-                                        });
-                                        pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
-                                      }}
-                                      className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
-                                      rows={2}
-                                      autoFocus
-                                    />
+                                          setTextSelection({
+                                            segmentIndex: i,
+                                            start,
+                                            end,
+                                            text: el.value.substring(start, end),
+                                          });
+                                          pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                        }}
+                                        className="w-full p-2 rounded-lg border border-gray-300 bg-transparent text-transparent caret-foreground leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
+                                        style={{ WebkitTextFillColor: 'transparent', caretColor: 'hsl(var(--foreground))' }}
+                                        rows={2}
+                                        autoFocus
+                                      />
+                                    </div>
                                     <div className="flex items-center gap-2">
                                       <button 
                                         onClick={() => handleSaveLine(i)}
