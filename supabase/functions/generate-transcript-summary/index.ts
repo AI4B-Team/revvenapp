@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript, action, text, targetLanguage, question, chatHistory } = await req.json();
+    const { transcript, action, text, targetLanguage, question, chatHistory, transformType } = await req.json();
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
@@ -20,7 +20,27 @@ serve(async (req) => {
 
     let messages: { role: string; content: string }[] = [];
 
-    if (action === "chat") {
+    if (action === "transform") {
+      // Transform text (rephrase, shorten, elaborate, etc.)
+      if (!text || !transformType) {
+        throw new Error("Text and transformType required for transform action");
+      }
+      console.log("Transforming text with action:", transformType);
+      const instructions: Record<string, string> = {
+        rephrase: "Rephrase the following text while preserving its meaning. Only return the rephrased text, nothing else.",
+        shorten: "Make the following text shorter while preserving the key message. Only return the shortened text, nothing else.",
+        elaborate: "Expand on the following text with more detail. Only return the elaborated text, nothing else.",
+        "more formal": "Rewrite the following text in a more formal tone. Only return the rewritten text, nothing else.",
+        "more casual": "Rewrite the following text in a more casual, conversational tone. Only return the rewritten text, nothing else.",
+        bulletize: "Convert the following text into bullet points. Only return the bullet points, nothing else.",
+        summarize: "Summarize the following text concisely. Only return the summary, nothing else.",
+      };
+      const instruction = instructions[transformType] || instructions.rephrase;
+      messages = [
+        { role: "system", content: instruction },
+        { role: "user", content: text }
+      ];
+    } else if (action === "chat") {
       // Chat mode - answer questions about the transcript
       if (!question || !transcript) {
         throw new Error("Question and transcript required for chat");
@@ -96,9 +116,10 @@ IMPORTANT RULES:
     return new Response(
       JSON.stringify({ 
         success: true, 
-        summary: action !== "translate" && action !== "chat" ? result : undefined,
+        summary: (!action || action === 'summary') ? result : undefined,
         translatedText: action === "translate" ? result : undefined,
-        answer: action === "chat" ? result : undefined
+        answer: action === "chat" ? result : undefined,
+        result: action === "transform" ? result : undefined
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

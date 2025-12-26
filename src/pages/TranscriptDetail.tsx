@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -605,16 +605,69 @@ const TranscriptDetail = () => {
     toast.success(`Highlighted in ${color}`);
   };
   
-  // AI Writer actions
+  // AI Writer actions (smart: uses selected text if any, otherwise whole segment)
   const handleAIWriterAction = async (action: string, segmentIndex: number) => {
     const segment = editedContent[segmentIndex];
     if (!segment) return;
     
-    toast.success(`Applying "${action}" to segment...`);
+    // Determine what text to modify
+    let targetText = segment.text;
+    let usingSelection = false;
+    
+    if (pendingHighlightSelectionRef.current && pendingHighlightSelectionRef.current.segmentIndex === segmentIndex) {
+      const { start, end } = pendingHighlightSelectionRef.current;
+      if (start !== end) {
+        targetText = segment.text.substring(start, end);
+        usingSelection = true;
+      }
+    } else if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
+      targetText = textSelection.text;
+      usingSelection = true;
+    }
+    
+    toast.success(`Applying "${action}" to ${usingSelection ? 'selected text' : 'segment'}...`);
     setShowAIWriterDropdown(null);
     
-    // For now, just show a toast - actual AI implementation would go here
-    // In a real implementation, this would call an AI service
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+        body: { 
+          action: 'transform',
+          text: targetText,
+          transformType: action.toLowerCase()
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.result) {
+        const newContent = [...editedContent];
+        if (usingSelection && pendingHighlightSelectionRef.current) {
+          const { start, end } = pendingHighlightSelectionRef.current;
+          const origText = segment.text;
+          newContent[segmentIndex] = { 
+            ...segment, 
+            text: origText.substring(0, start) + data.result + origText.substring(end)
+          };
+        } else if (usingSelection && textSelection) {
+          const { start, end } = textSelection;
+          const origText = segment.text;
+          newContent[segmentIndex] = { 
+            ...segment, 
+            text: origText.substring(0, start) + data.result + origText.substring(end)
+          };
+        } else {
+          newContent[segmentIndex] = { ...segment, text: data.result };
+        }
+        setEditedContent(newContent);
+        toast.success(`${action} applied successfully`);
+      }
+    } catch (err) {
+      console.error('AI Writer error:', err);
+      toast.error('Failed to apply AI action');
+    } finally {
+      pendingHighlightSelectionRef.current = null;
+      setTextSelection(null);
+    }
   };
 
   // Check if audio duration is valid
@@ -908,6 +961,139 @@ const TranscriptDetail = () => {
       setSpeakerNamesLoaded(true);
     }
   }, [id, isLoading, editedContent.length, speakerNamesLoaded]);
+
+  // ========================
+  // LOAD / SAVE HIGHLIGHTS
+  // ========================
+  useEffect(() => {
+    if (!id || isLoading) return;
+    const loadHighlights = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('transcript_highlights')
+          .select('*')
+          .eq('transcript_id', id);
+        if (error) throw error;
+        if (!data) return;
+        const grouped: Record<number, TextHighlight[]> = {};
+        data.forEach((h: any) => {
+          if (!grouped[h.segment_index]) grouped[h.segment_index] = [];
+          grouped[h.segment_index].push({ start: h.start_pos, end: h.end_pos, color: h.color });
+        });
+        setTextHighlights(grouped);
+      } catch (e) {
+        console.error('Failed to load highlights', e);
+      }
+    };
+    loadHighlights();
+  }, [id, isLoading]);
+
+  // Save highlights when they change (debounced via useEffect)
+  const saveHighlightsToDb = useCallback(async (highlights: Record<number, TextHighlight[]>) => {
+    if (!id) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      // Delete existing then insert new (simple approach)
+      await supabase.from('transcript_highlights').delete().eq('transcript_id', id);
+      const rows: any[] = [];
+      Object.entries(highlights).forEach(([segIdx, hls]) => {
+        hls.forEach(hl => {
+          rows.push({
+            transcript_id: id,
+            user_id: user.id,
+            segment_index: Number(segIdx),
+            start_pos: hl.start,
+            end_pos: hl.end,
+            color: hl.color,
+          });
+        });
+      });
+      if (rows.length > 0) {
+        await supabase.from('transcript_highlights').insert(rows);
+      }
+    } catch (e) {
+      console.error('Failed to save highlights', e);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    // Skip initial load state
+    if (isLoading) return;
+    saveHighlightsToDb(textHighlights);
+  }, [textHighlights, saveHighlightsToDb, isLoading]);
+
+  // ========================
+  // LOAD / SAVE COMMENTS
+  // ========================
+  useEffect(() => {
+    if (!id || isLoading) return;
+    const loadComments = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('transcript_comments')
+          .select('*')
+          .eq('transcript_id', id);
+        if (error) throw error;
+        if (!data) return;
+        const grouped: Record<number, Comment[]> = {};
+        data.forEach((c: any) => {
+          if (!grouped[c.segment_index]) grouped[c.segment_index] = [];
+          grouped[c.segment_index].push({
+            id: c.id,
+            text: c.text,
+            author: c.author,
+            createdAt: new Date(c.created_at),
+            resolved: c.resolved,
+            mentions: c.mentions || [],
+            replies: c.replies || [],
+          });
+        });
+        setLineComments(grouped);
+      } catch (e) {
+        console.error('Failed to load comments', e);
+      }
+    };
+    loadComments();
+  }, [id, isLoading]);
+
+  // Persist comments when they change
+  const saveCommentsToDb = useCallback(async (comments: Record<number, Comment[]>) => {
+    if (!id) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      // Delete existing then insert new
+      await supabase.from('transcript_comments').delete().eq('transcript_id', id);
+      const rows: any[] = [];
+      Object.entries(comments).forEach(([segIdx, cmts]) => {
+        cmts.forEach(c => {
+          rows.push({
+            id: c.id,
+            transcript_id: id,
+            user_id: user.id,
+            segment_index: Number(segIdx),
+            text: c.text,
+            author: c.author,
+            resolved: c.resolved,
+            mentions: c.mentions,
+            replies: c.replies,
+            created_at: c.createdAt.toISOString(),
+          });
+        });
+      });
+      if (rows.length > 0) {
+        await supabase.from('transcript_comments').insert(rows);
+      }
+    } catch (e) {
+      console.error('Failed to save comments', e);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    saveCommentsToDb(lineComments);
+  }, [lineComments, saveCommentsToDb, isLoading]);
 
   useEffect(() => {
     setEditedTitle(title);
@@ -2007,11 +2193,35 @@ ${content.map((item, index) => {
                                     </Tooltip>
                                     
                                     {/* AI Writer */}
-                                    <Popover open={showAIWriterDropdown === i} onOpenChange={(open) => setShowAIWriterDropdown(open ? i : null)}>
+                                    <Popover open={showAIWriterDropdown === i} onOpenChange={(open) => {
+                                      if (open) {
+                                        // Capture selection before popover opens
+                                        if (editingLineIndex === i) {
+                                          const textarea = editTextareaRefs.current[i];
+                                          if (textarea) {
+                                            const start = textarea.selectionStart ?? 0;
+                                            const end = textarea.selectionEnd ?? 0;
+                                            if (start !== end) {
+                                              pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                            }
+                                          }
+                                        } else {
+                                          // Use textSelection if available
+                                          if (textSelection && textSelection.segmentIndex === i && textSelection.start !== textSelection.end) {
+                                            pendingHighlightSelectionRef.current = { segmentIndex: i, start: textSelection.start, end: textSelection.end };
+                                          }
+                                        }
+                                      }
+                                      setShowAIWriterDropdown(open ? i : null);
+                                    }}>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
+                                              onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                              }}
                                               onClick={(e) => e.stopPropagation()}
                                               className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
                                             >
