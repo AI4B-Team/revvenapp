@@ -365,6 +365,7 @@ const TranscriptDetail = () => {
   const [textHighlights, setTextHighlights] = useState<Record<number, TextHighlight[]>>({});
   const [highlightsLoaded, setHighlightsLoaded] = useState(false);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
+  const commentsDirtyRef = useRef(false); // Track if user has made comment changes
   const [textSelection, setTextSelection] = useState<{ segmentIndex: number; start: number; end: number; text: string } | null>(null);
   const segmentTextRefs = useRef<Record<number, HTMLParagraphElement | null>>({});
   const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
@@ -1400,7 +1401,8 @@ const TranscriptDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    if (isLoading || !commentsLoaded) return;
+    // Only save if user has made changes (not on initial load)
+    if (isLoading || !commentsLoaded || !commentsDirtyRef.current) return;
     saveCommentsToDb(lineComments);
   }, [lineComments, saveCommentsToDb, isLoading, commentsLoaded]);
 
@@ -2846,7 +2848,8 @@ ${content.map((item, index) => {
                                                   {!comment.resolved && (
                                                     <button
                                                       onClick={(e) => {
-                                                        e.stopPropagation();
+                                                      e.stopPropagation();
+                                                        commentsDirtyRef.current = true;
                                                         setLineComments(prev => ({
                                                           ...prev,
                                                           [i]: prev[i].map(c => 
@@ -2863,7 +2866,8 @@ ${content.map((item, index) => {
                                                   {comment.resolved && (
                                                     <button
                                                       onClick={(e) => {
-                                                        e.stopPropagation();
+                                                      e.stopPropagation();
+                                                        commentsDirtyRef.current = true;
                                                         setLineComments(prev => ({
                                                           ...prev,
                                                           [i]: prev[i].filter(c => c.id !== comment.id)
@@ -2948,6 +2952,7 @@ ${content.map((item, index) => {
                                                           onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (!replyInputs[comment.id]?.trim()) return;
+                                                            commentsDirtyRef.current = true;
                                                             setLineComments(prev => ({
                                                               ...prev,
                                                               [i]: prev[i].map(c => 
@@ -3074,6 +3079,7 @@ ${content.map((item, index) => {
                                                     mentions,
                                                     replies: []
                                                   };
+                                                  commentsDirtyRef.current = true;
                                                   setLineComments(prev => ({
                                                     ...prev,
                                                     [i]: [...(prev[i] || []), newComment]
