@@ -1188,6 +1188,7 @@ ${content.map((item, index) => {
   const handleSaveLine = async (index: number) => {
     if (!id) {
       setEditingLineIndex(null);
+      setSelectedLineIndex(null);
       toast.success('Line saved locally');
       return;
     }
@@ -1207,6 +1208,7 @@ ${content.map((item, index) => {
       // Update original content to match edited content
       setOriginalContent([...editedContent]);
       setEditingLineIndex(null);
+      setSelectedLineIndex(null);
       toast.success('Transcript saved');
     } catch (error) {
       console.error('Error saving transcript:', error);
@@ -1222,6 +1224,7 @@ ${content.map((item, index) => {
     newContent[index] = { ...originalContent[index] };
     setEditedContent(newContent);
     setEditingLineIndex(null);
+    setSelectedLineIndex(null);
   };
 
   const handleSaveTitle = async () => {
@@ -1931,8 +1934,8 @@ ${content.map((item, index) => {
                         
                         return (
                           <div key={i} className={`relative overflow-visible transition-[margin] duration-200 ${i === 0 && isSelected ? 'mt-10' : ''}`}>
-                            {/* Floating Toolbar - appears between segments */}
-                            {isSelected && editingLineIndex !== i && (
+                            {/* Floating Toolbar - appears between segments (also show when editing) */}
+                            {(isSelected || editingLineIndex === i) && (
                               <TooltipProvider delayDuration={200}>
                                 <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
                                   <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
@@ -2563,7 +2566,11 @@ ${content.map((item, index) => {
                                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                               } ${isHidden ? 'opacity-40' : ''}`}
                               onClick={(e) => {
-                                if (editingLineIndex === i) return;
+                                // If already editing this line, don't interfere
+                                if (editingLineIndex === i) {
+                                  e.stopPropagation();
+                                  return;
+                                }
                                 e.stopPropagation();
                                 // Check if there's a text selection - if so, handle highlighting
                                 const selection = window.getSelection();
@@ -2571,12 +2578,17 @@ ${content.map((item, index) => {
                                   handleTextSelection(i);
                                   return;
                                 }
-                                // If already selected and clicked again, enter edit mode
+                                // If already selected and clicked again, enter edit mode but keep toolbar visible
                                 if (isSelected) {
                                   setEditingLineIndex(i);
-                                  setSelectedLineIndex(null);
+                                  // Don't clear selectedLineIndex - keep the toolbar visible
                                 } else {
+                                  // Select the line
                                   setSelectedLineIndex(i);
+                                  // Clear any other editing state
+                                  if (editingLineIndex !== null && editingLineIndex !== i) {
+                                    setEditingLineIndex(null);
+                                  }
                                 }
                               }}
                               onMouseUp={() => {
