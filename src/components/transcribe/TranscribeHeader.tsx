@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  UserPlus, Send, Download, MoreVertical, Copy, LayoutTemplate, 
-  RotateCcw, Loader2
+  UserPlus, Send, Download, MoreVertical, Loader2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -235,18 +234,6 @@ const TranscribeHeader = ({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200">
-              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                <Copy className="w-4 h-4" />
-                Duplicate Project
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                <LayoutTemplate className="w-4 h-4" />
-                Save as Template
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                <RotateCcw className="w-4 h-4" />
-                Version History
-              </DropdownMenuItem>
               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
                 <Settings className="w-4 h-4" />
                 Settings

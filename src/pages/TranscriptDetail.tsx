@@ -1517,16 +1517,18 @@ ${content.map((item, index) => {
                       {/* Fullscreen Button */}
                       <button
                         onClick={() => {
-                          const waveformArea = document.querySelector('.waveform-container');
+                          const waveformArea = document.querySelector('.waveform-container') as HTMLElement;
                           if (waveformArea) {
                             if (document.fullscreenElement) {
                               document.exitFullscreen();
                             } else {
-                              waveformArea.requestFullscreen();
+                              waveformArea.requestFullscreen().catch(err => {
+                                console.log('Fullscreen error:', err);
+                              });
                             }
                           }
                         }}
-                        className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors"
+                        className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors z-10"
                       >
                         <Maximize className="w-4 h-4" />
                       </button>
