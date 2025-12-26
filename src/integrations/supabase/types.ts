@@ -349,6 +349,81 @@ export type Database = {
         }
         Relationships: []
       }
+      transcript_comments: {
+        Row: {
+          author: string
+          created_at: string
+          id: string
+          mentions: string[] | null
+          replies: Json | null
+          resolved: boolean
+          segment_index: number
+          text: string
+          transcript_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author?: string
+          created_at?: string
+          id?: string
+          mentions?: string[] | null
+          replies?: Json | null
+          resolved?: boolean
+          segment_index: number
+          text: string
+          transcript_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          id?: string
+          mentions?: string[] | null
+          replies?: Json | null
+          resolved?: boolean
+          segment_index?: number
+          text?: string
+          transcript_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transcript_highlights: {
+        Row: {
+          color: string
+          created_at: string
+          end_pos: number
+          id: string
+          segment_index: number
+          start_pos: number
+          transcript_id: string
+          user_id: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          end_pos: number
+          id?: string
+          segment_index: number
+          start_pos: number
+          transcript_id: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          end_pos?: number
+          id?: string
+          segment_index?: number
+          start_pos?: number
+          transcript_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_exports: {
         Row: {
           created_at: string
