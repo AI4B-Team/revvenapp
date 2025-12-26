@@ -2845,40 +2845,79 @@ ${content.map((item, index) => {
                                                   </div>
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                  {!comment.resolved && (
-                                                    <button
-                                                      onClick={(e) => {
-                                                      e.stopPropagation();
-                                                        commentsDirtyRef.current = true;
-                                                        setLineComments(prev => ({
-                                                          ...prev,
-                                                          [i]: prev[i].map(c => 
-                                                            c.id === comment.id ? { ...c, resolved: true } : c
-                                                          )
-                                                        }));
-                                                        toast.success('Comment resolved');
-                                                      }}
-                                                      className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-gray-100 rounded"
-                                                    >
-                                                      <Check className="w-3.5 h-3.5" />
-                                                    </button>
-                                                  )}
-                                                  {comment.resolved && (
-                                                    <button
-                                                      onClick={(e) => {
-                                                      e.stopPropagation();
-                                                        commentsDirtyRef.current = true;
-                                                        setLineComments(prev => ({
-                                                          ...prev,
-                                                          [i]: prev[i].filter(c => c.id !== comment.id)
-                                                        }));
-                                                        toast.success('Comment deleted');
-                                                      }}
-                                                      className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
-                                                    >
-                                                      <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
-                                                  )}
+                                                  <TooltipProvider>
+                                                    {!comment.resolved && (
+                                                      <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                          <button
+                                                            onClick={(e) => {
+                                                              e.stopPropagation();
+                                                              commentsDirtyRef.current = true;
+                                                              setLineComments(prev => ({
+                                                                ...prev,
+                                                                [i]: prev[i].map(c => 
+                                                                  c.id === comment.id ? { ...c, resolved: true } : c
+                                                                )
+                                                              }));
+                                                              toast.success('Comment resolved');
+                                                            }}
+                                                            className="p-1 text-gray-400 hover:text-emerald-500 hover:bg-gray-100 rounded"
+                                                          >
+                                                            <Check className="w-3.5 h-3.5" />
+                                                          </button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
+                                                          Resolve comment
+                                                        </TooltipContent>
+                                                      </Tooltip>
+                                                    )}
+                                                    {comment.resolved && (
+                                                      <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                          <button
+                                                            onClick={(e) => {
+                                                              e.stopPropagation();
+                                                              commentsDirtyRef.current = true;
+                                                              setLineComments(prev => ({
+                                                                ...prev,
+                                                                [i]: prev[i].map(c => 
+                                                                  c.id === comment.id ? { ...c, resolved: false } : c
+                                                                )
+                                                              }));
+                                                              toast.success('Comment reopened');
+                                                            }}
+                                                            className="p-1 text-gray-400 hover:text-amber-500 hover:bg-gray-100 rounded"
+                                                          >
+                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                          </button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
+                                                          Reopen comment
+                                                        </TooltipContent>
+                                                      </Tooltip>
+                                                    )}
+                                                    <Tooltip>
+                                                      <TooltipTrigger asChild>
+                                                        <button
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            commentsDirtyRef.current = true;
+                                                            setLineComments(prev => ({
+                                                              ...prev,
+                                                              [i]: prev[i].filter(c => c.id !== comment.id)
+                                                            }));
+                                                            toast.success('Comment deleted');
+                                                          }}
+                                                          className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
+                                                        >
+                                                          <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                      </TooltipTrigger>
+                                                      <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
+                                                        Delete comment
+                                                      </TooltipContent>
+                                                    </Tooltip>
+                                                  </TooltipProvider>
                                                 </div>
                                               </div>
                                               <p className={`text-sm text-gray-700 mt-2 ${comment.resolved ? 'line-through' : ''}`}>
