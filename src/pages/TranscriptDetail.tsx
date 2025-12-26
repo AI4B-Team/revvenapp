@@ -2867,7 +2867,7 @@ ${content.map((item, index) => {
                                                           </button>
                                                         </TooltipTrigger>
                                                         <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
-                                                          Resolve comment
+                                                          Resolve
                                                         </TooltipContent>
                                                       </Tooltip>
                                                     )}
@@ -2892,7 +2892,7 @@ ${content.map((item, index) => {
                                                           </button>
                                                         </TooltipTrigger>
                                                         <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
-                                                          Reopen comment
+                                                          Reopen
                                                         </TooltipContent>
                                                       </Tooltip>
                                                     )}
@@ -2914,7 +2914,7 @@ ${content.map((item, index) => {
                                                         </button>
                                                       </TooltipTrigger>
                                                       <TooltipContent side="top" className="bg-gray-900 text-white text-xs">
-                                                        Delete comment
+                                                        Delete
                                                       </TooltipContent>
                                                     </Tooltip>
                                                   </TooltipProvider>
