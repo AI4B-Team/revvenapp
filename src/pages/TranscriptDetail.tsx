@@ -2248,6 +2248,11 @@ ${content.map((item, index) => {
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
+                                              onPointerDown={(e) => {
+                                                // Keep text selection from collapsing when opening the popover (Radix uses pointer events)
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                              }}
                                               onMouseDown={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -2343,8 +2348,8 @@ ${content.map((item, index) => {
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
-                                              onMouseDown={(e) => {
-                                                // Capture the current selection before focus changes
+                                              onPointerDown={(e) => {
+                                                // Capture selection + keep it visible while the highlight picker is open
                                                 e.preventDefault();
                                                 e.stopPropagation();
 
@@ -2356,6 +2361,12 @@ ${content.map((item, index) => {
                                                     const end = textarea.selectionEnd ?? 0;
                                                     if (start !== end) {
                                                       pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                                      setTextSelection({
+                                                        segmentIndex: i,
+                                                        start,
+                                                        end,
+                                                        text: textarea.value.substring(start, end),
+                                                      });
                                                     }
                                                   }
                                                   return;
@@ -2380,6 +2391,12 @@ ${content.map((item, index) => {
 
                                                     if (start !== end) {
                                                       pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                                      setTextSelection({
+                                                        segmentIndex: i,
+                                                        start,
+                                                        end,
+                                                        text: segmentText.substring(start, end),
+                                                      });
                                                       return;
                                                     }
                                                   }
@@ -2393,6 +2410,11 @@ ${content.map((item, index) => {
                                                     end: textSelection.end,
                                                   };
                                                 }
+                                              }}
+                                              onMouseDown={(e) => {
+                                                // Keep for mouse-only environments
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                               }}
                                               onClick={(e) => e.stopPropagation()}
                                               className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
