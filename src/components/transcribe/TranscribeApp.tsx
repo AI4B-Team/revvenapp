@@ -1417,7 +1417,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         </span>
                         {transcript.words && (
                           <span className="flex items-center gap-1.5">
-                            <Hash className="w-3.5 h-3.5 text-pink-500" />
+                            <Hash className="w-3.5 h-3.5 text-red-500" />
                             {transcript.words.toLocaleString()} Words
                           </span>
                         )}
