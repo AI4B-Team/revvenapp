@@ -194,6 +194,8 @@ const TranscriptDetail = () => {
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [identifyingVoice, setIdentifyingVoice] = useState<number | null>(null);
   const [speakerNamesLoaded, setSpeakerNamesLoaded] = useState(false);
+  const [speakerDropdownOpen, setSpeakerDropdownOpen] = useState<number | null>(null);
+  const [newSpeakerName, setNewSpeakerName] = useState('');
   
   // Attach audio state
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
@@ -3692,9 +3694,102 @@ ${content.map((item, index) => {
                                 </span>
                               </div>
                               <div className="flex-1 min-w-0 overflow-visible">
-                                <p className={`text-sm font-medium mb-1 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}>
-                                  {item.speaker}
-                                </p>
+                                {/* Clickable Speaker Name with Dropdown */}
+                                <Popover 
+                                  open={speakerDropdownOpen === i} 
+                                  onOpenChange={(open) => {
+                                    setSpeakerDropdownOpen(open ? i : null);
+                                    if (!open) setNewSpeakerName('');
+                                  }}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      onClick={(e) => e.stopPropagation()}
+                                      className={`text-sm font-medium mb-1 flex items-center gap-1 hover:underline cursor-pointer transition-colors ${isSelected ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                      {item.speaker}
+                                      <ChevronDown className="w-3 h-3" />
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent 
+                                    className="w-72 p-0 bg-white border-gray-200 shadow-xl z-50" 
+                                    side="bottom" 
+                                    align="start"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="p-3 border-b border-gray-100">
+                                      <p className="text-xs text-gray-500 font-medium mb-2">Suggested Speakers</p>
+                                      <div className="space-y-1 max-h-48 overflow-y-auto">
+                                        {/* Get unique speakers from editedContent */}
+                                        {(() => {
+                                          const uniqueSpeakers = Array.from(new Set(editedContent.map(line => line.speaker)));
+                                          return uniqueSpeakers.map((speaker, idx) => {
+                                            const colorIndex = idx % SPEAKER_COLORS.length;
+                                            const speakerColor = SPEAKER_COLORS[colorIndex];
+                                            const isCurrentSpeaker = speaker === item.speaker;
+                                            return (
+                                              <button
+                                                key={speaker}
+                                                onClick={() => {
+                                                  // Update this line's speaker
+                                                  const newContent = [...editedContent];
+                                                  newContent[i] = { ...newContent[i], speaker };
+                                                  setEditedContent(newContent);
+                                                  setSpeakerDropdownOpen(null);
+                                                }}
+                                                className={`w-full flex items-center gap-3 px-2 py-2 rounded-lg transition-colors ${isCurrentSpeaker ? 'bg-blue-50' : 'hover:bg-gray-100'}`}
+                                              >
+                                                <div className={`w-8 h-8 rounded-full ${speakerColor.color} flex items-center justify-center text-white font-semibold text-sm`}>
+                                                  {speaker.charAt(0).toUpperCase()}
+                                                </div>
+                                                <span className="font-medium text-gray-900 flex-1 text-left">{speaker}</span>
+                                                {isCurrentSpeaker && (
+                                                  <span className="text-xs text-blue-600 font-medium">Current</span>
+                                                )}
+                                              </button>
+                                            );
+                                          });
+                                        })()}
+                                      </div>
+                                    </div>
+                                    {/* Add new speaker input */}
+                                    <div className="p-3">
+                                      <div className="flex items-center gap-2">
+                                        <input
+                                          type="text"
+                                          placeholder="Type speaker's name here"
+                                          value={newSpeakerName}
+                                          onChange={(e) => setNewSpeakerName(e.target.value)}
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && newSpeakerName.trim()) {
+                                              const newContent = [...editedContent];
+                                              newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
+                                              setEditedContent(newContent);
+                                              setSpeakerDropdownOpen(null);
+                                              setNewSpeakerName('');
+                                            }
+                                          }}
+                                          className="flex-1 px-3 py-2 text-sm bg-gray-100 rounded-lg border-0 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <button
+                                          onClick={() => {
+                                            if (newSpeakerName.trim()) {
+                                              const newContent = [...editedContent];
+                                              newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
+                                              setEditedContent(newContent);
+                                              setSpeakerDropdownOpen(null);
+                                              setNewSpeakerName('');
+                                            }
+                                          }}
+                                          disabled={!newSpeakerName.trim()}
+                                          className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors"
+                                        >
+                                          Tag
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
                                 {editingLineIndex === i ? (
                                   <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                                     <div className="relative">
