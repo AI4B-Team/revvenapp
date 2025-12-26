@@ -427,7 +427,7 @@ const TranscriptDetail = () => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // Render text with word-level highlighting (karaoke-style), user highlights, and text-level highlights
+  // Render text with word-level highlighting (karaoke-style), user highlights, text-level highlights, and active selection preview
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
     const highlightColor = lineHighlights[segmentIndex];
     const segmentTextHighlights = textHighlights[segmentIndex] || [];
@@ -441,12 +441,20 @@ const TranscriptDetail = () => {
     };
     
     const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
+    const text = item.text;
     
-    // If there are text-level highlights, render them
-    if (segmentTextHighlights.length > 0 && !isPlaying) {
+    // Combine persisted highlights with current text selection preview
+    const allHighlights = [...segmentTextHighlights];
+    
+    // Add active selection as a temporary highlight preview (light blue)
+    if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
+      allHighlights.push({ start: textSelection.start, end: textSelection.end, color: 'selection' });
+    }
+    
+    // If there are any highlights to render (persisted or selection preview)
+    if (allHighlights.length > 0 && !isPlaying) {
       // Sort highlights by start position
-      const sortedHighlights = [...segmentTextHighlights].sort((a, b) => a.start - b.start);
-      const text = item.text;
+      const sortedHighlights = [...allHighlights].sort((a, b) => a.start - b.start);
       const parts: React.ReactNode[] = [];
       let lastEnd = 0;
       
@@ -461,9 +469,12 @@ const TranscriptDetail = () => {
         if (effectiveStart > lastEnd) {
           parts.push(<span key={`text-${idx}-before`}>{text.substring(lastEnd, effectiveStart)}</span>);
         }
-        // Add highlighted text (from effective start to end)
+        // Add highlighted text - use special class for active selection
+        const hlClass = hl.color === 'selection' 
+          ? 'bg-blue-100 border-b-2 border-blue-400' 
+          : (highlightClasses[hl.color] || 'bg-yellow-200');
         parts.push(
-          <span key={`hl-${idx}`} className={`${highlightClasses[hl.color] || 'bg-yellow-200'} px-0.5 rounded`}>
+          <span key={`hl-${idx}`} className={`${hlClass} px-0.5 rounded`}>
             {text.substring(effectiveStart, hl.end)}
           </span>
         );
@@ -995,7 +1006,11 @@ const TranscriptDetail = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       // Delete existing then insert new (simple approach)
-      await supabase.from('transcript_highlights').delete().eq('transcript_id', id);
+      const { error: deleteError } = await supabase.from('transcript_highlights').delete().eq('transcript_id', id).eq('user_id', user.id);
+      if (deleteError) {
+        console.warn('Could not delete existing highlights (may not own this transcript):', deleteError.message);
+        return; // Don't proceed if we can't delete - likely RLS issue
+      }
       const rows: any[] = [];
       Object.entries(highlights).forEach(([segIdx, hls]) => {
         hls.forEach(hl => {
@@ -1010,7 +1025,10 @@ const TranscriptDetail = () => {
         });
       });
       if (rows.length > 0) {
-        await supabase.from('transcript_highlights').insert(rows);
+        const { error: insertError } = await supabase.from('transcript_highlights').insert(rows);
+        if (insertError) {
+          console.warn('Could not save highlights:', insertError.message);
+        }
       }
     } catch (e) {
       console.error('Failed to save highlights', e);
@@ -1064,7 +1082,11 @@ const TranscriptDetail = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       // Delete existing then insert new
-      await supabase.from('transcript_comments').delete().eq('transcript_id', id);
+      const { error: deleteError } = await supabase.from('transcript_comments').delete().eq('transcript_id', id).eq('user_id', user.id);
+      if (deleteError) {
+        console.warn('Could not delete existing comments (may not own this transcript):', deleteError.message);
+        return; // Don't proceed if we can't delete - likely RLS issue
+      }
       const rows: any[] = [];
       Object.entries(comments).forEach(([segIdx, cmts]) => {
         cmts.forEach(c => {
@@ -1083,7 +1105,10 @@ const TranscriptDetail = () => {
         });
       });
       if (rows.length > 0) {
-        await supabase.from('transcript_comments').insert(rows);
+        const { error: insertError } = await supabase.from('transcript_comments').insert(rows);
+        if (insertError) {
+          console.warn('Could not save comments:', insertError.message);
+        }
       }
     } catch (e) {
       console.error('Failed to save comments', e);
