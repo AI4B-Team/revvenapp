@@ -2245,21 +2245,21 @@ ${content.map((item, index) => {
                                                           {/* Mention dropdown for reply */}
                                                           {showMentionDropdown && mentionContext === 'reply' && mentionReplyId === comment.id && (
                                                             <div className="absolute bottom-full left-0 mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-32 overflow-y-auto">
-                                                              {filteredMentionUsers.length > 0 ? (
-                                                                filteredMentionUsers.map(user => (
+{filteredMentionUsers.length > 0 ? (
+                                                              filteredMentionUsers.map(user => (
                                                                   <button
                                                                     key={user.id}
                                                                     onClick={(e) => {
                                                                       e.stopPropagation();
                                                                       insertMention(user.name);
                                                                     }}
-                                                                    className="w-full px-3 py-1.5 text-left hover:bg-gray-100 flex items-center gap-2"
+                                                                    className="w-full px-3 py-1.5 text-left hover:bg-blue-100 focus:bg-blue-100 flex items-center gap-2"
                                                                   >
-                                                                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-medium">
+                                                                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold">
                                                                       {user.name.charAt(0)}
                                                                     </div>
                                                                     <div>
-                                                                      <p className="text-xs font-medium text-gray-900">{user.name}</p>
+                                                                      <p className="text-xs font-bold text-gray-900">{user.name}</p>
                                                                       <p className="text-[10px] text-gray-500">{user.email}</p>
                                                                     </div>
                                                                   </button>
@@ -2350,20 +2350,20 @@ ${content.map((item, index) => {
                                               {showMentionDropdown && mentionContext === 'comment' && (
                                                 <div className="absolute bottom-full left-0 mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-40 overflow-y-auto">
                                                   {filteredMentionUsers.length > 0 ? (
-                                                    filteredMentionUsers.map(user => (
+                                                                    filteredMentionUsers.map(user => (
                                                       <button
                                                         key={user.id}
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           insertMention(user.name);
                                                         }}
-                                                        className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                                                        className="w-full px-3 py-2 text-left hover:bg-blue-100 focus:bg-blue-100 flex items-center gap-2"
                                                       >
-                                                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium">
+                                                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
                                                           {user.name.charAt(0)}
                                                         </div>
                                                         <div>
-                                                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                                                          <p className="text-sm font-bold text-gray-900">{user.name}</p>
                                                           <p className="text-xs text-gray-500">{user.email}</p>
                                                         </div>
                                                       </button>
@@ -2674,33 +2674,43 @@ ${content.map((item, index) => {
                       
                       {/* Floating Text Highlight Picker - shows when text is selected */}
                       {textSelection && (
-                        <div className="fixed z-[100] bg-white rounded-lg shadow-xl border border-gray-200 p-2 animate-fade-in"
+                        <div 
+                          className="fixed z-[100] bg-white rounded-lg shadow-xl border border-gray-200 p-2 animate-fade-in"
                           style={{
                             top: '50%',
                             left: '50%',
                             transform: 'translate(-50%, -50%)'
+                          }}
+                          onMouseDown={(e) => {
+                            // Prevent the mousedown from stealing focus and clearing selection
+                            e.preventDefault();
                           }}
                         >
                           <div className="flex flex-col gap-2">
                             <p className="text-xs text-gray-500 px-2">Highlight selected text:</p>
                             <div className="flex items-center gap-2 px-2">
                               <button
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => applyTextHighlight('yellow')}
                                 className="w-7 h-7 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform"
                               />
                               <button
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => applyTextHighlight('green')}
                                 className="w-7 h-7 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform"
                               />
                               <button
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => applyTextHighlight('blue')}
                                 className="w-7 h-7 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform"
                               />
                               <button
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => applyTextHighlight('pink')}
                                 className="w-7 h-7 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform"
                               />
                               <button
+                                onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => {
                                   setTextSelection(null);
                                   window.getSelection()?.removeAllRanges();
