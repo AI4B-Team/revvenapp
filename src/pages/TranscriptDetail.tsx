@@ -391,6 +391,21 @@ const TranscriptDetail = () => {
   const [aiWriterCurrentAction, setAiWriterCurrentAction] = useState('');
   const [aiWriterRefinePrompt, setAiWriterRefinePrompt] = useState('');
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [showMoreModesModal, setShowMoreModesModal] = useState(false);
+  const [customModes, setCustomModes] = useState<string[]>([]);
+  
+  // All available writing modes organized by category
+  const allWritingModes = {
+    common: ['Rephrase', 'Formal', 'Casual', 'Shorten', 'Expand', 'Simplify', 'Standard', 'Fluent'],
+    styleAndVoice: ['Authoritative', 'Humorous', 'Poetic', 'Intellectual', 'Technical', 'Conversational', 'Persuasive', 'Professional'],
+    moodAndEmotion: ['Adventurous', 'Inspiring', 'Romantic', 'Angry', 'Mysterious', 'Sad', 'Emotional', 'Nostalgic', 'Serious', 'Emotive', 'Peaceful', 'Surreal', 'Frightening', 'Personal', 'Suspenseful', 'Respectful'],
+    clarityAndConcision: ['Brief', 'Concise', 'To the point', 'Clear', 'Direct'],
+    depthAndDetail: ['Complex', 'Expansive', 'Specific', 'Descriptive', 'In-depth', 'Thorough', 'Elaborate', 'Insightful'],
+    originalityAndCreativity: ['Artistic', 'Groundbreaking', 'Magical journey', 'Expressive', 'Imaginative', 'Out of the box', 'Creative', 'Unique']
+  };
+  
+  const defaultModes = ['Rephrase', 'Formal', 'Casual', 'Shorten', 'Expand', 'Simplify'];
+  const totalExtraModes = Object.values(allWritingModes).flat().length - defaultModes.length;
   
   // Segment playback - track when to stop playing a segment
   const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
@@ -2567,8 +2582,22 @@ ${content.map((item, index) => {
                                             Rephrase
                                           </button>
                                           <button
+                                            onClick={() => handleAIWriterAction('Make formal', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <Briefcase className="w-4 h-4" />
+                                            Formal
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Make casual', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <MessageSquare className="w-4 h-4" />
+                                            Casual
+                                          </button>
+                                          <button
                                             onClick={() => handleAIWriterAction('Shorten', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-400 hover:bg-gray-100 flex items-center gap-2"
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                           >
                                             <MinusCircle className="w-4 h-4" />
                                             Shorten
@@ -2578,35 +2607,14 @@ ${content.map((item, index) => {
                                             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                           >
                                             <ArrowDownToLine className="w-4 h-4" />
-                                            Elaborate
+                                            Expand
                                           </button>
                                           <button
-                                            onClick={() => handleAIWriterAction('More formal', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                          >
-                                            <Briefcase className="w-4 h-4" />
-                                            More formal
-                                          </button>
-                                          <button
-                                            onClick={() => handleAIWriterAction('More casual', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                          >
-                                            <MessageSquare className="w-4 h-4" />
-                                            More casual
-                                          </button>
-                                          <button
-                                            onClick={() => handleAIWriterAction('Bulletize', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                          >
-                                            <List className="w-4 h-4" />
-                                            Bulletize
-                                          </button>
-                                          <button
-                                            onClick={() => handleAIWriterAction('Summarize', i)}
+                                            onClick={() => handleAIWriterAction('Simplify', i)}
                                             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                           >
                                             <FileTextIcon className="w-4 h-4" />
-                                            Summarize
+                                            Simplify
                                           </button>
                                         </div>
                                       </PopoverContent>
@@ -3205,7 +3213,7 @@ ${content.map((item, index) => {
                             
                             {/* Segment Content */}
                             <div 
-                              className={`group relative flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                              className={`group relative flex gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer min-h-fit ${
                                 isSelected 
                                   ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200 ring-inset' 
                                   : isInSelection
@@ -3275,7 +3283,7 @@ ${content.map((item, index) => {
                                   {item.time}
                                 </span>
                               </div>
-                              <div className="flex-1 min-w-0">
+                              <div className="flex-1 min-w-0 overflow-visible">
                                 <p className={`text-sm font-medium mb-1 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}>
                                   {item.speaker}
                                 </p>
@@ -3344,7 +3352,7 @@ ${content.map((item, index) => {
                                     ref={(el) => {
                                       segmentTextRefs.current[i] = el;
                                     }}
-                                    className={`leading-relaxed ${isHidden ? 'italic' : ''} ${isSelected ? 'text-gray-800' : 'text-gray-900'}`}
+                                    className={`leading-relaxed whitespace-pre-wrap break-words ${isHidden ? 'italic' : ''} ${isSelected ? 'text-gray-800' : 'text-gray-900'}`}
                                   >
                                     {renderHighlightedText(item, i)}
                                   </p>
@@ -3723,7 +3731,7 @@ ${content.map((item, index) => {
           handleCloseAIWriterModal();
         }
       }}>
-        <DialogContent className="sm:max-w-3xl p-0 gap-0 rounded-xl overflow-hidden shadow-xl [&>button]:hidden">
+        <DialogContent className="sm:max-w-4xl p-0 gap-0 rounded-xl overflow-hidden shadow-xl [&>button]:hidden">
           {/* Header with mode tabs */}
           <div className="bg-background border-b border-border">
             <div className="flex items-center justify-between px-5 py-3">
@@ -3740,31 +3748,64 @@ ${content.map((item, index) => {
             
             {/* Mode Pills */}
             <div className="px-5 pb-3 flex items-center gap-2 flex-wrap">
-              {[
-                { label: 'Rephrase', action: 'Rephrase' },
-                { label: 'Formal', action: 'Make formal' },
-                { label: 'Casual', action: 'Make casual' },
-                { label: 'Shorten', action: 'Shorten' },
-                { label: 'Expand', action: 'Elaborate' },
-                { label: 'Simplify', action: 'Simplify' },
-              ].map((mode) => (
+              {/* Default modes */}
+              {defaultModes.map((mode) => {
+                const actionMap: Record<string, string> = {
+                  'Rephrase': 'Rephrase',
+                  'Formal': 'Make formal',
+                  'Casual': 'Make casual',
+                  'Shorten': 'Shorten',
+                  'Expand': 'Elaborate',
+                  'Simplify': 'Simplify'
+                };
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      if (!aiWriterModalLoading && aiWriterOriginalText) {
+                        handleRefineAIResult(actionMap[mode] || mode);
+                      }
+                    }}
+                    disabled={aiWriterModalLoading}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all ${
+                      aiWriterCurrentAction === (actionMap[mode] || mode)
+                        ? 'bg-emerald-500 text-white border-emerald-500'
+                        : 'bg-background text-foreground border-border hover:border-emerald-400 hover:bg-emerald-50'
+                    } disabled:opacity-50`}
+                  >
+                    {mode}
+                  </button>
+                );
+              })}
+              
+              {/* Custom modes that user selected */}
+              {customModes.map((mode) => (
                 <button
-                  key={mode.label}
+                  key={mode}
                   onClick={() => {
                     if (!aiWriterModalLoading && aiWriterOriginalText) {
-                      handleRefineAIResult(mode.action);
+                      handleRefineAIResult(mode);
                     }
                   }}
                   disabled={aiWriterModalLoading}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all ${
-                    aiWriterCurrentAction === mode.action
+                    aiWriterCurrentAction === mode
                       ? 'bg-emerald-500 text-white border-emerald-500'
-                      : 'bg-background text-foreground border-border hover:border-emerald-400 hover:bg-emerald-50'
+                      : 'bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-400 hover:bg-blue-100'
                   } disabled:opacity-50`}
                 >
-                  {mode.label}
+                  {mode}
                 </button>
               ))}
+              
+              {/* +X more button */}
+              <button
+                onClick={() => setShowMoreModesModal(true)}
+                disabled={aiWriterModalLoading}
+                className="px-3 py-1.5 text-sm font-medium rounded-lg border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all disabled:opacity-50"
+              >
+                +{totalExtraModes} more
+              </button>
             </div>
           </div>
           
@@ -3856,7 +3897,7 @@ ${content.map((item, index) => {
             </div>
             
             {/* Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={handleRetryAIWriter}
                 disabled={aiWriterModalLoading}
@@ -3866,22 +3907,23 @@ ${content.map((item, index) => {
                 <RefreshCwIcon className="w-4 h-4" />
               </button>
               
-              <div className="flex items-center gap-1 border-l border-border pl-2">
-                <button 
-                  onClick={() => toast.success('Thanks for the feedback!')}
-                  className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-emerald-600 transition-colors"
-                  title="Helpful"
-                >
-                  <ThumbsUp className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => toast.info('Thanks for the feedback!')}
-                  className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
-                  title="Not helpful"
-                >
-                  <ThumbsDown className="w-4 h-4" />
-                </button>
-              </div>
+              {/* Vertical divider with equal spacing */}
+              <div className="h-6 w-px bg-border mx-1" />
+              
+              <button 
+                onClick={() => toast.success('Thanks for the feedback!')}
+                className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-emerald-600 transition-colors"
+                title="Helpful"
+              >
+                <ThumbsUp className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => toast.info('Thanks for the feedback!')}
+                className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
+                title="Not helpful"
+              >
+                <ThumbsDown className="w-4 h-4" />
+              </button>
               
               <button
                 onClick={() => {
@@ -3931,6 +3973,226 @@ ${content.map((item, index) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* More Rewrite Options Modal */}
+      <Dialog open={showMoreModesModal} onOpenChange={setShowMoreModesModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col [&>button]:hidden">
+          <DialogHeader className="border-b border-border pb-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-semibold">More Rewrite Options</DialogTitle>
+              <button 
+                onClick={() => setShowMoreModesModal(false)}
+                className="p-1.5 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto py-4 space-y-6">
+            {/* Common */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Common</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.common.map((mode) => {
+                  const isSelected = customModes.includes(mode) || defaultModes.includes(mode);
+                  const isDefault = defaultModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        if (isDefault) return;
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isDefault
+                          ? 'bg-muted/50 text-muted-foreground border-border cursor-default'
+                          : isSelected
+                            ? 'bg-muted text-foreground border-muted-foreground/30'
+                            : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Style and voice */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Style and voice</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.styleAndVoice.map((mode) => {
+                  const isSelected = customModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isSelected
+                          ? 'bg-muted text-foreground border-muted-foreground/30'
+                          : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Mood and emotion */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Mood and emotion</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.moodAndEmotion.map((mode) => {
+                  const isSelected = customModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isSelected
+                          ? 'bg-muted text-foreground border-muted-foreground/30'
+                          : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Clarity and concision */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Clarity and concision</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.clarityAndConcision.map((mode) => {
+                  const isSelected = customModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isSelected
+                          ? 'bg-muted text-foreground border-muted-foreground/30'
+                          : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Depth and detail */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Depth and detail</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.depthAndDetail.map((mode) => {
+                  const isSelected = customModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isSelected
+                          ? 'bg-muted text-foreground border-muted-foreground/30'
+                          : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Originality and creativity */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Originality and creativity</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {allWritingModes.originalityAndCreativity.map((mode) => {
+                  const isSelected = customModes.includes(mode);
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => {
+                        setCustomModes(prev => 
+                          prev.includes(mode) 
+                            ? prev.filter(m => m !== mode)
+                            : [...prev, mode]
+                        );
+                      }}
+                      className={`px-4 py-2.5 text-sm rounded-lg border flex items-center gap-2 transition-all ${
+                        isSelected
+                          ? 'bg-muted text-foreground border-muted-foreground/30'
+                          : 'bg-background text-foreground border-border hover:bg-muted/50'
+                      }`}
+                    >
+                      {isSelected && <Check className="w-4 h-4" />}
+                      {mode}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="border-t border-border pt-4 flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setCustomModes([])}
+              className="px-6"
+            >
+              Reset
+            </Button>
+            <Button
+              onClick={() => setShowMoreModesModal(false)}
+              className="px-6 bg-foreground text-background hover:bg-foreground/90"
+            >
+              Select
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <DigitalCharactersModal 
         isOpen={charactersModalOpen} 
