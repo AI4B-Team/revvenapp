@@ -12,7 +12,8 @@ import {
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic,
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
-  ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle
+  ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle,
+  ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +39,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+
 import { supabase } from '@/integrations/supabase/client';
 
 const LANGUAGES = [
@@ -356,6 +374,23 @@ const TranscriptDetail = () => {
   // AI Writer dropdown state
   const [showAIWriterDropdown, setShowAIWriterDropdown] = useState<number | null>(null);
   const [aiWriterPrompt, setAIWriterPrompt] = useState('');
+  
+  // AI Writer Preview Modal state
+  interface AIWriterResult {
+    text: string;
+    action: string;
+  }
+  const [aiWriterModalOpen, setAiWriterModalOpen] = useState(false);
+  const [aiWriterModalLoading, setAiWriterModalLoading] = useState(false);
+  const [aiWriterResults, setAiWriterResults] = useState<AIWriterResult[]>([]);
+  const [aiWriterResultIndex, setAiWriterResultIndex] = useState(0);
+  const [aiWriterOriginalText, setAiWriterOriginalText] = useState('');
+  const [aiWriterSegmentIndex, setAiWriterSegmentIndex] = useState<number | null>(null);
+  const [aiWriterUsingSelection, setAiWriterUsingSelection] = useState(false);
+  const [aiWriterSelectionRange, setAiWriterSelectionRange] = useState<{ start: number; end: number } | null>(null);
+  const [aiWriterCurrentAction, setAiWriterCurrentAction] = useState('');
+  const [aiWriterRefinePrompt, setAiWriterRefinePrompt] = useState('');
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   
   // Segment playback - track when to stop playing a segment
   const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
@@ -717,6 +752,7 @@ const TranscriptDetail = () => {
   };
   
   // AI Writer actions (smart: uses selected text if any, otherwise whole segment)
+  // Now opens a preview modal instead of applying directly
   const handleAIWriterAction = async (action: string, segmentIndex: number) => {
     const segment = editedContent[segmentIndex];
     if (!segment) return;
@@ -724,19 +760,32 @@ const TranscriptDetail = () => {
     // Determine what text to modify
     let targetText = segment.text;
     let usingSelection = false;
+    let selectionRange: { start: number; end: number } | null = null;
     
     if (pendingHighlightSelectionRef.current && pendingHighlightSelectionRef.current.segmentIndex === segmentIndex) {
       const { start, end } = pendingHighlightSelectionRef.current;
       if (start !== end) {
         targetText = segment.text.substring(start, end);
         usingSelection = true;
+        selectionRange = { start, end };
       }
     } else if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
       targetText = textSelection.text;
       usingSelection = true;
+      selectionRange = { start: textSelection.start, end: textSelection.end };
     }
     
-    toast.success(`Applying "${action}" to ${usingSelection ? 'selected text' : 'segment'}...`);
+    // Store context for the modal
+    setAiWriterOriginalText(targetText);
+    setAiWriterSegmentIndex(segmentIndex);
+    setAiWriterUsingSelection(usingSelection);
+    setAiWriterSelectionRange(selectionRange);
+    setAiWriterCurrentAction(action);
+    setAiWriterResults([]);
+    setAiWriterResultIndex(0);
+    setAiWriterRefinePrompt('');
+    setAiWriterModalOpen(true);
+    setAiWriterModalLoading(true);
     setShowAIWriterDropdown(null);
     
     try {
@@ -751,33 +800,126 @@ const TranscriptDetail = () => {
       if (error) throw error;
       
       if (data?.result) {
-        const newContent = [...editedContent];
-        if (usingSelection && pendingHighlightSelectionRef.current) {
-          const { start, end } = pendingHighlightSelectionRef.current;
-          const origText = segment.text;
-          newContent[segmentIndex] = { 
-            ...segment, 
-            text: origText.substring(0, start) + data.result + origText.substring(end)
-          };
-        } else if (usingSelection && textSelection) {
-          const { start, end } = textSelection;
-          const origText = segment.text;
-          newContent[segmentIndex] = { 
-            ...segment, 
-            text: origText.substring(0, start) + data.result + origText.substring(end)
-          };
-        } else {
-          newContent[segmentIndex] = { ...segment, text: data.result };
-        }
-        setEditedContent(newContent);
-        toast.success(`${action} applied successfully`);
+        setAiWriterResults([{ text: data.result, action }]);
       }
     } catch (err) {
       console.error('AI Writer error:', err);
-      toast.error('Failed to apply AI action');
+      toast.error('Failed to generate AI result');
+      setAiWriterModalOpen(false);
     } finally {
+      setAiWriterModalLoading(false);
       pendingHighlightSelectionRef.current = null;
       setTextSelection(null);
+    }
+  };
+
+  // Apply the AI Writer result to the transcript
+  const applyAIWriterResult = () => {
+    if (aiWriterSegmentIndex === null || aiWriterResults.length === 0) return;
+    
+    const segment = editedContent[aiWriterSegmentIndex];
+    if (!segment) return;
+    
+    const result = aiWriterResults[aiWriterResultIndex];
+    const newContent = [...editedContent];
+    
+    if (aiWriterUsingSelection && aiWriterSelectionRange) {
+      const { start, end } = aiWriterSelectionRange;
+      const origText = segment.text;
+      newContent[aiWriterSegmentIndex] = { 
+        ...segment, 
+        text: origText.substring(0, start) + result.text + origText.substring(end)
+      };
+    } else {
+      newContent[aiWriterSegmentIndex] = { ...segment, text: result.text };
+    }
+    
+    setEditedContent(newContent);
+    toast.success(`${result.action} applied successfully`);
+    setAiWriterModalOpen(false);
+    resetAIWriterModal();
+  };
+
+  // Reset the AI Writer modal state
+  const resetAIWriterModal = () => {
+    setAiWriterResults([]);
+    setAiWriterResultIndex(0);
+    setAiWriterOriginalText('');
+    setAiWriterSegmentIndex(null);
+    setAiWriterUsingSelection(false);
+    setAiWriterSelectionRange(null);
+    setAiWriterCurrentAction('');
+    setAiWriterRefinePrompt('');
+  };
+
+  // Handle refining the AI result with a custom prompt
+  const handleRefineAIResult = async (refineAction?: string) => {
+    const action = refineAction || aiWriterRefinePrompt.trim();
+    if (!action || aiWriterResults.length === 0) return;
+    
+    setAiWriterModalLoading(true);
+    const currentResult = aiWriterResults[aiWriterResultIndex];
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+        body: { 
+          action: 'transform',
+          text: currentResult.text,
+          transformType: action.toLowerCase()
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.result) {
+        setAiWriterResults(prev => [...prev, { text: data.result, action }]);
+        setAiWriterResultIndex(prev => prev + 1);
+        setAiWriterRefinePrompt('');
+      }
+    } catch (err) {
+      console.error('AI Writer refine error:', err);
+      toast.error('Failed to refine result');
+    } finally {
+      setAiWriterModalLoading(false);
+    }
+  };
+
+  // Retry the current action
+  const handleRetryAIWriter = async () => {
+    if (!aiWriterCurrentAction || aiWriterSegmentIndex === null) return;
+    
+    setAiWriterModalLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-transcript-summary', {
+        body: { 
+          action: 'transform',
+          text: aiWriterOriginalText,
+          transformType: aiWriterCurrentAction.toLowerCase()
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.result) {
+        setAiWriterResults(prev => [...prev, { text: data.result, action: aiWriterCurrentAction }]);
+        setAiWriterResultIndex(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error('AI Writer retry error:', err);
+      toast.error('Failed to retry');
+    } finally {
+      setAiWriterModalLoading(false);
+    }
+  };
+
+  // Close the modal with confirmation if there are unsaved changes
+  const handleCloseAIWriterModal = () => {
+    if (aiWriterResults.length > 0) {
+      setShowDiscardConfirm(true);
+    } else {
+      setAiWriterModalOpen(false);
+      resetAIWriterModal();
     }
   };
 
@@ -3574,6 +3716,201 @@ ${content.map((item, index) => {
           </div>
         </div>
       )}
+
+      {/* AI Writer Preview Modal */}
+      <Dialog open={aiWriterModalOpen} onOpenChange={(open) => {
+        if (!open) {
+          handleCloseAIWriterModal();
+        }
+      }}>
+        <DialogContent className="sm:max-w-2xl p-0 gap-0 rounded-2xl overflow-hidden border-2 border-blue-400 shadow-2xl">
+          <DialogHeader className="p-4 pb-3 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
+                <Wand2 className="w-4 h-4 text-gray-600" />
+                {aiWriterCurrentAction}
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                {aiWriterResults.length > 1 && (
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <button 
+                      onClick={() => setAiWriterResultIndex(prev => Math.max(0, prev - 1))}
+                      disabled={aiWriterResultIndex === 0}
+                      className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span>{aiWriterResultIndex + 1} of {aiWriterResults.length}</span>
+                    <button 
+                      onClick={() => setAiWriterResultIndex(prev => Math.min(aiWriterResults.length - 1, prev + 1))}
+                      disabled={aiWriterResultIndex === aiWriterResults.length - 1}
+                      className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                <button 
+                  onClick={handleCloseAIWriterModal}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </DialogHeader>
+          
+          {/* Content Area */}
+          <div className="px-4 py-3 max-h-80 overflow-y-auto">
+            {aiWriterModalLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                <span className="ml-2 text-gray-500">Generating...</span>
+              </div>
+            ) : aiWriterResults.length > 0 ? (
+              <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                <p className="font-semibold mb-3">{aiWriterOriginalText}</p>
+                <p className="text-gray-700">{aiWriterResults[aiWriterResultIndex]?.text}</p>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                No result yet
+              </div>
+            )}
+          </div>
+          
+          {/* Footer */}
+          <div className="p-4 pt-3 border-t border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-gray-400">
+                AI can make mistakes. Review before inserting.
+              </span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => toast.success('Thanks for the feedback!')}
+                  className="p-1.5 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => toast.info('Thanks for the feedback!')}
+                  className="p-1.5 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Refine with a prompt"
+                value={aiWriterRefinePrompt}
+                onChange={(e) => setAiWriterRefinePrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && aiWriterRefinePrompt.trim()) {
+                    handleRefineAIResult();
+                  }
+                }}
+                disabled={aiWriterModalLoading || aiWriterResults.length === 0}
+                className="flex-1 px-4 py-2.5 text-sm bg-white rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+              />
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="rounded-full px-4"
+                    disabled={aiWriterModalLoading || aiWriterResults.length === 0}
+                  >
+                    Refine
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('Shorten')}>
+                    <MinusCircle className="w-4 h-4 mr-2" />
+                    Shorten
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('Elaborate')}>
+                    <ArrowDownToLine className="w-4 h-4 mr-2" />
+                    Elaborate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('More formal')}>
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    More formal
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('More casual')}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    More casual
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('Bulletize')}>
+                    <List className="w-4 h-4 mr-2" />
+                    Bulletize
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleRefineAIResult('Summarize')}>
+                    <FileTextIcon className="w-4 h-4 mr-2" />
+                    Summarize
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleRetryAIWriter}>
+                    <RefreshCwIcon className="w-4 h-4 mr-2" />
+                    Retry
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={aiWriterModalLoading || aiWriterResults.length === 0}
+                  >
+                    Insert
+                    <ChevronDown className="w-4 h-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={applyAIWriterResult}>
+                    <Check className="w-4 h-4 mr-2" />
+                    Replace selection
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => {
+                    if (aiWriterResults.length > 0) {
+                      navigator.clipboard.writeText(aiWriterResults[aiWriterResultIndex]?.text || '');
+                      toast.success('Copied to clipboard');
+                    }
+                  }}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy to clipboard
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Discard Confirmation Dialog */}
+      <AlertDialog open={showDiscardConfirm} onOpenChange={setShowDiscardConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The AI-generated content has not been inserted. Are you sure you want to discard it?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDiscardConfirm(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowDiscardConfirm(false);
+              setAiWriterModalOpen(false);
+              resetAIWriterModal();
+            }}>
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <DigitalCharactersModal 
         isOpen={charactersModalOpen} 
