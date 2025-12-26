@@ -959,7 +959,34 @@ const TranscriptDetail = () => {
         return;
       }
 
-      const updatedTranscript = newContent.map((item) => item.text).join(' ');
+      const line = newContent[aiWriterSegmentIndex];
+      if (line) {
+        const { error: segmentError } = await supabase
+          .from('transcript_segments')
+          .upsert(
+            [
+              {
+                transcript_id: id,
+                user_id: user.id,
+                segment_index: aiWriterSegmentIndex,
+                speaker: line.speaker ?? 'Speaker 1',
+                start_time: line.time ?? '00:00',
+                end_time: line.endTime ?? null,
+                text: (line.text ?? '').toString(),
+              },
+            ],
+            { onConflict: 'transcript_id,segment_index' }
+          );
+
+        if (segmentError) throw segmentError;
+      }
+
+      const updatedTranscript = newContent
+        .map((item) => item.text)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
       const { data, error } = await supabase
         .from('user_voices')
         .update({ prompt: updatedTranscript })
@@ -1294,28 +1321,94 @@ const TranscriptDetail = () => {
         setIsLoading(false);
         return;
       }
-      
+
       try {
-        const { data, error } = await supabase
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        const { data: voice, error: voiceError } = await supabase
           .from('user_voices')
           .select('*')
           .eq('id', id)
-          .single();
-        
-        if (error) throw error;
+          .maybeSingle();
+
+        if (voiceError) throw voiceError;
+        if (!voice) {
+          toast.error('Transcript not found');
+          return;
+        }
 
         // Backfill audio URL from DB if it wasn't present in the URL
-        if (data?.url && !resolvedAudioUrl) {
-          setResolvedAudioUrl(data.url);
+        if (voice.url && !resolvedAudioUrl) {
+          setResolvedAudioUrl(voice.url);
         }
-        
-        if (data?.prompt) {
-          const parsedContent = parseTranscriptContent(data.prompt, duration, speakers);
-          setOriginalContent(parsedContent);
-          setEditedContent(parsedContent);
-          
-          // Generate AI summary from the transcript
-          generateAISummary(data.prompt);
+
+        const mapSegmentsToLines = (segments: any[]): TranscriptLine[] => {
+          return segments
+            .slice()
+            .sort((a, b) => (a.segment_index ?? 0) - (b.segment_index ?? 0))
+            .map((s) => ({
+              speaker: s.speaker ?? 'Speaker 1',
+              time: s.start_time ?? '00:00',
+              endTime: s.end_time ?? undefined,
+              text: (s.text ?? '').toString(),
+            }));
+        };
+
+        const compileTranscript = (content: TranscriptLine[]) =>
+          content
+            .map((l) => l.text)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        // Prefer per-segment persistence to avoid re-splitting on refresh.
+        let contentFromDb: TranscriptLine[] | null = null;
+        if (user) {
+          const { data: segments, error: segmentsError } = await supabase
+            .from('transcript_segments')
+            .select('segment_index,speaker,start_time,end_time,text')
+            .eq('transcript_id', id)
+            .order('segment_index', { ascending: true });
+
+          if (!segmentsError && segments && segments.length > 0) {
+            contentFromDb = mapSegmentsToLines(segments);
+          }
+        }
+
+        // Fallback: parse the stored prompt into segments, then backfill segments table.
+        if (!contentFromDb && voice.prompt) {
+          const parsedContent = parseTranscriptContent(voice.prompt, duration, speakers);
+          contentFromDb = parsedContent;
+
+          if (user && parsedContent.length > 0) {
+            const rows = parsedContent.map((line, segment_index) => ({
+              transcript_id: id,
+              user_id: user.id,
+              segment_index,
+              speaker: line.speaker,
+              start_time: line.time,
+              end_time: line.endTime ?? null,
+              text: line.text,
+            }));
+
+            // Best-effort: if this fails (e.g., RLS), we still show the transcript.
+            const { error: backfillError } = await supabase
+              .from('transcript_segments')
+              .insert(rows);
+            if (backfillError) {
+              console.warn('Could not backfill transcript segments:', backfillError.message);
+            }
+          }
+        }
+
+        if (contentFromDb) {
+          setOriginalContent(contentFromDb);
+          setEditedContent(contentFromDb);
+
+          const summarySource = compileTranscript(contentFromDb) || (voice.prompt ?? '');
+          if (summarySource) generateAISummary(summarySource);
         }
       } catch (error) {
         console.error('Error loading transcript:', error);
@@ -1874,8 +1967,34 @@ ${content.map((item, index) => {
         return;
       }
 
-      // Compile all edited content back to a single string
-      const updatedTranscript = editedContent.map((item) => item.text).join(' ');
+      const line = editedContent[index];
+      if (line) {
+        const { error: segmentError } = await supabase
+          .from('transcript_segments')
+          .upsert(
+            [
+              {
+                transcript_id: id,
+                user_id: user.id,
+                segment_index: index,
+                speaker: line.speaker ?? 'Speaker 1',
+                start_time: line.time ?? '00:00',
+                end_time: line.endTime ?? null,
+                text: (line.text ?? '').toString(),
+              },
+            ],
+            { onConflict: 'transcript_id,segment_index' }
+          );
+
+        if (segmentError) throw segmentError;
+      }
+
+      // Keep the single-string prompt in sync for exports and legacy flows
+      const updatedTranscript = editedContent
+        .map((item) => item.text)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 
       const { data, error } = await supabase
         .from('user_voices')
@@ -1889,7 +2008,6 @@ ${content.map((item, index) => {
         throw new Error('Update failed (no permission or transcript not found)');
       }
 
-      // Update original content to match edited content
       setOriginalContent([...editedContent]);
       setEditingLineIndex(null);
       setSelectedLineIndex(null);
