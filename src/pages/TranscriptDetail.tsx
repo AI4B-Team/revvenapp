@@ -13,7 +13,8 @@ import {
   Pencil, Trash2, Check, X, Search, Mic,
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
   ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle,
-  ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon, Umbrella
+  ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon, Umbrella,
+  Undo2, Redo2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -209,7 +210,57 @@ const TranscriptDetail = () => {
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [isSaving, setIsSaving] = useState(false);
 
-  // Selected transcript line for toolbar
+  // Undo/Redo history for transcript edits
+  const [undoHistory, setUndoHistory] = useState<TranscriptLine[][]>([]);
+  const [redoHistory, setRedoHistory] = useState<TranscriptLine[][]>([]);
+  const maxHistorySize = 50;
+  
+  // Push current state to undo history before making changes
+  const pushToUndoHistory = useCallback(() => {
+    setUndoHistory(prev => {
+      const newHistory = [...prev, editedContent];
+      if (newHistory.length > maxHistorySize) {
+        return newHistory.slice(-maxHistorySize);
+      }
+      return newHistory;
+    });
+    setRedoHistory([]); // Clear redo when new change is made
+  }, [editedContent]);
+  
+  const handleUndo = useCallback(() => {
+    if (undoHistory.length === 0) {
+      toast.error('Nothing to undo');
+      return;
+    }
+    const lastState = undoHistory[undoHistory.length - 1];
+    setRedoHistory(prev => [...prev, editedContent]);
+    setUndoHistory(prev => prev.slice(0, -1));
+    setEditedContent(lastState);
+    toast.success('Undone');
+  }, [undoHistory, editedContent]);
+  
+  const handleRedo = useCallback(() => {
+    if (redoHistory.length === 0) {
+      toast.error('Nothing to redo');
+      return;
+    }
+    const nextState = redoHistory[redoHistory.length - 1];
+    setUndoHistory(prev => [...prev, editedContent]);
+    setRedoHistory(prev => prev.slice(0, -1));
+    setEditedContent(nextState);
+    toast.success('Redone');
+  }, [redoHistory, editedContent]);
+  
+  const handleReset = useCallback(() => {
+    if (originalContent.length === 0) {
+      toast.error('No original content to reset to');
+      return;
+    }
+    pushToUndoHistory();
+    setEditedContent([...originalContent]);
+    toast.success('Reset to original');
+  }, [originalContent, pushToUndoHistory]);
+
   const [selectedLineIndex, setSelectedLineIndex] = useState<number | null>(null);
   const [hiddenLines, setHiddenLines] = useState<Set<number>>(new Set());
   const [selectedLines, setSelectedLines] = useState<Set<number>>(new Set());
@@ -2570,7 +2621,7 @@ ${content.map((item, index) => {
                                           <Play className="w-4 h-4" />
                                         </button>
                                       </TooltipTrigger>
-                                      <TooltipContent side="top" className="text-xs">Play Clip</TooltipContent>
+                                      <TooltipContent side="top" className="text-xs">Play</TooltipContent>
                                     </Tooltip>
                                     
                                     {/* AI Writer */}
@@ -3186,6 +3237,23 @@ ${content.map((item, index) => {
                                       </PopoverContent>
                                     </Popover>
                                     
+                                    {/* Copy */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigator.clipboard.writeText(item.text);
+                                            toast.success('Copied to clipboard');
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <Copy className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Copy</TooltipContent>
+                                    </Tooltip>
+                                    
                                     {/* Hide */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -3211,29 +3279,13 @@ ${content.map((item, index) => {
                                       <TooltipContent side="top" className="text-xs">{isHidden ? 'Show' : 'Hide'}</TooltipContent>
                                     </Tooltip>
                                     
-                                    {/* Copy */}
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigator.clipboard.writeText(item.text);
-                                            toast.success('Copied to clipboard');
-                                          }}
-                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
-                                        >
-                                          <Copy className="w-4 h-4" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="top" className="text-xs">Copy</TooltipContent>
-                                    </Tooltip>
-                                    
                                     {/* Delete */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
+                                            pushToUndoHistory();
                                             const newContent = [...editedContent];
                                             newContent.splice(i, 1);
                                             setEditedContent(newContent);
@@ -3269,6 +3321,67 @@ ${content.map((item, index) => {
                                         </button>
                                       </TooltipTrigger>
                                       <TooltipContent side="top" className="text-xs">Download</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Divider */}
+                                    <div className="w-px h-5 bg-gray-600 mx-1" />
+                                    
+                                    {/* Undo */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleUndo();
+                                          }}
+                                          disabled={undoHistory.length === 0}
+                                          className={`p-2 rounded-md transition-colors ${
+                                            undoHistory.length === 0 
+                                              ? 'text-gray-500 cursor-not-allowed' 
+                                              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                          }`}
+                                        >
+                                          <Undo2 className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Undo</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Redo */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRedo();
+                                          }}
+                                          disabled={redoHistory.length === 0}
+                                          className={`p-2 rounded-md transition-colors ${
+                                            redoHistory.length === 0 
+                                              ? 'text-gray-500 cursor-not-allowed' 
+                                              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                          }`}
+                                        >
+                                          <Redo2 className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Redo</TooltipContent>
+                                    </Tooltip>
+                                    
+                                    {/* Reset */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleReset();
+                                          }}
+                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                        >
+                                          <RotateCcw className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Reset</TooltipContent>
                                     </Tooltip>
                                     
                                     {/* Divider */}
