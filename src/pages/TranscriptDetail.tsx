@@ -873,6 +873,7 @@ const TranscriptDetail = () => {
     if (!action || aiWriterResults.length === 0) return;
     
     setAiWriterModalLoading(true);
+    setAiWriterCurrentAction(action); // Update the active action for pill highlighting
     const currentResult = aiWriterResults[aiWriterResultIndex];
     
     try {
@@ -3775,10 +3776,10 @@ ${content.map((item, index) => {
               {defaultModes.map((mode) => {
                 const actionMap: Record<string, string> = {
                   'Rephrase': 'Rephrase',
-                  'Formal': 'Make formal',
-                  'Casual': 'Make casual',
+                  'Formal': 'Formal',
+                  'Casual': 'Casual',
                   'Shorten': 'Shorten',
-                  'Expand': 'Elaborate',
+                  'Expand': 'Expand',
                   'Simplify': 'Simplify'
                 };
                 return (
