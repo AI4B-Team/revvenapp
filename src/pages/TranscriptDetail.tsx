@@ -2194,10 +2194,15 @@ ${content.map((item, index) => {
                         const isHidden = hiddenLines.has(i);
                         const isInSelection = selectedLines.has(i);
                         
+                        // Check if there's an active text selection in this segment
+                        const hasActiveSelection = textSelection && textSelection.segmentIndex === i && textSelection.start !== textSelection.end;
+                        // Show toolbar when selected, editing, OR has active text selection
+                        const showToolbar = isSelected || editingLineIndex === i || hasActiveSelection;
+                        
                         return (
-                          <div key={i} className={`relative overflow-visible transition-[margin] duration-200 ${i === 0 && isSelected ? 'mt-10' : ''}`}>
-                            {/* Floating Toolbar - appears between segments (also show when editing) */}
-                            {(isSelected || editingLineIndex === i) && (
+                          <div key={i} className={`relative overflow-visible transition-[margin] duration-200 ${i === 0 && showToolbar ? 'mt-10' : ''}`}>
+                            {/* Floating Toolbar - appears between segments (also show when editing or text selected) */}
+                            {showToolbar && (
                               <TooltipProvider delayDuration={200}>
                                 <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
                                   <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
@@ -2946,9 +2951,16 @@ ${content.map((item, index) => {
                                 }
                               }}
                             >
-                              {/* Comment indicator - shows when there are unresolved comments */}
+                              {/* Comment indicator - shows when there are unresolved comments - click to open popover */}
                               {lineComments[i]?.some(c => !c.resolved) && (
-                                <div className="absolute top-1 right-1 z-10">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedLineIndex(i);
+                                    setOpenCommentPopover(i);
+                                  }}
+                                  className="absolute top-1 right-1 z-10 cursor-pointer hover:scale-110 transition-transform"
+                                >
                                   <div className="relative">
                                     <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-md border-2 border-white">
                                       <MessageSquare className="w-3.5 h-3.5 text-white" />
@@ -2957,7 +2969,7 @@ ${content.map((item, index) => {
                                       {lineComments[i].filter(c => !c.resolved).length}
                                     </span>
                                   </div>
-                                </div>
+                                </button>
                               )}
                               <div className="flex-shrink-0 w-16">
                                 <span 
