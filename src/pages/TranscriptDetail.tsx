@@ -2152,6 +2152,8 @@ ${content.map((item, index) => {
                         </Tooltip>
                       </TooltipProvider>
                       
+                      {/* Vertical Divider */}
+                      <div className="h-6 w-px bg-gray-300" />
                       
                       {/* Translate Button */}
                       <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
