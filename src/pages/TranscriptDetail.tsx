@@ -545,7 +545,7 @@ const TranscriptDetail = () => {
   // Apply text-level highlight
   const applyTextHighlight = (color: string) => {
     if (!textSelection) return;
-    
+
     const { segmentIndex, start, end } = textSelection;
     setTextHighlights(prev => ({
       ...prev,
@@ -554,6 +554,16 @@ const TranscriptDetail = () => {
     setTextSelection(null);
     window.getSelection()?.removeAllRanges();
     toast.success(`Text highlighted in ${color}`);
+  };
+
+  const applyHighlightForSegment = (segmentIndex: number, color: 'yellow' | 'green' | 'blue' | 'pink') => {
+    if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
+      applyTextHighlight(color);
+      return;
+    }
+
+    setLineHighlights(prev => ({ ...prev, [segmentIndex]: color }));
+    toast.success(`Highlighted in ${color}`);
   };
   
   // AI Writer actions
@@ -2052,6 +2062,11 @@ ${content.map((item, index) => {
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
+                                              onMouseDown={(e) => {
+                                                // Keep text selection intact when opening the highlight picker
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                              }}
                                               onClick={(e) => e.stopPropagation()}
                                               className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
                                             >
@@ -2072,38 +2087,54 @@ ${content.map((item, index) => {
                                       >
                                         <div className="flex items-center gap-2">
                                           <button
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                            }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setLineHighlights(prev => ({ ...prev, [i]: 'yellow' }));
-                                              toast.success('Highlighted in yellow');
+                                              applyHighlightForSegment(i, 'yellow');
                                             }}
                                             className={`w-6 h-6 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'yellow' ? 'ring-2 ring-yellow-500 ring-offset-1' : ''}`}
                                           />
                                           <button
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                            }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setLineHighlights(prev => ({ ...prev, [i]: 'green' }));
-                                              toast.success('Highlighted in green');
+                                              applyHighlightForSegment(i, 'green');
                                             }}
                                             className={`w-6 h-6 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'green' ? 'ring-2 ring-green-500 ring-offset-1' : ''}`}
                                           />
                                           <button
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                            }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setLineHighlights(prev => ({ ...prev, [i]: 'blue' }));
-                                              toast.success('Highlighted in blue');
+                                              applyHighlightForSegment(i, 'blue');
                                             }}
                                             className={`w-6 h-6 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'blue' ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
                                           />
                                           <button
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                            }}
                                             onClick={(e) => {
                                               e.stopPropagation();
-                                              setLineHighlights(prev => ({ ...prev, [i]: 'pink' }));
-                                              toast.success('Highlighted in pink');
+                                              applyHighlightForSegment(i, 'pink');
                                             }}
                                             className={`w-6 h-6 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform ${lineHighlights[i] === 'pink' ? 'ring-2 ring-pink-500 ring-offset-1' : ''}`}
                                           />
                                           <button
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                            }}
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               setLineHighlights(prev => {
@@ -2571,25 +2602,19 @@ ${content.map((item, index) => {
                                   e.stopPropagation();
                                   return;
                                 }
+
                                 e.stopPropagation();
-                                // Check if there's a text selection - if so, handle highlighting
+
+                                // If user is selecting text, capture the selection (for text-level highlights) and do not enter edit
                                 const selection = window.getSelection();
                                 if (selection && !selection.isCollapsed && selection.toString().trim()) {
                                   handleTextSelection(i);
                                   return;
                                 }
-                                // If already selected and clicked again, enter edit mode but keep toolbar visible
-                                if (isSelected) {
-                                  setEditingLineIndex(i);
-                                  // Don't clear selectedLineIndex - keep the toolbar visible
-                                } else {
-                                  // Select the line
-                                  setSelectedLineIndex(i);
-                                  // Clear any other editing state
-                                  if (editingLineIndex !== null && editingLineIndex !== i) {
-                                    setEditingLineIndex(null);
-                                  }
-                                }
+
+                                // Single-click to edit
+                                setSelectedLineIndex(i);
+                                setEditingLineIndex(i);
                               }}
                               onMouseUp={() => {
                                 // Handle text selection on mouse up
@@ -2639,6 +2664,22 @@ ${content.map((item, index) => {
                                         const newContent = [...editedContent];
                                         newContent[i] = { ...newContent[i], text: e.target.value };
                                         setEditedContent(newContent);
+                                      }}
+                                      onSelect={(e) => {
+                                        const el = e.currentTarget;
+                                        const start = el.selectionStart ?? 0;
+                                        const end = el.selectionEnd ?? 0;
+                                        if (start === end) {
+                                          setTextSelection(null);
+                                          return;
+                                        }
+
+                                        setTextSelection({
+                                          segmentIndex: i,
+                                          start,
+                                          end,
+                                          text: el.value.substring(start, end),
+                                        });
                                       }}
                                       className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
                                       rows={2}
