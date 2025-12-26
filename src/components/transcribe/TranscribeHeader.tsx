@@ -216,13 +216,13 @@ const TranscribeHeader = ({
           {showCreateDownload && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400">
+                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors">
                   <Wand2 className="w-5 h-5" strokeWidth={2.5} />
                   <span className="hidden md:inline">Create</span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
+              <DropdownMenuContent align="end" className="w-40 bg-white border border-gray-200 z-50">
                 <DropdownMenuItem onClick={() => onCreateClick?.('video')} className="flex items-center gap-2 cursor-pointer">
                   <Video className="w-4 h-4" />
                   Video
@@ -247,7 +247,7 @@ const TranscribeHeader = ({
           {showCreateDownload && (
             <button 
               onClick={onDownloadClick}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
             >
               <Download className="w-5 h-5" strokeWidth={2.5} />
               <span className="hidden md:inline">Download</span>

@@ -1427,14 +1427,6 @@ ${content.map((item, index) => {
                         </PopoverContent>
                       </Popover>
                       
-                      {/* Download Button - last */}
-                      <button 
-                        onClick={handleDownload}
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center gap-1.5 text-sm font-medium"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
                 </div>
               </div>
             </div>
@@ -1486,23 +1478,30 @@ ${content.map((item, index) => {
                       </div>
                       
                       {/* Fullscreen Button */}
-                      <button
-                        onClick={() => {
-                          const waveformArea = document.querySelector('.waveform-container') as HTMLElement;
-                          if (waveformArea) {
-                            if (document.fullscreenElement) {
-                              document.exitFullscreen();
-                            } else {
-                              waveformArea.requestFullscreen().catch(err => {
-                                console.log('Fullscreen error:', err);
-                              });
-                            }
-                          }
-                        }}
-                        className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors z-10"
-                      >
-                        <Maximize className="w-4 h-4" />
-                      </button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                const waveformArea = document.querySelector('.waveform-container') as HTMLElement;
+                                if (waveformArea) {
+                                  if (document.fullscreenElement) {
+                                    document.exitFullscreen();
+                                  } else {
+                                    waveformArea.requestFullscreen().catch(err => {
+                                      console.log('Fullscreen error:', err);
+                                    });
+                                  }
+                                }
+                              }}
+                              className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors z-10"
+                            >
+                              <Maximize className="w-4 h-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Full-Screen</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       
                       {/* Play Button Overlay - shows when not playing */}
                       {!isPlaying && resolvedAudioUrl && (
