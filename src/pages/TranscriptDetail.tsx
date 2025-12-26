@@ -10,7 +10,7 @@ import {
   FileDown, Share2, ChevronDown, Copy, Edit3, Sparkles,
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
-  Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
+  Pencil, Trash2, Check, X, Search, Mic,
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -1246,6 +1246,8 @@ ${content.map((item, index) => {
         <Header />
         <TranscribeHeader 
           onDownloadClick={() => setShowDownloadModal(true)}
+          showCreateDownload={true}
+          onCreateClick={handleCreate}
         />
         
           <main className="flex-1 overflow-hidden bg-white">
@@ -1389,37 +1391,6 @@ ${content.map((item, index) => {
                         </Tooltip>
                       </TooltipProvider>
                       
-                      {/* Separator */}
-                      <div className="w-px h-6 bg-gray-200 mx-1" />
-                      
-                      {/* Create Button */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-400 transition-colors flex items-center gap-1.5">
-                            <Wand2 className="w-3.5 h-3.5" />
-                            Create
-                            <ChevronDown className="w-3.5 h-3.5" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
-                          <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
-                            <Video className="w-4 h-4" />
-                            Video
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
-                            <UserCircle className="w-4 h-4" />
-                            UGC
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
-                            <FileEdit className="w-4 h-4" />
-                            Post
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
-                            <BookOpen className="w-4 h-4" />
-                            Ebook
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                       
                       {/* Translate Button */}
                       <Popover open={showTranslatePopover} onOpenChange={setShowTranslatePopover}>
