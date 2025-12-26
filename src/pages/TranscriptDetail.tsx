@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+import TranscribeHeader from '@/components/transcribe/TranscribeHeader';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
 import { 
@@ -1209,14 +1209,22 @@ ${content.map((item, index) => {
     activeSummaryTab,
   ]);
 
-  // Click outside handler to deselect line (but not when editing)
+  // Click outside handler to deselect line (but not when editing or clicking in popovers)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Don't deselect if we're currently editing a line
       if (editingLineIndex !== null) return;
       
+      const target = event.target as HTMLElement;
+      
+      // Check if click is inside a Radix portal (popover, dropdown, etc.)
+      const isInPortal = target.closest('[data-radix-popper-content-wrapper]') || 
+                         target.closest('[role="dialog"]') ||
+                         target.closest('[data-radix-menu-content]');
+      if (isInPortal) return;
+      
       // Check if click is outside the transcript container
-      if (transcriptContainerRef.current && !transcriptContainerRef.current.contains(event.target as Node)) {
+      if (transcriptContainerRef.current && !transcriptContainerRef.current.contains(target)) {
         setSelectedLineIndex(null);
       }
     };
@@ -1234,123 +1242,39 @@ ${content.map((item, index) => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
+        <TranscribeHeader 
+          projectTitle={editedTitle || title}
+          onTitleChange={(newTitle) => setEditedTitle(newTitle)}
+          onDownloadClick={() => setShowDownloadModal(true)}
+          onBackClick={() => navigate('/transcribe')}
+          showBackButton={true}
+        />
         
           <main className="flex-1 overflow-hidden bg-white">
           <div className="h-full flex flex-col">
             {/* Header Section */}
             <div className="px-6 pt-6 pb-5 border-b border-gray-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/30">
-              {/* Back Button */}
-              <button 
-                onClick={() => navigate('/transcribe')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 transition-colors text-sm group"
-              >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="font-medium">Back To Transcripts</span>
-              </button>
               
-              {/* Title Section - Spans Both Columns */}
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex-1">
-                  {isEditingTitle ? (
-                    <div className="flex items-center gap-2 max-w-2xl">
-                      <Input
-                        value={editedTitle}
-                        onChange={(e) => setEditedTitle(e.target.value)}
-                        className="text-2xl font-bold h-12"
-                        autoFocus
-                      />
-                      <button onClick={handleSaveTitle} className="p-2 rounded-lg hover:bg-gray-100 text-emerald-500">
-                        <Check className="w-5 h-5" />
-                      </button>
-                      <button onClick={handleCancelTitleEdit} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <h1 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight">
-                        {editedTitle}
-                      </h1>
-                      <button 
-                        onClick={() => setIsEditingTitle(true)}
-                        className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      
-                      {/* Auto-save Cloud Icon */}
-                      <HoverCard openDelay={100} closeDelay={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HoverCardTrigger asChild>
-                              <button
-                                onClick={async () => {
-                                  if (isSaving) return;
-                                  setIsSaving(true);
-                                  // Simulate save operation
-                                  await new Promise(resolve => setTimeout(resolve, 1500));
-                                  setLastAutoSaved(new Date());
-                                  setIsSaving(false);
-                                  toast.success('Project saved');
-                                }}
-                                disabled={isSaving}
-                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
-                                  isSaving 
-                                    ? 'bg-gray-200 cursor-wait' 
-                                    : 'bg-emerald-500/20 hover:bg-emerald-500/30 cursor-pointer'
-                                }`}
-                              >
-                                <div className="flex-shrink-0">
-                                  {isSaving ? (
-                                    <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-                                  ) : (
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" className="text-emerald-500" />
-                                      <polyline points="9 12 11 14 15 10" className="text-emerald-500" />
-                                    </svg>
-                                  )}
-                                </div>
-                                <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-400' : 'text-emerald-600'}`}>
-                                  {isSaving ? 'Saving' : 'Auto-Saved'}
-                                </span>
-                              </button>
-                            </HoverCardTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="mb-1">
-                            <p>Save Project</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <HoverCardContent side="bottom" align="start" className="w-auto p-2 bg-popover border border-border">
-                          <p className="text-xs text-muted-foreground whitespace-nowrap">
-                            {isSaving 
-                              ? 'Saving...' 
-                              : `Click To Save (Last Saved: ${(lastAutoSaved.getMonth() + 1).toString().padStart(2, '0')}/${lastAutoSaved.getDate().toString().padStart(2, '0')}/${lastAutoSaved.getFullYear()} // ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
-                            }
-                          </p>
-                        </HoverCardContent>
-                      </HoverCard>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                        <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                        <Users className="w-3.5 h-3.5 text-purple-500" />
-                        <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
-                        <Globe className="w-3.5 h-3.5 text-orange-500" />
-                        <span>{language}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
-                        <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                        <span className="font-mono text-emerald-700">{duration}</span>
-                      </div>
-                    </div>
+              {/* Metadata Row */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                    <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                    <span>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                    <Users className="w-3.5 h-3.5 text-purple-500" />
+                    <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
+                    <Globe className="w-3.5 h-3.5 text-orange-500" />
+                    <span>{language}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-emerald-100/80 px-3 py-1.5 rounded-full">
+                    <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="font-mono text-emerald-700">{duration}</span>
+                  </div>
+                </div>
                     
                     {/* Action Buttons - aligned right */}
                     <div className="flex items-center gap-2">
@@ -1503,8 +1427,6 @@ ${content.map((item, index) => {
                         <Download className="w-4 h-4" />
                         Download
                       </button>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
