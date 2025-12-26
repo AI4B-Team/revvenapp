@@ -1379,6 +1379,12 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                                 {transcript.title}
                               </h3>
                               <button 
+                                onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}
+                                className={`flex-shrink-0 ${transcript.starred ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+                              >
+                                <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
+                              </button>
+                              <button 
                                 onClick={(e) => handleStartRename(e, transcript)}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-1 text-gray-400 hover:text-gray-600"
                               >
@@ -1386,12 +1392,6 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                               </button>
                             </>
                           )}
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                          >
-                            <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
-                          </button>
                         </div>
                       </div>
 
@@ -1575,14 +1575,14 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }} className={`${transcript.starred ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                          <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
+                        </button>
                         <button 
                           onClick={(e) => handleStartRename(e, transcript)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-gray-600"
                         >
                           <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); toggleStar(transcript.id); }}>
-                          <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDelete(transcript.id); }}
