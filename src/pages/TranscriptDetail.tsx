@@ -14,7 +14,7 @@ import {
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
   ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle,
   ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon, Umbrella,
-  Undo2, Redo2
+  Undo2, Redo2, ImageIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -422,6 +422,44 @@ const TranscriptDetail = () => {
   const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
   // Ref to preserve text selection when clicking highlight toolbar button
   const pendingHighlightSelectionRef = useRef<{ segmentIndex: number; start: number; end: number } | null>(null);
+  
+  // Segment images state
+  const [segmentImages, setSegmentImages] = useState<Record<number, string[]>>({});
+  const segmentImageInputRef = useRef<HTMLInputElement>(null);
+  const [imageUploadSegmentIndex, setImageUploadSegmentIndex] = useState<number | null>(null);
+  
+  const handleSegmentImageUpload = (segmentIndex: number) => {
+    setImageUploadSegmentIndex(segmentIndex);
+    segmentImageInputRef.current?.click();
+  };
+  
+  const handleSegmentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || imageUploadSegmentIndex === null) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageUrl = event.target?.result as string;
+      setSegmentImages(prev => ({
+        ...prev,
+        [imageUploadSegmentIndex]: [...(prev[imageUploadSegmentIndex] || []), imageUrl]
+      }));
+      toast.success('Image added to segment');
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset
+    e.target.value = '';
+    setImageUploadSegmentIndex(null);
+  };
+  
+  const removeSegmentImage = (segmentIndex: number, imageIndex: number) => {
+    setSegmentImages(prev => ({
+      ...prev,
+      [segmentIndex]: prev[segmentIndex].filter((_, idx) => idx !== imageIndex)
+    }));
+    toast.success('Image removed');
+  };
   
   // AI Writer dropdown state
   const [showAIWriterDropdown, setShowAIWriterDropdown] = useState<number | null>(null);
@@ -2110,6 +2148,14 @@ ${content.map((item, index) => {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
+      {/* Hidden file input for segment images */}
+      <input
+        type="file"
+        ref={segmentImageInputRef}
+        onChange={handleSegmentImageChange}
+        accept="image/*"
+        className="hidden"
+      />
       <Sidebar 
         onCharactersClick={() => setCharactersModalOpen(true)}
         onIdentityClick={() => setIdentitySidebarOpen(true)}
@@ -2895,6 +2941,26 @@ ${content.map((item, index) => {
                                       </PopoverContent>
                                     </Popover>
                                     
+                                    {/* Add Image */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSegmentImageUpload(i);
+                                          }}
+                                          className={`p-2 rounded-md transition-colors ${
+                                            segmentImages[i]?.length > 0
+                                              ? 'text-blue-400 hover:bg-gray-700 hover:text-blue-300'
+                                              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                          }`}
+                                        >
+                                          <ImageIcon className="w-4 h-4" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">Add Image</TooltipContent>
+                                    </Tooltip>
+                                    
                                     {/* Comment */}
                                     <Popover open={openCommentPopover === i} onOpenChange={(open) => setOpenCommentPopover(open ? i : null)}>
                                       <Tooltip>
@@ -3587,6 +3653,30 @@ ${content.map((item, index) => {
                                   >
                                     {renderHighlightedText(item, i)}
                                   </p>
+                                )}
+                                
+                                {/* Segment Images */}
+                                {segmentImages[i]?.length > 0 && (
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {segmentImages[i].map((imgUrl, imgIdx) => (
+                                      <div key={imgIdx} className="relative group/img">
+                                        <img 
+                                          src={imgUrl} 
+                                          alt={`Segment ${i} image ${imgIdx + 1}`}
+                                          className="w-24 h-24 object-cover rounded-lg border border-gray-200"
+                                        />
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeSegmentImage(i, imgIdx);
+                                          }}
+                                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
                             </div>
