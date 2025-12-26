@@ -345,6 +345,8 @@ const TranscriptDetail = () => {
     color: string;
   }
   const [textHighlights, setTextHighlights] = useState<Record<number, TextHighlight[]>>({});
+  const [highlightsLoaded, setHighlightsLoaded] = useState(false);
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [textSelection, setTextSelection] = useState<{ segmentIndex: number; start: number; end: number; text: string } | null>(null);
   const segmentTextRefs = useRef<Record<number, HTMLParagraphElement | null>>({});
   const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
@@ -978,6 +980,10 @@ const TranscriptDetail = () => {
   // ========================
   useEffect(() => {
     if (!id || isLoading) return;
+    let cancelled = false;
+
+    setHighlightsLoaded(false);
+
     const loadHighlights = async () => {
       try {
         const { data, error } = await supabase
@@ -986,17 +992,26 @@ const TranscriptDetail = () => {
           .eq('transcript_id', id);
         if (error) throw error;
         if (!data) return;
+
         const grouped: Record<number, TextHighlight[]> = {};
         data.forEach((h: any) => {
           if (!grouped[h.segment_index]) grouped[h.segment_index] = [];
           grouped[h.segment_index].push({ start: h.start_pos, end: h.end_pos, color: h.color });
         });
-        setTextHighlights(grouped);
+
+        if (!cancelled) setTextHighlights(grouped);
       } catch (e) {
         console.error('Failed to load highlights', e);
+      } finally {
+        if (!cancelled) setHighlightsLoaded(true);
       }
     };
+
     loadHighlights();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id, isLoading]);
 
   // Save highlights when they change (debounced via useEffect)
@@ -1036,16 +1051,20 @@ const TranscriptDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    // Skip initial load state
-    if (isLoading) return;
+    // Don't save until initial load from DB has completed; otherwise we delete server data on mount.
+    if (isLoading || !highlightsLoaded) return;
     saveHighlightsToDb(textHighlights);
-  }, [textHighlights, saveHighlightsToDb, isLoading]);
+  }, [textHighlights, saveHighlightsToDb, isLoading, highlightsLoaded]);
 
   // ========================
   // LOAD / SAVE COMMENTS
   // ========================
   useEffect(() => {
     if (!id || isLoading) return;
+    let cancelled = false;
+
+    setCommentsLoaded(false);
+
     const loadComments = async () => {
       try {
         const { data, error } = await supabase
@@ -1054,6 +1073,7 @@ const TranscriptDetail = () => {
           .eq('transcript_id', id);
         if (error) throw error;
         if (!data) return;
+
         const grouped: Record<number, Comment[]> = {};
         data.forEach((c: any) => {
           if (!grouped[c.segment_index]) grouped[c.segment_index] = [];
@@ -1067,12 +1087,20 @@ const TranscriptDetail = () => {
             replies: c.replies || [],
           });
         });
-        setLineComments(grouped);
+
+        if (!cancelled) setLineComments(grouped);
       } catch (e) {
         console.error('Failed to load comments', e);
+      } finally {
+        if (!cancelled) setCommentsLoaded(true);
       }
     };
+
     loadComments();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id, isLoading]);
 
   // Persist comments when they change
@@ -1116,9 +1144,9 @@ const TranscriptDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !commentsLoaded) return;
     saveCommentsToDb(lineComments);
-  }, [lineComments, saveCommentsToDb, isLoading]);
+  }, [lineComments, saveCommentsToDb, isLoading, commentsLoaded]);
 
   useEffect(() => {
     setEditedTitle(title);
@@ -2248,12 +2276,12 @@ ${content.map((item, index) => {
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
-                                              onPointerDown={(e) => {
-                                                // Keep text selection from collapsing when opening the popover (Radix uses pointer events)
+                                              onPointerDownCapture={(e) => {
+                                                // Keep text selection from collapsing when opening the popover (Radix toggles onClick)
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                               }}
-                                              onMouseDown={(e) => {
+                                              onMouseDownCapture={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                               }}
@@ -2270,6 +2298,8 @@ ${content.map((item, index) => {
                                         className="w-56 p-0 bg-white border-gray-200 shadow-xl" 
                                         side="bottom"
                                         align="start"
+                                        onOpenAutoFocus={(e) => e.preventDefault()}
+                                        onCloseAutoFocus={(e) => e.preventDefault()}
                                         onClick={(e) => e.stopPropagation()}
                                       >
                                         {/* Custom prompt input */}
@@ -2348,7 +2378,7 @@ ${content.map((item, index) => {
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
                                             <button
-                                              onPointerDown={(e) => {
+                                              onPointerDownCapture={(e) => {
                                                 // Capture selection + keep it visible while the highlight picker is open
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -2411,7 +2441,7 @@ ${content.map((item, index) => {
                                                   };
                                                 }
                                               }}
-                                              onMouseDown={(e) => {
+                                              onMouseDownCapture={(e) => {
                                                 // Keep for mouse-only environments
                                                 e.preventDefault();
                                                 e.stopPropagation();
@@ -2431,6 +2461,8 @@ ${content.map((item, index) => {
                                       <PopoverContent 
                                         className="w-auto p-2 bg-white border-gray-200" 
                                         side="bottom"
+                                        onOpenAutoFocus={(e) => e.preventDefault()}
+                                        onCloseAutoFocus={(e) => e.preventDefault()}
                                         onClick={(e) => e.stopPropagation()}
                                         onPointerDownOutside={(e) => e.preventDefault()}
                                       >
