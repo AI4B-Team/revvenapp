@@ -1321,19 +1321,6 @@ ${content.map((item, index) => {
                     {/* Action Buttons - aligned right */}
                     <div className="flex items-center gap-2">
                       <TooltipProvider>
-                        {/* Like */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={() => setIsLiked(!isLiked)}
-                              className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                            >
-                              <Heart className={`w-4 h-4 ${isLiked ? 'text-red-500 fill-red-500' : ''}`} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>{isLiked ? 'Unlike' : 'Like'}</TooltipContent>
-                        </Tooltip>
-                        
                         {/* Favorite */}
                         <Tooltip>
                           <TooltipTrigger asChild>
