@@ -1111,10 +1111,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="px-4 py-2 rounded-xl bg-gray-100 border border-gray-200 text-sm text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-all flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Settings
-              </button>
+              {/* Settings button removed - now in header 3-dot menu */}
             </div>
           </div>
         </header>
