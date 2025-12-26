@@ -2680,7 +2680,7 @@ ${content.map((item, index) => {
                                         <div className="p-2 border-b border-gray-100">
                                           <input
                                             type="text"
-                                            placeholder="Modify with a prompt"
+                                            placeholder="Modify With A Prompt"
                                             value={aiWriterPrompt}
                                             onChange={(e) => setAIWriterPrompt(e.target.value)}
                                             onKeyDown={(e) => {
