@@ -209,6 +209,7 @@ const TranscriptDetail = () => {
   const [commentInput, setCommentInput] = useState('');
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const [showReplyFor, setShowReplyFor] = useState<string | null>(null);
+  const [openCommentPopover, setOpenCommentPopover] = useState<number | null>(null);
   
   // Highlight colors per line
   const [lineHighlights, setLineHighlights] = useState<Record<number, string>>({});
@@ -1747,7 +1748,7 @@ ${content.map((item, index) => {
                                     </Tooltip>
                                     
                                     {/* Comment */}
-                                    <Popover>
+                                    <Popover open={openCommentPopover === i} onOpenChange={(open) => setOpenCommentPopover(open ? i : null)}>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <PopoverTrigger asChild>
@@ -1943,6 +1944,7 @@ ${content.map((item, index) => {
                                                 onClick={(e) => {
                                                   e.stopPropagation();
                                                   setCommentInput('');
+                                                  setOpenCommentPopover(null);
                                                 }}
                                                 className="h-7 text-xs"
                                               >
@@ -1966,6 +1968,7 @@ ${content.map((item, index) => {
                                                     [i]: [...(prev[i] || []), newComment]
                                                   }));
                                                   setCommentInput('');
+                                                  setOpenCommentPopover(null);
                                                   toast.success('Comment added');
                                                 }}
                                                 className="h-7 text-xs bg-emerald-500 hover:bg-emerald-600"
@@ -2206,7 +2209,7 @@ ${content.map((item, index) => {
                             >
                               {/* Comment indicator - shows when there are unresolved comments */}
                               {lineComments[i]?.some(c => !c.resolved) && (
-                                <div className="absolute -top-2 -right-2 z-10">
+                                <div className="absolute top-1 right-1 z-10">
                                   <div className="relative">
                                     <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center shadow-md border-2 border-white">
                                       <MessageSquare className="w-3.5 h-3.5 text-white" />
