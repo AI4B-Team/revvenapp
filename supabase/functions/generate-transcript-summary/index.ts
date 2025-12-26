@@ -29,9 +29,13 @@ serve(async (req) => {
       const instructions: Record<string, string> = {
         rephrase: "Rephrase the following text while preserving its meaning. Only return the rephrased text, nothing else.",
         shorten: "Make the following text shorter while preserving the key message. Only return the shortened text, nothing else.",
-        elaborate: "Expand on the following text with more detail. Only return the elaborated text, nothing else.",
-        "more formal": "Rewrite the following text in a more formal tone. Only return the rewritten text, nothing else.",
+        elaborate: "Expand on the following text with more detail and make it longer. Only return the elaborated text, nothing else.",
+        expand: "Expand on the following text with more detail and make it longer. Only return the expanded text, nothing else.",
+        formal: "Rewrite the following text in a more formal, professional tone. Only return the rewritten text, nothing else.",
+        "more formal": "Rewrite the following text in a more formal, professional tone. Only return the rewritten text, nothing else.",
+        casual: "Rewrite the following text in a more casual, conversational tone. Only return the rewritten text, nothing else.",
         "more casual": "Rewrite the following text in a more casual, conversational tone. Only return the rewritten text, nothing else.",
+        simplify: "Simplify the following text to make it easier to understand. Only return the simplified text, nothing else.",
         bulletize: "Convert the following text into bullet points. Only return the bullet points, nothing else.",
         summarize: "Summarize the following text concisely. Only return the summary, nothing else.",
       };
