@@ -203,13 +203,136 @@ const TranscriptDetail = () => {
     author: string;
     createdAt: Date;
     resolved: boolean;
-    replies: { id: string; text: string; author: string; createdAt: Date }[];
+    mentions: string[];
+    replies: { id: string; text: string; author: string; createdAt: Date; mentions?: string[] }[];
   }
   const [lineComments, setLineComments] = useState<Record<number, Comment[]>>({});
   const [commentInput, setCommentInput] = useState('');
   const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
   const [showReplyFor, setShowReplyFor] = useState<string | null>(null);
   const [openCommentPopover, setOpenCommentPopover] = useState<number | null>(null);
+  
+  // @mention functionality
+  const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [mentionContext, setMentionContext] = useState<'comment' | 'reply' | null>(null);
+  const [mentionReplyId, setMentionReplyId] = useState<string | null>(null);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Mock list of mentionable users (in a real app, this would come from the database)
+  const mentionableUsers = [
+    { id: '1', name: 'John Smith', email: 'john@example.com' },
+    { id: '2', name: 'Sarah Johnson', email: 'sarah@example.com' },
+    { id: '3', name: 'Mike Williams', email: 'mike@example.com' },
+    { id: '4', name: 'Emily Brown', email: 'emily@example.com' },
+    { id: '5', name: 'David Lee', email: 'david@example.com' },
+    { id: '6', name: 'Jessica Davis', email: 'jessica@example.com' },
+  ];
+  
+  const filteredMentionUsers = mentionableUsers.filter(user => 
+    user.name.toLowerCase().includes(mentionSearch.toLowerCase()) ||
+    user.email.toLowerCase().includes(mentionSearch.toLowerCase())
+  );
+  
+  // Handle @ mention detection in comment input
+  const handleCommentInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setCommentInput(value);
+    
+    // Check for @ trigger
+    const cursorPos = e.target.selectionStart;
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    
+    if (atIndex !== -1) {
+      const textAfterAt = textBeforeCursor.substring(atIndex + 1);
+      // Only show dropdown if @ is followed by word characters (no spaces)
+      if (!textAfterAt.includes(' ') && textAfterAt.length <= 20) {
+        setMentionSearch(textAfterAt);
+        setShowMentionDropdown(true);
+        setMentionContext('comment');
+      } else {
+        setShowMentionDropdown(false);
+      }
+    } else {
+      setShowMentionDropdown(false);
+    }
+  };
+  
+  // Handle @ mention detection in reply input
+  const handleReplyInputChange = (commentId: string, value: string, cursorPos: number) => {
+    setReplyInputs(prev => ({ ...prev, [commentId]: value }));
+    
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    
+    if (atIndex !== -1) {
+      const textAfterAt = textBeforeCursor.substring(atIndex + 1);
+      if (!textAfterAt.includes(' ') && textAfterAt.length <= 20) {
+        setMentionSearch(textAfterAt);
+        setShowMentionDropdown(true);
+        setMentionContext('reply');
+        setMentionReplyId(commentId);
+      } else {
+        setShowMentionDropdown(false);
+      }
+    } else {
+      setShowMentionDropdown(false);
+    }
+  };
+  
+  // Insert mention into input
+  const insertMention = (userName: string) => {
+    if (mentionContext === 'comment') {
+      const cursorPos = commentInputRef.current?.selectionStart || commentInput.length;
+      const textBeforeCursor = commentInput.substring(0, cursorPos);
+      const atIndex = textBeforeCursor.lastIndexOf('@');
+      
+      if (atIndex !== -1) {
+        const newValue = commentInput.substring(0, atIndex) + '@' + userName + ' ' + commentInput.substring(cursorPos);
+        setCommentInput(newValue);
+      }
+    } else if (mentionContext === 'reply' && mentionReplyId) {
+      const currentReply = replyInputs[mentionReplyId] || '';
+      const atIndex = currentReply.lastIndexOf('@');
+      
+      if (atIndex !== -1) {
+        const newValue = currentReply.substring(0, atIndex) + '@' + userName + ' ' + currentReply.substring(currentReply.length);
+        setReplyInputs(prev => ({ ...prev, [mentionReplyId]: newValue }));
+      }
+    }
+    
+    setShowMentionDropdown(false);
+    setMentionSearch('');
+    setMentionContext(null);
+    setMentionReplyId(null);
+  };
+  
+  // Extract mentions from text
+  const extractMentions = (text: string): string[] => {
+    const mentionRegex = /@(\w+(?:\s+\w+)?)/g;
+    const mentions: string[] = [];
+    let match;
+    while ((match = mentionRegex.exec(text)) !== null) {
+      mentions.push(match[1]);
+    }
+    return mentions;
+  };
+  
+  // Render text with highlighted mentions
+  const renderTextWithMentions = (text: string) => {
+    const parts = text.split(/(@\w+(?:\s+\w+)?)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('@')) {
+        return (
+          <span key={idx} className="text-blue-500 font-medium bg-blue-50 px-0.5 rounded">
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
   
   // Highlight colors per line
   const [lineHighlights, setLineHighlights] = useState<Record<number, string>>({});
@@ -1832,7 +1955,7 @@ ${content.map((item, index) => {
                                                 </div>
                                               </div>
                                               <p className={`text-sm text-gray-700 mt-2 ${comment.resolved ? 'line-through' : ''}`}>
-                                                {comment.text}
+                                                {renderTextWithMentions(comment.text)}
                                               </p>
                                               
                                               {/* Replies */}
@@ -1848,7 +1971,7 @@ ${content.map((item, index) => {
                                                         <span className="text-gray-400">·</span>
                                                         <span className="text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
                                                       </div>
-                                                      <p className="text-gray-600 mt-0.5">{reply.text}</p>
+                                                      <p className="text-gray-600 mt-0.5">{renderTextWithMentions(reply.text)}</p>
                                                     </div>
                                                   ))}
                                                 </div>
@@ -1858,54 +1981,85 @@ ${content.map((item, index) => {
                                               {!comment.resolved && (
                                                 <>
                                                   {showReplyFor === comment.id ? (
-                                                    <div className="mt-2 flex gap-1.5">
-                                                      <Input
-                                                        placeholder="Reply..."
-                                                        value={replyInputs[comment.id] || ''}
-                                                        onChange={(e) => setReplyInputs(prev => ({ ...prev, [comment.id]: e.target.value }))}
-                                                        className="h-7 text-xs"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                      />
-                                                      <Button
-                                                        size="sm"
-                                                        className="h-7 px-2"
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          if (!replyInputs[comment.id]?.trim()) return;
-                                                          setLineComments(prev => ({
-                                                            ...prev,
-                                                            [i]: prev[i].map(c => 
-                                                              c.id === comment.id 
-                                                                ? { 
-                                                                    ...c, 
-                                                                    replies: [...c.replies, {
-                                                                      id: crypto.randomUUID(),
-                                                                      text: replyInputs[comment.id],
-                                                                      author: 'You',
-                                                                      createdAt: new Date()
-                                                                    }]
-                                                                  } 
-                                                                : c
-                                                            )
-                                                          }));
-                                                          setReplyInputs(prev => ({ ...prev, [comment.id]: '' }));
-                                                          setShowReplyFor(null);
-                                                          toast.success('Reply added');
-                                                        }}
-                                                      >
-                                                        <Check className="w-3 h-3" />
-                                                      </Button>
-                                                      <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        className="h-7 px-2"
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          setShowReplyFor(null);
-                                                        }}
-                                                      >
-                                                        <X className="w-3 h-3" />
-                                                      </Button>
+                                                    <div className="mt-2 relative">
+                                                      <div className="flex gap-1.5">
+                                                        <div className="relative flex-1">
+                                                          <Input
+                                                            placeholder="Reply... (use @ to mention)"
+                                                            value={replyInputs[comment.id] || ''}
+                                                            onChange={(e) => handleReplyInputChange(comment.id, e.target.value, e.target.selectionStart || 0)}
+                                                            className="h-7 text-xs"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                          />
+                                                          {/* Mention dropdown for reply */}
+                                                          {showMentionDropdown && mentionContext === 'reply' && mentionReplyId === comment.id && (
+                                                            <div className="absolute bottom-full left-0 mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-32 overflow-y-auto">
+                                                              {filteredMentionUsers.length > 0 ? (
+                                                                filteredMentionUsers.map(user => (
+                                                                  <button
+                                                                    key={user.id}
+                                                                    onClick={(e) => {
+                                                                      e.stopPropagation();
+                                                                      insertMention(user.name);
+                                                                    }}
+                                                                    className="w-full px-3 py-1.5 text-left hover:bg-gray-100 flex items-center gap-2"
+                                                                  >
+                                                                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-medium">
+                                                                      {user.name.charAt(0)}
+                                                                    </div>
+                                                                    <div>
+                                                                      <p className="text-xs font-medium text-gray-900">{user.name}</p>
+                                                                      <p className="text-[10px] text-gray-500">{user.email}</p>
+                                                                    </div>
+                                                                  </button>
+                                                                ))
+                                                              ) : (
+                                                                <p className="px-3 py-2 text-xs text-gray-500">No users found</p>
+                                                              )}
+                                                            </div>
+                                                          )}
+                                                        </div>
+                                                        <Button
+                                                          size="sm"
+                                                          className="h-7 px-2"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (!replyInputs[comment.id]?.trim()) return;
+                                                            setLineComments(prev => ({
+                                                              ...prev,
+                                                              [i]: prev[i].map(c => 
+                                                                c.id === comment.id 
+                                                                  ? { 
+                                                                      ...c, 
+                                                                      replies: [...c.replies, {
+                                                                        id: crypto.randomUUID(),
+                                                                        text: replyInputs[comment.id],
+                                                                        author: 'You',
+                                                                        createdAt: new Date()
+                                                                      }]
+                                                                    } 
+                                                                  : c
+                                                              )
+                                                            }));
+                                                            setReplyInputs(prev => ({ ...prev, [comment.id]: '' }));
+                                                            setShowReplyFor(null);
+                                                            toast.success('Reply added');
+                                                          }}
+                                                        >
+                                                          <Check className="w-3 h-3" />
+                                                        </Button>
+                                                        <Button
+                                                          size="sm"
+                                                          variant="ghost"
+                                                          className="h-7 px-2"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setShowReplyFor(null);
+                                                          }}
+                                                        >
+                                                          <X className="w-3 h-3" />
+                                                        </Button>
+                                                      </div>
                                                     </div>
                                                   ) : (
                                                     <button
@@ -1931,14 +2085,44 @@ ${content.map((item, index) => {
                                               </div>
                                               <span className="text-xs font-medium text-gray-700">Add A Comment</span>
                                             </div>
-                                            <textarea
-                                              placeholder="Type your comment..."
-                                              value={commentInput}
-                                              onChange={(e) => setCommentInput(e.target.value)}
-                                              onClick={(e) => e.stopPropagation()}
-                                              className="w-full p-2 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-emerald-500"
-                                              rows={2}
-                                            />
+                                            <div className="relative">
+                                              <textarea
+                                                ref={commentInputRef}
+                                                placeholder="Type your comment... (use @ to mention)"
+                                                value={commentInput}
+                                                onChange={handleCommentInputChange}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="w-full p-2 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-emerald-500"
+                                                rows={2}
+                                              />
+                                              {/* Mention dropdown */}
+                                              {showMentionDropdown && mentionContext === 'comment' && (
+                                                <div className="absolute bottom-full left-0 mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-40 overflow-y-auto">
+                                                  {filteredMentionUsers.length > 0 ? (
+                                                    filteredMentionUsers.map(user => (
+                                                      <button
+                                                        key={user.id}
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          insertMention(user.name);
+                                                        }}
+                                                        className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                                                      >
+                                                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-medium">
+                                                          {user.name.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                                                          <p className="text-xs text-gray-500">{user.email}</p>
+                                                        </div>
+                                                      </button>
+                                                    ))
+                                                  ) : (
+                                                    <p className="px-3 py-2 text-sm text-gray-500">No users found</p>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
                                             <div className="flex justify-end gap-2 mt-2">
                                               <Button
                                                 size="sm"
@@ -1957,12 +2141,14 @@ ${content.map((item, index) => {
                                                 onClick={(e) => {
                                                   e.stopPropagation();
                                                   if (!commentInput.trim()) return;
-                                                  const newComment = {
+                                                  const mentions = extractMentions(commentInput);
+                                                  const newComment: Comment = {
                                                     id: crypto.randomUUID(),
                                                     text: commentInput,
                                                     author: 'You',
                                                     createdAt: new Date(),
                                                     resolved: false,
+                                                    mentions,
                                                     replies: []
                                                   };
                                                   setLineComments(prev => ({
