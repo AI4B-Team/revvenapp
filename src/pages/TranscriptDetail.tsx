@@ -3723,88 +3723,119 @@ ${content.map((item, index) => {
           handleCloseAIWriterModal();
         }
       }}>
-        <DialogContent className="sm:max-w-2xl p-0 gap-0 rounded-2xl overflow-hidden border-2 border-blue-400 shadow-2xl">
-          <DialogHeader className="p-4 pb-3 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                <Wand2 className="w-4 h-4 text-gray-600" />
-                {aiWriterCurrentAction}
+        <DialogContent className="sm:max-w-3xl p-0 gap-0 rounded-xl overflow-hidden shadow-xl [&>button]:hidden">
+          {/* Header with mode tabs */}
+          <div className="bg-background border-b border-border">
+            <div className="flex items-center justify-between px-5 py-3">
+              <DialogTitle className="text-lg font-semibold text-foreground">
+                AI Writer
               </DialogTitle>
-              <div className="flex items-center gap-2">
-                {aiWriterResults.length > 1 && (
-                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <button 
-                      onClick={() => setAiWriterResultIndex(prev => Math.max(0, prev - 1))}
-                      disabled={aiWriterResultIndex === 0}
-                      className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <span>{aiWriterResultIndex + 1} of {aiWriterResults.length}</span>
-                    <button 
-                      onClick={() => setAiWriterResultIndex(prev => Math.min(aiWriterResults.length - 1, prev + 1))}
-                      disabled={aiWriterResultIndex === aiWriterResults.length - 1}
-                      className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <button 
-                  onClick={handleCloseAIWriterModal}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+              <button 
+                onClick={handleCloseAIWriterModal}
+                className="p-1.5 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          </DialogHeader>
-          
-          {/* Content Area */}
-          <div className="px-4 py-3 max-h-80 overflow-y-auto">
-            {aiWriterModalLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-                <span className="ml-2 text-gray-500">Generating...</span>
-              </div>
-            ) : aiWriterResults.length > 0 ? (
-              <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                <p className="font-semibold mb-3">{aiWriterOriginalText}</p>
-                <p className="text-gray-700">{aiWriterResults[aiWriterResultIndex]?.text}</p>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                No result yet
-              </div>
-            )}
+            
+            {/* Mode Pills */}
+            <div className="px-5 pb-3 flex items-center gap-2 flex-wrap">
+              {[
+                { label: 'Rephrase', action: 'Rephrase' },
+                { label: 'Formal', action: 'Make formal' },
+                { label: 'Casual', action: 'Make casual' },
+                { label: 'Shorten', action: 'Shorten' },
+                { label: 'Expand', action: 'Elaborate' },
+                { label: 'Simplify', action: 'Simplify' },
+              ].map((mode) => (
+                <button
+                  key={mode.label}
+                  onClick={() => {
+                    if (!aiWriterModalLoading && aiWriterOriginalText) {
+                      handleRefineAIResult(mode.action);
+                    }
+                  }}
+                  disabled={aiWriterModalLoading}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all ${
+                    aiWriterCurrentAction === mode.action
+                      ? 'bg-emerald-500 text-white border-emerald-500'
+                      : 'bg-background text-foreground border-border hover:border-emerald-400 hover:bg-emerald-50'
+                  } disabled:opacity-50`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
           </div>
           
-          {/* Footer */}
-          <div className="p-4 pt-3 border-t border-gray-100 bg-gray-50">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-gray-400">
-                AI can make mistakes. Review before inserting.
-              </span>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => toast.success('Thanks for the feedback!')}
-                  className="p-1.5 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <ThumbsUp className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => toast.info('Thanks for the feedback!')}
-                  className="p-1.5 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <ThumbsDown className="w-4 h-4" />
-                </button>
+          {/* Two-column content */}
+          <div className="grid grid-cols-2 divide-x divide-border min-h-[280px]">
+            {/* Original Text Column */}
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Original</span>
+                <span className="text-xs text-muted-foreground/60">({aiWriterOriginalText.split(/\s+/).filter(Boolean).length} words)</span>
+              </div>
+              <div className="text-sm text-foreground leading-relaxed bg-muted/30 rounded-lg p-4 max-h-52 overflow-y-auto">
+                {aiWriterOriginalText || 'No text selected'}
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            {/* AI Result Column */}
+            <div className="p-5 bg-emerald-50/30">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600">AI Result</span>
+                  {aiWriterResults.length > 0 && !aiWriterModalLoading && (
+                    <span className="text-xs text-muted-foreground/60">
+                      ({aiWriterResults[aiWriterResultIndex]?.text.split(/\s+/).filter(Boolean).length || 0} words)
+                    </span>
+                  )}
+                </div>
+                {aiWriterResults.length > 1 && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <button 
+                      onClick={() => setAiWriterResultIndex(prev => Math.max(0, prev - 1))}
+                      disabled={aiWriterResultIndex === 0}
+                      className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span>{aiWriterResultIndex + 1}/{aiWriterResults.length}</span>
+                    <button 
+                      onClick={() => setAiWriterResultIndex(prev => Math.min(aiWriterResults.length - 1, prev + 1))}
+                      disabled={aiWriterResultIndex === aiWriterResults.length - 1}
+                      className="p-0.5 hover:bg-muted rounded disabled:opacity-30"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-sm text-foreground leading-relaxed bg-background rounded-lg p-4 max-h-52 overflow-y-auto border border-emerald-200">
+                {aiWriterModalLoading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground py-4">
+                    <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                    <span>Generating...</span>
+                  </div>
+                ) : aiWriterResults.length > 0 ? (
+                  aiWriterResults[aiWriterResultIndex]?.text
+                ) : (
+                  <span className="text-muted-foreground italic">Select a mode above to generate</span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="px-5 py-4 border-t border-border bg-muted/30 flex items-center justify-between gap-4">
+            {/* Refine Input */}
+            <div className="flex-1 flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Refine with a prompt"
+                placeholder="Refine with custom instructions..."
                 value={aiWriterRefinePrompt}
                 onChange={(e) => setAiWriterRefinePrompt(e.target.value)}
                 onKeyDown={(e) => {
@@ -3813,78 +3844,67 @@ ${content.map((item, index) => {
                   }
                 }}
                 disabled={aiWriterModalLoading || aiWriterResults.length === 0}
-                className="flex-1 px-4 py-2.5 text-sm bg-white rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                className="flex-1 px-4 py-2 text-sm bg-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:opacity-50"
               />
+              <button
+                onClick={() => aiWriterRefinePrompt.trim() && handleRefineAIResult()}
+                disabled={aiWriterModalLoading || !aiWriterRefinePrompt.trim()}
+                className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground transition-colors disabled:opacity-50"
+              >
+                <Wand2 className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRetryAIWriter}
+                disabled={aiWriterModalLoading}
+                className="p-2 rounded-lg border border-border hover:bg-muted text-muted-foreground transition-colors disabled:opacity-50"
+                title="Try again"
+              >
+                <RefreshCwIcon className="w-4 h-4" />
+              </button>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="rounded-full px-4"
-                    disabled={aiWriterModalLoading || aiWriterResults.length === 0}
-                  >
-                    Refine
-                    <ChevronDown className="w-4 h-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('Shorten')}>
-                    <MinusCircle className="w-4 h-4 mr-2" />
-                    Shorten
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('Elaborate')}>
-                    <ArrowDownToLine className="w-4 h-4 mr-2" />
-                    Elaborate
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('More formal')}>
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    More formal
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('More casual')}>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    More casual
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('Bulletize')}>
-                    <List className="w-4 h-4 mr-2" />
-                    Bulletize
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleRefineAIResult('Summarize')}>
-                    <FileTextIcon className="w-4 h-4 mr-2" />
-                    Summarize
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleRetryAIWriter}>
-                    <RefreshCwIcon className="w-4 h-4 mr-2" />
-                    Retry
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-1 border-l border-border pl-2">
+                <button 
+                  onClick={() => toast.success('Thanks for the feedback!')}
+                  className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-emerald-600 transition-colors"
+                  title="Helpful"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => toast.info('Thanks for the feedback!')}
+                  className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-red-500 transition-colors"
+                  title="Not helpful"
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                </button>
+              </div>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    className="rounded-full px-5 bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={aiWriterModalLoading || aiWriterResults.length === 0}
-                  >
-                    Insert
-                    <ChevronDown className="w-4 h-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={applyAIWriterResult}>
-                    <Check className="w-4 h-4 mr-2" />
-                    Replace selection
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => {
-                    if (aiWriterResults.length > 0) {
-                      navigator.clipboard.writeText(aiWriterResults[aiWriterResultIndex]?.text || '');
-                      toast.success('Copied to clipboard');
-                    }
-                  }}>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy to clipboard
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <button
+                onClick={() => {
+                  if (aiWriterResults.length > 0) {
+                    navigator.clipboard.writeText(aiWriterResults[aiWriterResultIndex]?.text || '');
+                    toast.success('Copied to clipboard');
+                  }
+                }}
+                disabled={aiWriterModalLoading || aiWriterResults.length === 0}
+                className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-foreground font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                <Copy className="w-4 h-4" />
+                Copy
+              </button>
+              
+              <button
+                onClick={applyAIWriterResult}
+                disabled={aiWriterModalLoading || aiWriterResults.length === 0}
+                className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Replace
+              </button>
             </div>
           </div>
         </DialogContent>
