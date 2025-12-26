@@ -11,7 +11,8 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic,
-  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize
+  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
+  ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -337,6 +338,19 @@ const TranscriptDetail = () => {
   // Highlight colors per line
   const [lineHighlights, setLineHighlights] = useState<Record<number, string>>({});
   
+  // Text-level highlights (per segment, with character ranges)
+  interface TextHighlight {
+    start: number;
+    end: number;
+    color: string;
+  }
+  const [textHighlights, setTextHighlights] = useState<Record<number, TextHighlight[]>>({});
+  const [textSelection, setTextSelection] = useState<{ segmentIndex: number; start: number; end: number; text: string } | null>(null);
+  
+  // AI Writer dropdown state
+  const [showAIWriterDropdown, setShowAIWriterDropdown] = useState<number | null>(null);
+  const [aiWriterPrompt, setAIWriterPrompt] = useState('');
+  
   // Segment playback - track when to stop playing a segment
   const [segmentEndTime, setSegmentEndTime] = useState<number | null>(null);
   const title = searchParams.get('title') || 'Untitled Transcript';
@@ -409,9 +423,10 @@ const TranscriptDetail = () => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // Render text with word-level highlighting (karaoke-style) and user highlights
+  // Render text with word-level highlighting (karaoke-style), user highlights, and text-level highlights
   const renderHighlightedText = (item: TranscriptLine, segmentIndex: number) => {
     const highlightColor = lineHighlights[segmentIndex];
+    const segmentTextHighlights = textHighlights[segmentIndex] || [];
     
     // Map highlight color names to Tailwind classes
     const highlightClasses: Record<string, string> = {
@@ -423,16 +438,46 @@ const TranscriptDetail = () => {
     
     const baseHighlightClass = highlightColor ? highlightClasses[highlightColor] : '';
     
+    // If there are text-level highlights, render them
+    if (segmentTextHighlights.length > 0 && !isPlaying) {
+      // Sort highlights by start position
+      const sortedHighlights = [...segmentTextHighlights].sort((a, b) => a.start - b.start);
+      const text = item.text;
+      const parts: React.ReactNode[] = [];
+      let lastEnd = 0;
+      
+      sortedHighlights.forEach((hl, idx) => {
+        // Add non-highlighted text before this highlight
+        if (hl.start > lastEnd) {
+          parts.push(<span key={`text-${idx}-before`}>{text.substring(lastEnd, hl.start)}</span>);
+        }
+        // Add highlighted text
+        parts.push(
+          <span key={`hl-${idx}`} className={`${highlightClasses[hl.color] || 'bg-yellow-200'} px-0.5 rounded`}>
+            {text.substring(hl.start, hl.end)}
+          </span>
+        );
+        lastEnd = hl.end;
+      });
+      
+      // Add remaining text after last highlight
+      if (lastEnd < text.length) {
+        parts.push(<span key="text-end">{text.substring(lastEnd)}</span>);
+      }
+      
+      return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{parts}</span>;
+    }
+    
     if (!isPlaying) {
       return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{item.text}</span>;
     }
 
     const segmentStartTime = parseTimeToSeconds(item.time);
-    const segmentEndTime = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
-    const segmentDuration = Math.max(0.001, segmentEndTime - segmentStartTime);
+    const segmentEndTimeVal = item.endTime ? parseTimeToSeconds(item.endTime) : segmentStartTime + 10;
+    const segmentDuration = Math.max(0.001, segmentEndTimeVal - segmentStartTime);
 
     // Only highlight while we're inside this segment
-    if (currentTime < segmentStartTime || currentTime >= segmentEndTime) {
+    if (currentTime < segmentStartTime || currentTime >= segmentEndTimeVal) {
       return <span className={`${baseHighlightClass} ${baseHighlightClass ? 'px-1 rounded' : ''}`}>{item.text}</span>;
     }
 
@@ -467,6 +512,60 @@ const TranscriptDetail = () => {
         })}
       </span>
     );
+  };
+  
+  // Handle text selection within a segment for text-level highlighting
+  const handleTextSelection = (segmentIndex: number) => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) {
+      setTextSelection(null);
+      return;
+    }
+    
+    const selectedText = selection.toString().trim();
+    if (!selectedText) {
+      setTextSelection(null);
+      return;
+    }
+    
+    // Get the text content of the segment
+    const segmentText = editedContent[segmentIndex]?.text || '';
+    const start = segmentText.indexOf(selectedText);
+    
+    if (start !== -1) {
+      setTextSelection({
+        segmentIndex,
+        start,
+        end: start + selectedText.length,
+        text: selectedText
+      });
+    }
+  };
+  
+  // Apply text-level highlight
+  const applyTextHighlight = (color: string) => {
+    if (!textSelection) return;
+    
+    const { segmentIndex, start, end } = textSelection;
+    setTextHighlights(prev => ({
+      ...prev,
+      [segmentIndex]: [...(prev[segmentIndex] || []), { start, end, color }]
+    }));
+    setTextSelection(null);
+    window.getSelection()?.removeAllRanges();
+    toast.success(`Text highlighted in ${color}`);
+  };
+  
+  // AI Writer actions
+  const handleAIWriterAction = async (action: string, segmentIndex: number) => {
+    const segment = editedContent[segmentIndex];
+    if (!segment) return;
+    
+    toast.success(`Applying "${action}" to segment...`);
+    setShowAIWriterDropdown(null);
+    
+    // For now, just show a toast - actual AI implementation would go here
+    // In a real implementation, this would call an AI service
   };
 
   // Check if audio duration is valid
@@ -1853,22 +1952,96 @@ ${content.map((item, index) => {
                                       <TooltipContent side="top" className="text-xs">Play Clip</TooltipContent>
                                     </Tooltip>
                                     
-                                    {/* Edit */}
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setEditingLineIndex(i);
-                                            setSelectedLineIndex(null);
-                                          }}
-                                          className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
-                                        >
-                                          <Pencil className="w-4 h-4" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="top" className="text-xs">Edit</TooltipContent>
-                                    </Tooltip>
+                                    {/* AI Writer */}
+                                    <Popover open={showAIWriterDropdown === i} onOpenChange={(open) => setShowAIWriterDropdown(open ? i : null)}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <PopoverTrigger asChild>
+                                            <button
+                                              onClick={(e) => e.stopPropagation()}
+                                              className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
+                                            >
+                                              <Wand2 className="w-4 h-4" />
+                                            </button>
+                                          </PopoverTrigger>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="text-xs">Writer</TooltipContent>
+                                      </Tooltip>
+                                      <PopoverContent 
+                                        className="w-56 p-0 bg-white border-gray-200 shadow-xl" 
+                                        side="bottom"
+                                        align="start"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {/* Custom prompt input */}
+                                        <div className="p-2 border-b border-gray-100">
+                                          <input
+                                            type="text"
+                                            placeholder="Modify with a prompt"
+                                            value={aiWriterPrompt}
+                                            onChange={(e) => setAIWriterPrompt(e.target.value)}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter' && aiWriterPrompt.trim()) {
+                                                handleAIWriterAction(aiWriterPrompt, i);
+                                                setAIWriterPrompt('');
+                                              }
+                                            }}
+                                            className="w-full px-3 py-2 text-sm bg-gray-50 rounded-lg border-0 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                          />
+                                        </div>
+                                        <div className="py-1">
+                                          <button
+                                            onClick={() => handleAIWriterAction('Rephrase', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <Wand2 className="w-4 h-4" />
+                                            Rephrase
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Shorten', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-400 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <MinusCircle className="w-4 h-4" />
+                                            Shorten
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Elaborate', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <ArrowDownToLine className="w-4 h-4" />
+                                            Elaborate
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('More formal', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <Briefcase className="w-4 h-4" />
+                                            More formal
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('More casual', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <MessageSquare className="w-4 h-4" />
+                                            More casual
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Bulletize', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <List className="w-4 h-4" />
+                                            Bulletize
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Summarize', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <FileTextIcon className="w-4 h-4" />
+                                            Summarize
+                                          </button>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
                                     
                                     {/* Highlight colors */}
                                     <Popover>
@@ -2392,7 +2565,26 @@ ${content.map((item, index) => {
                               onClick={(e) => {
                                 if (editingLineIndex === i) return;
                                 e.stopPropagation();
-                                setSelectedLineIndex(isSelected ? null : i);
+                                // Check if there's a text selection - if so, handle highlighting
+                                const selection = window.getSelection();
+                                if (selection && !selection.isCollapsed && selection.toString().trim()) {
+                                  handleTextSelection(i);
+                                  return;
+                                }
+                                // If already selected and clicked again, enter edit mode
+                                if (isSelected) {
+                                  setEditingLineIndex(i);
+                                  setSelectedLineIndex(null);
+                                } else {
+                                  setSelectedLineIndex(i);
+                                }
+                              }}
+                              onMouseUp={() => {
+                                // Handle text selection on mouse up
+                                const selection = window.getSelection();
+                                if (selection && !selection.isCollapsed && selection.toString().trim()) {
+                                  handleTextSelection(i);
+                                }
                               }}
                             >
                               {/* Comment indicator - shows when there are unresolved comments */}
@@ -2467,6 +2659,49 @@ ${content.map((item, index) => {
                           </div>
                         );
                       })}
+                      
+                      {/* Floating Text Highlight Picker - shows when text is selected */}
+                      {textSelection && (
+                        <div className="fixed z-[100] bg-white rounded-lg shadow-xl border border-gray-200 p-2 animate-fade-in"
+                          style={{
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)'
+                          }}
+                        >
+                          <div className="flex flex-col gap-2">
+                            <p className="text-xs text-gray-500 px-2">Highlight selected text:</p>
+                            <div className="flex items-center gap-2 px-2">
+                              <button
+                                onClick={() => applyTextHighlight('yellow')}
+                                className="w-7 h-7 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform"
+                              />
+                              <button
+                                onClick={() => applyTextHighlight('green')}
+                                className="w-7 h-7 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform"
+                              />
+                              <button
+                                onClick={() => applyTextHighlight('blue')}
+                                className="w-7 h-7 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform"
+                              />
+                              <button
+                                onClick={() => applyTextHighlight('pink')}
+                                className="w-7 h-7 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform"
+                              />
+                              <button
+                                onClick={() => {
+                                  setTextSelection(null);
+                                  window.getSelection()?.removeAllRanges();
+                                }}
+                                className="w-7 h-7 rounded-full bg-gray-100 border-2 border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
+                              >
+                                <X className="w-3.5 h-3.5 text-gray-500" />
+                              </button>
+                            </div>
+                            <p className="text-[10px] text-gray-400 px-2 truncate max-w-48">"{textSelection.text}"</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
