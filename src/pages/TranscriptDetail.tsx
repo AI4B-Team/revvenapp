@@ -829,8 +829,8 @@ const TranscriptDetail = () => {
     }
   };
 
-  // Apply the AI Writer result to the transcript
-  const applyAIWriterResult = () => {
+  // Apply the AI Writer result to the transcript and save to database
+  const applyAIWriterResult = async () => {
     if (aiWriterSegmentIndex === null || aiWriterResults.length === 0) return;
     
     const segment = editedContent[aiWriterSegmentIndex];
@@ -851,9 +851,25 @@ const TranscriptDetail = () => {
     }
     
     setEditedContent(newContent);
-    toast.success(`${result.action} applied successfully`);
     setAiWriterModalOpen(false);
     resetAIWriterModal();
+    
+    // Persist to database
+    try {
+      const updatedTranscript = newContent.map(item => item.text).join(' ');
+      const { error } = await supabase
+        .from('user_voices')
+        .update({ prompt: updatedTranscript })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setOriginalContent([...newContent]);
+      toast.success(`${result.action} applied and saved`);
+    } catch (error) {
+      console.error('Error saving transcript:', error);
+      toast.error('Applied but failed to save - please save manually');
+    }
   };
 
   // Reset the AI Writer modal state
