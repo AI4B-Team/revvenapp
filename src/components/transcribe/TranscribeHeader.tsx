@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  UserPlus, Send, Download, MoreVertical, Loader2
+  UserPlus, Download, MoreVertical, Loader2, Wand2, Video, UserCircle, FileEdit, BookOpen
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,10 +24,14 @@ import { toast } from 'sonner';
 
 interface TranscribeHeaderProps {
   onDownloadClick?: () => void;
+  showCreateDownload?: boolean;
+  onCreateClick?: (type: string) => void;
 }
 
 const TranscribeHeader = ({ 
   onDownloadClick,
+  showCreateDownload = false,
+  onCreateClick,
 }: TranscribeHeaderProps) => {
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
@@ -208,23 +212,47 @@ const TranscribeHeader = ({
             <span className="hidden md:inline">Share</span>
           </button>
           
-          {/* Publish button */}
-          <button 
-            onClick={() => toast.success('Publishing...')}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
-          >
-            <Send className="w-5 h-5" strokeWidth={2.5} />
-            <span className="hidden md:inline">Publish</span>
-          </button>
+          {/* Create button with dropdown - only shown when showCreateDownload is true */}
+          {showCreateDownload && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400">
+                  <Wand2 className="w-5 h-5" strokeWidth={2.5} />
+                  <span className="hidden md:inline">Create</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40 bg-popover border-border">
+                <DropdownMenuItem onClick={() => onCreateClick?.('video')} className="flex items-center gap-2 cursor-pointer">
+                  <Video className="w-4 h-4" />
+                  Video
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onCreateClick?.('ugc')} className="flex items-center gap-2 cursor-pointer">
+                  <UserCircle className="w-4 h-4" />
+                  UGC
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onCreateClick?.('post')} className="flex items-center gap-2 cursor-pointer">
+                  <FileEdit className="w-4 h-4" />
+                  Post
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onCreateClick?.('ebook')} className="flex items-center gap-2 cursor-pointer">
+                  <BookOpen className="w-4 h-4" />
+                  Ebook
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           
-          {/* Download button */}
-          <button 
-            onClick={onDownloadClick}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors"
-          >
-            <Download className="w-5 h-5" strokeWidth={2.5} />
-            <span className="hidden md:inline">Download</span>
-          </button>
+          {/* Download button - only shown when showCreateDownload is true */}
+          {showCreateDownload && (
+            <button 
+              onClick={onDownloadClick}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors"
+            >
+              <Download className="w-5 h-5" strokeWidth={2.5} />
+              <span className="hidden md:inline">Download</span>
+            </button>
+          )}
           
           {/* 3-dot menu */}
           <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
