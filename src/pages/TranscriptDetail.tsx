@@ -2037,21 +2037,35 @@ ${content.map((item, index) => {
               {/* Title Row with pencil icon */}
               <div className="flex items-center gap-3 mb-4">
                 {isEditingTitle ? (
-                  <input
-                    type="text"
-                    value={editedTitle ?? title}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    onBlur={() => setIsEditingTitle(false)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') setIsEditingTitle(false);
-                      if (e.key === 'Escape') {
-                        setEditedTitle(null);
-                        setIsEditingTitle(false);
-                      }
-                    }}
-                    autoFocus
-                    className="text-2xl font-bold text-gray-900 bg-transparent border-b-2 border-emerald-500 focus:outline-none px-1"
-                  />
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="text"
+                      value={editedTitle ?? title}
+                      onChange={(e) => setEditedTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveTitle();
+                        }
+                        if (e.key === 'Escape') {
+                          handleCancelTitleEdit();
+                        }
+                      }}
+                      autoFocus
+                      className="text-2xl font-bold text-gray-900 bg-white border-2 border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 px-3 py-1.5 flex-1 min-w-[300px]"
+                    />
+                    <button
+                      onClick={handleSaveTitle}
+                      className="p-2 text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleCancelTitleEdit}
+                      className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <h1 className="text-2xl font-bold text-gray-900">{editedTitle ?? title}</h1>
