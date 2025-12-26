@@ -1387,7 +1387,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                                     <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                                   </button>
                                 </TooltipTrigger>
-                                <TooltipContent>{transcript.starred ? 'Unstar' : 'Star'}</TooltipContent>
+                                <TooltipContent>{transcript.starred ? 'Unfavorite' : 'Favorite'}</TooltipContent>
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1591,7 +1591,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                               <Star className={`w-4 h-4 ${transcript.starred ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400 hover:text-yellow-400'}`} />
                             </button>
                           </TooltipTrigger>
-                          <TooltipContent>{transcript.starred ? 'Unstar' : 'Star'}</TooltipContent>
+                          <TooltipContent>{transcript.starred ? 'Unfavorite' : 'Favorite'}</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
