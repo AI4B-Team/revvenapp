@@ -13,7 +13,7 @@ import {
   Pencil, Trash2, Check, X, Search, Mic,
   Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize,
   ArrowDownToLine, Briefcase, FileText as FileTextIcon, List, MinusCircle,
-  ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon
+  ThumbsUp, ThumbsDown, ChevronLeft, RotateCw as RefreshCwIcon, Umbrella
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -404,7 +404,7 @@ const TranscriptDetail = () => {
     originalityAndCreativity: ['Artistic', 'Groundbreaking', 'Magical journey', 'Expressive', 'Imaginative', 'Out of the box', 'Creative', 'Unique']
   };
   
-  const defaultModes = ['Rephrase', 'Formal', 'Casual', 'Shorten', 'Expand', 'Simplify'];
+  const defaultModes = ['Rephrase', 'Shorten', 'Expand', 'Formal', 'Casual', 'Simplify'];
   const totalExtraModes = Object.values(allWritingModes).flat().length - defaultModes.length;
   
   // Segment playback - track when to stop playing a segment
@@ -2582,20 +2582,6 @@ ${content.map((item, index) => {
                                             Rephrase
                                           </button>
                                           <button
-                                            onClick={() => handleAIWriterAction('Make formal', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                          >
-                                            <Briefcase className="w-4 h-4" />
-                                            Formal
-                                          </button>
-                                          <button
-                                            onClick={() => handleAIWriterAction('Make casual', i)}
-                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                          >
-                                            <MessageSquare className="w-4 h-4" />
-                                            Casual
-                                          </button>
-                                          <button
                                             onClick={() => handleAIWriterAction('Shorten', i)}
                                             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                           >
@@ -2603,11 +2589,25 @@ ${content.map((item, index) => {
                                             Shorten
                                           </button>
                                           <button
-                                            onClick={() => handleAIWriterAction('Elaborate', i)}
+                                            onClick={() => handleAIWriterAction('Expand', i)}
                                             className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                           >
                                             <ArrowDownToLine className="w-4 h-4" />
                                             Expand
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Formal', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <Briefcase className="w-4 h-4" />
+                                            Formal
+                                          </button>
+                                          <button
+                                            onClick={() => handleAIWriterAction('Casual', i)}
+                                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                          >
+                                            <Umbrella className="w-4 h-4" />
+                                            Casual
                                           </button>
                                           <button
                                             onClick={() => handleAIWriterAction('Simplify', i)}
