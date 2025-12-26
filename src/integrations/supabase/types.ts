@@ -424,6 +424,48 @@ export type Database = {
         }
         Relationships: []
       }
+      transcript_segments: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          id: string
+          image_url: string | null
+          segment_index: number
+          speaker: string
+          start_time: string
+          text: string
+          transcript_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          image_url?: string | null
+          segment_index: number
+          speaker?: string
+          start_time?: string
+          text?: string
+          transcript_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          image_url?: string | null
+          segment_index?: number
+          speaker?: string
+          start_time?: string
+          text?: string
+          transcript_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_exports: {
         Row: {
           created_at: string
