@@ -3315,12 +3315,20 @@ ${content.map((item, index) => {
                                       <textarea
                                         ref={(el) => {
                                           editTextareaRefs.current[i] = el;
+                                          // Auto-resize on mount
+                                          if (el) {
+                                            el.style.height = 'auto';
+                                            el.style.height = `${el.scrollHeight}px`;
+                                          }
                                         }}
                                         value={editedContent[i].text}
                                         onChange={(e) => {
                                           const newContent = [...editedContent];
                                           newContent[i] = { ...newContent[i], text: e.target.value };
                                           setEditedContent(newContent);
+                                          // Auto-resize on change
+                                          e.target.style.height = 'auto';
+                                          e.target.style.height = `${e.target.scrollHeight}px`;
                                         }}
                                         onSelect={(e) => {
                                           const el = e.currentTarget;
@@ -3340,9 +3348,8 @@ ${content.map((item, index) => {
                                           });
                                           pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
                                         }}
-                                        className="w-full p-2 rounded-lg border border-gray-300 bg-transparent text-transparent caret-foreground leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
+                                        className="w-full p-2 rounded-lg border border-gray-300 bg-transparent text-transparent caret-foreground leading-relaxed resize-none focus:outline-none focus:border-emerald-500 overflow-hidden min-h-[60px]"
                                         style={{ WebkitTextFillColor: 'transparent', caretColor: 'hsl(var(--foreground))' }}
-                                        rows={2}
                                         autoFocus
                                       />
                                     </div>
