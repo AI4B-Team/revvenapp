@@ -1814,19 +1814,21 @@ ${content.map((item, index) => {
                                                       <Check className="w-3.5 h-3.5" />
                                                     </button>
                                                   )}
-                                                  <button
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setLineComments(prev => ({
-                                                        ...prev,
-                                                        [i]: prev[i].filter(c => c.id !== comment.id)
-                                                      }));
-                                                      toast.success('Comment deleted');
-                                                    }}
-                                                    className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
-                                                  >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                  </button>
+                                                  {comment.resolved && (
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setLineComments(prev => ({
+                                                          ...prev,
+                                                          [i]: prev[i].filter(c => c.id !== comment.id)
+                                                        }));
+                                                        toast.success('Comment deleted');
+                                                      }}
+                                                      className="p-1 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
+                                                    >
+                                                      <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                  )}
                                                 </div>
                                               </div>
                                               <p className={`text-sm text-gray-700 mt-2 ${comment.resolved ? 'line-through' : ''}`}>
