@@ -346,6 +346,8 @@ const TranscriptDetail = () => {
   }
   const [textHighlights, setTextHighlights] = useState<Record<number, TextHighlight[]>>({});
   const [textSelection, setTextSelection] = useState<{ segmentIndex: number; start: number; end: number; text: string } | null>(null);
+  // Ref to preserve text selection when clicking highlight toolbar button
+  const pendingHighlightSelectionRef = useRef<{ segmentIndex: number; start: number; end: number } | null>(null);
   
   // AI Writer dropdown state
   const [showAIWriterDropdown, setShowAIWriterDropdown] = useState<number | null>(null);
@@ -447,14 +449,20 @@ const TranscriptDetail = () => {
       let lastEnd = 0;
       
       sortedHighlights.forEach((hl, idx) => {
+        // Skip if this highlight is entirely within already-rendered text (overlapping/duplicate)
+        if (hl.end <= lastEnd) return;
+        
+        // Adjust start if it overlaps with previous highlight
+        const effectiveStart = Math.max(hl.start, lastEnd);
+        
         // Add non-highlighted text before this highlight
-        if (hl.start > lastEnd) {
-          parts.push(<span key={`text-${idx}-before`}>{text.substring(lastEnd, hl.start)}</span>);
+        if (effectiveStart > lastEnd) {
+          parts.push(<span key={`text-${idx}-before`}>{text.substring(lastEnd, effectiveStart)}</span>);
         }
-        // Add highlighted text
+        // Add highlighted text (from effective start to end)
         parts.push(
           <span key={`hl-${idx}`} className={`${highlightClasses[hl.color] || 'bg-yellow-200'} px-0.5 rounded`}>
-            {text.substring(hl.start, hl.end)}
+            {text.substring(effectiveStart, hl.end)}
           </span>
         );
         lastEnd = hl.end;
@@ -557,11 +565,28 @@ const TranscriptDetail = () => {
   };
 
   const applyHighlightForSegment = (segmentIndex: number, color: 'yellow' | 'green' | 'blue' | 'pink') => {
+    // First check for pending selection from the ref (captured when opening popover)
+    if (pendingHighlightSelectionRef.current && pendingHighlightSelectionRef.current.segmentIndex === segmentIndex) {
+      const { start, end } = pendingHighlightSelectionRef.current;
+      if (start !== end) {
+        setTextHighlights(prev => ({
+          ...prev,
+          [segmentIndex]: [...(prev[segmentIndex] || []), { start, end, color }]
+        }));
+        pendingHighlightSelectionRef.current = null;
+        setTextSelection(null);
+        toast.success(`Text highlighted in ${color}`);
+        return;
+      }
+    }
+    
+    // Then check textSelection state
     if (textSelection && textSelection.segmentIndex === segmentIndex && textSelection.start !== textSelection.end) {
       applyTextHighlight(color);
       return;
     }
 
+    // Fall back to line-level highlight
     setLineHighlights(prev => ({ ...prev, [segmentIndex]: color }));
     toast.success(`Highlighted in ${color}`);
   };
@@ -1235,6 +1260,13 @@ ${content.map((item, index) => {
     setEditedContent(newContent);
     setEditingLineIndex(null);
     setSelectedLineIndex(null);
+    // Clear text selection and highlights for this segment to prevent stale data
+    setTextSelection(null);
+    setTextHighlights(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
   };
 
   const handleSaveTitle = async () => {
@@ -2063,9 +2095,28 @@ ${content.map((item, index) => {
                                           <PopoverTrigger asChild>
                                             <button
                                               onMouseDown={(e) => {
-                                                // Keep text selection intact when opening the highlight picker
+                                                // Capture the current text selection before focus changes
                                                 e.preventDefault();
                                                 e.stopPropagation();
+                                                
+                                                // If editing, capture textarea selection
+                                                if (editingLineIndex === i) {
+                                                  const textarea = document.querySelector(`textarea`) as HTMLTextAreaElement;
+                                                  if (textarea) {
+                                                    const start = textarea.selectionStart ?? 0;
+                                                    const end = textarea.selectionEnd ?? 0;
+                                                    if (start !== end) {
+                                                      pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                                    }
+                                                  }
+                                                } else if (textSelection && textSelection.segmentIndex === i) {
+                                                  // Use existing textSelection if available
+                                                  pendingHighlightSelectionRef.current = { 
+                                                    segmentIndex: i, 
+                                                    start: textSelection.start, 
+                                                    end: textSelection.end 
+                                                  };
+                                                }
                                               }}
                                               onClick={(e) => e.stopPropagation()}
                                               className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
@@ -2712,59 +2763,6 @@ ${content.map((item, index) => {
                           </div>
                         );
                       })}
-                      
-                      {/* Floating Text Highlight Picker - shows when text is selected */}
-                      {textSelection && (
-                        <div 
-                          className="fixed z-[100] bg-white rounded-lg shadow-xl border border-gray-200 p-2 animate-fade-in"
-                          style={{
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)'
-                          }}
-                          onMouseDown={(e) => {
-                            // Prevent the mousedown from stealing focus and clearing selection
-                            e.preventDefault();
-                          }}
-                        >
-                          <div className="flex flex-col gap-2">
-                            <p className="text-xs text-gray-500 px-2">Highlight selected text:</p>
-                            <div className="flex items-center gap-2 px-2">
-                              <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => applyTextHighlight('yellow')}
-                                className="w-7 h-7 rounded-full bg-yellow-200 border-2 border-yellow-400 hover:scale-110 transition-transform"
-                              />
-                              <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => applyTextHighlight('green')}
-                                className="w-7 h-7 rounded-full bg-green-200 border-2 border-green-400 hover:scale-110 transition-transform"
-                              />
-                              <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => applyTextHighlight('blue')}
-                                className="w-7 h-7 rounded-full bg-blue-200 border-2 border-blue-400 hover:scale-110 transition-transform"
-                              />
-                              <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => applyTextHighlight('pink')}
-                                className="w-7 h-7 rounded-full bg-pink-200 border-2 border-pink-400 hover:scale-110 transition-transform"
-                              />
-                              <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => {
-                                  setTextSelection(null);
-                                  window.getSelection()?.removeAllRanges();
-                                }}
-                                className="w-7 h-7 rounded-full bg-gray-100 border-2 border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
-                              >
-                                <X className="w-3.5 h-3.5 text-gray-500" />
-                              </button>
-                            </div>
-                            <p className="text-[10px] text-gray-400 px-2 truncate max-w-48">"{textSelection.text}"</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
 
