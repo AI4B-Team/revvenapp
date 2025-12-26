@@ -832,43 +832,62 @@ const TranscriptDetail = () => {
   // Apply the AI Writer result to the transcript and save to database
   const applyAIWriterResult = async () => {
     if (aiWriterSegmentIndex === null || aiWriterResults.length === 0) return;
-    
+
     const segment = editedContent[aiWriterSegmentIndex];
     if (!segment) return;
-    
+
     const result = aiWriterResults[aiWriterResultIndex];
     const newContent = [...editedContent];
-    
+
     if (aiWriterUsingSelection && aiWriterSelectionRange) {
       const { start, end } = aiWriterSelectionRange;
       const origText = segment.text;
-      newContent[aiWriterSegmentIndex] = { 
-        ...segment, 
-        text: origText.substring(0, start) + result.text + origText.substring(end)
+      newContent[aiWriterSegmentIndex] = {
+        ...segment,
+        text: origText.substring(0, start) + result.text + origText.substring(end),
       };
     } else {
       newContent[aiWriterSegmentIndex] = { ...segment, text: result.text };
     }
-    
+
     setEditedContent(newContent);
     setAiWriterModalOpen(false);
     resetAIWriterModal();
-    
+
+    if (!id) {
+      toast.error('Cannot save: missing transcript id');
+      return;
+    }
+
     // Persist to database
     try {
-      const updatedTranscript = newContent.map(item => item.text).join(' ');
-      const { error } = await supabase
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error('Please log in to save changes');
+        return;
+      }
+
+      const updatedTranscript = newContent.map((item) => item.text).join(' ');
+      const { data, error } = await supabase
         .from('user_voices')
         .update({ prompt: updatedTranscript })
-        .eq('id', id);
-      
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select('id');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('Update failed (no permission or transcript not found)');
+      }
+
       setOriginalContent([...newContent]);
       toast.success(`${result.action} applied and saved`);
     } catch (error) {
       console.error('Error saving transcript:', error);
-      toast.error('Applied but failed to save - please save manually');
+      toast.error('Could not save changes');
     }
   };
 
@@ -1754,19 +1773,33 @@ ${content.map((item, index) => {
       toast.success('Line saved locally');
       return;
     }
-    
+
     setIsSavingTranscript(true);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error('Please log in to save changes');
+        return;
+      }
+
       // Compile all edited content back to a single string
-      const updatedTranscript = editedContent.map(item => item.text).join(' ');
-      
-      const { error } = await supabase
+      const updatedTranscript = editedContent.map((item) => item.text).join(' ');
+
+      const { data, error } = await supabase
         .from('user_voices')
         .update({ prompt: updatedTranscript })
-        .eq('id', id);
-      
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select('id');
+
       if (error) throw error;
-      
+      if (!data || data.length === 0) {
+        throw new Error('Update failed (no permission or transcript not found)');
+      }
+
       // Update original content to match edited content
       setOriginalContent([...editedContent]);
       setEditingLineIndex(null);
