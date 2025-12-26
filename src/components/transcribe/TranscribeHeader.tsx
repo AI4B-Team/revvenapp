@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  Download, MoreVertical, Loader2, Wand2, Video, UserCircle, FileEdit, BookOpen
+  UserPlus, Send, Download, MoreVertical, Loader2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,18 +24,22 @@ import { toast } from 'sonner';
 
 interface TranscribeHeaderProps {
   onDownloadClick?: () => void;
-  onCreateClick?: (type: 'video' | 'ugc' | 'post' | 'ebook') => void;
 }
 
 const TranscribeHeader = ({ 
   onDownloadClick,
-  onCreateClick,
 }: TranscribeHeaderProps) => {
-  const navigate = useNavigate();
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [isSaving, setIsSaving] = useState(false);
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+
+  // Collaborator avatars (demo)
+  const collaborators = [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop&crop=face',
+  ];
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -45,14 +48,6 @@ const TranscribeHeader = ({
     setLastAutoSaved(new Date());
     setIsSaving(false);
     toast.success('Project saved');
-  };
-
-  const handleCreate = (type: 'video' | 'ugc' | 'post' | 'ebook') => {
-    if (onCreateClick) {
-      onCreateClick(type);
-    } else {
-      navigate('/create');
-    }
   };
 
   return (
@@ -192,39 +187,40 @@ const TranscribeHeader = ({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-          {/* Create button with dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors">
-                <Wand2 className="w-5 h-5" strokeWidth={2.5} />
-                <span className="hidden md:inline">Create</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 bg-white border border-gray-200 z-50">
-              <DropdownMenuItem onClick={() => handleCreate('video')} className="flex items-center gap-2 cursor-pointer">
-                <Video className="w-4 h-4" />
-                Video
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleCreate('ugc')} className="flex items-center gap-2 cursor-pointer">
-                <UserCircle className="w-4 h-4" />
-                UGC
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleCreate('post')} className="flex items-center gap-2 cursor-pointer">
-                <FileEdit className="w-4 h-4" />
-                Post
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleCreate('ebook')} className="flex items-center gap-2 cursor-pointer">
-                <BookOpen className="w-4 h-4" />
-                Ebook
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Collaborators */}
+          <div className="hidden lg:flex items-center -space-x-2">
+            {collaborators.map((avatar, index) => (
+              <img
+                key={index}
+                src={avatar}
+                alt={`Collaborator ${index + 1}`}
+                className="w-8 h-8 rounded-full border-2 border-sidebar object-cover"
+              />
+            ))}
+          </div>
+          
+          {/* Share button */}
+          <button 
+            onClick={() => toast.success('Share dialog coming soon')}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
+          >
+            <UserPlus className="w-5 h-5" strokeWidth={2.5} />
+            <span className="hidden md:inline">Share</span>
+          </button>
+          
+          {/* Publish button */}
+          <button 
+            onClick={() => toast.success('Publishing...')}
+            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
+          >
+            <Send className="w-5 h-5" strokeWidth={2.5} />
+            <span className="hidden md:inline">Publish</span>
+          </button>
           
           {/* Download button */}
           <button 
             onClick={onDownloadClick}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors"
           >
             <Download className="w-5 h-5" strokeWidth={2.5} />
             <span className="hidden md:inline">Download</span>
@@ -237,7 +233,7 @@ const TranscribeHeader = ({
                 <MoreVertical className="w-5 h-5" strokeWidth={2.5} />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 z-50">
+            <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200">
               <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
                 <Settings className="w-4 h-4" />
                 Settings
