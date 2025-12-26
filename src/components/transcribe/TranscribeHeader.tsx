@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
   UserPlus, Send, Download, MoreVertical, Copy, LayoutTemplate, 
-  RotateCcw, Loader2, ArrowLeft
+  RotateCcw, Loader2
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,23 +24,12 @@ import {
 import { toast } from 'sonner';
 
 interface TranscribeHeaderProps {
-  projectTitle: string;
-  onTitleChange?: (title: string) => void;
   onDownloadClick?: () => void;
-  onBackClick?: () => void;
-  showBackButton?: boolean;
 }
 
 const TranscribeHeader = ({ 
-  projectTitle, 
-  onTitleChange, 
   onDownloadClick,
-  onBackClick,
-  showBackButton = false
 }: TranscribeHeaderProps) => {
-  const navigate = useNavigate();
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(projectTitle);
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [isSaving, setIsSaving] = useState(false);
@@ -53,11 +41,6 @@ const TranscribeHeader = ({
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop&crop=face',
   ];
-
-  const handleSaveTitle = () => {
-    setIsEditingTitle(false);
-    onTitleChange?.(editedTitle);
-  };
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -73,14 +56,6 @@ const TranscribeHeader = ({
       <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
         {/* Left Section */}
         <div className="flex items-center gap-3">
-          {showBackButton && (
-            <button 
-              onClick={onBackClick || (() => navigate('/transcribe'))}
-              className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          )}
           <span className="text-lg font-bold text-white">Transcribe</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -162,32 +137,6 @@ const TranscribeHeader = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-
-        {/* Editable Project Name + Auto-save */}
-        <div className="flex items-center gap-2 ml-4 max-w-[320px] flex-shrink-0">
-          {isEditingTitle ? (
-            <input
-              type="text"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              onBlur={handleSaveTitle}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
-              autoFocus
-              className="bg-slate-700/50 text-white text-sm px-3 py-1.5 rounded-lg border border-slate-400 focus:outline-none focus:border-white min-w-[150px] max-w-[180px]"
-            />
-          ) : (
-            <button
-              onClick={() => {
-                setEditedTitle(projectTitle);
-                setIsEditingTitle(true);
-              }}
-              className="text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-slate-500 hover:border-white hover:bg-slate-700/50 transition-colors truncate max-w-[180px]"
-              title={projectTitle}
-            >
-              {projectTitle}
-            </button>
-          )}
           
           {/* Auto-save Cloud Icon */}
           <HoverCard openDelay={100} closeDelay={100}>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
 import TranscribeHeader from '@/components/transcribe/TranscribeHeader';
 import TranscribeApp from '@/components/transcribe/TranscribeApp';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
@@ -19,8 +20,8 @@ const Transcribe = () => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        <Header />
         <TranscribeHeader 
-          projectTitle="Transcribe"
           onDownloadClick={() => {}}
         />
         
