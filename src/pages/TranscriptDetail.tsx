@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
 import TranscribeHeader from '@/components/transcribe/TranscribeHeader';
 import DigitalCharactersModal from '@/components/dashboard/DigitalCharactersModal';
 import AIPersonaSidebar from '@/components/dashboard/AIPersonaSidebar';
@@ -10,7 +11,7 @@ import {
   Volume2, RotateCcw, TrendingUp, Zap, Languages, 
   MessageSquare, User, ChevronRight, Wand2, Download,
   Pencil, Trash2, Check, X, Search, Mic, Video, UserCircle, FileEdit, BookOpen,
-  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus
+  Star, MoreVertical, Upload, Loader2, VolumeX, Heart, Info, RefreshCw, EyeOff, Eye, Plus, Maximize
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1242,18 +1243,54 @@ ${content.map((item, index) => {
       />
       
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+        <Header />
         <TranscribeHeader 
-          projectTitle={editedTitle || title}
-          onTitleChange={(newTitle) => setEditedTitle(newTitle)}
           onDownloadClick={() => setShowDownloadModal(true)}
-          onBackClick={() => navigate('/transcribe')}
-          showBackButton={true}
         />
         
           <main className="flex-1 overflow-hidden bg-white">
           <div className="h-full flex flex-col">
-            {/* Header Section */}
+            {/* Header Section with Back link and Title */}
             <div className="px-6 pt-6 pb-5 border-b border-gray-200 bg-gradient-to-r from-slate-50 via-white to-emerald-50/30">
+              {/* Back to Transcriptions Link */}
+              <button 
+                onClick={() => navigate('/transcribe')}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back To Transcriptions
+              </button>
+              
+              {/* Title Row with pencil icon */}
+              <div className="flex items-center gap-3 mb-4">
+                {isEditingTitle ? (
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    onBlur={() => setIsEditingTitle(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setIsEditingTitle(false);
+                      if (e.key === 'Escape') {
+                        setEditedTitle(title);
+                        setIsEditingTitle(false);
+                      }
+                    }}
+                    autoFocus
+                    className="text-2xl font-bold text-gray-900 bg-transparent border-b-2 border-emerald-500 focus:outline-none px-1"
+                  />
+                ) : (
+                  <>
+                    <h1 className="text-2xl font-bold text-gray-900">{editedTitle || title}</h1>
+                    <button 
+                      onClick={() => setIsEditingTitle(true)}
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
               
               {/* Metadata Row */}
               <div className="flex items-center justify-between">
@@ -1437,9 +1474,9 @@ ${content.map((item, index) => {
               <div className="w-[480px] flex-shrink-0 flex flex-col">
                 <div className="sticky top-0">
                   {/* Media Player Card */}
-                  <div className="rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
+                  <div className="waveform-container rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
                     {/* Waveform Visualization Area */}
-                    <div className="relative aspect-[4/3] p-8 flex items-center justify-center group/waveform">
+                    <div className="relative aspect-[4/3] p-8 flex items-center justify-center group/waveform bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
                       {/* Audio Waveform Visualization */}
                       <div className="flex items-center justify-center gap-[3px] h-32">
                         {[...Array(50)].map((_, i) => {
@@ -1472,10 +1509,27 @@ ${content.map((item, index) => {
                       `}</style>
                       
                       {/* Duration Badge */}
-                      <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-gray-900/80 text-white text-sm font-mono flex items-center gap-1.5">
+                      <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full bg-gray-900/80 text-white text-sm font-mono flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5" />
                         {duration}
                       </div>
+                      
+                      {/* Fullscreen Button */}
+                      <button
+                        onClick={() => {
+                          const waveformArea = document.querySelector('.waveform-container');
+                          if (waveformArea) {
+                            if (document.fullscreenElement) {
+                              document.exitFullscreen();
+                            } else {
+                              waveformArea.requestFullscreen();
+                            }
+                          }
+                        }}
+                        className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors"
+                      >
+                        <Maximize className="w-4 h-4" />
+                      </button>
                       
                       {/* Play Button Overlay - shows when not playing */}
                       {!isPlaying && resolvedAudioUrl && (
