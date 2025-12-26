@@ -346,6 +346,8 @@ const TranscriptDetail = () => {
   }
   const [textHighlights, setTextHighlights] = useState<Record<number, TextHighlight[]>>({});
   const [textSelection, setTextSelection] = useState<{ segmentIndex: number; start: number; end: number; text: string } | null>(null);
+  const segmentTextRefs = useRef<Record<number, HTMLParagraphElement | null>>({});
+  const editTextareaRefs = useRef<Record<number, HTMLTextAreaElement | null>>({});
   // Ref to preserve text selection when clicking highlight toolbar button
   const pendingHighlightSelectionRef = useRef<{ segmentIndex: number; start: number; end: number } | null>(null);
   
@@ -524,30 +526,42 @@ const TranscriptDetail = () => {
   
   // Handle text selection within a segment for text-level highlighting
   const handleTextSelection = (segmentIndex: number) => {
+    const root = segmentTextRefs.current[segmentIndex];
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
+
+    if (!root || !selection || selection.isCollapsed || selection.rangeCount === 0) {
       setTextSelection(null);
       return;
     }
-    
-    const selectedText = selection.toString().trim();
-    if (!selectedText) {
-      setTextSelection(null);
+
+    const range = selection.getRangeAt(0);
+    // Only accept selections inside this segment's text node
+    if (!root.contains(range.commonAncestorContainer)) {
       return;
     }
-    
-    // Get the text content of the segment
+
+    // Compute character offsets relative to the segment text by measuring text up to the range endpoints
+    const preRange = document.createRange();
+    preRange.selectNodeContents(root);
+    preRange.setEnd(range.startContainer, range.startOffset);
+    const rawStart = preRange.toString().length;
+
+    preRange.setEnd(range.endContainer, range.endOffset);
+    const rawEnd = preRange.toString().length;
+
     const segmentText = editedContent[segmentIndex]?.text || '';
-    const start = segmentText.indexOf(selectedText);
-    
-    if (start !== -1) {
-      setTextSelection({
-        segmentIndex,
-        start,
-        end: start + selectedText.length,
-        text: selectedText
-      });
+    const start = Math.max(0, Math.min(segmentText.length, Math.min(rawStart, rawEnd)));
+    const end = Math.max(0, Math.min(segmentText.length, Math.max(rawStart, rawEnd)));
+
+    if (start === end) {
+      setTextSelection(null);
+      return;
     }
+
+    const selectedText = segmentText.substring(start, end);
+    setTextSelection({ segmentIndex, start, end, text: selectedText });
+    // Persist so the user can click the toolbar without losing the selection
+    pendingHighlightSelectionRef.current = { segmentIndex, start, end };
   };
   
   // Apply text-level highlight
@@ -1260,13 +1274,8 @@ ${content.map((item, index) => {
     setEditedContent(newContent);
     setEditingLineIndex(null);
     setSelectedLineIndex(null);
-    // Clear text selection and highlights for this segment to prevent stale data
     setTextSelection(null);
-    setTextHighlights(prev => {
-      const next = { ...prev };
-      delete next[index];
-      return next;
-    });
+    pendingHighlightSelectionRef.current = null;
   };
 
   const handleSaveTitle = async () => {
@@ -2095,13 +2104,13 @@ ${content.map((item, index) => {
                                           <PopoverTrigger asChild>
                                             <button
                                               onMouseDown={(e) => {
-                                                // Capture the current text selection before focus changes
+                                                // Capture the current selection before focus changes
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                
-                                                // If editing, capture textarea selection
+
+                                                // Editing: use textarea selection
                                                 if (editingLineIndex === i) {
-                                                  const textarea = document.querySelector(`textarea`) as HTMLTextAreaElement;
+                                                  const textarea = editTextareaRefs.current[i];
                                                   if (textarea) {
                                                     const start = textarea.selectionStart ?? 0;
                                                     const end = textarea.selectionEnd ?? 0;
@@ -2109,12 +2118,39 @@ ${content.map((item, index) => {
                                                       pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
                                                     }
                                                   }
-                                                } else if (textSelection && textSelection.segmentIndex === i) {
-                                                  // Use existing textSelection if available
-                                                  pendingHighlightSelectionRef.current = { 
-                                                    segmentIndex: i, 
-                                                    start: textSelection.start, 
-                                                    end: textSelection.end 
+                                                  return;
+                                                }
+
+                                                // Not editing: capture DOM selection within the segment text
+                                                const root = segmentTextRefs.current[i];
+                                                const selection = window.getSelection();
+                                                if (root && selection && !selection.isCollapsed && selection.rangeCount > 0) {
+                                                  const range = selection.getRangeAt(0);
+                                                  if (root.contains(range.commonAncestorContainer)) {
+                                                    const preRange = document.createRange();
+                                                    preRange.selectNodeContents(root);
+                                                    preRange.setEnd(range.startContainer, range.startOffset);
+                                                    const rawStart = preRange.toString().length;
+                                                    preRange.setEnd(range.endContainer, range.endOffset);
+                                                    const rawEnd = preRange.toString().length;
+
+                                                    const segmentText = editedContent[i]?.text || '';
+                                                    const start = Math.max(0, Math.min(segmentText.length, Math.min(rawStart, rawEnd)));
+                                                    const end = Math.max(0, Math.min(segmentText.length, Math.max(rawStart, rawEnd)));
+
+                                                    if (start !== end) {
+                                                      pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
+                                                      return;
+                                                    }
+                                                  }
+                                                }
+
+                                                // Fallback: use last stored selection
+                                                if (textSelection && textSelection.segmentIndex === i && textSelection.start !== textSelection.end) {
+                                                  pendingHighlightSelectionRef.current = {
+                                                    segmentIndex: i,
+                                                    start: textSelection.start,
+                                                    end: textSelection.end,
                                                   };
                                                 }
                                               }}
@@ -2710,6 +2746,9 @@ ${content.map((item, index) => {
                                 {editingLineIndex === i ? (
                                   <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                                     <textarea
+                                      ref={(el) => {
+                                        editTextareaRefs.current[i] = el;
+                                      }}
                                       value={editedContent[i].text}
                                       onChange={(e) => {
                                         const newContent = [...editedContent];
@@ -2722,6 +2761,7 @@ ${content.map((item, index) => {
                                         const end = el.selectionEnd ?? 0;
                                         if (start === end) {
                                           setTextSelection(null);
+                                          pendingHighlightSelectionRef.current = null;
                                           return;
                                         }
 
@@ -2731,6 +2771,7 @@ ${content.map((item, index) => {
                                           end,
                                           text: el.value.substring(start, end),
                                         });
+                                        pendingHighlightSelectionRef.current = { segmentIndex: i, start, end };
                                       }}
                                       className="w-full p-2 rounded-lg border border-gray-300 text-gray-900 leading-relaxed resize-none focus:outline-none focus:border-emerald-500"
                                       rows={2}
@@ -2754,7 +2795,12 @@ ${content.map((item, index) => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <p className={`leading-relaxed ${isHidden ? 'italic' : ''} ${isSelected ? 'text-gray-800' : 'text-gray-900'}`}>
+                                  <p
+                                    ref={(el) => {
+                                      segmentTextRefs.current[i] = el;
+                                    }}
+                                    className={`leading-relaxed ${isHidden ? 'italic' : ''} ${isSelected ? 'text-gray-800' : 'text-gray-900'}`}
+                                  >
                                     {renderHighlightedText(item, i)}
                                   </p>
                                 )}
