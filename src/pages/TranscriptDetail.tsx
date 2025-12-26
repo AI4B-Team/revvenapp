@@ -131,7 +131,7 @@ const TranscriptDetail = () => {
   
   // Title editing
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState('');
+  const [editedTitle, setEditedTitle] = useState<string | null>(null);
   
   // Transcript content from database
   const [originalContent, setOriginalContent] = useState<TranscriptLine[]>([]);
@@ -1268,13 +1268,13 @@ ${content.map((item, index) => {
                 {isEditingTitle ? (
                   <input
                     type="text"
-                    value={editedTitle}
+                    value={editedTitle ?? title}
                     onChange={(e) => setEditedTitle(e.target.value)}
                     onBlur={() => setIsEditingTitle(false)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') setIsEditingTitle(false);
                       if (e.key === 'Escape') {
-                        setEditedTitle(title);
+                        setEditedTitle(null);
                         setIsEditingTitle(false);
                       }
                     }}
@@ -1283,9 +1283,12 @@ ${content.map((item, index) => {
                   />
                 ) : (
                   <>
-                    <h1 className="text-2xl font-bold text-gray-900">{editedTitle || title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{editedTitle ?? title}</h1>
                     <button 
-                      onClick={() => setIsEditingTitle(true)}
+                      onClick={() => {
+                        if (editedTitle === null) setEditedTitle(title);
+                        setIsEditingTitle(true);
+                      }}
                       className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <Pencil className="w-4 h-4" />
