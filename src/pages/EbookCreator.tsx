@@ -178,22 +178,22 @@ const EbookCreator = () => {
           {/* Workflow: Idea → Generate → Design → Book */}
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <div className="flex flex-col items-center">
-              <Lightbulb className="w-4 h-4 text-amber-500" />
+              <Lightbulb className="w-4 h-4 text-emerald-500" />
               <span>Idea</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <Cpu className="w-4 h-4 text-amber-500" />
+              <Cpu className="w-4 h-4 text-emerald-500" />
               <span>Generate</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <PenTool className="w-4 h-4 text-amber-500" />
+              <PenTool className="w-4 h-4 text-emerald-500" />
               <span>Design</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <Book className="w-4 h-4 text-amber-500" />
+              <Book className="w-4 h-4 text-emerald-500" />
               <span>Book</span>
             </div>
           </div>
