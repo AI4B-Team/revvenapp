@@ -2395,9 +2395,9 @@ ${content.map((item, index) => {
   const ActionItemsChecklist = () => (
     <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-          <div className="w-4 h-4 rounded border-2 border-amber-500 flex items-center justify-center">
-            <Check className="w-2.5 h-2.5 text-amber-500" />
+        <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="w-5 h-5 rounded border-2 border-amber-500 flex items-center justify-center">
+            <Check className="w-3 h-3 text-amber-500" />
           </div>
           Action Items
         </h4>
@@ -2532,8 +2532,8 @@ ${content.map((item, index) => {
   const OutlineSection = () => (
     <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
       <div className="flex items-center gap-2 mb-4">
-        <List className="w-4 h-4 text-gray-600" />
-        <h4 className="text-sm font-medium text-gray-900">Outline</h4>
+        <List className="w-5 h-5 text-gray-600" />
+        <h4 className="text-base font-semibold text-gray-900">Outline</h4>
       </div>
       {outlineItems.map((section, idx) => (
         <div key={idx}>
@@ -4350,8 +4350,8 @@ ${content.map((item, index) => {
 
                       {/* Key Points */}
                       <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
-                        <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4 text-blue-500" />
+                        <h4 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-blue-500" />
                           Key Points
                         </h4>
                         <ul className="space-y-2">
