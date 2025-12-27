@@ -2377,6 +2377,7 @@ ${content.map((item, index) => {
       completed: false 
     }]);
     setNewActionItem('');
+    toast.success('Action item added');
   };
 
   // Outline items state
@@ -2515,7 +2516,12 @@ ${content.map((item, index) => {
       </ul>
       {/* Add action item input */}
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
-        <Plus className="w-4 h-4 text-blue-500" />
+        <button 
+          onClick={addActionItem}
+          className="p-0.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
         <input
           type="text"
           value={newActionItem}
