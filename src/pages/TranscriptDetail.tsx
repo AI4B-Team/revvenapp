@@ -3755,6 +3755,7 @@ ${content.map((item, index) => {
                                               <Button
                                                 variant={isCurrentSpeaker ? "outline" : "secondary"}
                                                 size="sm"
+                                                className={isCurrentSpeaker ? "border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" : "bg-emerald-600 text-white hover:bg-emerald-700"}
                                                 onClick={() => {
                                                   if (isCurrentSpeaker) {
                                                     // Focus input for renaming
@@ -3807,6 +3808,7 @@ ${content.map((item, index) => {
                                           }}
                                           disabled={!newSpeakerName.trim()}
                                           size="sm"
+                                          className="bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-600/50"
                                         >
                                           Add
                                         </Button>
