@@ -3803,7 +3803,7 @@ ${content.map((item, index) => {
                                     </button>
                                   </PopoverTrigger>
                                   <PopoverContent 
-                                    className="w-96 p-0 bg-popover border-border shadow-xl z-50" 
+                                    className="w-[480px] p-0 bg-popover border-border shadow-xl z-50" 
                                     side="bottom" 
                                     align="start"
                                     onClick={(e) => e.stopPropagation()}
