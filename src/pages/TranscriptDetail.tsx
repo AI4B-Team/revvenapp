@@ -2349,6 +2349,176 @@ ${content.map((item, index) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [editingLineIndex]);
 
+  // Action Items State for interactive checklist
+  const [actionItems, setActionItems] = useState([
+    { id: '1', text: 'Follow up on discussion', completed: false },
+    { id: '2', text: 'Schedule next meeting', completed: false },
+    { id: '3', text: 'Review materials', completed: false },
+  ]);
+  const [newActionItem, setNewActionItem] = useState('');
+  const [hoveredActionItem, setHoveredActionItem] = useState<string | null>(null);
+
+  const toggleActionItem = (id: string) => {
+    setActionItems(prev => prev.map(item => 
+      item.id === id ? { ...item, completed: !item.completed } : item
+    ));
+  };
+
+  const deleteActionItem = (id: string) => {
+    setActionItems(prev => prev.filter(item => item.id !== id));
+    toast.success('Action item deleted');
+  };
+
+  const addActionItem = () => {
+    if (!newActionItem.trim()) return;
+    setActionItems(prev => [...prev, { 
+      id: Date.now().toString(), 
+      text: newActionItem.trim(), 
+      completed: false 
+    }]);
+    setNewActionItem('');
+  };
+
+  // Outline items state
+  const [outlineItems] = useState([
+    { 
+      title: 'Key Discussion Points',
+      points: [
+        'Main topic and context were established at the beginning of the discussion.',
+        'Several viewpoints were shared regarding the primary subject matter.',
+        'Important decisions were proposed and deliberated upon by participants.'
+      ]
+    }
+  ]);
+
+  // ActionItemsChecklist Component
+  const ActionItemsChecklist = () => (
+    <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+          <div className="w-4 h-4 rounded border-2 border-amber-500 flex items-center justify-center">
+            <Check className="w-2.5 h-2.5 text-amber-500" />
+          </div>
+          Action Items
+        </h4>
+        <button className="p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100">
+          <MoreVertical className="w-4 h-4" />
+        </button>
+      </div>
+      <ul className="space-y-1">
+        {actionItems.map((item) => (
+          <li 
+            key={item.id} 
+            className="group flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-white transition-colors cursor-pointer"
+            onMouseEnter={() => setHoveredActionItem(item.id)}
+            onMouseLeave={() => setHoveredActionItem(null)}
+          >
+            <button
+              onClick={() => toggleActionItem(item.id)}
+              className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                item.completed 
+                  ? 'bg-blue-500 border-blue-500' 
+                  : 'border-gray-300 hover:border-blue-400'
+              }`}
+            >
+              {item.completed && <Check className="w-2.5 h-2.5 text-white" />}
+            </button>
+            <span className={`flex-1 text-sm transition-colors ${
+              item.completed ? 'text-gray-400 line-through' : 'text-gray-700'
+            }`}>
+              {item.text}
+            </span>
+            {hoveredActionItem === item.id && (
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(item.text); toast.success('Copied'); }}
+                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">Copy</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); deleteActionItem(item.id); }}
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">Delete</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
+                      <ThumbsUp className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">Helpful</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
+                      <ThumbsDown className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">Not helpful</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded">
+                      Assign
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">Assign to someone</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      {/* Add action item input */}
+      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
+        <Plus className="w-4 h-4 text-blue-500" />
+        <input
+          type="text"
+          value={newActionItem}
+          onChange={(e) => setNewActionItem(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && addActionItem()}
+          placeholder="Add action item"
+          className="flex-1 text-sm text-blue-600 placeholder-blue-400 bg-transparent focus:outline-none"
+        />
+      </div>
+    </div>
+  );
+
+  // OutlineSection Component
+  const OutlineSection = () => (
+    <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
+      <div className="flex items-center gap-2 mb-4">
+        <List className="w-4 h-4 text-gray-600" />
+        <h4 className="text-sm font-medium text-gray-900">Outline</h4>
+      </div>
+      {outlineItems.map((section, idx) => (
+        <div key={idx}>
+          <p className="text-sm font-medium text-gray-800 mb-3">{section.title}</p>
+          <ul className="space-y-2.5">
+            {section.points.map((point, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0 mt-2" />
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Hidden file input for segment images */}
@@ -4146,36 +4316,27 @@ ${content.map((item, index) => {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                            <TrendingUp className="w-4 h-4 text-blue-500" />
-                            Key Points
-                          </h4>
-                          <ul className="space-y-2">
-                            {['Main topic discussed', 'Key decisions made', 'Action items identified'].map((point, i) => (
-                              <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                                <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                                {point}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-amber-500" />
-                            Action Items
-                          </h4>
-                          <ul className="space-y-2">
-                            {['Follow up on discussion', 'Schedule next meeting', 'Review materials'].map((item, i) => (
-                              <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                                <div className="w-4 h-4 rounded border border-amber-500/30 flex-shrink-0 mt-0.5" />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                      {/* Key Points */}
+                      <div className="p-5 rounded-xl bg-gray-50 border border-gray-200 mb-4">
+                        <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-blue-500" />
+                          Key Points
+                        </h4>
+                        <ul className="space-y-2">
+                          {['Main topic discussed', 'Key decisions made', 'Action items identified'].map((point, i) => (
+                            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                              <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                              {point}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
+
+                      {/* Action Items - Interactive Checklist */}
+                      <ActionItemsChecklist />
+
+                      {/* Outline Section */}
+                      <OutlineSection />
 
                       <div className="p-5 rounded-xl bg-gray-50 border border-gray-200">
                         <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
