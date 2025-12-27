@@ -3722,21 +3722,11 @@ ${content.map((item, index) => {
                                     align="start"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    {/* Header with speaker count and Add speaker button */}
-                                    <div className="flex items-center justify-between p-4 border-b border-border">
+                                    {/* Header with speaker count */}
+                                    <div className="flex items-center p-4 border-b border-border">
                                       <span className="text-base font-medium text-foreground">
                                         Number Of Speakers: {Array.from(new Set(editedContent.map(line => line.speaker))).length}
                                       </span>
-                                      <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        onClick={() => {
-                                          const input = document.getElementById(`new-speaker-input-${i}`);
-                                          if (input) input.focus();
-                                        }}
-                                      >
-                                        Add speaker
-                                      </Button>
                                     </div>
                                     
                                     {/* Speaker list */}
