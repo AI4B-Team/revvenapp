@@ -176,28 +176,29 @@ const EbookCreator = () => {
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Start With AI</h3>
           <p className="text-sm text-gray-500 mb-4">Create From Scratch With AI</p>
           {/* Workflow: Idea → Generate → Design → Book */}
-          <div className="flex items-center gap-2 text-xs text-gray-600 mb-auto">
+          <div className="flex items-center gap-2 text-xs text-gray-600">
             <div className="flex flex-col items-center">
               <Lightbulb className="w-4 h-4 text-amber-500" />
               <span>Idea</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <Cpu className="w-4 h-4 text-blue-500" />
+              <Cpu className="w-4 h-4 text-amber-500" />
               <span>Generate</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <PenTool className="w-4 h-4 text-purple-500" />
+              <PenTool className="w-4 h-4 text-amber-500" />
               <span>Design</span>
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <Book className="w-4 h-4 text-emerald-500" />
+              <Book className="w-4 h-4 text-amber-500" />
               <span>Book</span>
             </div>
           </div>
-          <div className="flex justify-center mt-4">
+          <div className="flex-1" />
+          <div className="flex justify-center">
             <span className="px-2.5 py-1 bg-emerald-200 text-emerald-700 text-xs rounded-full font-medium">Recommended</span>
           </div>
         </div>
@@ -647,7 +648,7 @@ const EbookCreator = () => {
                   <div className="flex items-center gap-4">
                     <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                       <Book className="w-5 h-5 text-emerald-500" />
-                      My eBooks
+                      eBooks
                     </h2>
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
                       {ebooks.length} Books
