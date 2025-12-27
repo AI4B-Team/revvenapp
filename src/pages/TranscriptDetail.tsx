@@ -3935,6 +3935,26 @@ ${content.map((item, index) => {
                                                         Change
                                                       </Button>
                                                     )}
+                                                    {/* Delete button - only show if speaker is not used in any segment */}
+                                                    {(() => {
+                                                      const isUsedInSegments = editedContent.some(line => line.speaker === speaker);
+                                                      if (!isUsedInSegments) {
+                                                        return (
+                                                          <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                            onClick={() => {
+                                                              setAvailableSpeakers(prev => prev.filter(s => s !== speaker));
+                                                              toast.success(`Deleted speaker "${speaker}"`);
+                                                            }}
+                                                          >
+                                                            Delete
+                                                          </Button>
+                                                        );
+                                                      }
+                                                      return null;
+                                                    })()}
                                                   </div>
                                                 </>
                                               )}
