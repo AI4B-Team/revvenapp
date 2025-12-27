@@ -2497,18 +2497,14 @@ ${content.map((item, index) => {
                         <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
                           <User className="w-4 h-4 text-gray-400" />
                         </div>
-                        <span className="text-sm text-gray-700">No assignee</span>
+                        <span className="text-sm text-gray-700">No Assignee</span>
                       </button>
                       <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left">
                         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
-                          M
+                          K
                         </div>
-                        <span className="text-sm text-gray-900">Michael Aubut</span>
+                        <span className="text-sm text-gray-900">Keisha</span>
                       </button>
-                    </div>
-                    {/* Footer */}
-                    <div className="px-3 py-2 border-t border-gray-100">
-                      <span className="text-xs text-gray-400">Assigned by otter</span>
                     </div>
                   </PopoverContent>
                 </Popover>
