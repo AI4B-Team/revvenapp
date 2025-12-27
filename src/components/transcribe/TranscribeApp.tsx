@@ -1199,8 +1199,8 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                     <span className="text-[10px] font-semibold text-gray-600">MOV</span>
                   </div>
                   {/* + more - Gray */}
-                  <div className="px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
-                    <span className="text-[10px] font-medium text-gray-500">+ more</span>
+                  <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
+                    <span className="text-[10px] font-semibold text-gray-600">+ more</span>
                   </div>
                 </div>
               </div>
