@@ -3712,26 +3712,26 @@ ${content.map((item, index) => {
                                     </button>
                                   </PopoverTrigger>
                                   <PopoverContent 
-                                    className="w-80 p-0 bg-white border-gray-200 shadow-xl z-50" 
+                                    className="w-96 p-0 bg-popover border-border shadow-xl z-50" 
                                     side="bottom" 
                                     align="start"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     {/* Header with speaker count and Add speaker button */}
-                                    <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                                      <span className="text-base font-medium text-gray-900">
-                                        Number of speakers: {Array.from(new Set(editedContent.map(line => line.speaker))).length}
+                                    <div className="flex items-center justify-between p-4 border-b border-border">
+                                      <span className="text-base font-medium text-foreground">
+                                        Number Of Speakers: {Array.from(new Set(editedContent.map(line => line.speaker))).length}
                                       </span>
-                                      <button
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
                                         onClick={() => {
-                                          // Focus the input for adding new speaker
                                           const input = document.getElementById(`new-speaker-input-${i}`);
                                           if (input) input.focus();
                                         }}
-                                        className="px-4 py-2 text-blue-600 font-medium text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
                                       >
                                         Add speaker
-                                      </button>
+                                      </Button>
                                     </div>
                                     
                                     {/* Speaker list */}
@@ -3743,26 +3743,34 @@ ${content.map((item, index) => {
                                           return (
                                             <div
                                               key={speaker}
-                                              className={`flex items-center justify-between px-4 py-4 border-b border-gray-50 last:border-b-0 ${isCurrentSpeaker ? 'bg-blue-50/50' : ''}`}
+                                              className={`flex items-center justify-between px-4 py-4 border-b border-border/50 last:border-b-0 ${isCurrentSpeaker ? 'bg-primary/5' : ''}`}
                                             >
-                                              <span className="text-base text-gray-900">
+                                              <span className="text-base text-foreground">
                                                 {speaker}
                                                 {isCurrentSpeaker && (
-                                                  <span className="ml-2 text-xs text-blue-600 font-medium">(current)</span>
+                                                  <span className="ml-2 text-xs text-primary font-medium">(current)</span>
                                                 )}
                                               </span>
-                                              <button
+                                              <Button
+                                                variant={isCurrentSpeaker ? "outline" : "secondary"}
+                                                size="sm"
                                                 onClick={() => {
-                                                  // Assign this speaker to the current line
-                                                  const newContent = [...editedContent];
-                                                  newContent[i] = { ...newContent[i], speaker };
-                                                  setEditedContent(newContent);
-                                                  setSpeakerDropdownOpen(null);
+                                                  if (isCurrentSpeaker) {
+                                                    // Focus input for renaming
+                                                    setNewSpeakerName(speaker);
+                                                    const input = document.getElementById(`new-speaker-input-${i}`);
+                                                    if (input) input.focus();
+                                                  } else {
+                                                    // Assign this speaker to the current line
+                                                    const newContent = [...editedContent];
+                                                    newContent[i] = { ...newContent[i], speaker };
+                                                    setEditedContent(newContent);
+                                                    setSpeakerDropdownOpen(null);
+                                                  }
                                                 }}
-                                                className="px-5 py-2 text-blue-600 font-medium text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
                                               >
-                                                {isCurrentSpeaker ? 'Selected' : 'Change'}
-                                              </button>
+                                                {isCurrentSpeaker ? 'Rename' : 'Change'}
+                                              </Button>
                                             </div>
                                           );
                                         });
@@ -3770,12 +3778,12 @@ ${content.map((item, index) => {
                                     </div>
                                     
                                     {/* Add new speaker input */}
-                                    <div className="p-4 border-t border-gray-100 bg-gray-50">
+                                    <div className="p-4 border-t border-border bg-muted/30">
                                       <div className="flex items-center gap-2">
                                         <input
                                           id={`new-speaker-input-${i}`}
                                           type="text"
-                                          placeholder="Enter new speaker name..."
+                                          placeholder="Enter New Speaker Name"
                                           value={newSpeakerName}
                                           onChange={(e) => setNewSpeakerName(e.target.value)}
                                           onKeyDown={(e) => {
@@ -3787,9 +3795,9 @@ ${content.map((item, index) => {
                                               setNewSpeakerName('');
                                             }
                                           }}
-                                          className="flex-1 px-4 py-2.5 text-sm bg-white rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                          className="flex-1 px-4 py-2.5 text-sm text-foreground bg-background rounded-md border border-input focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent placeholder:text-muted-foreground"
                                         />
-                                        <button
+                                        <Button
                                           onClick={() => {
                                             if (newSpeakerName.trim()) {
                                               const newContent = [...editedContent];
@@ -3800,10 +3808,10 @@ ${content.map((item, index) => {
                                             }
                                           }}
                                           disabled={!newSpeakerName.trim()}
-                                          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-full transition-colors"
+                                          size="sm"
                                         >
                                           Add
-                                        </button>
+                                        </Button>
                                       </div>
                                     </div>
                                   </PopoverContent>
