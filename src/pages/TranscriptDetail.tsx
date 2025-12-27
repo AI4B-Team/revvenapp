@@ -1412,6 +1412,19 @@ const TranscriptDetail = () => {
           setOriginalContent(contentFromDb);
           setEditedContent(contentFromDb);
 
+          // Load available speakers from localStorage
+          const storedSpeakers = localStorage.getItem(`transcript-speakers-${id}`);
+          if (storedSpeakers) {
+            try {
+              const parsed = JSON.parse(storedSpeakers);
+              if (Array.isArray(parsed)) {
+                setAvailableSpeakers(parsed);
+              }
+            } catch (e) {
+              console.warn('Could not parse stored speakers');
+            }
+          }
+
           const summarySource = compileTranscript(contentFromDb) || (voice.prompt ?? '');
           if (summarySource) generateAISummary(summarySource);
         }
@@ -1453,6 +1466,70 @@ const TranscriptDetail = () => {
       setSpeakerNamesLoaded(true);
     }
   }, [id, isLoading, editedContent.length, speakerNamesLoaded]);
+
+  // Save available speakers to localStorage when they change
+  useEffect(() => {
+    if (id && availableSpeakers.length > 0) {
+      localStorage.setItem(`transcript-speakers-${id}`, JSON.stringify(availableSpeakers));
+    }
+  }, [id, availableSpeakers]);
+
+  // Helper function to save segment to database
+  const saveSegmentToDb = async (segmentIndex: number, line: TranscriptLine) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('transcript_segments')
+        .upsert(
+          [{
+            transcript_id: id,
+            user_id: user.id,
+            segment_index: segmentIndex,
+            speaker: line.speaker ?? 'Speaker 1',
+            start_time: line.time ?? '00:00',
+            end_time: line.endTime ?? null,
+            text: (line.text ?? '').toString(),
+          }],
+          { onConflict: 'transcript_id,segment_index' }
+        );
+
+      if (error) {
+        console.error('Error saving segment:', error);
+      }
+    } catch (error) {
+      console.error('Error saving segment:', error);
+    }
+  };
+
+  // Save all segments with updated speakers to database
+  const saveAllSegmentsToDb = async (content: TranscriptLine[]) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const rows = content.map((line, idx) => ({
+        transcript_id: id,
+        user_id: user.id,
+        segment_index: idx,
+        speaker: line.speaker ?? 'Speaker 1',
+        start_time: line.time ?? '00:00',
+        end_time: line.endTime ?? null,
+        text: (line.text ?? '').toString(),
+      }));
+
+      const { error } = await supabase
+        .from('transcript_segments')
+        .upsert(rows, { onConflict: 'transcript_id,segment_index' });
+
+      if (error) {
+        console.error('Error saving segments:', error);
+      }
+    } catch (error) {
+      console.error('Error saving segments:', error);
+    }
+  };
 
   // ========================
   // LOAD / SAVE HIGHLIGHTS
@@ -3728,7 +3805,7 @@ ${content.map((item, index) => {
                                     {/* Header with speaker count and close button */}
                                     <div className="flex items-center justify-between p-4 border-b border-border">
                                       <span className="text-base font-medium text-foreground">
-                                        Number Of Speakers: {Array.from(new Set(editedContent.map(line => line.speaker))).length}
+                                        Number Of Speakers: {Array.from(new Set([...editedContent.map(line => line.speaker), ...availableSpeakers])).length}
                                       </span>
                                       <button
                                         onClick={() => setSpeakerDropdownOpen(null)}
@@ -3767,6 +3844,8 @@ ${content.map((item, index) => {
                                                             : line
                                                         );
                                                         setEditedContent(newContent);
+                                                        // Save to database
+                                                        saveAllSegmentsToDb(newContent);
                                                         // Update available speakers list
                                                         setAvailableSpeakers(prev => 
                                                           prev.map(s => s === speaker ? editingSpeakerValue.trim() : s)
@@ -3792,6 +3871,8 @@ ${content.map((item, index) => {
                                                             : line
                                                         );
                                                         setEditedContent(newContent);
+                                                        // Save to database
+                                                        saveAllSegmentsToDb(newContent);
                                                         setAvailableSpeakers(prev => 
                                                           prev.map(s => s === speaker ? editingSpeakerValue.trim() : s)
                                                         );
@@ -3841,6 +3922,8 @@ ${content.map((item, index) => {
                                                           const newContent = [...editedContent];
                                                           newContent[i] = { ...newContent[i], speaker };
                                                           setEditedContent(newContent);
+                                                          // Save to database
+                                                          saveSegmentToDb(i, newContent[i]);
                                                         }}
                                                       >
                                                         Change
