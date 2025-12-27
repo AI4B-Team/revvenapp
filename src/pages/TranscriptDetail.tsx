@@ -196,6 +196,7 @@ const TranscriptDetail = () => {
   const [speakerNamesLoaded, setSpeakerNamesLoaded] = useState(false);
   const [speakerDropdownOpen, setSpeakerDropdownOpen] = useState<number | null>(null);
   const [newSpeakerName, setNewSpeakerName] = useState('');
+  const [availableSpeakers, setAvailableSpeakers] = useState<string[]>([]);
   
   // Attach audio state
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
@@ -3738,18 +3739,20 @@ ${content.map((item, index) => {
                                     {/* Speaker list */}
                                     <div className="max-h-64 overflow-y-auto">
                                       {(() => {
-                                        const uniqueSpeakers = Array.from(new Set(editedContent.map(line => line.speaker)));
-                                        return uniqueSpeakers.map((speaker, idx) => {
+                                        // Combine speakers from content and available speakers list
+                                        const speakersFromContent = editedContent.map(line => line.speaker);
+                                        const allSpeakers = Array.from(new Set([...speakersFromContent, ...availableSpeakers]));
+                                        return allSpeakers.map((speaker, idx) => {
                                           const isCurrentSpeaker = speaker === item.speaker;
                                           return (
                                             <div
                                               key={speaker}
-                                              className={`flex items-center justify-between px-4 py-4 border-b border-border/50 last:border-b-0 ${isCurrentSpeaker ? 'bg-primary/5' : ''}`}
+                                              className={`flex items-center justify-between px-4 py-4 border-b border-border/50 last:border-b-0 ${isCurrentSpeaker ? 'bg-emerald-50 dark:bg-emerald-950/30' : ''}`}
                                             >
                                               <span className="text-base text-foreground">
                                                 {speaker}
                                                 {isCurrentSpeaker && (
-                                                  <span className="ml-2 text-xs text-primary font-medium">(current)</span>
+                                                  <span className="ml-2 text-xs text-emerald-600 font-medium">(current)</span>
                                                 )}
                                               </span>
                                               <Button
@@ -3789,20 +3792,24 @@ ${content.map((item, index) => {
                                           onChange={(e) => setNewSpeakerName(e.target.value)}
                                           onKeyDown={(e) => {
                                             if (e.key === 'Enter' && newSpeakerName.trim()) {
-                                              const newContent = [...editedContent];
-                                              newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
-                                              setEditedContent(newContent);
+                                              // Add to available speakers list without assigning
+                                              setAvailableSpeakers(prev => {
+                                                if (prev.includes(newSpeakerName.trim())) return prev;
+                                                return [...prev, newSpeakerName.trim()];
+                                              });
                                               setNewSpeakerName('');
                                             }
                                           }}
-                                          className="flex-1 px-4 py-2.5 text-sm text-foreground bg-background rounded-md border border-input focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent placeholder:text-muted-foreground"
+                                          className="flex-1 px-4 py-2.5 text-sm text-foreground bg-background rounded-md border border-input focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder:text-muted-foreground"
                                         />
                                         <Button
                                           onClick={() => {
                                             if (newSpeakerName.trim()) {
-                                              const newContent = [...editedContent];
-                                              newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
-                                              setEditedContent(newContent);
+                                              // Add to available speakers list without assigning
+                                              setAvailableSpeakers(prev => {
+                                                if (prev.includes(newSpeakerName.trim())) return prev;
+                                                return [...prev, newSpeakerName.trim()];
+                                              });
                                               setNewSpeakerName('');
                                             }
                                           }}
