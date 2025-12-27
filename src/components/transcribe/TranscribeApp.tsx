@@ -240,22 +240,38 @@ export default function TranscribeApp() {
 
         if (error) throw error;
 
-        const loadedTranscripts: Transcript[] = (data || []).map(record => ({
-          id: record.id,
-          title: record.name || 'Untitled',
-          duration: formatTime(Math.floor(record.duration || 0)),
-          date: new Date(record.created_at).toISOString().split('T')[0],
-          source: (record as any).source || 'upload',
-          status: record.status || 'completed',
-          speakers: 1,
-          language: 'English',
-          words: record.prompt?.split(' ').length || null,
-          starred: false,
-          tags: [],
-          thumbnail: null,
-          summary: record.prompt || null,
-          audioUrl: record.url,
-        }));
+        const loadedTranscripts: Transcript[] = (data || []).map(record => {
+          // Try to load speaker count from localStorage
+          let speakerCount = 1;
+          try {
+            const storedSpeakers = localStorage.getItem(`transcript-speakers-${record.id}`);
+            if (storedSpeakers) {
+              const parsed = JSON.parse(storedSpeakers);
+              if (Array.isArray(parsed)) {
+                speakerCount = parsed.length || 1;
+              }
+            }
+          } catch (e) {
+            // Fallback to 1
+          }
+          
+          return {
+            id: record.id,
+            title: record.name || 'Untitled',
+            duration: formatTime(Math.floor(record.duration || 0)),
+            date: new Date(record.created_at).toISOString().split('T')[0],
+            source: (record as any).source || 'upload',
+            status: record.status || 'completed',
+            speakers: speakerCount,
+            language: 'English',
+            words: record.prompt?.split(' ').length || null,
+            starred: false,
+            tags: [],
+            thumbnail: null,
+            summary: record.prompt || null,
+            audioUrl: record.url,
+          };
+        });
 
         setTranscripts(loadedTranscripts);
 
@@ -2817,7 +2833,7 @@ function TranscriptDetailModal({ transcript, onClose }: { transcript: Transcript
                 </span>
                 <span className="flex items-center gap-1">
                   <Users className="w-3.5 h-3.5 text-purple-500" />
-                  {transcript.speakers} Speakers
+                  {transcript.speakers} {transcript.speakers === 1 ? 'Speaker' : 'Speakers'}
                 </span>
                 <span className="flex items-center gap-1">
                   <Globe className="w-3.5 h-3.5 text-orange-500" />
