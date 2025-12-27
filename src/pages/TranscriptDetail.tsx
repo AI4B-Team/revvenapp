@@ -3722,11 +3722,17 @@ ${content.map((item, index) => {
                                     align="start"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    {/* Header with speaker count */}
-                                    <div className="flex items-center p-4 border-b border-border">
+                                    {/* Header with speaker count and close button */}
+                                    <div className="flex items-center justify-between p-4 border-b border-border">
                                       <span className="text-base font-medium text-foreground">
                                         Number Of Speakers: {Array.from(new Set(editedContent.map(line => line.speaker))).length}
                                       </span>
+                                      <button
+                                        onClick={() => setSpeakerDropdownOpen(null)}
+                                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
                                     </div>
                                     
                                     {/* Speaker list */}
@@ -3760,7 +3766,6 @@ ${content.map((item, index) => {
                                                     const newContent = [...editedContent];
                                                     newContent[i] = { ...newContent[i], speaker };
                                                     setEditedContent(newContent);
-                                                    setSpeakerDropdownOpen(null);
                                                   }
                                                 }}
                                               >
@@ -3786,7 +3791,6 @@ ${content.map((item, index) => {
                                               const newContent = [...editedContent];
                                               newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
                                               setEditedContent(newContent);
-                                              setSpeakerDropdownOpen(null);
                                               setNewSpeakerName('');
                                             }
                                           }}
@@ -3798,7 +3802,6 @@ ${content.map((item, index) => {
                                               const newContent = [...editedContent];
                                               newContent[i] = { ...newContent[i], speaker: newSpeakerName.trim() };
                                               setEditedContent(newContent);
-                                              setSpeakerDropdownOpen(null);
                                               setNewSpeakerName('');
                                             }
                                           }}
