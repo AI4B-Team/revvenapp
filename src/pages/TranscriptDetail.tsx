@@ -2774,20 +2774,25 @@ ${content.map((item, index) => {
                               <TooltipProvider delayDuration={200}>
                                 <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50 animate-fade-in">
                                   <div className="flex items-center gap-0.5 px-2 py-1.5 bg-sidebar rounded-lg shadow-xl border border-gray-700">
-                                    {/* Play */}
+                                    {/* Play/Pause */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            playSegmentOnly(item.time, item.endTime);
+                                            if (isPlaying) {
+                                              audioRef.current?.pause();
+                                              setIsPlaying(false);
+                                            } else {
+                                              playSegmentOnly(item.time, item.endTime);
+                                            }
                                           }}
                                           className="p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md transition-colors"
                                         >
-                                          <Play className="w-4 h-4" />
+                                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                                         </button>
                                       </TooltipTrigger>
-                                      <TooltipContent side="top" className="text-xs">Play</TooltipContent>
+                                      <TooltipContent side="top" className="text-xs">{isPlaying ? 'Pause' : 'Play'}</TooltipContent>
                                     </Tooltip>
                                     
                                     {/* AI Writer */}
