@@ -146,64 +146,109 @@ const EbookCreator = () => {
     toast.success('eBook duplicated');
   };
 
-  // Source Cards
+  // Source Cards - TranscribeApp style
   const SourceCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <button onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
-        className="group relative bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-2 border-dashed border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start mb-10">
+      {/* Start With AI */}
+      <button
+        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
+        className="group relative p-8 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300"
+      >
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
-            <Sparkles className="w-6 h-6 text-white" />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center mb-5 transition-all duration-300">
+            <Sparkles className="w-9 h-9 text-emerald-600 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="font-semibold text-foreground mb-1">AI Generate</h3>
-          <p className="text-sm text-muted-foreground">Create from scratch with AI</p>
-        </div>
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center">
-          <span className="px-2 py-0.5 bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs rounded-full font-medium">Recommended</span>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Start With AI</h3>
+          <p className="text-sm text-gray-500">Create From Scratch With AI</p>
+          <div className="mt-4 flex justify-center">
+            <span className="px-2.5 py-1 bg-emerald-200 text-emerald-700 text-xs rounded-full font-medium">Recommended</span>
+          </div>
         </div>
       </button>
 
-      <button onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'upload' })); setShowNewBookModal(true); }}
-        className="group bg-card border-2 border-dashed border-border hover:border-muted-foreground rounded-2xl p-6 transition-all duration-300 hover:shadow-lg">
+      {/* Upload File */}
+      <button
+        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'upload' })); setShowNewBookModal(true); }}
+        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-emerald-400/50 hover:bg-emerald-50 transition-all duration-300"
+      >
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 bg-muted group-hover:bg-muted/80 rounded-2xl flex items-center justify-center mb-4 transition-colors">
-            <Upload className="w-6 h-6 text-muted-foreground" />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center mb-5 transition-all duration-300">
+            <Upload className="w-9 h-9 text-emerald-600 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="font-semibold text-foreground mb-1">Upload File</h3>
-          <p className="text-sm text-muted-foreground">Import PDF, DOCX, or TXT</p>
-        </div>
-        <div className="mt-4 flex justify-center gap-2 flex-wrap">
-          {['.pdf', '.docx', '.txt', '.md'].map(ext => <span key={ext} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded font-medium">{ext}</span>)}
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
+          <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
+            <Upload className="w-[22px] h-[22px] text-gray-500 flex-shrink-0" />
+            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Drag & Drop Your File</span>
+          </div>
+          <div className="flex justify-center gap-1.5 items-center">
+            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
+              <span className="text-[10px] font-semibold text-gray-600">.PDF</span>
+            </div>
+            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
+              <span className="text-[10px] font-semibold text-gray-600">.DOCX</span>
+            </div>
+            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
+              <span className="text-[10px] font-semibold text-gray-600">.TXT</span>
+            </div>
+            <div className="flex items-center gap-1 px-1.5 py-1 rounded bg-gray-100 border border-gray-200">
+              <span className="text-[10px] font-semibold text-gray-600">+ more</span>
+            </div>
+          </div>
         </div>
       </button>
 
-      <button onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'url' })); setShowNewBookModal(true); }}
-        className="group bg-card border-2 border-dashed border-border hover:border-muted-foreground rounded-2xl p-6 transition-all duration-300 hover:shadow-lg">
+      {/* Insert Link */}
+      <div
+        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300 cursor-pointer"
+        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'url' })); setShowNewBookModal(true); }}
+      >
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 bg-muted group-hover:bg-muted/80 rounded-2xl flex items-center justify-center mb-4 transition-colors">
-            <Link className="w-6 h-6 text-muted-foreground" />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
+            <Link className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="font-semibold text-foreground mb-1">Import URL</h3>
-          <p className="text-sm text-muted-foreground">Convert blog or webpage</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Insert Link</h3>
+          <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
+            <Link className="w-[22px] h-[22px] text-blue-500 flex-shrink-0" />
+            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Paste A Blog Or Webpage URL</span>
+          </div>
+          <div className="flex justify-center gap-1.5">
+            {['📝', '📰', '🌐', '📄'].map((emoji, i) => (
+              <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-sm">
+                {emoji}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-4 flex justify-center gap-1.5">
-          {['📝', '📰', '🌐', '📄'].map((emoji, i) => <span key={i} className="text-lg">{emoji}</span>)}
-        </div>
-      </button>
+      </div>
 
-      <button onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'voice' })); setShowNewBookModal(true); }}
-        className="group bg-card border-2 border-dashed border-border hover:border-rose-400 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/10">
+      {/* Voice To Book */}
+      <button
+        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'voice' })); setShowNewBookModal(true); }}
+        className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300"
+      >
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 bg-rose-50 dark:bg-rose-950/50 group-hover:bg-rose-100 dark:group-hover:bg-rose-900/50 rounded-2xl flex items-center justify-center mb-4 transition-colors">
-            <Mic className="w-6 h-6 text-rose-500" />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/10 group-hover:from-rose-500/20 group-hover:to-rose-600/20 flex items-center justify-center mb-5 transition-all duration-300">
+            <Mic className="w-9 h-9 text-rose-500 group-hover:scale-110 transition-all duration-300" />
           </div>
-          <h3 className="font-semibold text-foreground mb-1">Voice to Book</h3>
-          <p className="text-sm text-muted-foreground">Speak your ideas</p>
-        </div>
-        <div className="mt-4 flex justify-center">
-          <span className="flex items-center gap-1 text-xs text-rose-500 font-medium">
-            <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />Real-time transcription
-          </span>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Voice To Book</h3>
+          <p className="text-sm text-gray-500">Click To Start Recording</p>
+          <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span className="px-1.5 py-0.5 rounded bg-rose-500 text-white font-bold text-[10px] uppercase tracking-wide">Live</span>
+            Real-Time Transcription
+          </div>
+          {/* Audio Wave Graphic */}
+          <div className="mt-3 flex items-center justify-center gap-[2px] h-5">
+            {[...Array(28)].map((_, i) => (
+              <div
+                key={i}
+                className="w-[2px] bg-rose-400/60 rounded-full group-hover:bg-rose-500 transition-colors duration-300"
+                style={{
+                  height: `${Math.sin((i / 28) * Math.PI * 3) * 6 + 8}px`,
+                }}
+              />
+            ))}
+          </div>
         </div>
       </button>
     </div>
@@ -509,69 +554,86 @@ const EbookCreator = () => {
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
         
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-7xl mx-auto">
-            {/* Page Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                  <Book className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight"><span className="text-emerald-600">EBOOK</span><span className="text-foreground">STUDIO</span></h1>
-                  <p className="text-sm text-muted-foreground">AI-Powered eBook Creation</p>
-                </div>
-              </div>
-              <Button variant="ghost" onClick={() => setShowSettingsModal(true)}>
-                <Settings className="w-5 h-5 mr-2" />Settings
-              </Button>
-            </div>
-
-            {/* Source Cards */}
-            <SourceCards />
-
-            {/* eBooks List */}
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-border">
+        <main className="flex-1 overflow-auto">
+          {/* Full-width content area with white background */}
+          <div className="min-h-full bg-white text-gray-900">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              {/* Page Header - TranscribeApp style */}
+              <header className="mb-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center"><Book className="w-4 h-4 text-emerald-600" /></div>
-                  <h2 className="text-lg font-semibold text-foreground">My eBooks</h2>
-                  <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-sm font-medium rounded-full">{ebooks.length} Books</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <Input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search eBooks..." className="w-64 pl-10" />
-                    <Search className="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Book className="w-6 h-6 text-white" />
                   </div>
-                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-border rounded-xl text-sm bg-background text-foreground">
-                    <option value="all">All Status</option>
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                    <option value="generating">Generating</option>
-                  </select>
-                  <div className="flex border border-border rounded-xl overflow-hidden">
-                    <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}><List className="w-5 h-5" /></button>
-                    <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}><Grid className="w-5 h-5" /></button>
+                  <div>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                      <span className="text-gray-900">EBOOK</span>
+                      <span className="text-emerald-500">STUDIO</span>
+                    </h1>
+                    <p className="text-sm text-gray-500">AI-Powered eBook Creation</p>
                   </div>
                 </div>
-              </div>
-              <div className="p-4">
-                {viewMode === 'list' ? (
-                  <div className="space-y-3">{filteredEbooks.map(book => <EbookListItem key={book.id} book={book} />)}</div>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{filteredEbooks.map(book => <EbookGridItem key={book.id} book={book} />)}</div>
-                )}
-                {filteredEbooks.length === 0 && (
-                  <div className="text-center py-12">
-                    <Book className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-1">No eBooks Found</h3>
-                    <p className="text-muted-foreground mb-4">Create your first eBook to get started</p>
-                    <Button onClick={() => setShowNewBookModal(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                      <Plus className="w-5 h-5 mr-2" />Create eBook
-                    </Button>
+              </header>
+
+              {/* Source Cards */}
+              <SourceCards />
+
+              {/* eBooks List */}
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Book className="w-5 h-5 text-emerald-500" />
+                      My eBooks
+                    </h2>
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
+                      {ebooks.length} Books
+                    </span>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search eBooks"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                      />
+                    </div>
+                    <select 
+                      value={filterStatus} 
+                      onChange={(e) => setFilterStatus(e.target.value)} 
+                      className="px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600 focus:outline-none focus:border-emerald-500/50"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                      <option value="generating">Generating</option>
+                    </select>
+                    <div className="flex border border-gray-200 rounded-xl overflow-hidden">
+                      <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><List className="w-5 h-5" /></button>
+                      <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><Grid className="w-5 h-5" /></button>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-200 p-4">
+                  {viewMode === 'list' ? (
+                    <div className="space-y-3">{filteredEbooks.map(book => <EbookListItem key={book.id} book={book} />)}</div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{filteredEbooks.map(book => <EbookGridItem key={book.id} book={book} />)}</div>
+                  )}
+                  {filteredEbooks.length === 0 && (
+                    <div className="text-center py-12">
+                      <Book className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">No eBooks Found</h3>
+                      <p className="text-gray-500 mb-4">Create your first eBook to get started</p>
+                      <Button onClick={() => setShowNewBookModal(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                        <Plus className="w-5 h-5 mr-2" />Create eBook
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </section>
             </div>
           </div>
         </main>
