@@ -198,7 +198,7 @@ const EbookCreator = () => {
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center">
             <span className="px-2.5 py-1 bg-emerald-200 text-emerald-700 text-xs rounded-full font-medium">Recommended</span>
           </div>
         </div>
