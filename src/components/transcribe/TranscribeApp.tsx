@@ -1223,7 +1223,7 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
                   <Link2 className="w-9 h-9 text-blue-500 group-hover:scale-110 transition-all duration-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Paste Link</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Insert Link</h3>
                 <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
                   <Link2 className="w-[22px] h-[22px] text-blue-500 flex-shrink-0" />
                   <input
