@@ -1170,11 +1170,38 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
                   <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Drag & Drop Your Video Or Audio File</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 items-center">
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp3</span>
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.wav</span>
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mp4</span>
-                  <span className="px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-500">.mov</span>
-                  <span className="px-2 py-1 rounded-md bg-emerald-100 text-xs text-emerald-600 font-medium">+ more</span>
+                  {/* MP3 Badge - Purple */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-100 border border-purple-200">
+                    <div className="w-5 h-5 rounded bg-purple-500 flex items-center justify-center">
+                      <Volume2 className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-xs font-semibold text-purple-700">MP3</span>
+                  </div>
+                  {/* MP4 Badge - Blue */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-100 border border-blue-200">
+                    <div className="w-5 h-5 rounded bg-blue-500 flex items-center justify-center">
+                      <Video className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-xs font-semibold text-blue-700">MP4</span>
+                  </div>
+                  {/* WAV Badge - Amber */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-100 border border-amber-200">
+                    <div className="w-5 h-5 rounded bg-amber-500 flex items-center justify-center">
+                      <Volume2 className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-xs font-semibold text-amber-700">WAV</span>
+                  </div>
+                  {/* MOV Badge - Rose */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-100 border border-rose-200">
+                    <div className="w-5 h-5 rounded bg-rose-500 flex items-center justify-center">
+                      <Video className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-xs font-semibold text-rose-700">MOV</span>
+                  </div>
+                  {/* + more - Gray */}
+                  <div className="px-2.5 py-1.5 rounded-lg bg-gray-100 border border-gray-200">
+                    <span className="text-xs font-medium text-gray-500">+ more</span>
+                  </div>
                 </div>
               </div>
             </button>
