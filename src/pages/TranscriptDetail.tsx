@@ -197,6 +197,8 @@ const TranscriptDetail = () => {
   const [speakerDropdownOpen, setSpeakerDropdownOpen] = useState<number | null>(null);
   const [newSpeakerName, setNewSpeakerName] = useState('');
   const [availableSpeakers, setAvailableSpeakers] = useState<string[]>([]);
+  const [editingSpeakerName, setEditingSpeakerName] = useState<string | null>(null);
+  const [editingSpeakerValue, setEditingSpeakerValue] = useState('');
   
   // Attach audio state
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
@@ -3744,37 +3746,109 @@ ${content.map((item, index) => {
                                         const allSpeakers = Array.from(new Set([...speakersFromContent, ...availableSpeakers]));
                                         return allSpeakers.map((speaker, idx) => {
                                           const isCurrentSpeaker = speaker === item.speaker;
+                                          const isEditing = editingSpeakerName === speaker;
                                           return (
                                             <div
                                               key={speaker}
-                                              className={`flex items-center justify-between px-4 py-4 border-b border-border/50 last:border-b-0 ${isCurrentSpeaker ? 'bg-emerald-50 dark:bg-emerald-950/30' : ''}`}
+                                              className={`flex items-center justify-between px-4 py-3 border-b border-border/50 last:border-b-0 ${isCurrentSpeaker ? 'bg-emerald-50 dark:bg-emerald-950/30' : ''}`}
                                             >
-                                              <span className="text-base text-foreground">
-                                                {speaker}
-                                                {isCurrentSpeaker && (
-                                                  <span className="ml-2 text-xs text-emerald-600 font-medium">(current)</span>
-                                                )}
-                                              </span>
-                                              <Button
-                                                variant={isCurrentSpeaker ? "outline" : "secondary"}
-                                                size="sm"
-                                                className={isCurrentSpeaker ? "border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" : "bg-emerald-600 text-white hover:bg-emerald-700"}
-                                                onClick={() => {
-                                                  if (isCurrentSpeaker) {
-                                                    // Focus input for renaming
-                                                    setNewSpeakerName(speaker);
-                                                    const input = document.getElementById(`new-speaker-input-${i}`);
-                                                    if (input) input.focus();
-                                                  } else {
-                                                    // Assign this speaker to the current line
-                                                    const newContent = [...editedContent];
-                                                    newContent[i] = { ...newContent[i], speaker };
-                                                    setEditedContent(newContent);
-                                                  }
-                                                }}
-                                              >
-                                                {isCurrentSpeaker ? 'Rename' : 'Change'}
-                                              </Button>
+                                              {isEditing ? (
+                                                <div className="flex items-center gap-2 flex-1 mr-2">
+                                                  <input
+                                                    type="text"
+                                                    value={editingSpeakerValue}
+                                                    onChange={(e) => setEditingSpeakerValue(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                      if (e.key === 'Enter' && editingSpeakerValue.trim()) {
+                                                        // Rename speaker globally
+                                                        const newContent = editedContent.map(line => 
+                                                          line.speaker === speaker 
+                                                            ? { ...line, speaker: editingSpeakerValue.trim() } 
+                                                            : line
+                                                        );
+                                                        setEditedContent(newContent);
+                                                        // Update available speakers list
+                                                        setAvailableSpeakers(prev => 
+                                                          prev.map(s => s === speaker ? editingSpeakerValue.trim() : s)
+                                                        );
+                                                        setEditingSpeakerName(null);
+                                                        setEditingSpeakerValue('');
+                                                      } else if (e.key === 'Escape') {
+                                                        setEditingSpeakerName(null);
+                                                        setEditingSpeakerValue('');
+                                                      }
+                                                    }}
+                                                    autoFocus
+                                                    className="flex-1 px-3 py-1.5 text-sm text-foreground bg-background rounded-md border border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                                  />
+                                                  <Button
+                                                    size="sm"
+                                                    className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                                    onClick={() => {
+                                                      if (editingSpeakerValue.trim()) {
+                                                        const newContent = editedContent.map(line => 
+                                                          line.speaker === speaker 
+                                                            ? { ...line, speaker: editingSpeakerValue.trim() } 
+                                                            : line
+                                                        );
+                                                        setEditedContent(newContent);
+                                                        setAvailableSpeakers(prev => 
+                                                          prev.map(s => s === speaker ? editingSpeakerValue.trim() : s)
+                                                        );
+                                                        setEditingSpeakerName(null);
+                                                        setEditingSpeakerValue('');
+                                                      }
+                                                    }}
+                                                  >
+                                                    Save
+                                                  </Button>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                      setEditingSpeakerName(null);
+                                                      setEditingSpeakerValue('');
+                                                    }}
+                                                  >
+                                                    Cancel
+                                                  </Button>
+                                                </div>
+                                              ) : (
+                                                <>
+                                                  <span className="text-base text-foreground">
+                                                    {speaker}
+                                                    {isCurrentSpeaker && (
+                                                      <span className="ml-2 text-xs text-emerald-600 font-medium">(current)</span>
+                                                    )}
+                                                  </span>
+                                                  <div className="flex items-center gap-2">
+                                                    <Button
+                                                      variant="outline"
+                                                      size="sm"
+                                                      className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                                      onClick={() => {
+                                                        setEditingSpeakerName(speaker);
+                                                        setEditingSpeakerValue(speaker);
+                                                      }}
+                                                    >
+                                                      Rename
+                                                    </Button>
+                                                    {!isCurrentSpeaker && (
+                                                      <Button
+                                                        size="sm"
+                                                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                                                        onClick={() => {
+                                                          const newContent = [...editedContent];
+                                                          newContent[i] = { ...newContent[i], speaker };
+                                                          setEditedContent(newContent);
+                                                        }}
+                                                      >
+                                                        Change
+                                                      </Button>
+                                                    )}
+                                                  </div>
+                                                </>
+                                              )}
                                             </div>
                                           );
                                         });
