@@ -163,7 +163,7 @@ const EbookCreator = () => {
 
   // Source Cards - TranscribeApp style
   const SourceCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-10 max-w-[1600px] mx-auto">
       {/* Start With AI */}
       <button
         onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
@@ -633,10 +633,13 @@ const EbookCreator = () => {
               </div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto px-6 py-8">
+            <div className="px-6 py-8">
 
-              {/* Source Cards */}
+              {/* Source Cards - Full width container */}
               <SourceCards />
+              
+              {/* Content below stays at max-w-[1400px] */}
+            <div className="max-w-[1400px] mx-auto">
 
               {/* eBooks List */}
               <section>
@@ -661,16 +664,34 @@ const EbookCreator = () => {
                         className="w-64 pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
                       />
                     </div>
-                    <select 
-                      value={filterStatus} 
-                      onChange={(e) => setFilterStatus(e.target.value)} 
-                      className="px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600 focus:outline-none focus:border-emerald-500/50"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="published">Published</option>
-                      <option value="draft">Draft</option>
-                      <option value="generating">Generating</option>
-                    </select>
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowDropdown(showDropdown === -1 ? null : -1)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        <Filter className="w-4 h-4" />
+                        Filter
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                      {showDropdown === -1 && (
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-20">
+                          {[
+                            { value: 'all', label: 'All' },
+                            { value: 'published', label: 'Published' },
+                            { value: 'draft', label: 'Draft' },
+                          ].map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => { setFilterStatus(option.value); setShowDropdown(null); }}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+                            >
+                              {option.label}
+                              {filterStatus === option.value && <Check className="w-4 h-4 text-emerald-500" />}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <div className="flex border border-gray-200 rounded-xl overflow-hidden">
                       <button onClick={() => setViewMode('list')} className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><List className="w-5 h-5" /></button>
                       <button onClick={() => setViewMode('grid')} className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:bg-gray-50'}`}><Grid className="w-5 h-5" /></button>
@@ -695,6 +716,7 @@ const EbookCreator = () => {
                   )}
                 </div>
               </section>
+            </div>
             </div>
           </div>
         </main>
