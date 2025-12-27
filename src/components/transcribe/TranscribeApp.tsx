@@ -1157,11 +1157,11 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
               <div className="flex flex-col items-center text-center">
                 <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 ${
                   dragOver 
-                    ? 'bg-gray-300/40' 
-                    : 'bg-gradient-to-br from-gray-200/50 to-gray-300/50 group-hover:from-gray-300/60 group-hover:to-gray-400/60'
+                    ? 'bg-emerald-500/20' 
+                    : 'bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300'
                 }`}>
                   <Upload className={`w-9 h-9 transition-all duration-300 ${
-                    dragOver ? 'text-gray-500 scale-110' : 'text-gray-500 group-hover:scale-110'
+                    dragOver ? 'text-emerald-600 scale-110' : 'text-emerald-600 group-hover:scale-110'
                   }`} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload File</h3>
