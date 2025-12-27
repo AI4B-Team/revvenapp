@@ -260,17 +260,14 @@ const EbookCreator = () => {
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Insert Link</h3>
           <div className="w-full px-4 py-3 rounded-xl border-2 border-gray-400 bg-white flex items-center gap-2 mb-4">
             <Link2 className="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Paste A Supported Public Media Link</span>
+            <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Paste Website Link</span>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {PLATFORMS.slice(0, 7).map((platform, i) => (
+            {PLATFORMS.slice(0, 4).map((platform, i) => (
               <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
               </div>
             ))}
-            <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-              +43
-            </div>
           </div>
         </div>
       </div>
