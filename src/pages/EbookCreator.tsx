@@ -167,7 +167,7 @@ const EbookCreator = () => {
       {/* Start With AI */}
       <button
         onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
-        className="group relative p-8 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300 min-h-[300px] flex flex-col"
+        className="group relative pt-8 px-8 pb-2 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 group-hover:from-emerald-200 group-hover:to-emerald-300 flex items-center justify-center mb-5 transition-all duration-300">
@@ -197,8 +197,8 @@ const EbookCreator = () => {
               <span>Book</span>
             </div>
           </div>
-          <div className="flex-1" />
-          <div className="flex justify-center">
+
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center">
             <span className="px-2.5 py-1 bg-emerald-200 text-emerald-700 text-xs rounded-full font-medium">Recommended</span>
           </div>
         </div>
@@ -263,11 +263,16 @@ const EbookCreator = () => {
             <span className="text-sm text-gray-500 whitespace-nowrap flex-1 text-center">Paste Website Link</span>
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {PLATFORMS.slice(0, 4).map((platform, i) => (
+            {PLATFORMS.filter((p) =>
+              ['Blog', 'YouTube', 'TikTok', 'Instagram', 'Facebook'].includes(p.name)
+            ).map((platform, i) => (
               <div key={i} className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
               </div>
             ))}
+            <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+              +45
+            </div>
           </div>
         </div>
       </div>
