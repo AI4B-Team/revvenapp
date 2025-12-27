@@ -1467,12 +1467,15 @@ const TranscriptDetail = () => {
     }
   }, [id, isLoading, editedContent.length, speakerNamesLoaded]);
 
-  // Save available speakers to localStorage when they change
+  // Save all speakers (from content + available) to localStorage when they change
   useEffect(() => {
-    if (id && availableSpeakers.length > 0) {
-      localStorage.setItem(`transcript-speakers-${id}`, JSON.stringify(availableSpeakers));
+    if (id && (editedContent.length > 0 || availableSpeakers.length > 0)) {
+      const allSpeakers = Array.from(new Set([...editedContent.map(line => line.speaker), ...availableSpeakers]));
+      if (allSpeakers.length > 0) {
+        localStorage.setItem(`transcript-speakers-${id}`, JSON.stringify(allSpeakers));
+      }
     }
-  }, [id, availableSpeakers]);
+  }, [id, editedContent, availableSpeakers]);
 
   // Helper function to save segment to database
   const saveSegmentToDb = async (segmentIndex: number, line: TranscriptLine) => {
@@ -2440,7 +2443,10 @@ ${content.map((item, index) => {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
                     <Users className="w-3.5 h-3.5 text-purple-500" />
-                    <span>{speakers} Speaker{speakers > 1 ? 's' : ''}</span>
+                    <span>{(() => {
+                      const totalSpeakers = Array.from(new Set([...editedContent.map(line => line.speaker), ...availableSpeakers])).length;
+                      return `${totalSpeakers} Speaker${totalSpeakers > 1 ? 's' : ''}`;
+                    })()}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100/80 px-3 py-1.5 rounded-full">
                     <Globe className="w-3.5 h-3.5 text-orange-500" />
