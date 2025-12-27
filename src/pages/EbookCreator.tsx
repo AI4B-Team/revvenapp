@@ -163,7 +163,7 @@ const EbookCreator = () => {
 
   // Source Cards - TranscribeApp style
   const SourceCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-10 max-w-[1600px] mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-10">
       {/* Start With AI */}
       <button
         onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
@@ -634,13 +634,12 @@ const EbookCreator = () => {
               </div>
             </div>
 
-            <div className="px-6 py-8">
+            <div className="px-6 py-8 max-w-[1400px] mx-auto">
 
-              {/* Source Cards - Full width container */}
+              {/* Source Cards */}
               <SourceCards />
               
-              {/* Content below stays at max-w-[1400px] */}
-            <div className="max-w-[1400px] mx-auto">
+              {/* Content below */}
 
               {/* eBooks List */}
               <section>
@@ -717,7 +716,6 @@ const EbookCreator = () => {
                   )}
                 </div>
               </section>
-            </div>
             </div>
           </div>
         </main>
