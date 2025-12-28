@@ -1112,25 +1112,6 @@ Perfect. Let's reconvene next week with action items completed. Great progress e
     <div className="min-h-screen bg-white text-gray-900 font-['Inter',sans-serif]">
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
-        <header className="mb-10">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <Subtitles className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">
-                  <span className="text-gray-900">TRAN</span>
-                  <span className="text-emerald-500">SCRIBE</span>
-                </h1>
-                <p className="text-sm text-gray-500">AI-Powered Transcriptions</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Settings button removed - now in header 3-dot menu */}
-            </div>
-          </div>
-        </header>
 
         {/* Input Options - 3 Horizontal Boxes */}
         <section className="mb-10">
