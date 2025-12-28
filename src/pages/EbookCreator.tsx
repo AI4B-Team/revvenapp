@@ -9,7 +9,8 @@ import {
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import Sidebar from '@/components/dashboard/Sidebar';
-import Header from '@/components/dashboard/Header';
+import EbookHeader from '@/components/dashboard/EbookHeader';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -613,32 +614,12 @@ const EbookCreator = () => {
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
         }`}
       >
-        <Header />
+        {/* Ebook Studio Header - matching Transcribe style */}
+        <EbookHeader onExportClick={() => setShowExportModal(true)} />
 
         <main className="flex-1 overflow-auto">
           {/* Full-width content area with white background */}
           <div className="min-h-full bg-white text-gray-900">
-            {/* Black Header Bar */}
-            <div className="w-full bg-black py-3 px-6">
-              <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <Book className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold tracking-tight">
-                      <span className="text-white">EBOOK</span>
-                      <span className="text-emerald-400">STUDIO</span>
-                    </h1>
-                    <p className="text-xs text-gray-400">AI-Powered eBook Creation</p>
-                  </div>
-                </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm font-medium">
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </button>
-              </div>
-            </div>
 
             <div className="px-6 py-8 max-w-[1400px] mx-auto">
 
