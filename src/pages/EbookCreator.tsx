@@ -188,7 +188,7 @@ const EbookCreator = () => {
             </div>
             <span className="text-gray-400">→</span>
             <div className="flex flex-col items-center">
-              <PenTool className="w-4 h-4 text-emerald-500" />
+              <Palette className="w-4 h-4 text-emerald-500" />
               <span>Design</span>
             </div>
             <span className="text-gray-400">→</span>
