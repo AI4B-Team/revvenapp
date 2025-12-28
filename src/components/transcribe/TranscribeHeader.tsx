@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  UserPlus, Download, MoreVertical, Loader2, Wand2, Video, UserCircle, FileEdit, BookOpen
+  UserPlus, Download, MoreVertical, Loader2, Wand2, Video, UserCircle, FileEdit, BookOpen,
+  Subtitles
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -59,7 +60,19 @@ const TranscribeHeader = ({
       <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
         {/* Left Section */}
         <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-white">Transcribe</span>
+          {/* Transcribe Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <Subtitles className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold tracking-tight leading-none">
+                <span className="text-white">TRAN</span>
+                <span className="text-emerald-400">SCRIBE</span>
+              </h1>
+              <p className="text-[10px] text-gray-400">AI-Powered Transcriptions</p>
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
