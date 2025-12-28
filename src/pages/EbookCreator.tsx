@@ -313,77 +313,105 @@ const EbookCreator = () => {
     </div>
   );
 
+  // Helper function to format date as MM/DD/YYYY
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   // eBook List Item
-  const EbookListItem = ({ book }: { book: Ebook }) => (
-    <div className="group bg-card border border-border rounded-xl p-4 hover:border-muted-foreground hover:shadow-md transition-all duration-200 cursor-pointer"
-      onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-20 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: book.coverColor + '20', borderLeft: `4px solid ${book.coverColor}` }}>
-          <Book className="w-8 h-8" style={{ color: book.coverColor }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-semibold text-foreground truncate group-hover:text-emerald-600 transition-colors">{book.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{book.description}</p>
+  const EbookListItem = ({ book }: { book: Ebook }) => {
+    const isModified = book.createdAt !== book.updatedAt;
+    
+    return (
+      <div className="group bg-card border border-border rounded-xl p-4 hover:border-muted-foreground hover:shadow-md transition-all duration-200 cursor-pointer"
+        onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
+        <div className="flex items-start gap-4">
+          <div className="w-16 h-20 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: book.coverColor + '20', borderLeft: `4px solid ${book.coverColor}` }}>
+            <Book className="w-8 h-8" style={{ color: book.coverColor }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-foreground truncate group-hover:text-emerald-600 transition-colors">{book.title}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{book.description}</p>
+              </div>
+              <StatusBadge status={book.status} />
             </div>
-            <StatusBadge status={book.status} />
-          </div>
-          <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Layers className="w-4 h-4" />{book.chapters} chapters</span>
-            <span className="flex items-center gap-1"><FileText className="w-4 h-4" />{(book.words / 1000).toFixed(1)}k words</span>
-            <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{book.updatedAt}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-3">
-            {book.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium">{tag}</span>)}
-          </div>
-          {book.status !== 'published' && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1"><span>Progress</span><span>{Math.round(book.progress)}%</span></div>
-              <ProgressBar progress={book.progress} color={book.coverColor} />
+            <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+              {isModified ? (
+                <span className="flex items-center gap-1"><Clock className="w-4 h-4" />Modified: {formatDate(book.updatedAt)}</span>
+              ) : (
+                <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />Created: {formatDate(book.createdAt)}</span>
+              )}
+              <span className="flex items-center gap-1"><Layers className="w-4 h-4" />{book.chapters} chapters</span>
+              <span className="flex items-center gap-1"><FileText className="w-4 h-4" />{(book.words / 1000).toFixed(1)}k words</span>
             </div>
-          )}
-        </div>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
-          <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
-          <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
-          <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
-          <div className="relative">
-            <button onClick={(e) => { e.stopPropagation(); setShowDropdown(showDropdown === book.id ? null : book.id); }} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"><MoreVertical className="w-5 h-5" /></button>
-            {showDropdown === book.id && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
-                <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
-                <button onClick={(e) => { e.stopPropagation(); deleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
+            <div className="flex items-center gap-2 mt-3">
+              {book.tags.map(tag => <span key={tag} className="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full font-medium">{tag}</span>)}
+            </div>
+            {book.status !== 'published' && (
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1"><span>Progress</span><span>{Math.round(book.progress)}%</span></div>
+                <ProgressBar progress={book.progress} color={book.coverColor} />
               </div>
             )}
           </div>
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
+            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
+            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
+            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
+            <div className="relative">
+              <button onClick={(e) => { e.stopPropagation(); setShowDropdown(showDropdown === book.id ? null : book.id); }} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"><MoreVertical className="w-5 h-5" /></button>
+              {showDropdown === book.id && (
+                <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-xl shadow-lg py-1 z-10">
+                  <button onClick={(e) => { e.stopPropagation(); duplicateEbook(book); }} className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted flex items-center gap-2"><Copy className="w-4 h-4" />Duplicate</button>
+                  <button onClick={(e) => { e.stopPropagation(); deleteEbook(book.id); }} className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"><Trash2 className="w-4 h-4" />Delete</button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Grid Item
-  const EbookGridItem = ({ book }: { book: Ebook }) => (
-    <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-muted-foreground hover:shadow-lg transition-all duration-200 cursor-pointer"
-      onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
-      <div className="h-40 flex items-center justify-center relative" style={{ backgroundColor: book.coverColor + '15' }}>
-        <div className="w-24 h-32 rounded-lg shadow-xl flex items-center justify-center" style={{ backgroundColor: book.coverColor }}>
-          <Book className="w-12 h-12 text-white/80" />
+  const EbookGridItem = ({ book }: { book: Ebook }) => {
+    const isModified = book.createdAt !== book.updatedAt;
+    
+    return (
+      <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-muted-foreground hover:shadow-lg transition-all duration-200 cursor-pointer"
+        onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
+        <div className="h-40 flex items-center justify-center relative" style={{ backgroundColor: book.coverColor + '15' }}>
+          <div className="w-24 h-32 rounded-lg shadow-xl flex items-center justify-center" style={{ backgroundColor: book.coverColor }}>
+            <Book className="w-12 h-12 text-white/80" />
+          </div>
+          <div className="absolute top-3 right-3"><StatusBadge status={book.status} /></div>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-emerald-500 hover:text-white transition-colors"><Edit className="w-5 h-5" /></button>
+            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-blue-500 hover:text-white transition-colors"><Download className="w-5 h-5" /></button>
+          </div>
         </div>
-        <div className="absolute top-3 right-3"><StatusBadge status={book.status} /></div>
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-          <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-emerald-500 hover:text-white transition-colors"><Edit className="w-5 h-5" /></button>
-          <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-blue-500 hover:text-white transition-colors"><Download className="w-5 h-5" /></button>
+        <div className="p-4">
+          <h3 className="font-semibold text-foreground truncate group-hover:text-emerald-600 transition-colors">{book.title}</h3>
+          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{book.description}</p>
+          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+            {isModified ? (
+              <span>Modified: {formatDate(book.updatedAt)}</span>
+            ) : (
+              <span>Created: {formatDate(book.createdAt)}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground"><span>{book.chapters} ch</span><span>•</span><span>{(book.words / 1000).toFixed(1)}k words</span></div>
+          {book.status !== 'published' && <div className="mt-3"><ProgressBar progress={book.progress} color={book.coverColor} /></div>}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-foreground truncate group-hover:text-emerald-600 transition-colors">{book.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{book.description}</p>
-        <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground"><span>{book.chapters} ch</span><span>•</span><span>{(book.words / 1000).toFixed(1)}k words</span></div>
-        {book.status !== 'published' && <div className="mt-3"><ProgressBar progress={book.progress} color={book.coverColor} /></div>}
-      </div>
-    </div>
-  );
+    );
+  };
 
   // New Book Modal
   const NewBookModal = () => {
