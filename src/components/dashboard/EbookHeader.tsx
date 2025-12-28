@@ -68,6 +68,7 @@ const EbookHeader = ({
                 <span className="text-white">EBOOK</span>
                 <span className="text-emerald-400">STUDIO</span>
               </h1>
+              <p className="text-[10px] text-gray-400">AI-Powered eBook Creation</p>
             </div>
           </div>
 
@@ -202,23 +203,8 @@ const EbookHeader = ({
           </HoverCard>
         </div>
 
-        {/* Center Section - Media Type Tabs */}
-        <div className="hidden lg:flex items-center gap-1">
-          <button className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
-            <Image className="w-4 h-4" />
-            <span className="text-sm">Image</span>
-          </button>
-          <div className="w-px h-5 bg-gray-600" />
-          <button className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
-            <Film className="w-4 h-4" />
-            <span className="text-sm">Video</span>
-          </button>
-          <div className="w-px h-5 bg-gray-600" />
-          <button className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors">
-            <Volume2 className="w-4 h-4" />
-            <span className="text-sm">Audio</span>
-          </button>
-        </div>
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
