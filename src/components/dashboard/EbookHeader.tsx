@@ -150,10 +150,6 @@ const EbookHeader = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Project Name */}
-          <div className="hidden md:flex items-center px-3 py-1.5 bg-gray-700/50 rounded-lg">
-            <span className="text-sm text-white font-medium">Untitled Project</span>
-          </div>
           
           {/* Auto-save Cloud Icon */}
           <HoverCard openDelay={100} closeDelay={100}>
