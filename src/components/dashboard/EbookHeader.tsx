@@ -63,13 +63,10 @@ const EbookHeader = ({
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <Book className="w-4 h-4 text-white" />
             </div>
-            <div className="flex flex-col">
-              <h1 className="text-sm font-bold tracking-tight leading-none">
-                <span className="text-white">EBOOK</span>
-                <span className="text-emerald-400">STUDIO</span>
-              </h1>
-              <p className="text-[10px] text-gray-400">AI-Powered eBook Creation</p>
-            </div>
+            <h1 className="text-lg font-bold tracking-tight">
+              <span className="text-white">EBOOK</span>
+              <span className="text-emerald-400">STUDIO</span>
+            </h1>
           </div>
 
           <DropdownMenu>
