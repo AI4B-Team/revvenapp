@@ -9,6 +9,7 @@ import {
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import Sidebar from '@/components/dashboard/Sidebar';
+import Header from '@/components/dashboard/Header';
 import EbookHeader from '@/components/dashboard/EbookHeader';
 
 import { Button } from '@/components/ui/button';
@@ -614,6 +615,7 @@ const EbookCreator = () => {
           sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
         }`}
       >
+        <Header />
         {/* Ebook Studio Header - matching Transcribe style */}
         <EbookHeader onExportClick={() => setShowExportModal(true)} />
 
