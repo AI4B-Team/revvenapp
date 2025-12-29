@@ -523,6 +523,17 @@ const TranscriptDetail = () => {
   const audioUrlParam = searchParams.get('audioUrl');
   const initialAudioUrl = audioUrlParam && audioUrlParam !== '.' ? audioUrlParam : '';
   const [resolvedAudioUrl, setResolvedAudioUrl] = useState(initialAudioUrl);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Helper to detect if the URL is a video file
+  const isVideoUrl = (url: string): boolean => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v', '.ogg'];
+    const lowerUrl = url.toLowerCase().split('?')[0]; // Remove query params
+    return videoExtensions.some(ext => lowerUrl.endsWith(ext)) || lowerUrl.includes('/video/');
+  };
+
+  const isVideo = isVideoUrl(resolvedAudioUrl);
 
   // Parse time string (MM:SS) to seconds
   const parseTimeToSeconds = (timeStr: string): number => {
@@ -533,17 +544,18 @@ const TranscriptDetail = () => {
     return parts[0] * 60 + (parts[1] || 0);
   };
 
-  // Jump to specific time in audio
+  // Jump to specific time in media
   const jumpToTime = (timeStr: string) => {
-    if (!audioRef.current || !resolvedAudioUrl) {
-      toast.error('No audio available to play');
+    const media = isVideo ? videoRef.current : audioRef.current;
+    if (!media || !resolvedAudioUrl) {
+      toast.error('No media available to play');
       return;
     }
     const seconds = parseTimeToSeconds(timeStr);
-    audioRef.current.currentTime = seconds;
+    media.currentTime = seconds;
     setSegmentEndTime(null); // Clear any segment end time
     if (!isPlaying) {
-      audioRef.current.play();
+      media.play();
       setIsPlaying(true);
     }
     toast.success(`Jumped to ${timeStr}`);
@@ -551,17 +563,18 @@ const TranscriptDetail = () => {
 
   // Play only a specific segment (from start to end time)
   const playSegmentOnly = (startTimeStr: string, endTimeStr?: string) => {
-    if (!audioRef.current || !resolvedAudioUrl) {
-      toast.error('No audio available to play');
+    const media = isVideo ? videoRef.current : audioRef.current;
+    if (!media || !resolvedAudioUrl) {
+      toast.error('No media available to play');
       return;
     }
     const startSeconds = parseTimeToSeconds(startTimeStr);
     // Add 1.5 seconds buffer to avoid cutting off final words
     const endSeconds = endTimeStr ? parseTimeToSeconds(endTimeStr) + 1.5 : startSeconds + 5;
     
-    audioRef.current.currentTime = startSeconds;
+    media.currentTime = startSeconds;
     setSegmentEndTime(endSeconds);
-    audioRef.current.play();
+    media.play();
     setIsPlaying(true);
     toast.success(`Playing segment ${startTimeStr} - ${endTimeStr || ''}`);
   };
@@ -1098,39 +1111,45 @@ const TranscriptDetail = () => {
 
   // Check if audio duration is valid
   const isValidDuration = (d: number) => isFinite(d) && !isNaN(d) && d > 0;
-  // Audio event handlers
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  
+  // Get the active media element (video or audio)
+  const getMediaElement = (): HTMLVideoElement | HTMLAudioElement | null => {
+    return isVideo ? videoRef.current : audioRef.current;
+  };
 
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setAudioDuration(audio.duration);
+  // Media event handlers (works for both audio and video)
+  useEffect(() => {
+    const media = getMediaElement();
+    if (!media) return;
+
+    const handleTimeUpdate = () => setCurrentTime(media.currentTime);
+    const handleLoadedMetadata = () => setAudioDuration(media.duration);
     const handleEnded = () => setIsPlaying(false);
 
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
+    media.addEventListener('timeupdate', handleTimeUpdate);
+    media.addEventListener('loadedmetadata', handleLoadedMetadata);
+    media.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
+      media.removeEventListener('timeupdate', handleTimeUpdate);
+      media.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      media.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [isVideo, resolvedAudioUrl]);
 
   // Smooth currentTime updates for karaoke highlighting (timeupdate is low-frequency)
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const media = getMediaElement();
+    if (!media) return;
     if (!isPlaying) return;
 
     let rafId = 0;
     const tick = () => {
-      setCurrentTime(audio.currentTime);
+      setCurrentTime(media.currentTime);
       
       // Stop playback when reaching segment end time
-      if (segmentEndTime !== null && audio.currentTime >= segmentEndTime) {
-        audio.pause();
+      if (segmentEndTime !== null && media.currentTime >= segmentEndTime) {
+        media.pause();
         setIsPlaying(false);
         setSegmentEndTime(null);
       }
@@ -1141,44 +1160,48 @@ const TranscriptDetail = () => {
     rafId = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(rafId);
-  }, [isPlaying, segmentEndTime]);
+  }, [isPlaying, segmentEndTime, isVideo]);
 
   // Handle play/pause
   const togglePlayPause = () => {
-    if (!audioRef.current || !resolvedAudioUrl) {
-      toast.error('No audio available');
+    const media = getMediaElement();
+    if (!media || !resolvedAudioUrl) {
+      toast.error('No media available');
       return;
     }
     if (isPlaying) {
-      audioRef.current.pause();
+      media.pause();
     } else {
-      audioRef.current.play();
+      media.play();
     }
     setIsPlaying(!isPlaying);
   };
 
   // Handle volume change
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
+    const media = getMediaElement();
+    if (media) {
+      media.volume = volume / 100;
     }
-  }, [volume]);
+  }, [volume, isVideo]);
 
   // Handle playback speed change
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.playbackRate = playbackSpeed;
+    const media = getMediaElement();
+    if (media) {
+      media.playbackRate = playbackSpeed;
     }
-  }, [playbackSpeed]);
+  }, [playbackSpeed, isVideo]);
 
   // Handle seek (for click and drag)
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !audioDuration) return;
+    const media = getMediaElement();
+    if (!media || !audioDuration) return;
     const rect = progressBarRef.current?.getBoundingClientRect() || e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percentage = Math.max(0, Math.min(1, clickX / rect.width));
     const newTime = percentage * audioDuration;
-    audioRef.current.currentTime = newTime;
+    media.currentTime = newTime;
     setCurrentTime(newTime);
   };
 
@@ -1192,12 +1215,13 @@ const TranscriptDetail = () => {
   // Handle drag move
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !audioRef.current || !audioDuration || !progressBarRef.current) return;
+      const media = getMediaElement();
+      if (!isDragging || !media || !audioDuration || !progressBarRef.current) return;
       const rect = progressBarRef.current.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const percentage = Math.max(0, Math.min(1, clickX / rect.width));
       const newTime = percentage * audioDuration;
-      audioRef.current.currentTime = newTime;
+      media.currentTime = newTime;
       setCurrentTime(newTime);
     };
 
@@ -1214,7 +1238,7 @@ const TranscriptDetail = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, audioDuration]);
+  }, [isDragging, audioDuration, isVideo]);
 
   // Generate AI summary
   const generateAISummary = async (transcriptText: string) => {
@@ -2778,41 +2802,104 @@ ${content.map((item, index) => {
                 <div className="sticky top-0">
                   {/* Media Player Card */}
                   <div className="waveform-container rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
-                    {/* Waveform Visualization Area */}
-                    <div className="relative aspect-[4/3] p-8 flex items-center justify-center group/waveform bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
-                      {/* Audio Waveform Visualization */}
-                      <div className="flex items-center justify-center gap-[3px] h-32">
-                        {[...Array(50)].map((_, i) => {
-                          const heightPattern = [
-                            0.3, 0.5, 0.4, 0.6, 0.8, 0.6, 0.9, 0.7, 0.5, 0.8,
-                            1, 0.9, 0.7, 0.5, 0.3, 0.2, 0.3, 0.5, 0.8, 1,
-                            0.8, 0.6, 0.9, 1, 0.8, 0.6, 0.4, 0.3, 0.5, 0.7,
-                            0.9, 1, 0.8, 0.5, 0.3, 0.2, 0.4, 0.6, 0.8, 0.5,
-                            0.7, 0.9, 0.6, 0.4, 0.8, 1, 0.7, 0.5, 0.3, 0.6
-                          ];
-                          const height = heightPattern[i % heightPattern.length] * 100;
-                          return (
-                            <div
-                              key={i}
-                              className="w-[4px] rounded-full bg-emerald-400/80 transition-all duration-300"
-                              style={{
-                                height: `${height}%`,
-                                animation: isPlaying ? `waveformPulse 1s ease-in-out infinite ${i * 0.04}s` : 'none',
-                              }}
-                            />
-                          );
-                        })}
-                      </div>
-                      
-                      <style>{`
-                        @keyframes waveformPulse {
-                          0%, 100% { transform: scaleY(1); }
-                          50% { transform: scaleY(0.6); }
-                        }
-                      `}</style>
+                    {/* Media Display Area - Video or Waveform */}
+                    <div className="relative aspect-[4/3] flex items-center justify-center group/waveform bg-gradient-to-br from-emerald-100/50 via-cyan-50/30 to-blue-100/50">
+                      {isVideo && resolvedAudioUrl ? (
+                        <>
+                          {/* Video Player */}
+                          <video
+                            ref={videoRef}
+                            src={resolvedAudioUrl}
+                            className="absolute inset-0 w-full h-full object-contain bg-black"
+                            playsInline
+                            onClick={togglePlayPause}
+                          />
+                          
+                          {/* Play Button Overlay for Video - shows when not playing */}
+                          {!isPlaying && (
+                            <button
+                              onClick={togglePlayPause}
+                              className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors z-10"
+                            >
+                              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                                <Play className="w-7 h-7 text-emerald-600 ml-1" />
+                              </div>
+                            </button>
+                          )}
+                          
+                          {/* Pause Button Overlay for Video - shows on hover when playing */}
+                          {isPlaying && (
+                            <button
+                              onClick={togglePlayPause}
+                              className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 group-hover/waveform:opacity-100 group-hover/waveform:bg-black/20 transition-all duration-200 z-10"
+                            >
+                              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                                <Pause className="w-7 h-7 text-emerald-600" />
+                              </div>
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {/* Audio Waveform Visualization */}
+                          <div className="flex items-center justify-center gap-[3px] h-32 p-8">
+                            {[...Array(50)].map((_, i) => {
+                              const heightPattern = [
+                                0.3, 0.5, 0.4, 0.6, 0.8, 0.6, 0.9, 0.7, 0.5, 0.8,
+                                1, 0.9, 0.7, 0.5, 0.3, 0.2, 0.3, 0.5, 0.8, 1,
+                                0.8, 0.6, 0.9, 1, 0.8, 0.6, 0.4, 0.3, 0.5, 0.7,
+                                0.9, 1, 0.8, 0.5, 0.3, 0.2, 0.4, 0.6, 0.8, 0.5,
+                                0.7, 0.9, 0.6, 0.4, 0.8, 1, 0.7, 0.5, 0.3, 0.6
+                              ];
+                              const height = heightPattern[i % heightPattern.length] * 100;
+                              return (
+                                <div
+                                  key={i}
+                                  className="w-[4px] rounded-full bg-emerald-400/80 transition-all duration-300"
+                                  style={{
+                                    height: `${height}%`,
+                                    animation: isPlaying ? `waveformPulse 1s ease-in-out infinite ${i * 0.04}s` : 'none',
+                                  }}
+                                />
+                              );
+                            })}
+                          </div>
+                          
+                          <style>{`
+                            @keyframes waveformPulse {
+                              0%, 100% { transform: scaleY(1); }
+                              50% { transform: scaleY(0.6); }
+                            }
+                          `}</style>
+                          
+                          {/* Play Button Overlay for Audio - shows when not playing */}
+                          {!isPlaying && resolvedAudioUrl && (
+                            <button
+                              onClick={togglePlayPause}
+                              className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors"
+                            >
+                              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                                <Play className="w-7 h-7 text-emerald-600 ml-1" />
+                              </div>
+                            </button>
+                          )}
+                          
+                          {/* Pause Button Overlay for Audio - shows on hover when playing */}
+                          {isPlaying && resolvedAudioUrl && (
+                            <button
+                              onClick={togglePlayPause}
+                              className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 group-hover/waveform:opacity-100 group-hover/waveform:bg-black/10 transition-all duration-200"
+                            >
+                              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
+                                <Pause className="w-7 h-7 text-emerald-600" />
+                              </div>
+                            </button>
+                          )}
+                        </>
+                      )}
                       
                       {/* Duration Badge */}
-                      <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full bg-gray-900/80 text-white text-sm font-mono flex items-center gap-1.5">
+                      <div className="absolute bottom-4 left-4 px-3 py-1.5 rounded-full bg-gray-900/80 text-white text-sm font-mono flex items-center gap-1.5 z-20">
                         <Clock className="w-3.5 h-3.5" />
                         {duration}
                       </div>
@@ -2834,7 +2921,7 @@ ${content.map((item, index) => {
                                   }
                                 }
                               }}
-                              className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors z-10"
+                              className="absolute bottom-4 right-4 p-2 rounded-lg bg-gray-900/80 text-white hover:bg-gray-900 transition-colors z-20"
                             >
                               <Maximize className="w-4 h-4" />
                             </button>
@@ -2842,30 +2929,6 @@ ${content.map((item, index) => {
                           <TooltipContent>Full-Screen</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      
-                      {/* Play Button Overlay - shows when not playing */}
-                      {!isPlaying && resolvedAudioUrl && (
-                        <button
-                          onClick={togglePlayPause}
-                          className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/10 transition-colors"
-                        >
-                          <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
-                            <Play className="w-7 h-7 text-emerald-600 ml-1" />
-                          </div>
-                        </button>
-                      )}
-                      
-                      {/* Pause Button Overlay - shows on hover when playing */}
-                      {isPlaying && resolvedAudioUrl && (
-                        <button
-                          onClick={togglePlayPause}
-                          className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 group-hover/waveform:opacity-100 group-hover/waveform:bg-black/10 transition-all duration-200"
-                        >
-                          <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center hover:scale-110 transition-transform">
-                            <Pause className="w-7 h-7 text-emerald-600" />
-                          </div>
-                        </button>
-                      )}
                     </div>
                     
                     {/* Playback Controls - All in one row */}
@@ -4522,8 +4585,8 @@ ${content.map((item, index) => {
           </div>
         </main>
 
-        {/* Hidden Audio Element */}
-        {resolvedAudioUrl && (
+        {/* Hidden Audio Element - only when source is not video */}
+        {resolvedAudioUrl && !isVideo && (
           <audio ref={audioRef} src={resolvedAudioUrl} preload="metadata" />
         )}
 
