@@ -82,6 +82,7 @@ const EbookCreator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
+  const [activeProjectTab, setActiveProjectTab] = useState<'ebooks' | 'audiobooks'>('ebooks');
 
   const [ebooks, setEbooks] = useState<Ebook[]>([
     { id: 1, title: 'The Ultimate Guide to AI Marketing', description: 'A comprehensive guide to leveraging AI in your marketing strategy', chapters: 12, words: 45000, status: 'published', createdAt: '2025-12-15', updatedAt: '2025-12-17', coverColor: '#10B981', tags: ['Marketing', 'AI', 'Business'], progress: 100 },
@@ -658,14 +659,28 @@ const EbookCreator = () => {
               
               {/* Content below */}
 
-              {/* eBooks List */}
+              {/* Projects List */}
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
                     <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                       <Book className="w-5 h-5 text-emerald-500" />
-                      eBooks
+                      Projects
                     </h2>
+                    <div className="flex border border-gray-200 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setActiveProjectTab('ebooks')}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${activeProjectTab === 'ebooks' ? 'bg-emerald-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                      >
+                        eBooks
+                      </button>
+                      <button
+                        onClick={() => setActiveProjectTab('audiobooks')}
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${activeProjectTab === 'audiobooks' ? 'bg-emerald-500 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                      >
+                        AudioBooks
+                      </button>
+                    </div>
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium">
                       {ebooks.length} Books
                     </span>
