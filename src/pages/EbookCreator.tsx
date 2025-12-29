@@ -55,22 +55,10 @@ interface Ebook {
   progress: number;
 }
 
-interface NewBookData {
-  title: string;
-  topic: string;
-  audience: string;
-  tone: string;
-  chapters: number;
-  wordsPerChapter: number;
-  includeImages: boolean;
-  sourceType: string;
-  sourceContent: string;
-}
 
 const EbookCreator = () => {
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showNewBookModal, setShowNewBookModal] = useState(false);
   const [showChapterEditor, setShowChapterEditor] = useState(false);
   const [showCoverDesigner, setShowCoverDesigner] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -92,52 +80,11 @@ const EbookCreator = () => {
     { id: 5, title: 'Content Creation Playbook', description: 'Master content creation across all platforms', chapters: 15, words: 52000, status: 'published', createdAt: '2025-11-20', updatedAt: '2025-12-01', coverColor: '#8B5CF6', tags: ['Content', 'Marketing'], progress: 100 }
   ]);
 
-  const [newBookData, setNewBookData] = useState<NewBookData>({
-    title: '', topic: '', audience: '', tone: 'professional', chapters: 8, wordsPerChapter: 2000, includeImages: true, sourceType: 'ai-generate', sourceContent: ''
-  });
-
   const filteredEbooks = ebooks.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.description.toLowerCase().includes(searchQuery.toLowerCase()) || book.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFilter = filterStatus === 'all' || book.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
-
-  const simulateGeneration = async () => {
-    if (!newBookData.title && !newBookData.topic) {
-      toast.error('Please enter a title or topic');
-      return;
-    }
-    
-    setShowNewBookModal(false);
-    setIsGenerating(true);
-    setGenerationProgress(0);
-    
-    const interval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsGenerating(false);
-          const newBook: Ebook = {
-            id: Date.now(), 
-            title: newBookData.title || 'New AI-Generated eBook', 
-            description: newBookData.topic || 'An AI-generated comprehensive guide',
-            chapters: newBookData.chapters, 
-            words: newBookData.chapters * newBookData.wordsPerChapter, 
-            status: 'draft',
-            createdAt: new Date().toISOString().split('T')[0], 
-            updatedAt: new Date().toISOString().split('T')[0],
-            coverColor: ['#10B981', '#6366F1', '#F59E0B', '#EC4899', '#8B5CF6'][Math.floor(Math.random() * 5)], 
-            tags: ['AI Generated'], 
-            progress: 100
-          };
-          setEbooks(prev => [newBook, ...prev]);
-          toast.success('eBook generated successfully!');
-          return 100;
-        }
-        return Math.min(prev + Math.random() * 15, 100);
-      });
-    }, 500);
-  };
 
   const deleteEbook = (id: number) => { 
     setEbooks(prev => prev.filter(book => book.id !== id)); 
@@ -169,7 +116,7 @@ const EbookCreator = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch mb-10">
       {/* Start With AI */}
       <button
-        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'ai-generate' })); setShowNewBookModal(true); }}
+        onClick={() => navigate('/ebook-creator/new?source=ai-generate')}
         className="group relative pt-8 px-8 pb-2 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50 hover:bg-emerald-100 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
@@ -209,7 +156,7 @@ const EbookCreator = () => {
 
       {/* Upload File */}
       <button
-        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'upload' })); setShowNewBookModal(true); }}
+        onClick={() => navigate('/ebook-creator/new?source=upload')}
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-amber-400/50 hover:bg-amber-50 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
@@ -254,7 +201,7 @@ const EbookCreator = () => {
       {/* Insert Link */}
       <div
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300 cursor-pointer min-h-[300px] flex flex-col"
-        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'url' })); setShowNewBookModal(true); }}
+        onClick={() => navigate('/ebook-creator/new?source=url')}
       >
         <div className="flex flex-col items-center text-center flex-1">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
@@ -282,7 +229,7 @@ const EbookCreator = () => {
 
       {/* Record Audio */}
       <button
-        onClick={() => { setNewBookData(prev => ({ ...prev, sourceType: 'voice' })); setShowNewBookModal(true); }}
+        onClick={() => navigate('/ebook-creator/new?source=voice')}
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
@@ -409,70 +356,6 @@ const EbookCreator = () => {
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground"><span>{book.chapters} ch</span><span>•</span><span>{(book.words / 1000).toFixed(1)}k words</span></div>
           {book.status !== 'published' && <div className="mt-3"><ProgressBar progress={book.progress} color={book.coverColor} /></div>}
-        </div>
-      </div>
-    );
-  };
-
-  // New Book Modal
-  const NewBookModal = () => {
-    const sourceLabels: Record<string, string> = { 'ai-generate': 'AI Generate', 'upload': 'Upload', 'url': 'URL', 'voice': 'Voice' };
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div className="bg-card rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-border">
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <div><h2 className="text-xl font-bold text-foreground">Create New eBook</h2><p className="text-sm text-muted-foreground mt-0.5">{sourceLabels[newBookData.sourceType]} Mode</p></div>
-            <button onClick={() => setShowNewBookModal(false)} className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"><X className="w-5 h-5" /></button>
-          </div>
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
-            <div className="flex gap-2 mb-6 p-1 bg-muted rounded-xl">
-              {Object.entries(sourceLabels).map(([key, label]) => (
-                <button key={key} onClick={() => setNewBookData(prev => ({ ...prev, sourceType: key }))} className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all ${newBookData.sourceType === key ? 'bg-card text-emerald-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>{label}</button>
-              ))}
-            </div>
-            {newBookData.sourceType === 'ai-generate' && (
-              <div className="space-y-5">
-                <div><label className="block text-sm font-medium text-foreground mb-2">eBook Title</label><Input type="text" value={newBookData.title} onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g., The Ultimate Guide to Digital Marketing" className="w-full" /></div>
-                <div><label className="block text-sm font-medium text-foreground mb-2">Topic / Description</label><Textarea value={newBookData.topic} onChange={(e) => setNewBookData(prev => ({ ...prev, topic: e.target.value }))} placeholder="Describe what your eBook should be about..." rows={4} className="w-full resize-none" /></div>
-                <div><label className="block text-sm font-medium text-foreground mb-2">Target Audience</label><Input type="text" value={newBookData.audience} onChange={(e) => setNewBookData(prev => ({ ...prev, audience: e.target.value }))} placeholder="e.g., Small business owners, beginners..." className="w-full" /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-medium text-foreground mb-2">Writing Tone</label><select value={newBookData.tone} onChange={(e) => setNewBookData(prev => ({ ...prev, tone: e.target.value }))} className="w-full px-4 py-3 border border-border rounded-xl bg-background text-foreground"><option value="professional">Professional</option><option value="conversational">Conversational</option><option value="academic">Academic</option><option value="friendly">Friendly</option></select></div>
-                  <div><label className="block text-sm font-medium text-foreground mb-2">Chapters</label><select value={newBookData.chapters} onChange={(e) => setNewBookData(prev => ({ ...prev, chapters: parseInt(e.target.value) }))} className="w-full px-4 py-3 border border-border rounded-xl bg-background text-foreground">{[5, 6, 7, 8, 10, 12, 15, 20].map(n => <option key={n} value={n}>{n} chapters</option>)}</select></div>
-                </div>
-                <div><label className="block text-sm font-medium text-foreground mb-2">Words per Chapter</label><div className="flex gap-2">{[1000, 1500, 2000, 2500, 3000].map(n => <button key={n} onClick={() => setNewBookData(prev => ({ ...prev, wordsPerChapter: n }))} className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg border ${newBookData.wordsPerChapter === n ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-500 text-emerald-700 dark:text-emerald-300' : 'border-border text-muted-foreground'}`}>{(n / 1000).toFixed(1)}k</button>)}</div><p className="text-xs text-muted-foreground mt-2">Estimated: ~{((newBookData.chapters * newBookData.wordsPerChapter) / 1000).toFixed(0)}k words</p></div>
-                <div className="flex items-center gap-3 p-4 bg-muted rounded-xl"><input type="checkbox" id="includeImages" checked={newBookData.includeImages} onChange={(e) => setNewBookData(prev => ({ ...prev, includeImages: e.target.checked }))} className="w-5 h-5 text-emerald-600 rounded accent-emerald-500" /><label htmlFor="includeImages" className="text-sm text-foreground"><span className="font-medium">Generate AI images</span><span className="block text-muted-foreground text-xs">Include illustrations for each chapter</span></label></div>
-              </div>
-            )}
-            {newBookData.sourceType === 'upload' && (
-              <div className="space-y-5">
-                <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-emerald-400 cursor-pointer transition-colors">
-                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="font-medium text-foreground">Drag & Drop Your File Here</p>
-                  <p className="text-sm text-muted-foreground mt-1">or click to browse</p>
-                  <div className="flex justify-center gap-2 mt-4">{['.pdf', '.docx', '.txt', '.md'].map(ext => <span key={ext} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded">{ext}</span>)}</div>
-                </div>
-              </div>
-            )}
-            {newBookData.sourceType === 'url' && (
-              <div className="space-y-5">
-                <div><label className="block text-sm font-medium text-foreground mb-2">Website URL</label><div className="flex gap-2"><Input type="url" value={newBookData.sourceContent} onChange={(e) => setNewBookData(prev => ({ ...prev, sourceContent: e.target.value }))} placeholder="https://example.com/blog-post" className="flex-1" /><Button variant="secondary">Fetch</Button></div></div>
-                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl border border-emerald-100 dark:border-emerald-900"><h4 className="font-medium text-emerald-800 dark:text-emerald-200 mb-2">Supported Sources</h4><div className="grid grid-cols-2 gap-2 text-sm text-emerald-700 dark:text-emerald-300"><span>• Blog posts</span><span>• Articles</span><span>• Documentation</span><span>• Medium articles</span></div></div>
-              </div>
-            )}
-            {newBookData.sourceType === 'voice' && (
-              <div className="space-y-5 text-center p-8">
-                <button className="w-24 h-24 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-rose-500/30 hover:scale-105 transition-transform"><Mic className="w-10 h-10 text-white" /></button>
-                <p className="font-medium text-foreground">Click to Start Recording</p>
-                <p className="text-sm text-muted-foreground">Speak your ideas and we'll transcribe them</p>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between p-6 border-t border-border bg-muted/50">
-            <Button variant="ghost" onClick={() => setShowNewBookModal(false)}>Cancel</Button>
-            <Button onClick={simulateGeneration} className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25">
-              <Sparkles className="w-5 h-5 mr-2" />Generate eBook
-            </Button>
-          </div>
         </div>
       </div>
     );
@@ -741,7 +624,7 @@ const EbookCreator = () => {
                       <Book className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">No eBooks Found</h3>
                       <p className="text-gray-500 mb-4">Create your first eBook to get started</p>
-                      <Button onClick={() => setShowNewBookModal(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                      <Button onClick={() => navigate('/ebook-creator/new')} className="bg-emerald-500 hover:bg-emerald-600 text-white">
                         <Plus className="w-5 h-5 mr-2" />Create eBook
                       </Button>
                     </div>
@@ -754,7 +637,6 @@ const EbookCreator = () => {
       </div>
 
       {/* Modals */}
-      {showNewBookModal && <NewBookModal />}
       {showChapterEditor && <ChapterEditorModal />}
       {showCoverDesigner && <CoverDesignerModal />}
       {showExportModal && <ExportModal />}
