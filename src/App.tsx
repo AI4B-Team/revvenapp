@@ -58,6 +58,7 @@ import AdCopyWriter from "./pages/AdCopyWriter";
 import ScriptWriter from "./pages/ScriptWriter";
 import SEOOptimizer from "./pages/SEOOptimizer";
 import EbookCreator from "./pages/EbookCreator";
+import NewEbook from "./pages/NewEbook";
 import ExplainerVideo from "./pages/ExplainerVideo";
 import ViralShorts from "./pages/ViralShorts";
 import Sessions from "./pages/Sessions";
@@ -111,6 +112,7 @@ const App = () => (
           <Route path="/script-writer" element={<ScriptWriter />} />
           <Route path="/seo-optimizer" element={<SEOOptimizer />} />
           <Route path="/ebook-creator" element={<EbookCreator />} />
+          <Route path="/ebook-creator/new" element={<NewEbook />} />
           <Route path="/explainer-video" element={<ExplainerVideo />} />
           <Route path="/viral-shorts" element={<ViralShorts />} />
           <Route path="/assets" element={<Assets />} />
