@@ -1,5 +1,4 @@
-import { Image, Video, Music, FileText, Code, Palette, MoreHorizontal, Calendar } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Image, Video, Music, FileText, Code, Palette, Calendar } from 'lucide-react';
 
 interface ContentTypeSelectorProps {
   selectedType: string;
@@ -13,7 +12,8 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
     { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-yellow' },
     { icon: <Calendar size={18} />, label: 'Content', color: 'text-brand-purple' },
-    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-green' },
+    { icon: <FileText size={18} />, label: 'Document', color: 'text-brand-blue' },
+    { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-red' },
   ];
 
   return (
@@ -33,19 +33,6 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
             <span className="text-sm font-medium">{type.label}</span>
           </button>
         ))}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="px-5 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition flex items-center justify-center">
-              <MoreHorizontal size={18} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 bg-background border-border z-50">
-            <DropdownMenuItem className="cursor-pointer">
-              <FileText size={16} className="mr-2" />
-              <span>Document</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
     </div>
   );
