@@ -3084,7 +3084,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   };
   
   return (
-    <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
+    <div className="w-fit min-w-[900px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
       <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">

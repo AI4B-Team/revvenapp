@@ -1,4 +1,4 @@
-import { Image, Video, Music, FileText, Code, Palette, MoreHorizontal } from 'lucide-react';
+import { Image, Video, Music, FileText, Code, Palette, MoreHorizontal, Calendar } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface ContentTypeSelectorProps {
@@ -12,7 +12,7 @@ const ContentTypeSelector = ({ selectedType, onTypeChange }: ContentTypeSelector
     { icon: <Video size={18} />, label: 'Video', color: 'text-brand-red' },
     { icon: <Music size={18} />, label: 'Audio', color: 'text-brand-green' },
     { icon: <Palette size={18} />, label: 'Design', color: 'text-brand-yellow' },
-    { icon: <FileText size={18} />, label: 'Content', color: 'text-brand-blue' },
+    { icon: <Calendar size={18} />, label: 'Content', color: 'text-brand-purple' },
     { icon: <Code size={18} />, label: 'Apps', color: 'text-brand-green' },
   ];
 
