@@ -145,7 +145,7 @@ const NewEbook = () => {
   const [bookData, setBookData] = useState<NewBookData>({
     prompt: '',
     sourceType: mapSourceType(initialSource),
-    contentType: 'ebook',
+    contentType: null as any, // null until user selects
     language: 'en',
     tone: 'professional',
     creative: 'default',
@@ -155,6 +155,7 @@ const NewEbook = () => {
     includeImages: true,
     selectedTitle: '',
   });
+  const [contentTypeSelected, setContentTypeSelected] = useState(false);
 
   const handleSourceSelect = (sourceId: string) => {
     if (sourceId === 'ai') {
@@ -328,7 +329,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
                           : isAccessible
                           ? 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
-                          : 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
+                          : 'border-gray-200 bg-white text-gray-400 cursor-not-allowed'
                       }`}
                     >
                       <tab.icon className="w-4 h-4" />
@@ -438,7 +439,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           {CONTENT_TYPES.map(type => (
                             <DropdownMenuItem
                               key={type.id}
-                              onClick={() => setBookData(prev => ({ ...prev, contentType: type.id as any }))}
+                              onClick={() => {
+                                setBookData(prev => ({ ...prev, contentType: type.id as any }));
+                                setContentTypeSelected(true);
+                              }}
                               className="flex items-center gap-2"
                             >
                               <type.icon className="w-4 h-4" />
@@ -506,8 +510,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                 </div>
 
-                {/* eBook Options Section */}
-                {bookData.contentType === 'ebook' && (
+                {/* eBook Options Section - only show after content type is selected */}
+                {contentTypeSelected && bookData.contentType === 'ebook' && (
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900">Advanced Options</h3>
                     
