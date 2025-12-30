@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import {
+import { 
   Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
-  Briefcase, Coffee, GraduationCap, Heart, Shield, Flame
+  Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
+  Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -27,6 +28,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from '@/components/ui/hover-card';
 
 interface UploadedFile {
   id: string;
@@ -72,17 +97,52 @@ const CONTENT_TYPES = [
 
 const LANGUAGES = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'en-gb', name: 'English (UK)', flag: '🇬🇧' },
   { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'es-mx', name: 'Spanish (Mexico)', flag: '🇲🇽' },
   { code: 'fr', name: 'French', flag: '🇫🇷' },
   { code: 'de', name: 'German', flag: '🇩🇪' },
   { code: 'it', name: 'Italian', flag: '🇮🇹' },
   { code: 'pt', name: 'Portuguese', flag: '🇧🇷' },
-  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'pt-pt', name: 'Portuguese (Portugal)', flag: '🇵🇹' },
+  { code: 'zh', name: 'Chinese (Simplified)', flag: '🇨🇳' },
+  { code: 'zh-tw', name: 'Chinese (Traditional)', flag: '🇹🇼' },
   { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
   { code: 'ko', name: 'Korean', flag: '🇰🇷' },
   { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
   { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
   { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+  { code: 'nl', name: 'Dutch', flag: '🇳🇱' },
+  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
+  { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
+  { code: 'sv', name: 'Swedish', flag: '🇸🇪' },
+  { code: 'da', name: 'Danish', flag: '🇩🇰' },
+  { code: 'no', name: 'Norwegian', flag: '🇳🇴' },
+  { code: 'fi', name: 'Finnish', flag: '🇫🇮' },
+  { code: 'el', name: 'Greek', flag: '🇬🇷' },
+  { code: 'he', name: 'Hebrew', flag: '🇮🇱' },
+  { code: 'th', name: 'Thai', flag: '🇹🇭' },
+  { code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
+  { code: 'id', name: 'Indonesian', flag: '🇮🇩' },
+  { code: 'ms', name: 'Malay', flag: '🇲🇾' },
+  { code: 'uk', name: 'Ukrainian', flag: '🇺🇦' },
+  { code: 'cs', name: 'Czech', flag: '🇨🇿' },
+  { code: 'ro', name: 'Romanian', flag: '🇷🇴' },
+  { code: 'hu', name: 'Hungarian', flag: '🇭🇺' },
+  { code: 'bg', name: 'Bulgarian', flag: '🇧🇬' },
+  { code: 'sk', name: 'Slovak', flag: '🇸🇰' },
+  { code: 'hr', name: 'Croatian', flag: '🇭🇷' },
+  { code: 'sr', name: 'Serbian', flag: '🇷🇸' },
+  { code: 'bn', name: 'Bengali', flag: '🇧🇩' },
+  { code: 'ta', name: 'Tamil', flag: '🇮🇳' },
+  { code: 'te', name: 'Telugu', flag: '🇮🇳' },
+  { code: 'mr', name: 'Marathi', flag: '🇮🇳' },
+  { code: 'gu', name: 'Gujarati', flag: '🇮🇳' },
+  { code: 'kn', name: 'Kannada', flag: '🇮🇳' },
+  { code: 'ml', name: 'Malayalam', flag: '🇮🇳' },
+  { code: 'pa', name: 'Punjabi', flag: '🇮🇳' },
+  { code: 'sw', name: 'Swahili', flag: '🇰🇪' },
+  { code: 'af', name: 'Afrikaans', flag: '🇿🇦' },
 ];
 
 const TONES = [
@@ -134,6 +194,11 @@ const NewEbook = () => {
   const [linkInput, setLinkInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [languageSearch, setLanguageSearch] = useState('');
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
+  const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initialSource = searchParams.get('source') || 'ai';
@@ -275,6 +340,22 @@ const NewEbook = () => {
     }
   };
 
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLastAutoSaved(new Date());
+    setIsSaving(false);
+    toast.success('Project saved');
+  };
+
+  // Demo collaborators
+  const collaborators = [
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop&crop=face',
+  ];
+
 const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   const currentTone = TONES.find(t => t.id === bookData.tone);
   const currentContentType = CONTENT_TYPES.find(t => t.id === bookData.contentType);
@@ -306,11 +387,204 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   };
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar onCollapseChange={(collapsed) => setSidebarCollapsed(collapsed)} />
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
+        
+        {/* Black Header Bar - matching Transcribe */}
+        <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
+          {/* Left Section */}
+          <div className="flex items-center gap-3">
+            {/* eBook Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <BookOpen className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-lg font-bold tracking-tight">
+                <span className="text-white">eBOOK</span>
+                <span className="text-emerald-400"> STUDIO</span>
+              </h1>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
+                  currentViewMode === 'editing' ? 'bg-violet-500/30 hover:bg-violet-500/40' :
+                  currentViewMode === 'viewing' ? 'bg-blue-500/30 hover:bg-blue-500/40' :
+                  currentViewMode === 'commenting' ? 'bg-amber-500/30 hover:bg-amber-500/40' :
+                  'bg-green-500/30 hover:bg-green-500/40'
+                }`}>
+                  {currentViewMode === 'editing' && <Pencil className="w-3.5 h-3.5 text-violet-300" />}
+                  {currentViewMode === 'viewing' && <Eye className="w-3.5 h-3.5 text-blue-300" />}
+                  {currentViewMode === 'commenting' && <MessageSquare className="w-3.5 h-3.5 text-amber-300" />}
+                  {currentViewMode === 'admin' && <Settings className="w-3.5 h-3.5 text-green-300" />}
+                  <span className={`text-sm font-medium capitalize ${
+                    currentViewMode === 'editing' ? 'text-violet-200' :
+                    currentViewMode === 'viewing' ? 'text-blue-200' :
+                    currentViewMode === 'commenting' ? 'text-amber-200' :
+                    'text-green-200'
+                  }`}>{currentViewMode}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 ${
+                    currentViewMode === 'editing' ? 'text-violet-300' :
+                    currentViewMode === 'viewing' ? 'text-blue-300' :
+                    currentViewMode === 'commenting' ? 'text-amber-300' :
+                    'text-green-300'
+                  }`} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 z-50">
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-xs text-gray-500 font-medium">Your Access Level</p>
+                </div>
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('editing')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="w-2 h-2 rounded-full bg-violet-500" />
+                  <Pencil className="w-4 h-4 text-violet-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Editing</span>
+                    <span className="text-xs text-gray-500">Full Edit Access</span>
+                  </div>
+                  {currentViewMode === 'editing' && <Check className="w-4 h-4 ml-auto text-violet-600" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('viewing')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <Eye className="w-4 h-4 text-blue-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Viewing</span>
+                    <span className="text-xs text-gray-500">View Only Access</span>
+                  </div>
+                  {currentViewMode === 'viewing' && <Check className="w-4 h-4 ml-auto text-blue-600" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('commenting')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <MessageSquare className="w-4 h-4 text-amber-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Commenting</span>
+                    <span className="text-xs text-gray-500">View And Comment</span>
+                  </div>
+                  {currentViewMode === 'commenting' && <Check className="w-4 h-4 ml-auto text-amber-600" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setCurrentViewMode('admin')}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <Settings className="w-4 h-4 text-green-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Admin</span>
+                    <span className="text-xs text-gray-500">Full Control And Settings</span>
+                  </div>
+                  {currentViewMode === 'admin' && <Check className="w-4 h-4 ml-auto text-green-600" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Auto-save Cloud Icon */}
+            <HoverCard openDelay={100} closeDelay={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HoverCardTrigger asChild>
+                    <button
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors ${
+                        isSaving 
+                          ? 'bg-gray-500/30 cursor-wait' 
+                          : 'bg-green-500/20 hover:bg-green-500/30 cursor-pointer'
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {isSaving ? (
+                          <Loader2 className="w-4 h-4 text-gray-300 animate-spin" />
+                        ) : (
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" className="text-green-400" />
+                            <polyline points="9 12 11 14 15 10" className="text-green-400" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className={`text-xs whitespace-nowrap ${isSaving ? 'text-gray-300' : 'text-green-300'}`}>
+                        {isSaving ? 'Saving' : 'Auto-Saved'}
+                      </span>
+                    </button>
+                  </HoverCardTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="mb-1">
+                  <p>Save Project</p>
+                </TooltipContent>
+              </Tooltip>
+              <HoverCardContent side="bottom" align="start" className="w-auto p-2 bg-popover border border-border">
+                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                  {isSaving 
+                    ? 'Saving...' 
+                    : `Click To Save (Last Saved: ${(lastAutoSaved.getMonth() + 1).toString().padStart(2, '0')}/${lastAutoSaved.getDate().toString().padStart(2, '0')}/${lastAutoSaved.getFullYear()} // ${lastAutoSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` 
+                  }
+                </p>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+            {/* Collaborators */}
+            <div className="hidden lg:flex items-center -space-x-2">
+              {collaborators.map((avatar, index) => (
+                <img
+                  key={index}
+                  src={avatar}
+                  alt={`Collaborator ${index + 1}`}
+                  className="w-8 h-8 rounded-full border-2 border-sidebar object-cover"
+                />
+              ))}
+            </div>
+            
+            {/* Share button */}
+            <button 
+              onClick={() => toast.success('Share dialog coming soon')}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
+            >
+              <UserPlus className="w-5 h-5" strokeWidth={2.5} />
+              <span className="hidden md:inline">Share</span>
+            </button>
+            
+            {/* Download button */}
+            <button 
+              onClick={() => toast.success('Download options coming soon')}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
+            >
+              <Download className="w-5 h-5" strokeWidth={2.5} />
+              <span className="hidden md:inline">Download</span>
+            </button>
+            
+            {/* 3-dot menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors flex-shrink-0">
+                  <MoreVertical className="w-5 h-5" strokeWidth={2.5} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 z-50">
+                <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
         
         <main className="flex-1 p-8">
           <div className="max-w-4xl mx-auto">
@@ -467,28 +741,51 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         </DropdownMenuContent>
                       </DropdownMenu>
 
-                      {/* Language Dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                      {/* Language Dropdown with Search */}
+                      <Popover open={languageOpen} onOpenChange={setLanguageOpen}>
+                        <PopoverTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
                             <span>{currentLanguage?.flag}</span>
                             <span>{currentLanguage?.name}</span>
-                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            <ChevronDown className="w-3 h-3 ml-1" />
                           </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48 max-h-64 overflow-y-auto">
-                          {LANGUAGES.map(lang => (
-                            <DropdownMenuItem
-                              key={lang.code}
-                              onClick={() => setBookData(prev => ({ ...prev, language: lang.code }))}
-                              className="flex items-center gap-2"
-                            >
-                              <span>{lang.flag}</span>
-                              {lang.name}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-0" align="start">
+                          <Command>
+                            <CommandInput 
+                              placeholder="Search languages..." 
+                              value={languageSearch}
+                              onValueChange={setLanguageSearch}
+                            />
+                            <CommandList>
+                              <CommandEmpty>No language found.</CommandEmpty>
+                              <CommandGroup className="max-h-64 overflow-y-auto">
+                                {LANGUAGES.filter(lang => 
+                                  lang.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+                                  lang.code.toLowerCase().includes(languageSearch.toLowerCase())
+                                ).map(lang => (
+                                  <CommandItem
+                                    key={lang.code}
+                                    value={lang.name}
+                                    onSelect={() => {
+                                      setBookData(prev => ({ ...prev, language: lang.code }));
+                                      setLanguageOpen(false);
+                                      setLanguageSearch('');
+                                    }}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <span>{lang.flag}</span>
+                                    <span>{lang.name}</span>
+                                    {bookData.language === lang.code && (
+                                      <Check className="w-4 h-4 ml-auto text-emerald-500" />
+                                    )}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
 
                       {/* Tone Dropdown */}
                       <DropdownMenu>
@@ -928,6 +1225,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         </DialogContent>
       </Dialog>
     </div>
+    </TooltipProvider>
   );
 };
 
