@@ -322,7 +322,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Resizable prompt box (both directions)
   // Keep a consistent default width across all categories (matches the widest prompt box design).
-  const DEFAULT_PROMPT_WIDTH = 1100;
+  const DEFAULT_PROMPT_WIDTH = 1280;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
     minHeight: 80,
@@ -3770,8 +3770,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="flex items-center justify-between flex-wrap gap-y-3">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="flex items-center gap-3 flex-nowrap min-w-0 overflow-x-auto pb-1">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
@@ -6986,7 +6986,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             )}
           </div>
 
-          <div className="flex items-center gap-3 ml-12">
+          <div className="flex items-center gap-3 justify-end flex-nowrap shrink-0">
             <Popover>
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
