@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation
+  Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
+  Lightbulb, Settings, Palette
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -134,17 +135,22 @@ const NewEbook = () => {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Create New Project</h1>
 
             {/* Top Navigation Tabs */}
-            <div className="flex gap-2 mb-8 p-1 bg-gray-100 rounded-xl w-fit">
-              {['Idea', 'Customize', 'Design'].map((tab) => (
+            <div className="flex gap-3 mb-8">
+              {[
+                { label: 'Idea', icon: Lightbulb },
+                { label: 'Customize', icon: Settings },
+                { label: 'Design', icon: Palette },
+              ].map((tab) => (
                 <button 
-                  key={tab} 
-                  className={`py-2.5 px-6 text-sm font-medium rounded-lg transition-all ${
-                    tab === 'Idea' 
-                      ? 'bg-white text-emerald-600 shadow-sm' 
-                      : 'text-gray-500 hover:text-gray-900'
+                  key={tab.label} 
+                  className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
+                    tab.label === 'Idea' 
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
                   }`}
                 >
-                  {tab}
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
                 </button>
               ))}
             </div>
