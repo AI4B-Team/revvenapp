@@ -81,12 +81,12 @@ const LANGUAGES = [
 ];
 
 const TONES = [
-  { id: 'professional', name: 'Professional', icon: '💼' },
-  { id: 'conversational', name: 'Conversational', icon: '💬' },
-  { id: 'academic', name: 'Academic', icon: '🎓' },
-  { id: 'friendly', name: 'Friendly', icon: '😊' },
-  { id: 'authoritative', name: 'Authoritative', icon: '👔' },
-  { id: 'inspirational', name: 'Inspirational', icon: '✨' },
+  { id: 'professional', name: 'Professional' },
+  { id: 'conversational', name: 'Conversational' },
+  { id: 'academic', name: 'Academic' },
+  { id: 'friendly', name: 'Friendly' },
+  { id: 'authoritative', name: 'Authoritative' },
+  { id: 'inspirational', name: 'Inspirational' },
 ];
 
 const CREATIVES = [
@@ -258,10 +258,35 @@ const NewEbook = () => {
     }
   };
 
-  const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
+const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   const currentTone = TONES.find(t => t.id === bookData.tone);
   const currentContentType = CONTENT_TYPES.find(t => t.id === bookData.contentType);
   const currentSource = SOURCE_OPTIONS.find(s => s.id === bookData.sourceType);
+
+  // Track which tabs are completed
+  const isIdeaComplete = bookData.prompt.trim().length > 0 && titleSuggestions.length > 0;
+  const isInfoComplete = bookData.selectedTitle.length > 0;
+  const isCustomizeComplete = isInfoComplete; // Can be expanded with more conditions
+  const isDesignComplete = isCustomizeComplete; // Can be expanded with more conditions
+
+  const canAccessTab = (tabId: TabId): boolean => {
+    const tabIndex = TABS.findIndex(t => t.id === tabId);
+    const currentIndex = TABS.findIndex(t => t.id === activeTab);
+    
+    // Always can access idea tab
+    if (tabId === 'idea') return true;
+    // Can access tabs we've already passed
+    if (tabIndex <= currentIndex) return true;
+    
+    // Check completion of previous tabs
+    switch (tabId) {
+      case 'info': return isIdeaComplete;
+      case 'customize': return isInfoComplete;
+      case 'design': return isCustomizeComplete;
+      case 'review': return isDesignComplete;
+      default: return false;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -286,16 +311,20 @@ const NewEbook = () => {
                 {TABS.map((tab, index) => {
                   const isActive = activeTab === tab.id;
                   const isPast = TABS.findIndex(t => t.id === activeTab) > index;
+                  const isAccessible = canAccessTab(tab.id);
                   return (
                     <button 
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => isAccessible && setActiveTab(tab.id)}
+                      disabled={!isAccessible}
                       className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
                         isActive 
                           ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
                           : isPast
                           ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
-                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
+                          : isAccessible
+                          ? 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
+                          : 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
                       }`}
                     >
                       <tab.icon className="w-4 h-4" />
@@ -396,8 +425,8 @@ const NewEbook = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            {currentContentType && <currentContentType.icon className="w-4 h-4" />}
-                            <span>Type: {currentContentType?.label}</span>
+                            <Layers className="w-4 h-4" />
+                            <span>Type</span>
                             <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
@@ -442,8 +471,8 @@ const NewEbook = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <span>{currentTone?.icon}</span>
-                            <span>{currentTone?.name}</span>
+                            <MessageSquare className="w-4 h-4" />
+                            <span>Tone</span>
                             <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
@@ -454,7 +483,7 @@ const NewEbook = () => {
                               onClick={() => setBookData(prev => ({ ...prev, tone: tone.id }))}
                               className="flex items-center gap-2"
                             >
-                              <span>{tone.icon}</span>
+                              <MessageSquare className="w-4 h-4" />
                               {tone.name}
                             </DropdownMenuItem>
                           ))}
@@ -508,7 +537,7 @@ const NewEbook = () => {
                     <div className="grid grid-cols-2 gap-6">
                       {/* Number of Chapters */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Chapters</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Number Of Chapters</label>
                         <select 
                           value={bookData.chapters}
                           onChange={(e) => setBookData(prev => ({ ...prev, chapters: parseInt(e.target.value) }))}
@@ -522,7 +551,7 @@ const NewEbook = () => {
 
                       {/* Words Per Chapter */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Words per Chapter</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Words Per Chapter</label>
                         <div className="flex gap-2">
                           {[1000, 1500, 2000, 2500, 3000].map(n => (
                             <button 
@@ -544,7 +573,7 @@ const NewEbook = () => {
                       </div>
                     </div>
 
-                    {/* Generate AI Images */}
+                    {/* Include Illustrations */}
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                       <input 
                         type="checkbox" 
@@ -553,9 +582,8 @@ const NewEbook = () => {
                         onChange={(e) => setBookData(prev => ({ ...prev, includeImages: e.target.checked }))}
                         className="w-5 h-5 text-emerald-600 rounded accent-emerald-500"
                       />
-                      <label htmlFor="includeImages" className="text-sm text-gray-900">
-                        <span className="font-medium">Generate AI images</span>
-                        <span className="block text-gray-500 text-xs">Include illustrations for each chapter</span>
+                      <label htmlFor="includeImages" className="text-sm text-gray-900 font-medium">
+                        Include Illustrations For Each Chapter
                       </label>
                     </div>
                   </div>
