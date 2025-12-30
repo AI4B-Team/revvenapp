@@ -99,7 +99,7 @@ const CREATIVES = [
 ];
 
 const SOURCE_OPTIONS = [
-  { id: 'ai', label: 'GhostInk (AI)', icon: Bot },
+  { id: 'ai', label: 'GhostInk', icon: Bot },
   { id: 'upload', label: 'Upload', icon: Upload },
   { id: 'link', label: 'Link', icon: Link2 },
   { id: 'record', label: 'Record', icon: Mic },
@@ -272,37 +272,38 @@ const NewEbook = () => {
         
         <main className="flex-1 p-8">
           <div className="max-w-4xl mx-auto">
-            {/* Back button */}
-            <button 
-              onClick={() => navigate('/ebook-creator')} 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back To Projects</span>
-            </button>
+            {/* Back button + Tab Navigation on same row */}
+            <div className="flex items-center justify-between mb-10">
+              <button 
+                onClick={() => navigate('/ebook-creator')} 
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back To Projects</span>
+              </button>
 
-            {/* Centered Tab Navigation */}
-            <div className="flex justify-center gap-2 mb-10">
-              {TABS.map((tab, index) => {
-                const isActive = activeTab === tab.id;
-                const isPast = TABS.findIndex(t => t.id === activeTab) > index;
-                return (
-                  <button 
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
-                      isActive 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
-                        : isPast
-                        ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
+              <div className="flex gap-2">
+                {TABS.map((tab, index) => {
+                  const isActive = activeTab === tab.id;
+                  const isPast = TABS.findIndex(t => t.id === activeTab) > index;
+                  return (
+                    <button 
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
+                        isActive 
+                          ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                          : isPast
+                          ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
+                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
+                      }`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Generation Progress */}
@@ -330,7 +331,7 @@ const NewEbook = () => {
             {activeTab === 'idea' && (
               <div className="space-y-6">
                 {/* Main Headline */}
-                <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-8">
                   What Would You Like To Create?
                 </h1>
 
@@ -374,6 +375,7 @@ const NewEbook = () => {
                           <button className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors">
                             {currentSource && <currentSource.icon className="w-4 h-4" />}
                             <span>Source: {currentSource?.label}</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48">
@@ -396,6 +398,7 @@ const NewEbook = () => {
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
                             {currentContentType && <currentContentType.icon className="w-4 h-4" />}
                             <span>Type: {currentContentType?.label}</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48">
@@ -416,8 +419,9 @@ const NewEbook = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <Globe className="w-4 h-4" />
-                            <span>{currentLanguage?.flag} {currentLanguage?.name}</span>
+                            <span>{currentLanguage?.flag}</span>
+                            <span>{currentLanguage?.name}</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48 max-h-64 overflow-y-auto">
@@ -438,8 +442,9 @@ const NewEbook = () => {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <MessageSquare className="w-4 h-4" />
-                            <span>Tone: {currentTone?.name}</span>
+                            <span>{currentTone?.icon}</span>
+                            <span>{currentTone?.name}</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48">
@@ -471,7 +476,7 @@ const NewEbook = () => {
                 {/* eBook Options Section */}
                 {bookData.contentType === 'ebook' && (
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
-                    <h3 className="text-lg font-semibold text-gray-900">eBook Options</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Advanced Options</h3>
                     
                     <div className="grid grid-cols-2 gap-6">
                       {/* Creative */}
