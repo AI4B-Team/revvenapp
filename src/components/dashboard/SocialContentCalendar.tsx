@@ -1,6 +1,27 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Filter, Search, Sparkles } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Filter, 
+  Search, 
+  Download,
+  MoreHorizontal,
+  Calendar as CalendarIcon,
+  List,
+  Columns3,
+  LayoutGrid,
+  Sparkles,
+  Clock,
+  Plus
+} from 'lucide-react';
 import { getPlatformIcon } from './SocialIcons';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ContentItem {
   id: string;
@@ -8,6 +29,8 @@ interface ContentItem {
   platform: string;
   date: Date;
   status: string;
+  imageUrl?: string;
+  type?: 'post' | 'story' | 'carousel' | 'reel';
 }
 
 interface SocialContentCalendarProps {
@@ -15,14 +38,16 @@ interface SocialContentCalendarProps {
   isGenerating: boolean;
 }
 
+type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
+type TimeRange = 'week' | 'month';
+
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
   generatedContent,
   isGenerating 
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [scheduleView, setScheduleView] = useState('schedule');
-  const [calendarView, setCalendarView] = useState('monthly');
-  const [layoutView, setLayoutView] = useState('calendar');
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
+  const [timeRange, setTimeRange] = useState<TimeRange>('month');
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -48,7 +73,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   };
 
   const days = useMemo(() => getDaysInMonth(currentMonth), [currentMonth]);
-  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
+  const year = currentMonth.getFullYear();
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentMonth(prev => {
@@ -60,6 +86,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       }
       return newDate;
     });
+  };
+
+  const goToToday = () => {
+    setCurrentMonth(new Date());
   };
 
   const getContentForDate = (date: Date | null) => {
@@ -75,186 +105,394 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
     return date.toDateString() === today.toDateString();
   };
 
-  return (
-    <div className="bg-card rounded-2xl border border-border shadow-lg overflow-hidden mt-8">
-      {/* Schedule Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex bg-muted rounded-xl p-1">
-              <button
-                onClick={() => setScheduleView('schedule')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  scheduleView === 'schedule' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Schedule
-              </button>
-              <button
-                onClick={() => setScheduleView('plan')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  scheduleView === 'plan' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Plan
-              </button>
-            </div>
-            
-            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-medium shadow-lg hover:shadow-emerald-500/40 transition-all">
-              <Sparkles className="w-4 h-4" />
-              Generate with AI
-            </button>
-          </div>
+  // Sample holidays/events
+  const getHolidaysForDate = (date: Date | null) => {
+    if (!date) return [];
+    const holidays: { [key: string]: string } = {
+      '12-25': 'Christmas',
+      '12-31': "New Year's Eve",
+      '1-1': "New Year's Day",
+      '12-14': 'Hanukkah',
+      '12-21': 'First Day of Winter',
+    };
+    const key = `${date.getMonth() + 1}-${date.getDate()}`;
+    return holidays[key] ? [holidays[key]] : [];
+  };
 
-          <div className="flex items-center gap-3">
-            <span className="text-emerald-600 font-medium">
-              {new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit' })} - {new Date(Date.now() + 42 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
-            </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => navigateMonth('prev')} className="p-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button className="px-4 py-2 rounded-lg bg-muted text-muted-foreground font-medium">Month</button>
-              <button onClick={() => navigateMonth('next')} className="p-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors">
-                <ChevronRight className="w-4 h-4" />
-              </button>
+  const viewModeButtons = [
+    { id: 'calendar' as ViewMode, icon: CalendarIcon, label: 'Calendar' },
+    { id: 'list' as ViewMode, icon: List, label: 'List' },
+    { id: 'kanban' as ViewMode, icon: Columns3, label: 'Kanban' },
+    { id: 'grid' as ViewMode, icon: LayoutGrid, label: 'Grid' },
+  ];
+
+  // Render calendar cell content uniformly
+  const renderContentCard = (item: ContentItem) => (
+    <div
+      key={item.id}
+      className="group relative bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
+    >
+      <div className="flex items-center gap-2 text-xs">
+        <span className="text-amber-600 dark:text-amber-400 font-medium">
+          {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800/50 rounded transition-all">
+              <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-popover border-border">
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem>Reschedule</DropdownMenuItem>
+            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className="mt-1 flex items-start gap-2">
+        <div className="flex-shrink-0 w-5 h-5 rounded bg-amber-100 dark:bg-amber-800/50 flex items-center justify-center">
+          {getPlatformIcon(item.platform, "w-3 h-3")}
+        </div>
+        <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
+      </div>
+    </div>
+  );
+
+  // Render Kanban View
+  const renderKanbanView = () => {
+    const columns = [
+      { id: 'draft', label: 'Drafts', items: generatedContent.filter(c => c.status === 'draft') },
+      { id: 'scheduled', label: 'Scheduled', items: generatedContent.filter(c => c.status === 'scheduled') },
+      { id: 'published', label: 'Published', items: generatedContent.filter(c => c.status === 'published') },
+    ];
+
+    return (
+      <div className="p-4 grid grid-cols-3 gap-4 min-h-[500px]">
+        {columns.map(column => (
+          <div key={column.id} className="bg-muted/30 rounded-xl p-3">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium text-sm text-foreground">{column.label}</h3>
+              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                {column.items.length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {column.items.map(item => renderContentCard(item))}
+              {column.items.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  No content
+                </div>
+              )}
             </div>
           </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Render List View
+  const renderListView = () => {
+    const sortedContent = [...generatedContent].sort((a, b) => a.date.getTime() - b.date.getTime());
+    
+    return (
+      <div className="p-4">
+        <div className="bg-muted/30 rounded-xl overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="col-span-1">Platform</div>
+            <div className="col-span-5">Content</div>
+            <div className="col-span-2">Date</div>
+            <div className="col-span-2">Time</div>
+            <div className="col-span-1">Status</div>
+            <div className="col-span-1"></div>
+          </div>
+          {sortedContent.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No scheduled content
+            </div>
+          ) : (
+            sortedContent.map(item => (
+              <div key={item.id} className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center">
+                <div className="col-span-1">
+                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                    {getPlatformIcon(item.platform, "w-4 h-4")}
+                  </div>
+                </div>
+                <div className="col-span-5 text-sm text-foreground truncate">{item.title}</div>
+                <div className="col-span-2 text-sm text-muted-foreground">
+                  {item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+                <div className="col-span-2 text-sm text-muted-foreground">
+                  {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                </div>
+                <div className="col-span-1">
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    item.status === 'scheduled' 
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                      : item.status === 'published'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {item.status}
+                  </span>
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-1 hover:bg-muted rounded">
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-popover border-border">
+                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
+    );
+  };
 
-      {/* View Toggle Row */}
-      <div className="px-4 py-3 border-b border-border bg-muted/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex bg-emerald-500 rounded-xl p-1">
-              <button
-                onClick={() => setCalendarView('weekly')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  calendarView === 'weekly' ? 'bg-white text-emerald-600 shadow-sm' : 'text-white/80 hover:text-white'
-                }`}
-              >
-                Weekly
-              </button>
-              <button
-                onClick={() => setCalendarView('monthly')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  calendarView === 'monthly' ? 'bg-white text-emerald-600 shadow-sm' : 'text-white/80 hover:text-white'
-                }`}
-              >
-                Monthly
-              </button>
+  // Render Grid View
+  const renderGridView = () => (
+    <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {generatedContent.length === 0 ? (
+        <div className="col-span-full text-center py-12 text-muted-foreground">
+          No content created yet
+        </div>
+      ) : (
+        generatedContent.map(item => (
+          <div key={item.id} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+            <div className="aspect-square bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-white/80 dark:bg-black/30 flex items-center justify-center">
+                {getPlatformIcon(item.platform, "w-6 h-6")}
+              </div>
             </div>
-            
-            <div className="flex bg-cyan-500 rounded-xl p-1">
-              <button
-                onClick={() => setLayoutView('calendar')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  layoutView === 'calendar' ? 'bg-white text-cyan-600 shadow-sm' : 'text-white/80 hover:text-white'
-                }`}
-              >
-                Calendar
-              </button>
-              <button
-                onClick={() => setLayoutView('kanban')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  layoutView === 'kanban' ? 'bg-white text-cyan-600 shadow-sm' : 'text-white/80 hover:text-white'
-                }`}
-              >
-                Kanban
-              </button>
+            <div className="p-3">
+              <p className="text-sm text-foreground line-clamp-2 mb-2">{item.title}</p>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span className={`px-2 py-0.5 rounded-full ${
+                  item.status === 'scheduled' 
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-muted'
+                }`}>
+                  {item.status}
+                </span>
+              </div>
             </div>
           </div>
+        ))
+      )}
+    </div>
+  );
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <ChevronLeft className="w-4 h-4 cursor-pointer hover:text-foreground" onClick={() => navigateMonth('prev')} />
-              <span className="font-medium text-foreground">{monthName}</span>
-              <ChevronRight className="w-4 h-4 cursor-pointer hover:text-foreground" onClick={() => navigateMonth('next')} />
-            </div>
-            
-            <button className="flex items-center gap-2 px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors">
-              <Search className="w-4 h-4" />
-              Search
-            </button>
-            
-            <button className="flex items-center gap-2 px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors">
-              <Filter className="w-4 h-4" />
-              Filter
-            </button>
+  // Render Calendar View
+  const renderCalendarView = () => (
+    <div className="p-4">
+      {/* Day Headers */}
+      <div className="grid grid-cols-7 mb-2">
+        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+          <div key={day} className="text-center text-sm font-medium text-muted-foreground py-3 border-b border-border">
+            {day}
           </div>
-        </div>
-      </div>
-
-      {/* Month Label */}
-      <div className="flex items-center justify-center py-3">
-        <div className="flex items-center gap-3">
-          <div className="h-px w-24 bg-gradient-to-r from-transparent to-emerald-300" />
-          <span className="text-emerald-600 font-semibold">{monthName}</span>
-          <div className="h-px w-24 bg-gradient-to-l from-transparent to-emerald-300" />
-        </div>
+        ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="p-4">
-        <div className="grid grid-cols-7 gap-2 mb-2">
-          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-            <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">{day}</div>
-          ))}
-        </div>
+      <div className="grid grid-cols-7">
+        {days.map((date, index) => {
+          const content = getContentForDate(date);
+          const today = isToday(date);
+          const holidays = getHolidaysForDate(date);
+          
+          return (
+            <div
+              key={index}
+              className={`min-h-[140px] border-b border-r border-border p-2 transition-colors ${
+                date
+                  ? 'hover:bg-muted/30 cursor-pointer'
+                  : 'bg-muted/20'
+              } ${index % 7 === 0 ? 'border-l' : ''}`}
+            >
+              {date && (
+                <>
+                  {/* Date Number */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-sm font-medium ${
+                      today 
+                        ? 'bg-amber-500 text-white w-7 h-7 rounded-full flex items-center justify-center' 
+                        : 'text-foreground'
+                    }`}>
+                      {date.getDate()}
+                    </span>
+                    {content.length > 0 && (
+                      <button className="opacity-0 hover:opacity-100 p-1 hover:bg-muted rounded transition-all">
+                        <Plus className="w-3 h-3 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Holidays */}
+                  {holidays.map((holiday, i) => (
+                    <div 
+                      key={i} 
+                      className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mb-1 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      {holiday}
+                    </div>
+                  ))}
+                  
+                  {/* Content Items */}
+                  <div className="space-y-1">
+                    {content.slice(0, 2).map(item => renderContentCard(item))}
+                    
+                    {content.length > 2 && (
+                      <button className="text-xs text-amber-600 dark:text-amber-400 hover:underline px-2">
+                        +{content.length - 2} more
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-        <div className="grid grid-cols-7 gap-2">
-          {days.map((date, index) => {
-            const content = getContentForDate(date);
-            const today = isToday(date);
-            
-            return (
-              <div
-                key={index}
-                className={`min-h-[120px] rounded-xl border transition-all ${
-                  date
-                    ? today
-                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800'
-                      : 'bg-card border-border hover:border-border/80 hover:shadow-sm'
-                    : 'bg-muted/30 border-transparent'
+  return (
+    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden mt-8">
+      {/* Main Header */}
+      <div className="px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between">
+          {/* Left: View Mode Tabs */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {viewModeButtons.map(({ id, icon: Icon, label }) => (
+              <button
+                key={id}
+                onClick={() => setViewMode(id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  viewMode === id 
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {date && (
-                  <div className="p-2">
-                    <div className={`text-sm font-medium mb-2 ${today ? 'text-emerald-600' : 'text-foreground'}`}>
-                      {date.getDate()}
-                    </div>
-                    
-                    <div className="space-y-1.5">
-                      {content.slice(0, 2).map((item, itemIndex) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg text-xs text-muted-foreground truncate cursor-pointer hover:bg-muted/80 transition-colors"
-                        >
-                          <span className="flex-shrink-0 w-4 h-4">{getPlatformIcon(item.platform, "w-4 h-4")}</span>
-                          <span className="truncate">{item.title}</span>
-                        </div>
-                      ))}
-                      
-                      {content.length > 2 && (
-                        <div className="text-xs text-muted-foreground px-2">+{content.length - 2} more</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Best Time To Post
+            </Button>
+            <Button size="sm" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+              <Plus className="w-4 h-4" />
+              New Post
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Sub Header: Navigation & Tools */}
+      <div className="px-6 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          {/* Time Range Toggle */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium hover:bg-muted/50 transition-colors">
+                <LayoutGrid className="w-4 h-4" />
+                {timeRange === 'month' ? 'Month' : 'Week'}
+                <ChevronRight className="w-3 h-3 rotate-90" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-popover border-border">
+              <DropdownMenuItem onClick={() => setTimeRange('week')}>Week</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTimeRange('month')}>Month</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Calendar Navigation */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={goToToday}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title="Today"
+            >
+              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <button 
+              onClick={() => navigateMonth('prev')}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <button 
+              onClick={() => navigateMonth('next')}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Month Year */}
+          <h2 className="text-lg font-semibold text-foreground">
+            {monthName} <span className="text-muted-foreground font-normal">{year}</span>
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Drafts Toggle */}
+          <div className="flex items-center gap-2 mr-4">
+            <div className="w-8 h-4 bg-amber-500 rounded-full relative">
+              <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5" />
+            </div>
+            <span className="text-sm text-muted-foreground">Drafts</span>
+            <span className="text-sm text-muted-foreground">
+              {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+            </span>
+          </div>
+
+          {/* Tools */}
+          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <Search className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <Download className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {/* View Content */}
+      {viewMode === 'calendar' && renderCalendarView()}
+      {viewMode === 'list' && renderListView()}
+      {viewMode === 'kanban' && renderKanbanView()}
+      {viewMode === 'grid' && renderGridView()}
 
       {/* Generation Status */}
       {isGenerating && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50">
-          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
           <div>
-            <p className="font-medium">Researching your topic...</p>
-            <p className="text-sm opacity-70">Generating 30 days of platform-specific content</p>
+            <p className="font-medium">Generating content...</p>
+            <p className="text-sm opacity-70">Creating your social media calendar</p>
           </div>
         </div>
       )}
