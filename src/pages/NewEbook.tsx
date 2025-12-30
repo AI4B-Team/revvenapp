@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  Upload, Mic, Sparkles, ArrowLeft
+  Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import { Rss, Link2 } from 'lucide-react';
+import { Rss } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -36,25 +36,48 @@ const PLATFORMS = [
   { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
 ];
 
+const CONTENT_TYPES = [
+  { id: 'ebook', label: 'Ebook', icon: BookOpen },
+  { id: 'audiobook', label: 'AudioBook', icon: Headphones },
+  { id: 'presentation', label: 'Presentation', icon: Presentation },
+];
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'it', name: 'Italian', flag: '🇮🇹' },
+  { code: 'pt', name: 'Portuguese', flag: '🇧🇷' },
+  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+];
+
+const sourceLabels: Record<string, string> = { 
+  'ai-generate': 'AI Generate', 
+  'upload': 'Upload', 
+  'url': 'URL', 
+  'voice': 'Voice' 
+};
+
 const NewEbook = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [contentType, setContentType] = useState('ebook');
+  const [language, setLanguage] = useState('en');
 
   const initialSource = searchParams.get('source') || 'ai-generate';
 
   const [newBookData, setNewBookData] = useState<NewBookData>({
     title: '', topic: '', audience: '', tone: 'professional', chapters: 8, wordsPerChapter: 2000, includeImages: true, sourceType: initialSource, sourceContent: ''
   });
-
-  const sourceLabels: Record<string, string> = { 
-    'ai-generate': 'AI Generate', 
-    'upload': 'Upload', 
-    'url': 'URL', 
-    'voice': 'Voice' 
-  };
 
   const simulateGeneration = async () => {
     if (!newBookData.title && !newBookData.topic) {
@@ -70,7 +93,7 @@ const NewEbook = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsGenerating(false);
-          toast.success('eBook generated successfully!');
+          toast.success(`${CONTENT_TYPES.find(t => t.id === contentType)?.label} generated successfully!`);
           navigate('/ebook-creator');
           return 100;
         }
@@ -98,8 +121,50 @@ const NewEbook = () => {
             </button>
 
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Create New eBook</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Create New {CONTENT_TYPES.find(t => t.id === contentType)?.label}</h1>
               <p className="text-gray-500 mt-1">{sourceLabels[newBookData.sourceType]} Mode</p>
+            </div>
+
+            {/* What Would You Like To Create? */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">What Would You Like To Create?</h2>
+              <div className="flex gap-3">
+                {CONTENT_TYPES.map((type) => (
+                  <button
+                    key={type.id}
+                    onClick={() => setContentType(type.id)}
+                    className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all ${
+                      contentType === type.id 
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    }`}
+                  >
+                    <type.icon className="w-5 h-5" />
+                    <span className="font-medium">{type.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Language Selection */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Language</h2>
+              <div className="flex flex-wrap gap-2">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                      language === lang.code 
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    }`}
+                  >
+                    <span className="text-lg">{lang.flag}</span>
+                    <span className="text-sm font-medium">{lang.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Generation Progress */}
@@ -307,7 +372,7 @@ const NewEbook = () => {
                 className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
-                {isGenerating ? 'Generating...' : 'Generate eBook'}
+                {isGenerating ? 'Generating...' : `Generate ${CONTENT_TYPES.find(t => t.id === contentType)?.label}`}
               </Button>
             </div>
           </div>
