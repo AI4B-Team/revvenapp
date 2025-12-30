@@ -120,11 +120,6 @@ const NewEbook = () => {
               <span>Back to Projects</span>
             </button>
 
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Create New {CONTENT_TYPES.find(t => t.id === contentType)?.label}</h1>
-              <p className="text-gray-500 mt-1">{sourceLabels[newBookData.sourceType]} Mode</p>
-            </div>
-
             {/* What Would You Like To Create? */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">What Would You Like To Create?</h2>
@@ -149,22 +144,17 @@ const NewEbook = () => {
             {/* Language Selection */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Language</h2>
-              <div className="flex flex-wrap gap-2">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full max-w-xs px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+              >
                 {LANGUAGES.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                      language === lang.code 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
-                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                    }`}
-                  >
-                    <span className="text-lg">{lang.flag}</span>
-                    <span className="text-sm font-medium">{lang.name}</span>
-                  </button>
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.name}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
 
             {/* Generation Progress */}
