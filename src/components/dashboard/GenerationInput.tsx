@@ -1,4 +1,4 @@
-import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send } from 'lucide-react';
+import { Image, Image as ImageIcon, Sparkles, MoreHorizontal, MoreVertical, ChevronDown, User, ChevronRight, Flame, Zap, Video, Gift, FileText, Loader2, Upload, X, Shuffle, Share2, Check, Calendar, LayoutList, Play, Pause, Pencil, MessageCircle, Film, RefreshCw, Presentation, BookOpen, Mic, Bot, AudioLines, Heart, Package, Clapperboard, Captions, RatioIcon, Plus, Trash2, Move, Layers, Music, ArrowRightLeft, Copy, FileAudio, Send, Palette, Code } from 'lucide-react';
 import UGCCharacterBox from './UGCCharacterBox';
 import AudioUploadModal from './AudioUploadModal';
 import StoryboardSceneEditor from './StoryboardSceneEditor';
@@ -3091,102 +3091,86 @@ Make it look like a natural, professional product showcase or UGC-style promotio
             <TooltipProvider>
               <div className="flex flex-col items-start gap-2">
                 {isVideoMode ? (
-                  selectedAnimateMode === 'Avatar Video' ? (
-                    <>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={handleAutoPrompt}
-                            disabled={isEnhancing}
-                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isEnhancing ? (
-                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
-                            ) : (
-                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Auto Prompt</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-1.5 transition hover:opacity-70">
-                            <Bot size={20} strokeWidth={2.5} className="text-violet-500" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Script Agent</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setIsAudioUploadModalOpen(true)}
-                            className="p-1.5 transition hover:opacity-70"
-                          >
-                            <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-orange-500'} />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Upload Audio</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </>
-                  ) : (
-                    <>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setIsVideoToVideoModalOpen(true)}
-                            className="p-1.5 transition hover:opacity-70"
-                          >
-                            <Video size={20} strokeWidth={2.5} className="text-red-500" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Video-To-Video</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={handleAutoPrompt}
-                            disabled={isEnhancing}
-                            className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isEnhancing ? (
-                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
-                            ) : (
-                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Auto Prompt</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </>
-                  )
+                  <>
+                    {/* Video Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => setIsVideoToVideoModalOpen(true)}
+                          className="p-1.5 transition hover:opacity-70"
+                        >
+                          <Video size={20} strokeWidth={2.5} className="text-brand-red" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Video-To-Video</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                          ) : (
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Additional Video Mode Icons */}
+                    {(selectedAnimateMode === 'Avatar Video' || selectedAnimateMode === 'Lip-Sync') && (
+                      <>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button className="p-1.5 transition hover:opacity-70">
+                              <Bot size={20} strokeWidth={2.5} className="text-violet-500" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-black border-black text-white">
+                            <p>Script Agent</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => setIsAudioUploadModalOpen(true)}
+                              className="p-1.5 transition hover:opacity-70"
+                            >
+                              <AudioLines size={20} strokeWidth={2.5} className={uploadedAudio ? 'text-emerald-500' : 'text-orange-500'} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-black border-black text-white">
+                            <p>Upload Audio</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </>
+                    )}
+                  </>
                 ) : isAudioMode ? (
                   <>
-                    {selectedAudioMode === 'Transcribe' && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button 
-                            onClick={() => setIsAudioSelectModalOpen(true)}
-                            className="p-1.5 transition hover:opacity-70"
-                          >
-                            <AudioLines size={20} strokeWidth={2.5} className="text-brand-green" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent className="bg-black border-black text-white">
-                          <p>Transcribe</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
+                    {/* Audio Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => selectedAudioMode === 'Transcribe' ? setIsAudioSelectModalOpen(true) : undefined}
+                          className="p-1.5 transition hover:opacity-70"
+                        >
+                          <Music size={20} strokeWidth={2.5} className="text-brand-green" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Audio</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second (except in Transcribe mode) */}
                     {selectedAudioMode !== 'Transcribe' && (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -3196,9 +3180,9 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                             className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isEnhancing ? (
-                              <Loader2 size={20} strokeWidth={2.5} className="text-brand-green animate-spin" />
+                              <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
                             ) : (
-                              <Shuffle size={20} strokeWidth={2.5} className="text-brand-green" />
+                              <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
                             )}
                           </button>
                         </TooltipTrigger>
@@ -3208,21 +3192,155 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
                     )}
                   </>
+                ) : isDesignMode ? (
+                  <>
+                    {/* Design Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 transition hover:opacity-70">
+                          <Palette size={20} strokeWidth={2.5} className="text-brand-yellow" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Design</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                          ) : (
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                ) : isContentMode ? (
+                  <>
+                    {/* Content Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 transition hover:opacity-70">
+                          <Calendar size={20} strokeWidth={2.5} className="text-brand-purple" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Content</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                          ) : (
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                ) : isDocumentMode ? (
+                  <>
+                    {/* Document Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 transition hover:opacity-70">
+                          <FileText size={20} strokeWidth={2.5} className="text-brand-blue" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Document</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                          ) : (
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                ) : isAppsMode ? (
+                  <>
+                    {/* Apps Category Icon - Always First */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-1.5 transition hover:opacity-70">
+                          <Code size={20} strokeWidth={2.5} className="text-brand-red" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Apps</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {/* Auto Prompt - Always Second */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleAutoPrompt}
+                          disabled={isEnhancing}
+                          className="p-1.5 transition hover:opacity-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 size={20} strokeWidth={2.5} className="text-emerald-500 animate-spin" />
+                          ) : (
+                            <Shuffle size={20} strokeWidth={2.5} className="text-emerald-500" />
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-black border-black text-white">
+                        <p>Auto Prompt</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
                 ) : (
                   <>
+                    {/* Image Category Icon - Always First */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
                           onClick={() => setIsImageToPromptModalOpen(true)}
                           className="p-1.5 transition hover:opacity-70"
                         >
-                          <Image size={20} strokeWidth={2.5} className="text-sky-500" />
+                          <Image size={20} strokeWidth={2.5} className="text-brand-blue" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent className="bg-black border-black text-white">
                         <p>Image-To-Prompt</p>
                       </TooltipContent>
                     </Tooltip>
+                    {/* Auto Prompt - Always Second */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
