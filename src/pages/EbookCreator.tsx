@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Book, Plus, Upload, Link, Mic, Search, Settings, Download, Edit, Trash2, 
   Eye, Clock, FileText, Layers, X, Check, ChevronDown, Image, Palette, 
   Wand2, RefreshCw, Copy, MoreVertical, Sparkles, Filter, Grid, List, Calendar,
-  Share2, Lightbulb, Cpu, PenTool, Volume2, Video, Link2, Rss
+  Share2, Lightbulb, Cpu, PenTool, Volume2, Video, Link2, Rss, Play, Pause, Headphones
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -17,6 +17,20 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  type: 'file' | 'audio' | 'video' | 'link';
+  url?: string;
+  file?: File;
+}
 
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -55,6 +69,17 @@ interface Ebook {
   progress: number;
 }
 
+// Platform icons data matching TranscribeApp
+const PLATFORMS = [
+  { name: 'Blog', icon: Rss, color: '#F97316' },
+  { name: 'YouTube', icon: FaYoutube, color: '#FF0000' },
+  { name: 'TikTok', icon: FaTiktok, color: '#000000' },
+  { name: 'Instagram', icon: FaInstagram, color: '#E4405F' },
+  { name: 'Facebook', icon: FaFacebook, color: '#1877F2' },
+  { name: 'X', icon: FaXTwitter, color: '#000000' },
+  { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
+  { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
+];
 
 const EbookCreator = () => {
   const navigate = useNavigate();
@@ -71,6 +96,13 @@ const EbookCreator = () => {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showDropdown, setShowDropdown] = useState<number | null>(null);
   const [activeProjectTab, setActiveProjectTab] = useState<'ebooks' | 'audiobooks'>('ebooks');
+  
+  // Modal states for source cards
+  const [sourceModalOpen, setSourceModalOpen] = useState(false);
+  const [sourceModalType, setSourceModalType] = useState<'upload' | 'link' | 'record'>('upload');
+  const [linkInput, setLinkInput] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [ebooks, setEbooks] = useState<Ebook[]>([
     { id: 1, title: 'The Ultimate Guide to AI Marketing', description: 'A comprehensive guide to leveraging AI in your marketing strategy', chapters: 12, words: 45000, status: 'published', createdAt: '2025-12-15', updatedAt: '2025-12-17', coverColor: '#10B981', tags: ['Marketing', 'AI', 'Business'], progress: 100 },
@@ -99,17 +131,61 @@ const EbookCreator = () => {
     toast.success('eBook duplicated');
   };
 
-  // Platform icons data matching TranscribeApp
-  const PLATFORMS = [
-    { name: 'Blog', icon: Rss, color: '#F97316' },
-    { name: 'YouTube', icon: FaYoutube, color: '#FF0000' },
-    { name: 'TikTok', icon: FaTiktok, color: '#000000' },
-    { name: 'Instagram', icon: FaInstagram, color: '#E4405F' },
-    { name: 'Facebook', icon: FaFacebook, color: '#1877F2' },
-    { name: 'X', icon: FaXTwitter, color: '#000000' },
-    { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
-    { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
-  ];
+  // Handle opening source modals
+  const handleSourceCardClick = (type: 'upload' | 'link' | 'record') => {
+    setSourceModalType(type);
+    setSourceModalOpen(true);
+  };
+
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const uploadedFile: UploadedFile = {
+        id: crypto.randomUUID(),
+        name: file.name,
+        type: file.type.startsWith('audio/') ? 'audio' : file.type.startsWith('video/') ? 'video' : 'file',
+        file,
+      };
+      setSourceModalOpen(false);
+      toast.success(`${file.name} uploaded`);
+      // Navigate to NewEbook with the file data
+      navigate('/ebook-creator/new?source=upload', { state: { uploadedFile } });
+    }
+  };
+
+  // Handle link add
+  const handleLinkAdd = () => {
+    if (linkInput.trim()) {
+      const isVideo = linkInput.includes('youtube') || linkInput.includes('vimeo') || linkInput.includes('tiktok');
+      const uploadedFile: UploadedFile = {
+        id: crypto.randomUUID(),
+        name: linkInput,
+        type: isVideo ? 'video' : 'link',
+        url: linkInput,
+      };
+      setSourceModalOpen(false);
+      setLinkInput('');
+      toast.success('Link added');
+      // Navigate to NewEbook with the link data
+      navigate('/ebook-creator/new?source=url', { state: { uploadedFile } });
+    }
+  };
+
+  // Handle recording complete
+  const handleRecordingComplete = () => {
+    const uploadedFile: UploadedFile = {
+      id: crypto.randomUUID(),
+      name: `Recording ${new Date().toLocaleTimeString()}`,
+      type: 'audio',
+    };
+    setIsRecording(false);
+    setSourceModalOpen(false);
+    toast.success('Recording saved');
+    // Navigate to NewEbook with the recording data
+    navigate('/ebook-creator/new?source=voice', { state: { uploadedFile } });
+  };
 
   // Source Cards - TranscribeApp style
   const SourceCards = () => (
@@ -156,7 +232,7 @@ const EbookCreator = () => {
 
       {/* Upload File */}
       <button
-        onClick={() => navigate('/ebook-creator/new?source=upload')}
+        onClick={() => handleSourceCardClick('upload')}
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-amber-400/50 hover:bg-amber-50 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
@@ -201,7 +277,7 @@ const EbookCreator = () => {
       {/* Insert Link */}
       <div
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-blue-400/50 hover:bg-blue-50 transition-all duration-300 cursor-pointer min-h-[300px] flex flex-col"
-        onClick={() => navigate('/ebook-creator/new?source=url')}
+        onClick={() => handleSourceCardClick('link')}
       >
         <div className="flex flex-col items-center text-center flex-1">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 group-hover:from-blue-500/20 group-hover:to-blue-600/20 flex items-center justify-center mb-5 transition-all duration-300">
@@ -229,7 +305,7 @@ const EbookCreator = () => {
 
       {/* Record Audio */}
       <button
-        onClick={() => navigate('/ebook-creator/new?source=voice')}
+        onClick={() => handleSourceCardClick('record')}
         className="group relative p-8 rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 hover:border-rose-400/50 hover:bg-rose-50 transition-all duration-300 min-h-[300px] flex flex-col"
       >
         <div className="flex flex-col items-center text-center flex-1">
@@ -641,6 +717,104 @@ const EbookCreator = () => {
       {showCoverDesigner && <CoverDesignerModal />}
       {showExportModal && <ExportModal />}
       {isGenerating && <GenerationOverlay />}
+      
+      {/* Source Modal */}
+      <Dialog open={sourceModalOpen} onOpenChange={setSourceModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {sourceModalType === 'upload' && 'Upload File'}
+              {sourceModalType === 'link' && 'Insert Link'}
+              {sourceModalType === 'record' && 'Record Audio'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {sourceModalType === 'upload' && (
+            <div className="space-y-4">
+              <div 
+                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+                <p className="text-gray-700 font-medium">Click to upload or drag & drop</p>
+                <p className="text-sm text-gray-500 mt-1">PDF, DOCX, TXT, and more</p>
+              </div>
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                className="hidden" 
+                accept=".pdf,.doc,.docx,.txt,.rtf,.md"
+                onChange={handleFileUpload}
+              />
+            </div>
+          )}
+          
+          {sourceModalType === 'link' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 p-3 border rounded-xl">
+                <Link2 className="w-5 h-5 text-blue-500" />
+                <Input 
+                  value={linkInput}
+                  onChange={(e) => setLinkInput(e.target.value)}
+                  placeholder="Paste your URL here..."
+                  className="border-0 focus-visible:ring-0 p-0"
+                  onKeyDown={(e) => e.key === 'Enter' && handleLinkAdd()}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORMS.map((platform, i) => (
+                  <div key={i} className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+                  </div>
+                ))}
+              </div>
+              <Button onClick={handleLinkAdd} className="w-full bg-blue-500 hover:bg-blue-600 text-white" disabled={!linkInput.trim()}>
+                Add Link
+              </Button>
+            </div>
+          )}
+          
+          {sourceModalType === 'record' && (
+            <div className="space-y-4 text-center">
+              <div className="w-24 h-24 mx-auto rounded-full bg-rose-100 flex items-center justify-center">
+                <Mic className={`w-10 h-10 text-rose-500 ${isRecording ? 'animate-pulse' : ''}`} />
+              </div>
+              {!isRecording ? (
+                <Button 
+                  onClick={() => setIsRecording(true)}
+                  className="w-full bg-rose-500 hover:bg-rose-600 text-white"
+                >
+                  <Mic className="w-5 h-5 mr-2" />
+                  Start Recording
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-[2px] h-8">
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1 bg-rose-500 rounded-full animate-pulse"
+                        style={{
+                          height: `${Math.random() * 20 + 10}px`,
+                          animationDelay: `${i * 0.05}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500">Recording...</p>
+                  <Button 
+                    onClick={handleRecordingComplete}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                  >
+                    <Check className="w-5 h-5 mr-2" />
+                    Stop & Use Recording
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import {
   Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
@@ -122,6 +122,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: 
 
 const NewEbook = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('idea');
@@ -157,6 +158,16 @@ const NewEbook = () => {
     selectedTitle: '',
   });
   const [contentTypeSelected, setContentTypeSelected] = useState(false);
+
+  // Load uploaded file from navigation state (from EbookCreator page)
+  useEffect(() => {
+    const state = location.state as { uploadedFile?: UploadedFile } | null;
+    if (state?.uploadedFile) {
+      setUploadedFiles([state.uploadedFile]);
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleSourceSelect = (sourceId: string) => {
     if (sourceId === 'ai') {
