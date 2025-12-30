@@ -3085,7 +3085,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   
   return (
     <div className="w-fit min-w-[768px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
-      <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-2xl">
+      <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
             <TooltipProvider>
@@ -6935,7 +6935,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
       {isContentMode && showSocialButtons && (
-        <div className="mt-6 p-6 bg-card rounded-xl border border-border">
+        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm">
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate 30 Days Of Content For Each One
           </p>

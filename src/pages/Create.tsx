@@ -638,14 +638,17 @@ const Create = () => {
               onExternalAnimateModeUsed={() => setExternalAnimateMode(null)}
             />
             
+            {/* Hide ActionButtons and galleries when Content type is selected */}
+            {selectedType !== 'Content' && (
             <ActionButtons 
               activeView={activeView} 
               onViewChange={setActiveView}
               hasSelectedType={!!selectedType}
             />
+            )}
             
-            {/* Gallery Views */}
-            {activeView === 'creations' && (
+            {/* Gallery Views - Hidden when Content type is selected */}
+            {selectedType !== 'Content' && activeView === 'creations' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">
@@ -693,7 +696,7 @@ const Create = () => {
               </div>
             )}
             
-            {activeView === 'community' && (
+            {selectedType !== 'Content' && activeView === 'community' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">COMMUNITY</h2>
@@ -713,7 +716,7 @@ const Create = () => {
               </div>
             )}
 
-            {activeView === 'templates' && (
+            {selectedType !== 'Content' && activeView === 'templates' && (
               <div className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">TEMPLATES</h2>
@@ -756,7 +759,7 @@ const Create = () => {
               </div>
             )}
 
-            {activeView === 'collections' && (
+            {selectedType !== 'Content' && activeView === 'collections' && (
               <>
                 <CollectionsView
                   categories={[]}
@@ -1037,7 +1040,7 @@ const Create = () => {
             )}
             
             {/* Tools View */}
-            {activeView === 'tools' && (
+            {selectedType !== 'Content' && activeView === 'tools' && (
               <div className="w-full">
                 {/* Image Apps Section */}
                 {(!selectedType || selectedType === 'Image') && (
