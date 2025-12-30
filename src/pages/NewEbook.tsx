@@ -120,8 +120,8 @@ const NewEbook = () => {
         <Header />
         
         <main className="flex-1 p-8">
-          {/* Back button and header */}
           <div className="max-w-4xl mx-auto">
+            {/* Back button */}
             <button 
               onClick={() => navigate('/ebook-creator')} 
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
@@ -130,58 +130,8 @@ const NewEbook = () => {
               <span>Back To Projects</span>
             </button>
 
-            {/* What Would You Like To Create? */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">What Would You Like To Create?</h2>
-              <div className="flex gap-3">
-                {CONTENT_TYPES.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setContentType(type.id)}
-                    className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all ${
-                      contentType === type.id 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
-                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                    }`}
-                  >
-                    <type.icon className="w-5 h-5" />
-                    <span className="font-medium">{type.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Language Selection */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Language</h2>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full max-w-xs px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
-              >
-                {LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.flag} {lang.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Creative Selection */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Creative</h2>
-              <select
-                value={creative}
-                onChange={(e) => setCreative(e.target.value)}
-                className="w-full max-w-xs px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
-              >
-                {CREATIVES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Page Title */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-8">Create New Project</h1>
 
             {/* Generation Progress */}
             {isGenerating && (
@@ -191,7 +141,7 @@ const NewEbook = () => {
                     <Sparkles className="w-6 h-6 text-emerald-600 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Generating your eBook...</h3>
+                    <h3 className="font-semibold text-gray-900">Generating your {CONTENT_TYPES.find(t => t.id === contentType)?.label?.toLowerCase()}...</h3>
                     <p className="text-sm text-gray-500">{Math.round(generationProgress)}% complete</p>
                   </div>
                 </div>
@@ -204,45 +154,113 @@ const NewEbook = () => {
               </div>
             )}
 
-            {/* Source Type Tabs */}
-            <div className="flex gap-2 mb-8 p-1 bg-gray-100 rounded-xl">
-              {Object.entries(sourceLabels).map(([key, label]) => (
-                <button 
-                  key={key} 
-                  onClick={() => setNewBookData(prev => ({ ...prev, sourceType: key }))} 
-                  className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all ${newBookData.sourceType === key ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-                >
-                  {label}
-                </button>
-              ))}
+            {/* Configure Your Project Section */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Configure Your Project</h2>
+              <p className="text-sm text-gray-500 mb-6">Set up the basic details for your project. You'll be able to review and refine the generated content before finalizing.</p>
+              
+              <div className="space-y-6">
+                {/* What Would You Like To Create? */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">What Would You Like To Create?</h3>
+                  <div className="flex gap-3">
+                    {CONTENT_TYPES.map((type) => (
+                      <button
+                        key={type.id}
+                        onClick={() => setContentType(type.id)}
+                        className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all ${
+                          contentType === type.id 
+                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
+                            : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                        }`}
+                      >
+                        <type.icon className="w-5 h-5" />
+                        <span className="font-medium">{type.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Project Name */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
+                  <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
+                  <Input 
+                    type="text" 
+                    value={newBookData.title} 
+                    onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
+                    placeholder="e.g., The Ultimate Guide to Digital Marketing" 
+                    className="w-full max-w-lg" 
+                  />
+                </div>
+
+                {/* Language & Creative Row */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Language</h3>
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.flag} {lang.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Creative</h3>
+                    <select
+                      value={creative}
+                      onChange={(e) => setCreative(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                    >
+                      {CREATIVES.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Content based on source type */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+            {/* Content Source Section */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Content Source</h2>
+              <p className="text-sm text-gray-500 mb-6">Choose how you'd like to create your content.</p>
+
+              {/* Source Type Tabs */}
+              <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+                {Object.entries(sourceLabels).map(([key, label]) => (
+                  <button 
+                    key={key} 
+                    onClick={() => setNewBookData(prev => ({ ...prev, sourceType: key }))} 
+                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all ${newBookData.sourceType === key ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Content based on source type */}
               {newBookData.sourceType === 'ai-generate' && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">eBook Title</label>
-                    <Input 
-                      type="text" 
-                      value={newBookData.title} 
-                      onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
-                      placeholder="e.g., The Ultimate Guide to Digital Marketing" 
-                      className="w-full" 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Topic / Description</label>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Topic / Description</h3>
                     <Textarea 
                       value={newBookData.topic} 
                       onChange={(e) => setNewBookData(prev => ({ ...prev, topic: e.target.value }))} 
-                      placeholder="Describe what your eBook should be about..." 
+                      placeholder="Describe what your content should be about..." 
                       rows={4} 
                       className="w-full resize-none" 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Target Audience</label>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Target Audience</h3>
                     <Input 
                       type="text" 
                       value={newBookData.audience} 
@@ -250,59 +268,6 @@ const NewEbook = () => {
                       placeholder="e.g., Small business owners, beginners..." 
                       className="w-full" 
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">Writing Tone</label>
-                      <select 
-                        value={newBookData.tone} 
-                        onChange={(e) => setNewBookData(prev => ({ ...prev, tone: e.target.value }))} 
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
-                      >
-                        <option value="professional">Professional</option>
-                        <option value="conversational">Conversational</option>
-                        <option value="academic">Academic</option>
-                        <option value="friendly">Friendly</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">Chapters</label>
-                      <select 
-                        value={newBookData.chapters} 
-                        onChange={(e) => setNewBookData(prev => ({ ...prev, chapters: parseInt(e.target.value) }))} 
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
-                      >
-                        {[5, 6, 7, 8, 10, 12, 15, 20].map(n => <option key={n} value={n}>{n} chapters</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Words per Chapter</label>
-                    <div className="flex gap-2">
-                      {[1000, 1500, 2000, 2500, 3000].map(n => (
-                        <button 
-                          key={n} 
-                          onClick={() => setNewBookData(prev => ({ ...prev, wordsPerChapter: n }))} 
-                          className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg border ${newBookData.wordsPerChapter === n ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
-                        >
-                          {(n / 1000).toFixed(1)}k
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">Estimated: ~{((newBookData.chapters * newBookData.wordsPerChapter) / 1000).toFixed(0)}k words</p>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <input 
-                      type="checkbox" 
-                      id="includeImages" 
-                      checked={newBookData.includeImages} 
-                      onChange={(e) => setNewBookData(prev => ({ ...prev, includeImages: e.target.checked }))} 
-                      className="w-5 h-5 text-emerald-600 rounded accent-emerald-500" 
-                    />
-                    <label htmlFor="includeImages" className="text-sm text-gray-900">
-                      <span className="font-medium">Generate AI images</span>
-                      <span className="block text-gray-500 text-xs">Include illustrations for each chapter</span>
-                    </label>
                   </div>
                 </div>
               )}
@@ -325,7 +290,7 @@ const NewEbook = () => {
               {newBookData.sourceType === 'url' && (
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Website URL</label>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Website URL</h3>
                     <div className="flex gap-2">
                       <Input 
                         type="url" 
@@ -376,6 +341,72 @@ const NewEbook = () => {
                 </div>
               )}
             </div>
+
+            {/* Generation Options Section - Only for AI Generate */}
+            {newBookData.sourceType === 'ai-generate' && (
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Generation Options</h2>
+                <p className="text-sm text-gray-500 mb-6">Customize the structure and style of your generated content.</p>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Writing Tone</h3>
+                      <select 
+                        value={newBookData.tone} 
+                        onChange={(e) => setNewBookData(prev => ({ ...prev, tone: e.target.value }))} 
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                      >
+                        <option value="professional">Professional</option>
+                        <option value="conversational">Conversational</option>
+                        <option value="academic">Academic</option>
+                        <option value="friendly">Friendly</option>
+                      </select>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Number of Chapters</h3>
+                      <select 
+                        value={newBookData.chapters} 
+                        onChange={(e) => setNewBookData(prev => ({ ...prev, chapters: parseInt(e.target.value) }))} 
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                      >
+                        {[5, 6, 7, 8, 10, 12, 15, 20].map(n => <option key={n} value={n}>{n} chapters</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Words per Chapter</h3>
+                    <div className="flex gap-2">
+                      {[1000, 1500, 2000, 2500, 3000].map(n => (
+                        <button 
+                          key={n} 
+                          onClick={() => setNewBookData(prev => ({ ...prev, wordsPerChapter: n }))} 
+                          className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg border ${newBookData.wordsPerChapter === n ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                        >
+                          {(n / 1000).toFixed(1)}k
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Estimated total: ~{((newBookData.chapters * newBookData.wordsPerChapter) / 1000).toFixed(0)}k words</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <input 
+                      type="checkbox" 
+                      id="includeImages" 
+                      checked={newBookData.includeImages} 
+                      onChange={(e) => setNewBookData(prev => ({ ...prev, includeImages: e.target.checked }))} 
+                      className="w-5 h-5 text-emerald-600 rounded accent-emerald-500" 
+                    />
+                    <label htmlFor="includeImages" className="text-sm text-gray-900">
+                      <span className="font-medium">Generate AI images</span>
+                      <span className="block text-gray-500 text-xs">Include illustrations for each chapter</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Action buttons */}
             <div className="flex items-center justify-between mt-8">
