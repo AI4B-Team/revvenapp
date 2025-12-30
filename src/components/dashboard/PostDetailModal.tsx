@@ -255,8 +255,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden">
-        <div className="flex h-[600px]">
+      <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden [&>button]:hidden">
+        <div className="flex min-h-[500px] max-h-[90vh]">
           {/* Left Panel - Post Details */}
           <div className="flex-1 border-r border-border p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
@@ -269,20 +269,25 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
                   <p className="text-sm text-muted-foreground">{post.type || 'Post'}</p>
                 </div>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="gap-2"><Edit className="w-4 h-4" /> Edit Post</DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2"><Copy className="w-4 h-4" /> Duplicate</DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2"><ExternalLink className="w-4 h-4" /> Open in {post.platform}</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="gap-2 text-destructive"><Trash2 className="w-4 h-4" /> Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem className="gap-2"><Edit className="w-4 h-4" /> Edit Post</DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2"><Copy className="w-4 h-4" /> Duplicate</DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2"><ExternalLink className="w-4 h-4" /> Open in {post.platform}</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="gap-2 text-destructive"><Trash2 className="w-4 h-4" /> Delete</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button variant="ghost" size="sm" onClick={onClose}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Status Badge */}
@@ -346,14 +351,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
           </div>
 
           {/* Right Panel - Social Preview */}
-          <div className="w-[420px] bg-muted/30 p-6 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground capitalize">{post.platform} Preview</h3>
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
+          <div className="w-[450px] bg-muted/30 p-6 flex flex-col overflow-y-auto">
+            <h3 className="font-semibold text-foreground capitalize mb-4">{post.platform} Preview</h3>
+            <div className="flex-1 flex items-start justify-center py-4">
               {getSocialPreview()}
             </div>
           </div>
