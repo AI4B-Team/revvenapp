@@ -3770,8 +3770,8 @@ Make it look like a natural, professional product showcase or UGC-style promotio
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-nowrap">
+        <div className="flex items-center justify-between flex-wrap gap-y-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {isVideoMode ? (
               <>
                 {/* Video Mode Controls */}
@@ -7144,12 +7144,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Social Platform Selection - Only visible when Social is selected in Content mode */}
       {isContentMode && showSocialButtons && (
-        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm">
+        <div className="mt-6 p-6 bg-card rounded-xl border-2 border-border shadow-sm" style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
           <p className="text-foreground font-semibold mb-6 text-center text-xl">
             Choose Your Platforms To Generate 30 Days Of Content For Each One
           </p>
           
-          <div className="flex items-center justify-center gap-4 flex-wrap">
+          <div className="flex items-center justify-center gap-4 flex-nowrap overflow-x-auto pb-2">
             <button
               onClick={() => {
                 if (selectedPlatforms.length === socialPlatforms.length) {
@@ -7214,10 +7214,12 @@ Make it look like a natural, professional product showcase or UGC-style promotio
 
       {/* Content Calendar */}
       {isContentMode && (
-        <SocialContentCalendar 
-          generatedContent={generatedContent}
-          isGenerating={isGeneratingContent}
-        />
+        <div style={{ width: '100vw', maxWidth: '1400px', marginLeft: 'auto', marginRight: 'auto', position: 'relative', left: '50%', transform: 'translateX(-50%)' }}>
+          <SocialContentCalendar 
+            generatedContent={generatedContent}
+            isGenerating={isGeneratingContent}
+          />
+        </div>
       )}
 
       {/* Styles Modal */}
