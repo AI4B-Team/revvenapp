@@ -587,45 +587,47 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         </div>
         
         <main className="flex-1 p-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Back button + Tab Navigation on same row */}
-            <div className="flex items-center justify-between mb-10">
-              <button 
-                onClick={() => navigate('/ebook-creator')} 
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Back To Projects</span>
-              </button>
+          {/* Full width header row with back button left, tabs centered */}
+          <div className="relative flex items-center justify-center mb-10">
+            {/* Back button - absolute left */}
+            <button 
+              onClick={() => navigate('/ebook-creator')} 
+              className="absolute left-0 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back To Projects</span>
+            </button>
 
-              <div className="flex gap-2">
-                {TABS.map((tab, index) => {
-                  const isActive = activeTab === tab.id;
-                  const isPast = TABS.findIndex(t => t.id === activeTab) > index;
-                  const isAccessible = canAccessTab(tab.id);
-                  return (
-                    <button 
-                      key={tab.id}
-                      onClick={() => isAccessible && setActiveTab(tab.id)}
-                      disabled={!isAccessible}
-                      className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
-                        isActive 
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
-                          : isPast
-                          ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
-                          : isAccessible
-                          ? 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
-                          : 'border-gray-200 bg-white text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <tab.icon className="w-4 h-4" />
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Centered tabs */}
+            <div className="flex gap-2">
+              {TABS.map((tab, index) => {
+                const isActive = activeTab === tab.id;
+                const isPast = TABS.findIndex(t => t.id === activeTab) > index;
+                const isAccessible = canAccessTab(tab.id);
+                return (
+                  <button 
+                    key={tab.id}
+                    onClick={() => isAccessible && setActiveTab(tab.id)}
+                    disabled={!isAccessible}
+                    className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
+                      isActive 
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                        : isPast
+                        ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
+                        : isAccessible
+                        ? 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
+                        : 'border-gray-200 bg-white text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
+          <div className="max-w-4xl mx-auto">
             {/* Generation Progress */}
             {isGenerating && (
               <div className="mb-8 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
@@ -822,10 +824,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                 </div>
 
-                {/* eBook Options Section - only show after content type is selected */}
+                {/* eBook Options Section */}
                 {contentTypeSelected && bookData.contentType === 'ebook' && (
                   <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Advanced Options</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">eBook Options</h3>
                     
                     <div className="grid grid-cols-2 gap-6">
                       {/* Creative */}
@@ -905,6 +907,232 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       <label htmlFor="includeImages" className="text-sm text-gray-900 font-medium">
                         Include Illustrations For Each Chapter
                       </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Audiobook Options Section */}
+                {contentTypeSelected && bookData.contentType === 'audiobook' && (
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Headphones className="w-5 h-5 text-purple-500" />
+                      Audiobook Options
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Creative */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Creative Style</label>
+                        <select
+                          value={bookData.creative}
+                          onChange={(e) => setBookData(prev => ({ ...prev, creative: e.target.value }))}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                        >
+                          {CREATIVES.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Audience */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                        <Input 
+                          value={bookData.audience}
+                          onChange={(e) => setBookData(prev => ({ ...prev, audience: e.target.value }))}
+                          placeholder="e.g., Small business owners"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Number of Chapters */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Number Of Chapters</label>
+                        <select 
+                          value={bookData.chapters}
+                          onChange={(e) => setBookData(prev => ({ ...prev, chapters: parseInt(e.target.value) }))}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                        >
+                          {[5, 6, 7, 8, 10, 12, 15, 20].map(n => (
+                            <option key={n} value={n}>{n} chapters</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Words Per Chapter */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Words Per Chapter</label>
+                        <div className="flex gap-2">
+                          {[1000, 1500, 2000, 2500, 3000].map(n => (
+                            <button 
+                              key={n}
+                              onClick={() => setBookData(prev => ({ ...prev, wordsPerChapter: n }))}
+                              className={`flex-1 py-2 px-2 text-sm font-medium rounded-lg border transition-colors ${
+                                bookData.wordsPerChapter === n 
+                                  ? 'bg-purple-50 border-purple-500 text-purple-700' 
+                                  : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                              }`}
+                            >
+                              {(n / 1000).toFixed(1)}k
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Estimated total: ~{((bookData.chapters * bookData.wordsPerChapter) / 1000).toFixed(0)}k words • ~{Math.round((bookData.chapters * bookData.wordsPerChapter) / 150)} min audio
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Narrator Voice */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Narrator Voice</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'].map(voice => (
+                          <button
+                            key={voice}
+                            className="p-3 border border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition-colors text-center"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 mx-auto mb-2 flex items-center justify-center">
+                              <Mic className="w-5 h-5 text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-700 capitalize">{voice}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Audio Options */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <input 
+                          type="checkbox" 
+                          id="includeMusic"
+                          className="w-5 h-5 text-purple-600 rounded accent-purple-500"
+                        />
+                        <label htmlFor="includeMusic" className="text-sm text-gray-900 font-medium">
+                          Include Background Music
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <input 
+                          type="checkbox" 
+                          id="chapterBreaks"
+                          defaultChecked
+                          className="w-5 h-5 text-purple-600 rounded accent-purple-500"
+                        />
+                        <label htmlFor="chapterBreaks" className="text-sm text-gray-900 font-medium">
+                          Include Chapter Break Announcements
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Presentation Options Section */}
+                {contentTypeSelected && bookData.contentType === 'presentation' && (
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Presentation className="w-5 h-5 text-blue-500" />
+                      Presentation Options
+                    </h3>
+                    
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Presentation Style */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Presentation Style</label>
+                        <select
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                        >
+                          <option value="professional">Professional</option>
+                          <option value="creative">Creative</option>
+                          <option value="minimal">Minimal</option>
+                          <option value="bold">Bold</option>
+                          <option value="corporate">Corporate</option>
+                        </select>
+                      </div>
+
+                      {/* Audience */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                        <Input 
+                          value={bookData.audience}
+                          onChange={(e) => setBookData(prev => ({ ...prev, audience: e.target.value }))}
+                          placeholder="e.g., Executive team, Investors"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Number of Slides */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Number Of Slides</label>
+                        <select 
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+                        >
+                          {[5, 10, 15, 20, 25, 30, 40, 50].map(n => (
+                            <option key={n} value={n}>{n} slides</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Aspect Ratio */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Aspect Ratio</label>
+                        <div className="flex gap-2">
+                          {[
+                            { label: '16:9', value: '16:9' },
+                            { label: '4:3', value: '4:3' },
+                            { label: '1:1', value: '1:1' },
+                          ].map(ratio => (
+                            <button 
+                              key={ratio.value}
+                              className="flex-1 py-2 px-2 text-sm font-medium rounded-lg border border-gray-200 text-gray-500 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                            >
+                              {ratio.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Presentation Options */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <input 
+                          type="checkbox" 
+                          id="includeCharts"
+                          defaultChecked
+                          className="w-5 h-5 text-blue-600 rounded accent-blue-500"
+                        />
+                        <label htmlFor="includeCharts" className="text-sm text-gray-900 font-medium">
+                          Include Charts & Graphs
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <input 
+                          type="checkbox" 
+                          id="includeIcons"
+                          defaultChecked
+                          className="w-5 h-5 text-blue-600 rounded accent-blue-500"
+                        />
+                        <label htmlFor="includeIcons" className="text-sm text-gray-900 font-medium">
+                          Include Icons & Illustrations
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <input 
+                          type="checkbox" 
+                          id="speakerNotes"
+                          defaultChecked
+                          className="w-5 h-5 text-blue-600 rounded accent-blue-500"
+                        />
+                        <label htmlFor="speakerNotes" className="text-sm text-gray-900 font-medium">
+                          Generate Speaker Notes
+                        </label>
+                      </div>
                     </div>
                   </div>
                 )}
