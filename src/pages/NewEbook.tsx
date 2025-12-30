@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Upload, Mic, Sparkles, ArrowLeft, BookOpen, Headphones, Presentation,
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
-  Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon
+  Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
+  Briefcase, Coffee, GraduationCap, Heart, Shield, Flame
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -85,12 +86,12 @@ const LANGUAGES = [
 ];
 
 const TONES = [
-  { id: 'professional', name: 'Professional' },
-  { id: 'conversational', name: 'Conversational' },
-  { id: 'academic', name: 'Academic' },
-  { id: 'friendly', name: 'Friendly' },
-  { id: 'authoritative', name: 'Authoritative' },
-  { id: 'inspirational', name: 'Inspirational' },
+  { id: 'professional', name: 'Professional', icon: Briefcase },
+  { id: 'conversational', name: 'Conversational', icon: Coffee },
+  { id: 'academic', name: 'Academic', icon: GraduationCap },
+  { id: 'friendly', name: 'Friendly', icon: Heart },
+  { id: 'authoritative', name: 'Authoritative', icon: Shield },
+  { id: 'inspirational', name: 'Inspirational', icon: Flame },
 ];
 
 const CREATIVES = [
@@ -371,34 +372,37 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
                 {/* Prompt Box */}
                 <div className="bg-white rounded-2xl border-2 border-emerald-500 shadow-sm p-6">
-                  {/* Uploaded Files Preview */}
-                  {uploadedFiles.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {uploadedFiles.map(file => (
-                        <div 
-                          key={file.id}
-                          className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm"
-                        >
-                          {getFileIcon(file)}
-                          <span className="text-emerald-700 max-w-32 truncate">{file.name}</span>
-                          <button 
-                            onClick={() => removeFile(file.id)}
-                            className="text-emerald-500 hover:text-emerald-700"
+                  {/* Uploaded Files Preview - Now inline with textarea */}
+                  <div className="flex items-start gap-3">
+                    {/* Source File Icon */}
+                    {uploadedFiles.length > 0 && (
+                      <div className="flex flex-col gap-2 pt-1">
+                        {uploadedFiles.map(file => (
+                          <div 
+                            key={file.id}
+                            className="relative group flex items-center justify-center w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-lg"
+                            title={file.name}
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                            {getFileIcon(file)}
+                            <button 
+                              onClick={() => removeFile(file.id)}
+                              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Textarea */}
-                  <textarea
-                    value={bookData.prompt}
-                    onChange={(e) => setBookData(prev => ({ ...prev, prompt: e.target.value }))}
-                    placeholder="What is your topic or niche? (e.g., Digital Marketing for Small Businesses, Personal Finance, Healthy Living...)"
-                    className="w-full min-h-[120px] resize-none border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 text-lg"
-                  />
+                    {/* Textarea */}
+                    <textarea
+                      value={bookData.prompt}
+                      onChange={(e) => setBookData(prev => ({ ...prev, prompt: e.target.value }))}
+                      placeholder="What is your topic or niche? (e.g., Digital Marketing for Small Businesses, Personal Finance, Healthy Living...)"
+                      className="flex-1 min-h-[120px] resize-none border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 text-lg"
+                    />
+                  </div>
 
                   {/* Bottom Toolbar */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
@@ -430,8 +434,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <Layers className="w-4 h-4" />
-                            <span>Type</span>
+                            {currentContentType ? <currentContentType.icon className="w-4 h-4" /> : <Layers className="w-4 h-4" />}
+                            <span>Type{currentContentType ? `: ${currentContentType.label}` : ''}</span>
                             <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
@@ -479,8 +483,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <MessageSquare className="w-4 h-4" />
-                            <span>Tone</span>
+                            {currentTone && <currentTone.icon className="w-4 h-4" />}
+                            <span>Tone: {currentTone?.name}</span>
                             <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
@@ -491,7 +495,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               onClick={() => setBookData(prev => ({ ...prev, tone: tone.id }))}
                               className="flex items-center gap-2"
                             >
-                              <MessageSquare className="w-4 h-4" />
+                              <tone.icon className="w-4 h-4" />
                               {tone.name}
                             </DropdownMenuItem>
                           ))}
