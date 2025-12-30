@@ -22,6 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import PostDetailModal from './PostDetailModal';
+import { sampleCalendarContent, CalendarContentItem } from '@/data/sampleCalendarContent';
 
 interface ContentItem {
   id: string;
@@ -31,10 +33,14 @@ interface ContentItem {
   status: string;
   imageUrl?: string;
   type?: 'post' | 'story' | 'carousel' | 'reel';
+  caption?: string;
+  hashtags?: string[];
+  accountName?: string;
+  accountHandle?: string;
 }
 
 interface SocialContentCalendarProps {
-  generatedContent: ContentItem[];
+  generatedContent?: ContentItem[];
   isGenerating: boolean;
 }
 
@@ -42,12 +48,19 @@ type ViewMode = 'calendar' | 'list' | 'kanban' | 'grid';
 type TimeRange = 'week' | 'month';
 
 const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({ 
-  generatedContent,
+  generatedContent = [],
   isGenerating 
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [timeRange, setTimeRange] = useState<TimeRange>('month');
+  const [selectedPost, setSelectedPost] = useState<ContentItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Merge generated content with sample content
+  const allContent = useMemo(() => {
+    return [...sampleCalendarContent, ...generatedContent] as ContentItem[];
+  }, [generatedContent]);
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -94,9 +107,14 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   const getContentForDate = (date: Date | null) => {
     if (!date) return [];
-    return generatedContent.filter(
+    return allContent.filter(
       item => item.date.toDateString() === date.toDateString()
     );
+  };
+
+  const handlePostClick = (item: ContentItem) => {
+    setSelectedPost(item);
+    setIsModalOpen(true);
   };
 
   const isToday = (date: Date | null) => {
@@ -127,9 +145,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   ];
 
   // Render calendar cell content uniformly
-  const renderContentCard = (item: ContentItem) => (
+  const renderContentCard = (item: ContentItem, compact: boolean = true) => (
     <div
       key={item.id}
+      onClick={() => handlePostClick(item)}
       className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
     >
       <div className="flex items-center gap-2 text-xs">
@@ -138,7 +157,10 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded transition-all">
+            <button 
+              className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded transition-all"
+              onClick={(e) => e.stopPropagation()}
+            >
               <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
@@ -162,9 +184,9 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   // Render Kanban View
   const renderKanbanView = () => {
     const columns = [
-      { id: 'draft', label: 'Drafts', items: generatedContent.filter(c => c.status === 'draft') },
-      { id: 'scheduled', label: 'Scheduled', items: generatedContent.filter(c => c.status === 'scheduled') },
-      { id: 'published', label: 'Published', items: generatedContent.filter(c => c.status === 'published') },
+      { id: 'draft', label: 'Drafts', items: allContent.filter(c => c.status === 'draft') },
+      { id: 'scheduled', label: 'Scheduled', items: allContent.filter(c => c.status === 'scheduled') },
+      { id: 'published', label: 'Published', items: allContent.filter(c => c.status === 'published') },
     ];
 
     return (
@@ -193,7 +215,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   // Render List View
   const renderListView = () => {
-    const sortedContent = [...generatedContent].sort((a, b) => a.date.getTime() - b.date.getTime());
+    const sortedContent = [...allContent].sort((a, b) => a.date.getTime() - b.date.getTime());
     
     return (
       <div className="p-4">
@@ -212,7 +234,11 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
             </div>
           ) : (
             sortedContent.map(item => (
-              <div key={item.id} className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center">
+              <div 
+                key={item.id} 
+                onClick={() => handlePostClick(item)}
+                className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center cursor-pointer"
+              >
                 <div className="col-span-1">
                   <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                     {getPlatformIcon(item.platform, "w-4 h-4")}
@@ -239,7 +265,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <div className="col-span-1 flex justify-end">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="p-1 hover:bg-muted rounded">
+                      <button className="p-1 hover:bg-muted rounded" onClick={(e) => e.stopPropagation()}>
                         <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                       </button>
                     </DropdownMenuTrigger>
@@ -261,13 +287,17 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   // Render Grid View
   const renderGridView = () => (
     <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {generatedContent.length === 0 ? (
+      {allContent.length === 0 ? (
         <div className="col-span-full text-center py-12 text-muted-foreground">
           No content created yet
         </div>
       ) : (
-        generatedContent.map(item => (
-          <div key={item.id} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+        allContent.map(item => (
+          <div 
+            key={item.id} 
+            onClick={() => handlePostClick(item)}
+            className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+          >
             <div className="aspect-square bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 flex items-center justify-center">
               <div className="w-12 h-12 rounded-full bg-white/80 dark:bg-black/30 flex items-center justify-center">
                 {getPlatformIcon(item.platform, "w-6 h-6")}
@@ -496,6 +526,13 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           </div>
         </div>
       )}
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        post={selectedPost}
+      />
     </div>
   );
 };
