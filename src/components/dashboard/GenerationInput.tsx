@@ -321,11 +321,15 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   ];
   
   // Resizable prompt box (both directions)
+  // Keep a consistent default width across all categories (matches the widest prompt box design).
+  const DEFAULT_PROMPT_WIDTH = 1100;
+
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
     minHeight: 80,
     maxHeight: 600,
     initialHeight: 100,
-    minWidth: 1100,
+    minWidth: DEFAULT_PROMPT_WIDTH,
+    initialWidth: DEFAULT_PROMPT_WIDTH,
     maxWidth: 1600,
     resizeDirection: 'both',
   });
@@ -3084,7 +3088,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
   };
   
   return (
-    <div className="w-fit min-w-[900px] max-w-[90vw] mx-auto mb-12 transition-all duration-300">
+    <div className="mx-auto mb-12 transition-all duration-300" style={{ width: promptWidth ?? DEFAULT_PROMPT_WIDTH, maxWidth: '90vw' }}>
       <div className="bg-background border-2 border-emerald-500 rounded-xl p-6 shadow-lg">
         <div className="flex items-start gap-3 mb-6">
           <div className="flex flex-col gap-2">
@@ -3364,7 +3368,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               </div>
             </TooltipProvider>
           </div>
-          <div className="flex-1 relative" style={{ height: promptHeight, ...(promptWidth && { width: promptWidth }) }}>
+          <div className="flex-1 relative" style={{ height: promptHeight }}>
             {/* Transcribe mode - Show transcription output area instead of prompt input */}
             {isAudioMode && selectedAudioMode === 'Transcribe' ? (
               <div className="w-full h-full flex flex-col p-4 min-h-[100px]">
