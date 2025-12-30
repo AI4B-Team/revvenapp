@@ -176,24 +176,22 @@ const NewEbook = () => {
               </div>
             )}
 
+            {/* Project Name */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
+              <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
+              <Input 
+                type="text" 
+                value={newBookData.title} 
+                onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
+                placeholder="e.g., The Ultimate Guide to Digital Marketing" 
+                className="w-full max-w-lg" 
+              />
+            </div>
+
             {/* Configure Your Project Section */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Configure Your Project</h2>
-              <p className="text-sm text-gray-500 mb-6">Set up the basic details for your project. You'll be able to review and refine the generated content before finalizing.</p>
-              
               <div className="space-y-6">
-                {/* Project Name - First */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
-                  <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
-                  <Input 
-                    type="text" 
-                    value={newBookData.title} 
-                    onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
-                    placeholder="e.g., The Ultimate Guide to Digital Marketing" 
-                    className="w-full max-w-lg" 
-                  />
-                </div>
 
                 {/* What Would You Like To Create? */}
                 <div>
