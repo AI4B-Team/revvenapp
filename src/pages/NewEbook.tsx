@@ -5,9 +5,10 @@ import {
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon
 } from 'lucide-react';
-import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive } from 'react-icons/fa';
+import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import { Rss } from 'lucide-react';
+import { SiLoom, SiZoom } from 'react-icons/si';
+import { Rss, MoreHorizontal } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,9 @@ const PLATFORMS = [
   { name: 'X', icon: FaXTwitter, color: '#000000' },
   { name: 'Vimeo', icon: FaVimeo, color: '#1AB7EA' },
   { name: 'Google Drive', icon: FaGoogleDrive, color: '#4285F4' },
+  { name: 'Dropbox', icon: FaDropbox, color: '#0061FF' },
+  { name: 'Loom', icon: SiLoom, color: '#625DF5' },
+  { name: 'Zoom', icon: SiZoom, color: '#2D8CFF' },
 ];
 
 const CONTENT_TYPES = [
@@ -805,7 +809,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
       {/* Source Modal */}
       <Dialog open={sourceModalOpen} onOpenChange={setSourceModalOpen}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
               {sourceModalType === 'upload' && 'Upload Files'}
@@ -843,25 +847,27 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
           {sourceModalType === 'link' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Enter URL</label>
                 <div className="flex gap-2">
                   <Input 
                     value={linkInput}
                     onChange={(e) => setLinkInput(e.target.value)}
-                    placeholder="https://example.com or YouTube/Vimeo URL"
+                    placeholder="Paste A Supported Public Media Link"
                     className="flex-1"
                   />
-                  <Button onClick={handleLinkAdd}>Add</Button>
+                  <Button onClick={handleLinkAdd} className="bg-emerald-500 hover:bg-emerald-600 text-white">Add</Button>
                 </div>
               </div>
               <div className="p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600 mb-3">Supported platforms:</p>
-                <div className="flex flex-wrap gap-3">
-                  {PLATFORMS.slice(0, 6).map((platform) => (
+                <p className="text-sm text-gray-600 mb-3">Supported Platforms</p>
+                <div className="flex items-center gap-3">
+                  {PLATFORMS.map((platform) => (
                     <div key={platform.name} className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200">
                       <platform.icon className="w-5 h-5" style={{ color: platform.color }} />
                     </div>
                   ))}
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200">
+                    <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                  </div>
                 </div>
               </div>
             </div>
