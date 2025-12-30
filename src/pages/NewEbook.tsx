@@ -131,7 +131,23 @@ const NewEbook = () => {
             </button>
 
             {/* Page Title */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-8">Create New Project</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Create New Project</h1>
+
+            {/* Top Navigation Tabs */}
+            <div className="flex gap-2 mb-8 p-1 bg-gray-100 rounded-xl w-fit">
+              {['Idea', 'Customize', 'Design'].map((tab) => (
+                <button 
+                  key={tab} 
+                  className={`py-2.5 px-6 text-sm font-medium rounded-lg transition-all ${
+                    tab === 'Idea' 
+                      ? 'bg-white text-emerald-600 shadow-sm' 
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
 
             {/* Generation Progress */}
             {isGenerating && (
@@ -160,6 +176,19 @@ const NewEbook = () => {
               <p className="text-sm text-gray-500 mb-6">Set up the basic details for your project. You'll be able to review and refine the generated content before finalizing.</p>
               
               <div className="space-y-6">
+                {/* Project Name - First */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
+                  <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
+                  <Input 
+                    type="text" 
+                    value={newBookData.title} 
+                    onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
+                    placeholder="e.g., The Ultimate Guide to Digital Marketing" 
+                    className="w-full max-w-lg" 
+                  />
+                </div>
+
                 {/* What Would You Like To Create? */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">What Would You Like To Create?</h3>
@@ -179,19 +208,6 @@ const NewEbook = () => {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Project Name */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
-                  <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
-                  <Input 
-                    type="text" 
-                    value={newBookData.title} 
-                    onChange={(e) => setNewBookData(prev => ({ ...prev, title: e.target.value }))} 
-                    placeholder="e.g., The Ultimate Guide to Digital Marketing" 
-                    className="w-full max-w-lg" 
-                  />
                 </div>
 
                 {/* Language & Creative Row */}
