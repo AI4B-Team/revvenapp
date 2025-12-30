@@ -121,7 +121,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
   const viewModeButtons = [
     { id: 'calendar' as ViewMode, icon: CalendarIcon, label: 'Calendar' },
-    { id: 'list' as ViewMode, icon: List, label: 'List' },
+    { id: 'list' as ViewMode, icon: List, label: 'Plan' },
     { id: 'kanban' as ViewMode, icon: Columns3, label: 'Kanban' },
     { id: 'grid' as ViewMode, icon: LayoutGrid, label: 'Grid' },
   ];
@@ -130,15 +130,15 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
   const renderContentCard = (item: ContentItem) => (
     <div
       key={item.id}
-      className="group relative bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
+      className="group relative bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 cursor-pointer hover:shadow-md transition-all"
     >
       <div className="flex items-center gap-2 text-xs">
-        <span className="text-amber-600 dark:text-amber-400 font-medium">
+        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
           {item.date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800/50 rounded transition-all">
+            <button className="opacity-0 group-hover:opacity-100 ml-auto p-0.5 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded transition-all">
               <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
             </button>
           </DropdownMenuTrigger>
@@ -151,7 +151,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         </DropdownMenu>
       </div>
       <div className="mt-1 flex items-start gap-2">
-        <div className="flex-shrink-0 w-5 h-5 rounded bg-amber-100 dark:bg-amber-800/50 flex items-center justify-center">
+        <div className="flex-shrink-0 w-5 h-5 rounded bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center">
           {getPlatformIcon(item.platform, "w-3 h-3")}
         </div>
         <p className="text-xs text-foreground line-clamp-2 leading-relaxed">{item.title}</p>
@@ -228,7 +228,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <div className="col-span-1">
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     item.status === 'scheduled' 
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                       : item.status === 'published'
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                       : 'bg-muted text-muted-foreground'
@@ -268,7 +268,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       ) : (
         generatedContent.map(item => (
           <div key={item.id} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer">
-            <div className="aspect-square bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center">
+            <div className="aspect-square bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 flex items-center justify-center">
               <div className="w-12 h-12 rounded-full bg-white/80 dark:bg-black/30 flex items-center justify-center">
                 {getPlatformIcon(item.platform, "w-6 h-6")}
               </div>
@@ -279,7 +279,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 <span>{item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                 <span className={`px-2 py-0.5 rounded-full ${
                   item.status === 'scheduled' 
-                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                     : 'bg-muted'
                 }`}>
                   {item.status}
@@ -326,7 +326,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-sm font-medium ${
                       today 
-                        ? 'bg-amber-500 text-white w-7 h-7 rounded-full flex items-center justify-center' 
+                        ? 'bg-emerald-500 text-white w-7 h-7 rounded-full flex items-center justify-center' 
                         : 'text-foreground'
                     }`}>
                       {date.getDate()}
@@ -354,7 +354,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                     {content.slice(0, 2).map(item => renderContentCard(item))}
                     
                     {content.length > 2 && (
-                      <button className="text-xs text-amber-600 dark:text-amber-400 hover:underline px-2">
+                      <button className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline px-2">
                         +{content.length - 2} more
                       </button>
                     )}
@@ -381,8 +381,8 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
                 onClick={() => setViewMode(id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                   viewMode === id 
-                    ? 'bg-background text-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-emerald-500 text-white shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -393,11 +393,11 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30">
               <Sparkles className="w-4 h-4" />
               Best Time To Post
             </Button>
-            <Button size="sm" className="gap-2 bg-foreground text-background hover:bg-foreground/90">
+            <Button size="sm" className="gap-2 bg-emerald-500 text-white hover:bg-emerald-600">
               <Plus className="w-4 h-4" />
               New Post
             </Button>
@@ -424,13 +424,13 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
           </DropdownMenu>
 
           {/* Calendar Navigation */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button 
               onClick={goToToday}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg transition-colors"
               title="Today"
             >
-              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+              <CalendarIcon className="w-4 h-4 text-emerald-600" />
             </button>
             <button 
               onClick={() => navigateMonth('prev')}
@@ -455,7 +455,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
         <div className="flex items-center gap-2">
           {/* Drafts Toggle */}
           <div className="flex items-center gap-2 mr-4">
-            <div className="w-8 h-4 bg-amber-500 rounded-full relative">
+            <div className="w-8 h-4 bg-emerald-500 rounded-full relative cursor-pointer">
               <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5" />
             </div>
             <span className="text-sm text-muted-foreground">Drafts</span>
@@ -489,7 +489,7 @@ const SocialContentCalendar: React.FC<SocialContentCalendarProps> = ({
       {/* Generation Status */}
       {isGenerating && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           <div>
             <p className="font-medium">Generating content...</p>
             <p className="text-sm opacity-70">Creating your social media calendar</p>
