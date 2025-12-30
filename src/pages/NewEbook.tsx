@@ -176,10 +176,26 @@ const NewEbook = () => {
               </div>
             )}
 
-            {/* Project Name */}
+            {/* Project Name & Source */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
-              <p className="text-sm text-gray-500 mb-3">This is for your reference only and won't affect the generated content.</p>
+              <div className="flex items-start justify-between gap-6 mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Project Name<span className="text-red-500">*</span></h3>
+                  <p className="text-sm text-gray-500">This is for your reference only and won't affect the generated content.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">Source:</span>
+                  <select
+                    value={newBookData.sourceType}
+                    onChange={(e) => setNewBookData(prev => ({ ...prev, sourceType: e.target.value }))}
+                    className="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    {Object.entries(sourceLabels).map(([key, label]) => (
+                      <option key={key} value={key}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <Input 
                 type="text" 
                 value={newBookData.title} 
@@ -250,21 +266,6 @@ const NewEbook = () => {
 
             {/* Content Source Section */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Content Source</h2>
-              <p className="text-sm text-gray-500 mb-6">Choose how you'd like to create your content.</p>
-
-              {/* Source Type Tabs */}
-              <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
-                {Object.entries(sourceLabels).map(([key, label]) => (
-                  <button 
-                    key={key} 
-                    onClick={() => setNewBookData(prev => ({ ...prev, sourceType: key }))} 
-                    className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all ${newBookData.sourceType === key ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
 
               {/* Content based on source type */}
               {newBookData.sourceType === 'ai-generate' && (
