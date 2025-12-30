@@ -57,6 +57,15 @@ const LANGUAGES = [
   { code: 'ru', name: 'Russian', flag: '🇷🇺' },
 ];
 
+const CREATIVES = [
+  { id: 'default', name: 'Default' },
+  { id: 'minimalist', name: 'Minimalist' },
+  { id: 'modern', name: 'Modern' },
+  { id: 'classic', name: 'Classic' },
+  { id: 'bold', name: 'Bold' },
+  { id: 'elegant', name: 'Elegant' },
+];
+
 const sourceLabels: Record<string, string> = { 
   'ai-generate': 'AI Generate', 
   'upload': 'Upload', 
@@ -72,6 +81,7 @@ const NewEbook = () => {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [contentType, setContentType] = useState('ebook');
   const [language, setLanguage] = useState('en');
+  const [creative, setCreative] = useState('default');
 
   const initialSource = searchParams.get('source') || 'ai-generate';
 
@@ -117,7 +127,7 @@ const NewEbook = () => {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Back to Projects</span>
+              <span>Back To Projects</span>
             </button>
 
             {/* What Would You Like To Create? */}
@@ -152,6 +162,22 @@ const NewEbook = () => {
                 {LANGUAGES.map((lang) => (
                   <option key={lang.code} value={lang.code}>
                     {lang.flag} {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Creative Selection */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Creative</h2>
+              <select
+                value={creative}
+                onChange={(e) => setCreative(e.target.value)}
+                className="w-full max-w-xs px-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900"
+              >
+                {CREATIVES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
                   </option>
                 ))}
               </select>
