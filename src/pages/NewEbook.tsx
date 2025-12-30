@@ -866,11 +866,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <div className="flex items-center gap-3">
                   {PLATFORMS.map((platform) => (
                     <div key={platform.name} className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200">
-                      <platform.icon className="w-5 h-5" style={{ color: platform.color }} />
+                      <platform.icon className={platform.name === 'Zoom' ? 'w-7 h-7' : 'w-5 h-5'} style={{ color: platform.color }} />
                     </div>
                   ))}
-                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200">
-                    <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                  <div className="px-3 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200">
+                    <span className="text-sm text-gray-500 font-medium">+ More</span>
                   </div>
                 </div>
               </div>
