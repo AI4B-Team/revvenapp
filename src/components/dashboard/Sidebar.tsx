@@ -47,6 +47,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
   const isBrandPage = location.pathname.startsWith('/brand');
   const isSettingsPage = location.pathname === '/account';
   const isEditPage = location.pathname === '/edit';
+  const isEbookEditorPage = location.pathname.startsWith('/ebook-creator/new');
 
   // Calculate next month's first day for credit refill
   const getNextRefillDate = () => {
@@ -167,6 +168,7 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
     isAssetsPage ? [] :
     isBrandPage ? [] :
     isSettingsPage ? [] :
+    isEbookEditorPage ? [] :
     isEditPage ? imageNavItems :
     isAutomatePage ? automateNavItems :
     isMonetizePage ? monetizeNavItems : 
