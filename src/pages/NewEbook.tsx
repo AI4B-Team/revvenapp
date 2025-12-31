@@ -1490,50 +1490,114 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
             {/* DESIGN TAB */}
             {activeTab === 'design' && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Design Your eBook
-                </h1>
-                <p className="text-gray-500 text-center mb-8">
-                  Add charts, images, elements, and choose your cover theme
-                </p>
-
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <button className="p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-center">
-                      <Layers className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm font-medium text-gray-700">Add Charts</span>
-                    </button>
-                    <button className="p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-center">
-                      <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm font-medium text-gray-700">Add Images</span>
-                    </button>
-                    <button className="p-4 border border-gray-200 rounded-xl hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-center">
-                      <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm font-medium text-gray-700">Add Elements</span>
-                    </button>
+              <div className="flex gap-6 h-[calc(100vh-280px)]">
+                {/* Left Sidebar - Piktochart Style */}
+                <div className="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col">
+                  {/* Vertical Tab Navigation */}
+                  <div className="flex border-b border-gray-200">
+                    {[
+                      { id: 'templates', label: 'Templates', icon: Layers },
+                      { id: 'content', label: 'Content', icon: FileText },
+                      { id: 'images', label: 'Images', icon: ImageIcon },
+                      { id: 'colors', label: 'Colors', icon: Palette },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        className="flex-1 flex flex-col items-center gap-1 py-3 px-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors border-b-2 border-transparent first:rounded-tl-2xl last:rounded-tr-2xl data-[active=true]:border-emerald-500 data-[active=true]:text-emerald-600"
+                        data-active={tab.id === 'content'}
+                      >
+                        <tab.icon className="w-5 h-5" />
+                        <span className="text-xs font-medium">{tab.label}</span>
+                      </button>
+                    ))}
                   </div>
 
-                  <div className="border-t border-gray-200 pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Cover Theme</h3>
-                    <div className="grid grid-cols-4 gap-4">
-                      {['Modern', 'Classic', 'Minimal', 'Bold'].map(theme => (
-                        <button
-                          key={theme}
-                          className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl border-2 border-gray-200 hover:border-emerald-400 transition-colors flex items-center justify-center"
-                        >
-                          <span className="text-sm font-medium text-gray-600">{theme}</span>
-                        </button>
-                      ))}
+                  {/* Content Section */}
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Refine Your Outline</h3>
+                    
+                    {/* TOC Items */}
+                    <div className="space-y-2">
+                      {(() => {
+                        const tocItems = [
+                          { title: bookData.selectedTitle || 'Untitled eBook', type: 'cover', editable: false },
+                          { title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents', editable: false },
+                          { title: 'Introduction', type: 'introduction', editable: false },
+                          { title: 'Chapter 1: Getting Started', type: null, editable: true },
+                          { title: 'Chapter 2: Core Concepts', type: null, editable: true },
+                          { title: 'Chapter 3: Deep Dive', type: null, editable: true },
+                          { title: 'Chapter 4: Advanced Topics', type: null, editable: true },
+                          { title: 'Summary', type: 'summary', editable: false },
+                        ];
+
+                        return tocItems.map((item, index) => (
+                          <div
+                            key={index}
+                            className="group flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 transition-colors bg-white"
+                          >
+                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-gray-600 font-medium text-sm flex-shrink-0">
+                              {index + 1}
+                            </span>
+                            <span className="flex-1 text-sm font-medium text-gray-900 truncate">
+                              {item.title}
+                            </span>
+                            {item.type && (
+                              <span className={`px-2 py-1 text-xs font-medium rounded-lg flex-shrink-0 ${
+                                item.type === 'cover' ? 'bg-gray-600 text-white' :
+                                item.type === 'table of contents' ? 'bg-teal-500 text-white' :
+                                item.type === 'introduction' ? 'bg-teal-400 text-white' :
+                                'bg-gray-500 text-white'
+                              }`}>
+                                {item.type}
+                              </span>
+                            )}
+                            {item.editable && (
+                              <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
+                                <Pencil className="w-4 h-4 text-gray-400" />
+                              </button>
+                            )}
+                          </div>
+                        ));
+                      })()}
                     </div>
+
+                    {/* Add New Page Button */}
+                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                      <Plus className="w-5 h-5" />
+                      <span className="font-medium">Add New Page</span>
+                    </button>
+
+                    {/* Regenerate Button */}
+                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium hover:from-orange-500 hover:to-orange-600 transition-colors shadow-sm">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>1</span>
+                      <span>Regenerate with New Changes</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right Preview Area */}
+                <div className="flex-1 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border border-gray-200 flex items-center justify-center overflow-hidden relative">
+                  {/* Preview Placeholder */}
+                  <div className="text-center p-8">
+                    <div className="w-64 h-80 bg-white rounded-xl shadow-2xl mx-auto mb-6 flex flex-col items-center justify-center border border-gray-200">
+                      <BookOpen className="w-16 h-16 text-emerald-500 mb-4" />
+                      <h3 className="text-lg font-bold text-gray-900 px-4 text-center line-clamp-2">
+                        {bookData.selectedTitle || 'Your eBook Title'}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-2">Preview</p>
+                    </div>
+                    <p className="text-gray-500 text-sm">Your eBook preview will appear here</p>
                   </div>
 
-                  <div className="flex justify-end mt-6">
+                  {/* Continue Button */}
+                  <div className="absolute bottom-6 right-6">
                     <Button 
                       onClick={() => setActiveTab('review')}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg"
                     >
-                      Continue to Review
+                      Continue
+                      <ArrowRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
