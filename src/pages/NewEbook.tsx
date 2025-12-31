@@ -726,7 +726,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           <button className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors">
                             {currentSource && <currentSource.icon className="w-4 h-4" />}
                             <span>Source: {currentSource?.label}</span>
-                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48">
