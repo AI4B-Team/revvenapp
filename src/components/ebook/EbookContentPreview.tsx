@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { 
   Play, Pause, Wand2, MessageSquare, ImageIcon, Copy, Trash2, 
   Download, Undo2, Redo2, MoreVertical, Check, X, Plus,
-  MinusCircle, ArrowDownToLine, Briefcase, FileText
+  MinusCircle, ArrowDownToLine, Briefcase, FileText, RefreshCw, Pencil
 } from 'lucide-react';
 import {
   Tooltip,
@@ -34,7 +34,8 @@ interface EbookContentPreviewProps {
   chapters: Chapter[];
   selectedChapterId: string | null;
   onParagraphEdit: (paragraphId: string, newText: string) => void;
-  onChapterImageChange: (chapterId: string) => void;
+  onChapterImageChange: (chapterId: string, imageUrl?: string) => void;
+  onChapterImageDelete?: (chapterId: string) => void;
 }
 
 const HIGHLIGHT_COLORS = [
@@ -95,6 +96,7 @@ const EbookContentPreview = ({
   selectedChapterId,
   onParagraphEdit,
   onChapterImageChange,
+  onChapterImageDelete,
 }: EbookContentPreviewProps) => {
   const [selectedParagraphId, setSelectedParagraphId] = useState<string | null>(null);
   const [editingParagraphId, setEditingParagraphId] = useState<string | null>(null);
@@ -102,6 +104,9 @@ const EbookContentPreview = ({
   const [showAIWriterDropdown, setShowAIWriterDropdown] = useState<string | null>(null);
   const [aiWriterPrompt, setAIWriterPrompt] = useState('');
   const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  
+  // Image preview modal state
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const selectedChapter = chapters.find(c => c.id === selectedChapterId) || chapters[0];
 
@@ -148,6 +153,39 @@ const EbookContentPreview = ({
 
   return (
     <div className="flex-1 bg-gray-100 overflow-hidden flex flex-col">
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-8 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
+            <div className="relative">
+              <img 
+                src={previewImage} 
+                alt="Preview"
+                className="w-full h-80 object-cover"
+              />
+            </div>
+            <div className="p-4 flex items-center justify-end gap-3 bg-gray-50">
+              <button 
+                onClick={() => setPreviewImage(null)}
+                className="px-6 py-2.5 text-gray-600 hover:text-gray-800 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  onChapterImageChange(selectedChapter.id, previewImage);
+                  setPreviewImage(null);
+                  toast.success('Chapter image updated');
+                }}
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors"
+              >
+                Use
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Canvas Area - fixed height, no scroll on outer container */}
       <div className="flex-1 p-8 flex justify-center overflow-y-auto">
         <div className="w-full max-w-3xl">
@@ -155,32 +193,73 @@ const EbookContentPreview = ({
           <div className="bg-white rounded-t-2xl shadow-lg">
             {/* Chapter Image Section */}
             <div 
-              className="relative h-64 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-t-2xl overflow-hidden"
+              className="relative h-64 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-t-2xl overflow-hidden group"
             >
               {selectedChapter.imageUrl ? (
-                <img 
-                  src={selectedChapter.imageUrl} 
-                  alt={selectedChapter.title}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img 
+                    src={selectedChapter.imageUrl} 
+                    alt={selectedChapter.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Hover overlay with actions */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => onChapterImageChange(selectedChapter.id)}
+                          className="p-3 bg-white rounded-lg text-gray-700 hover:bg-emerald-500 hover:text-white transition-colors shadow-lg"
+                        >
+                          <RefreshCw className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom"><p>Replace</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => toast.success('Edit image coming soon')}
+                          className="p-3 bg-white rounded-lg text-gray-700 hover:bg-blue-500 hover:text-white transition-colors shadow-lg"
+                        >
+                          <Pencil className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom"><p>Edit</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => {
+                            onChapterImageDelete?.(selectedChapter.id);
+                            toast.success('Image removed');
+                          }}
+                          className="p-3 bg-white rounded-lg text-gray-700 hover:bg-red-500 hover:text-white transition-colors shadow-lg"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom"><p>Delete</p></TooltipContent>
+                    </Tooltip>
+                  </div>
+                </>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-4">
                   <div 
-                    className="text-center text-white/80 cursor-pointer group mb-4"
+                    className="text-center text-white/80 cursor-pointer hover:text-white mb-4"
                     onClick={() => onChapterImageChange(selectedChapter.id)}
                   >
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                    <ImageIcon className="w-12 h-12 mx-auto mb-2 hover:scale-110 transition-transform" />
                     <p className="text-sm font-medium">Click To Add Chapter Image</p>
                   </div>
                   
                   {/* Stock Image Suggestions */}
                   <div className="w-full max-w-md">
-                    <p className="text-white/60 text-xs text-center mb-2">Or choose a suggested image:</p>
+                    <p className="text-white/60 text-xs text-center mb-2">Or Choose A Suggested Image</p>
                     <div className="flex items-center justify-center gap-3">
                       {getStockImagesForChapter(selectedChapter.title).map((img, index) => (
                         <button
                           key={index}
-                          onClick={() => onChapterImageChange(selectedChapter.id)}
+                          onClick={() => setPreviewImage(img)}
                           className="w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 hover:border-white transition-all hover:scale-105 shadow-lg"
                         >
                           <img 
@@ -194,13 +273,6 @@ const EbookContentPreview = ({
                   </div>
                 </div>
               )}
-              <button 
-                onClick={() => onChapterImageChange(selectedChapter.id)}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-              >
-                <Wand2 className="w-4 h-4 text-purple-500" />
-                Replace / Enhance Image
-              </button>
             </div>
 
             {/* Chapter Title */}
