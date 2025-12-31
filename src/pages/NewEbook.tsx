@@ -688,7 +688,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     <textarea
                       value={bookData.prompt}
                       onChange={(e) => setBookData(prev => ({ ...prev, prompt: e.target.value }))}
-                      placeholder="What is your topic or niche?"
+                      placeholder="What is your topic or niche? (e.g., digital marketing for small business)"
                       className="flex-1 min-h-[120px] resize-none border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 text-lg"
                     />
                   </div>
