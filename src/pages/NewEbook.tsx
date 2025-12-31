@@ -1238,7 +1238,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-50'
                                 : isHighlighted
-                                  ? 'border-purple-300 bg-purple-50/30'
+                                  ? 'border-emerald-300 bg-emerald-50/30'
                                   : 'border-gray-200 bg-white'
                             }`}
                             onClick={() => setBookData(prev => ({ ...prev, selectedTitle: title }))}
@@ -1257,7 +1257,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                     </span>
                                     <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{toneInfo.helper}</span>
                                     {isHighlighted && !isSelected && (
-                                      <span className="text-xs text-purple-500 italic">Recommended Based On Your Topic</span>
+                                      <span className="text-xs text-emerald-600">Recommended Based On Your Topic</span>
                                     )}
                                   </div>
                                 </div>
