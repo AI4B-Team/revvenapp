@@ -1214,7 +1214,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Great For Lead Magnets', isAuthority: false };
                         };
 
-                        // Smart preselection based on niche keywords - only highlight the FIRST matching title
+                        // Smart preselection - only highlight ONE title (the first best match)
                         const isCredibilityNiche = () => {
                           const prompt = bookData.prompt.toLowerCase();
                           const credibilityKeywords = ['consultant', 'coach', 'expert', 'professional', 'business', 'leadership', 'executive', 'strategy', 'ceo', 'founder', 'entrepreneur', 'advisor', 'specialist', 'authority', 'master'];
@@ -1222,23 +1222,21 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         };
 
                         const shouldHighlight = () => {
-                          const toneInfo = getToneInfo(title);
                           const isCredibility = isCredibilityNiche();
                           
-                          // Find the first title that matches the criteria
-                          const firstMatchIndex = titleSuggestions.findIndex(t => {
+                          // Find the first title that matches the preferred criteria
+                          let firstMatchIndex = titleSuggestions.findIndex(t => {
                             const info = getToneInfo(t);
                             return isCredibility ? info.isAuthority : info.label === 'Beginner-Friendly';
                           });
                           
-                          // Only highlight if this is the first matching title
-                          if (index !== firstMatchIndex) return false;
-                          
-                          if (isCredibility) {
-                            return toneInfo.isAuthority;
-                          } else {
-                            return toneInfo.label === 'Beginner-Friendly';
+                          // If no specific match found, default to first title
+                          if (firstMatchIndex === -1) {
+                            firstMatchIndex = 0;
                           }
+                          
+                          // Only highlight if this is the first matching title
+                          return index === firstMatchIndex;
                         };
                         const toneInfo = getToneInfo(title);
                         const isSelected = bookData.selectedTitle === title;
