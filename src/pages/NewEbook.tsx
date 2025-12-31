@@ -177,7 +177,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: 
   { id: 'idea', label: 'Idea', icon: Lightbulb },
   { id: 'generate', label: 'Generate', icon: Sparkles },
   { id: 'design', label: 'Design', icon: Palette },
-  { id: 'review', label: 'eBook', icon: CheckCircle2 },
+  { id: 'review', label: 'eBook', icon: BookOpen },
 ];
 
 const NewEbook = () => {
@@ -749,7 +749,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
                             {currentContentType ? <currentContentType.icon className="w-4 h-4" /> : <Layers className="w-4 h-4" />}
                             <span>Type{currentContentType ? `: ${currentContentType.label}` : ''}</span>
-                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48">
