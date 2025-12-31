@@ -322,7 +322,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
   
   // Resizable prompt box (both directions)
   // Keep a consistent default width across all categories (matches the widest prompt box design).
-  const DEFAULT_PROMPT_WIDTH = 1280;
+  const DEFAULT_PROMPT_WIDTH = 1440;
 
   const { height: promptHeight, width: promptWidth, isResizing, handleResizeStart, setHeight: setPromptHeight } = useResizableTextarea({
     minHeight: 80,
@@ -330,7 +330,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
     initialHeight: 100,
     minWidth: DEFAULT_PROMPT_WIDTH,
     initialWidth: DEFAULT_PROMPT_WIDTH,
-    maxWidth: 1600,
+    maxWidth: 1920,
     resizeDirection: 'both',
   });
   
