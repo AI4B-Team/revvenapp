@@ -44,6 +44,52 @@ const HIGHLIGHT_COLORS = [
   { id: 'pink', class: 'bg-pink-200', border: 'border-pink-400' },
 ];
 
+// Stock image suggestions based on chapter content
+const STOCK_IMAGES = {
+  business: [
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1553028826-f4804a6dba3b?w=400&h=300&fit=crop',
+  ],
+  technology: [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=300&fit=crop',
+  ],
+  marketing: [
+    'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1432888622747-4eb9a8f5c5e4?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop',
+  ],
+  success: [
+    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=300&fit=crop',
+  ],
+  default: [
+    'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=400&h=300&fit=crop',
+  ],
+};
+
+const getStockImagesForChapter = (title: string): string[] => {
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('business') || titleLower.includes('strategy') || titleLower.includes('revenue')) {
+    return STOCK_IMAGES.business;
+  }
+  if (titleLower.includes('tech') || titleLower.includes('ai') || titleLower.includes('digital')) {
+    return STOCK_IMAGES.technology;
+  }
+  if (titleLower.includes('marketing') || titleLower.includes('brand') || titleLower.includes('social')) {
+    return STOCK_IMAGES.marketing;
+  }
+  if (titleLower.includes('success') || titleLower.includes('grow') || titleLower.includes('team')) {
+    return STOCK_IMAGES.success;
+  }
+  return STOCK_IMAGES.default;
+};
+
 const EbookContentPreview = ({
   chapters,
   selectedChapterId,
@@ -109,8 +155,7 @@ const EbookContentPreview = ({
           <div className="bg-white rounded-t-2xl shadow-lg">
             {/* Chapter Image Section */}
             <div 
-              className="relative h-48 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-t-2xl overflow-hidden cursor-pointer group"
-              onClick={() => onChapterImageChange(selectedChapter.id)}
+              className="relative h-64 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-t-2xl overflow-hidden"
             >
               {selectedChapter.imageUrl ? (
                 <img 
@@ -119,14 +164,40 @@ const EbookContentPreview = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center text-white/80">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                    <p className="text-sm">Click to add chapter image</p>
+                <div className="w-full h-full flex flex-col items-center justify-center p-4">
+                  <div 
+                    className="text-center text-white/80 cursor-pointer group mb-4"
+                    onClick={() => onChapterImageChange(selectedChapter.id)}
+                  >
+                    <ImageIcon className="w-12 h-12 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-sm font-medium">Click To Add Chapter Image</p>
+                  </div>
+                  
+                  {/* Stock Image Suggestions */}
+                  <div className="w-full max-w-md">
+                    <p className="text-white/60 text-xs text-center mb-2">Or choose a suggested image:</p>
+                    <div className="flex items-center justify-center gap-3">
+                      {getStockImagesForChapter(selectedChapter.title).map((img, index) => (
+                        <button
+                          key={index}
+                          onClick={() => onChapterImageChange(selectedChapter.id)}
+                          className="w-20 h-14 rounded-lg overflow-hidden border-2 border-white/30 hover:border-white transition-all hover:scale-105 shadow-lg"
+                        >
+                          <img 
+                            src={img} 
+                            alt={`Suggestion ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
-              <button className="absolute top-4 right-4 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
+              <button 
+                onClick={() => onChapterImageChange(selectedChapter.id)}
+                className="absolute top-4 right-4 px-3 py-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg text-sm font-medium flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+              >
                 <Wand2 className="w-4 h-4 text-purple-500" />
                 Replace / Enhance Image
               </button>
