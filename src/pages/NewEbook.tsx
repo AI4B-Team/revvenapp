@@ -1178,7 +1178,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         const getToneInfo = (t: string): { label: string; icon: typeof Heart; color: string; helper: string; isAuthority?: boolean } => {
                           // Beginner-friendly
                           if (t.includes('Made Simple') || t.includes('Easy') || t.includes('Beginner') || t.includes('101') || t.includes('Getting Started')) {
-                            return { label: 'Beginner-Friendly', icon: Heart, color: 'bg-pink-100 text-pink-700', helper: 'Best For Beginners', isAuthority: false };
+                            return { label: 'Beginner-Friendly', icon: Heart, color: 'bg-red-100 text-red-700', helper: 'Best For Beginners', isAuthority: false };
                           }
                           // Transformation
                           if (t.includes('From Zero to Hero') || t.includes('Transform') || t.includes('Journey') || t.includes('Path')) {
