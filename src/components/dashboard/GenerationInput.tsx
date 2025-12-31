@@ -3777,7 +3777,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                 {/* Video Mode Controls */}
                 <TooltipProvider>
                   {/* Animate Mode Dropdown */}
-                  <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen}>
+                  <Popover open={isAnimateModeDropdownOpen} onOpenChange={setIsAnimateModeDropdownOpen} modal={false}>
                     <PopoverTrigger asChild>
                       <button className="px-4 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-2 whitespace-nowrap bg-pill-green text-pill-green-text hover:opacity-80">
                         {(() => {
