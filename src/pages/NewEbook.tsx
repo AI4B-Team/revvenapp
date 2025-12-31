@@ -347,7 +347,7 @@ const NewEbook = () => {
 
                 setTitleSuggestions(suggestions);
                 setActiveTab('generate');
-                toast.success('Generating Title Ideas');
+                toast.success('Generating Title Ideas...');
                 return 100;
               }
               return Math.min(prev + Math.random() * 20, 100);
