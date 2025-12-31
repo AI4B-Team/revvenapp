@@ -297,6 +297,9 @@ const NewEbook = () => {
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
   };
 
+  const stripTrailingPunctuation = (value: string) =>
+    value.trim().replace(/[\p{P}\s]+$/gu, '');
+
   const handleGenerate = async () => {
     if (!bookData.prompt.trim()) {
       toast.error('Please describe your topic or niche');
@@ -320,7 +323,7 @@ const NewEbook = () => {
             }).join(' ');
           };
 
-          const topicTitleCase = toTitleCase(bookData.prompt);
+          const topicTitleCase = toTitleCase(stripTrailingPunctuation(bookData.prompt));
 
           // Simulate topic idea generation
           const interval = setInterval(() => {
@@ -329,7 +332,7 @@ const NewEbook = () => {
                 clearInterval(interval);
                 setIsGenerating(false);
                 // Generate 10 topic ideas/suggestions with varied tones
-                setTitleSuggestions([
+                const suggestions = [
                   `The Complete Guide to ${topicTitleCase}`,
                   `Mastering ${topicTitleCase}: The Definitive Framework`,
                   `${topicTitleCase} Unleashed: The Bold Playbook`,
@@ -340,7 +343,9 @@ const NewEbook = () => {
                   `${topicTitleCase}: From Zero to Hero`,
                   `The Ultimate ${topicTitleCase} Reference Handbook`,
                   `${topicTitleCase} 101: Getting Started`,
-                ]);
+                ].map(stripTrailingPunctuation);
+
+                setTitleSuggestions(suggestions);
                 setActiveTab('generate');
                 toast.success('Generating Title Ideas');
                 return 100;
@@ -351,7 +356,7 @@ const NewEbook = () => {
   };
 
   const handleTitleSelect = (title: string) => {
-    setBookData(prev => ({ ...prev, selectedTitle: title }));
+    setBookData(prev => ({ ...prev, selectedTitle: stripTrailingPunctuation(title) }));
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -1239,7 +1244,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           return index === firstMatchIndex;
                         };
                         const toneInfo = getToneInfo(title);
-                        const isSelected = bookData.selectedTitle === title;
+                        const normalizedTitle = stripTrailingPunctuation(title);
+                        const selectedTitleNormalized = stripTrailingPunctuation(bookData.selectedTitle);
+                        const isSelected = selectedTitleNormalized === normalizedTitle;
                         const ToneIcon = toneInfo.icon;
 
                         const isHighlighted = shouldHighlight();
@@ -1254,7 +1261,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                   ? 'border-emerald-300 bg-emerald-50/30'
                                   : 'border-gray-200 bg-white'
                             }`}
-                            onClick={() => setBookData(prev => ({ ...prev, selectedTitle: title }))}
+                            onClick={() => handleTitleSelect(title)}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3 flex-1">
@@ -1270,10 +1277,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                         onChange={(e) => setEditingTitleValue(e.target.value)}
                                         onKeyDown={(e) => {
                                           if (e.key === 'Enter') {
-                                            if (editingTitleValue.trim()) {
-                                              setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
+                                            const nextTitle = stripTrailingPunctuation(editingTitleValue);
+                                            if (nextTitle) {
+                                              setTitleSuggestions(prev => prev.map((t, i) => i === index ? nextTitle : t));
                                               if (isSelected) {
-                                                setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                                setBookData(prev => ({ ...prev, selectedTitle: nextTitle }));
                                               }
                                             }
                                             setEditingTitleIndex(null);
@@ -1290,10 +1298,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          if (editingTitleValue.trim()) {
-                                            setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
+                                          const nextTitle = stripTrailingPunctuation(editingTitleValue);
+                                          if (nextTitle) {
+                                            setTitleSuggestions(prev => prev.map((t, i) => i === index ? nextTitle : t));
                                             if (isSelected) {
-                                              setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                              setBookData(prev => ({ ...prev, selectedTitle: nextTitle }));
                                             }
                                           }
                                           setEditingTitleIndex(null);
@@ -1315,7 +1324,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                       </button>
                                     </div>
                                   ) : (
-                                    <span className="text-lg font-medium text-gray-900">{title.replace(/[.!?]+$/, '')}</span>
+                                    <span className="text-lg font-medium text-gray-900">{normalizedTitle}</span>
                                   )}
                                   <div className="flex items-center gap-2">
                                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
@@ -1323,7 +1332,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                       {toneInfo.label}
                                     </span>
                                     <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{toneInfo.helper}</span>
-                                    {isHighlighted && !isSelected && (
+                                    {isHighlighted && (
                                       <span className="text-xs text-emerald-600">Recommended For You</span>
                                     )}
                                   </div>
@@ -1370,11 +1379,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               value={customTitleValue}
                               onChange={(e) => setCustomTitleValue(e.target.value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter' && customTitleValue.trim()) {
-                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
-                                  handleTitleSelect(customTitleValue.trim());
-                                  setIsAddingCustomTitle(false);
-                                  setCustomTitleValue('');
+                                if (e.key === 'Enter') {
+                                  const nextTitle = stripTrailingPunctuation(customTitleValue);
+                                  if (nextTitle) {
+                                    setTitleSuggestions(prev => [...prev, nextTitle]);
+                                    handleTitleSelect(nextTitle);
+                                    setIsAddingCustomTitle(false);
+                                    setCustomTitleValue('');
+                                  }
                                 } else if (e.key === 'Escape') {
                                   setIsAddingCustomTitle(false);
                                   setCustomTitleValue('');
@@ -1386,9 +1398,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             />
                             <button
                               onClick={() => {
-                                if (customTitleValue.trim()) {
-                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
-                                  handleTitleSelect(customTitleValue.trim());
+                                const nextTitle = stripTrailingPunctuation(customTitleValue);
+                                if (nextTitle) {
+                                  setTitleSuggestions(prev => [...prev, nextTitle]);
+                                  handleTitleSelect(nextTitle);
                                 }
                                 setIsAddingCustomTitle(false);
                                 setCustomTitleValue('');
@@ -1544,7 +1557,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between py-3 border-b border-gray-100">
                       <span className="text-gray-500">Title</span>
-                      <span className="font-medium text-gray-900">{bookData.selectedTitle || 'Not selected'}</span>
+                      <span className="font-medium text-gray-900">{stripTrailingPunctuation(bookData.selectedTitle) || 'Not selected'}</span>
                     </div>
                     <div className="flex justify-between py-3 border-b border-gray-100">
                       <span className="text-gray-500">Type</span>
