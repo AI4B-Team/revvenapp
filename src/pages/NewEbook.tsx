@@ -170,12 +170,11 @@ const SOURCE_OPTIONS = [
   { id: 'record', label: 'Record', icon: Mic },
 ];
 
-type TabId = 'idea' | 'info' | 'customize' | 'design' | 'review';
+type TabId = 'idea' | 'generate' | 'design' | 'review';
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'idea', label: 'Idea', icon: Lightbulb },
-  { id: 'info', label: 'Info', icon: Info },
-  { id: 'customize', label: 'Customize', icon: Settings },
+  { id: 'generate', label: 'Generate', icon: Sparkles },
   { id: 'design', label: 'Design', icon: Palette },
   { id: 'review', label: 'Review', icon: CheckCircle2 },
 ];
@@ -302,22 +301,27 @@ const NewEbook = () => {
     setIsGenerating(true);
     setGenerationProgress(0);
     
-    // Simulate title generation
+    // Simulate topic idea generation
     const interval = setInterval(() => {
       setGenerationProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsGenerating(false);
-          // Generate title suggestions
+          // Generate 10 topic ideas/suggestions
           setTitleSuggestions([
             `The Complete Guide to ${bookData.prompt}`,
             `Mastering ${bookData.prompt}: A Comprehensive Approach`,
             `${bookData.prompt} Unleashed: Strategies for Success`,
             `The ${bookData.prompt} Blueprint`,
             `Essential ${bookData.prompt} for Modern Professionals`,
+            `${bookData.prompt} Made Simple: A Beginner's Guide`,
+            `Advanced ${bookData.prompt} Techniques`,
+            `The Art of ${bookData.prompt}`,
+            `${bookData.prompt}: From Zero to Hero`,
+            `The Ultimate ${bookData.prompt} Handbook`,
           ]);
-          setActiveTab('info');
-          toast.success('Title suggestions ready!');
+          setActiveTab('generate');
+          toast.success('Topic ideas ready!');
           return 100;
         }
         return Math.min(prev + Math.random() * 20, 100);
@@ -327,8 +331,8 @@ const NewEbook = () => {
 
   const handleTitleSelect = (title: string) => {
     setBookData(prev => ({ ...prev, selectedTitle: title }));
-    toast.success('Title selected! Moving to customize...');
-    setTimeout(() => setActiveTab('customize'), 500);
+    toast.success('Topic selected! Moving to design...');
+    setTimeout(() => setActiveTab('design'), 500);
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -363,9 +367,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
   // Track which tabs are completed
   const isIdeaComplete = bookData.prompt.trim().length > 0 && titleSuggestions.length > 0;
-  const isInfoComplete = bookData.selectedTitle.length > 0;
-  const isCustomizeComplete = isInfoComplete; // Can be expanded with more conditions
-  const isDesignComplete = isCustomizeComplete; // Can be expanded with more conditions
+  const isGenerateComplete = bookData.selectedTitle.length > 0;
+  const isDesignComplete = isGenerateComplete; // Can be expanded with more conditions
 
   const canAccessTab = (tabId: TabId): boolean => {
     const tabIndex = TABS.findIndex(t => t.id === tabId);
@@ -378,9 +381,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
     
     // Check completion of previous tabs
     switch (tabId) {
-      case 'info': return isIdeaComplete;
-      case 'customize': return isInfoComplete;
-      case 'design': return isCustomizeComplete;
+      case 'generate': return isIdeaComplete;
+      case 'design': return isGenerateComplete;
       case 'review': return isDesignComplete;
       default: return false;
     }
@@ -1139,14 +1141,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </div>
             )}
 
-            {/* INFO TAB - Title Selection */}
-            {activeTab === 'info' && (
+            {/* GENERATE TAB - Topic Ideas Selection */}
+            {activeTab === 'generate' && (
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Choose Your Title
+                  Choose Your Topic
                 </h1>
                 <p className="text-gray-500 text-center mb-8">
-                  Select the title that best represents your content
+                  Select the topic idea that best represents your content
                 </p>
 
                 {titleSuggestions.length > 0 ? (
@@ -1162,7 +1164,12 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-medium text-gray-900">{title}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-semibold text-sm">
+                              {index + 1}
+                            </span>
+                            <span className="text-lg font-medium text-gray-900">{title}</span>
+                          </div>
                           {bookData.selectedTitle === title && (
                             <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                           )}
@@ -1172,72 +1179,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-                    <Info className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Complete the Idea step first to generate title suggestions</p>
+                    <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">Complete the Idea step first to generate topic ideas</p>
                     <Button 
                       variant="ghost" 
                       onClick={() => setActiveTab('idea')}
                       className="mt-4"
                     >
                       Go to Idea
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* CUSTOMIZE TAB - Outline & Content */}
-            {activeTab === 'customize' && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Customize Your Content
-                </h1>
-                <p className="text-gray-500 text-center mb-8">
-                  Edit the outline and chapter content
-                </p>
-
-                {bookData.selectedTitle ? (
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                    <div className="mb-6">
-                      <h2 className="text-xl font-bold text-gray-900">{bookData.selectedTitle}</h2>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {Array.from({ length: bookData.chapters }).map((_, i) => (
-                        <div key={i} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                          <h3 className="font-semibold text-gray-900 mb-2">Chapter {i + 1}</h3>
-                          <Input 
-                            placeholder={`Enter chapter ${i + 1} title...`}
-                            className="mb-2"
-                          />
-                          <textarea
-                            placeholder="Chapter description and key points..."
-                            className="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none"
-                            rows={3}
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex justify-end mt-6">
-                      <Button 
-                        onClick={() => setActiveTab('design')}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                      >
-                        Continue to Design
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-                    <Settings className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Select a title first to customize your content</p>
-                    <Button 
-                      variant="ghost" 
-                      onClick={() => setActiveTab('info')}
-                      className="mt-4"
-                    >
-                      Go to Info
                     </Button>
                   </div>
                 )}
