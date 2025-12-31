@@ -1555,7 +1555,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   ]}
                   selectedChapterId="4"
                   onParagraphEdit={(id, text) => console.log('Edit paragraph:', id, text)}
-                  onChapterImageChange={(id) => console.log('Change image for:', id)}
+                  onChapterImageChange={(id, imageUrl) => console.log('Change image for:', id, imageUrl)}
+                  onChapterImageDelete={(id) => console.log('Delete image for:', id)}
                 />
 
                 {/* Continue Button */}
