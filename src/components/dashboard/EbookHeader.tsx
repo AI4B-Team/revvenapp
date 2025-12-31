@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { 
   Pencil, ChevronDown, Check, Eye, MessageSquare, Settings,
-  UserPlus, Download, MoreVertical, Loader2, Wand2, Video, UserCircle, FileEdit, BookOpen,
-  Image, Film, Volume2, Book
+  UserPlus, MoreVertical, Loader2, Book, Lightbulb, Cpu, Palette
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -27,6 +26,14 @@ interface EbookHeaderProps {
   onExportClick?: () => void;
   onPublishClick?: () => void;
 }
+
+// Tab configuration - same as NewEbook.tsx
+const TABS = [
+  { id: 'idea', label: 'Idea', icon: Lightbulb },
+  { id: 'generate', label: 'Generate', icon: Cpu },
+  { id: 'design', label: 'Design', icon: Palette },
+  { id: 'review', label: 'eBook', icon: Book },
+];
 
 const EbookHeader = ({ 
   onExportClick,
@@ -55,7 +62,7 @@ const EbookHeader = ({
 
   return (
     <TooltipProvider>
-      <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0 relative">
         {/* Left Section */}
         <div className="flex items-center gap-3">
           {/* Ebook Studio Logo */}
@@ -196,6 +203,29 @@ const EbookHeader = ({
           </HoverCard>
         </div>
 
+        {/* Center Section - Tab Icons (absolutely centered) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
+          {TABS.map((tab) => {
+            const isEbook = tab.id === 'review';
+            return (
+              <Tooltip key={tab.id}>
+                <TooltipTrigger asChild>
+                  <button 
+                    disabled
+                    className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all text-gray-400 cursor-not-allowed border border-transparent ${isEbook ? 'border border-gray-500' : ''}`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span className="hidden md:inline">{tab.label}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>{tab.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </div>
+
         {/* Spacer */}
         <div className="flex-1" />
 
@@ -221,43 +251,6 @@ const EbookHeader = ({
             <UserPlus className="w-5 h-5" strokeWidth={2.5} />
             <span className="hidden md:inline">Share</span>
           </button>
-          
-          {/* Publish button */}
-          <button 
-            onClick={onPublishClick || (() => toast.success('Publish coming soon'))}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white font-semibold transition-colors"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 2L11 13" />
-              <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-            </svg>
-            <span className="hidden md:inline">Publish</span>
-          </button>
-
-          {/* Export button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400">
-                <Download className="w-5 h-5" strokeWidth={2.5} />
-                <span className="hidden md:inline">Export</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 bg-white border border-gray-200 z-50">
-              <DropdownMenuItem onClick={onExportClick} className="flex items-center gap-2 cursor-pointer">
-                <Download className="w-4 h-4" />
-                PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onExportClick} className="flex items-center gap-2 cursor-pointer">
-                <Download className="w-4 h-4" />
-                EPUB
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onExportClick} className="flex items-center gap-2 cursor-pointer">
-                <Download className="w-4 h-4" />
-                DOCX
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           
           {/* 3-dot menu */}
           <DropdownMenu open={projectMenuOpen} onOpenChange={setProjectMenuOpen}>
