@@ -14,6 +14,7 @@ import { SiLoom, SiZoom } from 'react-icons/si';
 import { Rss, MoreHorizontal } from 'lucide-react';
 import EbookDesignSidebar from '@/components/ebook/EbookDesignSidebar';
 import EbookContentPreview from '@/components/ebook/EbookContentPreview';
+import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -456,16 +457,16 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
-        {/* Black Header Bar - matching Transcribe */}
-        <div className="relative flex items-center px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
+        {/* Black Header Bar - compact */}
+        <div className="relative flex items-center px-3 py-1.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
           {/* Left Section */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {/* eBook Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <BookOpen className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
+                <BookOpen className="w-3 h-3 text-white" />
               </div>
-              <h1 className="text-lg font-bold tracking-tight">
+              <h1 className="text-sm font-bold tracking-tight">
                 <span className="text-white">eBOOK</span>
                 <span className="text-emerald-400"> STUDIO</span>
               </h1>
@@ -684,19 +685,88 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
           </div>
         </div>
         
-        <main className="flex-1 p-8">
-          {/* Back button row */}
-          <div className="flex items-center mb-6">
-            <button 
-              onClick={() => navigate('/ebook-creator')} 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back To Projects</span>
-            </button>
-          </div>
+        {/* Conditional Layout for Design Tab vs Other Tabs */}
+        {activeTab === 'design' ? (
+          /* Design Tab - Full Height Canvas Editor */
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Compact Top Bar with Back Button and Actions */}
+            <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 gap-3 flex-shrink-0">
+              <button 
+                onClick={() => navigate('/ebook-creator')} 
+                className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back To Projects</span>
+              </button>
+              <div className="h-4 w-px bg-gray-200" />
+              <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
+                {bookData.selectedTitle || 'Untitled eBook'}
+              </span>
+              <div className="flex-1" />
+              {/* Continue to Review */}
+              <Button 
+                size="sm"
+                onClick={() => setActiveTab('review')}
+                className="h-7 bg-emerald-500 hover:bg-emerald-600 text-white text-xs gap-1.5"
+              >
+                Continue
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
 
-          <div className={activeTab === 'design' ? '' : 'max-w-4xl mx-auto'}>
+            {/* Canvas Editor Area */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Left Sidebar - Design Tools */}
+              <EbookDesignSidebar
+                bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                chapters={[
+                  { id: '1', title: bookData.selectedTitle || 'Untitled eBook', type: 'cover' },
+                  { id: '2', title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents' },
+                  { id: '3', title: 'Introduction', type: 'introduction' },
+                  { id: '4', title: 'Chapter 1: Getting Started', type: null },
+                  { id: '5', title: 'Chapter 2: Core Concepts', type: null },
+                  { id: '6', title: 'Chapter 3: Deep Dive', type: null },
+                  { id: '7', title: 'Chapter 4: Advanced Topics', type: null },
+                  { id: '8', title: 'Summary', type: 'summary' },
+                ]}
+                selectedChapterId="1"
+                onChapterSelect={(id) => console.log('Selected chapter:', id)}
+                onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
+                onChapterTitleEdit={(id, title) => console.log('Edit chapter:', id, title)}
+              />
+
+              {/* Main Canvas Editor */}
+              <EbookCanvasEditor
+                pages={[
+                  { id: '1', title: bookData.selectedTitle || 'Cover', type: 'cover' },
+                  { id: '2', title: 'Table of Contents', type: 'toc' },
+                  { id: '3', title: 'Chapter 1: Getting Started', type: 'chapter' },
+                  { id: '4', title: 'Chapter 2: Core Concepts', type: 'chapter' },
+                  { id: '5', title: 'Chapter 3: Deep Dive', type: 'chapter' },
+                  { id: '6', title: 'Chapter 4: Advanced Topics', type: 'chapter' },
+                  { id: '7', title: 'Summary', type: 'chapter' },
+                ]}
+                selectedPageId="1"
+                onPageSelect={(id) => console.log('Selected page:', id)}
+                bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+              />
+            </div>
+          </div>
+        ) : (
+          /* Other Tabs - Standard Layout with Padding */
+          <main className="flex-1 p-6 overflow-y-auto">
+            {/* Back button row */}
+            <div className="flex items-center mb-4">
+              <button 
+                onClick={() => navigate('/ebook-creator')} 
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Back To Projects</span>
+              </button>
+            </div>
+
+            <div className="max-w-4xl mx-auto">
             {/* Generation Progress */}
             {isGenerating && (
               <div className="mb-8 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
@@ -1529,59 +1599,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </div>
             )}
 
-            {/* DESIGN TAB */}
-            {activeTab === 'design' && (
-              <div className="flex gap-0 h-[calc(100vh-180px)] overflow-hidden">
-                {/* Left Sidebar - Collapsible Sections */}
-                <EbookDesignSidebar
-                  bookTitle={bookData.selectedTitle || 'Untitled eBook'}
-                  chapters={[
-                    { id: '1', title: bookData.selectedTitle || 'Untitled eBook', type: 'cover' },
-                    { id: '2', title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents' },
-                    { id: '3', title: 'Introduction', type: 'introduction' },
-                    { id: '4', title: 'Chapter 1: Getting Started', type: null },
-                    { id: '5', title: 'Chapter 2: Core Concepts', type: null },
-                    { id: '6', title: 'Chapter 3: Deep Dive', type: null },
-                    { id: '7', title: 'Chapter 4: Advanced Topics', type: null },
-                    { id: '8', title: 'Summary', type: 'summary' },
-                  ]}
-                  selectedChapterId="4"
-                  onChapterSelect={(id) => console.log('Selected chapter:', id)}
-                  onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
-                  onChapterTitleEdit={(id, title) => console.log('Edit chapter:', id, title)}
-                />
-
-                {/* Right Preview Area - Static Canvas */}
-                <EbookContentPreview
-                  chapters={[
-                    {
-                      id: '4',
-                      title: 'Chapter 1: Getting Started',
-                      paragraphs: [
-                        { id: 'p1', text: 'Welcome to this comprehensive guide. In this chapter, we will explore the fundamental concepts that form the foundation of our topic. Understanding these basics is crucial for your success.', chapterId: '4' },
-                        { id: 'p2', text: 'The journey begins with understanding why this matters. Many professionals overlook the importance of establishing a solid foundation before diving into advanced topics.', chapterId: '4' },
-                        { id: 'p3', text: 'By the end of this chapter, you will have a clear understanding of the core principles and be ready to apply them in real-world scenarios.', chapterId: '4' },
-                      ]
-                    }
-                  ]}
-                  selectedChapterId="4"
-                  onParagraphEdit={(id, text) => console.log('Edit paragraph:', id, text)}
-                  onChapterImageChange={(id, imageUrl) => console.log('Change image for:', id, imageUrl)}
-                  onChapterImageDelete={(id) => console.log('Delete image for:', id)}
-                />
-
-                {/* Continue Button */}
-                <div className="absolute bottom-6 right-6">
-                  <Button 
-                    onClick={() => setActiveTab('review')}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
+            {/* Note: DESIGN TAB is now rendered in the conditional layout above */}
 
             {/* REVIEW TAB */}
             {activeTab === 'review' && (
@@ -1634,11 +1652,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 </div>
               </div>
             )}
-          </div>
-        </main>
+            </div>
+          </main>
+        )}
       </div>
-
-      {/* Source Modal */}
       <Dialog open={sourceModalOpen} onOpenChange={setSourceModalOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
