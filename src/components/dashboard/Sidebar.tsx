@@ -29,9 +29,11 @@ interface SidebarProps {
   onAssetFilterChange?: (filter: string | null) => void;
   onCollapseChange?: (isCollapsed: boolean) => void;
   onEditClick?: () => void;
+  collapsed?: boolean;
+  defaultCollapsed?: boolean;
 }
 
-const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick }: SidebarProps) => {
+const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonetizePage = false, isAutomatePage = false, onCharactersClick, onIdentityClick, onAssetFilterChange, onCollapseChange, onEditClick, collapsed, defaultCollapsed }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
@@ -177,7 +179,12 @@ const Sidebar = ({ activeTab = '', onTabChange, isAssistantPage = false, isMonet
      activeTab === 'Content' ? contentNavItems :
      createNavItems);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(collapsed ?? defaultCollapsed ?? false);
+
+  useEffect(() => {
+    if (typeof collapsed === "boolean") setIsCollapsed(collapsed);
+  }, [collapsed]);
+
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isBrandsDropdownOpen, setIsBrandsDropdownOpen] = useState(false);
   const [isBrandOpen, setIsBrandOpen] = useState(isBrandPage);

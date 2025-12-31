@@ -186,7 +186,7 @@ const NewEbook = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>('idea');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -451,7 +451,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
   return (
     <TooltipProvider>
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar onCollapseChange={(collapsed) => setSidebarCollapsed(collapsed)} />
+      <Sidebar collapsed={sidebarCollapsed} onCollapseChange={setSidebarCollapsed} />
       
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
