@@ -12,6 +12,8 @@ import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, F
 import { FaXTwitter } from 'react-icons/fa6';
 import { SiLoom, SiZoom } from 'react-icons/si';
 import { Rss, MoreHorizontal } from 'lucide-react';
+import EbookDesignSidebar from '@/components/ebook/EbookDesignSidebar';
+import EbookContentPreview from '@/components/ebook/EbookContentPreview';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -435,39 +437,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </h1>
             </div>
             
-            {/* Tab Icons in Header */}
-            <div className="flex items-center gap-1 ml-4">
-              {TABS.map((tab, index) => {
-                const isActive = activeTab === tab.id;
-                const isPast = TABS.findIndex(t => t.id === activeTab) > index;
-                const isAccessible = canAccessTab(tab.id);
-                return (
-                  <Tooltip key={tab.id}>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => isAccessible && setActiveTab(tab.id)}
-                        disabled={!isAccessible}
-                        className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all ${
-                          isActive 
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' 
-                            : isPast
-                            ? 'bg-emerald-500/10 text-emerald-400/70 border border-emerald-500/30'
-                            : isAccessible
-                            ? 'text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
-                            : 'text-gray-600 cursor-not-allowed border border-transparent'
-                        }`}
-                      >
-                        <tab.icon className="w-4 h-4" />
-                        <span className="hidden md:inline">{tab.label}</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p>{tab.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
@@ -592,6 +561,41 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 </p>
               </HoverCardContent>
             </HoverCard>
+          </div>
+
+          {/* Center Section - Tab Icons */}
+          <div className="flex items-center gap-1">
+            {TABS.map((tab, index) => {
+              const isActive = activeTab === tab.id;
+              const isPast = TABS.findIndex(t => t.id === activeTab) > index;
+              const isAccessible = canAccessTab(tab.id);
+              const isEbook = tab.id === 'review';
+              return (
+                <Tooltip key={tab.id}>
+                  <TooltipTrigger asChild>
+                    <button 
+                      onClick={() => isAccessible && setActiveTab(tab.id)}
+                      disabled={!isAccessible}
+                      className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all ${
+                        isActive 
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' 
+                          : isPast
+                          ? 'bg-emerald-500/10 text-emerald-400/70 border border-emerald-500/30'
+                          : isAccessible
+                          ? 'text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
+                          : 'text-gray-600 cursor-not-allowed border border-transparent'
+                      } ${isEbook ? 'border border-gray-500' : ''}`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      <span className="hidden md:inline">{tab.label}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>{tab.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
           </div>
 
           {/* Spacer */}
@@ -1493,116 +1497,53 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
             {/* DESIGN TAB */}
             {activeTab === 'design' && (
-              <div className="flex gap-0 h-[calc(100vh-180px)]">
-                {/* Left Sidebar - Table of Contents */}
-                <div className="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-                  {/* Vertical Tab Navigation */}
-                  <div className="flex border-b border-gray-200">
-                    {[
-                      { id: 'templates', label: 'Templates', icon: Layers },
-                      { id: 'content', label: 'Content', icon: FileText },
-                      { id: 'images', label: 'Images', icon: ImageIcon },
-                      { id: 'colors', label: 'Colors', icon: Palette },
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        className="flex-1 flex flex-col items-center gap-1 py-3 px-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors border-b-2 border-transparent first:rounded-tl-2xl last:rounded-tr-2xl data-[active=true]:border-emerald-500 data-[active=true]:text-emerald-600"
-                        data-active={tab.id === 'content'}
-                      >
-                        <tab.icon className="w-5 h-5" />
-                        <span className="text-xs font-medium">{tab.label}</span>
-                      </button>
-                    ))}
-                  </div>
+              <div className="flex gap-0 h-[calc(100vh-180px)] overflow-hidden">
+                {/* Left Sidebar - Collapsible Sections */}
+                <EbookDesignSidebar
+                  bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                  chapters={[
+                    { id: '1', title: bookData.selectedTitle || 'Untitled eBook', type: 'cover' },
+                    { id: '2', title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents' },
+                    { id: '3', title: 'Introduction', type: 'introduction' },
+                    { id: '4', title: 'Chapter 1: Getting Started', type: null },
+                    { id: '5', title: 'Chapter 2: Core Concepts', type: null },
+                    { id: '6', title: 'Chapter 3: Deep Dive', type: null },
+                    { id: '7', title: 'Chapter 4: Advanced Topics', type: null },
+                    { id: '8', title: 'Summary', type: 'summary' },
+                  ]}
+                  selectedChapterId="4"
+                  onChapterSelect={(id) => console.log('Selected chapter:', id)}
+                  onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
+                  onChapterTitleEdit={(id, title) => console.log('Edit chapter:', id, title)}
+                />
 
-                  {/* Content Section */}
-                  <div className="flex-1 overflow-y-auto p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Refine Your Outline</h3>
-                    
-                    {/* TOC Items */}
-                    <div className="space-y-2">
-                      {(() => {
-                        const tocItems = [
-                          { title: bookData.selectedTitle || 'Untitled eBook', type: 'cover', editable: false },
-                          { title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents', editable: false },
-                          { title: 'Introduction', type: 'introduction', editable: false },
-                          { title: 'Chapter 1: Getting Started', type: null, editable: true },
-                          { title: 'Chapter 2: Core Concepts', type: null, editable: true },
-                          { title: 'Chapter 3: Deep Dive', type: null, editable: true },
-                          { title: 'Chapter 4: Advanced Topics', type: null, editable: true },
-                          { title: 'Summary', type: 'summary', editable: false },
-                        ];
+                {/* Right Preview Area - Static Canvas */}
+                <EbookContentPreview
+                  chapters={[
+                    {
+                      id: '4',
+                      title: 'Chapter 1: Getting Started',
+                      paragraphs: [
+                        { id: 'p1', text: 'Welcome to this comprehensive guide. In this chapter, we will explore the fundamental concepts that form the foundation of our topic. Understanding these basics is crucial for your success.', chapterId: '4' },
+                        { id: 'p2', text: 'The journey begins with understanding why this matters. Many professionals overlook the importance of establishing a solid foundation before diving into advanced topics.', chapterId: '4' },
+                        { id: 'p3', text: 'By the end of this chapter, you will have a clear understanding of the core principles and be ready to apply them in real-world scenarios.', chapterId: '4' },
+                      ]
+                    }
+                  ]}
+                  selectedChapterId="4"
+                  onParagraphEdit={(id, text) => console.log('Edit paragraph:', id, text)}
+                  onChapterImageChange={(id) => console.log('Change image for:', id)}
+                />
 
-                        return tocItems.map((item, index) => (
-                          <div
-                            key={index}
-                            className="group flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 transition-colors bg-white"
-                          >
-                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-gray-600 font-medium text-sm flex-shrink-0">
-                              {index + 1}
-                            </span>
-                            <span className="flex-1 text-sm font-medium text-gray-900 truncate">
-                              {item.title}
-                            </span>
-                            {item.type && (
-                              <span className={`px-2 py-1 text-xs font-medium rounded-lg flex-shrink-0 ${
-                                item.type === 'cover' ? 'bg-gray-600 text-white' :
-                                item.type === 'table of contents' ? 'bg-teal-500 text-white' :
-                                item.type === 'introduction' ? 'bg-teal-400 text-white' :
-                                'bg-gray-500 text-white'
-                              }`}>
-                                {item.type}
-                              </span>
-                            )}
-                            {item.editable && (
-                              <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
-                                <Pencil className="w-4 h-4 text-gray-400" />
-                              </button>
-                            )}
-                          </div>
-                        ));
-                      })()}
-                    </div>
-
-                    {/* Add New Page Button */}
-                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
-                      <Plus className="w-5 h-5" />
-                      <span className="font-medium">Add New Page</span>
-                    </button>
-
-                    {/* Regenerate Button */}
-                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium hover:from-orange-500 hover:to-orange-600 transition-colors shadow-sm">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>1</span>
-                      <span>Regenerate with New Changes</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right Preview Area - Full Canvas */}
-                <div className="flex-1 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden relative">
-                  {/* Preview Placeholder */}
-                  <div className="text-center p-8">
-                    <div className="w-64 h-80 bg-white rounded-xl shadow-2xl mx-auto mb-6 flex flex-col items-center justify-center border border-gray-200">
-                      <BookOpen className="w-16 h-16 text-emerald-500 mb-4" />
-                      <h3 className="text-lg font-bold text-gray-900 px-4 text-center line-clamp-2">
-                        {bookData.selectedTitle || 'Your eBook Title'}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-2">Preview</p>
-                    </div>
-                    <p className="text-gray-500 text-sm">Your eBook preview will appear here</p>
-                  </div>
-
-                  {/* Continue Button */}
-                  <div className="absolute bottom-6 right-6">
-                    <Button 
-                      onClick={() => setActiveTab('review')}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg"
-                    >
-                      Continue
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </div>
+                {/* Continue Button */}
+                <div className="absolute bottom-6 right-6">
+                  <Button 
+                    onClick={() => setActiveTab('review')}
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg"
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             )}
