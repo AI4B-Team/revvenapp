@@ -260,8 +260,19 @@ const NewEbook = () => {
         setContentTypeSelected(true);
         setBookData(prev => ({ ...prev, contentType: 'ebook' }));
       }
+      // Collapse main sidebar for design/review tabs to give more canvas space
+      if (tab === 'design' || tab === 'review') {
+        setSidebarCollapsed(true);
+      }
     }
   }, [searchParams]);
+
+  // Collapse main sidebar when entering design or review tabs
+  useEffect(() => {
+    if (activeTab === 'design' || activeTab === 'review') {
+      setSidebarCollapsed(true);
+    }
+  }, [activeTab]);
 
   const handleSourceSelect = (sourceId: string) => {
     if (sourceId === 'ai') {

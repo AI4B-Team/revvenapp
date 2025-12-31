@@ -119,7 +119,7 @@ const EbookDesignSidebar = ({
   );
 
   return (
-    <div className="w-72 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden">
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
       {/* Templates Section */}
       <SectionHeader id="templates" title="Templates" icon={Layers} />
       {expandedSection === 'templates' && (
