@@ -1171,7 +1171,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
                   Choose A Title
                 </h1>
-                <p className="text-gray-500 text-center text-base mb-8">
+                <p className="text-gray-500 text-center text-lg mb-8">
                   Select A Title Or Tweak One To Match Your Voice. You Can Change It Anytime.
                 </p>
 
