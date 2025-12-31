@@ -302,38 +302,49 @@ const NewEbook = () => {
     setIsGenerating(true);
     setGenerationProgress(0);
     
-    // Simulate topic idea generation
-    const interval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsGenerating(false);
-          // Generate 10 topic ideas/suggestions
-          setTitleSuggestions([
-            `The Complete Guide to ${bookData.prompt}`,
-            `Mastering ${bookData.prompt}: A Comprehensive Approach`,
-            `${bookData.prompt} Unleashed: Strategies for Success`,
-            `The ${bookData.prompt} Blueprint`,
-            `Essential ${bookData.prompt} for Modern Professionals`,
-            `${bookData.prompt} Made Simple: A Beginner's Guide`,
-            `Advanced ${bookData.prompt} Techniques`,
-            `The Art of ${bookData.prompt}`,
-            `${bookData.prompt}: From Zero to Hero`,
-            `The Ultimate ${bookData.prompt} Handbook`,
-          ]);
-          setActiveTab('generate');
-          toast.success('Topic ideas ready!');
-          return 100;
-        }
-        return Math.min(prev + Math.random() * 20, 100);
-      });
-    }, 400);
+          // Title Case function
+          const toTitleCase = (str: string) => {
+            const minorWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'];
+            return str.split(' ').map((word, index) => {
+              if (index === 0 || !minorWords.includes(word.toLowerCase())) {
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+              }
+              return word.toLowerCase();
+            }).join(' ');
+          };
+
+          const topicTitleCase = toTitleCase(bookData.prompt);
+
+          // Simulate topic idea generation
+          const interval = setInterval(() => {
+            setGenerationProgress(prev => {
+              if (prev >= 100) {
+                clearInterval(interval);
+                setIsGenerating(false);
+                // Generate 10 topic ideas/suggestions with varied tones
+                setTitleSuggestions([
+                  `The Complete Guide to ${topicTitleCase}`,
+                  `Mastering ${topicTitleCase}: The Definitive Framework`,
+                  `${topicTitleCase} Unleashed: The Bold Playbook`,
+                  `The ${topicTitleCase} Blueprint`,
+                  `${topicTitleCase} Made Simple: A Beginner's Guide`,
+                  `Advanced ${topicTitleCase} Techniques`,
+                  `The Art of ${topicTitleCase}: A Creative Strategy`,
+                  `${topicTitleCase}: From Zero to Hero`,
+                  `The Ultimate ${topicTitleCase} Reference Handbook`,
+                  `${topicTitleCase} 101: Getting Started`,
+                ]);
+                setActiveTab('generate');
+                toast.success('Topic ideas ready!');
+                return 100;
+              }
+              return Math.min(prev + Math.random() * 20, 100);
+            });
+          }, 400);
   };
 
   const handleTitleSelect = (title: string) => {
     setBookData(prev => ({ ...prev, selectedTitle: title }));
-    toast.success('Topic selected! Moving to design...');
-    setTimeout(() => setActiveTab('design'), 500);
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -1148,8 +1159,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
                   Choose A Title
                 </h1>
-                <p className="text-gray-500 text-center mb-8">
+                <p className="text-gray-500 text-center">
                   Select A Title Or Tweak One To Match Your Voice
+                </p>
+                <p className="text-sm text-gray-400 text-center mb-8">
+                  You Can Change Your Title Later.
                 </p>
 
                 {titleSuggestions.length > 0 ? (
@@ -1158,32 +1172,53 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       {titleSuggestions.map((title, index) => {
                         // Determine tone category based on title keywords
                         const getToneInfo = (t: string) => {
-                          if (t.includes('Blueprint') || t.includes('Guide') || t.includes('Handbook') || t.includes('Step')) {
-                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700' };
+                          // Beginner-friendly
+                          if (t.includes('Made Simple') || t.includes('Easy') || t.includes('Beginner') || t.includes('101') || t.includes('Getting Started')) {
+                            return { label: 'Beginner-Friendly', icon: Heart, color: 'bg-pink-100 text-pink-700', helper: 'Best For Beginners' };
                           }
-                          if (t.includes('Unleashed') || t.includes('Playbook') || t.includes('Power') || t.includes('Secrets') || t.includes('Ultimate')) {
-                            return { label: 'Bold & Tactical', icon: Zap, color: 'bg-orange-100 text-orange-700' };
+                          // Transformation
+                          if (t.includes('From Zero to Hero') || t.includes('Transform') || t.includes('Journey') || t.includes('Path')) {
+                            return { label: 'Transformation', icon: Zap, color: 'bg-amber-100 text-amber-700', helper: 'Great For Lead Magnets' };
                           }
-                          if (t.includes('Simple') || t.includes('Easy') || t.includes('Beginner') || t.includes('Start') || t.includes('101')) {
-                            return { label: 'Beginner-friendly', icon: Heart, color: 'bg-pink-100 text-pink-700' };
+                          // Bold & Tactical
+                          if (t.includes('Unleashed') || t.includes('Playbook') || t.includes('Power') || t.includes('Secrets') || t.includes('Bold')) {
+                            return { label: 'Bold & Tactical', icon: Flame, color: 'bg-orange-100 text-orange-700', helper: 'Great For Lead Magnets' };
                           }
-                          if (t.includes('Definitive') || t.includes('Framework') || t.includes('Master') || t.includes('Expert') || t.includes('Complete')) {
-                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700' };
+                          // Creative / Strategy
+                          if (t.includes('Art of') || t.includes('Creative') || t.includes('Strategy')) {
+                            return { label: 'Creative / Strategy', icon: Sparkles, color: 'bg-violet-100 text-violet-700', helper: 'Ideal For Authority Positioning' };
                           }
-                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700' };
+                          // Reference
+                          if (t.includes('Handbook') || t.includes('Reference') || t.includes('Encyclopedia') || t.includes('Manual')) {
+                            return { label: 'Reference', icon: BookOpen, color: 'bg-slate-100 text-slate-700', helper: 'Ideal For Authority Positioning' };
+                          }
+                          // Advanced
+                          if (t.includes('Advanced') || t.includes('Expert') || t.includes('Pro ') || t.includes('Mastering')) {
+                            return { label: 'Advanced', icon: GraduationCap, color: 'bg-indigo-100 text-indigo-700', helper: 'Ideal For Authority Positioning' };
+                          }
+                          // Professional / Authority
+                          if (t.includes('Definitive') || t.includes('Framework') || t.includes('Complete Guide')) {
+                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700', helper: 'Ideal For Authority Positioning' };
+                          }
+                          // Practical (Blueprint, Guide)
+                          if (t.includes('Blueprint') || t.includes('Guide') || t.includes('Step')) {
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Best For Beginners' };
+                          }
+                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Best For Beginners' };
                         };
                         const toneInfo = getToneInfo(title);
+                        const isSelected = bookData.selectedTitle === title;
                         const ToneIcon = toneInfo.icon;
 
                         return (
                           <div
                             key={index}
                             className={`group relative w-full p-5 text-left rounded-xl border-2 transition-all hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer ${
-                              bookData.selectedTitle === title
+                              isSelected
                                 ? 'border-emerald-500 bg-emerald-50'
                                 : 'border-gray-200 bg-white'
                             }`}
-                            onClick={() => handleTitleSelect(title)}
+                            onClick={() => setBookData(prev => ({ ...prev, selectedTitle: title }))}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3 flex-1">
@@ -1196,6 +1231,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                     <ToneIcon className="w-3 h-3" />
                                     {toneInfo.label}
                                   </span>
+                                  {isSelected && (
+                                    <span className="text-xs text-gray-400 mt-1">{toneInfo.helper}</span>
+                                  )}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
@@ -1205,17 +1243,17 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                     const newTitle = prompt('Edit your title:', title);
                                     if (newTitle && newTitle.trim()) {
                                       setTitleSuggestions(prev => prev.map((t, i) => i === index ? newTitle.trim() : t));
-                                      if (bookData.selectedTitle === title) {
+                                      if (isSelected) {
                                         setBookData(prev => ({ ...prev, selectedTitle: newTitle.trim() }));
                                       }
                                     }
                                   }}
-                                  className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-gray-100 transition-all"
-                                  title="Edit title"
+                                  className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-200"
                                 >
-                                  <Pencil className="w-4 h-4 text-gray-500" />
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  <span className="text-xs font-medium">Edit Title</span>
                                 </button>
-                                {bookData.selectedTitle === title && (
+                                {isSelected && (
                                   <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                 )}
                               </div>
