@@ -177,7 +177,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: 
   { id: 'idea', label: 'Idea', icon: Lightbulb },
   { id: 'generate', label: 'Generate', icon: Sparkles },
   { id: 'design', label: 'Design', icon: Palette },
-  { id: 'review', label: 'Review', icon: CheckCircle2 },
+  { id: 'review', label: 'eBook', icon: CheckCircle2 },
 ];
 
 const NewEbook = () => {
