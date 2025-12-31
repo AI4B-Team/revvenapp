@@ -1172,33 +1172,36 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           }
                           // Transformation
                           if (t.includes('From Zero to Hero') || t.includes('Transform') || t.includes('Journey') || t.includes('Path')) {
-                            return { label: 'Transformation', icon: Zap, color: 'bg-amber-100 text-amber-700', helper: 'Great For Lead Magnets' };
+                            return { label: 'Transformation', icon: Zap, color: 'bg-amber-100 text-amber-700', helper: 'Results-Focused' };
                           }
                           // Bold & Tactical
                           if (t.includes('Unleashed') || t.includes('Playbook') || t.includes('Power') || t.includes('Secrets') || t.includes('Bold')) {
-                            return { label: 'Bold & Tactical', icon: Flame, color: 'bg-orange-100 text-orange-700', helper: 'Great For Lead Magnets' };
+                            return { label: 'Bold & Tactical', icon: Flame, color: 'bg-orange-100 text-orange-700', helper: 'Designed To Sell' };
                           }
                           // Creative / Strategy
                           if (t.includes('Art of') || t.includes('Creative') || t.includes('Strategy')) {
-                            return { label: 'Creative / Strategy', icon: Sparkles, color: 'bg-violet-100 text-violet-700', helper: 'Ideal For Authority Positioning' };
+                            return { label: 'Creative / Strategy', icon: Sparkles, color: 'bg-violet-100 text-violet-700', helper: 'Authority Builder' };
                           }
                           // Reference
                           if (t.includes('Handbook') || t.includes('Reference') || t.includes('Encyclopedia') || t.includes('Manual')) {
-                            return { label: 'Reference', icon: BookOpen, color: 'bg-slate-100 text-slate-700', helper: 'Ideal For Authority Positioning' };
+                            return { label: 'Reference', icon: BookOpen, color: 'bg-slate-100 text-slate-700', helper: 'Authority Builder' };
                           }
                           // Advanced
                           if (t.includes('Advanced') || t.includes('Expert') || t.includes('Pro ') || t.includes('Mastering')) {
-                            return { label: 'Advanced', icon: GraduationCap, color: 'bg-indigo-100 text-indigo-700', helper: 'Ideal For Authority Positioning' };
+                            return { label: 'Advanced', icon: GraduationCap, color: 'bg-indigo-100 text-indigo-700', helper: 'Authority Builder' };
                           }
                           // Professional / Authority
                           if (t.includes('Definitive') || t.includes('Framework') || t.includes('Complete Guide')) {
-                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700', helper: 'Ideal For Authority Positioning' };
+                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700', helper: 'Authority Builder' };
                           }
-                          // Practical (Blueprint, Guide)
-                          if (t.includes('Blueprint') || t.includes('Guide') || t.includes('Step')) {
-                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Best For Beginners' };
+                          // Practical (Blueprint, Guide, Step)
+                          if (t.includes('Blueprint')) {
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Fast Implementation' };
                           }
-                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Best For Beginners' };
+                          if (t.includes('Step') || t.includes('Guide')) {
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Step-By-Step' };
+                          }
+                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Great For Lead Magnets' };
                         };
                         const toneInfo = getToneInfo(title);
                         const isSelected = bookData.selectedTitle === title;
