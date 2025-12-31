@@ -1254,22 +1254,33 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                 </span>
                                 <div className="flex flex-col gap-1 flex-1">
                                   {editingTitleIndex === index ? (
-                                    <input
-                                      type="text"
-                                      value={editingTitleValue}
-                                      onChange={(e) => setEditingTitleValue(e.target.value)}
-                                      onBlur={() => {
-                                        if (editingTitleValue.trim()) {
-                                          setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
-                                          if (isSelected) {
-                                            setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                    <div className="flex items-center gap-2 w-full">
+                                      <input
+                                        type="text"
+                                        value={editingTitleValue}
+                                        onChange={(e) => setEditingTitleValue(e.target.value)}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            if (editingTitleValue.trim()) {
+                                              setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
+                                              if (isSelected) {
+                                                setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                              }
+                                            }
+                                            setEditingTitleIndex(null);
+                                            setEditingTitleValue('');
+                                          } else if (e.key === 'Escape') {
+                                            setEditingTitleIndex(null);
+                                            setEditingTitleValue('');
                                           }
-                                        }
-                                        setEditingTitleIndex(null);
-                                        setEditingTitleValue('');
-                                      }}
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
+                                        }}
+                                        autoFocus
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="text-lg font-medium text-gray-900 bg-white border border-emerald-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 flex-1"
+                                      />
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           if (editingTitleValue.trim()) {
                                             setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
                                             if (isSelected) {
@@ -1278,15 +1289,22 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                           }
                                           setEditingTitleIndex(null);
                                           setEditingTitleValue('');
-                                        } else if (e.key === 'Escape') {
+                                        }}
+                                        className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
+                                      >
+                                        <Check className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           setEditingTitleIndex(null);
                                           setEditingTitleValue('');
-                                        }
-                                      }}
-                                      autoFocus
-                                      onClick={(e) => e.stopPropagation()}
-                                      className="text-lg font-medium text-gray-900 bg-white border border-emerald-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
-                                    />
+                                        }}
+                                        className="p-1.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
                                   ) : (
                                     <span className="text-lg font-medium text-gray-900">{title}</span>
                                   )}
@@ -1342,14 +1360,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               type="text"
                               value={customTitleValue}
                               onChange={(e) => setCustomTitleValue(e.target.value)}
-                              onBlur={() => {
-                                if (customTitleValue.trim()) {
-                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
-                                  handleTitleSelect(customTitleValue.trim());
-                                }
-                                setIsAddingCustomTitle(false);
-                                setCustomTitleValue('');
-                              }}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter' && customTitleValue.trim()) {
                                   setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
@@ -1365,6 +1375,28 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               placeholder="Enter your custom title..."
                               className="flex-1 text-lg font-medium text-gray-900 bg-white border border-emerald-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             />
+                            <button
+                              onClick={() => {
+                                if (customTitleValue.trim()) {
+                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
+                                  handleTitleSelect(customTitleValue.trim());
+                                }
+                                setIsAddingCustomTitle(false);
+                                setCustomTitleValue('');
+                              }}
+                              className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-colors"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsAddingCustomTitle(false);
+                                setCustomTitleValue('');
+                              }}
+                              className="p-1.5 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       ) : (
