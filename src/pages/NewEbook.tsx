@@ -662,7 +662,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     <Sparkles className="w-6 h-6 text-emerald-600 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Generating title ideas...</h3>
+                    <h3 className="font-semibold text-gray-900">Generating Title Ideas...</h3>
                     <p className="text-sm text-gray-500">{Math.round(generationProgress)}% complete</p>
                   </div>
                 </div>
