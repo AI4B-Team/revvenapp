@@ -342,7 +342,7 @@ const NewEbook = () => {
                   `${topicTitleCase} 101: Getting Started`,
                 ]);
                 setActiveTab('generate');
-                toast.success('Topic ideas ready!');
+                toast.success('Generating Title Ideas');
                 return 100;
               }
               return Math.min(prev + Math.random() * 20, 100);
