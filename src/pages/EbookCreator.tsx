@@ -352,7 +352,7 @@ const EbookCreator = () => {
     
     return (
       <div className="group bg-card border border-border rounded-xl p-4 hover:border-muted-foreground hover:shadow-md transition-all duration-200 cursor-pointer"
-        onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
+        onClick={() => navigate('/ebook-creator/new?tab=review', { state: { book } })}>
         <div className="flex items-start gap-4">
           <div className="w-16 h-20 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm" style={{ backgroundColor: book.coverColor + '20', borderLeft: `4px solid ${book.coverColor}` }}>
             <Book className="w-8 h-8" style={{ color: book.coverColor }} />
@@ -385,7 +385,7 @@ const EbookCreator = () => {
             )}
           </div>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative">
-            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
+            <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=review', { state: { book } }); }} className="p-2 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg transition-colors" title="Edit"><Edit className="w-5 h-5" /></button>
             <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowCoverDesigner(true); }} className="p-2 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 rounded-lg transition-colors" title="Design Cover"><Palette className="w-5 h-5" /></button>
             <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors" title="Export"><Download className="w-5 h-5" /></button>
             <div className="relative">
@@ -409,14 +409,14 @@ const EbookCreator = () => {
     
     return (
       <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-muted-foreground hover:shadow-lg transition-all duration-200 cursor-pointer"
-        onClick={() => { setSelectedBook(book); setShowChapterEditor(true); }}>
+        onClick={() => navigate('/ebook-creator/new?tab=review', { state: { book } })}>
         <div className="h-40 flex items-center justify-center relative" style={{ backgroundColor: book.coverColor + '15' }}>
           <div className="w-24 h-32 rounded-lg shadow-xl flex items-center justify-center" style={{ backgroundColor: book.coverColor }}>
             <Book className="w-12 h-12 text-white/80" />
           </div>
           <div className="absolute top-3 right-3"><StatusBadge status={book.status} /></div>
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-            <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowChapterEditor(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-emerald-500 hover:text-white transition-colors"><Edit className="w-5 h-5" /></button>
+            <button onClick={(e) => { e.stopPropagation(); navigate('/ebook-creator/new?tab=review', { state: { book } }); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-emerald-500 hover:text-white transition-colors"><Edit className="w-5 h-5" /></button>
             <button onClick={(e) => { e.stopPropagation(); setSelectedBook(book); setShowExportModal(true); }} className="p-2 bg-background rounded-lg text-foreground hover:bg-blue-500 hover:text-white transition-colors"><Download className="w-5 h-5" /></button>
           </div>
         </div>

@@ -230,15 +230,38 @@ const NewEbook = () => {
   });
   const [contentTypeSelected, setContentTypeSelected] = useState(false);
 
-  // Load uploaded file from navigation state (from EbookCreator page)
+  // Load uploaded file or book from navigation state (from EbookCreator page)
   useEffect(() => {
-    const state = location.state as { uploadedFile?: UploadedFile } | null;
+    const state = location.state as { uploadedFile?: UploadedFile; book?: any } | null;
     if (state?.uploadedFile) {
       setUploadedFiles([state.uploadedFile]);
       // Clear the state so it doesn't persist on refresh
       window.history.replaceState({}, document.title);
     }
+    // If book is passed, go directly to eBook tab
+    if (state?.book) {
+      setActiveTab('review');
+      setContentTypeSelected(true);
+      setBookData(prev => ({
+        ...prev,
+        contentType: 'ebook',
+        selectedTitle: state.book.title || '',
+        prompt: state.book.description || '',
+      }));
+    }
   }, [location.state]);
+
+  // Also check URL params for tab
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['idea', 'generate', 'design', 'review'].includes(tab)) {
+      setActiveTab(tab as TabId);
+      if (tab === 'review') {
+        setContentTypeSelected(true);
+        setBookData(prev => ({ ...prev, contentType: 'ebook' }));
+      }
+    }
+  }, [searchParams]);
 
   const handleSourceSelect = (sourceId: string) => {
     if (sourceId === 'ai') {
