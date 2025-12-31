@@ -302,11 +302,17 @@ const NewEbook = () => {
     setIsGenerating(true);
     setGenerationProgress(0);
     
-          // Title Case function - properly capitalizes each word
+          // Title Case function - properly capitalizes each word including after hyphens
           const toTitleCase = (str: string) => {
             return str.split(' ').map((word) => {
               if (!word) return word;
-              return word.charAt(0).toUpperCase() + word.slice(1);
+              // Handle hyphenated words
+              if (word.includes('-')) {
+                return word.split('-').map(part => 
+                  part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                ).join('-');
+              }
+              return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
             }).join(' ');
           };
 
@@ -1160,52 +1166,70 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   Select A Title Or Tweak One To Match Your Voice. You Can Change Your Title Later.
                 </p>
 
-                {titleSuggestions.length > 0 ? (
+              {titleSuggestions.length > 0 ? (
                   <>
                     <div className="space-y-3">
                       {titleSuggestions.map((title, index) => {
                         // Determine tone category based on title keywords
-                        const getToneInfo = (t: string) => {
+                        const getToneInfo = (t: string): { label: string; icon: typeof Heart; color: string; helper: string; isAuthority?: boolean } => {
                           // Beginner-friendly
                           if (t.includes('Made Simple') || t.includes('Easy') || t.includes('Beginner') || t.includes('101') || t.includes('Getting Started')) {
-                            return { label: 'Beginner-Friendly', icon: Heart, color: 'bg-pink-100 text-pink-700', helper: 'Best For Beginners' };
+                            return { label: 'Beginner-Friendly', icon: Heart, color: 'bg-pink-100 text-pink-700', helper: 'Best For Beginners', isAuthority: false };
                           }
                           // Transformation
                           if (t.includes('From Zero to Hero') || t.includes('Transform') || t.includes('Journey') || t.includes('Path')) {
-                            return { label: 'Transformation', icon: Zap, color: 'bg-amber-100 text-amber-700', helper: 'Results-Focused' };
+                            return { label: 'Transformation', icon: Zap, color: 'bg-amber-100 text-amber-700', helper: 'Results-Focused', isAuthority: false };
                           }
                           // Bold & Tactical
                           if (t.includes('Unleashed') || t.includes('Playbook') || t.includes('Power') || t.includes('Secrets') || t.includes('Bold')) {
-                            return { label: 'Bold & Tactical', icon: Flame, color: 'bg-orange-100 text-orange-700', helper: 'Designed To Sell' };
+                            return { label: 'Bold & Tactical', icon: Flame, color: 'bg-orange-100 text-orange-700', helper: 'Designed To Sell', isAuthority: true };
                           }
                           // Creative / Strategy
                           if (t.includes('Art of') || t.includes('Creative') || t.includes('Strategy')) {
-                            return { label: 'Creative / Strategy', icon: Sparkles, color: 'bg-violet-100 text-violet-700', helper: 'Authority Builder' };
+                            return { label: 'Creative / Strategy', icon: Sparkles, color: 'bg-violet-100 text-violet-700', helper: 'Authority Builder', isAuthority: true };
                           }
                           // Reference
                           if (t.includes('Handbook') || t.includes('Reference') || t.includes('Encyclopedia') || t.includes('Manual')) {
-                            return { label: 'Reference', icon: BookOpen, color: 'bg-slate-100 text-slate-700', helper: 'Authority Builder' };
+                            return { label: 'Reference', icon: BookOpen, color: 'bg-slate-100 text-slate-700', helper: 'Authority Builder', isAuthority: true };
                           }
                           // Advanced
                           if (t.includes('Advanced') || t.includes('Expert') || t.includes('Pro ') || t.includes('Mastering')) {
-                            return { label: 'Advanced', icon: GraduationCap, color: 'bg-indigo-100 text-indigo-700', helper: 'Authority Builder' };
+                            return { label: 'Advanced', icon: GraduationCap, color: 'bg-indigo-100 text-indigo-700', helper: 'Authority Builder', isAuthority: true };
                           }
-                          // Professional / Authority
+                          // Professional
                           if (t.includes('Definitive') || t.includes('Framework') || t.includes('Complete Guide')) {
-                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700', helper: 'Authority Builder' };
+                            return { label: 'Professional', icon: Award, color: 'bg-purple-100 text-purple-700', helper: 'Authority Builder', isAuthority: true };
                           }
                           // Practical (Blueprint, Guide, Step)
                           if (t.includes('Blueprint')) {
-                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Fast Implementation' };
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Fast Implementation', isAuthority: false };
                           }
                           if (t.includes('Step') || t.includes('Guide')) {
-                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Step-By-Step' };
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Step-By-Step', isAuthority: false };
                           }
-                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Great For Lead Magnets' };
+                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Great For Lead Magnets', isAuthority: false };
+                        };
+
+                        // Smart preselection based on niche keywords
+                        const isCredibilityNiche = () => {
+                          const prompt = bookData.prompt.toLowerCase();
+                          const credibilityKeywords = ['consultant', 'coach', 'expert', 'professional', 'business', 'leadership', 'executive', 'strategy', 'ceo', 'founder', 'entrepreneur', 'advisor', 'specialist', 'authority', 'master'];
+                          return credibilityKeywords.some(keyword => prompt.includes(keyword));
+                        };
+
+                        const shouldHighlight = () => {
+                          const toneInfo = getToneInfo(title);
+                          if (isCredibilityNiche()) {
+                            return toneInfo.isAuthority;
+                          } else {
+                            return toneInfo.label === 'Beginner-Friendly';
+                          }
                         };
                         const toneInfo = getToneInfo(title);
                         const isSelected = bookData.selectedTitle === title;
                         const ToneIcon = toneInfo.icon;
+
+                        const isHighlighted = shouldHighlight();
 
                         return (
                           <div
@@ -1213,7 +1237,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             className={`group relative w-full p-5 text-left rounded-xl border-2 transition-all hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer ${
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-50'
-                                : 'border-gray-200 bg-white'
+                                : isHighlighted
+                                  ? 'border-purple-300 bg-purple-50/30'
+                                  : 'border-gray-200 bg-white'
                             }`}
                             onClick={() => setBookData(prev => ({ ...prev, selectedTitle: title }))}
                           >
@@ -1247,7 +1273,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                           }
                                         }
                                       }}
-                                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-200"
+                                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-emerald-600 border border-transparent hover:border-emerald-200 hover:shadow-[0_0_12px_rgba(16,185,129,0.4)]"
                                     >
                                       <Pencil className="w-4 h-4" />
                                     </button>
