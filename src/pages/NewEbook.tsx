@@ -194,6 +194,10 @@ const NewEbook = () => {
   const [linkInput, setLinkInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
+  const [editingTitleValue, setEditingTitleValue] = useState('');
+  const [isAddingCustomTitle, setIsAddingCustomTitle] = useState(false);
+  const [customTitleValue, setCustomTitleValue] = useState('');
   const [languageSearch, setLanguageSearch] = useState('');
   const [languageOpen, setLanguageOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -1248,8 +1252,44 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                 <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-semibold text-sm flex-shrink-0">
                                   {index + 1}
                                 </span>
-                                <div className="flex flex-col gap-1">
-                                  <span className="text-lg font-medium text-gray-900">{title}</span>
+                                <div className="flex flex-col gap-1 flex-1">
+                                  {editingTitleIndex === index ? (
+                                    <input
+                                      type="text"
+                                      value={editingTitleValue}
+                                      onChange={(e) => setEditingTitleValue(e.target.value)}
+                                      onBlur={() => {
+                                        if (editingTitleValue.trim()) {
+                                          setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
+                                          if (isSelected) {
+                                            setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                          }
+                                        }
+                                        setEditingTitleIndex(null);
+                                        setEditingTitleValue('');
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          if (editingTitleValue.trim()) {
+                                            setTitleSuggestions(prev => prev.map((t, i) => i === index ? editingTitleValue.trim() : t));
+                                            if (isSelected) {
+                                              setBookData(prev => ({ ...prev, selectedTitle: editingTitleValue.trim() }));
+                                            }
+                                          }
+                                          setEditingTitleIndex(null);
+                                          setEditingTitleValue('');
+                                        } else if (e.key === 'Escape') {
+                                          setEditingTitleIndex(null);
+                                          setEditingTitleValue('');
+                                        }
+                                      }}
+                                      autoFocus
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-lg font-medium text-gray-900 bg-white border border-emerald-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+                                    />
+                                  ) : (
+                                    <span className="text-lg font-medium text-gray-900">{title}</span>
+                                  )}
                                   <div className="flex items-center gap-2">
                                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
                                       <ToneIcon className="w-3 h-3" />
@@ -1263,28 +1303,25 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const newTitle = prompt('Edit your title:', title);
-                                        if (newTitle && newTitle.trim()) {
-                                          setTitleSuggestions(prev => prev.map((t, i) => i === index ? newTitle.trim() : t));
-                                          if (isSelected) {
-                                            setBookData(prev => ({ ...prev, selectedTitle: newTitle.trim() }));
-                                          }
-                                        }
-                                      }}
-                                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-emerald-600 border border-transparent hover:border-emerald-200 hover:shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                                    >
-                                      <Pencil className="w-4 h-4" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top">
-                                    <p>Edit Title</p>
-                                  </TooltipContent>
-                                </Tooltip>
+                                {editingTitleIndex !== index && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setEditingTitleIndex(index);
+                                          setEditingTitleValue(title);
+                                        }}
+                                        className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-emerald-600 border border-transparent hover:border-emerald-200 hover:shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                                      >
+                                        <Pencil className="w-4 h-4" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">
+                                      <p>Edit Title</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
                                 {isSelected && (
                                   <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                 )}
@@ -1295,23 +1332,54 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       })}
 
                       {/* Write My Own Title Option */}
-                      <button
-                        onClick={() => {
-                          const customTitle = prompt('Enter your custom title:');
-                          if (customTitle && customTitle.trim()) {
-                            setTitleSuggestions(prev => [...prev, customTitle.trim()]);
-                            handleTitleSelect(customTitle.trim());
-                          }
-                        }}
-                        className="w-full p-5 text-left rounded-xl border-2 border-dashed border-gray-300 hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500">
-                            <PenLine className="w-4 h-4" />
-                          </span>
-                          <span className="text-lg font-medium text-gray-500">Write My Own Title</span>
+                      {isAddingCustomTitle ? (
+                        <div className="w-full p-5 rounded-xl border-2 border-emerald-400 bg-emerald-50 transition-all">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600">
+                              <PenLine className="w-4 h-4" />
+                            </span>
+                            <input
+                              type="text"
+                              value={customTitleValue}
+                              onChange={(e) => setCustomTitleValue(e.target.value)}
+                              onBlur={() => {
+                                if (customTitleValue.trim()) {
+                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
+                                  handleTitleSelect(customTitleValue.trim());
+                                }
+                                setIsAddingCustomTitle(false);
+                                setCustomTitleValue('');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && customTitleValue.trim()) {
+                                  setTitleSuggestions(prev => [...prev, customTitleValue.trim()]);
+                                  handleTitleSelect(customTitleValue.trim());
+                                  setIsAddingCustomTitle(false);
+                                  setCustomTitleValue('');
+                                } else if (e.key === 'Escape') {
+                                  setIsAddingCustomTitle(false);
+                                  setCustomTitleValue('');
+                                }
+                              }}
+                              autoFocus
+                              placeholder="Enter your custom title..."
+                              className="flex-1 text-lg font-medium text-gray-900 bg-white border border-emerald-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                          </div>
                         </div>
-                      </button>
+                      ) : (
+                        <button
+                          onClick={() => setIsAddingCustomTitle(true)}
+                          className="w-full p-5 text-left rounded-xl border-2 border-dashed border-gray-300 hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500">
+                              <PenLine className="w-4 h-4" />
+                            </span>
+                            <span className="text-lg font-medium text-gray-500">Write My Own Title</span>
+                          </div>
+                        </button>
+                      )}
                     </div>
 
                     {/* Navigation Buttons */}
