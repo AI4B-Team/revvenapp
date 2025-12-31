@@ -434,6 +434,40 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <span className="text-emerald-400"> STUDIO</span>
               </h1>
             </div>
+            
+            {/* Tab Icons in Header */}
+            <div className="flex items-center gap-1 ml-4">
+              {TABS.map((tab, index) => {
+                const isActive = activeTab === tab.id;
+                const isPast = TABS.findIndex(t => t.id === activeTab) > index;
+                const isAccessible = canAccessTab(tab.id);
+                return (
+                  <Tooltip key={tab.id}>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => isAccessible && setActiveTab(tab.id)}
+                        disabled={!isAccessible}
+                        className={`flex items-center gap-2 py-1.5 px-3 text-sm font-medium rounded-lg transition-all ${
+                          isActive 
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' 
+                            : isPast
+                            ? 'bg-emerald-500/10 text-emerald-400/70 border border-emerald-500/30'
+                            : isAccessible
+                            ? 'text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
+                            : 'text-gray-600 cursor-not-allowed border border-transparent'
+                        }`}
+                      >
+                        <tab.icon className="w-4 h-4" />
+                        <span className="hidden md:inline">{tab.label}</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{tab.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
@@ -613,47 +647,18 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         </div>
         
         <main className="flex-1 p-8">
-          {/* Full width header row with back button left, tabs centered */}
-          <div className="relative flex items-center justify-center mb-10">
-            {/* Back button - absolute left */}
+          {/* Back button row */}
+          <div className="flex items-center mb-6">
             <button 
               onClick={() => navigate('/ebook-creator')} 
-              className="absolute left-0 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Back To Projects</span>
             </button>
-
-            {/* Centered tabs */}
-            <div className="flex gap-2">
-              {TABS.map((tab, index) => {
-                const isActive = activeTab === tab.id;
-                const isPast = TABS.findIndex(t => t.id === activeTab) > index;
-                const isAccessible = canAccessTab(tab.id);
-                return (
-                  <button 
-                    key={tab.id}
-                    onClick={() => isAccessible && setActiveTab(tab.id)}
-                    disabled={!isAccessible}
-                    className={`flex items-center gap-2 py-2.5 px-5 text-sm font-medium rounded-xl border-2 transition-all ${
-                      isActive 
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
-                        : isPast
-                        ? 'border-emerald-200 bg-emerald-50/50 text-emerald-500'
-                        : isAccessible
-                        ? 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-900'
-                        : 'border-gray-200 bg-white text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className={activeTab === 'design' ? '' : 'max-w-4xl mx-auto'}>
             {/* Generation Progress */}
             {isGenerating && (
               <div className="mb-8 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
@@ -1488,9 +1493,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
             {/* DESIGN TAB */}
             {activeTab === 'design' && (
-              <div className="flex gap-6 h-[calc(100vh-280px)]">
-                {/* Left Sidebar - Piktochart Style */}
-                <div className="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col">
+              <div className="flex gap-0 h-[calc(100vh-180px)]">
+                {/* Left Sidebar - Table of Contents */}
+                <div className="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
                   {/* Vertical Tab Navigation */}
                   <div className="flex border-b border-gray-200">
                     {[
@@ -1574,8 +1579,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   </div>
                 </div>
 
-                {/* Right Preview Area */}
-                <div className="flex-1 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border border-gray-200 flex items-center justify-center overflow-hidden relative">
+                {/* Right Preview Area - Full Canvas */}
+                <div className="flex-1 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden relative">
                   {/* Preview Placeholder */}
                   <div className="text-center p-8">
                     <div className="w-64 h-80 bg-white rounded-xl shadow-2xl mx-auto mb-6 flex flex-col items-center justify-center border border-gray-200">
