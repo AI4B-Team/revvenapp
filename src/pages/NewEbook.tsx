@@ -1490,38 +1490,117 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
             {/* DESIGN TAB */}
             {activeTab === 'design' && (
-              <div className="flex gap-6 h-[calc(100vh-280px)]">
-                {/* Left Sidebar - Piktochart Style */}
-                <div className="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col">
-                  {/* Vertical Tab Navigation */}
-                  <div className="flex border-b border-gray-200">
-                    {[
-                      { id: 'templates', label: 'Templates', icon: Layers },
-                      { id: 'content', label: 'Content', icon: FileText },
-                      { id: 'images', label: 'Images', icon: ImageIcon },
-                      { id: 'colors', label: 'Colors', icon: Palette },
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        className="flex-1 flex flex-col items-center gap-1 py-3 px-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors border-b-2 border-transparent first:rounded-tl-2xl last:rounded-tr-2xl data-[active=true]:border-emerald-500 data-[active=true]:text-emerald-600"
-                        data-active={tab.id === 'content'}
-                      >
-                        <tab.icon className="w-5 h-5" />
-                        <span className="text-xs font-medium">{tab.label}</span>
-                      </button>
-                    ))}
-                  </div>
+              <div className="flex gap-0 h-[calc(100vh-280px)]">
+                {/* Vertical Icon Sidebar - Piktochart Style */}
+                <div className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-3 gap-1 rounded-l-2xl">
+                  {[
+                    { id: 'ai-tools', label: 'AI Tools', icon: Sparkles, active: true },
+                    { id: 'graphics', label: 'Graphics', icon: Layers },
+                    { id: 'text', label: 'Text', icon: FileText },
+                    { id: 'components', label: 'Design', icon: Settings },
+                    { id: 'colors', label: 'Colors', icon: Palette },
+                    { id: 'charts', label: 'Charts', icon: Layers },
+                    { id: 'uploads', label: 'Uploads', icon: Upload },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      className={`w-12 h-12 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-colors ${
+                        item.active 
+                          ? 'bg-emerald-100 text-emerald-600' 
+                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="text-[10px] font-medium">{item.label.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
 
-                  {/* Content Section */}
+                {/* Tools Panel */}
+                <div className="w-72 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+                  <div className="p-4 border-b border-gray-100">
+                    <h3 className="text-base font-semibold text-gray-900">Pikto AI Tools</h3>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                    {/* AI Generator Section */}
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">AI Generator</span>
+                        <Info className="w-3.5 h-3.5 text-gray-400" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: 'Image Generator', desc: 'Turn words into stunning pictures', icon: ImageIcon },
+                          { name: 'Icon Generator', desc: 'Create professional vector icons', icon: Layers },
+                          { name: 'Logo Generator', desc: 'Turn brand name into a logo', icon: Award },
+                          { name: 'Visual Generator', desc: 'Create a design from scratch', icon: Sparkles },
+                        ].map((tool) => (
+                          <button
+                            key={tool.name}
+                            className="p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-left group"
+                          >
+                            <div className="w-full h-16 bg-gradient-to-br from-teal-50 to-cyan-100 rounded-lg mb-2 flex items-center justify-center">
+                              <tool.icon className="w-8 h-8 text-teal-500" />
+                            </div>
+                            <p className="text-xs font-semibold text-gray-900">{tool.name}</p>
+                            <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{tool.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* AI Image Enhancer Section */}
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">AI Image Enhancer</span>
+                        <Info className="w-3.5 h-3.5 text-gray-400" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: 'Image Modifier', desc: 'Remove/change objects or style' },
+                          { name: 'Image Upscaler', desc: 'Increase resolution & sharpness' },
+                          { name: 'Image Restorer', desc: 'Repair old photographs' },
+                          { name: 'BG Remover', desc: 'Remove backgrounds instantly' },
+                        ].map((tool) => (
+                          <button
+                            key={tool.name}
+                            className="p-3 rounded-xl border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-left"
+                          >
+                            <div className="w-full h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg mb-2" />
+                            <p className="text-xs font-semibold text-gray-900">{tool.name}</p>
+                            <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{tool.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content/Outline Panel */}
+                <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col overflow-hidden">
+                  <div className="p-4 border-b border-gray-100 bg-white">
+                    <h3 className="text-base font-semibold text-gray-900">Text Content</h3>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs text-gray-500">Output language</span>
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-semibold rounded">NEW</span>
+                    </div>
+                    <select className="w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
+                      <option>English</option>
+                      <option>Spanish</option>
+                      <option>French</option>
+                    </select>
+                  </div>
+                  
                   <div className="flex-1 overflow-y-auto p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Refine Your Outline</h3>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Refine Your Outline</h4>
                     
                     {/* TOC Items */}
                     <div className="space-y-2">
                       {(() => {
                         const tocItems = [
                           { title: bookData.selectedTitle || 'Untitled eBook', type: 'cover', editable: false },
-                          { title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents', editable: false },
+                          { title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Topic'}`, type: 'table of contents', editable: false },
                           { title: 'Introduction', type: 'introduction', editable: false },
                           { title: 'Chapter 1: Getting Started', type: null, editable: true },
                           { title: 'Chapter 2: Core Concepts', type: null, editable: true },
@@ -1533,16 +1612,16 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         return tocItems.map((item, index) => (
                           <div
                             key={index}
-                            className="group flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-emerald-400 transition-colors bg-white"
+                            className="group flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 hover:border-emerald-400 transition-colors bg-white"
                           >
-                            <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gray-100 text-gray-600 font-medium text-sm flex-shrink-0">
+                            <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
                               {index + 1}
                             </span>
-                            <span className="flex-1 text-sm font-medium text-gray-900 truncate">
+                            <span className="flex-1 text-sm text-gray-900 truncate">
                               {item.title}
                             </span>
                             {item.type && (
-                              <span className={`px-2 py-1 text-xs font-medium rounded-lg flex-shrink-0 ${
+                              <span className={`px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
                                 item.type === 'cover' ? 'bg-gray-600 text-white' :
                                 item.type === 'table of contents' ? 'bg-teal-500 text-white' :
                                 item.type === 'introduction' ? 'bg-teal-400 text-white' :
@@ -1553,7 +1632,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                             )}
                             {item.editable && (
                               <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 rounded">
-                                <Pencil className="w-4 h-4 text-gray-400" />
+                                <Pencil className="w-3.5 h-3.5 text-gray-400" />
                               </button>
                             )}
                           </div>
@@ -1562,39 +1641,84 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     </div>
 
                     {/* Add New Page Button */}
-                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
-                      <Plus className="w-5 h-5" />
-                      <span className="font-medium">Add New Page</span>
+                    <button className="w-full mt-3 flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-white transition-colors">
+                      <Plus className="w-4 h-4" />
+                      <span className="text-sm font-medium">Add New Page</span>
                     </button>
 
                     {/* Regenerate Button */}
-                    <button className="w-full mt-4 flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white font-medium hover:from-orange-500 hover:to-orange-600 transition-colors shadow-sm">
+                    <button className="w-full mt-3 flex items-center justify-center gap-2 p-2.5 rounded-lg bg-gradient-to-r from-orange-400 to-orange-500 text-white text-sm font-medium hover:from-orange-500 hover:to-orange-600 transition-colors shadow-sm">
                       <MessageSquare className="w-4 h-4" />
-                      <span>1</span>
+                      <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">1</span>
                       <span>Regenerate with New Changes</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Right Preview Area */}
-                <div className="flex-1 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border border-gray-200 flex items-center justify-center overflow-hidden relative">
-                  {/* Preview Placeholder */}
-                  <div className="text-center p-8">
-                    <div className="w-64 h-80 bg-white rounded-xl shadow-2xl mx-auto mb-6 flex flex-col items-center justify-center border border-gray-200">
-                      <BookOpen className="w-16 h-16 text-emerald-500 mb-4" />
-                      <h3 className="text-lg font-bold text-gray-900 px-4 text-center line-clamp-2">
+                {/* Main Preview Area */}
+                <div className="flex-1 bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col overflow-hidden relative rounded-r-2xl">
+                  {/* Preview Toolbar */}
+                  <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-pink-600 hover:bg-pink-50 rounded-lg transition-colors">
+                        <Sparkles className="w-4 h-4" />
+                        Replace / Enhance Image
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
+                        <Layers className="w-4 h-4" />
+                      </button>
+                      <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500">
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Preview Content */}
+                  <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+                    <div className="w-[400px] h-[560px] bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg shadow-2xl flex flex-col items-center justify-center text-white relative overflow-hidden">
+                      {/* Decorative shapes */}
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-teal-400/30 rounded-full -translate-y-1/2 translate-x-1/2" />
+                      <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-400/20 rounded-full translate-y-1/2 -translate-x-1/2" />
+                      
+                      <BookOpen className="w-20 h-20 mb-6 relative z-10" />
+                      <h3 className="text-2xl font-bold text-center px-8 relative z-10 line-clamp-3">
                         {bookData.selectedTitle || 'Your eBook Title'}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-2">Preview</p>
+                      <p className="text-white/70 mt-4 text-sm relative z-10">Cover Preview</p>
                     </div>
-                    <p className="text-gray-500 text-sm">Your eBook preview will appear here</p>
+                  </div>
+
+                  {/* Right Side Controls */}
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+                    <button className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors text-gray-600" title="Add Page">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors text-gray-600" title="Duplicate">
+                      <Layers className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors text-gray-600" title="Delete">
+                      <X className="w-4 h-4" />
+                    </button>
+                    <button className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors text-gray-600" title="Settings">
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Page Thumbnails at bottom */}
+                  <div className="absolute bottom-4 right-4">
+                    <div className="bg-white rounded-lg shadow-lg p-2">
+                      <div className="w-16 h-20 bg-gradient-to-br from-teal-500 to-cyan-600 rounded border-2 border-emerald-500" />
+                      <p className="text-[10px] text-gray-500 text-center mt-1">1 of 8</p>
+                    </div>
                   </div>
 
                   {/* Continue Button */}
-                  <div className="absolute bottom-6 right-6">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
                     <Button 
                       onClick={() => setActiveTab('review')}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg"
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2 shadow-lg px-6"
                     >
                       Continue
                       <ArrowRight className="w-4 h-4" />
