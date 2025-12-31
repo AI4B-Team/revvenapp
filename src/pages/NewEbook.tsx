@@ -660,7 +660,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 </h1>
 
                 {/* Prompt Box */}
-                <div className="bg-white rounded-2xl border-2 border-emerald-500 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border-2 border-emerald-500 shadow-sm p-6 max-w-5xl mx-auto">
                   {/* Uploaded Files Preview - Now inline with textarea */}
                   <div className="flex items-start gap-3">
                     {/* Source File Icon */}
@@ -688,7 +688,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     <textarea
                       value={bookData.prompt}
                       onChange={(e) => setBookData(prev => ({ ...prev, prompt: e.target.value }))}
-                      placeholder="What is your topic or niche? (e.g., Digital Marketing for Small Businesses, Personal Finance, Healthy Living...)"
+                      placeholder="What is your topic or niche?"
                       className="flex-1 min-h-[120px] resize-none border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 text-lg"
                     />
                   </div>
@@ -757,7 +757,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         <PopoverContent className="w-64 p-0" align="start">
                           <Command>
                             <CommandInput 
-                              placeholder="Search languages..." 
+                              placeholder="Search Languages" 
                               value={languageSearch}
                               onValueChange={setLanguageSearch}
                             />
