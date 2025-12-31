@@ -423,9 +423,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         <Header />
         
         {/* Black Header Bar - matching Transcribe */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
+        <div className="relative flex items-center px-4 py-2.5 bg-sidebar border-b border-gray-700 flex-shrink-0">
           {/* Left Section */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {/* eBook Logo */}
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -487,7 +487,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <Eye className="w-4 h-4 text-blue-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Viewing</span>
-                    <span className="text-xs text-gray-500">View Only Access</span>
+                    <span className="text-xs text-gray-500">Read Only</span>
                   </div>
                   {currentViewMode === 'viewing' && <Check className="w-4 h-4 ml-auto text-blue-600" />}
                 </DropdownMenuItem>
@@ -499,7 +499,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <MessageSquare className="w-4 h-4 text-amber-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Commenting</span>
-                    <span className="text-xs text-gray-500">View And Comment</span>
+                    <span className="text-xs text-gray-500">Comments Only</span>
                   </div>
                   {currentViewMode === 'commenting' && <Check className="w-4 h-4 ml-auto text-amber-600" />}
                 </DropdownMenuItem>
@@ -511,7 +511,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <Settings className="w-4 h-4 text-green-600" />
                   <div className="flex flex-col">
                     <span className="font-medium">Admin</span>
-                    <span className="text-xs text-gray-500">Full Control And Settings</span>
+                    <span className="text-xs text-gray-500">Full Admin Access</span>
                   </div>
                   {currentViewMode === 'admin' && <Check className="w-4 h-4 ml-auto text-green-600" />}
                 </DropdownMenuItem>
@@ -563,8 +563,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             </HoverCard>
           </div>
 
-          {/* Center Section - Tab Icons */}
-          <div className="flex items-center gap-1">
+          {/* Center Section - Tab Icons (absolutely centered) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1">
             {TABS.map((tab, index) => {
               const isActive = activeTab === tab.id;
               const isPast = TABS.findIndex(t => t.id === activeTab) > index;
@@ -598,7 +598,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             })}
           </div>
 
-          {/* Spacer */}
+          {/* Spacer to push right section */}
           <div className="flex-1" />
 
           {/* Right Actions */}
