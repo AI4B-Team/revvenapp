@@ -1162,7 +1162,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
                   Choose A Title
                 </h1>
-                <p className="text-gray-500 text-center mb-8">
+                <p className="text-gray-500 text-center text-base mb-8">
                   Select A Title Or Tweak One To Match Your Voice. You Can Change Your Title Later.
                 </p>
 
@@ -1256,6 +1256,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                       {toneInfo.label}
                                     </span>
                                     <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{toneInfo.helper}</span>
+                                    {isHighlighted && !isSelected && (
+                                      <span className="text-xs text-purple-500 italic">Recommended Based On Your Topic</span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
