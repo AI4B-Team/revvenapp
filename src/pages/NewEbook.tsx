@@ -5,7 +5,8 @@ import {
   Lightbulb, Settings, Palette, Send, Info, CheckCircle2, Globe, MessageSquare,
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
-  Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2
+  Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2, RefreshCw,
+  ArrowRight, PenLine, Target, Zap, Award
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -1141,46 +1142,151 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </div>
             )}
 
-            {/* GENERATE TAB - Topic Ideas Selection */}
+            {/* GENERATE TAB - Title Selection */}
             {activeTab === 'generate' && (
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Choose Your Topic
+                  Choose A Title
                 </h1>
                 <p className="text-gray-500 text-center mb-8">
-                  Select the topic idea that best represents your content
+                  Select A Title Or Tweak One To Match Your Voice
                 </p>
 
                 {titleSuggestions.length > 0 ? (
-                  <div className="space-y-3">
-                    {titleSuggestions.map((title, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleTitleSelect(title)}
-                        className={`w-full p-5 text-left rounded-xl border-2 transition-all hover:border-emerald-400 hover:bg-emerald-50 ${
-                          bookData.selectedTitle === title
-                            ? 'border-emerald-500 bg-emerald-50'
-                            : 'border-gray-200 bg-white'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-semibold text-sm">
-                              {index + 1}
-                            </span>
-                            <span className="text-lg font-medium text-gray-900">{title}</span>
+                  <>
+                    <div className="space-y-3">
+                      {titleSuggestions.map((title, index) => {
+                        // Determine tone category based on title keywords
+                        const getToneInfo = (t: string) => {
+                          if (t.includes('Blueprint') || t.includes('Guide') || t.includes('Handbook') || t.includes('Step')) {
+                            return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700' };
+                          }
+                          if (t.includes('Unleashed') || t.includes('Playbook') || t.includes('Power') || t.includes('Secrets') || t.includes('Ultimate')) {
+                            return { label: 'Bold & Tactical', icon: Zap, color: 'bg-orange-100 text-orange-700' };
+                          }
+                          if (t.includes('Simple') || t.includes('Easy') || t.includes('Beginner') || t.includes('Start') || t.includes('101')) {
+                            return { label: 'Beginner-friendly', icon: Heart, color: 'bg-pink-100 text-pink-700' };
+                          }
+                          if (t.includes('Definitive') || t.includes('Framework') || t.includes('Master') || t.includes('Expert') || t.includes('Complete')) {
+                            return { label: 'Professional / Authority', icon: Award, color: 'bg-purple-100 text-purple-700' };
+                          }
+                          return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700' };
+                        };
+                        const toneInfo = getToneInfo(title);
+                        const ToneIcon = toneInfo.icon;
+
+                        return (
+                          <div
+                            key={index}
+                            className={`group relative w-full p-5 text-left rounded-xl border-2 transition-all hover:border-emerald-400 hover:bg-emerald-50 cursor-pointer ${
+                              bookData.selectedTitle === title
+                                ? 'border-emerald-500 bg-emerald-50'
+                                : 'border-gray-200 bg-white'
+                            }`}
+                            onClick={() => handleTitleSelect(title)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1">
+                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-semibold text-sm flex-shrink-0">
+                                  {index + 1}
+                                </span>
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-lg font-medium text-gray-900">{title}</span>
+                                  <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
+                                    <ToneIcon className="w-3 h-3" />
+                                    {toneInfo.label}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newTitle = prompt('Edit your title:', title);
+                                    if (newTitle && newTitle.trim()) {
+                                      setTitleSuggestions(prev => prev.map((t, i) => i === index ? newTitle.trim() : t));
+                                      if (bookData.selectedTitle === title) {
+                                        setBookData(prev => ({ ...prev, selectedTitle: newTitle.trim() }));
+                                      }
+                                    }
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-gray-100 transition-all"
+                                  title="Edit title"
+                                >
+                                  <Pencil className="w-4 h-4 text-gray-500" />
+                                </button>
+                                {bookData.selectedTitle === title && (
+                                  <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          {bookData.selectedTitle === title && (
-                            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                          )}
+                        );
+                      })}
+
+                      {/* Write My Own Title Option */}
+                      <button
+                        onClick={() => {
+                          const customTitle = prompt('Enter your custom title:');
+                          if (customTitle && customTitle.trim()) {
+                            setTitleSuggestions(prev => [...prev, customTitle.trim()]);
+                            handleTitleSelect(customTitle.trim());
+                          }
+                        }}
+                        className="w-full p-5 text-left rounded-xl border-2 border-dashed border-gray-300 hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500">
+                            <PenLine className="w-4 h-4" />
+                          </span>
+                          <span className="text-lg font-medium text-gray-500">Write My Own Title</span>
                         </div>
                       </button>
-                    ))}
-                  </div>
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                      <Button
+                        variant="outline"
+                        onClick={() => setActiveTab('idea')}
+                        className="flex items-center gap-2"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back
+                      </Button>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            handleGenerate();
+                          }}
+                          disabled={isGenerating}
+                          className="flex items-center gap-2"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                          Regenerate
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (!bookData.selectedTitle) {
+                              toast.error('Please select a title first');
+                              return;
+                            }
+                            setActiveTab('design');
+                          }}
+                          disabled={!bookData.selectedTitle}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
+                        >
+                          Continue
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
                     <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">Complete the Idea step first to generate topic ideas</p>
+                    <p className="text-gray-500">Complete the Idea step first to generate title ideas</p>
                     <Button 
                       variant="ghost" 
                       onClick={() => setActiveTab('idea')}
