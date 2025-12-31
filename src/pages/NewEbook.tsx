@@ -302,14 +302,11 @@ const NewEbook = () => {
     setIsGenerating(true);
     setGenerationProgress(0);
     
-          // Title Case function
+          // Title Case function - properly capitalizes each word
           const toTitleCase = (str: string) => {
-            const minorWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'];
-            return str.split(' ').map((word, index) => {
-              if (index === 0 || !minorWords.includes(word.toLowerCase())) {
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-              }
-              return word.toLowerCase();
+            return str.split(' ').map((word) => {
+              if (!word) return word;
+              return word.charAt(0).toUpperCase() + word.slice(1);
             }).join(' ');
           };
 
@@ -1159,11 +1156,8 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
                   Choose A Title
                 </h1>
-                <p className="text-gray-500 text-center">
-                  Select A Title Or Tweak One To Match Your Voice
-                </p>
-                <p className="text-sm text-gray-400 text-center mb-8">
-                  You Can Change Your Title Later.
+                <p className="text-gray-500 text-center mb-8">
+                  Select A Title Or Tweak One To Match Your Voice. You Can Change Your Title Later.
                 </p>
 
                 {titleSuggestions.length > 0 ? (
@@ -1227,32 +1221,38 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                 </span>
                                 <div className="flex flex-col gap-1">
                                   <span className="text-lg font-medium text-gray-900">{title}</span>
-                                  <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
-                                    <ToneIcon className="w-3 h-3" />
-                                    {toneInfo.label}
-                                  </span>
-                                  {isSelected && (
-                                    <span className="text-xs text-gray-400 mt-1">{toneInfo.helper}</span>
-                                  )}
+                                  <div className="flex items-center gap-2">
+                                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
+                                      <ToneIcon className="w-3 h-3" />
+                                      {toneInfo.label}
+                                    </span>
+                                    <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{toneInfo.helper}</span>
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newTitle = prompt('Edit your title:', title);
-                                    if (newTitle && newTitle.trim()) {
-                                      setTitleSuggestions(prev => prev.map((t, i) => i === index ? newTitle.trim() : t));
-                                      if (isSelected) {
-                                        setBookData(prev => ({ ...prev, selectedTitle: newTitle.trim() }));
-                                      }
-                                    }
-                                  }}
-                                  className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-200"
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                  <span className="text-xs font-medium">Edit Title</span>
-                                </button>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newTitle = prompt('Edit your title:', title);
+                                        if (newTitle && newTitle.trim()) {
+                                          setTitleSuggestions(prev => prev.map((t, i) => i === index ? newTitle.trim() : t));
+                                          if (isSelected) {
+                                            setBookData(prev => ({ ...prev, selectedTitle: newTitle.trim() }));
+                                          }
+                                        }
+                                      }}
+                                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white/80 transition-all text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-200"
+                                    >
+                                      <Pencil className="w-4 h-4" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    <p>Edit Title</p>
+                                  </TooltipContent>
+                                </Tooltip>
                                 {isSelected && (
                                   <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                                 )}
