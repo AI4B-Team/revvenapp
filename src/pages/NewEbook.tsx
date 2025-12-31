@@ -1230,17 +1230,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           const isCredibility = isCredibilityNiche();
                           
                           // Find the first title that matches the preferred criteria
-                          let firstMatchIndex = titleSuggestions.findIndex(t => {
+                          const firstMatchIndex = titleSuggestions.findIndex(t => {
                             const info = getToneInfo(t);
                             return isCredibility ? info.isAuthority : info.label === 'Beginner-Friendly';
                           });
                           
-                          // If no specific match found, default to first title
-                          if (firstMatchIndex === -1) {
-                            firstMatchIndex = 0;
-                          }
+                          // Only highlight if there's a genuine match and this is the first one
+                          if (firstMatchIndex === -1) return false;
                           
-                          // Only highlight if this is the first matching title
                           return index === firstMatchIndex;
                         };
                         const toneInfo = getToneInfo(title);
@@ -1258,7 +1255,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-50'
                                 : isHighlighted
-                                  ? 'border-emerald-300 bg-emerald-50/30'
+                                  ? 'border-emerald-400 bg-white'
                                   : 'border-gray-200 bg-white'
                             }`}
                             onClick={() => handleTitleSelect(title)}
