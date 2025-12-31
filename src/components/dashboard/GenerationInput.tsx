@@ -4420,43 +4420,35 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                       </Tooltip>
 
                       {/* Scenes dropdown - Auto/Manual */}
-                      <div className="relative">
-                        <button 
-                          onClick={() => setIsStorySceneModeDropdownOpen(!isStorySceneModeDropdownOpen)}
-                          className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
-                            storySceneMode === 'Manual'
-                              ? 'bg-pill-green text-pill-green-text' 
-                              : 'bg-pill-gray text-pill-gray-text'
-                          } hover:opacity-80`}
-                        >
-                          <Clapperboard size={14} />
-                          Scenes: {storySceneMode}
-                          <ChevronDown size={14} className={`transition-transform ${isStorySceneModeDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        
-                        {isStorySceneModeDropdownOpen && (
-                          <div className="absolute top-full left-0 mt-1 w-36 bg-background border border-border rounded-lg shadow-lg z-50">
-                            <button
-                              onClick={() => {
-                                setStorySceneMode('Auto');
-                                setIsStorySceneModeDropdownOpen(false);
-                              }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-t-lg transition ${storySceneMode === 'Auto' ? 'bg-secondary' : ''}`}
-                            >
-                              Auto
-                            </button>
-                            <button
-                              onClick={() => {
-                                setStorySceneMode('Manual');
-                                setIsStorySceneModeDropdownOpen(false);
-                              }}
-                              className={`w-full px-3 py-2 text-sm text-left hover:bg-secondary rounded-b-lg transition ${storySceneMode === 'Manual' ? 'bg-secondary' : ''}`}
-                            >
-                              Manual
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <DropdownMenu open={isStorySceneModeDropdownOpen} onOpenChange={setIsStorySceneModeDropdownOpen}>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            className={`px-4 py-1.5 rounded-full text-sm transition flex items-center gap-2 whitespace-nowrap ${
+                              storySceneMode === 'Manual'
+                                ? 'bg-pill-green text-pill-green-text' 
+                                : 'bg-pill-gray text-pill-gray-text'
+                            } hover:opacity-80`}
+                          >
+                            <Clapperboard size={14} />
+                            Scenes: {storySceneMode}
+                            <ChevronDown size={14} className={`transition-transform ${isStorySceneModeDropdownOpen ? 'rotate-180' : ''}`} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-36 bg-background border-border">
+                          <DropdownMenuItem
+                            onClick={() => setStorySceneMode('Auto')}
+                            className={storySceneMode === 'Auto' ? 'bg-secondary' : ''}
+                          >
+                            Auto
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setStorySceneMode('Manual')}
+                            className={storySceneMode === 'Manual' ? 'bg-secondary' : ''}
+                          >
+                            Manual
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
                       <Popover>
                         <PopoverTrigger asChild>
