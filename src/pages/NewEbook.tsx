@@ -583,7 +583,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           ? 'bg-emerald-500/10 text-emerald-400/70 border border-emerald-500/30'
                           : isAccessible
                           ? 'text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
-                          : 'text-gray-600 cursor-not-allowed border border-transparent'
+                          : 'text-gray-400 cursor-not-allowed border border-transparent'
                       } ${isEbook ? 'border border-gray-500' : ''}`}
                     >
                       <tab.icon className="w-4 h-4" />
