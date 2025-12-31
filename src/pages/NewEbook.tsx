@@ -1167,7 +1167,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   Choose A Title
                 </h1>
                 <p className="text-gray-500 text-center text-base mb-8">
-                  Select A Title Or Tweak One To Match Your Voice. You Can Change Your Title Later.
+                  Select A Title Or Tweak One To Match Your Voice. You Can Change It Anytime.
                 </p>
 
               {titleSuggestions.length > 0 ? (
@@ -1214,7 +1214,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           return { label: 'Practical', icon: Target, color: 'bg-blue-100 text-blue-700', helper: 'Great For Lead Magnets', isAuthority: false };
                         };
 
-                        // Smart preselection based on niche keywords
+                        // Smart preselection based on niche keywords - only highlight the FIRST matching title
                         const isCredibilityNiche = () => {
                           const prompt = bookData.prompt.toLowerCase();
                           const credibilityKeywords = ['consultant', 'coach', 'expert', 'professional', 'business', 'leadership', 'executive', 'strategy', 'ceo', 'founder', 'entrepreneur', 'advisor', 'specialist', 'authority', 'master'];
@@ -1223,7 +1223,18 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
                         const shouldHighlight = () => {
                           const toneInfo = getToneInfo(title);
-                          if (isCredibilityNiche()) {
+                          const isCredibility = isCredibilityNiche();
+                          
+                          // Find the first title that matches the criteria
+                          const firstMatchIndex = titleSuggestions.findIndex(t => {
+                            const info = getToneInfo(t);
+                            return isCredibility ? info.isAuthority : info.label === 'Beginner-Friendly';
+                          });
+                          
+                          // Only highlight if this is the first matching title
+                          if (index !== firstMatchIndex) return false;
+                          
+                          if (isCredibility) {
                             return toneInfo.isAuthority;
                           } else {
                             return toneInfo.label === 'Beginner-Friendly';
@@ -1306,7 +1317,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                       </button>
                                     </div>
                                   ) : (
-                                    <span className="text-lg font-medium text-gray-900">{title}</span>
+                                    <span className="text-lg font-medium text-gray-900">{title.replace(/[.!?]+$/, '')}</span>
                                   )}
                                   <div className="flex items-center gap-2">
                                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${toneInfo.color}`}>
@@ -1315,7 +1326,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                                     </span>
                                     <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{toneInfo.helper}</span>
                                     {isHighlighted && !isSelected && (
-                                      <span className="text-xs text-emerald-600">Recommended Based On Your Topic</span>
+                                      <span className="text-xs text-emerald-600">Recommended For You</span>
                                     )}
                                   </div>
                                 </div>
