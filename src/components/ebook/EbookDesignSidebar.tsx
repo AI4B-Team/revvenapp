@@ -4,7 +4,11 @@ import {
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
-  Trash2, GripVertical
+  Trash2, GripVertical, BarChart3, SplitSquareHorizontal, MousePointerClick, Code,
+  BarChartHorizontal, Timer, Code2, Figma, GitBranch, Filter, Smile, TrendingUp,
+  ImagePlus, Grid3X3, Clock, Sigma, Network, PieChart, ChevronsRight, Minus,
+  Share2, Sun, ListOrdered, Tag, GanttChart, Play, Bot, Text, ListChecks, StickyNote,
+  LayoutTemplate, ChevronDownSquare, Columns2, AlignLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -43,21 +47,70 @@ const TEMPLATES = [
   { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200' },
 ];
 
-// Element options (inspired by attachment 8)
+// Element options - comprehensive list
 const ELEMENTS = [
-  { id: 'heading', name: 'Chapter Heading', icon: Heading },
-  { id: 'text-block', name: 'Text Block', icon: Type },
-  { id: 'image', name: 'Captioned Image', icon: ImageIcon },
-  { id: 'video', name: 'Embed Video', icon: Video },
-  { id: 'audio', name: 'Embed Audio', icon: Music },
+  // AI & Core
+  { id: 'ai-mode', name: 'AI Mode', icon: Bot },
+  { id: 'templates', name: 'Templates', icon: LayoutTemplate },
+  
+  // Text Elements
+  { id: 'title', name: 'Title', icon: Heading },
+  { id: 'subtitle', name: 'Subtitle', icon: Type },
+  { id: 'normal-text', name: 'Normal Text', icon: AlignLeft },
+  { id: 'note', name: 'Note', icon: StickyNote },
+  { id: 'quote', name: 'Quote', icon: Quote },
+  
+  // Images & Media
+  { id: 'image', name: 'Image', icon: ImageIcon },
+  { id: 'video', name: 'Video', icon: Play },
+  { id: 'giphy', name: 'Giphy', icon: Smile },
+  { id: 'icon', name: 'Icon', icon: Smile },
+  { id: 'logo', name: 'Logo', icon: ImagePlus },
+  { id: 'logo-list', name: 'Logo List', icon: Grid3X3 },
+  
+  // Lists
+  { id: 'bullet-list', name: 'Bullet List', icon: List },
+  { id: 'numbered-list', name: 'Numbered List', icon: ListOrdered },
+  { id: 'checklist', name: 'Checklist', icon: ListChecks },
+  { id: 'accordion-list', name: 'Accordion List', icon: ChevronDownSquare },
+  { id: 'side-by-side', name: 'Side By Side List', icon: Columns2 },
+  
+  // Charts
+  { id: 'bar-chart', name: 'Bar Chart', icon: BarChartHorizontal },
+  { id: 'column-chart', name: 'Column Chart', icon: BarChart3 },
+  { id: 'line-chart', name: 'Line Chart', icon: TrendingUp },
+  { id: 'pie-chart', name: 'Pie Chart', icon: PieChart },
+  { id: 'funnel-chart', name: 'Funnel Chart', icon: Filter },
+  { id: 'progress-chart', name: 'Progress Chart', icon: ChevronsRight },
+  { id: 'sunburst-chart', name: 'Sunburst Chart', icon: Sun },
+  
+  // Structure & Layout
   { id: 'table', name: 'Table', icon: Table },
-  { id: 'list', name: 'List', icon: List },
-  { id: 'checklist', name: 'Checklist', icon: CheckSquare },
-  { id: 'qr-code', name: 'QR Code', icon: QrCode },
-  { id: 'quote', name: 'Quote Block', icon: Quote },
+  { id: 'table-of-contents', name: 'Table Of Contents', icon: ListOrdered },
   { id: 'columns', name: 'Columns', icon: Columns },
-  { id: 'cta', name: 'Call To Action', icon: Link2 },
-  { id: 'page-break', name: 'Page Break', icon: LayoutGrid },
+  { id: 'separator', name: 'Separator', icon: Minus },
+  { id: 'break', name: 'Break', icon: SplitSquareHorizontal },
+  
+  // Interactive
+  { id: 'button', name: 'Button', icon: MousePointerClick },
+  { id: 'poll', name: 'Poll', icon: ListChecks },
+  { id: 'countdown', name: 'Countdown', icon: Timer },
+  { id: 'timeline', name: 'Timeline', icon: GanttChart },
+  { id: 'qr-code', name: 'QR Code', icon: QrCode },
+  { id: 'social-media', name: 'Social Media', icon: Share2 },
+  { id: 'tag', name: 'Tag', icon: Tag },
+  
+  // Code & Technical
+  { id: 'code', name: 'Code', icon: Code },
+  { id: 'math', name: 'Math', icon: Sigma },
+  { id: 'mermaid', name: 'Mermaid', icon: Network },
+  { id: 'flowchart', name: 'Flowchart', icon: GitBranch },
+  
+  // Embeds
+  { id: 'embed', name: 'Embed', icon: Code2 },
+  { id: 'figma', name: 'Figma', icon: Figma },
+  { id: 'miro', name: 'Miro', icon: LayoutGrid },
+  { id: 'loom', name: 'Loom', icon: Video },
 ];
 
 // Mockup categories
