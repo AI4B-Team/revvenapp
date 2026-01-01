@@ -1960,18 +1960,22 @@ const EbookCanvasEditor = ({
     }
 
     if (page.type === 'toc') {
-      // Get chapter pages to show actual titles in thumbnail
+      // Get chapter pages to show actual titles in thumbnail - match canvas TOC style
       const chapterPages = pages.filter(p => p.type === 'chapter-page');
       return (
-        <div className="p-1">
-          <div className="text-[4px] font-bold text-gray-800 mb-0.5">Contents</div>
-          <div className="space-y-0.5">
-            {chapterPages.slice(0, 5).map((cp, i) => (
-              <div key={cp.id} className="flex items-center gap-0.5">
-                <span className="text-[3px] text-gray-600 truncate flex-1">{String(i + 1).padStart(2, '0')}. {cp.title}</span>
+        <div className="p-2 h-full flex flex-col bg-white">
+          <div className="text-[5px] font-bold text-gray-800 uppercase tracking-wide mb-0.5">Table Of Contents</div>
+          <div className="w-6 h-0.5 bg-[#4A9B9B] mb-2"></div>
+          <div className="space-y-1 flex-1">
+            {chapterPages.slice(0, 4).map((cp, i) => (
+              <div key={cp.id} className="flex items-center">
+                <span className="text-[3.5px] text-gray-700">{String(i + 1).padStart(2, '0')}. {cp.title}</span>
+                <span className="flex-1 mx-0.5 border-b border-dotted border-gray-300"></span>
+                <span className="text-[3.5px] text-gray-500">{(i + 1) * 2 + 1}</span>
               </div>
             ))}
           </div>
+          <div className="text-[3px] text-gray-400 text-center mt-auto">2</div>
         </div>
       );
     }
