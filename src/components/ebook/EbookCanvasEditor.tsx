@@ -1481,7 +1481,7 @@ const EbookCanvasEditor = ({
 
                 {/* Page Canvas - 8.5x11 aspect ratio */}
                 <div 
-                  className="bg-white shadow-2xl relative flex-shrink-0"
+                  className="bg-white shadow-2xl relative flex-shrink-0 overflow-visible"
                   style={{
                     width: `${(8.5 * 72 * zoom) / 100}px`,
                     height: `${(11 * 72 * zoom) / 100}px`,
@@ -1489,6 +1489,7 @@ const EbookCanvasEditor = ({
                     transformOrigin: 'top center',
                     minWidth: `${8.5 * 72}px`,
                     minHeight: `${11 * 72}px`,
+                    marginTop: '20px',
                   }}
                   onClick={handleCanvasClick}
                 >
@@ -1507,7 +1508,7 @@ const EbookCanvasEditor = ({
                   )}
 
                   {/* Canvas Content - all pages have editable elements */}
-                  <div className="absolute inset-0 overflow-hidden">
+                  <div className="absolute inset-0 overflow-visible">
                     {currentPageElements.map(renderCanvasElement)}
                   </div>
 

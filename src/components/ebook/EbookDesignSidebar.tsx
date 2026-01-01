@@ -4,7 +4,7 @@ import {
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
-  Trash2
+  Trash2, GripVertical
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,7 @@ interface EbookDesignSidebarProps {
   onChapterAdd: (afterId: string) => void;
   onChapterTitleEdit: (id: string, newTitle: string) => void;
   onChapterDelete?: (id: string) => void;
+  onChapterReorder?: (fromIndex: number, toIndex: number) => void;
 }
 
 // Template options
@@ -77,6 +78,7 @@ const EbookDesignSidebar = ({
   onChapterAdd,
   onChapterTitleEdit,
   onChapterDelete,
+  onChapterReorder,
 }: EbookDesignSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
@@ -86,6 +88,25 @@ const EbookDesignSidebar = ({
   const [imageSearch, setImageSearch] = useState('');
   const [templatePrompt, setTemplatePrompt] = useState('');
   const [imagePrompt, setImagePrompt] = useState('');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      onChapterReorder?.(draggedIndex, dragOverIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const toggleSection = (section: SectionId) => {
     setExpandedSections(prev => {
@@ -330,145 +351,154 @@ const EbookDesignSidebar = ({
                 <span className="w-10 text-right text-xs font-medium text-gray-400">Page #</span>
               </div>
               <div className="space-y-1">
-                {chapters.map((chapter, index) => (
-                  <div
-                    key={chapter.id}
-                    className="relative"
-                    onMouseEnter={() => setHoveredChapterId(chapter.id)}
-                    onMouseLeave={() => setHoveredChapterId(null)}
-                  >
-                    {/* Add chapter button between items */}
-                    {hoveredChapterId === chapter.id && index > 0 && (
-                      <button
-                        onClick={() => onChapterAdd(chapters[index - 1].id)}
-                        className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    )}
-                    
+                {chapters.map((chapter, index) => {
+                  const hasType = !!chapter.type;
+                  return (
                     <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => onChapterSelect(chapter.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          onChapterSelect(chapter.id);
-                        }
-                      }}
-                      className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
-                        selectedChapterId === chapter.id
-                          ? 'border-emerald-400 bg-emerald-50'
-                          : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
-                      }`}
+                      key={chapter.id}
+                      className={`relative ${dragOverIndex === index ? 'ring-2 ring-emerald-400 rounded-lg' : ''}`}
+                      onMouseEnter={() => setHoveredChapterId(chapter.id)}
+                      onMouseLeave={() => setHoveredChapterId(null)}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragEnd={handleDragEnd}
                     >
-                      <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
-                        {index + 1}
-                      </span>
-                      
-                      {editingChapterId === chapter.id ? (
-                        <input
-                          type="text"
-                          value={editingValue}
-                          onChange={(e) => setEditingValue(e.target.value)}
-                          onBlur={handleEditSave}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleEditSave();
-                            if (e.key === 'Escape') {
-                              setEditingChapterId(null);
-                              setEditingValue('');
-                            }
-                          }}
-                          autoFocus
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
-                        />
-                      ) : (
-                        <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
-                          {chapter.title}
-                        </span>
+                      {/* Add chapter button between items */}
+                      {hoveredChapterId === chapter.id && index > 0 && (
+                        <button
+                          onClick={() => onChapterAdd(chapters[index - 1].id)}
+                          className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
                       )}
-
-                      <div className="ml-auto flex items-center gap-2">
-                        {chapter.type && (
-                          <span className={`px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap ${
-                            chapter.type === 'cover' ? 'bg-gray-600 text-white' :
-                            chapter.type === 'table of contents' ? 'bg-teal-600 text-white' :
-                            chapter.type === 'introduction' ? 'bg-teal-500 text-white' :
-                            chapter.type === 'summary' ? 'bg-gray-400 text-white' :
-                            'bg-gray-500 text-white'
-                          }`}>
-                            {chapter.type === 'cover' ? 'Cover' :
-                             chapter.type === 'table of contents' ? 'Table Of Contents' :
-                             chapter.type === 'introduction' ? 'Introduction' :
-                             chapter.type === 'summary' ? 'Summary' :
-                             chapter.type}
-                          </span>
-                        )}
-
-                        {/* Edit and Delete icons on hover (reserved space so layout doesn't shift) */}
-                        {!editingChapterId && (
-                          <div className="w-12 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditStart(chapter);
-                                  }}
-                                  className="p-1 hover:bg-gray-200 rounded transition-all"
-                                >
-                                  <Pencil className="w-3 h-3 text-gray-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                <p>Edit title</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onChapterDelete) {
-                                      onChapterDelete(chapter.id);
-                                    } else {
-                                      toast.success(`Deleted "${chapter.title}"`);
-                                    }
-                                  }}
-                                  className="p-1 hover:bg-red-100 rounded transition-all"
-                                >
-                                  <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                <p>Delete chapter</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                        )}
-
-                        {/* Page # column */}
-                        <span className="w-10 text-right text-xs font-medium text-gray-400">
+                      
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onChapterSelect(chapter.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onChapterSelect(chapter.id);
+                          }
+                        }}
+                        className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
+                          selectedChapterId === chapter.id
+                            ? 'border-emerald-400 bg-emerald-50'
+                            : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
+                        } ${draggedIndex === index ? 'opacity-50' : ''}`}
+                      >
+                        {/* Drag handle */}
+                        <GripVertical className="w-3 h-3 text-gray-300 cursor-grab flex-shrink-0" />
+                        
+                        <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
                           {index + 1}
                         </span>
+                        
+                        {editingChapterId === chapter.id ? (
+                          <input
+                            type="text"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleEditSave}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleEditSave();
+                              if (e.key === 'Escape') {
+                                setEditingChapterId(null);
+                                setEditingValue('');
+                              }
+                            }}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
+                          />
+                        ) : (
+                          <>
+                            {/* Only show title if no type badge */}
+                            {!hasType && (
+                              <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
+                                {chapter.title}
+                              </span>
+                            )}
+                          </>
+                        )}
+
+                        <div className="ml-auto flex items-center gap-2">
+                          {chapter.type && (
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-500 text-white">
+                              {chapter.type === 'cover' ? 'Cover' :
+                               chapter.type === 'table of contents' ? 'Table Of Contents' :
+                               chapter.type === 'introduction' ? 'Introduction' :
+                               chapter.type === 'summary' ? 'Summary' :
+                               chapter.type}
+                            </span>
+                          )}
+
+                          {/* Edit and Delete icons on hover */}
+                          {!editingChapterId && (
+                            <div className="w-12 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditStart(chapter);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded transition-all"
+                                  >
+                                    <Pencil className="w-3 h-3 text-gray-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p>Edit title</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onChapterDelete) {
+                                        onChapterDelete(chapter.id);
+                                      } else {
+                                        toast.success(`Deleted "${chapter.title}"`);
+                                      }
+                                    }}
+                                    className="p-1 hover:bg-red-100 rounded transition-all"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p>Delete chapter</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          )}
+
+                          {/* Page # column - matches right panel */}
+                          <span className="w-10 text-right text-xs font-medium text-gray-400">
+                            {index + 1}
+                          </span>
+                        </div>
                       </div>
+                      
+                      {/* Add chapter button after last item */}
+                      {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
+                        <button
+                          onClick={() => onChapterAdd(chapter.id)}
+                          className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
-                    
-                    {/* Add chapter button after last item */}
-                    {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
-                      <button
-                        onClick={() => onChapterAdd(chapter.id)}
-                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               {/* Add New Page Button */}
