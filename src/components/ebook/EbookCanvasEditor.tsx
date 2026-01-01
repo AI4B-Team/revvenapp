@@ -2048,7 +2048,7 @@ const EbookCanvasEditor = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden relative h-full">
+      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden relative h-full min-h-0">
         {/* AI Edit Modal */}
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
           <DialogContent className="sm:max-w-md">
@@ -2512,7 +2512,7 @@ const EbookCanvasEditor = ({
           </button>
 
           {/* Page Navigator (Right Side) */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden ${rightPanelCollapsed ? 'w-0' : 'w-48'}`}>
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${rightPanelCollapsed ? 'w-0' : 'w-48'}`}>
             
             {!rightPanelCollapsed && (
               <>

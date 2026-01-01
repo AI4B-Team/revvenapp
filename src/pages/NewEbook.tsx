@@ -1094,7 +1094,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             </Dialog>
 
             {/* Canvas Editor Area */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden min-h-0">
               {/* Left Sidebar - Design Tools */}
               <EbookDesignSidebar
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
