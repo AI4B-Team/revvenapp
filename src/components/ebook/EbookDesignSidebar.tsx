@@ -219,23 +219,6 @@ const EbookDesignSidebar = ({
                 <button
                   onClick={() => {
                     setIsCollapsed(false);
-                    setExpandedSections(new Set(['images']));
-                  }}
-                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                >
-                  <ImageIcon className="w-5 h-5 text-gray-600" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Images</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => {
-                    setIsCollapsed(false);
                     setExpandedSections(new Set(['elements']));
                   }}
                   className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
@@ -245,6 +228,23 @@ const EbookDesignSidebar = ({
               </TooltipTrigger>
               <TooltipContent side="right">
                 <p>Elements</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['images']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <ImageIcon className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Images</p>
               </TooltipContent>
             </Tooltip>
 
@@ -476,6 +476,26 @@ const EbookDesignSidebar = ({
             </div>
           )}
 
+          {/* Elements Section */}
+          <SectionHeader id="elements" title="Elements" icon={Box} />
+          {expandedSections.has('elements') && (
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="grid grid-cols-3 gap-2">
+                {ELEMENTS.map((element) => (
+                  <button
+                    key={element.id}
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                  >
+                    <element.icon className="w-5 h-5 text-gray-600" />
+                    <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
+                      {element.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <SectionHeader id="images" title="Images" icon={ImageIcon} />
           {expandedSections.has('images') && (
             <div className="p-3 border-b border-gray-200">
@@ -519,26 +539,6 @@ const EbookDesignSidebar = ({
                     <Send className="w-3 h-3" />
                   </button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Elements Section */}
-          <SectionHeader id="elements" title="Elements" icon={Box} />
-          {expandedSections.has('elements') && (
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="grid grid-cols-3 gap-2">
-                {ELEMENTS.map((element) => (
-                  <button
-                    key={element.id}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
-                  >
-                    <element.icon className="w-5 h-5 text-gray-600" />
-                    <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
-                      {element.name}
-                    </span>
-                  </button>
-                ))}
               </div>
             </div>
           )}
