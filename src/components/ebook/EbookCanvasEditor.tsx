@@ -53,6 +53,7 @@ interface CanvasElement {
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
+  borderStyle?: 'solid' | 'dashed' | 'dotted';
   shapeType?: 'rectangle' | 'circle';
   fontSize?: number;
   fontFamily?: string;
@@ -956,107 +957,166 @@ const EbookCanvasEditor = ({
       );
     };
 
-    // Border width popover
+    // Border width popover with slider
     const BorderWidthPopover = () => (
-      <PopoverContent className="w-48 p-2 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
-        <p className="text-xs font-medium text-gray-600 mb-2">Border Width</p>
-        <div className="flex flex-col gap-1">
-          {[0, 1, 2, 3, 4, 6, 8].map((width) => (
-            <button 
-              key={width}
-              onClick={() => updateElement(currentElement.id, { strokeWidth: width })}
-              className="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded"
-            >
-              <div className="w-12 flex items-center justify-center">
-                {width === 0 ? (
-                  <span className="text-xs text-gray-400">None</span>
-                ) : (
-                  <div className="w-full bg-gray-800 rounded-full" style={{ height: `${width}px` }} />
-                )}
-              </div>
-              <span>{width}px</span>
-            </button>
-          ))}
+      <PopoverContent className="w-56 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-600">Width</span>
+          <Slider 
+            defaultValue={[currentElement.strokeWidth || 0]} 
+            max={20} 
+            step={1}
+            onValueChange={(val) => updateElement(currentElement.id, { strokeWidth: val[0] })}
+            className="flex-1"
+          />
+          <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm text-gray-700 min-w-[50px] justify-center">
+            {currentElement.strokeWidth || 0}px
+          </div>
         </div>
       </PopoverContent>
     );
 
-    // Align popover
+    // Border style popover
+    const BorderStylePopover = () => (
+      <PopoverContent className="w-36 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <button 
+          onClick={() => updateElement(currentElement.id, { borderStyle: 'solid' })}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+        >
+          <div className="w-8 h-0 border-t-2 border-gray-800" />
+          <span className="text-blue-600">Solid</span>
+        </button>
+        <button 
+          onClick={() => updateElement(currentElement.id, { borderStyle: 'dashed' })}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+        >
+          <div className="w-8 h-0 border-t-2 border-dashed border-gray-800" />
+          <span>Dashed</span>
+        </button>
+        <button 
+          onClick={() => updateElement(currentElement.id, { borderStyle: 'dotted' })}
+          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+        >
+          <div className="w-8 h-0 border-t-2 border-dotted border-gray-800" />
+          <span>Dotted</span>
+        </button>
+      </PopoverContent>
+    );
+
+    // Align popover with full alignment options
     const AlignPopover = () => (
-      <PopoverContent className="w-48 p-2 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
-        <div className="grid grid-cols-3 gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <AlignLeft className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Left</p></TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <AlignCenter className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Center</p></TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <AlignRight className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Right</p></TooltipContent>
-          </Tooltip>
+      <PopoverContent className="w-64 p-3 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm font-medium text-gray-700">Align To</span>
+          <button className="text-gray-400 hover:text-gray-600">
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
         </div>
-        <div className="border-t border-gray-100 my-1" />
-        <div className="grid grid-cols-3 gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <ArrowUpToLine className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Top</p></TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <ArrowUpDown className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Middle</p></TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="p-2 hover:bg-gray-100 rounded">
-                <ArrowDownToLine className="w-4 h-4 text-gray-600" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom"><p>Align Bottom</p></TooltipContent>
-          </Tooltip>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <ArrowUpToLine className="w-4 h-4" />
+            <span className="text-xs">Top</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <ArrowUpDown className="w-4 h-4" />
+            <span className="text-xs">Middle</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <ArrowDownToLine className="w-4 h-4" />
+            <span className="text-xs">Bottom</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <AlignLeft className="w-4 h-4" />
+            <span className="text-xs">Left</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <AlignCenter className="w-4 h-4" />
+            <span className="text-xs">Center</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 p-2 hover:bg-gray-100 rounded text-gray-600">
+            <AlignRight className="w-4 h-4" />
+            <span className="text-xs">Right</span>
+          </button>
+        </div>
+        <div className="border-t border-gray-100 pt-3">
+          <span className="text-sm font-medium text-gray-700 mb-2 block">Distribute</span>
+          <div className="flex gap-2">
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:bg-gray-100 rounded">
+              <GripVertical className="w-4 h-4" />
+              <span>Vertically</span>
+            </button>
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:bg-gray-100 rounded">
+              <Minus className="w-4 h-4 rotate-90" />
+              <span>Horizontally</span>
+            </button>
+          </div>
         </div>
       </PopoverContent>
     );
 
-    // Layers popover (shared across types)
+    // Layers popover with keyboard shortcuts
     const LayersPopover = () => (
-      <PopoverContent className="w-48 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <ArrowUpToLine className="w-4 h-4" /> Move To Front
+      <PopoverContent className="w-56 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <div className="flex items-center gap-2">
+            <ArrowUpToLine className="w-4 h-4" /> 
+            <span>Move To Front</span>
+          </div>
+          <span className="text-xs text-gray-400">ctrl + shift + &gt;</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <ChevronUp className="w-4 h-4" /> Move Forward
+        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <div className="flex items-center gap-2">
+            <ChevronUp className="w-4 h-4" /> 
+            <span>Move Forward</span>
+          </div>
+          <span className="text-xs text-gray-400">ctrl + &gt;</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <ChevronDown className="w-4 h-4" /> Move Backward
+        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <div className="flex items-center gap-2">
+            <ChevronDown className="w-4 h-4" /> 
+            <span>Move Backwards</span>
+          </div>
+          <span className="text-xs text-gray-400">ctrl + &lt;</span>
         </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
-          <ArrowDownToLine className="w-4 h-4" /> Move To Back
+        <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <div className="flex items-center gap-2">
+            <ArrowDownToLine className="w-4 h-4" /> 
+            <span>Move To Back</span>
+          </div>
+          <span className="text-xs text-gray-400">ctrl + shift + &lt;</span>
         </button>
       </PopoverContent>
     );
+
+    // Shape picker grid for Replace
+    const ShapePickerPopover = () => {
+      const shapes = [
+        'square', 'rounded-square', 'circle', 'oval', 'semicircle', 'arc', 'ring', 'image-frame',
+        'triangle', 'right-triangle', 'diamond', 'pentagon', 'hexagon', 'octagon', 'decagon', 'star',
+        'moon', 'clover', 'cross', 'chevron-right', 'chevron-down', 'arrow-right', 'lightning', 'leaf',
+        'heart', 'droplet', 'arrow-curved', 'banner', 'parallelogram', 'trapezoid', 'badge', 'cloud',
+        'chat-bubble', 'thought-bubble', 'callout', 'explosion', 'rectangle', 'rounded-rect', 'pill', 'cylinder',
+        'corner', 'bracket', 'wave', 'zigzag', 'puzzle', 'gear', 'blob', 'splat',
+        'frame', 'polaroid', 'ribbon', 'scroll', 'flag', 'bookmark', 'tag', 'price-tag',
+        'sunburst', 'chain', 'pattern', 'chevrons', 'dots-h', 'dots-grid', 'circles', 'flowers'
+      ];
+      
+      return (
+        <PopoverContent className="w-72 p-3 bg-white border border-gray-200 shadow-lg max-h-96 overflow-y-auto" align="start" sideOffset={8}>
+          <div className="grid grid-cols-8 gap-1">
+            {shapes.map((shape, idx) => (
+              <button 
+                key={idx}
+                onClick={() => toast.info(`Selected ${shape} shape`)}
+                className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded hover:bg-gray-100 hover:border-gray-300"
+              >
+                <Square className="w-4 h-4 text-gray-600" />
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      );
+    };
 
     return (
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-1 px-2 py-1.5 whitespace-nowrap">
@@ -1136,13 +1196,28 @@ const EbookCanvasEditor = ({
               <TooltipContent side="bottom"><p>Crop</p></TooltipContent>
             </Tooltip>
             
-            {/* Border Width */}
+            {/* Border Style */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <AlignJustify className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Style</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <BorderStylePopover />
+            </Popover>
+            
+            {/* Border Width */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Minus className="w-4 h-4" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>Border Width</p></TooltipContent>
                   </Tooltip>
@@ -1161,10 +1236,6 @@ const EbookCanvasEditor = ({
               </TooltipTrigger>
               <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
             </Tooltip>
-            
-            <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
-              Alt Text
-            </button>
             
             <Popover>
               <PopoverTrigger asChild>
@@ -1223,12 +1294,15 @@ const EbookCanvasEditor = ({
 
         {currentElement.type === 'shape' && (
           <>
-            <button 
-              onClick={() => toast.info('Replace shape')}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
-            >
-              Replace
-            </button>
+            {/* Replace with shape picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2">
+                  Replace
+                </button>
+              </PopoverTrigger>
+              <ShapePickerPopover />
+            </Popover>
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
@@ -1288,13 +1362,28 @@ const EbookCanvasEditor = ({
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
-            {/* Border Width */}
+            {/* Border Style */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <AlignJustify className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Style</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <BorderStylePopover />
+            </Popover>
+            
+            {/* Border Width */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Minus className="w-4 h-4" />
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>Border Width</p></TooltipContent>
                   </Tooltip>
@@ -1313,10 +1402,6 @@ const EbookCanvasEditor = ({
               </TooltipTrigger>
               <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
             </Tooltip>
-            
-            <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
-              Alt Text
-            </button>
             
             <Popover>
               <PopoverTrigger asChild>
