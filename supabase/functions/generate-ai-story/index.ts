@@ -24,43 +24,77 @@ serve(async (req) => {
     console.log('Generating AI story with:', { prompt, voiceId, speed });
 
     // Call n8n webhook with the required parameters
-    // Using production webhook which processes async
-    const response = await fetch(N8N_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([{
-        tts_engine: 'kokoro',
-        kokoro_voice: voiceId || 'af_heart',
-        kokoro_speed: String(speed || 1.0),
-        Story: prompt,
-      }]),
-    });
+    // Using test webhook which waits for completion
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 540000); // 9 minute timeout
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('n8n webhook error:', errorText);
-      throw new Error(`Webhook error: ${response.status}`);
-    }
-
-    // For production webhook, it may return a job ID or acknowledgment
-    const result = await response.json();
-    console.log('Story generation started:', result);
-
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        videoUrl: result.link || result.videoUrl,
-        message: result.message || 'Video generation started',
-      }),
-      {
+    try {
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
         headers: {
-          ...corsHeaders,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify([{
+          tts_engine: 'kokoro',
+          kokoro_voice: voiceId || 'af_heart',
+          kokoro_speed: String(speed || 1.0),
+          Story: prompt,
+        }]),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('n8n webhook error:', errorText);
+        throw new Error(`Webhook error: ${response.status}`);
       }
-    );
+
+      // Handle potentially empty response
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      if (!responseText || responseText.trim() === '') {
+        throw new Error('Empty response from video generation service. Please try again.');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', responseText);
+        throw new Error('Invalid response format from video generation service');
+      }
+
+      console.log('Story generated successfully:', result);
+
+      const videoUrl = result.link || result.videoUrl || result.video_url || result.url;
+      
+      if (!videoUrl) {
+        console.error('No video URL in response:', result);
+        throw new Error('Video generation completed but no URL was returned');
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          videoUrl: videoUrl,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    } catch (fetchError: unknown) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('Video generation timed out. The process may still be running - please check back later.');
+      }
+      throw fetchError;
+    }
   } catch (error: unknown) {
     console.error('Error in generate-ai-story:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
