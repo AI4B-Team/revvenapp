@@ -1102,11 +1102,15 @@ const EbookCanvasEditor = ({
               >
                 {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
               </button>
-              {/* Rotation handle */}
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center">
-                <RotateCw className="w-3 h-3 text-blue-500" />
+              {/* Rotation and Move handles */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                  <Move className="w-3 h-3 text-blue-500" />
+                </div>
+                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                  <RotateCw className="w-3 h-3 text-blue-500" />
+                </div>
               </div>
-              <div className="absolute -top-5 left-1/2 w-px h-4 bg-blue-500" />
             </>
           )}
         </div>
@@ -1144,11 +1148,15 @@ const EbookCanvasEditor = ({
               >
                 {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
               </button>
-              {/* Rotation handle */}
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center">
-                <RotateCw className="w-3 h-3 text-red-500" />
+              {/* Rotation and Move handles */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                <div className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                  <Move className="w-3 h-3 text-red-500" />
+                </div>
+                <div className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                  <RotateCw className="w-3 h-3 text-red-500" />
+                </div>
               </div>
-              <div className="absolute -top-5 left-1/2 w-px h-4 bg-red-500" />
             </>
           )}
         </div>
@@ -1189,11 +1197,15 @@ const EbookCanvasEditor = ({
               >
                 {element.locked ? <Unlock className="w-3 h-3 text-white" /> : <Lock className="w-3 h-3 text-white" />}
               </button>
-              {/* Rotation handle */}
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center">
-                <RotateCw className="w-3 h-3 text-blue-500" />
+              {/* Rotation and Move handles */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                  <Move className="w-3 h-3 text-blue-500" />
+                </div>
+                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                  <RotateCw className="w-3 h-3 text-blue-500" />
+                </div>
               </div>
-              <div className="absolute -top-5 left-1/2 w-px h-4 bg-blue-500" />
             </>
           )}
         </div>
