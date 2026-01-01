@@ -124,27 +124,27 @@ const createCoverElements = (): CanvasElement[] => [
     x: 0,
     y: 0,
     width: 100,
-    height: 45,
+    height: 100,
     src: COVER_IMAGE
   },
   {
     id: 'title-box',
     type: 'shape',
-    x: 8,
-    y: 38,
-    width: 55,
-    height: 35,
-    fill: '#ffffff',
+    x: 5,
+    y: 65,
+    width: 60,
+    height: 25,
+    fill: 'rgba(255, 255, 255, 0.95)',
     stroke: 'transparent',
     shapeType: 'rectangle'
   },
   {
     id: 'title-text',
     type: 'text',
-    x: 12,
-    y: 44,
-    width: 47,
-    height: 25,
+    x: 8,
+    y: 68,
+    width: 54,
+    height: 12,
     content: 'STRATEGIC\nINVESTMENT',
     fontSize: 28,
     fontFamily: 'Georgia',
@@ -153,10 +153,10 @@ const createCoverElements = (): CanvasElement[] => [
   {
     id: 'subtitle-text',
     type: 'text',
-    x: 12,
-    y: 72,
-    width: 47,
-    height: 10,
+    x: 8,
+    y: 82,
+    width: 54,
+    height: 6,
     content: 'BASIC BUSINESS PROPOSAL',
     fontSize: 14,
     fontFamily: 'Georgia',
@@ -639,9 +639,12 @@ const EbookCanvasEditor = ({
       const deltaX = (clientX - dragStart.x) / rect.width * 100;
       const deltaY = (clientY - dragStart.y) / rect.height * 100;
 
-      updateElement(selectedElement, {
-        x: Math.max(0, Math.min(100 - (currentElement?.width || 0), dragStart.elementX + deltaX)),
-        y: Math.max(0, Math.min(100 - (currentElement?.height || 0), dragStart.elementY + deltaY))
+      // Use requestAnimationFrame for smoother dragging
+      requestAnimationFrame(() => {
+        updateElement(selectedElement, {
+          x: Math.max(0, Math.min(100 - (currentElement?.width || 0), dragStart.elementX + deltaX)),
+          y: Math.max(0, Math.min(100 - (currentElement?.height || 0), dragStart.elementY + deltaY))
+        });
       });
     }
 
@@ -2460,13 +2463,13 @@ const EbookCanvasEditor = ({
           <button
             onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-l-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
-            style={{ right: rightPanelCollapsed ? 0 : '192px' }}
+            style={{ right: rightPanelCollapsed ? 0 : '256px' }}
           >
             {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
           </button>
 
           {/* Page Navigator (Right Side) */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${rightPanelCollapsed ? 'w-0' : 'w-48'}`}>
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${rightPanelCollapsed ? 'w-0' : 'w-64'}`}>
             
             {!rightPanelCollapsed && (
               <>

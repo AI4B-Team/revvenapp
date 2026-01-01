@@ -967,7 +967,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   value={bookData.selectedTitle || ''}
                   onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
                   placeholder="Untitled Book"
-                  className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
+                  className="text-sm font-medium text-gray-700 bg-white border-2 border-emerald-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 max-w-[280px] w-full placeholder:text-gray-400"
                 />
               </div>
               
