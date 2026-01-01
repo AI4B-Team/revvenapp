@@ -857,14 +857,15 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 <span>Back To Projects</span>
               </button>
               
-              {/* Centered Editable Title */}
-              <div className="flex-1 flex justify-center">
+              {/* Centered Editable Title with Label */}
+              <div className="flex-1 flex justify-center items-center gap-2">
+                <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Project Name:</span>
                 <input
                   type="text"
                   value={bookData.selectedTitle || ''}
                   onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
                   placeholder="Untitled Book"
-                  className="text-sm font-medium text-gray-700 text-center bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
+                  className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
                 />
               </div>
               

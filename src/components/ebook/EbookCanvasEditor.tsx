@@ -431,10 +431,19 @@ const EbookCanvasEditor = ({
   const canvasRef = useRef<HTMLDivElement>(null);
   const pageCanvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pageRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
   const handleZoomFit = () => setZoom(100);
+
+  // Scroll to page when selected from sidebar
+  const scrollToPage = (pageId: string) => {
+    const pageElement = pageRefs.current[pageId];
+    if (pageElement && canvasRef.current) {
+      pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const selectedPage = pages.find(p => p.id === selectedPageId) || pages[0];
   
@@ -1621,7 +1630,11 @@ const EbookCanvasEditor = ({
                     const isCurrentPageWithSelection = isSelected && selectedElement;
                     
                     return (
-                      <div key={page.id} className="relative flex flex-col items-center">
+                      <div 
+                        key={page.id} 
+                        ref={(el) => { pageRefs.current[page.id] = el; }}
+                        className="relative flex flex-col items-center"
+                      >
                         {/* Contextual Black Toolbar - appears above page label when element selected on this page */}
                         {isCurrentPageWithSelection && (
                           <div className="flex justify-center mb-3">
@@ -1747,7 +1760,10 @@ const EbookCanvasEditor = ({
                   
                   {/* Page Thumbnail */}
                   <button
-                    onClick={() => onPageSelect(page.id)}
+                    onClick={() => {
+                      onPageSelect(page.id);
+                      scrollToPage(page.id);
+                    }}
                     onMouseEnter={() => setHoveredPageId(page.id)}
                     onMouseLeave={() => setHoveredPageId(null)}
                     className={`flex-1 group relative rounded-lg overflow-hidden border-2 transition-all ${
