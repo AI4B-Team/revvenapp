@@ -164,127 +164,58 @@ const createCoverElements = (): CanvasElement[] => [
   }
 ];
 
-const createTocElements = (): CanvasElement[] => [
-  {
-    id: 'toc-header',
-    type: 'text',
-    x: 10,
-    y: 8,
-    width: 80,
-    height: 8,
-    content: 'TABLE OF CONTENTS',
-    fontSize: 24,
-    fontFamily: 'Georgia',
-    textColor: '#1a1a2e'
-  },
-  {
-    id: 'toc-line',
-    type: 'shape',
-    x: 10,
-    y: 18,
-    width: 20,
-    height: 1,
-    fill: '#0891b2',
-    stroke: 'transparent',
-    shapeType: 'rectangle'
-  },
-  {
-    id: 'toc-item1',
-    type: 'text',
-    x: 10,
-    y: 25,
-    width: 80,
-    height: 5,
-    content: '01. Executive Summary .......................... 3',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item2',
-    type: 'text',
-    x: 10,
-    y: 32,
-    width: 80,
-    height: 5,
-    content: '02. Market Analysis .............................. 5',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item3',
-    type: 'text',
-    x: 10,
-    y: 39,
-    width: 80,
-    height: 5,
-    content: '03. Investment Strategy ........................ 8',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item4',
-    type: 'text',
-    x: 10,
-    y: 46,
-    width: 80,
-    height: 5,
-    content: '04. Financial Projections ..................... 12',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item5',
-    type: 'text',
-    x: 10,
-    y: 53,
-    width: 80,
-    height: 5,
-    content: '05. Risk Assessment ............................ 16',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item6',
-    type: 'text',
-    x: 10,
-    y: 60,
-    width: 80,
-    height: 5,
-    content: '06. Implementation Timeline ................. 20',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item7',
-    type: 'text',
-    x: 10,
-    y: 67,
-    width: 80,
-    height: 5,
-    content: '07. Team & Expertise ........................... 24',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  },
-  {
-    id: 'toc-item8',
-    type: 'text',
-    x: 10,
-    y: 74,
-    width: 80,
-    height: 5,
-    content: '08. Conclusion .................................... 28',
-    fontSize: 12,
-    fontFamily: 'Georgia',
-    textColor: '#374151'
-  }
-];
+const createTocElements = (pages: Page[]): CanvasElement[] => {
+  // Filter to get only chapter-page types (these are the chapter title pages)
+  const chapterPages = pages.filter(p => p.type === 'chapter-page');
+  
+  const baseElements: CanvasElement[] = [
+    {
+      id: 'toc-header',
+      type: 'text',
+      x: 10,
+      y: 8,
+      width: 80,
+      height: 8,
+      content: 'TABLE OF CONTENTS',
+      fontSize: 24,
+      fontFamily: 'Georgia',
+      textColor: '#1a1a2e'
+    },
+    {
+      id: 'toc-line',
+      type: 'shape',
+      x: 10,
+      y: 18,
+      width: 20,
+      height: 1,
+      fill: '#0891b2',
+      stroke: 'transparent',
+      shapeType: 'rectangle'
+    }
+  ];
+  
+  // Generate TOC items from actual chapter pages
+  const tocItems: CanvasElement[] = chapterPages.map((page, index) => {
+    const pageNumber = pages.findIndex(p => p.id === page.id) + 1;
+    const chapterNum = String(index + 1).padStart(2, '0');
+    const dots = '.'.repeat(Math.max(1, 40 - page.title.length));
+    
+    return {
+      id: `toc-item${index + 1}`,
+      type: 'text' as const,
+      x: 10,
+      y: 25 + (index * 7),
+      width: 80,
+      height: 5,
+      content: `${chapterNum}. ${page.title} ${dots} ${pageNumber}`,
+      fontSize: 12,
+      fontFamily: 'Georgia',
+      textColor: '#374151'
+    };
+  });
+  
+  return [...baseElements, ...tocItems];
+};
 
 const createChapterElements = (chapterNum: number, title: string): CanvasElement[] => [
   {
@@ -538,7 +469,7 @@ const EbookCanvasEditor = ({
       case 'cover':
         return createCoverElements();
       case 'toc':
-        return createTocElements();
+        return createTocElements(pages);
       case 'back':
         return createBackCoverElements();
       case 'chapter-page': {
