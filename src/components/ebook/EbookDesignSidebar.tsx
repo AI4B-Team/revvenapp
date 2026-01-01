@@ -572,19 +572,48 @@ const EbookDesignSidebar = ({
           <SectionHeader id="elements" title="Elements" icon={Box} />
           {expandedSections.has('elements') && (
             <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="grid grid-cols-3 gap-2">
-                {ELEMENTS.map((element) => (
-                  <button
-                    key={element.id}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
-                  >
-                    <element.icon className="w-5 h-5 text-gray-600" />
-                    <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
-                      {element.name}
-                    </span>
-                  </button>
-                ))}
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={elementSearch}
+                  onChange={(e) => setElementSearch(e.target.value)}
+                  placeholder="Press [Enter] to Search"
+                  className="pl-9"
+                />
               </div>
+
+              {/* Element Categories */}
+              {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => (
+                <div key={key} className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-medium text-gray-700">{category.title}</h4>
+                    <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+                      More
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {category.items.map((element) => (
+                      <Tooltip key={element.id}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => toast.success(`Added ${element.name} to canvas`)}
+                            className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                          >
+                            <element.icon className="w-5 h-5 text-gray-600" />
+                            <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
+                              {element.name}
+                            </span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p>{element.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
