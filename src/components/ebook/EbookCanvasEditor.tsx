@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { 
   MousePointer2, Type, Square, Circle, Image as ImageIcon, 
-  Minus, Undo2, Redo2, ZoomIn, ZoomOut, Hand, Layers, 
+  Minus, Undo2, Redo2, ZoomIn, ZoomOut, Hand, Layers, ChevronLeft, ChevronRight, 
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Bold, Italic, Underline, Strikethrough, Link2, List, ListOrdered,
   Trash2, Copy, ClipboardPaste, Lock, Unlock, Eye, EyeOff,
@@ -490,7 +490,7 @@ const EbookCanvasEditor = ({
   const [pageHeight, setPageHeight] = useState(1131.37);
   const [resizeContent, setResizeContent] = useState(true);
   const [linkDimensions, setLinkDimensions] = useState(true);
-  
+  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
   // Drag state for element movement
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number; elementX: number; elementY: number } | null>(null);
@@ -2503,16 +2503,33 @@ const EbookCanvasEditor = ({
           </div>
 
           {/* Page Navigator (Right Side) */}
-          <div className="w-48 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
-            <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-              <span className="text-xs font-medium text-gray-600">Pages</span>
-              <button 
-                onClick={() => toast.success('Add page')}
-                className="p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-emerald-600"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative transition-all duration-300 ${rightPanelCollapsed ? 'w-0 overflow-hidden' : 'w-48'}`}>
+            {/* Toggle Arrow - positioned on middle left border */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
+                  className="absolute top-1/2 -translate-y-1/2 -left-3 z-50 w-6 h-12 bg-white border border-gray-200 rounded-l-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center justify-center"
+                >
+                  {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-500" /> : <ChevronRight className="w-4 h-4 text-gray-500" />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>{rightPanelCollapsed ? 'Show pages' : 'Hide pages'}</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            {!rightPanelCollapsed && (
+              <>
+                <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                  <span className="text-xs font-medium text-gray-600">Pages</span>
+                  <button 
+                    onClick={() => toast.success('Add page')}
+                    className="p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-emerald-600"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-3">
               {pages.map((page, index) => (
                 <div 
@@ -2573,6 +2590,8 @@ const EbookCanvasEditor = ({
                 </div>
               ))}
             </div>
+              </>
+            )}
           </div>
         </div>
       </div>
