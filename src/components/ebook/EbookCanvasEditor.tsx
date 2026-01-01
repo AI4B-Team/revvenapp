@@ -1466,10 +1466,10 @@ const EbookCanvasEditor = ({
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-                {/* Bottom Right Vertical Controls - Undo/Redo and Zoom */}
-                <div className="fixed bottom-24 right-64 z-40 flex flex-col gap-2">
+{/* Bottom Right Horizontal Controls - Undo/Redo and Zoom */}
+                <div className="fixed bottom-8 right-8 z-40 flex items-center gap-2">
                   {/* Undo/Redo */}
-                  <div className="flex flex-col gap-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
+                  <div className="flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
@@ -1480,7 +1480,7 @@ const EbookCanvasEditor = ({
                           <Undo2 className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="text-xs"><p>Undo (⌘Z)</p></TooltipContent>
+                      <TooltipContent side="top" className="text-xs"><p>Undo (⌘Z)</p></TooltipContent>
                     </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -1492,12 +1492,12 @@ const EbookCanvasEditor = ({
                           <Redo2 className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
+                      <TooltipContent side="top" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
                     </Tooltip>
                   </div>
                   
                   {/* Zoom Controls */}
-                  <div className="flex flex-col items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
+                  <div className="flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button 
@@ -1507,7 +1507,7 @@ const EbookCanvasEditor = ({
                           <Minus className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="text-xs"><p>Zoom Out</p></TooltipContent>
+                      <TooltipContent side="top" className="text-xs"><p>Zoom Out</p></TooltipContent>
                     </Tooltip>
                     <button 
                       onClick={handleZoomFit}
@@ -1524,7 +1524,7 @@ const EbookCanvasEditor = ({
                           <Plus className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="text-xs"><p>Zoom In</p></TooltipContent>
+                      <TooltipContent side="top" className="text-xs"><p>Zoom In</p></TooltipContent>
                     </Tooltip>
                   </div>
                 </div>
@@ -1538,17 +1538,17 @@ const EbookCanvasEditor = ({
                     
                     return (
                       <div key={page.id} className="relative">
-                        {/* Page Label */}
-                        <div className="mb-2 text-xs font-medium text-gray-500">
-                          Page {pageIndex + 1} - {page.title}
-                        </div>
-                        
-                        {/* Contextual Black Toolbar - appears below page label when element selected on this page */}
+                        {/* Contextual Black Toolbar - appears above page label when element selected on this page */}
                         {isCurrentPageWithSelection && (
                           <div className="flex justify-center mb-3">
                             {renderContextualToolbar()}
                           </div>
                         )}
+                        
+                        {/* Page Label */}
+                        <div className="mb-2 text-xs font-medium text-gray-500">
+                          Page {pageIndex + 1} - {page.title}
+                        </div>
                         
                         {/* Page Canvas */}
                         <div 
