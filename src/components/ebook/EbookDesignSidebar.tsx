@@ -192,15 +192,23 @@ const EbookDesignSidebar = ({
     return (
       <button
         onClick={() => toggleSection(id)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+        className={`w-full flex items-center justify-between px-3 py-2 transition-colors border-b border-gray-200 ${
+          isExpanded 
+            ? 'bg-emerald-50 hover:bg-emerald-100' 
+            : 'bg-gray-50 hover:bg-gray-100'
+        }`}
       >
         <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-gray-600" />
-          {!isCollapsed && <span className="font-semibold text-gray-900 text-base">{title}</span>}
+          <Icon className={`w-4 h-4 ${isExpanded ? 'text-emerald-600' : 'text-gray-600'}`} />
+          {!isCollapsed && (
+            <span className={`font-semibold text-base ${isExpanded ? 'text-emerald-700' : 'text-gray-900'}`}>
+              {title}
+            </span>
+          )}
         </div>
         {!isCollapsed && (
           isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-gray-400" />
+            <ChevronUp className={`w-4 h-4 ${isExpanded ? 'text-emerald-500' : 'text-gray-400'}`} />
           ) : (
             <ChevronDown className="w-4 h-4 text-gray-400" />
           )
