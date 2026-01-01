@@ -3,8 +3,10 @@ import {
   ChevronDown, ChevronUp, Layers, FileText, Image as ImageIcon, 
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
-  Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft
+  Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
+  Trash2
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { 
   Tooltip, 
@@ -26,6 +28,7 @@ interface EbookDesignSidebarProps {
   onChapterSelect: (id: string) => void;
   onChapterAdd: (afterId: string) => void;
   onChapterTitleEdit: (id: string, newTitle: string) => void;
+  onChapterDelete?: (id: string) => void;
 }
 
 // Template options
@@ -73,6 +76,7 @@ const EbookDesignSidebar = ({
   onChapterSelect,
   onChapterAdd,
   onChapterTitleEdit,
+  onChapterDelete,
 }: EbookDesignSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
@@ -383,16 +387,46 @@ const EbookDesignSidebar = ({
                         </span>
                       )}
                       
-                      {!chapter.type && !editingChapterId && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditStart(chapter);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
-                        >
-                          <Pencil className="w-3 h-3 text-gray-400" />
-                        </button>
+                      {/* Edit and Delete icons on hover */}
+                      {!editingChapterId && (
+                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 flex-shrink-0 transition-all">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditStart(chapter);
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded transition-all"
+                              >
+                                <Pencil className="w-3 h-3 text-gray-500" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              <p>Edit title</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onChapterDelete) {
+                                    onChapterDelete(chapter.id);
+                                  } else {
+                                    toast.success(`Deleted "${chapter.title}"`);
+                                  }
+                                }}
+                                className="p-1 hover:bg-red-100 rounded transition-all"
+                              >
+                                <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              <p>Delete chapter</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       )}
                     </button>
                     
