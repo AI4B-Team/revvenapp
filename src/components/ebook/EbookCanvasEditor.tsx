@@ -7,7 +7,7 @@ import {
   Trash2, Copy, ClipboardPaste, Lock, Unlock, Eye, EyeOff,
   ChevronUp, ChevronDown, RotateCcw, FlipHorizontal, FlipVertical,
   Grid3X3, Ruler, Download, Upload, Maximize, Minimize,
-  Plus, Check, X, Sparkles, Palette, SlidersHorizontal
+  Plus, Check, X, Sparkles, Palette, SlidersHorizontal, Replace, Crop
 } from 'lucide-react';
 import { 
   Tooltip, 
@@ -28,6 +28,23 @@ interface Page {
   title: string;
   type: 'cover' | 'toc' | 'chapter' | 'back';
   thumbnail?: string;
+}
+
+interface CanvasElement {
+  id: string;
+  type: 'image' | 'shape' | 'text';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  content?: string;
+  src?: string;
+  fill?: string;
+  stroke?: string;
+  shapeType?: 'rectangle' | 'circle';
+  fontSize?: number;
+  fontFamily?: string;
+  textColor?: string;
 }
 
 interface EbookCanvasEditorProps {
@@ -71,17 +88,612 @@ const EbookCanvasEditor = ({
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Sample canvas elements for the cover
+  const [canvasElements] = useState<CanvasElement[]>([
+    {
+      id: 'cover-image',
+      type: 'image',
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 45,
+      src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop'
+    },
+    {
+      id: 'title-box',
+      type: 'shape',
+      x: 8,
+      y: 38,
+      width: 55,
+      height: 35,
+      fill: '#ffffff',
+      stroke: 'transparent',
+      shapeType: 'rectangle'
+    },
+    {
+      id: 'title-text',
+      type: 'text',
+      x: 12,
+      y: 44,
+      width: 47,
+      height: 25,
+      content: 'STRATEGIC\nINVESTMENT',
+      fontSize: 28,
+      fontFamily: 'Georgia',
+      textColor: '#1a1a2e'
+    },
+    {
+      id: 'subtitle-text',
+      type: 'text',
+      x: 12,
+      y: 72,
+      width: 47,
+      height: 10,
+      content: 'BASIC BUSINESS PROPOSAL',
+      fontSize: 14,
+      fontFamily: 'Georgia',
+      textColor: '#0891b2'
+    }
+  ]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
   const handleZoomFit = () => setZoom(100);
 
   const selectedPage = pages.find(p => p.id === selectedPageId) || pages[0];
+  const currentElement = canvasElements.find(el => el.id === selectedElement);
+
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setSelectedElement(null);
+    }
+  };
+
+  const handleElementClick = (e: React.MouseEvent, elementId: string) => {
+    e.stopPropagation();
+    setSelectedElement(elementId);
+  };
+
+  // Contextual toolbar based on selected element type
+  const renderContextualToolbar = () => {
+    if (!currentElement) return null;
+
+    return (
+      <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 bg-white rounded-lg shadow-xl border border-gray-200 flex items-center gap-1 px-2 py-1.5">
+        {currentElement.type === 'image' && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => toast.info('Replace image')}
+                  className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1.5"
+                >
+                  <Replace className="w-3.5 h-3.5" />
+                  Replace
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Replace Image</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => toast.info('Edit image')}
+                  className="px-3 py-1.5 text-xs font-medium hover:bg-gray-100 rounded flex items-center gap-1.5"
+                >
+                  Edit Image
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Edit Image</p></TooltipContent>
+            </Tooltip>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Square className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Crop</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Crop className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Mask</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Link2 className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Link</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Alt text</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Add alt text</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
+            </Tooltip>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Lock className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Lock</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Copy className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+            </Tooltip>
+          </>
+        )}
+
+        {currentElement.type === 'shape' && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={() => toast.info('Replace shape')}
+                  className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1.5"
+                >
+                  <Replace className="w-3.5 h-3.5" />
+                  Replace
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Replace Shape</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Square className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Rectangle</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Circle className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Circle</p></TooltipContent>
+            </Tooltip>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
+                  <div 
+                    className="w-5 h-5 rounded border border-gray-300 shadow-inner"
+                    style={{ backgroundColor: currentElement.fill || '#ffffff' }}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="center">
+                <p className="text-xs font-medium text-gray-600 mb-2">Fill Color</p>
+                <input 
+                  type="color" 
+                  value={currentElement.fill || '#ffffff'}
+                  onChange={(e) => toast.info(`Fill: ${e.target.value}`)}
+                  className="w-32 h-8 cursor-pointer"
+                />
+              </PopoverContent>
+            </Popover>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Minus className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Border</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Alt text</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Add alt text</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
+            </Tooltip>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Lock className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Lock</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Copy className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+            </Tooltip>
+          </>
+        )}
+
+        {currentElement.type === 'text' && (
+          <>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
+                  <span className="text-lg font-serif">A</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <p className="text-xs font-medium text-gray-600 mb-2">Text Color</p>
+                <input 
+                  type="color" 
+                  value={currentElement.textColor || '#000000'}
+                  onChange={(e) => toast.info(`Color: ${e.target.value}`)}
+                  className="w-32 h-8 cursor-pointer"
+                />
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="h-7 px-2 text-xs font-medium bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 min-w-[90px] text-left truncate">
+                  {currentElement.fontFamily || 'Georgia'}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1 max-h-60 overflow-y-auto" align="start">
+                {FONTS.map(font => (
+                  <button
+                    key={font}
+                    onClick={() => toast.info(`Font: ${font}`)}
+                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100"
+                    style={{ fontFamily: font }}
+                  >
+                    {font}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="h-7 px-2 text-xs font-medium hover:bg-gray-100 rounded flex items-center gap-1">
+                  Heading 1
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-36 p-1" align="start">
+                {['Heading 1', 'Heading 2', 'Heading 3', 'Body', 'Caption'].map(style => (
+                  <button
+                    key={style}
+                    onClick={() => toast.info(`Style: ${style}`)}
+                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100"
+                  >
+                    {style}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+            <div className="flex items-center border border-gray-200 rounded">
+              <button className="p-1.5 hover:bg-gray-100 border-r border-gray-200">
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="px-2 text-xs font-medium min-w-[32px] text-center">
+                {currentElement.fontSize || 28}
+              </span>
+              <button className="p-1.5 hover:bg-gray-100 border-l border-gray-200">
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <Bold className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Bold</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <Italic className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Italic</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <Underline className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Underline</p></TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="flex items-center gap-0.5">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignLeft className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Align Left</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignCenter className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Align Center</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignRight className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs"><p>Align Right</p></TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <List className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Bullet List</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <ListOrdered className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Numbered List</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Effects</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Text Effects</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>AI Effects</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Link2 className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Link</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
+            </Tooltip>
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Lock className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Lock</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Copy className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+            </Tooltip>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderCanvasElement = (element: CanvasElement) => {
+    const isSelected = selectedElement === element.id;
+    const selectionBorderColor = element.type === 'shape' ? '#dc2626' : '#3b82f6';
+    
+    const baseStyle: React.CSSProperties = {
+      position: 'absolute',
+      left: `${element.x}%`,
+      top: `${element.y}%`,
+      width: `${element.width}%`,
+      height: `${element.height}%`,
+      cursor: 'pointer',
+    };
+
+    if (element.type === 'image') {
+      return (
+        <div
+          key={element.id}
+          onClick={(e) => handleElementClick(e, element.id)}
+          style={baseStyle}
+          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+        >
+          <img 
+            src={element.src} 
+            alt="Cover" 
+            className="w-full h-full object-cover"
+            draggable={false}
+          />
+          {isSelected && (
+            <>
+              {/* Selection handles */}
+              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+            </>
+          )}
+        </div>
+      );
+    }
+
+    if (element.type === 'shape') {
+      return (
+        <div
+          key={element.id}
+          onClick={(e) => handleElementClick(e, element.id)}
+          style={{
+            ...baseStyle,
+            backgroundColor: element.fill,
+            border: element.stroke !== 'transparent' ? `2px solid ${element.stroke}` : 'none',
+            boxShadow: isSelected ? `0 0 0 2px ${selectionBorderColor}` : 'none',
+          }}
+          className="transition-all"
+        >
+          {isSelected && (
+            <>
+              {/* Selection handles */}
+              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-se-resize" />
+              {/* Lock icon */}
+              <div className="absolute -top-1 -right-1 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-orange-500 rounded-sm flex items-center justify-center">
+                <Lock className="w-3 h-3 text-white" />
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    if (element.type === 'text') {
+      return (
+        <div
+          key={element.id}
+          onClick={(e) => handleElementClick(e, element.id)}
+          style={{
+            ...baseStyle,
+            fontFamily: element.fontFamily,
+            fontSize: `${element.fontSize}px`,
+            color: element.textColor,
+            lineHeight: 1.2,
+            whiteSpace: 'pre-wrap',
+          }}
+          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+        >
+          {element.content}
+          {isSelected && (
+            <>
+              {/* Selection handles */}
+              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Rotation and move handles */}
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                <button className="w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50">
+                  <RotateCcw className="w-3 h-3 text-gray-600" />
+                </button>
+                <button className="w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50">
+                  <Plus className="w-3 h-3 text-gray-600" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden">
+      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden relative">
+        {/* Contextual Toolbar */}
+        {renderContextualToolbar()}
+
         {/* Canvas Toolbar */}
         <div className="h-10 bg-white border-b border-gray-200 flex items-center px-2 gap-1 flex-shrink-0">
           {/* Tool Selection */}
@@ -132,189 +744,6 @@ const EbookCanvasEditor = ({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* Font Controls (when text tool selected) */}
-          {(activeTool === 'text' || activeTool === 'select') && (
-            <div className="flex items-center gap-1 px-2 border-r border-gray-200">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="h-7 px-2 text-xs font-medium bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 min-w-[100px] text-left truncate">
-                    {selectedFont}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 p-1 max-h-60 overflow-y-auto" align="start">
-                  {FONTS.map(font => (
-                    <button
-                      key={font}
-                      onClick={() => setSelectedFont(font)}
-                      className={`w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100 ${
-                        selectedFont === font ? 'bg-emerald-50 text-emerald-600' : ''
-                      }`}
-                      style={{ fontFamily: font }}
-                    >
-                      {font}
-                    </button>
-                  ))}
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="h-7 px-2 text-xs font-medium bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 min-w-[50px]">
-                    {fontSize}px
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-24 p-1 max-h-48 overflow-y-auto" align="start">
-                  {FONT_SIZES.map(size => (
-                    <button
-                      key={size}
-                      onClick={() => setFontSize(size)}
-                      className={`w-full text-left px-2 py-1 text-sm rounded hover:bg-gray-100 ${
-                        fontSize === size ? 'bg-emerald-50 text-emerald-600' : ''
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </PopoverContent>
-              </Popover>
-
-              <div className="flex items-center gap-0.5">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <Bold className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Bold (⌘B)</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <Italic className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Italic (⌘I)</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <Underline className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Underline (⌘U)</p></TooltipContent>
-                </Tooltip>
-              </div>
-
-              <div className="flex items-center gap-0.5 ml-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <AlignLeft className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Align Left</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <AlignCenter className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Align Center</p></TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                      <AlignRight className="w-3.5 h-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="text-xs"><p>Align Right</p></TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
-          )}
-
-          {/* Color Controls */}
-          <div className="flex items-center gap-1 px-2 border-r border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
-                      <div 
-                        className="w-5 h-5 rounded border border-gray-300 shadow-inner"
-                        style={{ backgroundColor: fillColor }}
-                      />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3" align="start">
-                    <p className="text-xs font-medium text-gray-600 mb-2">Fill Color</p>
-                    <input 
-                      type="color" 
-                      value={fillColor}
-                      onChange={(e) => setFillColor(e.target.value)}
-                      className="w-32 h-8 cursor-pointer"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Fill Color</p></TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
-                      <div 
-                        className="w-5 h-5 rounded border-2 shadow-inner"
-                        style={{ borderColor: strokeColor, backgroundColor: 'transparent' }}
-                      />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3" align="start">
-                    <p className="text-xs font-medium text-gray-600 mb-2">Stroke Color</p>
-                    <input 
-                      type="color" 
-                      value={strokeColor}
-                      onChange={(e) => setStrokeColor(e.target.value)}
-                      className="w-32 h-8 cursor-pointer"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Stroke Color</p></TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* Arrange Controls */}
-          <div className="flex items-center gap-0.5 px-2 border-r border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <ChevronUp className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Bring Forward</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Send Backward</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Layers className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Layers</p></TooltipContent>
             </Tooltip>
           </div>
 
@@ -385,12 +814,12 @@ const EbookCanvasEditor = ({
         </div>
 
         {/* Main Canvas Area */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Canvas Container with Rulers */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
             {/* Horizontal Ruler */}
             {showRulers && (
-              <div className="h-5 bg-gray-50 border-b border-gray-200 flex items-end">
+              <div className="h-5 bg-gray-50 border-b border-gray-200 flex items-end flex-shrink-0">
                 <div className="w-5 h-full bg-gray-100 border-r border-gray-200" />
                 <div className="flex-1 relative">
                   {Array.from({ length: 20 }, (_, i) => (
@@ -407,10 +836,10 @@ const EbookCanvasEditor = ({
               </div>
             )}
 
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden min-h-0">
               {/* Vertical Ruler */}
               {showRulers && (
-                <div className="w-5 bg-gray-50 border-r border-gray-200 relative">
+                <div className="w-5 bg-gray-50 border-r border-gray-200 relative flex-shrink-0">
                   {Array.from({ length: 25 }, (_, i) => (
                     <div 
                       key={i} 
@@ -424,15 +853,16 @@ const EbookCanvasEditor = ({
                 </div>
               )}
 
-              {/* Canvas */}
+              {/* Canvas - no scrolling when content fits */}
               <div 
                 ref={canvasRef}
-                className="flex-1 overflow-auto flex items-start justify-center p-2 pt-2"
+                className="flex-1 flex items-center justify-center p-4"
                 style={{ backgroundColor: '#e5e7eb' }}
+                onClick={handleCanvasClick}
               >
                 {/* Page Canvas - 8.5x11 aspect ratio */}
                 <div 
-                  className="bg-white shadow-2xl relative"
+                  className="bg-white shadow-2xl relative flex-shrink-0"
                   style={{
                     width: `${(8.5 * 72 * zoom) / 100}px`,
                     height: `${(11 * 72 * zoom) / 100}px`,
@@ -441,6 +871,7 @@ const EbookCanvasEditor = ({
                     minWidth: `${8.5 * 72}px`,
                     minHeight: `${11 * 72}px`,
                   }}
+                  onClick={handleCanvasClick}
                 >
                   {/* Grid Overlay */}
                   {showGrid && (
@@ -456,31 +887,27 @@ const EbookCanvasEditor = ({
                     />
                   )}
 
-                  {/* Sample Content */}
-                  <div className="absolute inset-0 p-12 flex flex-col">
-                    {selectedPage?.type === 'cover' ? (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center bg-gradient-to-br from-emerald-500 to-teal-600 -m-12 p-12">
-                        <h1 className="text-4xl font-bold text-white mb-4">{bookTitle || 'Your eBook Title'}</h1>
-                        <p className="text-xl text-white/80">A Comprehensive Guide</p>
-                        <div className="mt-auto">
-                          <p className="text-sm text-white/60">By Author Name</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-bold text-gray-900 mb-6">{selectedPage?.title || 'Chapter Title'}</h2>
-                        <p className="text-gray-700 leading-relaxed mb-4">
-                          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-                        </p>
-                        <p className="text-gray-700 leading-relaxed mb-4">
-                          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                        </p>
-                        <p className="text-gray-700 leading-relaxed">
-                          Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
-                        </p>
-                      </>
-                    )}
-                  </div>
+                  {/* Canvas Content */}
+                  {selectedPage?.type === 'cover' ? (
+                    // Cover page with editable elements
+                    <div className="absolute inset-0">
+                      {canvasElements.map(renderCanvasElement)}
+                    </div>
+                  ) : (
+                    // Chapter pages
+                    <div className="absolute inset-0 p-12 flex flex-col">
+                      <h2 className="text-xl font-bold text-gray-900 mb-6">{selectedPage?.title || 'Chapter Title'}</h2>
+                      <p className="text-gray-700 leading-relaxed mb-4">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+                      </p>
+                      <p className="text-gray-700 leading-relaxed mb-4">
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+                      </p>
+                      <p className="text-gray-700 leading-relaxed">
+                        Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Page Number */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
@@ -492,8 +919,8 @@ const EbookCanvasEditor = ({
           </div>
 
           {/* Page Navigator (Right Side) */}
-          <div className="w-40 bg-white border-l border-gray-200 flex flex-col overflow-hidden">
-            <div className="p-2 border-b border-gray-200 flex items-center justify-between">
+          <div className="w-40 bg-white border-l border-gray-200 flex flex-col overflow-hidden flex-shrink-0">
+            <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
               <span className="text-xs font-medium text-gray-600">Pages</span>
               <button 
                 onClick={() => toast.success('Add page')}
@@ -502,7 +929,7 @@ const EbookCanvasEditor = ({
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
               {pages.map((page, index) => (
                 <button
                   key={page.id}
