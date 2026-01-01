@@ -355,7 +355,7 @@ const EbookDesignSidebar = ({
                     {viewingTemplate.name}
                   </button>
                   <button className="w-full py-2 px-4 mb-4 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Add all pages
+                    Add All Pages
                   </button>
                   <div className="grid grid-cols-2 gap-3">
                     {viewingTemplate.pages.map((page, index) => (
