@@ -1285,14 +1285,9 @@ const EbookCanvasEditor = ({
           <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover/image:opacity-100">
             <button 
               onClick={(e) => { 
-                e.stopPropagation(); 
+                e.stopPropagation();
                 updateElement(element.id, { src: undefined, isPlaceholder: true });
               }}
-              className="px-3 py-1.5 bg-white/90 text-gray-900 text-xs font-medium rounded hover:bg-white flex items-center gap-1.5"
-            >
-              <Replace className="w-3.5 h-3.5" />
-              Replace
-            </button>
               className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
             >
               <Replace className="w-3.5 h-3.5" />
