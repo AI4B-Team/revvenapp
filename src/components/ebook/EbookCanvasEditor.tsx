@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { 
   MousePointer2, Type, Square, Circle, Image as ImageIcon, 
   Minus, Undo2, Redo2, ZoomIn, ZoomOut, Hand, Layers, 
@@ -275,6 +275,16 @@ const createChapterElements = (chapterNum: number, title: string): CanvasElement
     stroke: 'transparent',
     shapeType: 'rectangle'
   },
+  // Stock images strip at the top of each chapter page
+  ...Array.from({ length: 3 }, (_, idx) => ({
+    id: `chapter${chapterNum}-stock-${idx + 1}`,
+    type: 'image' as const,
+    x: 52 + idx * 16,
+    y: 3,
+    width: 14,
+    height: 18,
+    src: SUGGESTED_IMAGES[(chapterNum - 1 + idx) % SUGGESTED_IMAGES.length]
+  })),
   {
     id: `chapter${chapterNum}-number`,
     type: 'text',
@@ -316,33 +326,12 @@ const createChapterElements = (chapterNum: number, title: string): CanvasElement
     type: 'text',
     x: 10,
     y: 58,
-    width: 38,
+    width: 80,
     height: 20,
     content: 'Our research indicates significant growth potential in emerging markets. The data suggests a 15% increase in investor confidence over the past quarter.',
     fontSize: 10,
     fontFamily: 'Georgia',
     textColor: '#374151'
-  },
-  {
-    id: `chapter${chapterNum}-image`,
-    type: 'image',
-    x: 52,
-    y: 58,
-    width: 38,
-    height: 25,
-    src: `https://images.unsplash.com/photo-${chapterNum === 1 ? '1460925895917-afdab827c52f' : chapterNum === 2 ? '1507679799987-c73779587ccf' : '1551288049-bebda4e38f71'}?w=600&auto=format&fit=crop`
-  },
-  {
-    id: `chapter${chapterNum}-caption`,
-    type: 'text',
-    x: 52,
-    y: 84,
-    width: 38,
-    height: 4,
-    content: 'Figure ' + chapterNum + '.1 - Market Analysis Overview',
-    fontSize: 9,
-    fontFamily: 'Georgia',
-    textColor: '#6b7280'
   }
 ];
 
@@ -594,28 +583,28 @@ const EbookCanvasEditor = ({
     }
   };
 
-  // Handle mouse move for dragging and resizing
-  const handleMouseMove = (e: React.MouseEvent) => {
+  // Handle pointer/mouse move for dragging and resizing
+  const handlePointerMove = (clientX: number, clientY: number) => {
     if (isDragging && dragStart && selectedElement && pageCanvasRef.current) {
       const rect = pageCanvasRef.current.getBoundingClientRect();
-      const deltaX = (e.clientX - dragStart.x) / rect.width * 100;
-      const deltaY = (e.clientY - dragStart.y) / rect.height * 100;
-      
+      const deltaX = (clientX - dragStart.x) / rect.width * 100;
+      const deltaY = (clientY - dragStart.y) / rect.height * 100;
+
       updateElement(selectedElement, {
         x: Math.max(0, Math.min(100 - (currentElement?.width || 0), dragStart.elementX + deltaX)),
         y: Math.max(0, Math.min(100 - (currentElement?.height || 0), dragStart.elementY + deltaY))
       });
     }
-    
+
     if (isRotatingDrag && rotateStart && selectedElement && pageCanvasRef.current) {
       const element = currentPageElements.find(el => el.id === selectedElement);
       if (element) {
         const rect = pageCanvasRef.current.getBoundingClientRect();
         const centerX = rect.left + (element.x + element.width / 2) * rect.width / 100;
         const centerY = rect.top + (element.y + element.height / 2) * rect.height / 100;
-        const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+        const angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
         const deltaAngle = angle - rotateStart.angle;
-        
+
         updateElement(selectedElement, {
           rotation: rotateStart.elementRotation + deltaAngle
         });
@@ -625,16 +614,16 @@ const EbookCanvasEditor = ({
     // Handle resizing
     if (isResizing && resizeStart && resizeHandle && selectedElement && pageCanvasRef.current) {
       const rect = pageCanvasRef.current.getBoundingClientRect();
-      const deltaX = (e.clientX - resizeStart.x) / rect.width * 100;
-      const deltaY = (e.clientY - resizeStart.y) / rect.height * 100;
-      
+      const deltaX = (clientX - resizeStart.x) / rect.width * 100;
+      const deltaY = (clientY - resizeStart.y) / rect.height * 100;
+
       let newX = resizeStart.elementX;
       let newY = resizeStart.elementY;
       let newWidth = resizeStart.elementWidth;
       let newHeight = resizeStart.elementHeight;
-      
+
       const minSize = 5; // minimum 5% size
-      
+
       // Handle different resize handles
       if (resizeHandle.includes('e')) {
         newWidth = Math.max(minSize, resizeStart.elementWidth + deltaX);
@@ -652,13 +641,13 @@ const EbookCanvasEditor = ({
         newY = resizeStart.elementY + heightChange;
         newHeight = resizeStart.elementHeight - heightChange;
       }
-      
+
       // Clamp to canvas bounds
       newX = Math.max(0, newX);
       newY = Math.max(0, newY);
       newWidth = Math.min(100 - newX, newWidth);
       newHeight = Math.min(100 - newY, newHeight);
-      
+
       updateElement(selectedElement, {
         x: newX,
         y: newY,
@@ -667,6 +656,37 @@ const EbookCanvasEditor = ({
       });
     }
   };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handlePointerMove(e.clientX, e.clientY);
+  };
+
+  // Ensure interactions continue even when the cursor leaves the canvas
+  useEffect(() => {
+    if (!isDragging && !isRotatingDrag && !isResizing) return;
+
+    const onMove = (e: MouseEvent) => handlePointerMove(e.clientX, e.clientY);
+    const onUp = () => handleMouseUp();
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [
+    isDragging,
+    isRotatingDrag,
+    isResizing,
+    dragStart,
+    rotateStart,
+    resizeStart,
+    resizeHandle,
+    selectedElement,
+    currentElement,
+    currentPageElements,
+  ]);
 
   // Handle mouse up
   const handleMouseUp = () => {
@@ -1264,7 +1284,15 @@ const EbookCanvasEditor = ({
           {/* Hover overlay with actions */}
           <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover/image:opacity-100">
             <button 
-              onClick={(e) => { e.stopPropagation(); toast.info('Replace image'); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                updateElement(element.id, { src: undefined, isPlaceholder: true });
+              }}
+              className="px-3 py-1.5 bg-white/90 text-gray-900 text-xs font-medium rounded hover:bg-white flex items-center gap-1.5"
+            >
+              <Replace className="w-3.5 h-3.5" />
+              Replace
+            </button>
               className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
             >
               <Replace className="w-3.5 h-3.5" />
@@ -1659,7 +1687,7 @@ const EbookCanvasEditor = ({
                     const isCurrentPageWithSelection = isSelected && selectedElement;
                     
                     return (
-                      <div key={page.id} className="relative">
+                      <div key={page.id} className="relative flex flex-col items-center">
                         {/* Contextual Black Toolbar - appears above page label when element selected on this page */}
                         {isCurrentPageWithSelection && (
                           <div className="flex justify-center mb-3">
@@ -1685,12 +1713,10 @@ const EbookCanvasEditor = ({
                             isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'
                           }`}
                           style={{
-                            width: `${(8.5 * 72 * zoom) / 100}px`,
-                            height: `${(11 * 72 * zoom) / 100}px`,
+                            width: `${8.5 * 72}px`,
+                            height: `${11 * 72}px`,
                             transform: `scale(${zoom / 100})`,
                             transformOrigin: 'top center',
-                            minWidth: `${8.5 * 72}px`,
-                            minHeight: `${11 * 72}px`,
                           }}
                         >
                           {/* Grid Overlay */}
