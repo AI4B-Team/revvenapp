@@ -226,46 +226,13 @@ const NewEbook = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedPageId, setSelectedPageId] = useState('1');
   
-  // Unified page data - single source of truth for both sidebar and canvas
+  // Unified page data type definitions
   type PageType = 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
   interface UnifiedPage {
     id: string;
     title: string;
     type: PageType;
   }
-  
-  const getDefaultPages = (): UnifiedPage[] => [
-    { id: '1', title: bookData.selectedTitle || 'The Ultimate Guide to AI Marketing', type: 'cover' },
-    { id: '2', title: 'Table of Contents', type: 'toc' },
-    { id: '3', title: 'Executive Summary', type: 'chapter-page' },
-    { id: '4', title: 'Executive Summary', type: 'chapter' },
-    { id: '5', title: 'Market Analysis', type: 'chapter-page' },
-    { id: '6', title: 'Market Analysis', type: 'chapter' },
-    { id: '7', title: 'Investment Strategy', type: 'chapter-page' },
-    { id: '8', title: 'Investment Strategy', type: 'chapter' },
-    { id: '9', title: 'Financial Projections', type: 'chapter-page' },
-    { id: '10', title: 'Financial Projections', type: 'chapter' },
-    { id: '11', title: 'Back Cover', type: 'back' },
-  ];
-  
-  const [ebookPages, setEbookPages] = useState<UnifiedPage[]>(getDefaultPages);
-  
-  // Convert unified pages to sidebar chapter format
-  const getSidebarChapters = () => {
-    return ebookPages.map((page, index) => {
-      let sidebarType: 'cover' | 'table of contents' | 'introduction' | 'summary' | null = null;
-      if (page.type === 'cover') sidebarType = 'cover';
-      else if (page.type === 'toc') sidebarType = 'table of contents';
-      else if (page.type === 'back') sidebarType = 'summary';
-      
-      return {
-        id: page.id,
-        title: page.title,
-        type: sidebarType,
-        pageNumber: index + 1
-      };
-    });
-  };
   
   // Canvas controls state
   const [zoom, setZoom] = useState(75);
@@ -395,6 +362,41 @@ const NewEbook = () => {
     selectedTitle: '',
   });
   const [contentTypeSelected, setContentTypeSelected] = useState(initialTab === 'design');
+
+  // Unified page data - single source of truth for both sidebar and canvas
+  // Defined after bookData so we can use bookData.selectedTitle
+  const getDefaultPages = (): UnifiedPage[] => [
+    { id: '1', title: bookData.selectedTitle || 'The Ultimate Guide to AI Marketing', type: 'cover' },
+    { id: '2', title: 'Table of Contents', type: 'toc' },
+    { id: '3', title: 'Executive Summary', type: 'chapter-page' },
+    { id: '4', title: 'Executive Summary', type: 'chapter' },
+    { id: '5', title: 'Market Analysis', type: 'chapter-page' },
+    { id: '6', title: 'Market Analysis', type: 'chapter' },
+    { id: '7', title: 'Investment Strategy', type: 'chapter-page' },
+    { id: '8', title: 'Investment Strategy', type: 'chapter' },
+    { id: '9', title: 'Financial Projections', type: 'chapter-page' },
+    { id: '10', title: 'Financial Projections', type: 'chapter' },
+    { id: '11', title: 'Back Cover', type: 'back' },
+  ];
+  
+  const [ebookPages, setEbookPages] = useState<UnifiedPage[]>(getDefaultPages);
+  
+  // Convert unified pages to sidebar chapter format
+  const getSidebarChapters = () => {
+    return ebookPages.map((page, index) => {
+      let sidebarType: 'cover' | 'table of contents' | 'introduction' | 'summary' | null = null;
+      if (page.type === 'cover') sidebarType = 'cover';
+      else if (page.type === 'toc') sidebarType = 'table of contents';
+      else if (page.type === 'back') sidebarType = 'summary';
+      
+      return {
+        id: page.id,
+        title: page.title,
+        type: sidebarType,
+        pageNumber: index + 1
+      };
+    });
+  };
 
   // Load uploaded file or book from navigation state (from EbookCreator page)
   useEffect(() => {
