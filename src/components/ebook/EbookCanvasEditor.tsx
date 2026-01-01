@@ -77,6 +77,7 @@ interface EbookCanvasEditorProps {
   pages: Page[];
   selectedPageId: string;
   onPageSelect: (id: string) => void;
+  onPageReorder?: (fromIndex: number, toIndex: number) => void;
   bookTitle: string;
 }
 
@@ -391,8 +392,12 @@ const EbookCanvasEditor = ({
   pages, 
   selectedPageId, 
   onPageSelect,
+  onPageReorder,
   bookTitle 
 }: EbookCanvasEditorProps) => {
+  // Drag state for page reordering
+  const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
+  const [dragOverPageIndex, setDragOverPageIndex] = useState<number | null>(null);
   const [activeTool, setActiveTool] = useState('select');
   const [zoom, setZoom] = useState(100);
   const [showGrid, setShowGrid] = useState(false);
@@ -2486,8 +2491,40 @@ const EbookCanvasEditor = ({
               {pages.map((page, index) => (
                 <div 
                   key={page.id}
-                  className="flex items-start gap-2"
+                  className={`flex items-start gap-2 ${
+                    dragOverPageIndex === index ? 'border-t-2 border-emerald-500' : ''
+                  }`}
+                  draggable
+                  onDragStart={(e) => {
+                    setDraggedPageIndex(index);
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onDragEnd={() => {
+                    if (draggedPageIndex !== null && dragOverPageIndex !== null && draggedPageIndex !== dragOverPageIndex) {
+                      onPageReorder?.(draggedPageIndex, dragOverPageIndex);
+                    }
+                    setDraggedPageIndex(null);
+                    setDragOverPageIndex(null);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (draggedPageIndex !== null && draggedPageIndex !== index) {
+                      setDragOverPageIndex(index);
+                    }
+                  }}
+                  onDragLeave={() => {
+                    setDragOverPageIndex(null);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                  }}
                 >
+                  {/* Drag handle */}
+                  <div className="cursor-grab active:cursor-grabbing mt-4 text-gray-400 hover:text-gray-600">
+                    <GripVertical className="w-3 h-3" />
+                  </div>
+                  
                   {/* Page Number on the left */}
                   <span className={`text-xs font-medium mt-1 min-w-[16px] text-right ${
                     selectedPageId === page.id ? 'text-emerald-600' : 'text-gray-400'
@@ -2504,6 +2541,8 @@ const EbookCanvasEditor = ({
                     onMouseEnter={() => setHoveredPageId(page.id)}
                     onMouseLeave={() => setHoveredPageId(null)}
                     className={`flex-1 group relative rounded-lg overflow-hidden border-2 transition-all ${
+                      draggedPageIndex === index ? 'opacity-50' : ''
+                    } ${
                       selectedPageId === page.id 
                         ? 'border-emerald-500 shadow-lg ring-2 ring-emerald-200' 
                         : hoveredPageId === page.id
