@@ -78,6 +78,17 @@ const TOOLS = [
   { id: 'image', icon: ImageIcon, label: 'Image (I)', shortcut: 'I' },
 ];
 
+// Page action icons for the vertical toolbar
+const PAGE_ACTIONS = [
+  { id: 'add', icon: Plus, label: 'Add New Page' },
+  { id: 'duplicate', icon: Copy, label: 'Duplicate Page' },
+  { id: 'lock', icon: Lock, label: 'Lock Page' },
+  { id: 'delete', icon: Trash2, label: 'Delete Page' },
+  { id: 'moveUp', icon: ChevronUp, label: 'Move Page Up' },
+  { id: 'moveDown', icon: ChevronDown, label: 'Move Page Down' },
+  { id: 'settings', icon: SlidersHorizontal, label: 'Page Settings' },
+];
+
 const FONTS = [
   'Inter', 'Playfair Display', 'Roboto', 'Open Sans', 'Lato', 
   'Montserrat', 'Oswald', 'Raleway', 'Merriweather', 'Georgia'
@@ -404,6 +415,7 @@ const EbookCanvasEditor = ({
   const [canRedo, setCanRedo] = useState(true);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [hoveredPageId, setHoveredPageId] = useState<string | null>(null);
+  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [isMoving, setIsMoving] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -1226,7 +1238,18 @@ const EbookCanvasEditor = ({
 
   const renderCanvasElement = (element: CanvasElement) => {
     const isSelected = selectedElement === element.id;
+    const isHovered = hoveredElement === element.id && !isSelected;
     const selectionBorderColor = element.type === 'shape' ? '#dc2626' : '#3b82f6';
+    
+    // Get element type label
+    const getTypeLabel = () => {
+      switch (element.type) {
+        case 'image': return 'Image';
+        case 'text': return 'Text';
+        case 'shape': return 'Shape';
+        default: return 'Element';
+      }
+    };
     
     const baseStyle: React.CSSProperties = {
       position: 'absolute',
@@ -1237,6 +1260,15 @@ const EbookCanvasEditor = ({
       cursor: element.locked ? 'not-allowed' : (isMoving && isSelected ? 'move' : 'pointer'),
       transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
     };
+    
+    // Hover label component
+    const HoverLabel = () => (
+      isHovered && (
+        <div className="absolute -top-6 left-0 bg-yellow-400 text-black text-xs font-semibold px-2 py-0.5 rounded-sm shadow-sm z-30 whitespace-nowrap">
+          {getTypeLabel()}
+        </div>
+      )
+    );
 
     if (element.type === 'image') {
       // Check if this is a placeholder
@@ -1245,9 +1277,14 @@ const EbookCanvasEditor = ({
           <div
             key={element.id}
             onClick={(e) => handleElementClick(e, element.id)}
+            onMouseEnter={() => setHoveredElement(element.id)}
+            onMouseLeave={() => setHoveredElement(null)}
             style={baseStyle}
-            className="bg-gray-100 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-4"
+            className={`bg-gray-100 border-2 border-dashed flex flex-col items-center justify-center p-4 ${
+              isHovered ? 'border-yellow-400' : 'border-gray-300'
+            }`}
           >
+            <HoverLabel />
             <p className="text-xs text-gray-500 mb-3 text-center">Select an image</p>
             <div className="flex gap-2 mb-3">
               {SUGGESTED_IMAGES.map((imgSrc, idx) => (
@@ -1281,9 +1318,12 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
+          onMouseEnter={() => setHoveredElement(element.id)}
+          onMouseLeave={() => setHoveredElement(null)}
           style={baseStyle}
-          className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+          className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''} ${isHovered ? 'ring-2 ring-yellow-400' : ''}`}
         >
+          <HoverLabel />
           <img 
             src={element.src} 
             alt="Element" 
@@ -1361,14 +1401,17 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
+          onMouseEnter={() => setHoveredElement(element.id)}
+          onMouseLeave={() => setHoveredElement(null)}
           style={{
             ...baseStyle,
             backgroundColor: element.fill,
             border: element.stroke !== 'transparent' ? `2px solid ${element.stroke}` : 'none',
-            boxShadow: isSelected ? `0 0 0 2px ${selectionBorderColor}` : 'none',
+            boxShadow: isSelected ? `0 0 0 2px ${selectionBorderColor}` : isHovered ? '0 0 0 2px #facc15' : 'none',
           }}
           className="transition-all"
         >
+          <HoverLabel />
           {isSelected && (
             <>
               {/* Selection handles with resize functionality */}
@@ -1413,6 +1456,8 @@ const EbookCanvasEditor = ({
         <div
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
+          onMouseEnter={() => setHoveredElement(element.id)}
+          onMouseLeave={() => setHoveredElement(null)}
           style={{
             ...baseStyle,
             fontFamily: element.fontFamily,
@@ -1421,8 +1466,9 @@ const EbookCanvasEditor = ({
             lineHeight: 1.2,
             whiteSpace: 'pre-wrap',
           }}
-          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''} ${isHovered ? 'ring-2 ring-yellow-400' : ''}`}
         >
+          <HoverLabel />
           {element.content}
           {isSelected && (
             <>
@@ -1647,83 +1693,143 @@ const EbookCanvasEditor = ({
                           Page {pageIndex + 1} - {page.title}
                         </div>
                         
-                        {/* Page Canvas */}
-                        <div 
-                          ref={isSelected ? pageCanvasRef : undefined}
-                          onClick={(e) => {
-                            onPageSelect(page.id);
-                            if (e.target === e.currentTarget) {
-                              setSelectedElement(null);
-                            }
-                          }}
-                          className={`bg-white shadow-xl relative flex-shrink-0 overflow-visible cursor-pointer transition-all ${
-                            isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'
-                          }`}
-                          style={{
-                            width: `${8.5 * 72}px`,
-                            height: `${11 * 72}px`,
-                            transform: `scale(${zoom / 100})`,
-                            transformOrigin: 'top center',
-                          }}
-                        >
-                          {/* Grid Overlay */}
-                          {showGrid && (
-                            <div 
-                              className="absolute inset-0 pointer-events-none"
-                              style={{
-                                backgroundImage: `
-                                  linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
-                                  linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)
-                                `,
-                                backgroundSize: '20px 20px'
-                              }}
-                            />
-                          )}
+                        {/* Page Canvas with Vertical Toolbar */}
+                        <div className="flex items-start gap-2">
+                          {/* Page Canvas */}
+                          <div 
+                            ref={isSelected ? pageCanvasRef : undefined}
+                            onClick={(e) => {
+                              onPageSelect(page.id);
+                              if (e.target === e.currentTarget) {
+                                setSelectedElement(null);
+                              }
+                            }}
+                            className={`bg-white shadow-xl relative flex-shrink-0 overflow-visible cursor-pointer transition-all ${
+                              isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'
+                            }`}
+                            style={{
+                              width: `${8.5 * 72}px`,
+                              height: `${11 * 72}px`,
+                              transform: `scale(${zoom / 100})`,
+                              transformOrigin: 'top center',
+                            }}
+                          >
+                            {/* Grid Overlay */}
+                            {showGrid && (
+                              <div 
+                                className="absolute inset-0 pointer-events-none"
+                                style={{
+                                  backgroundImage: `
+                                    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                                    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)
+                                  `,
+                                  backgroundSize: '20px 20px'
+                                }}
+                              />
+                            )}
 
-                          {/* Canvas Content */}
-                          <div className="absolute inset-0 overflow-visible">
-                            {isSelected 
-                              ? currentPageElements.map(el => renderCanvasElement(el))
-                              : pageElements.map(el => (
-                                <div 
-                                  key={el.id}
-                                  className="absolute pointer-events-none"
-                                  style={{
-                                    left: `${el.x}%`,
-                                    top: `${el.y}%`,
-                                    width: `${el.width}%`,
-                                    height: `${el.height}%`,
-                                    transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
-                                  }}
-                                >
-                                  {el.type === 'image' && el.src && (
-                                    <img src={el.src} alt="" className="w-full h-full object-cover" />
-                                  )}
-                                  {el.type === 'shape' && (
-                                    <div className="w-full h-full" style={{ backgroundColor: el.fill }} />
-                                  )}
-                                  {el.type === 'text' && (
-                                    <div 
-                                      className="w-full h-full"
-                                      style={{
-                                        fontFamily: el.fontFamily,
-                                        fontSize: `${el.fontSize}px`,
-                                        color: el.textColor,
-                                        lineHeight: 1.2,
-                                        whiteSpace: 'pre-wrap',
-                                      }}
-                                    >
-                                      {el.content}
-                                    </div>
-                                  )}
-                                </div>
-                              ))
-                            }
+                            {/* Canvas Content */}
+                            <div className="absolute inset-0 overflow-visible">
+                              {isSelected 
+                                ? currentPageElements.map(el => renderCanvasElement(el))
+                                : pageElements.map(el => (
+                                  <div 
+                                    key={el.id}
+                                    className="absolute pointer-events-none"
+                                    style={{
+                                      left: `${el.x}%`,
+                                      top: `${el.y}%`,
+                                      width: `${el.width}%`,
+                                      height: `${el.height}%`,
+                                      transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+                                    }}
+                                  >
+                                    {el.type === 'image' && el.src && (
+                                      <img src={el.src} alt="" className="w-full h-full object-cover" />
+                                    )}
+                                    {el.type === 'shape' && (
+                                      <div className="w-full h-full" style={{ backgroundColor: el.fill }} />
+                                    )}
+                                    {el.type === 'text' && (
+                                      <div 
+                                        className="w-full h-full"
+                                        style={{
+                                          fontFamily: el.fontFamily,
+                                          fontSize: `${el.fontSize}px`,
+                                          color: el.textColor,
+                                          lineHeight: 1.2,
+                                          whiteSpace: 'pre-wrap',
+                                        }}
+                                      >
+                                        {el.content}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))
+                              }
+                            </div>
+
+                            {/* Page Number */}
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
+                              {pageIndex + 1}
+                            </div>
                           </div>
-
-                          {/* Page Number */}
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
-                            {pageIndex + 1}
+                          
+                          {/* Vertical Page Actions Toolbar */}
+                          <div 
+                            className="flex flex-col gap-1 pt-2"
+                            style={{
+                              transform: `scale(${zoom / 100})`,
+                              transformOrigin: 'top left',
+                            }}
+                          >
+                            {PAGE_ACTIONS.map((action) => {
+                              const Icon = action.icon;
+                              return (
+                                <Tooltip key={action.id}>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        switch (action.id) {
+                                          case 'add':
+                                            toast.success('Add New Page');
+                                            break;
+                                          case 'duplicate':
+                                            toast.success('Duplicate Page');
+                                            break;
+                                          case 'lock':
+                                            toast.success('Lock Page');
+                                            break;
+                                          case 'delete':
+                                            toast.success('Delete Page');
+                                            break;
+                                          case 'moveUp':
+                                            toast.success('Move Page Up');
+                                            break;
+                                          case 'moveDown':
+                                            toast.success('Move Page Down');
+                                            break;
+                                          case 'settings':
+                                            toast.success('Page Settings');
+                                            break;
+                                        }
+                                      }}
+                                      className={`p-1.5 rounded-md border transition-all ${
+                                        action.id === 'delete' 
+                                          ? 'border-gray-200 bg-white text-gray-500 hover:bg-red-50 hover:border-red-300 hover:text-red-500' 
+                                          : 'border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600'
+                                      }`}
+                                    >
+                                      <Icon className="w-4 h-4" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="right" className="text-xs">
+                                    <p>{action.label}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
