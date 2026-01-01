@@ -557,7 +557,8 @@ const Create = () => {
       name: 'AI Story', 
       description: 'Generate AI stories',
       bgColor: 'bg-tool-purple',
-      emoji: '📖'
+      emoji: '📖',
+      onClick: () => navigate('/ai-story')
     },
   ];
 
