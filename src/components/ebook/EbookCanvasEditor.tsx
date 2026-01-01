@@ -1466,13 +1466,6 @@ const EbookCanvasEditor = ({
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-                {/* Contextual Black Toolbar - sticky at top center, doesn't overlap */}
-                {selectedElement && (
-                  <div className="sticky top-4 z-50 flex justify-center mb-4">
-                    {renderContextualToolbar()}
-                  </div>
-                )}
-
                 {/* Bottom Right Vertical Controls - Undo/Redo and Zoom */}
                 <div className="fixed bottom-24 right-64 z-40 flex flex-col gap-2">
                   {/* Undo/Redo */}
@@ -1541,13 +1534,21 @@ const EbookCanvasEditor = ({
                   {pages.map((page, pageIndex) => {
                     const pageElements = getPageElements(page);
                     const isSelected = page.id === selectedPageId;
+                    const isCurrentPageWithSelection = isSelected && selectedElement;
                     
                     return (
                       <div key={page.id} className="relative">
                         {/* Page Label */}
-                        <div className="absolute -top-6 left-0 text-xs font-medium text-gray-500">
+                        <div className="mb-2 text-xs font-medium text-gray-500">
                           Page {pageIndex + 1} - {page.title}
                         </div>
+                        
+                        {/* Contextual Black Toolbar - appears below page label when element selected on this page */}
+                        {isCurrentPageWithSelection && (
+                          <div className="flex justify-center mb-3">
+                            {renderContextualToolbar()}
+                          </div>
+                        )}
                         
                         {/* Page Canvas */}
                         <div 

@@ -280,24 +280,21 @@ const EbookDesignSidebar = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
-        {/* Collapse Button Header */}
-        <div className="p-2 border-b border-gray-200 flex items-center justify-between">
-          <span className="text-sm font-semibold text-gray-700 pl-1">Design Tools</span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => setIsCollapsed(true)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <PanelLeftClose className="w-4 h-4 text-gray-500" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>Collapse sidebar</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0 relative">
+        {/* Collapse Button - positioned on middle right border */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => setIsCollapsed(true)}
+              className="absolute top-1/2 -translate-y-1/2 -right-3 z-50 w-6 h-12 bg-white border border-gray-200 rounded-r-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center justify-center"
+            >
+              <PanelLeftClose className="w-4 h-4 text-gray-500" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Collapse sidebar</p>
+          </TooltipContent>
+        </Tooltip>
 
         {/* Scrollable sections container */}
         <div className="flex-1 overflow-y-auto">
