@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Play, Loader2, Volume2, Gauge } from 'lucide-react';
+import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -72,7 +72,96 @@ const AIStory = () => {
   const [selectedVoice, setSelectedVoice] = useState(voices[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAutoPrompting, setIsAutoPrompting] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  const handleAutoPrompt = async () => {
+    setIsAutoPrompting(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-story-helper`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ action: 'auto-prompt' }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate prompt');
+      }
+
+      const data = await response.json();
+      setPrompt(data.result);
+      toast({
+        title: 'Prompt generated!',
+        description: 'A creative story idea has been generated for you.',
+      });
+    } catch (error) {
+      console.error('Auto prompt error:', error);
+      toast({
+        title: 'Generation failed',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAutoPrompting(false);
+    }
+  };
+
+  const handleEnhance = async () => {
+    if (!prompt.trim()) {
+      toast({
+        title: 'No prompt to enhance',
+        description: 'Please enter a prompt first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsEnhancing(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-story-helper`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ action: 'enhance', prompt }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to enhance prompt');
+      }
+
+      const data = await response.json();
+      setPrompt(data.result);
+      toast({
+        title: 'Prompt enhanced!',
+        description: 'Your story prompt has been improved.',
+      });
+    } catch (error) {
+      console.error('Enhance error:', error);
+      toast({
+        title: 'Enhancement failed',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -155,8 +244,36 @@ const AIStory = () => {
 
             {/* Prompt Section */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg">Story Prompt</CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAutoPrompt}
+                    disabled={isAutoPrompting || isEnhancing || isGenerating}
+                  >
+                    {isAutoPrompting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-4 h-4 mr-2" />
+                    )}
+                    Auto Prompt
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEnhance}
+                    disabled={isEnhancing || isAutoPrompting || isGenerating || !prompt.trim()}
+                  >
+                    {isEnhancing ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    AI Enhance
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <Textarea
