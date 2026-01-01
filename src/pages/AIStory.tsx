@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { VideoGenerationCountdown } from '@/components/VideoGenerationCountdown';
+
 
 const voices = [
   { id: 'af_heart', name: 'Heart', description: 'American Female' },
@@ -254,25 +254,7 @@ const AIStory = () => {
     }
   };
 
-  const handleSkipCountdown = () => {
-    toast({
-      title: 'Generation in progress',
-      description: 'Your video will appear here when ready. Feel free to continue working.',
-    });
-  };
-
   const selectedVoiceInfo = voices.find(v => v.id === selectedVoice);
-
-  // Show countdown screen while generating
-  if (isGenerating) {
-    return (
-      <VideoGenerationCountdown
-        totalSeconds={600}
-        onComplete={() => {}}
-        onSkip={handleSkipCountdown}
-      />
-    );
-  }
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
