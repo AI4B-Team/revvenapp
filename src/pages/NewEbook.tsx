@@ -297,6 +297,7 @@ const NewEbook = () => {
   const [generatingStatusIndex, setGeneratingStatusIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedPageId, setSelectedPageId] = useState('1');
+  const [showPagesPanel, setShowPagesPanel] = useState(true);
   
   // Unified page data type definitions
   type PageType = 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
