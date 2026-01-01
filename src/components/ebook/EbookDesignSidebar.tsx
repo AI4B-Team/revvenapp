@@ -327,7 +327,7 @@ const EbookDesignSidebar = ({
                   <List className="w-3.5 h-3.5 text-gray-400" />
                   <h4 className="text-xs font-medium text-gray-500">Table of Contents</h4>
                 </div>
-                <span className="text-xs font-medium text-gray-400">Page #</span>
+                <span className="w-10 text-right text-xs font-medium text-gray-400">Page #</span>
               </div>
               <div className="space-y-1">
                 {chapters.map((chapter, index) => (
@@ -347,9 +347,17 @@ const EbookDesignSidebar = ({
                       </button>
                     )}
                     
-                    <button
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => onChapterSelect(chapter.id)}
-                      className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all ${
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onChapterSelect(chapter.id);
+                        }
+                      }}
+                      className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
                         selectedChapterId === chapter.id
                           ? 'border-emerald-400 bg-emerald-50'
                           : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
@@ -381,65 +389,74 @@ const EbookDesignSidebar = ({
                           {chapter.title}
                         </span>
                       )}
-                      
-                      {chapter.type && (
-                        <span className={`px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap ${
-                          chapter.type === 'cover' ? 'bg-gray-600 text-white' :
-                          chapter.type === 'table of contents' ? 'bg-teal-600 text-white' :
-                          chapter.type === 'introduction' ? 'bg-teal-500 text-white' :
-                          chapter.type === 'summary' ? 'bg-gray-400 text-white' :
-                          'bg-gray-500 text-white'
-                        }`}>
-                          {chapter.type === 'cover' ? 'cover' :
-                           chapter.type === 'table of contents' ? 'table Of Contents' :
-                           chapter.type === 'introduction' ? 'introduction' :
-                           chapter.type === 'summary' ? 'summary' :
-                           chapter.type}
+
+                      <div className="ml-auto flex items-center gap-2">
+                        {chapter.type && (
+                          <span className={`px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap ${
+                            chapter.type === 'cover' ? 'bg-gray-600 text-white' :
+                            chapter.type === 'table of contents' ? 'bg-teal-600 text-white' :
+                            chapter.type === 'introduction' ? 'bg-teal-500 text-white' :
+                            chapter.type === 'summary' ? 'bg-gray-400 text-white' :
+                            'bg-gray-500 text-white'
+                          }`}>
+                            {chapter.type === 'cover' ? 'Cover' :
+                             chapter.type === 'table of contents' ? 'Table Of Contents' :
+                             chapter.type === 'introduction' ? 'Introduction' :
+                             chapter.type === 'summary' ? 'Summary' :
+                             chapter.type}
+                          </span>
+                        )}
+
+                        {/* Edit and Delete icons on hover (reserved space so layout doesn't shift) */}
+                        {!editingChapterId && (
+                          <div className="w-12 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditStart(chapter);
+                                  }}
+                                  className="p-1 hover:bg-gray-200 rounded transition-all"
+                                >
+                                  <Pencil className="w-3 h-3 text-gray-500" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">
+                                <p>Edit title</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onChapterDelete) {
+                                      onChapterDelete(chapter.id);
+                                    } else {
+                                      toast.success(`Deleted "${chapter.title}"`);
+                                    }
+                                  }}
+                                  className="p-1 hover:bg-red-100 rounded transition-all"
+                                >
+                                  <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">
+                                <p>Delete chapter</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        )}
+
+                        {/* Page # column */}
+                        <span className="w-10 text-right text-xs font-medium text-gray-400">
+                          {index + 1}
                         </span>
-                      )}
-                      
-                      {/* Edit and Delete icons on hover */}
-                      {!editingChapterId && (
-                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 flex-shrink-0 transition-all">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditStart(chapter);
-                                }}
-                                className="p-1 hover:bg-gray-200 rounded transition-all"
-                              >
-                                <Pencil className="w-3 h-3 text-gray-500" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              <p>Edit title</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onChapterDelete) {
-                                    onChapterDelete(chapter.id);
-                                  } else {
-                                    toast.success(`Deleted "${chapter.title}"`);
-                                  }
-                                }}
-                                className="p-1 hover:bg-red-100 rounded transition-all"
-                              >
-                                <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              <p>Delete chapter</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      )}
-                    </button>
+                      </div>
+                    </div>
                     
                     {/* Add chapter button after last item */}
                     {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
