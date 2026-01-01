@@ -1940,9 +1940,11 @@ const EbookCanvasEditor = ({
     const coverImg = page.type === 'cover' ? elements.find(el => el.type === 'image')?.src : null;
 
     if (page.type === 'cover') {
-      // Get the title text element from canvas elements
+      // Match canvas cover: full image with white title box at bottom-left
       const titleEl = elements.find(el => el.id === 'title-text');
-      const displayTitle = titleEl?.content || bookTitle || 'STRATEGIC';
+      const subtitleEl = elements.find(el => el.id === 'subtitle-text');
+      const displayTitle = titleEl?.content || bookTitle || 'STRATEGIC\nINVESTMENT';
+      const displaySubtitle = subtitleEl?.content || 'BASIC BUSINESS PROPOSAL';
       return (
         <div className="absolute inset-0">
           {coverImg ? (
@@ -1950,9 +1952,13 @@ const EbookCanvasEditor = ({
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600" />
           )}
-          <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-1">
-            <div className="text-[4px] font-bold text-gray-800 truncate leading-tight">
-              {displayTitle.split('\n')[0]}
+          {/* White title box at bottom-left like canvas */}
+          <div className="absolute bottom-[8%] left-[5%] bg-white/95 px-2 py-1.5 max-w-[65%]">
+            <div className="text-[5px] font-bold text-gray-900 leading-tight whitespace-pre-line">
+              {displayTitle}
+            </div>
+            <div className="text-[3px] text-cyan-600 mt-0.5">
+              {displaySubtitle}
             </div>
           </div>
         </div>
@@ -1960,41 +1966,49 @@ const EbookCanvasEditor = ({
     }
 
     if (page.type === 'toc') {
-      // Get chapter pages to show actual titles in thumbnail - match canvas TOC style (left-aligned)
+      // Match canvas TOC: left-aligned header, teal line, chapter entries with dots and page numbers
       const chapterPages = pages.filter(p => p.type === 'chapter-page');
       return (
-        <div className="p-3 pl-4 h-full flex flex-col bg-white text-left">
-          <div className="text-[5px] font-bold text-gray-800 uppercase tracking-wide mb-0.5 text-left">Table Of Contents</div>
-          <div className="w-6 h-0.5 bg-[#4A9B9B] mb-2"></div>
-          <div className="space-y-1.5 flex-1">
-            {chapterPages.slice(0, 4).map((cp, i) => (
-              <div key={cp.id} className="text-left">
-                <span className="text-[3.5px] text-gray-700">{String(i + 1).padStart(2, '0')}. {cp.title} </span>
-                <span className="text-[3.5px] text-gray-400">{"...".repeat(8)} </span>
-                <span className="text-[3.5px] text-gray-500">{(i + 1) * 2 + 1}</span>
-              </div>
-            ))}
+        <div className="absolute inset-0 bg-white p-3 flex flex-col">
+          <div className="text-[5px] font-bold text-gray-900 uppercase tracking-wide text-left">Table Of Contents</div>
+          <div className="w-8 h-[2px] bg-cyan-600 mt-1 mb-2"></div>
+          <div className="space-y-1.5 flex-1 text-left">
+            {chapterPages.slice(0, 4).map((cp, i) => {
+              const pageNum = pages.findIndex(p => p.id === cp.id) + 1;
+              return (
+                <div key={cp.id} className="text-[3.5px] text-gray-700">
+                  {String(i + 1).padStart(2, '0')}. {cp.title} {"·".repeat(20)} {pageNum}
+                </div>
+              );
+            })}
           </div>
-          <div className="text-[3px] text-gray-400 text-center mt-auto">2</div>
+          <div className="text-[3px] text-gray-400 text-center">2</div>
         </div>
       );
     }
 
     if (page.type === 'back') {
-      // Get logo text from canvas elements if available
+      // Match canvas back cover: teal background, centered logo, tagline, contact info
       const logoEl = elements.find(el => el.id === 'back-logo');
+      const taglineEl = elements.find(el => el.id === 'back-tagline');
+      const contactEl = elements.find(el => el.id === 'back-contact');
       const displayLogo = logoEl?.content || 'ESCROW';
+      const displayTagline = taglineEl?.content || 'Investment Excellence Since 2010';
       return (
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center">
-          <span className="text-[5px] font-bold text-white">{displayLogo}</span>
+        <div className="absolute inset-0 bg-[#0d4f4f] flex flex-col items-center justify-center text-center px-2">
+          <span className="text-[6px] font-bold text-white">{displayLogo}</span>
+          <span className="text-[3px] text-gray-300 mt-1">{displayTagline}</span>
+          <div className="absolute bottom-3 text-[2.5px] text-gray-400">
+            www.escrow-investment.com
+          </div>
         </div>
       );
     }
 
-    // Chapter title pages - full image with overlay
+    // Chapter title pages - full image with dark overlay and centered title
     if (page.type === 'chapter-page') {
       const chapterImg = elements.find(el => el.type === 'image')?.src;
-      // Get title from canvas elements if available
+      const chapterIndex = pages.filter(p => p.type === 'chapter-page').findIndex(p => p.id === page.id) + 1;
       const titleEl = elements.find(el => el.id?.includes('title'));
       const displayTitle = titleEl?.content || page.title;
       return (
@@ -2004,29 +2018,45 @@ const EbookCanvasEditor = ({
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800" />
           )}
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-[5px] font-bold text-white text-center px-1">{displayTitle}</span>
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-2">
+            <span className="text-[3px] text-white/80 uppercase tracking-wider">Chapter {chapterIndex}</span>
+            <span className="text-[5px] font-bold text-white mt-0.5">{displayTitle}</span>
           </div>
         </div>
       );
     }
 
-    // Chapter content pages
-    const chapterImg = elements.find(el => el.type === 'image')?.src;
-    // Get title from canvas elements if available
+    // Chapter content pages - teal header bar with chapter number, images strip, title, body text
+    const pageIndex = pages.findIndex(p => p.id === page.id);
+    const chapterNum = pages.filter((p, i) => p.type === 'chapter' && i < pageIndex).length + 1;
     const titleEl = elements.find(el => el.id?.includes('title'));
     const displayTitle = titleEl?.content || page.title;
+    const stockImages = elements.filter(el => el.id?.includes('stock') && el.type === 'image');
+    
     return (
-      <div className="absolute inset-0">
-        <div className="h-1/4 bg-gradient-to-br from-teal-700 to-teal-900" />
-        <div className="p-1">
-          <div className="text-[4px] font-bold text-gray-800 truncate">{displayTitle}</div>
-          {chapterImg && (
-            <div className="mt-0.5 h-1/3">
-              <img src={chapterImg} alt="" className="w-full h-full object-cover rounded-sm" />
-            </div>
-          )}
+      <div className="absolute inset-0 bg-white flex flex-col">
+        {/* Teal header bar */}
+        <div className="h-[25%] bg-[#0d4f4f] relative flex items-center px-2">
+          <span className="text-[8px] font-bold text-white">{String(chapterNum).padStart(2, '0')}</span>
+          {/* Small stock images in header */}
+          <div className="absolute right-1 top-1 flex gap-0.5">
+            {stockImages.slice(0, 3).map((img, i) => (
+              <div key={i} className="w-3 h-4 overflow-hidden rounded-sm">
+                <img src={img.src} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
         </div>
+        {/* Content area */}
+        <div className="flex-1 p-2 text-left">
+          <div className="text-[4px] font-bold text-gray-900 mb-1">{displayTitle}</div>
+          <div className="text-[2.5px] text-gray-600 leading-relaxed">
+            This section provides a comprehensive overview of our strategic approach...
+          </div>
+        </div>
+        {/* Page number */}
+        <div className="text-[3px] text-gray-400 text-center pb-1">{pageIndex + 1}</div>
       </div>
     );
   };
