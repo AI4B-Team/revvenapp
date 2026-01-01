@@ -602,10 +602,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
 
   return (
     <TooltipProvider>
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       <Sidebar collapsed={sidebarCollapsed} onCollapseChange={setSidebarCollapsed} />
       
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+      <div className={`flex-1 flex flex-col min-h-0 overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Header />
         
         {/* Black Header Bar - compact */}
@@ -904,7 +904,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         {/* Conditional Layout for Design Tab vs Other Tabs */}
         {activeTab === 'design' ? (
           /* Design Tab - Full Height Canvas Editor */
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
             {/* Compact Top Bar with Back Button, Centered Title, and Actions */}
             <div className="h-12 bg-white border-b border-gray-200 flex items-center px-4 flex-shrink-0">
               {/* Left - Back button (same width as right controls for balance) */}
