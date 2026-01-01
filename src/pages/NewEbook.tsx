@@ -186,8 +186,23 @@ const NewEbook = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabId>('idea');
+  
+  // Initialize tab from URL param to avoid flash
+  const initialTab = (() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['idea', 'generate', 'design'].includes(tab)) {
+      return tab as TabId;
+    }
+    // Check if book is passed in state
+    const state = window.history.state?.usr as { book?: any } | null;
+    if (state?.book) {
+      return 'design' as TabId;
+    }
+    return 'idea' as TabId;
+  })();
+  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(initialTab === 'design');
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
@@ -218,7 +233,7 @@ const NewEbook = () => {
   const [bookData, setBookData] = useState<NewBookData>({
     prompt: '',
     sourceType: mapSourceType(initialSource),
-    contentType: null as any, // null until user selects
+    contentType: initialTab === 'design' ? 'ebook' : null as any,
     language: 'en',
     tone: 'professional',
     creative: 'default',
@@ -228,7 +243,7 @@ const NewEbook = () => {
     includeImages: true,
     selectedTitle: '',
   });
-  const [contentTypeSelected, setContentTypeSelected] = useState(false);
+  const [contentTypeSelected, setContentTypeSelected] = useState(initialTab === 'design');
 
   // Load uploaded file or book from navigation state (from EbookCreator page)
   useEffect(() => {
