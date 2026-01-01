@@ -427,7 +427,7 @@ const EbookCanvasEditor = ({
               {/* Canvas */}
               <div 
                 ref={canvasRef}
-                className="flex-1 overflow-auto flex items-center justify-center p-6"
+                className="flex-1 overflow-auto flex items-start justify-center p-2 pt-2"
                 style={{ backgroundColor: '#e5e7eb' }}
               >
                 {/* Page Canvas - 8.5x11 aspect ratio */}
