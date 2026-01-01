@@ -848,7 +848,7 @@ const EbookCanvasEditor = ({
           key={element.id}
           onClick={(e) => handleElementClick(e, element.id)}
           style={baseStyle}
-          className={`transition-all ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+          className={`transition-all group/image ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
         >
           <img 
             src={element.src} 
@@ -856,6 +856,30 @@ const EbookCanvasEditor = ({
             className="w-full h-full object-cover"
             draggable={false}
           />
+          {/* Hover overlay with actions */}
+          <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover/image:opacity-100">
+            <button 
+              onClick={(e) => { e.stopPropagation(); toast.info('Replace image'); }}
+              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
+            >
+              <Replace className="w-3.5 h-3.5" />
+              Replace
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); toast.info('Edit with AI'); }}
+              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              Edit
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); toast.info('Delete image'); }}
+              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+          </div>
           {isSelected && (
             <>
               {/* Selection handles */}
@@ -867,6 +891,10 @@ const EbookCanvasEditor = ({
               <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
               <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
               <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Lock icon - red */}
+              <div className="absolute -top-1.5 -right-1.5 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 rounded-sm flex items-center justify-center shadow-sm">
+                <Lock className="w-3 h-3 text-white" />
+              </div>
               {/* Rotation handle */}
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center">
                 <RotateCw className="w-3 h-3 text-blue-500" />
@@ -902,8 +930,8 @@ const EbookCanvasEditor = ({
               <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize" />
               <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize" />
               <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize" />
-              {/* Lock icon */}
-              <div className="absolute -top-1.5 -right-1.5 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-orange-500 rounded-sm flex items-center justify-center shadow-sm">
+              {/* Lock icon - red */}
+              <div className="absolute -top-1.5 -right-1.5 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-red-500 rounded-sm flex items-center justify-center shadow-sm">
                 <Lock className="w-3 h-3 text-white" />
               </div>
               {/* Rotation handle */}
@@ -1172,7 +1200,7 @@ const EbookCanvasEditor = ({
           </div>
 
           {/* Page Navigator (Right Side) */}
-          <div className="w-44 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
+          <div className="w-48 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
             <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
               <span className="text-xs font-medium text-gray-600">Pages</span>
               <button 
@@ -1182,67 +1210,69 @@ const EbookCanvasEditor = ({
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            <div className="flex-1 overflow-y-auto p-2 space-y-3">
               {pages.map((page, index) => (
-                <button
+                <div 
                   key={page.id}
-                  onClick={() => onPageSelect(page.id)}
-                  onMouseEnter={() => setHoveredPageId(page.id)}
-                  onMouseLeave={() => setHoveredPageId(null)}
-                  className={`w-full group relative rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedPageId === page.id 
-                      ? 'border-emerald-500 shadow-md ring-2 ring-emerald-200' 
-                      : hoveredPageId === page.id
-                        ? 'border-gray-300 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                  className="flex items-start gap-2"
                 >
-                  {/* Page Thumbnail */}
-                  <div 
-                    className="aspect-[8.5/11] bg-white flex items-center justify-center relative"
-                  >
-                    {page.type === 'cover' ? (
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center p-2">
-                        <span className="text-[6px] text-white font-medium text-center leading-tight truncate">
-                          {bookTitle || 'Cover'}
-                        </span>
-                      </div>
-                    ) : page.type === 'toc' ? (
-                      <div className="absolute inset-0 p-1.5 bg-white">
-                        <div className="h-1 w-2/3 bg-gray-800 rounded mb-1" />
-                        <div className="space-y-0.5">
-                          <div className="h-0.5 w-full bg-gray-200 rounded" />
-                          <div className="h-0.5 w-full bg-gray-200 rounded" />
-                          <div className="h-0.5 w-3/4 bg-gray-200 rounded" />
-                          <div className="h-0.5 w-full bg-gray-200 rounded" />
-                        </div>
-                      </div>
-                    ) : page.type === 'back' ? (
-                      <div className="absolute inset-0 bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center p-2">
-                        <span className="text-[5px] text-white font-medium text-center">ESCROW</span>
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0 p-1.5">
-                        <div className="h-2 w-full bg-teal-600 rounded-t mb-1" />
-                        <div className="h-1 w-2/3 bg-gray-200 rounded mb-0.5" />
-                        <div className="space-y-0.5">
-                          <div className="h-0.5 w-full bg-gray-100 rounded" />
-                          <div className="h-0.5 w-full bg-gray-100 rounded" />
-                          <div className="h-0.5 w-3/4 bg-gray-100 rounded" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Page Number */}
-                  <div className={`absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-medium px-1 rounded ${
-                    selectedPageId === page.id 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'bg-white/80 text-gray-500'
+                  {/* Page Number on the left */}
+                  <span className={`text-xs font-medium mt-1 min-w-[16px] text-right ${
+                    selectedPageId === page.id ? 'text-emerald-600' : 'text-gray-400'
                   }`}>
                     {index + 1}
-                  </div>
-                </button>
+                  </span>
+                  
+                  {/* Page Thumbnail */}
+                  <button
+                    onClick={() => onPageSelect(page.id)}
+                    onMouseEnter={() => setHoveredPageId(page.id)}
+                    onMouseLeave={() => setHoveredPageId(null)}
+                    className={`flex-1 group relative rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedPageId === page.id 
+                        ? 'border-emerald-500 shadow-lg ring-2 ring-emerald-200' 
+                        : hoveredPageId === page.id
+                          ? 'border-emerald-400 bg-emerald-50 ring-1 ring-emerald-200'
+                          : 'border-gray-200 hover:border-emerald-300'
+                    }`}
+                  >
+                    <div 
+                      className="aspect-[8.5/11] bg-white flex items-center justify-center relative"
+                    >
+                      {page.type === 'cover' ? (
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center p-2">
+                          <span className="text-[6px] text-white font-medium text-center leading-tight truncate">
+                            {bookTitle || 'Cover'}
+                          </span>
+                        </div>
+                      ) : page.type === 'toc' ? (
+                        <div className="absolute inset-0 p-1.5 bg-white">
+                          <div className="h-1 w-2/3 bg-gray-800 rounded mb-1" />
+                          <div className="space-y-0.5">
+                            <div className="h-0.5 w-full bg-gray-200 rounded" />
+                            <div className="h-0.5 w-full bg-gray-200 rounded" />
+                            <div className="h-0.5 w-3/4 bg-gray-200 rounded" />
+                            <div className="h-0.5 w-full bg-gray-200 rounded" />
+                          </div>
+                        </div>
+                      ) : page.type === 'back' ? (
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center p-2">
+                          <span className="text-[5px] text-white font-medium text-center">ESCROW</span>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 p-1.5">
+                          <div className="h-2 w-full bg-teal-600 rounded-t mb-1" />
+                          <div className="h-1 w-2/3 bg-gray-200 rounded mb-0.5" />
+                          <div className="space-y-0.5">
+                            <div className="h-0.5 w-full bg-gray-100 rounded" />
+                            <div className="h-0.5 w-full bg-gray-100 rounded" />
+                            <div className="h-0.5 w-3/4 bg-gray-100 rounded" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
