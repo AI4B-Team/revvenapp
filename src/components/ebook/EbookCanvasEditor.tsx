@@ -52,6 +52,7 @@ interface CanvasElement {
   src?: string;
   fill?: string;
   stroke?: string;
+  strokeWidth?: number;
   shapeType?: 'rectangle' | 'circle';
   fontSize?: number;
   fontFamily?: string;
@@ -833,126 +834,389 @@ const EbookCanvasEditor = ({
     return COVER_IMAGE;
   };
 
-  // Contextual toolbar based on selected element type - BLACK TOOLBAR
+  // Contextual toolbar based on selected element type - LIGHT TOOLBAR
   const renderContextualToolbar = () => {
     if (!currentElement) return null;
 
+    // Color picker popover component
+    const ColorPickerPopover = ({ 
+      label, 
+      value, 
+      onChange, 
+      isBorder = false 
+    }: { 
+      label: string; 
+      value: string; 
+      onChange: (color: string) => void;
+      isBorder?: boolean;
+    }) => {
+      const projectColors = ['transparent', '#ffffff', '#1a1a2e', '#3b5998', '#b8c4d4', '#e0e7ef'];
+      
+      return (
+        <PopoverContent className="w-72 p-4 bg-white border border-gray-200 shadow-lg" align="start" sideOffset={8}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-900">Project Colors</span>
+            <button onClick={() => {}} className="text-gray-400 hover:text-gray-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <div className="flex gap-2 mb-4">
+            {projectColors.map((color, idx) => (
+              <button
+                key={idx}
+                onClick={() => onChange(color)}
+                className={`w-8 h-8 rounded-full border-2 ${value === color ? 'border-blue-500' : 'border-gray-200'}`}
+                style={{ 
+                  backgroundColor: color === 'transparent' ? 'transparent' : color,
+                  backgroundImage: color === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)' : 'none',
+                  backgroundSize: color === 'transparent' ? '8px 8px' : 'auto',
+                  backgroundPosition: color === 'transparent' ? '0 0, 4px 4px' : 'auto'
+                }}
+              >
+                {color === 'transparent' && (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-6 h-0.5 bg-red-500 rotate-45 absolute" />
+                  </div>
+                )}
+              </button>
+            ))}
+            <button className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <div className="mb-4">
+            <p className="text-xs font-medium text-gray-600 mb-2">Brand Kit</p>
+            <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+              <Sparkles className="w-4 h-4" />
+              Auto-Fill Your Brand Colors
+            </button>
+          </div>
+          
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1">
+              <label className="text-xs text-gray-500 mb-1 block">HEX</label>
+              <input 
+                type="text" 
+                value={value.toUpperCase()}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded"
+              />
+            </div>
+            <div className="w-20">
+              <label className="text-xs text-gray-500 mb-1 block">Opacity</label>
+              <div className="flex items-center gap-1">
+                <input 
+                  type="number" 
+                  value="100"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded"
+                />
+                <span className="text-xs text-gray-500">%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 mb-3">
+            <button className="p-1.5 hover:bg-gray-100 rounded">
+              <Droplet className="w-4 h-4 text-gray-600" />
+            </button>
+            <div className="flex-1 h-6 rounded-lg" style={{
+              background: 'linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red)'
+            }}>
+              <input 
+                type="range" 
+                className="w-full h-full opacity-0 cursor-pointer"
+                min="0" 
+                max="360"
+              />
+            </div>
+          </div>
+          
+          <div className="relative w-full h-40 rounded-lg overflow-hidden mb-3" style={{
+            background: `linear-gradient(to bottom, transparent, black), linear-gradient(to right, white, ${value})`
+          }}>
+            <div 
+              className="absolute w-4 h-4 border-2 border-white rounded-full shadow-md"
+              style={{ left: '80%', top: '20%', transform: 'translate(-50%, -50%)' }}
+            />
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-1.5 text-green-600">
+              <Check className="w-4 h-4" />
+              <span>Good Contrast</span>
+            </div>
+            <span className="text-gray-400 ml-auto">19.42:1</span>
+            <button className="text-gray-400 hover:text-gray-600">
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          </div>
+        </PopoverContent>
+      );
+    };
+
+    // Border width popover
+    const BorderWidthPopover = () => (
+      <PopoverContent className="w-48 p-2 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <p className="text-xs font-medium text-gray-600 mb-2">Border Width</p>
+        <div className="flex flex-col gap-1">
+          {[0, 1, 2, 3, 4, 6, 8].map((width) => (
+            <button 
+              key={width}
+              onClick={() => updateElement(currentElement.id, { strokeWidth: width })}
+              className="flex items-center gap-3 px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded"
+            >
+              <div className="w-12 flex items-center justify-center">
+                {width === 0 ? (
+                  <span className="text-xs text-gray-400">None</span>
+                ) : (
+                  <div className="w-full bg-gray-800 rounded-full" style={{ height: `${width}px` }} />
+                )}
+              </div>
+              <span>{width}px</span>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    );
+
+    // Align popover
+    const AlignPopover = () => (
+      <PopoverContent className="w-48 p-2 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <div className="grid grid-cols-3 gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <AlignLeft className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Left</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <AlignCenter className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Center</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <AlignRight className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Right</p></TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="border-t border-gray-100 my-1" />
+        <div className="grid grid-cols-3 gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <ArrowUpToLine className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Top</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <ArrowUpDown className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Middle</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-2 hover:bg-gray-100 rounded">
+                <ArrowDownToLine className="w-4 h-4 text-gray-600" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom"><p>Align Bottom</p></TooltipContent>
+          </Tooltip>
+        </div>
+      </PopoverContent>
+    );
+
+    // Layers popover (shared across types)
+    const LayersPopover = () => (
+      <PopoverContent className="w-48 p-1 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <ArrowUpToLine className="w-4 h-4" /> Move To Front
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <ChevronUp className="w-4 h-4" /> Move Forward
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <ChevronDown className="w-4 h-4" /> Move Backward
+        </button>
+        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+          <ArrowDownToLine className="w-4 h-4" /> Move To Back
+        </button>
+      </PopoverContent>
+    );
+
     return (
-      <div className="bg-gray-900 rounded-lg shadow-2xl flex items-center gap-1 px-3 py-2 whitespace-nowrap">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-1 px-2 py-1.5 whitespace-nowrap">
         {currentElement.type === 'image' && (
           <>
             <button 
               onClick={() => toast.info('Replace image')}
-              className="px-3 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-2"
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
             >
-              <Replace className="w-4 h-4" />
               Replace
             </button>
-            <button 
-              onClick={() => handleEditWithAI(currentElement.id)}
-              className="px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 rounded flex items-center gap-2"
-            >
-              <Wand2 className="w-4 h-4" />
-              Edit Image
-            </button>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
+            {/* Fill Color */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="w-5 h-5 rounded border border-gray-300"
+                        style={{ backgroundColor: currentElement.fill || '#dc2525' }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Color Fill</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <ColorPickerPopover 
+                label="Fill Color" 
+                value={currentElement.fill || '#dc2525'} 
+                onChange={(color) => updateElement(currentElement.id, { fill: color })}
+              />
+            </Popover>
+            
+            {/* Border Color */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="w-5 h-5 rounded border-2"
+                        style={{ borderColor: currentElement.stroke || '#dc2525', backgroundColor: 'transparent' }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Color</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <ColorPickerPopover 
+                label="Border Color" 
+                value={currentElement.stroke || '#dc2525'} 
+                onChange={(color) => updateElement(currentElement.id, { stroke: color })}
+                isBorder
+              />
+            </Popover>
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Square className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Droplet className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Border Style</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Transparency</p></TooltipContent>
             </Tooltip>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Crop className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Crop</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Crop</p></TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Filter className="w-4 h-4" />
+            
+            {/* Border Width */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlignJustify className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Width</p></TooltipContent>
+                  </Tooltip>
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Filters</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <BorderWidthPopover />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Link2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Add Link</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
             </Tooltip>
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-              Alt text
+            
+            <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+              Alt Text
             </button>
+            
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded flex items-center gap-1">
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
                   Layers
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-1 bg-gray-800 border-gray-700" align="center">
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronUp className="w-4 h-4" /> Move Forward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronDown className="w-4 h-4" /> Move Backward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
-                </button>
-              </PopoverContent>
+              <LayersPopover />
             </Popover>
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-              Align
-            </button>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <FlipHorizontal className="w-4 h-4" />
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                  Align
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Flip</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <AlignPopover />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
                 >
                   {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
+              <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => deleteElement(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-red-400"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Delete</p></TooltipContent>
             </Tooltip>
           </>
         )}
@@ -961,129 +1225,150 @@ const EbookCanvasEditor = ({
           <>
             <button 
               onClick={() => toast.info('Replace shape')}
-              className="px-3 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-2"
+              className="px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2"
             >
-              <Replace className="w-4 h-4" />
               Replace
             </button>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Square className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Border Style</p></TooltipContent>
-            </Tooltip>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
+            {/* Fill Color */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-1.5 rounded hover:bg-gray-700 flex items-center gap-1">
-                  <Droplet className="w-4 h-4 text-gray-300" />
-                  <div 
-                    className="w-4 h-4 rounded border border-gray-500"
-                    style={{ backgroundColor: currentElement.fill || '#ffffff' }}
-                  />
+                <button className="p-1 rounded hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="w-5 h-5 rounded border border-gray-300"
+                        style={{ backgroundColor: currentElement.fill || '#ffffff' }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Color Fill</p></TooltipContent>
+                  </Tooltip>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-700" align="center">
-                <p className="text-xs font-medium text-gray-300 mb-2">Fill Color</p>
-                <input 
-                  type="color" 
-                  value={currentElement.fill || '#ffffff'}
-                  onChange={(e) => updateElement(currentElement.id, { fill: e.target.value })}
-                  className="w-32 h-8 cursor-pointer"
-                />
-              </PopoverContent>
+              <ColorPickerPopover 
+                label="Fill Color" 
+                value={currentElement.fill || '#ffffff'} 
+                onChange={(color) => updateElement(currentElement.id, { fill: color })}
+              />
             </Popover>
+            
+            {/* Border Color */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="w-5 h-5 rounded border-2"
+                        style={{ borderColor: currentElement.stroke || '#dc2525', backgroundColor: 'transparent' }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Color</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <ColorPickerPopover 
+                label="Border Color" 
+                value={currentElement.stroke || '#dc2525'} 
+                onChange={(color) => updateElement(currentElement.id, { stroke: color })}
+                isBorder
+              />
+            </Popover>
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <Grid3X3 className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Droplet className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Border Width</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Transparency</p></TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <SlidersHorizontal className="w-4 h-4" />
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
+            {/* Border Width */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlignJustify className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Border Width</p></TooltipContent>
+                  </Tooltip>
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Opacity</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <BorderWidthPopover />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Link2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Add Link</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
             </Tooltip>
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-              Alt text
+            
+            <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+              Alt Text
             </button>
+            
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded flex items-center gap-1">
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
                   Layers
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-1 bg-gray-800 border-gray-700" align="center">
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronUp className="w-4 h-4" /> Move Forward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronDown className="w-4 h-4" /> Move Backward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
-                </button>
-              </PopoverContent>
+              <LayersPopover />
             </Popover>
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-              Align
-            </button>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <FlipHorizontal className="w-4 h-4" />
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                  Align
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Flip</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <AlignPopover />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
                 >
                   {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
+              <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => deleteElement(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-red-400"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Delete</p></TooltipContent>
             </Tooltip>
           </>
         )}
@@ -1093,17 +1378,17 @@ const EbookCanvasEditor = ({
             {/* Font selector */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="px-3 py-1.5 text-sm text-white bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-2 min-w-[100px]">
+                <button className="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded flex items-center gap-2 min-w-[100px]">
                   <Type className="w-4 h-4" />
                   {currentElement.fontFamily || 'Inter'}
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-1 bg-gray-800 border-gray-700" align="start">
+              <PopoverContent className="w-48 p-1 bg-white border border-gray-200 shadow-lg" align="start">
                 {FONTS.map(font => (
                   <button 
                     key={font}
                     onClick={() => updateElement(currentElement.id, { fontFamily: font })}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
                     style={{ fontFamily: font }}
                   >
                     {font}
@@ -1111,178 +1396,157 @@ const EbookCanvasEditor = ({
                 ))}
               </PopoverContent>
             </Popover>
-            {/* Heading style */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-                  Heading 1
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-40 p-1 bg-gray-800 border-gray-700" align="center">
-                <button className="w-full text-left px-3 py-2 text-2xl text-gray-200 hover:bg-gray-700 rounded">Heading 1</button>
-                <button className="w-full text-left px-3 py-2 text-xl text-gray-200 hover:bg-gray-700 rounded">Heading 2</button>
-                <button className="w-full text-left px-3 py-2 text-lg text-gray-200 hover:bg-gray-700 rounded">Heading 3</button>
-                <button className="w-full text-left px-3 py-2 text-base text-gray-200 hover:bg-gray-700 rounded">Body</button>
-              </PopoverContent>
-            </Popover>
+            
             {/* Font size controls */}
             <div className="flex items-center gap-1 px-1">
               <button 
                 onClick={() => updateElement(currentElement.id, { fontSize: Math.max(8, (currentElement.fontSize || 16) - 2) })}
-                className="p-1.5 rounded text-gray-300 hover:bg-gray-700"
+                className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
               >
                 <Minus className="w-3 h-3" />
               </button>
-              <span className="text-sm text-white min-w-[30px] text-center">{currentElement.fontSize || 16}</span>
+              <span className="text-sm text-gray-700 min-w-[30px] text-center">{currentElement.fontSize || 16}</span>
               <button 
                 onClick={() => updateElement(currentElement.id, { fontSize: Math.min(96, (currentElement.fontSize || 16) + 2) })}
-                className="p-1.5 rounded text-gray-300 hover:bg-gray-700"
+                className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
               >
                 <Plus className="w-3 h-3" />
               </button>
             </div>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
+            {/* Text Color */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 rounded hover:bg-gray-100">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className="w-5 h-5 rounded border border-gray-300"
+                        style={{ backgroundColor: currentElement.textColor || '#000000' }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Text Color</p></TooltipContent>
+                  </Tooltip>
+                </button>
+              </PopoverTrigger>
+              <ColorPickerPopover 
+                label="Text Color" 
+                value={currentElement.textColor || '#000000'} 
+                onChange={(color) => updateElement(currentElement.id, { textColor: color })}
+              />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             {/* Text formatting */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Bold className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Bold</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Bold</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Italic className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Italic</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Italic</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Underline className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Underline</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Underline</p></TooltipContent>
             </Tooltip>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             {/* Alignment */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <AlignLeft className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Align Left</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Align Left</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <AlignCenter className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Align Center</p></TooltipContent>
-            </Tooltip>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
-            {/* Lists */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <List className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Bullet List</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Align Center</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
-                  <ListOrdered className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <AlignRight className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Numbered List</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Align Right</p></TooltipContent>
             </Tooltip>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
-            {/* Effects & Color */}
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded flex items-center gap-1">
-              <Sparkles className="w-4 h-4" />
-              Effects
-            </button>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-1.5 rounded hover:bg-gray-700 flex items-center gap-1">
-                  <Palette className="w-4 h-4 text-gray-300" />
-                  <div 
-                    className="w-4 h-4 rounded border border-gray-500"
-                    style={{ backgroundColor: currentElement.textColor || '#000000' }}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3 bg-gray-800 border-gray-700" align="center">
-                <p className="text-xs font-medium text-gray-300 mb-2">Text Color</p>
-                <input 
-                  type="color" 
-                  value={currentElement.textColor || '#000000'}
-                  onChange={(e) => updateElement(currentElement.id, { textColor: e.target.value })}
-                  className="w-32 h-8 cursor-pointer"
-                />
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
                   Layers
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-1 bg-gray-800 border-gray-700" align="center">
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronUp className="w-4 h-4" /> Move Forward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ChevronDown className="w-4 h-4" /> Move Backward
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 rounded">
-                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
-                </button>
-              </PopoverContent>
+              <LayersPopover />
             </Popover>
-            <button className="px-2 py-1.5 text-sm text-gray-300 hover:bg-gray-700 rounded">
-              Align
-            </button>
-            <div className="w-px h-6 bg-gray-600 mx-1" />
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-2 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                  Align
+                </button>
+              </PopoverTrigger>
+              <AlignPopover />
+            </Popover>
+            
+            <div className="w-px h-6 bg-gray-200 mx-1" />
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toggleLock(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100"
                 >
                   {currentElement.locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
+              <TooltipContent side="bottom"><p>{currentElement.locked ? 'Unlock' : 'Lock'}</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-white">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Duplicate</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Duplicate</p></TooltipContent>
             </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => deleteElement(currentElement.id)}
-                  className="p-2 rounded text-gray-300 hover:bg-gray-700 hover:text-red-400"
+                  className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Delete</p></TooltipContent>
+              <TooltipContent side="bottom"><p>Delete</p></TooltipContent>
             </Tooltip>
           </>
         )}
