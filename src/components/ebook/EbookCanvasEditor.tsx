@@ -23,6 +23,16 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { HelpCircle, Link as LinkIcon, Smartphone, Monitor } from 'lucide-react';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -471,6 +481,15 @@ const EbookCanvasEditor = ({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editPrompt, setEditPrompt] = useState('');
   const [editingElement, setEditingElement] = useState<string | null>(null);
+  
+  // Page settings state
+  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+  const [pageFormat, setPageFormat] = useState('Custom');
+  const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [pageWidth, setPageWidth] = useState(800);
+  const [pageHeight, setPageHeight] = useState(1131.37);
+  const [resizeContent, setResizeContent] = useState(true);
+  const [linkDimensions, setLinkDimensions] = useState(true);
   
   // Drag state for element movement
   const [isDragging, setIsDragging] = useState(false);
@@ -2208,6 +2227,190 @@ const EbookCanvasEditor = ({
                           >
                             {PAGE_ACTIONS.map((action) => {
                               const Icon = action.icon;
+                              
+                              // Settings button with popover
+                              if (action.id === 'settings') {
+                                return (
+                                  <Popover key={action.id} open={pageSettingsOpen} onOpenChange={setPageSettingsOpen}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <PopoverTrigger asChild>
+                                          <button
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="p-1.5 rounded-md border transition-all border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600"
+                                          >
+                                            <Icon className="w-4 h-4" />
+                                          </button>
+                                        </PopoverTrigger>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="text-xs">
+                                        <p>{action.label}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    <PopoverContent side="left" align="start" className="w-64 p-4 bg-white shadow-xl border border-gray-200">
+                                      <div className="space-y-4">
+                                        <h3 className="font-semibold text-gray-900 text-sm">Page Size</h3>
+                                        
+                                        {/* Resize by Format */}
+                                        <div className="space-y-2">
+                                          <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Resize By Format</label>
+                                          <Select value={pageFormat} onValueChange={(val) => {
+                                            setPageFormat(val);
+                                            if (val === 'A4') {
+                                              setPageWidth(595);
+                                              setPageHeight(842);
+                                            } else if (val === 'US Letter') {
+                                              setPageWidth(612);
+                                              setPageHeight(792);
+                                            } else if (val === 'A5') {
+                                              setPageWidth(420);
+                                              setPageHeight(595);
+                                            }
+                                          }}>
+                                            <SelectTrigger className="w-full h-9 text-sm">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="Custom">Custom</SelectItem>
+                                              <SelectItem value="A4">A4</SelectItem>
+                                              <SelectItem value="A5">A5</SelectItem>
+                                              <SelectItem value="US Letter">US Letter</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                          
+                                          {/* Orientation Toggle */}
+                                          <div className="flex gap-1">
+                                            <button
+                                              onClick={() => {
+                                                setPageOrientation('portrait');
+                                                if (pageWidth > pageHeight) {
+                                                  const temp = pageWidth;
+                                                  setPageWidth(pageHeight);
+                                                  setPageHeight(temp);
+                                                }
+                                              }}
+                                              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded text-xs font-medium transition-all ${
+                                                pageOrientation === 'portrait'
+                                                  ? 'bg-teal-600 text-white'
+                                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                              }`}
+                                            >
+                                              <Smartphone className="w-3 h-3" />
+                                              Portrait
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                setPageOrientation('landscape');
+                                                if (pageHeight > pageWidth) {
+                                                  const temp = pageHeight;
+                                                  setPageHeight(pageWidth);
+                                                  setPageWidth(temp);
+                                                }
+                                              }}
+                                              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded text-xs font-medium transition-all ${
+                                                pageOrientation === 'landscape'
+                                                  ? 'bg-teal-600 text-white'
+                                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                              }`}
+                                            >
+                                              <Monitor className="w-3 h-3" />
+                                              Landscape
+                                            </button>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Custom Size */}
+                                        <div className="space-y-2">
+                                          <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Custom Size</label>
+                                          <div className="flex items-center gap-2">
+                                            <div className="flex-1">
+                                              <label className="text-[10px] text-gray-500 mb-0.5 block">Width</label>
+                                              <Input
+                                                type="number"
+                                                value={pageWidth}
+                                                onChange={(e) => {
+                                                  const newWidth = parseFloat(e.target.value);
+                                                  setPageWidth(newWidth);
+                                                  if (linkDimensions) {
+                                                    setPageHeight(newWidth * (pageHeight / pageWidth));
+                                                  }
+                                                  setPageFormat('Custom');
+                                                }}
+                                                className="h-8 text-sm"
+                                              />
+                                            </div>
+                                            <button
+                                              onClick={() => setLinkDimensions(!linkDimensions)}
+                                              className={`mt-4 p-1.5 rounded transition-all ${
+                                                linkDimensions
+                                                  ? 'bg-teal-100 text-teal-600'
+                                                  : 'bg-gray-100 text-gray-400'
+                                              }`}
+                                            >
+                                              <LinkIcon className="w-3.5 h-3.5" />
+                                            </button>
+                                            <div className="flex-1">
+                                              <label className="text-[10px] text-gray-500 mb-0.5 block">Height</label>
+                                              <Input
+                                                type="number"
+                                                value={pageHeight.toFixed(2)}
+                                                onChange={(e) => {
+                                                  const newHeight = parseFloat(e.target.value);
+                                                  setPageHeight(newHeight);
+                                                  if (linkDimensions) {
+                                                    setPageWidth(newHeight * (pageWidth / pageHeight));
+                                                  }
+                                                  setPageFormat('Custom');
+                                                }}
+                                                className="h-8 text-sm"
+                                              />
+                                            </div>
+                                            <div className="flex flex-col items-center mt-4">
+                                              <span className="text-xs text-gray-500">px</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Others */}
+                                        <div className="space-y-2">
+                                          <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Others</label>
+                                          <div className="flex items-center gap-2">
+                                            <Checkbox
+                                              id="resize-content"
+                                              checked={resizeContent}
+                                              onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+                                              className="h-4 w-4 border-teal-500 data-[state=checked]:bg-teal-500"
+                                            />
+                                            <label htmlFor="resize-content" className="text-sm text-gray-700 flex items-center gap-1">
+                                              Resize Content
+                                              <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                  <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
+                                                </TooltipTrigger>
+                                                <TooltipContent side="top" className="text-xs max-w-48">
+                                                  Scale all content proportionally when resizing the page
+                                                </TooltipContent>
+                                              </Tooltip>
+                                            </label>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Resize Button */}
+                                        <Button
+                                          onClick={() => {
+                                            toast.success(`Page resized to ${pageWidth.toFixed(0)} × ${pageHeight.toFixed(0)} px`);
+                                            setPageSettingsOpen(false);
+                                          }}
+                                          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                                        >
+                                          Resize this Visual
+                                        </Button>
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                );
+                              }
+                              
                               return (
                                 <Tooltip key={action.id}>
                                   <TooltipTrigger asChild>
@@ -2232,9 +2435,6 @@ const EbookCanvasEditor = ({
                                             break;
                                           case 'moveDown':
                                             toast.success('Move Page Down');
-                                            break;
-                                          case 'settings':
-                                            toast.success('Page Settings');
                                             break;
                                         }
                                       }}
