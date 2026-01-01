@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Bell, Sparkles, Inbox, CheckCheck, MoreVertical, BellOff, Settings, FolderOpen, Check } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,20 +61,29 @@ const NotificationBell = () => {
   return (
     <div className="relative">
       {/* Bell Icon Button with Badge */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-muted-foreground hover:text-foreground transition-colors relative"
-        aria-label="Notifications"
-      >
-        <Bell size={20} />
-        
-        {/* Red Badge Counter */}
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-background">
-            {unreadCount}
-          </span>
-        )}
-      </button>
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-muted-foreground hover:text-foreground transition-colors relative"
+              aria-label="Notifications"
+            >
+              <Bell size={20} />
+              
+              {/* Red Badge Counter */}
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-background">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Notifications</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {/* Notifications Dropdown Panel */}
       {isOpen && (

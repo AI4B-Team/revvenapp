@@ -143,12 +143,21 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
       <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <header className="border-b border-border px-4 md:px-8 py-4 flex items-center justify-between bg-background">
         {/* Mobile menu button */}
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 hover:bg-secondary rounded-lg mr-2"
-        >
-          <Menu size={24} />
-        </button>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onMenuClick}
+                className="lg:hidden p-2 hover:bg-secondary rounded-lg mr-2"
+              >
+                <Menu size={24} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Menu</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <div className="flex items-center">
           <button
@@ -196,31 +205,58 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
       </div>
 
       <div className="flex items-center justify-end gap-1 md:gap-2">
-        <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-amber-200">
-          <Crown size={14} />
-          <span className="font-semibold hidden md:inline">Upgrade</span>
-        </Button>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="sm" className="bg-amber-100 hover:bg-amber-200 text-amber-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-amber-200">
+                <Crown size={14} />
+                <span className="font-semibold hidden md:inline">Upgrade</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Upgrade To Pro</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-        <Button 
-          size="sm" 
-          onClick={() => setIsRewardsModalOpen(true)}
-          className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-emerald-200"
-        >
-          <Gift size={14} />
-          <span className="font-semibold hidden md:inline">Earn</span>
-        </Button>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                size="sm" 
+                onClick={() => setIsRewardsModalOpen(true)}
+                className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1 h-8 text-xs border border-emerald-200"
+              >
+                <Gift size={14} />
+                <span className="font-semibold hidden md:inline">Earn</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Earn Rewards</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <NotificationBell />
         <HelpMenu />
         
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="relative w-10 h-10 rounded-full flex items-center justify-center p-0.5 ring-2 ring-emerald-500 hover:ring-emerald-400 transition">
-              <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center overflow-hidden">
-                <User size={18} />
-              </div>
-            </button>
-          </DropdownMenuTrigger>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <button className="relative w-10 h-10 rounded-full flex items-center justify-center p-0.5 ring-2 ring-emerald-500 hover:ring-emerald-400 transition">
+                    <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                      <User size={18} />
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Profile</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenuContent className="w-80 bg-sidebar border-sidebar-hover p-6" align="end">
             {/* Header Section */}
             <div className="flex items-start gap-3 mb-4">

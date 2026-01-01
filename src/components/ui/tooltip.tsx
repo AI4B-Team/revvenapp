@@ -3,6 +3,30 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
 
+// Helper function to convert text to Title Case
+const toTitleCase = (text: string): string => {
+  return text
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Helper to recursively apply Title Case to text content in children
+const applyTitleCaseToChildren = (children: React.ReactNode): React.ReactNode => {
+  return React.Children.map(children, child => {
+    if (typeof child === 'string') {
+      return toTitleCase(child);
+    }
+    if (React.isValidElement(child) && child.props.children) {
+      return React.cloneElement(child, {
+        ...child.props,
+        children: applyTitleCaseToChildren(child.props.children),
+      } as React.Attributes);
+    }
+    return child;
+  });
+};
+
 const TooltipProvider = TooltipPrimitive.Provider;
 
 const Tooltip = TooltipPrimitive.Root;
@@ -12,7 +36,7 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 6, ...props }, ref) => (
+>(({ className, sideOffset = 6, children, ...props }, ref) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
@@ -22,9 +46,11 @@ const TooltipContent = React.forwardRef<
         className,
       )}
       {...props}
-    />
+    >
+      {applyTitleCaseToChildren(children)}
+    </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, toTitleCase };

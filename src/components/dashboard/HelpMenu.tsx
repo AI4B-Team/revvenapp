@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { 
   HelpCircle, BookOpen, Map, Video, MessageSquare, ExternalLink
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const HelpMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,13 +62,22 @@ const HelpMenu = () => {
   return (
     <div className="relative">
       {/* Help Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Help menu"
-      >
-        <HelpCircle size={20} />
-      </button>
+      <TooltipProvider delayDuration={100}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Help menu"
+            >
+              <HelpCircle size={20} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Help</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {/* Dropdown */}
       {isOpen && (
