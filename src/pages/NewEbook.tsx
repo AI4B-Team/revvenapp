@@ -183,6 +183,76 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: 
   { id: 'design', label: 'Design', icon: Palette },
 ];
 
+// Project Name Field component with edit mode
+const ProjectNameField = ({ 
+  value, 
+  onChange 
+}: { 
+  value: string; 
+  onChange: (value: string) => void; 
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(value);
+  
+  const handleStartEdit = () => {
+    setEditValue(value);
+    setIsEditing(true);
+  };
+  
+  const handleConfirm = () => {
+    onChange(editValue);
+    setIsEditing(false);
+  };
+  
+  const handleCancel = () => {
+    setEditValue(value);
+    setIsEditing(false);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleConfirm();
+    if (e.key === 'Escape') handleCancel();
+  };
+  
+  return (
+    <div className="flex-1 flex justify-center items-center gap-2">
+      <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Project Name:</span>
+      {isEditing ? (
+        <div className="flex items-center gap-1">
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            placeholder="Untitled Book"
+            className="text-sm font-medium text-gray-700 bg-white border-2 border-emerald-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 max-w-[240px] w-full placeholder:text-gray-400"
+          />
+          <button
+            onClick={handleConfirm}
+            className="p-1.5 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+          >
+            <Check className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleCancel}
+            className="p-1.5 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={handleStartEdit}
+          className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:border-emerald-400 hover:bg-emerald-50 transition-colors max-w-[280px] w-full text-left truncate"
+        >
+          {value || 'Untitled Book'}
+        </button>
+      )}
+    </div>
+  );
+};
+
 const NewEbook = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -960,16 +1030,10 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               </div>
               
               {/* Center - Editable Title with Label (aligned with tabs above) */}
-              <div className="flex-1 flex justify-center items-center gap-2">
-                <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Project Name:</span>
-                <input
-                  type="text"
-                  value={bookData.selectedTitle || ''}
-                  onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
-                  placeholder="Untitled Book"
-                  className="text-sm font-medium text-gray-700 bg-white border-2 border-emerald-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 max-w-[280px] w-full placeholder:text-gray-400"
-                />
-              </div>
+              <ProjectNameField
+                value={bookData.selectedTitle || ''}
+                onChange={(value) => setBookData(prev => ({ ...prev, selectedTitle: value }))}
+              />
               
               {/* Right Side Controls - Undo/Redo, Find/Replace, Zoom */}
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -1161,6 +1225,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 pages={ebookPages}
                 selectedPageId={selectedPageId}
                 onPageSelect={setSelectedPageId}
+                onPageReorder={(from, to) => {
+                  setEbookPages(prev => {
+                    const newPages = [...prev];
+                    const [removed] = newPages.splice(from, 1);
+                    newPages.splice(to, 0, removed);
+                    return newPages;
+                  });
+                }}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
               />
             </div>
