@@ -2521,16 +2521,18 @@ const EbookCanvasEditor = ({
           </div>
 
           {/* Right Panel Toggle Arrow - positioned on canvas edge */}
-          <button
-            onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-l-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
-            style={{ right: rightPanelCollapsed ? 0 : '256px' }}
-          >
-            {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
-          </button>
+          {showPagesPanel && (
+            <button
+              onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-l-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+              style={{ right: rightPanelCollapsed ? 0 : '256px' }}
+            >
+              {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
+            </button>
+          )}
 
-          {/* Page Navigator (Right Side) */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${rightPanelCollapsed ? 'w-0' : 'w-64'}`}>
+          {/* Page Navigator (Right Side) - Only visible when showPagesPanel is true */}
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${!showPagesPanel || rightPanelCollapsed ? 'w-0 border-l-0' : 'w-64'}`}>
             
             {!rightPanelCollapsed && (
               <>
