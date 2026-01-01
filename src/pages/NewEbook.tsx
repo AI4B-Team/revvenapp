@@ -1221,6 +1221,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     return newPages;
                   });
                 }}
+                onContentSectionChange={setShowPagesPanel}
               />
 
               {/* Main Canvas Editor */}
@@ -1237,6 +1238,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   });
                 }}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                showPagesPanel={showPagesPanel}
               />
             </div>
           </div>
