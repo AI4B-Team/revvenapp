@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles, Video, Palette } from 'lucide-react';
+import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { VideoGenerationCountdown } from '@/components/VideoGenerationCountdown';
@@ -26,22 +26,6 @@ const voices = [
   { id: 'bm_daniel', name: 'Daniel', description: 'British Male' },
 ];
 
-const videoModels = [
-  { id: 'Seedance 1.0', name: 'Seedance 1.0', description: 'Fast, natural motion' },
-  { id: 'Vo3.1', name: 'Vo3.1', description: 'Realistic detail & textures' },
-  { id: 'Sora 2', name: 'Sora 2', description: 'Cinematic, narrative-driven' },
-  { id: 'Kling 2.5 T', name: 'Kling 2.5 T', description: 'Fluid movements & transitions' },
-  { id: 'Hailuo', name: 'Hailuo', description: 'Atmospheric & detailed' },
-  { id: 'grok-imagine', name: 'Grok Imagine', description: 'Creative & artistic' },
-];
-
-const videoStyles = [
-  { id: 'Cinematic', name: 'Cinematic', description: 'Film-quality visuals' },
-  { id: 'Vlog', name: 'Vlog', description: 'Casual, authentic feel' },
-  { id: 'Documentary', name: 'Documentary', description: 'Observational, natural' },
-  { id: 'Commercial', name: 'Commercial', description: 'High production value' },
-];
-
 const AIStory = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -49,8 +33,6 @@ const AIStory = () => {
   const [prompt, setPrompt] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(voices[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
-  const [selectedModel, setSelectedModel] = useState(videoModels[0].id);
-  const [selectedStyle, setSelectedStyle] = useState(videoStyles[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoPrompting, setIsAutoPrompting] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
@@ -170,8 +152,6 @@ const AIStory = () => {
             prompt,
             voiceId: selectedVoice,
             speed: voiceSpeed[0],
-            model: selectedModel,
-            videoStyle: selectedStyle,
           }),
         }
       );
@@ -292,63 +272,6 @@ const AIStory = () => {
                 />
               </CardContent>
             </Card>
-
-            {/* Video Model & Style Settings */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Video Model Selection */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Video className="w-5 h-5" />
-                    Video Model
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Select value={selectedModel} onValueChange={setSelectedModel}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {videoModels.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{model.name}</span>
-                            <span className="text-xs text-muted-foreground">{model.description}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
-
-              {/* Video Style Selection */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
-                    Video Style
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {videoStyles.map((style) => (
-                        <SelectItem key={style.id} value={style.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{style.name}</span>
-                            <span className="text-xs text-muted-foreground">{style.description}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Voice Settings */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
