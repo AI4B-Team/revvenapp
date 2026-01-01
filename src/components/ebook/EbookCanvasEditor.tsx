@@ -7,7 +7,9 @@ import {
   Trash2, Copy, ClipboardPaste, Lock, Unlock, Eye, EyeOff,
   ChevronUp, ChevronDown, RotateCcw, FlipHorizontal, FlipVertical,
   Grid3X3, Ruler, Download, Upload, Maximize, Minimize,
-  Plus, Check, X, Sparkles, Palette, SlidersHorizontal, Replace, Crop
+  Plus, Check, X, Sparkles, Palette, SlidersHorizontal, Replace, Crop,
+  Move, RotateCw, Scale, ArrowUpToLine, ArrowDownToLine, ArrowUpDown,
+  Wand2, Filter, Droplet, Eraser, PenTool, MoreHorizontal
 } from 'lucide-react';
 import { 
   Tooltip, 
@@ -45,6 +47,8 @@ interface CanvasElement {
   fontSize?: number;
   fontFamily?: string;
   textColor?: string;
+  locked?: boolean;
+  rotation?: number;
 }
 
 interface EbookCanvasEditorProps {
@@ -71,6 +75,250 @@ const FONTS = [
 
 const FONT_SIZES = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72, 96];
 
+// Sample elements for different page types
+const coverElements: CanvasElement[] = [
+  {
+    id: 'cover-image',
+    type: 'image',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 45,
+    src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop'
+  },
+  {
+    id: 'title-box',
+    type: 'shape',
+    x: 8,
+    y: 38,
+    width: 55,
+    height: 35,
+    fill: '#ffffff',
+    stroke: 'transparent',
+    shapeType: 'rectangle'
+  },
+  {
+    id: 'title-text',
+    type: 'text',
+    x: 12,
+    y: 44,
+    width: 47,
+    height: 25,
+    content: 'STRATEGIC\nINVESTMENT',
+    fontSize: 28,
+    fontFamily: 'Georgia',
+    textColor: '#1a1a2e'
+  },
+  {
+    id: 'subtitle-text',
+    type: 'text',
+    x: 12,
+    y: 72,
+    width: 47,
+    height: 10,
+    content: 'BASIC BUSINESS PROPOSAL',
+    fontSize: 14,
+    fontFamily: 'Georgia',
+    textColor: '#0891b2'
+  }
+];
+
+const tocElements: CanvasElement[] = [
+  {
+    id: 'toc-header',
+    type: 'text',
+    x: 10,
+    y: 8,
+    width: 80,
+    height: 8,
+    content: 'TABLE OF CONTENTS',
+    fontSize: 24,
+    fontFamily: 'Georgia',
+    textColor: '#1a1a2e'
+  },
+  {
+    id: 'toc-line',
+    type: 'shape',
+    x: 10,
+    y: 18,
+    width: 20,
+    height: 1,
+    fill: '#0891b2',
+    stroke: 'transparent',
+    shapeType: 'rectangle'
+  },
+  {
+    id: 'toc-item1',
+    type: 'text',
+    x: 10,
+    y: 25,
+    width: 80,
+    height: 5,
+    content: '01. Executive Summary .......................... 3',
+    fontSize: 12,
+    fontFamily: 'Georgia',
+    textColor: '#374151'
+  },
+  {
+    id: 'toc-item2',
+    type: 'text',
+    x: 10,
+    y: 32,
+    width: 80,
+    height: 5,
+    content: '02. Market Analysis .............................. 5',
+    fontSize: 12,
+    fontFamily: 'Georgia',
+    textColor: '#374151'
+  },
+  {
+    id: 'toc-item3',
+    type: 'text',
+    x: 10,
+    y: 39,
+    width: 80,
+    height: 5,
+    content: '03. Investment Strategy ........................ 8',
+    fontSize: 12,
+    fontFamily: 'Georgia',
+    textColor: '#374151'
+  },
+  {
+    id: 'toc-item4',
+    type: 'text',
+    x: 10,
+    y: 46,
+    width: 80,
+    height: 5,
+    content: '04. Financial Projections ..................... 12',
+    fontSize: 12,
+    fontFamily: 'Georgia',
+    textColor: '#374151'
+  }
+];
+
+const chapterElements: CanvasElement[] = [
+  {
+    id: 'chapter-header-bg',
+    type: 'shape',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 25,
+    fill: '#0d4f4f',
+    stroke: 'transparent',
+    shapeType: 'rectangle'
+  },
+  {
+    id: 'chapter-number',
+    type: 'text',
+    x: 10,
+    y: 8,
+    width: 30,
+    height: 10,
+    content: '01',
+    fontSize: 48,
+    fontFamily: 'Georgia',
+    textColor: '#ffffff'
+  },
+  {
+    id: 'chapter-title',
+    type: 'text',
+    x: 10,
+    y: 28,
+    width: 80,
+    height: 8,
+    content: 'Executive Summary',
+    fontSize: 22,
+    fontFamily: 'Georgia',
+    textColor: '#1a1a2e'
+  },
+  {
+    id: 'chapter-intro',
+    type: 'text',
+    x: 10,
+    y: 40,
+    width: 80,
+    height: 30,
+    content: 'This executive summary provides a comprehensive overview of our strategic investment proposal, highlighting key opportunities and potential returns for stakeholders.',
+    fontSize: 11,
+    fontFamily: 'Georgia',
+    textColor: '#374151'
+  },
+  {
+    id: 'chapter-image',
+    type: 'image',
+    x: 10,
+    y: 58,
+    width: 40,
+    height: 30,
+    src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop'
+  }
+];
+
+const backCoverElements: CanvasElement[] = [
+  {
+    id: 'back-bg',
+    type: 'shape',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    fill: '#0d4f4f',
+    stroke: 'transparent',
+    shapeType: 'rectangle'
+  },
+  {
+    id: 'back-logo',
+    type: 'text',
+    x: 35,
+    y: 40,
+    width: 30,
+    height: 10,
+    content: 'ESCROW',
+    fontSize: 28,
+    fontFamily: 'Georgia',
+    textColor: '#ffffff'
+  },
+  {
+    id: 'back-tagline',
+    type: 'text',
+    x: 25,
+    y: 52,
+    width: 50,
+    height: 6,
+    content: 'Investment Excellence Since 2010',
+    fontSize: 12,
+    fontFamily: 'Georgia',
+    textColor: '#94a3b8'
+  },
+  {
+    id: 'back-contact',
+    type: 'text',
+    x: 30,
+    y: 80,
+    width: 40,
+    height: 10,
+    content: 'www.escrow-investment.com\ncontact@escrow.com',
+    fontSize: 10,
+    fontFamily: 'Georgia',
+    textColor: '#94a3b8'
+  }
+];
+
+const getPageElements = (pageType: string): CanvasElement[] => {
+  switch (pageType) {
+    case 'cover':
+      return coverElements;
+    case 'toc':
+      return tocElements;
+    case 'back':
+      return backCoverElements;
+    default:
+      return chapterElements;
+  }
+};
+
 const EbookCanvasEditor = ({ 
   pages, 
   selectedPageId, 
@@ -86,65 +334,19 @@ const EbookCanvasEditor = ({
   const [textColor, setTextColor] = useState('#000000');
   const [fillColor, setFillColor] = useState('#ffffff');
   const [strokeColor, setStrokeColor] = useState('#000000');
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
+  const [canUndo, setCanUndo] = useState(true);
+  const [canRedo, setCanRedo] = useState(true);
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [hoveredPageId, setHoveredPageId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  // Sample canvas elements for the cover
-  const [canvasElements] = useState<CanvasElement[]>([
-    {
-      id: 'cover-image',
-      type: 'image',
-      x: 0,
-      y: 0,
-      width: 100,
-      height: 45,
-      src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop'
-    },
-    {
-      id: 'title-box',
-      type: 'shape',
-      x: 8,
-      y: 38,
-      width: 55,
-      height: 35,
-      fill: '#ffffff',
-      stroke: 'transparent',
-      shapeType: 'rectangle'
-    },
-    {
-      id: 'title-text',
-      type: 'text',
-      x: 12,
-      y: 44,
-      width: 47,
-      height: 25,
-      content: 'STRATEGIC\nINVESTMENT',
-      fontSize: 28,
-      fontFamily: 'Georgia',
-      textColor: '#1a1a2e'
-    },
-    {
-      id: 'subtitle-text',
-      type: 'text',
-      x: 12,
-      y: 72,
-      width: 47,
-      height: 10,
-      content: 'BASIC BUSINESS PROPOSAL',
-      fontSize: 14,
-      fontFamily: 'Georgia',
-      textColor: '#0891b2'
-    }
-  ]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
   const handleZoomFit = () => setZoom(100);
 
   const selectedPage = pages.find(p => p.id === selectedPageId) || pages[0];
-  const currentElement = canvasElements.find(el => el.id === selectedElement);
+  const currentPageElements = getPageElements(selectedPage?.type || 'chapter');
+  const currentElement = currentPageElements.find(el => el.id === selectedElement);
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -162,16 +364,16 @@ const EbookCanvasEditor = ({
     if (!currentElement) return null;
 
     return (
-      <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 bg-white rounded-lg shadow-xl border border-gray-200 flex items-center gap-1 px-2 py-1.5">
+      <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 bg-white rounded-lg shadow-xl border border-gray-200 flex items-center gap-1 px-3 py-2 whitespace-nowrap">
         {currentElement.type === 'image' && (
           <>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toast.info('Replace image')}
-                  className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-2"
                 >
-                  <Replace className="w-3.5 h-3.5" />
+                  <Replace className="w-4 h-4" />
                   Replace
                 </button>
               </TooltipTrigger>
@@ -181,60 +383,98 @@ const EbookCanvasEditor = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toast.info('Edit image')}
-                  className="px-3 py-1.5 text-xs font-medium hover:bg-gray-100 rounded flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm font-medium hover:bg-gray-100 rounded flex items-center gap-2"
                 >
-                  Edit Image
+                  <Wand2 className="w-4 h-4" />
+                  Edit
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Edit Image</p></TooltipContent>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Square className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Crop className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Crop</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Crop className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Filter className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Mask</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Filters</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Eraser className="w-4 h-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs"><p>Remove BG</p></TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Link2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Link</p></TooltipContent>
             </Tooltip>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Alt text</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Move className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Add alt text</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Move</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <RotateCw className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Rotate</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Scale className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Resize</p></TooltipContent>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-3 py-1.5 text-sm hover:bg-gray-100 rounded flex items-center gap-1">
+                  Layers
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1" align="center">
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronUp className="w-4 h-4" /> Move Forward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronDown className="w-4 h-4" /> Move Backward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
+                </button>
+              </PopoverContent>
+            </Popover>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Lock className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -242,7 +482,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -250,7 +490,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -265,35 +505,29 @@ const EbookCanvasEditor = ({
               <TooltipTrigger asChild>
                 <button 
                   onClick={() => toast.info('Replace shape')}
-                  className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm font-medium bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-2"
                 >
-                  <Replace className="w-3.5 h-3.5" />
+                  <Replace className="w-4 h-4" />
                   Replace
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Replace Shape</p></TooltipContent>
             </Tooltip>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Square className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Rectangle</p></TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Circle className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Circle</p></TooltipContent>
-            </Tooltip>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
+                <button className="p-1.5 rounded hover:bg-gray-100 flex items-center gap-1">
+                  <Droplet className="w-4 h-4" />
                   <div 
-                    className="w-5 h-5 rounded border border-gray-300 shadow-inner"
+                    className="w-4 h-4 rounded border border-gray-300"
                     style={{ backgroundColor: currentElement.fill || '#ffffff' }}
                   />
                 </button>
@@ -310,34 +544,82 @@ const EbookCanvasEditor = ({
             </Popover>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Minus className="w-4 h-4" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <PenTool className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs"><p>Border</p></TooltipContent>
             </Tooltip>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Alt text</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Move className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Add alt text</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Move</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <RotateCw className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Rotate</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Scale className="w-4 h-4" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Resize</p></TooltipContent>
             </Tooltip>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-3 py-1.5 text-sm hover:bg-gray-100 rounded flex items-center gap-1">
+                  Layers
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1" align="center">
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronUp className="w-4 h-4" /> Move Forward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronDown className="w-4 h-4" /> Move Backward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
+                </button>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-3 py-1.5 text-sm hover:bg-gray-100 rounded flex items-center gap-1">
+                  Align
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-36 p-1" align="center">
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <AlignLeft className="w-4 h-4" /> Left
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <AlignCenter className="w-4 h-4" /> Center
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <AlignRight className="w-4 h-4" /> Right
+                </button>
+              </PopoverContent>
+            </Popover>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Lock className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -345,7 +627,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -353,7 +635,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -366,9 +648,42 @@ const EbookCanvasEditor = ({
           <>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-1 rounded hover:bg-gray-100 flex items-center gap-1">
+                <button className="h-8 px-3 text-sm font-medium bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 min-w-[120px] text-left truncate">
+                  {currentElement.fontFamily || 'Georgia'}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1 max-h-60 overflow-y-auto" align="start">
+                {FONTS.map(font => (
+                  <button
+                    key={font}
+                    onClick={() => toast.info(`Font: ${font}`)}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100"
+                    style={{ fontFamily: font }}
+                  >
+                    {font}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+            <div className="flex items-center border border-gray-200 rounded">
+              <button className="p-1.5 hover:bg-gray-100 border-r border-gray-200">
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="px-3 text-sm font-medium min-w-[40px] text-center">
+                {currentElement.fontSize || 28}
+              </span>
+              <button className="p-1.5 hover:bg-gray-100 border-l border-gray-200">
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1.5 rounded hover:bg-gray-100 flex items-center gap-1">
                   <span className="text-lg font-serif">A</span>
-                  <ChevronDown className="w-3 h-3" />
+                  <div 
+                    className="w-4 h-1 rounded"
+                    style={{ backgroundColor: currentElement.textColor || '#000000' }}
+                  />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-3" align="start">
@@ -381,163 +696,111 @@ const EbookCanvasEditor = ({
                 />
               </PopoverContent>
             </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="h-7 px-2 text-xs font-medium bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 min-w-[90px] text-left truncate">
-                  {currentElement.fontFamily || 'Georgia'}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-1 max-h-60 overflow-y-auto" align="start">
-                {FONTS.map(font => (
-                  <button
-                    key={font}
-                    onClick={() => toast.info(`Font: ${font}`)}
-                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100"
-                    style={{ fontFamily: font }}
-                  >
-                    {font}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="h-7 px-2 text-xs font-medium hover:bg-gray-100 rounded flex items-center gap-1">
-                  Heading 1
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-36 p-1" align="start">
-                {['Heading 1', 'Heading 2', 'Heading 3', 'Body', 'Caption'].map(style => (
-                  <button
-                    key={style}
-                    onClick={() => toast.info(`Style: ${style}`)}
-                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100"
-                  >
-                    {style}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
-            <div className="flex items-center border border-gray-200 rounded">
-              <button className="p-1.5 hover:bg-gray-100 border-r border-gray-200">
-                <Minus className="w-3 h-3" />
-              </button>
-              <span className="px-2 text-xs font-medium min-w-[32px] text-center">
-                {currentElement.fontSize || 28}
-              </span>
-              <button className="p-1.5 hover:bg-gray-100 border-l border-gray-200">
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <div className="flex items-center gap-0.5">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <Bold className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <Bold className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Bold</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <Italic className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <Italic className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Italic</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <Underline className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <Underline className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Underline</p></TooltipContent>
               </Tooltip>
             </div>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <div className="flex items-center gap-0.5">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <AlignLeft className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignLeft className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Align Left</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <AlignCenter className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignCenter className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Align Center</p></TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                    <AlignRight className="w-3.5 h-3.5" />
+                  <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                    <AlignRight className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs"><p>Align Right</p></TooltipContent>
               </Tooltip>
             </div>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <List className="w-3.5 h-3.5" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Move className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Bullet List</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Move</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <ListOrdered className="w-3.5 h-3.5" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <RotateCw className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Numbered List</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Rotate</p></TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Effects</button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Text Effects</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
+                  <Scale className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>AI Effects</p></TooltipContent>
+              <TooltipContent side="bottom" className="text-xs"><p>Resize</p></TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
-                  <Link2 className="w-3.5 h-3.5" />
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="px-3 py-1.5 text-sm hover:bg-gray-100 rounded flex items-center gap-1">
+                  Layers
+                  <ChevronDown className="w-3 h-3" />
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Link</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1" align="center">
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowUpToLine className="w-4 h-4" /> Move to Front
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronUp className="w-4 h-4" /> Move Forward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ChevronDown className="w-4 h-4" /> Move Backward
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded">
+                  <ArrowDownToLine className="w-4 h-4" /> Move to Back
+                </button>
+              </PopoverContent>
+            </Popover>
+            <div className="w-px h-6 bg-gray-200 mx-1" />
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Layers</button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Layer order</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="px-2 py-1 text-xs hover:bg-gray-100 rounded">Align</button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Alignment</p></TooltipContent>
-            </Tooltip>
-            <div className="w-px h-5 bg-gray-200 mx-1" />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Lock className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -545,7 +808,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
                   <Copy className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -553,7 +816,7 @@ const EbookCanvasEditor = ({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100">
+                <button className="p-2 rounded text-gray-600 hover:bg-gray-100 hover:text-red-500">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </TooltipTrigger>
@@ -575,7 +838,8 @@ const EbookCanvasEditor = ({
       top: `${element.y}%`,
       width: `${element.width}%`,
       height: `${element.height}%`,
-      cursor: 'pointer',
+      cursor: element.locked ? 'not-allowed' : 'pointer',
+      transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
     };
 
     if (element.type === 'image') {
@@ -588,21 +852,26 @@ const EbookCanvasEditor = ({
         >
           <img 
             src={element.src} 
-            alt="Cover" 
+            alt="Element" 
             className="w-full h-full object-cover"
             draggable={false}
           />
           {isSelected && (
             <>
               {/* Selection handles */}
-              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Rotation handle */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center">
+                <RotateCw className="w-3 h-3 text-blue-500" />
+              </div>
+              <div className="absolute -top-5 left-1/2 w-px h-4 bg-blue-500" />
             </>
           )}
         </div>
@@ -625,18 +894,23 @@ const EbookCanvasEditor = ({
           {isSelected && (
             <>
               {/* Selection handles */}
-              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-red-500 rounded-full cursor-se-resize" />
+              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize" />
               {/* Lock icon */}
-              <div className="absolute -top-1 -right-1 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-orange-500 rounded-sm flex items-center justify-center">
+              <div className="absolute -top-1.5 -right-1.5 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-orange-500 rounded-sm flex items-center justify-center shadow-sm">
                 <Lock className="w-3 h-3 text-white" />
               </div>
+              {/* Rotation handle */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center">
+                <RotateCw className="w-3 h-3 text-red-500" />
+              </div>
+              <div className="absolute -top-5 left-1/2 w-px h-4 bg-red-500" />
             </>
           )}
         </div>
@@ -662,23 +936,19 @@ const EbookCanvasEditor = ({
           {isSelected && (
             <>
               {/* Selection handles */}
-              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
-              {/* Rotation and move handles */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                <button className="w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50">
-                  <RotateCcw className="w-3 h-3 text-gray-600" />
-                </button>
-                <button className="w-6 h-6 bg-white border border-gray-300 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50">
-                  <Plus className="w-3 h-3 text-gray-600" />
-                </button>
+              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
+              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
+              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
+              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
+              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
+              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Rotation handle */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center">
+                <RotateCw className="w-3 h-3 text-blue-500" />
               </div>
+              <div className="absolute -top-5 left-1/2 w-px h-4 bg-blue-500" />
             </>
           )}
         </div>
@@ -690,7 +960,7 @@ const EbookCanvasEditor = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden relative">
+      <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden relative h-full">
         {/* Contextual Toolbar */}
         {renderContextualToolbar()}
 
@@ -814,9 +1084,9 @@ const EbookCanvasEditor = ({
         </div>
 
         {/* Main Canvas Area */}
-        <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 flex min-h-0">
           {/* Canvas Container with Rulers */}
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Horizontal Ruler */}
             {showRulers && (
               <div className="h-5 bg-gray-50 border-b border-gray-200 flex items-end flex-shrink-0">
@@ -836,7 +1106,7 @@ const EbookCanvasEditor = ({
               </div>
             )}
 
-            <div className="flex-1 flex overflow-hidden min-h-0">
+            <div className="flex-1 flex min-h-0">
               {/* Vertical Ruler */}
               {showRulers && (
                 <div className="w-5 bg-gray-50 border-r border-gray-200 relative flex-shrink-0">
@@ -853,10 +1123,10 @@ const EbookCanvasEditor = ({
                 </div>
               )}
 
-              {/* Canvas - no scrolling when content fits */}
+              {/* Canvas - centered, no extra scroll */}
               <div 
                 ref={canvasRef}
-                className="flex-1 flex items-center justify-center p-4"
+                className="flex-1 flex items-start justify-center pt-4 pb-4 overflow-auto"
                 style={{ backgroundColor: '#e5e7eb' }}
                 onClick={handleCanvasClick}
               >
@@ -867,7 +1137,7 @@ const EbookCanvasEditor = ({
                     width: `${(8.5 * 72 * zoom) / 100}px`,
                     height: `${(11 * 72 * zoom) / 100}px`,
                     transform: `scale(${zoom / 100})`,
-                    transformOrigin: 'center center',
+                    transformOrigin: 'top center',
                     minWidth: `${8.5 * 72}px`,
                     minHeight: `${11 * 72}px`,
                   }}
@@ -887,27 +1157,10 @@ const EbookCanvasEditor = ({
                     />
                   )}
 
-                  {/* Canvas Content */}
-                  {selectedPage?.type === 'cover' ? (
-                    // Cover page with editable elements
-                    <div className="absolute inset-0">
-                      {canvasElements.map(renderCanvasElement)}
-                    </div>
-                  ) : (
-                    // Chapter pages
-                    <div className="absolute inset-0 p-12 flex flex-col">
-                      <h2 className="text-xl font-bold text-gray-900 mb-6">{selectedPage?.title || 'Chapter Title'}</h2>
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-                      </p>
-                      <p className="text-gray-700 leading-relaxed mb-4">
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                      </p>
-                      <p className="text-gray-700 leading-relaxed">
-                        Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
-                      </p>
-                    </div>
-                  )}
+                  {/* Canvas Content - all pages have editable elements */}
+                  <div className="absolute inset-0">
+                    {currentPageElements.map(renderCanvasElement)}
+                  </div>
 
                   {/* Page Number */}
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
@@ -919,7 +1172,7 @@ const EbookCanvasEditor = ({
           </div>
 
           {/* Page Navigator (Right Side) */}
-          <div className="w-40 bg-white border-l border-gray-200 flex flex-col overflow-hidden flex-shrink-0">
+          <div className="w-44 bg-white border-l border-gray-200 flex flex-col flex-shrink-0">
             <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
               <span className="text-xs font-medium text-gray-600">Pages</span>
               <button 
@@ -929,15 +1182,19 @@ const EbookCanvasEditor = ({
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0">
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {pages.map((page, index) => (
                 <button
                   key={page.id}
                   onClick={() => onPageSelect(page.id)}
+                  onMouseEnter={() => setHoveredPageId(page.id)}
+                  onMouseLeave={() => setHoveredPageId(null)}
                   className={`w-full group relative rounded-lg overflow-hidden border-2 transition-all ${
                     selectedPageId === page.id 
-                      ? 'border-emerald-500 shadow-md' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-emerald-500 shadow-md ring-2 ring-emerald-200' 
+                      : hoveredPageId === page.id
+                        ? 'border-gray-300 bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {/* Page Thumbnail */}
@@ -950,9 +1207,24 @@ const EbookCanvasEditor = ({
                           {bookTitle || 'Cover'}
                         </span>
                       </div>
+                    ) : page.type === 'toc' ? (
+                      <div className="absolute inset-0 p-1.5 bg-white">
+                        <div className="h-1 w-2/3 bg-gray-800 rounded mb-1" />
+                        <div className="space-y-0.5">
+                          <div className="h-0.5 w-full bg-gray-200 rounded" />
+                          <div className="h-0.5 w-full bg-gray-200 rounded" />
+                          <div className="h-0.5 w-3/4 bg-gray-200 rounded" />
+                          <div className="h-0.5 w-full bg-gray-200 rounded" />
+                        </div>
+                      </div>
+                    ) : page.type === 'back' ? (
+                      <div className="absolute inset-0 bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center p-2">
+                        <span className="text-[5px] text-white font-medium text-center">ESCROW</span>
+                      </div>
                     ) : (
                       <div className="absolute inset-0 p-1.5">
-                        <div className="h-1 w-2/3 bg-gray-200 rounded mb-1" />
+                        <div className="h-2 w-full bg-teal-600 rounded-t mb-1" />
+                        <div className="h-1 w-2/3 bg-gray-200 rounded mb-0.5" />
                         <div className="space-y-0.5">
                           <div className="h-0.5 w-full bg-gray-100 rounded" />
                           <div className="h-0.5 w-full bg-gray-100 rounded" />
@@ -963,7 +1235,11 @@ const EbookCanvasEditor = ({
                   </div>
 
                   {/* Page Number */}
-                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-medium text-gray-500 bg-white/80 px-1 rounded">
+                  <div className={`absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-medium px-1 rounded ${
+                    selectedPageId === page.id 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'bg-white/80 text-gray-500'
+                  }`}>
                     {index + 1}
                   </div>
                 </button>

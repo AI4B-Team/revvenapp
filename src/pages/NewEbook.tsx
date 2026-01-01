@@ -740,11 +740,11 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 pages={[
                   { id: '1', title: bookData.selectedTitle || 'Cover', type: 'cover' },
                   { id: '2', title: 'Table of Contents', type: 'toc' },
-                  { id: '3', title: 'Chapter 1: Getting Started', type: 'chapter' },
-                  { id: '4', title: 'Chapter 2: Core Concepts', type: 'chapter' },
-                  { id: '5', title: 'Chapter 3: Deep Dive', type: 'chapter' },
-                  { id: '6', title: 'Chapter 4: Advanced Topics', type: 'chapter' },
-                  { id: '7', title: 'Summary', type: 'chapter' },
+                  { id: '3', title: 'Chapter 1: Executive Summary', type: 'chapter' },
+                  { id: '4', title: 'Chapter 2: Market Analysis', type: 'chapter' },
+                  { id: '5', title: 'Chapter 3: Investment Strategy', type: 'chapter' },
+                  { id: '6', title: 'Chapter 4: Financial Projections', type: 'chapter' },
+                  { id: '7', title: 'Back Cover', type: 'back' },
                 ]}
                 selectedPageId="1"
                 onPageSelect={(id) => console.log('Selected page:', id)}
