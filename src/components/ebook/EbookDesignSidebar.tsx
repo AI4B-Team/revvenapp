@@ -530,7 +530,7 @@ const EbookDesignSidebar = ({
           )}
 
           {/* Elements Section */}
-          <SectionHeader id="elements" title="Elements" icon={Box} />
+          <SectionHeader id="elements" title="Choose A Design" icon={Box} />
           {expandedSections.has('elements') && (
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="grid grid-cols-3 gap-2">
