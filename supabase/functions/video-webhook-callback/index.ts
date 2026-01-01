@@ -145,19 +145,19 @@ serve(async (req) => {
       }
     }
 
-    // Original n8n webhook flow
-    let video_id: string;
+    // Original n8n webhook flow for AI Story jobs
+    let job_id: string;
     let videoBlob: Blob | null = null;
 
     // Check if we received binary video data or JSON
     if (contentType.includes('multipart/form-data') || contentType.includes('video/')) {
       console.log('Received binary video data');
       
-      // Extract video_id from URL query params
-      video_id = videoIdFromQuery || '';
+      // Extract job_id from URL query params
+      job_id = url.searchParams.get('job_id') || videoIdFromQuery || '';
       
-      if (!video_id) {
-        throw new Error('video_id is required in query params when sending binary data');
+      if (!job_id) {
+        throw new Error('job_id is required in query params when sending binary data');
       }
 
       // Get the binary video
@@ -169,36 +169,35 @@ serve(async (req) => {
       const payload = await req.json();
       console.log('Webhook payload:', JSON.stringify(payload, null, 2));
 
-      video_id = payload.video_id;
+      job_id = payload.job_id || payload.video_id;
       
-      if (!video_id) {
-        throw new Error('video_id is required in webhook payload');
+      if (!job_id) {
+        throw new Error('job_id is required in webhook payload');
       }
 
       // If JSON contains a video_url, we can use it directly
       if (payload.video_url) {
         const { error: updateError } = await supabase
-          .from('ai_videos')
+          .from('ai_story_jobs')
           .update({
             video_url: payload.video_url,
             status: payload.status || 'completed',
             completed_at: new Date().toISOString(),
-            webhook_response: payload,
           })
-          .eq('id', video_id);
+          .eq('id', job_id);
 
         if (updateError) {
           console.error('Database update error:', updateError);
           throw updateError;
         }
 
-        console.log('Video status updated successfully from JSON:', video_id);
+        console.log('Story job status updated successfully from JSON:', job_id);
 
         return new Response(
           JSON.stringify({ 
             success: true, 
             message: 'Video URL updated successfully',
-            video_id 
+            job_id 
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -213,7 +212,7 @@ serve(async (req) => {
 
     // Upload binary video to Cloudinary
     const formData = new FormData();
-    formData.append('file', videoBlob, `video_${video_id}.mp4`);
+    formData.append('file', videoBlob, `story_${job_id}.mp4`);
     formData.append('upload_preset', 'revven');
 
     console.log('Uploading video to Cloudinary...');
@@ -234,34 +233,28 @@ serve(async (req) => {
     const cloudinaryData = await cloudinaryResponse.json();
     console.log('Video uploaded to Cloudinary:', cloudinaryData.secure_url);
 
-    // Update database with Cloudinary URL
-    const updateData: any = {
-      video_url: cloudinaryData.secure_url,
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      webhook_response: {
-        source: 'video-webhook-callback',
-        cloudinary_public_id: cloudinaryData.public_id,
-      },
-    };
-
+    // Update ai_story_jobs table with Cloudinary URL
     const { error: updateError } = await supabase
-      .from('ai_videos')
-      .update(updateData)
-      .eq('id', video_id);
+      .from('ai_story_jobs')
+      .update({
+        video_url: cloudinaryData.secure_url,
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', job_id);
 
     if (updateError) {
       console.error('Database update error:', updateError);
       throw updateError;
     }
 
-    console.log('Video status updated successfully:', video_id);
+    console.log('Story job status updated successfully:', job_id);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'Video status updated successfully',
-        video_id 
+        job_id 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
