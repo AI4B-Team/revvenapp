@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // n8n webhook URL for AI Story generation
-const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook-test/b17737cb-65d3-474e-9263-76e21684e9a4';
+const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook/b17737cb-65d3-474e-9263-76e21684e9a4';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
