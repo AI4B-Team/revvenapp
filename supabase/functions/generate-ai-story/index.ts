@@ -40,39 +40,35 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    console.log('Creating AI story video for user:', user.id);
+    console.log('Creating AI story job for user:', user.id);
 
-    // Create video record in ai_videos table
-    const { data: video, error: insertError } = await supabase
-      .from('ai_videos')
+    // Create job record in ai_story_jobs table for history tracking
+    const { data: job, error: insertError } = await supabase
+      .from('ai_story_jobs')
       .insert({
         user_id: user.id,
-        video_topic: prompt,
-        video_script: prompt,
-        video_style: 'ai-story',
-        character_name: characterName || 'AI Character',
-        character_bio: characterBio || 'AI-generated character',
-        character_image_url: characterImageUrl || '',
-        video_generation_model: 'kokoro-tts',
+        prompt: prompt,
+        voice_id: voiceId || 'af_heart',
+        voice_speed: speed || 1.0,
         status: 'processing',
       })
       .select()
       .single();
 
     if (insertError) {
-      console.error('Failed to create video record:', insertError);
-      throw new Error('Failed to create video record');
+      console.error('Failed to create story job record:', insertError);
+      throw new Error('Failed to create story job record');
     }
 
-    console.log('Video record created:', video.id);
+    console.log('Story job record created:', job.id);
 
-    // Call n8n webhook with video_id
+    // Call n8n webhook with job_id
     const requestBody = [{
       tts_engine: 'kokoro',
       kokoro_voice: voiceId || 'af_heart',
       kokoro_speed: String(speed || 1.0),
       Story: prompt,
-      video_id: video.id,
+      job_id: job.id,
     }];
 
     console.log('Sending to n8n:', JSON.stringify(requestBody, null, 2));
@@ -88,12 +84,12 @@ serve(async (req) => {
       console.error('n8n webhook error:', err);
     });
 
-    // Return video_id immediately (matches n8n response format)
+    // Return job_id immediately
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Video generation started',
-        video_id: video.id,
+        job_id: job.id,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
