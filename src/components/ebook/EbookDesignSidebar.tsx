@@ -104,11 +104,11 @@ const EbookDesignSidebar = ({
   }) => (
     <button
       onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+      className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
     >
       <div className="flex items-center gap-2">
         <Icon className="w-4 h-4 text-gray-600" />
-        <span className="font-semibold text-gray-900 text-center flex-1">{title}</span>
+        <span className="font-semibold text-gray-900 text-sm">{title}</span>
       </div>
       {expandedSection === id ? (
         <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -119,11 +119,10 @@ const EbookDesignSidebar = ({
   );
 
   return (
-    <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
-      {/* Templates Section */}
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
       <SectionHeader id="templates" title="Templates" icon={Layers} />
       {expandedSection === 'templates' && (
-        <div className="p-4 border-b border-gray-200 max-h-80 overflow-y-auto">
+        <div className="p-3 border-b border-gray-200 max-h-72 overflow-y-auto">
           <div className="grid grid-cols-2 gap-2 mb-4">
             {TEMPLATES.map((template) => (
               <button
@@ -159,11 +158,10 @@ const EbookDesignSidebar = ({
         </div>
       )}
 
-      {/* Content Section */}
       <SectionHeader id="content" title="Content" icon={FileText} />
       {expandedSection === 'content' && (
-        <div className="flex-1 overflow-y-auto p-4 border-b border-gray-200">
-          <h4 className="text-sm font-medium text-gray-500 mb-3">Table of Contents</h4>
+        <div className="flex-1 overflow-y-auto p-3 border-b border-gray-200">
+          <h4 className="text-xs font-medium text-gray-500 mb-2">Table of Contents</h4>
           <div className="space-y-1">
             {chapters.map((chapter, index) => (
               <div
@@ -184,7 +182,7 @@ const EbookDesignSidebar = ({
                 
                 <button
                   onClick={() => onChapterSelect(chapter.id)}
-                  className={`w-full group flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
+                  className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all ${
                     selectedChapterId === chapter.id
                       ? 'border-emerald-400 bg-emerald-50'
                       : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
@@ -262,12 +260,11 @@ const EbookDesignSidebar = ({
         </div>
       )}
 
-      {/* Images Section */}
       <SectionHeader id="images" title="Images" icon={ImageIcon} />
       {expandedSection === 'images' && (
-        <div className="p-4 border-b border-gray-200 max-h-96 overflow-y-auto">
+        <div className="p-3 border-b border-gray-200 max-h-72 overflow-y-auto">
           {/* Search */}
-          <div className="relative mb-4">
+          <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               value={imageSearch}
@@ -276,9 +273,8 @@ const EbookDesignSidebar = ({
               className="pl-9"
             />
           </div>
-          
           {/* Stock Images Grid */}
-          <div className="mb-4">
+          <div className="mb-3">
             <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Stock Images</h4>
             <div className="grid grid-cols-3 gap-2">
               {[1, 2, 3, 4, 5, 6].map((i) => (

@@ -174,13 +174,12 @@ const SOURCE_OPTIONS = [
   { id: 'record', label: 'Record', icon: Mic },
 ];
 
-type TabId = 'idea' | 'generate' | 'design' | 'review';
+type TabId = 'idea' | 'generate' | 'design';
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'idea', label: 'Idea', icon: Lightbulb },
   { id: 'generate', label: 'Generate', icon: Sparkles },
   { id: 'design', label: 'Design', icon: Palette },
-  { id: 'review', label: 'eBook', icon: BookOpen },
 ];
 
 const NewEbook = () => {
@@ -239,9 +238,9 @@ const NewEbook = () => {
       // Clear the state so it doesn't persist on refresh
       window.history.replaceState({}, document.title);
     }
-    // If book is passed, go directly to eBook tab
+    // If book is passed, go directly to design tab
     if (state?.book) {
-      setActiveTab('review');
+      setActiveTab('design');
       setContentTypeSelected(true);
       setBookData(prev => ({
         ...prev,
@@ -255,22 +254,19 @@ const NewEbook = () => {
   // Also check URL params for tab
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['idea', 'generate', 'design', 'review'].includes(tab)) {
+    if (tab && ['idea', 'generate', 'design'].includes(tab)) {
       setActiveTab(tab as TabId);
-      if (tab === 'review') {
+      if (tab === 'design') {
         setContentTypeSelected(true);
         setBookData(prev => ({ ...prev, contentType: 'ebook' }));
-      }
-      // Collapse main sidebar for design/review tabs to give more canvas space
-      if (tab === 'design' || tab === 'review') {
         setSidebarCollapsed(true);
       }
     }
   }, [searchParams]);
 
-  // Collapse main sidebar when entering design or review tabs
+  // Collapse main sidebar when entering design tab
   useEffect(() => {
-    if (activeTab === 'design' || activeTab === 'review') {
+    if (activeTab === 'design') {
       setSidebarCollapsed(true);
     }
   }, [activeTab]);
@@ -444,7 +440,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
     switch (tabId) {
       case 'generate': return isIdeaComplete;
       case 'design': return isGenerateComplete;
-      case 'review': return isDesignComplete;
       default: return false;
     }
   };
@@ -604,7 +599,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               const isActive = activeTab === tab.id;
               const isPast = TABS.findIndex(t => t.id === activeTab) > index;
               const isAccessible = canAccessTab(tab.id);
-              const isEbook = tab.id === 'review';
               return (
                 <Tooltip key={tab.id}>
                   <TooltipTrigger asChild>
@@ -619,7 +613,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                           : isAccessible
                           ? 'text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
                           : 'text-gray-400 cursor-not-allowed border border-transparent'
-                      } ${isEbook ? 'border border-gray-500' : ''}`}
+                      }`}
                     >
                       <tab.icon className="w-4 h-4" />
                       <span className="hidden md:inline">{tab.label}</span>
@@ -703,14 +697,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 {bookData.selectedTitle || 'Untitled eBook'}
               </span>
               <div className="flex-1" />
-              {/* Continue to Review */}
+              {/* Download Button */}
               <Button 
                 size="sm"
-                onClick={() => setActiveTab('review')}
+                onClick={() => toast.success('Preparing download...')}
                 className="h-7 bg-emerald-500 hover:bg-emerald-600 text-white text-xs gap-1.5"
               >
-                Continue
-                <ArrowRight className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5" />
+                Download
               </Button>
             </div>
 
@@ -1596,60 +1590,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     </Button>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Note: DESIGN TAB is now rendered in the conditional layout above */}
-
-            {/* REVIEW TAB */}
-            {activeTab === 'review' && (
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                  Review & Create
-                </h1>
-                <p className="text-gray-500 text-center mb-8">
-                  Finalize your eBook before creation
-                </p>
-
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between py-3 border-b border-gray-100">
-                      <span className="text-gray-500">Title</span>
-                      <span className="font-medium text-gray-900">{stripTrailingPunctuation(bookData.selectedTitle) || 'Not selected'}</span>
-                    </div>
-                    <div className="flex justify-between py-3 border-b border-gray-100">
-                      <span className="text-gray-500">Type</span>
-                      <span className="font-medium text-gray-900">{currentContentType?.label}</span>
-                    </div>
-                    <div className="flex justify-between py-3 border-b border-gray-100">
-                      <span className="text-gray-500">Chapters</span>
-                      <span className="font-medium text-gray-900">{bookData.chapters}</span>
-                    </div>
-                    <div className="flex justify-between py-3 border-b border-gray-100">
-                      <span className="text-gray-500">Estimated Words</span>
-                      <span className="font-medium text-gray-900">~{((bookData.chapters * bookData.wordsPerChapter) / 1000).toFixed(0)}k</span>
-                    </div>
-                    <div className="flex justify-between py-3 border-b border-gray-100">
-                      <span className="text-gray-500">Language</span>
-                      <span className="font-medium text-gray-900">{currentLanguage?.flag} {currentLanguage?.name}</span>
-                    </div>
-                    <div className="flex justify-between py-3">
-                      <span className="text-gray-500">AI Images</span>
-                      <span className="font-medium text-gray-900">{bookData.includeImages ? 'Yes' : 'No'}</span>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => {
-                      toast.success('Creating your eBook...');
-                      setTimeout(() => navigate('/ebook-creator'), 2000);
-                    }}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-6 text-lg"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Create eBook
-                  </Button>
-                </div>
               </div>
             )}
             </div>
