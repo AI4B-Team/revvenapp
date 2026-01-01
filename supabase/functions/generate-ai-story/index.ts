@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// n8n webhook URL for AI Story generation (test webhook - waits for completion)
-const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook-test/b17737cb-65d3-474e-9263-76e21684e9a4';
+// n8n webhook URL for AI Story generation (production webhook - returns immediately)
+const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook/b17737cb-65d3-474e-9263-76e21684e9a4';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -23,78 +23,56 @@ serve(async (req) => {
 
     console.log('Generating AI story with:', { prompt, voiceId, speed });
 
-    // Call n8n webhook with the required parameters
-    // Using test webhook which waits for completion
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 540000); // 9 minute timeout
+    // Call n8n production webhook which returns immediately
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{
+        tts_engine: 'kokoro',
+        kokoro_voice: voiceId || 'af_heart',
+        kokoro_speed: String(speed || 1.0),
+        Story: prompt,
+      }]),
+    });
 
-    try {
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([{
-          tts_engine: 'kokoro',
-          kokoro_voice: voiceId || 'af_heart',
-          kokoro_speed: String(speed || 1.0),
-          Story: prompt,
-        }]),
-        signal: controller.signal,
-      });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('n8n webhook error:', errorText);
+      throw new Error(`Webhook error: ${response.status}`);
+    }
 
-      clearTimeout(timeoutId);
+    // Production webhook returns immediately - may or may not have video URL yet
+    const responseText = await response.text();
+    console.log('Webhook response:', responseText);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('n8n webhook error:', errorText);
-        throw new Error(`Webhook error: ${response.status}`);
-      }
-
-      // Handle potentially empty response
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
-
-      if (!responseText || responseText.trim() === '') {
-        throw new Error('Empty response from video generation service. Please try again.');
-      }
-
-      let result;
+    let result: Record<string, unknown> = {};
+    if (responseText && responseText.trim()) {
       try {
         result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse response:', responseText);
-        throw new Error('Invalid response format from video generation service');
+      } catch (e) {
+        console.log('Response is not JSON:', responseText);
       }
-
-      console.log('Story generated successfully:', result);
-
-      const videoUrl = result.link || result.videoUrl || result.video_url || result.url;
-      
-      if (!videoUrl) {
-        console.error('No video URL in response:', result);
-        throw new Error('Video generation completed but no URL was returned');
-      }
-
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          videoUrl: videoUrl,
-        }),
-        {
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    } catch (fetchError: unknown) {
-      clearTimeout(timeoutId);
-      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        throw new Error('Video generation timed out. The process may still be running - please check back later.');
-      }
-      throw fetchError;
     }
+
+    const videoUrl = result.link || result.videoUrl || result.video_url || result.url;
+    console.log('Video URL from response:', videoUrl);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        videoUrl: videoUrl || null,
+        status: videoUrl ? 'complete' : 'processing',
+        message: videoUrl ? 'Video ready!' : 'Video generation started. This may take up to 10 minutes.',
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
   } catch (error: unknown) {
     console.error('Error in generate-ai-story:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
