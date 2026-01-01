@@ -1137,6 +1137,35 @@ const EbookCanvasEditor = ({
       );
     };
 
+    // Link popover for adding URLs
+    const LinkPopover = () => {
+      const [linkUrl, setLinkUrl] = useState('https://');
+      
+      return (
+        <PopoverContent className="w-64 p-2 bg-white border border-gray-200 shadow-lg" align="center" sideOffset={8}>
+          <div className="flex items-center gap-2">
+            <Input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://"
+              className="flex-1 h-9 text-sm border-gray-200"
+            />
+            <Button
+              onClick={() => {
+                if (linkUrl && linkUrl !== 'https://') {
+                  toast.success(`Link applied: ${linkUrl}`);
+                }
+              }}
+              className="h-9 px-4 bg-teal-500 hover:bg-teal-600 text-white text-sm"
+            >
+              Apply
+            </Button>
+          </div>
+        </PopoverContent>
+      );
+    };
+
     return (
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-1 px-2 py-1.5 whitespace-nowrap">
         {currentElement.type === 'image' && (
@@ -1247,14 +1276,19 @@ const EbookCanvasEditor = ({
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Popover>
+              <PopoverTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Link2 className="w-4 h-4" />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link2 className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
+                  </Tooltip>
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <LinkPopover />
+            </Popover>
             
             <Popover>
               <PopoverTrigger asChild>
@@ -1413,14 +1447,19 @@ const EbookCanvasEditor = ({
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
             
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Popover>
+              <PopoverTrigger asChild>
                 <button className="p-2 rounded text-gray-600 hover:bg-gray-100">
-                  <Link2 className="w-4 h-4" />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link2 className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
+                  </Tooltip>
                 </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom"><p>Add Link</p></TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <LinkPopover />
+            </Popover>
             
             <Popover>
               <PopoverTrigger asChild>
