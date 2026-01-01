@@ -37,14 +37,14 @@ interface EbookDesignSidebarProps {
   onChapterReorder?: (fromIndex: number, toIndex: number) => void;
 }
 
-// Template options
+// Template options with pages
 const TEMPLATES = [
-  { id: 'minimal', name: 'Minimal', preview: 'bg-white' },
-  { id: 'modern', name: 'Modern', preview: 'bg-gradient-to-br from-blue-50 to-purple-50' },
-  { id: 'classic', name: 'Classic', preview: 'bg-amber-50' },
-  { id: 'bold', name: 'Bold', preview: 'bg-gradient-to-br from-orange-400 to-pink-500' },
-  { id: 'elegant', name: 'Elegant', preview: 'bg-gradient-to-br from-gray-900 to-gray-700' },
-  { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200' },
+  { id: 'minimal', name: 'Minimal', preview: 'bg-white', pages: ['Cover', 'Table of Contents', 'Introduction', 'Chapter 1', 'Summary'] },
+  { id: 'modern', name: 'Modern', preview: 'bg-gradient-to-br from-blue-50 to-purple-50', pages: ['Cover', 'Table of Contents', 'About', 'Features', 'Pricing', 'Contact'] },
+  { id: 'classic', name: 'Classic', preview: 'bg-amber-50', pages: ['Cover', 'Preface', 'Chapter 1', 'Chapter 2', 'Chapter 3', 'Conclusion'] },
+  { id: 'bold', name: 'Bold', preview: 'bg-gradient-to-br from-orange-400 to-pink-500', pages: ['Cover', 'Mission', 'Vision', 'Team', 'Products'] },
+  { id: 'elegant', name: 'Elegant', preview: 'bg-gradient-to-br from-gray-900 to-gray-700', pages: ['Cover', 'Overview', 'Details', 'Gallery', 'Contact'] },
+  { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200', pages: ['Cover', 'Introduction', 'Ecosystem', 'Conservation', 'Action'] },
 ];
 
 // Element options - comprehensive list
@@ -144,6 +144,10 @@ const EbookDesignSidebar = ({
   const [imagePrompt, setImagePrompt] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [viewingTemplateId, setViewingTemplateId] = useState<string | null>(null);
+  const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
+
+  const viewingTemplate = TEMPLATES.find(t => t.id === viewingTemplateId);
 
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
@@ -339,39 +343,86 @@ const EbookDesignSidebar = ({
           <SectionHeader id="templates" title="Templates" icon={Layers} />
           {expandedSections.has('templates') && (
             <div className="p-3 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-800 mb-3">Choose a design</h3>
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                {TEMPLATES.map((template) => (
+              {viewingTemplate ? (
+                // Template Pages View
+                <div>
                   <button
-                    key={template.id}
-                    className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${template.preview}`}
+                    onClick={() => setViewingTemplateId(null)}
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3 hover:text-emerald-600 transition-colors"
                   >
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded">
-                        {template.name}
-                      </span>
+                    <ChevronLeft className="w-4 h-4" />
+                    {viewingTemplate.name}
+                  </button>
+                  <button className="w-full py-2 px-4 mb-4 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Add all pages
+                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    {viewingTemplate.pages.map((page, index) => (
+                      <div
+                        key={index}
+                        className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${viewingTemplate.preview} relative cursor-pointer`}
+                      >
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2">
+                          <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded text-center">
+                            {page}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                          {index + 1}/{viewingTemplate.pages.length}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                // Templates Grid View
+                <>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-3">Choose a design</h3>
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {TEMPLATES.map((template) => (
+                      <button
+                        key={template.id}
+                        className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${template.preview} relative group`}
+                        onMouseEnter={() => setHoveredTemplateId(template.id)}
+                        onMouseLeave={() => setHoveredTemplateId(null)}
+                        onClick={() => setViewingTemplateId(template.id)}
+                      >
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded">
+                            {template.name}
+                          </span>
+                        </div>
+                        {/* Hover Overlay */}
+                        {hoveredTemplateId === template.id && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity">
+                            <span className="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-full">
+                              View Pages
+                            </span>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {/* AI Template Prompt */}
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm font-medium text-gray-700">Edit with AI</span>
                     </div>
-                  </button>
-                ))}
-              </div>
-              {/* AI Template Prompt */}
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium text-gray-700">Edit with AI</span>
-                </div>
-                <div className="relative">
-                  <textarea
-                    value={templatePrompt}
-                    onChange={(e) => setTemplatePrompt(e.target.value)}
-                    placeholder="Describe what you want to create or upload a file..."
-                    className="w-full min-h-[80px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-                  />
-                  <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
-                    <Send className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
+                    <div className="relative">
+                      <textarea
+                        value={templatePrompt}
+                        onChange={(e) => setTemplatePrompt(e.target.value)}
+                        placeholder="Describe what you want to create or upload a file..."
+                        className="w-full min-h-[80px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+                      />
+                      <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
+                        <Send className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
