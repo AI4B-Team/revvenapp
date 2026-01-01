@@ -848,16 +848,19 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
           /* Design Tab - Full Height Canvas Editor */
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Compact Top Bar with Back Button, Centered Title, and Actions */}
-            <div className="h-10 bg-white border-b border-gray-200 flex items-center px-3 flex-shrink-0">
-              <button 
-                onClick={() => navigate('/ebook-creator')} 
-                className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm flex-shrink-0"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back To Projects</span>
-              </button>
+            <div className="h-12 bg-white border-b border-gray-200 flex items-center px-4 flex-shrink-0">
+              {/* Left - Back button (same width as right controls for balance) */}
+              <div className="w-[340px] flex-shrink-0">
+                <button 
+                  onClick={() => navigate('/ebook-creator')} 
+                  className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back To Projects</span>
+                </button>
+              </div>
               
-              {/* Centered Editable Title with Label */}
+              {/* Center - Editable Title with Label (aligned with tabs above) */}
               <div className="flex-1 flex justify-center items-center gap-2">
                 <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Project Name:</span>
                 <input
@@ -865,7 +868,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   value={bookData.selectedTitle || ''}
                   onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
                   placeholder="Untitled Book"
-                  className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
+                  className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
                 />
               </div>
               
