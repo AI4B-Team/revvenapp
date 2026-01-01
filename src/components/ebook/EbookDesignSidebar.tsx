@@ -281,7 +281,7 @@ const EbookDesignSidebar = ({
         </button>
 
         {/* Scrollable sections container */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           <SectionHeader id="templates" title="Templates" icon={Layers} />
           {expandedSections.has('templates') && (
             <div className="p-3 border-b border-gray-200">

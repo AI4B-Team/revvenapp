@@ -2084,9 +2084,9 @@ const EbookCanvasEditor = ({
         {/* Canvas Controls - Inside Canvas Area */}
 
         {/* Main Canvas Area */}
-        <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Canvas Container with Rulers */}
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             {/* Horizontal Ruler */}
             {showRulers && (
               <div className="h-5 bg-gray-50 border-b border-gray-200 flex items-end flex-shrink-0">
@@ -2106,7 +2106,7 @@ const EbookCanvasEditor = ({
               </div>
             )}
 
-            <div className="flex-1 flex min-h-0">
+            <div className="flex-1 flex min-h-0 overflow-hidden">
               {/* Vertical Ruler */}
               {showRulers && (
                 <div className="w-5 bg-gray-50 border-r border-gray-200 relative flex-shrink-0">
@@ -2126,7 +2126,7 @@ const EbookCanvasEditor = ({
               {/* Canvas - scrollable with page closer to top */}
               <div 
                 ref={canvasRef}
-                className="flex-1 flex flex-col items-center pt-2 pb-8 overflow-auto relative"
+                className="flex-1 flex flex-col items-center pt-2 pb-8 overflow-auto relative overscroll-contain"
                 style={{ backgroundColor: '#e5e7eb' }}
                 onClick={handleCanvasClick}
                 onMouseMove={handleMouseMove}
@@ -2512,7 +2512,7 @@ const EbookCanvasEditor = ({
           </button>
 
           {/* Page Navigator (Right Side) */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 ${rightPanelCollapsed ? 'w-0 overflow-hidden' : 'w-48'}`}>
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden ${rightPanelCollapsed ? 'w-0' : 'w-48'}`}>
             
             {!rightPanelCollapsed && (
               <>
@@ -2525,7 +2525,7 @@ const EbookCanvasEditor = ({
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-3">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-2 space-y-3">
               {pages.map((page, index) => (
                 <div 
                   key={page.id}
