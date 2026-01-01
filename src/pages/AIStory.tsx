@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles } from 'lucide-react';
+import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles, Video, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { VideoGenerationCountdown } from '@/components/VideoGenerationCountdown';
@@ -16,53 +16,30 @@ import { VideoGenerationCountdown } from '@/components/VideoGenerationCountdown'
 const voices = [
   { id: 'af_heart', name: 'Heart', description: 'American Female' },
   { id: 'af_alloy', name: 'Alloy', description: 'American Female' },
-  { id: 'af_aoede', name: 'Aoede', description: 'American Female' },
   { id: 'af_bella', name: 'Bella', description: 'American Female' },
   { id: 'af_jessica', name: 'Jessica', description: 'American Female' },
-  { id: 'af_kore', name: 'Kore', description: 'American Female' },
-  { id: 'af_nicole', name: 'Nicole', description: 'American Female' },
   { id: 'af_nova', name: 'Nova', description: 'American Female' },
-  { id: 'af_river', name: 'River', description: 'American Female' },
-  { id: 'af_sarah', name: 'Sarah', description: 'American Female' },
-  { id: 'af_sky', name: 'Sky', description: 'American Female' },
   { id: 'am_adam', name: 'Adam', description: 'American Male' },
-  { id: 'am_echo', name: 'Echo', description: 'American Male' },
   { id: 'am_eric', name: 'Eric', description: 'American Male' },
-  { id: 'am_fenrir', name: 'Fenrir', description: 'American Male' },
-  { id: 'am_liam', name: 'Liam', description: 'American Male' },
   { id: 'am_michael', name: 'Michael', description: 'American Male' },
-  { id: 'am_onyx', name: 'Onyx', description: 'American Male' },
-  { id: 'am_puck', name: 'Puck', description: 'American Male' },
-  { id: 'am_santa', name: 'Santa', description: 'American Male' },
-  { id: 'bf_alice', name: 'Alice', description: 'British Female' },
   { id: 'bf_emma', name: 'Emma', description: 'British Female' },
-  { id: 'bf_isabella', name: 'Isabella', description: 'British Female' },
-  { id: 'bf_lily', name: 'Lily', description: 'British Female' },
   { id: 'bm_daniel', name: 'Daniel', description: 'British Male' },
-  { id: 'bm_fable', name: 'Fable', description: 'British Male' },
-  { id: 'bm_george', name: 'George', description: 'British Male' },
-  { id: 'bm_lewis', name: 'Lewis', description: 'British Male' },
-  { id: 'zf_xiaobei', name: 'Xiaobei', description: 'Chinese Female' },
-  { id: 'zf_xiaoni', name: 'Xiaoni', description: 'Chinese Female' },
-  { id: 'zf_xiaoxiao', name: 'Xiaoxiao', description: 'Chinese Female' },
-  { id: 'zf_xiaoyi', name: 'Xiaoyi', description: 'Chinese Female' },
-  { id: 'zm_yunjian', name: 'Yunjian', description: 'Chinese Male' },
-  { id: 'zm_yunxi', name: 'Yunxi', description: 'Chinese Male' },
-  { id: 'zm_yunxia', name: 'Yunxia', description: 'Chinese Male' },
-  { id: 'zm_yunyang', name: 'Yunyang', description: 'Chinese Male' },
-  { id: 'ef_dora', name: 'Dora', description: 'Spanish Female' },
-  { id: 'em_alex', name: 'Alex', description: 'Spanish Male' },
-  { id: 'em_santa', name: 'Santa ES', description: 'Spanish Male' },
-  { id: 'ff_siwis', name: 'Siwis', description: 'French Female' },
-  { id: 'if_sara', name: 'Sara', description: 'Italian Female' },
-  { id: 'im_nicola', name: 'Nicola', description: 'Italian Male' },
-  { id: 'pf_dora', name: 'Dora PT', description: 'Portuguese Female' },
-  { id: 'pm_alex', name: 'Alex PT', description: 'Portuguese Male' },
-  { id: 'pm_santa', name: 'Santa PT', description: 'Portuguese Male' },
-  { id: 'hf_alpha', name: 'Alpha', description: 'Hindi Female' },
-  { id: 'hf_beta', name: 'Beta', description: 'Hindi Female' },
-  { id: 'hm_omega', name: 'Omega', description: 'Hindi Male' },
-  { id: 'hm_psi', name: 'Psi', description: 'Hindi Male' },
+];
+
+const videoModels = [
+  { id: 'Seedance 1.0', name: 'Seedance 1.0', description: 'Fast, natural motion' },
+  { id: 'Vo3.1', name: 'Vo3.1', description: 'Realistic detail & textures' },
+  { id: 'Sora 2', name: 'Sora 2', description: 'Cinematic, narrative-driven' },
+  { id: 'Kling 2.5 T', name: 'Kling 2.5 T', description: 'Fluid movements & transitions' },
+  { id: 'Hailuo', name: 'Hailuo', description: 'Atmospheric & detailed' },
+  { id: 'grok-imagine', name: 'Grok Imagine', description: 'Creative & artistic' },
+];
+
+const videoStyles = [
+  { id: 'Cinematic', name: 'Cinematic', description: 'Film-quality visuals' },
+  { id: 'Vlog', name: 'Vlog', description: 'Casual, authentic feel' },
+  { id: 'Documentary', name: 'Documentary', description: 'Observational, natural' },
+  { id: 'Commercial', name: 'Commercial', description: 'High production value' },
 ];
 
 const AIStory = () => {
@@ -72,6 +49,8 @@ const AIStory = () => {
   const [prompt, setPrompt] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(voices[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
+  const [selectedModel, setSelectedModel] = useState(videoModels[0].id);
+  const [selectedStyle, setSelectedStyle] = useState(videoStyles[0].id);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoPrompting, setIsAutoPrompting] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
@@ -191,6 +170,8 @@ const AIStory = () => {
             prompt,
             voiceId: selectedVoice,
             speed: voiceSpeed[0],
+            model: selectedModel,
+            videoStyle: selectedStyle,
           }),
         }
       );
@@ -311,6 +292,63 @@ const AIStory = () => {
                 />
               </CardContent>
             </Card>
+
+            {/* Video Model & Style Settings */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Video Model Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Video className="w-5 h-5" />
+                    Video Model
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {videoModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{model.name}</span>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+
+              {/* Video Style Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Video Style
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Select value={selectedStyle} onValueChange={setSelectedStyle}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {videoStyles.map((style) => (
+                        <SelectItem key={style.id} value={style.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{style.name}</span>
+                            <span className="text-xs text-muted-foreground">{style.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Voice Settings */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
