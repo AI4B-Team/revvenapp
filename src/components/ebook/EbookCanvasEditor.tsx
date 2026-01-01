@@ -79,6 +79,7 @@ interface EbookCanvasEditorProps {
   onPageSelect: (id: string) => void;
   onPageReorder?: (fromIndex: number, toIndex: number) => void;
   bookTitle: string;
+  showPagesPanel?: boolean;
 }
 
 const TOOLS = [
