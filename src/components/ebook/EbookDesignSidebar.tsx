@@ -390,12 +390,23 @@ const EbookDesignSidebar = ({
                             : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
                         } ${draggedIndex === index ? 'opacity-50' : ''}`}
                       >
-                        {/* Drag handle */}
-                        <GripVertical className="w-3 h-3 text-gray-300 cursor-grab flex-shrink-0" />
+                        {/* Drag handle - only visible on hover */}
+                        <GripVertical className="w-3 h-3 text-gray-300 cursor-grab flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                         
                         <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
                           {index + 1}
                         </span>
+
+                        {/* Badge next to number for typed chapters */}
+                        {chapter.type && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-500 text-white">
+                            {chapter.type === 'cover' ? 'Cover' :
+                             chapter.type === 'table of contents' ? 'Table Of Contents' :
+                             chapter.type === 'introduction' ? 'Introduction' :
+                             chapter.type === 'summary' ? 'Summary' :
+                             chapter.type}
+                          </span>
+                        )}
                         
                         {editingChapterId === chapter.id ? (
                           <input
@@ -426,15 +437,6 @@ const EbookDesignSidebar = ({
                         )}
 
                         <div className="ml-auto flex items-center gap-2">
-                          {chapter.type && (
-                            <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-500 text-white">
-                              {chapter.type === 'cover' ? 'Cover' :
-                               chapter.type === 'table of contents' ? 'Table Of Contents' :
-                               chapter.type === 'introduction' ? 'Introduction' :
-                               chapter.type === 'summary' ? 'Summary' :
-                               chapter.type}
-                            </span>
-                          )}
 
                           {/* Edit and Delete icons on hover */}
                           {!editingChapterId && (
