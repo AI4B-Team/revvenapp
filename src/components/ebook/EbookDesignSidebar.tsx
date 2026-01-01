@@ -377,7 +377,7 @@ const EbookDesignSidebar = ({
                           className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
                         />
                       ) : (
-                        <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate">
+                        <span className={`text-sm font-medium text-gray-900 text-left truncate ${chapter.type ? '' : 'flex-1'}`}>
                           {chapter.title}
                         </span>
                       )}
