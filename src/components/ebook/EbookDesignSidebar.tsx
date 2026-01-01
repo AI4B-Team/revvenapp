@@ -19,6 +19,7 @@ interface Chapter {
   id: string;
   title: string;
   type?: 'cover' | 'table of contents' | 'introduction' | 'summary' | null;
+  pageNumber?: number;
 }
 
 interface EbookDesignSidebarProps {
@@ -366,7 +367,7 @@ const EbookDesignSidebar = ({
                         <GripVertical className="w-3 h-3 text-gray-300 cursor-grab flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                         
                         <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
-                          {index + 1}
+                          {chapter.pageNumber ?? (index + 1)}
                         </span>
 
                         {/* Badge next to number for typed chapters */}
@@ -457,7 +458,7 @@ const EbookDesignSidebar = ({
                           
                           {/* Page # column */}
                           <span className="w-6 text-right text-xs font-medium text-gray-400">
-                            {index + 1}
+                            {chapter.pageNumber ?? (index + 1)}
                           </span>
                         </div>
                       </div>
