@@ -635,15 +635,15 @@ const AIStory = () => {
                   <p className="text-sm mt-1">Your generated videos will appear here</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                   {history.map((item) => (
                     <motion.div
                       key={item.id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className={`group relative rounded-xl border overflow-hidden transition-all duration-200 bg-card/50 backdrop-blur-sm ${
-                        item.video_url ? 'cursor-pointer hover:border-primary/50 hover:ring-2 hover:ring-primary/20' : ''
-                      } ${selectedHistoryItem?.id === item.id ? 'border-primary ring-2 ring-primary/30' : 'border-border/50'}`}
+                      className={`group relative rounded-lg border overflow-hidden transition-all duration-200 bg-card/50 backdrop-blur-sm ${
+                        item.video_url ? 'cursor-pointer hover:border-primary/50 hover:ring-1 hover:ring-primary/20' : ''
+                      } ${selectedHistoryItem?.id === item.id ? 'border-primary ring-1 ring-primary/30' : 'border-border/50'}`}
                       onClick={() => handlePreviewHistoryItem(item)}
                     >
                       {/* Video Thumbnail */}
@@ -664,56 +664,56 @@ const AIStory = () => {
                           <div className="absolute inset-0 flex items-center justify-center">
                             {item.status === 'processing' || item.status === 'pending' ? (
                               <div className="text-center">
-                                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
-                                <span className="text-xs text-muted-foreground">Processing...</span>
+                                <Loader2 className="w-5 h-5 animate-spin text-primary mx-auto mb-1" />
+                                <span className="text-[10px] text-muted-foreground">Processing</span>
                               </div>
                             ) : item.status === 'error' ? (
-                              <div className="text-center px-3">
-                                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-2">
-                                  <Trash2 className="w-5 h-5 text-red-400" />
+                              <div className="text-center px-2">
+                                <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-1">
+                                  <Trash2 className="w-3 h-3 text-red-400" />
                                 </div>
-                                <span className="text-xs text-red-400">Failed</span>
+                                <span className="text-[10px] text-red-400">Failed</span>
                               </div>
                             ) : (
-                              <BookOpen className="w-8 h-8 text-muted-foreground" />
+                              <BookOpen className="w-5 h-5 text-muted-foreground" />
                             )}
                           </div>
                         )}
 
                         {/* Status Badge */}
                         <Badge 
-                          className={`absolute top-2 left-2 text-xs ${getStatusColor(item.status)}`}
+                          className={`absolute top-1 left-1 text-[10px] px-1.5 py-0 h-4 ${getStatusColor(item.status)}`}
                         >
                           {item.status === 'processing' && (
-                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
                           )}
                           {item.status}
                         </Badge>
 
                         {/* Hover Overlay with Actions */}
                         {item.status === 'completed' && item.video_url && (
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                             <Button
                               size="icon"
                               variant="secondary"
-                              className="w-10 h-10 rounded-full"
+                              className="w-7 h-7 rounded-full"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handlePreviewHistoryItem(item);
                               }}
                             >
-                              <Eye className="w-5 h-5" />
+                              <Eye className="w-3.5 h-3.5" />
                             </Button>
                             <Button
                               size="icon"
                               variant="secondary"
-                              className="w-10 h-10 rounded-full"
+                              className="w-7 h-7 rounded-full"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDownload(item.video_url!);
                               }}
                             >
-                              <Download className="w-5 h-5" />
+                              <Download className="w-3.5 h-3.5" />
                             </Button>
                           </div>
                         )}
@@ -722,23 +722,23 @@ const AIStory = () => {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="absolute top-2 right-2 w-7 h-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-500/80 text-white"
+                          className="absolute top-1 right-1 w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-500/80 text-white"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteHistoryItem(item.id);
                           }}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-2.5 h-2.5" />
                         </Button>
                       </div>
 
                       {/* Card Content */}
-                      <div className="p-3">
-                        <p className="text-sm line-clamp-2 min-h-[2.5rem] text-foreground/90">
+                      <div className="p-2">
+                        <p className="text-xs line-clamp-2 min-h-[2rem] text-foreground/90">
                           {item.prompt}
                         </p>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
-                          <Clock className="w-3 h-3" />
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-1">
+                          <Clock className="w-2.5 h-2.5" />
                           {format(new Date(item.created_at), 'MMM d, h:mm a')}
                         </div>
                       </div>
