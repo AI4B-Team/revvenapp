@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
@@ -37,6 +37,54 @@ const AIStory = () => {
   const [isAutoPrompting, setIsAutoPrompting] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+
+  // Subscribe to realtime updates for the current job
+  useEffect(() => {
+    if (!currentJobId) return;
+
+    console.log('Subscribing to job updates:', currentJobId);
+
+    const channel = supabase
+      .channel(`ai-story-job-${currentJobId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ai_story_jobs',
+          filter: `id=eq.${currentJobId}`,
+        },
+        (payload) => {
+          console.log('Job update received:', payload);
+          const job = payload.new as { status: string; video_url: string | null; error_message: string | null };
+          
+          if (job.status === 'completed' && job.video_url) {
+            setVideoUrl(job.video_url);
+            setIsGenerating(false);
+            setCurrentJobId(null);
+            toast({
+              title: 'Story generated!',
+              description: 'Your AI story video is ready to play.',
+            });
+          } else if (job.status === 'failed') {
+            setIsGenerating(false);
+            setCurrentJobId(null);
+            toast({
+              title: 'Generation failed',
+              description: job.error_message || 'Something went wrong',
+              variant: 'destructive',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Unsubscribing from job updates');
+      supabase.removeChannel(channel);
+    };
+  }, [currentJobId, toast]);
 
   const handleAutoPrompt = async () => {
     setIsAutoPrompting(true);
@@ -135,8 +183,20 @@ const AIStory = () => {
       return;
     }
 
+    // Get user session for authenticated request
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        title: 'Please sign in',
+        description: 'You need to be signed in to generate videos.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsGenerating(true);
     setVideoUrl(null);
+    setCurrentJobId(null);
 
     try {
       const response = await fetch(
@@ -146,7 +206,7 @@ const AIStory = () => {
           headers: {
             'Content-Type': 'application/json',
             'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             prompt,
@@ -163,27 +223,29 @@ const AIStory = () => {
 
       const result = await response.json();
       
-      if (result.videoUrl) {
+      if (result.jobId) {
+        // Set job ID to start realtime subscription
+        setCurrentJobId(result.jobId);
+        toast({
+          title: 'Video generation started',
+          description: result.message || 'Your video is being created. This may take up to 10 minutes.',
+        });
+        // Keep isGenerating true - realtime subscription will handle completion
+      } else if (result.videoUrl) {
         setVideoUrl(result.videoUrl);
         setIsGenerating(false);
         toast({
           title: 'Story generated!',
           description: 'Your AI story video is ready to play.',
         });
-      } else if (result.status === 'processing') {
-        // Video is being generated - keep showing countdown
-        toast({
-          title: 'Video generation started',
-          description: result.message || 'Your video is being created. This may take up to 10 minutes.',
-        });
-        // Keep isGenerating true to show countdown
       } else {
         setIsGenerating(false);
-        throw new Error('No video URL returned');
+        throw new Error('No job ID or video URL returned');
       }
     } catch (error) {
       console.error('Error generating story:', error);
       setIsGenerating(false);
+      setCurrentJobId(null);
       toast({
         title: 'Generation failed',
         description: error instanceof Error ? error.message : 'Something went wrong',
