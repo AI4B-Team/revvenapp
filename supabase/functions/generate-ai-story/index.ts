@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// n8n webhook URL for AI Story generation (production webhook - returns immediately)
+// n8n webhook URL for AI video generation
 const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook/b17737cb-65d3-474e-9263-76e21684e9a4';
 
 serve(async (req) => {
@@ -15,26 +15,54 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, voiceId, speed } = await req.json();
+    const { 
+      prompt, 
+      voiceId, 
+      speed,
+      model,
+      character,
+      videoStyle,
+      videoTopic
+    } = await req.json();
 
     if (!prompt) {
       throw new Error('Story prompt is required');
     }
 
-    console.log('Generating AI story with:', { prompt, voiceId, speed });
+    console.log('Generating AI video with:', { 
+      prompt, 
+      model: model || 'Seedance 1.0',
+      character,
+      videoStyle,
+      videoTopic 
+    });
 
-    // Call n8n production webhook which returns immediately
+    // Build request body matching n8n webhook expected format
+    const requestBody = {
+      body: {
+        character: {
+          name: character?.name || 'AI Character',
+          image_url: character?.image_url || '',
+          bio: character?.bio || 'An AI-generated character'
+        },
+        video: {
+          model: model || 'Seedance 1.0',
+          script: prompt,
+          topic: videoTopic || prompt.substring(0, 100),
+          style: videoStyle || 'Cinematic'
+        }
+      }
+    };
+
+    console.log('Sending to n8n:', JSON.stringify(requestBody, null, 2));
+
+    // Call n8n production webhook
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify([{
-        tts_engine: 'kokoro',
-        kokoro_voice: voiceId || 'af_heart',
-        kokoro_speed: String(speed || 1.0),
-        Story: prompt,
-      }]),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -43,7 +71,7 @@ serve(async (req) => {
       throw new Error(`Webhook error: ${response.status}`);
     }
 
-    // Production webhook returns immediately - may or may not have video URL yet
+    // Production webhook returns immediately
     const responseText = await response.text();
     console.log('Webhook response:', responseText);
 
@@ -56,11 +84,24 @@ serve(async (req) => {
       }
     }
 
-    const videoUrl = result.link || result.videoUrl || result.video_url || result.url;
+    // Check for video URL in various possible response formats
+    let videoUrl = result.video_url || result.videoUrl || result.link || result.url;
+    
+    // Check nested data object
+    if (!videoUrl && result.data) {
+      const data = result.data as Record<string, unknown>;
+      videoUrl = data.video_url || data.videoUrl;
+      
+      // Check for resultUrls array
+      if (!videoUrl && Array.isArray(data.resultUrls) && data.resultUrls.length > 0) {
+        videoUrl = data.resultUrls[0];
+      }
+    }
+    
     console.log('Video URL from response:', videoUrl);
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
         videoUrl: videoUrl || null,
         status: videoUrl ? 'complete' : 'processing',
