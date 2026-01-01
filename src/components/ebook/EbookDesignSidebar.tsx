@@ -377,13 +377,13 @@ const EbookDesignSidebar = ({
                           className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
                         />
                       ) : (
-                        <span className={`text-sm font-medium text-gray-900 text-left truncate ${chapter.type ? '' : 'flex-1'}`}>
+                        <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
                           {chapter.title}
                         </span>
                       )}
                       
                       {chapter.type && (
-                        <span className={`ml-auto px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
+                        <span className={`px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap ${
                           chapter.type === 'cover' ? 'bg-gray-600 text-white' :
                           chapter.type === 'table of contents' ? 'bg-teal-600 text-white' :
                           chapter.type === 'introduction' ? 'bg-teal-500 text-white' :
