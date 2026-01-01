@@ -1580,49 +1580,110 @@ const EbookCanvasEditor = ({
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-                {/* Contextual Toolbar - above the page */}
-                <div className="relative w-full flex justify-center mb-2" style={{ minHeight: selectedElement ? '48px' : '0' }}>
-                  {renderContextualToolbar()}
-                </div>
-
-                {/* Page Canvas - 8.5x11 aspect ratio */}
-                <div 
-                  ref={pageCanvasRef}
-                  className="bg-white shadow-2xl relative flex-shrink-0 overflow-visible"
-                  style={{
-                    width: `${(8.5 * 72 * zoom) / 100}px`,
-                    height: `${(11 * 72 * zoom) / 100}px`,
-                    transform: `scale(${zoom / 100})`,
-                    transformOrigin: 'top center',
-                    minWidth: `${8.5 * 72}px`,
-                    minHeight: `${11 * 72}px`,
-                    marginTop: '20px',
-                  }}
-                  onClick={handleCanvasClick}
-                >
-                  {/* Grid Overlay */}
-                  {showGrid && (
-                    <div 
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
-                          linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)
-                        `,
-                        backgroundSize: '20px 20px'
-                      }}
-                    />
-                  )}
-
-                  {/* Canvas Content - all pages have editable elements */}
-                  <div className="absolute inset-0 overflow-visible">
-                    {currentPageElements.map(el => renderCanvasElement(el))}
+                {/* Contextual Toolbar - sticky at top */}
+                {selectedElement && (
+                  <div className="sticky top-0 z-50 w-full flex justify-center py-2 bg-gray-200/80 backdrop-blur-sm">
+                    {renderContextualToolbar()}
                   </div>
+                )}
+                
+                {/* All Pages in Canvas - scrollable */}
+                <div className="flex flex-col items-center gap-8 py-4">
+                  {pages.map((page, pageIndex) => {
+                    const pageElements = getPageElements(page);
+                    const isSelected = page.id === selectedPageId;
+                    
+                    return (
+                      <div key={page.id} className="relative">
+                        {/* Page Label */}
+                        <div className="absolute -top-6 left-0 text-xs font-medium text-gray-500">
+                          Page {pageIndex + 1} - {page.title}
+                        </div>
+                        
+                        {/* Page Canvas */}
+                        <div 
+                          ref={isSelected ? pageCanvasRef : undefined}
+                          onClick={(e) => {
+                            onPageSelect(page.id);
+                            if (e.target === e.currentTarget) {
+                              setSelectedElement(null);
+                            }
+                          }}
+                          className={`bg-white shadow-xl relative flex-shrink-0 overflow-visible cursor-pointer transition-all ${
+                            isSelected ? 'ring-2 ring-emerald-500 ring-offset-2' : 'hover:ring-2 hover:ring-gray-300'
+                          }`}
+                          style={{
+                            width: `${(8.5 * 72 * zoom) / 100}px`,
+                            height: `${(11 * 72 * zoom) / 100}px`,
+                            transform: `scale(${zoom / 100})`,
+                            transformOrigin: 'top center',
+                            minWidth: `${8.5 * 72}px`,
+                            minHeight: `${11 * 72}px`,
+                          }}
+                        >
+                          {/* Grid Overlay */}
+                          {showGrid && (
+                            <div 
+                              className="absolute inset-0 pointer-events-none"
+                              style={{
+                                backgroundImage: `
+                                  linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                                  linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px)
+                                `,
+                                backgroundSize: '20px 20px'
+                              }}
+                            />
+                          )}
 
-                  {/* Page Number */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
-                    {pages.findIndex(p => p.id === selectedPageId) + 1}
-                  </div>
+                          {/* Canvas Content */}
+                          <div className="absolute inset-0 overflow-visible">
+                            {isSelected 
+                              ? currentPageElements.map(el => renderCanvasElement(el))
+                              : pageElements.map(el => (
+                                <div 
+                                  key={el.id}
+                                  className="absolute pointer-events-none"
+                                  style={{
+                                    left: `${el.x}%`,
+                                    top: `${el.y}%`,
+                                    width: `${el.width}%`,
+                                    height: `${el.height}%`,
+                                    transform: el.rotation ? `rotate(${el.rotation}deg)` : undefined,
+                                  }}
+                                >
+                                  {el.type === 'image' && el.src && (
+                                    <img src={el.src} alt="" className="w-full h-full object-cover" />
+                                  )}
+                                  {el.type === 'shape' && (
+                                    <div className="w-full h-full" style={{ backgroundColor: el.fill }} />
+                                  )}
+                                  {el.type === 'text' && (
+                                    <div 
+                                      className="w-full h-full"
+                                      style={{
+                                        fontFamily: el.fontFamily,
+                                        fontSize: `${el.fontSize}px`,
+                                        color: el.textColor,
+                                        lineHeight: 1.2,
+                                        whiteSpace: 'pre-wrap',
+                                      }}
+                                    >
+                                      {el.content}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            }
+                          </div>
+
+                          {/* Page Number */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-400">
+                            {pageIndex + 1}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -364,15 +364,6 @@ const EbookDesignSidebar = ({
                       onDragOver={(e) => handleDragOver(e, index)}
                       onDragEnd={handleDragEnd}
                     >
-                      {/* Add chapter button between items */}
-                      {hoveredChapterId === chapter.id && index > 0 && (
-                        <button
-                          onClick={() => onChapterAdd(chapters[index - 1].id)}
-                          className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      )}
                       
                       <div
                         role="button"
@@ -490,15 +481,6 @@ const EbookDesignSidebar = ({
                         </div>
                       </div>
                       
-                      {/* Add chapter button after last item */}
-                      {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
-                        <button
-                          onClick={() => onChapterAdd(chapter.id)}
-                          className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      )}
                     </div>
                   );
                 })}
