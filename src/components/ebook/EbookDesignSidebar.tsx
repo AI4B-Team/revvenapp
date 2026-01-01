@@ -322,7 +322,13 @@ const EbookDesignSidebar = ({
           <SectionHeader id="content" title="Content" icon={FileText} />
           {expandedSections.has('content') && (
             <div className="p-3 border-b border-gray-200">
-              <h4 className="text-xs font-medium text-gray-500 mb-2">Table of Contents</h4>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <List className="w-3.5 h-3.5 text-gray-400" />
+                  <h4 className="text-xs font-medium text-gray-500">Table of Contents</h4>
+                </div>
+                <span className="text-xs font-medium text-gray-400">Page #</span>
+              </div>
               <div className="space-y-1">
                 {chapters.map((chapter, index) => (
                   <div
