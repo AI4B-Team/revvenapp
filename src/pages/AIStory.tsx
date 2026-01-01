@@ -209,7 +209,15 @@ const AIStory = () => {
           title: 'Story generated!',
           description: 'Your AI story video is ready to play.',
         });
+      } else if (result.status === 'processing') {
+        // Video is being generated - keep showing countdown
+        toast({
+          title: 'Video generation started',
+          description: result.message || 'Your video is being created. This may take up to 10 minutes.',
+        });
+        // Keep isGenerating true to show countdown
       } else {
+        setIsGenerating(false);
         throw new Error('No video URL returned');
       }
     } catch (error) {
