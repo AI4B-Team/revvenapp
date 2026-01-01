@@ -394,7 +394,8 @@ const EbookCanvasEditor = ({
   selectedPageId, 
   onPageSelect,
   onPageReorder,
-  bookTitle 
+  bookTitle,
+  showPagesPanel = true
 }: EbookCanvasEditorProps) => {
   // Drag state for page reordering
   const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
