@@ -72,20 +72,20 @@ const AIStory = () => {
   const [selectedVoice, setSelectedVoice] = useState(voices[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast({
         title: 'Please enter a prompt',
-        description: 'Write your story prompt to generate audio.',
+        description: 'Write your story prompt to generate a video.',
         variant: 'destructive',
       });
       return;
     }
 
     setIsGenerating(true);
-    setAudioUrl(null);
+    setVideoUrl(null);
 
     try {
       const response = await fetch(
@@ -110,14 +110,17 @@ const AIStory = () => {
         throw new Error(errorData.error || 'Failed to generate story');
       }
 
-      const audioBlob = await response.blob();
-      const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
-
-      toast({
-        title: 'Story generated!',
-        description: 'Your AI story audio is ready to play.',
-      });
+      const result = await response.json();
+      
+      if (result.videoUrl) {
+        setVideoUrl(result.videoUrl);
+        toast({
+          title: 'Story generated!',
+          description: 'Your AI story video is ready to play.',
+        });
+      } else {
+        throw new Error('No video URL returned');
+      }
     } catch (error) {
       console.error('Error generating story:', error);
       toast({
@@ -253,16 +256,16 @@ const AIStory = () => {
               )}
             </Button>
 
-            {/* Audio Player */}
-            {audioUrl && (
+            {/* Video Player */}
+            {videoUrl && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Your Story</CardTitle>
+                  <CardTitle className="text-lg">Your Story Video</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <audio controls className="w-full" src={audioUrl}>
-                    Your browser does not support the audio element.
-                  </audio>
+                  <video controls className="w-full rounded-lg" src={videoUrl}>
+                    Your browser does not support the video element.
+                  </video>
                 </CardContent>
               </Card>
             )}
