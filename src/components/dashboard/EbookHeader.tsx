@@ -27,12 +27,11 @@ interface EbookHeaderProps {
   onPublishClick?: () => void;
 }
 
-// Tab configuration - same as NewEbook.tsx
+// Tab configuration - same as NewEbook.tsx (without review/ebook)
 const TABS = [
   { id: 'idea', label: 'Idea', icon: Lightbulb },
   { id: 'generate', label: 'Generate', icon: Cpu },
   { id: 'design', label: 'Design', icon: Palette },
-  { id: 'review', label: 'eBook', icon: Book },
 ];
 
 const EbookHeader = ({ 
