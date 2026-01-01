@@ -1411,124 +1411,7 @@ const EbookCanvasEditor = ({
           </DialogContent>
         </Dialog>
 
-        {/* Canvas Toolbar */}
-        <div className="h-10 bg-white border-b border-gray-200 flex items-center px-2 gap-1 flex-shrink-0">
-          {/* Tool Selection */}
-          <div className="flex items-center gap-0.5 pr-2 border-r border-gray-200">
-            {TOOLS.map(tool => (
-              <Tooltip key={tool.id}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setActiveTool(tool.id)}
-                    className={`p-1.5 rounded transition-colors ${
-                      activeTool === tool.id 
-                        ? 'bg-emerald-100 text-emerald-600' 
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    <tool.icon className="w-4 h-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs">
-                  <p>{tool.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-          </div>
-
-          {/* Undo/Redo */}
-          <div className="flex items-center gap-0.5 px-2 border-r border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => toast.info('Undo')}
-                  disabled={!canUndo}
-                  className="p-1.5 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Undo2 className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Undo (⌘Z)</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => toast.info('Redo')}
-                  disabled={!canRedo}
-                  className="p-1.5 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Redo2 className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* View Controls */}
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => setShowGrid(!showGrid)}
-                  className={`p-1.5 rounded transition-colors ${
-                    showGrid ? 'bg-emerald-100 text-emerald-600' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Grid3X3 className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Toggle Grid</p></TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => setShowRulers(!showRulers)}
-                  className={`p-1.5 rounded transition-colors ${
-                    showRulers ? 'bg-emerald-100 text-emerald-600' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Ruler className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Toggle Rulers</p></TooltipContent>
-            </Tooltip>
-          </div>
-
-          {/* Zoom Controls */}
-          <div className="flex items-center gap-1 pl-2 border-l border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={handleZoomOut}
-                  className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
-                >
-                  <ZoomOut className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Zoom Out</p></TooltipContent>
-            </Tooltip>
-            <button 
-              onClick={handleZoomFit}
-              className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded min-w-[50px]"
-            >
-              {zoom}%
-            </button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={handleZoomIn}
-                  className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
-                >
-                  <ZoomIn className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs"><p>Zoom In</p></TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
+        {/* Canvas Controls - Inside Canvas Area */}
 
         {/* Main Canvas Area */}
         <div className="flex-1 flex min-h-0">
@@ -1573,16 +1456,77 @@ const EbookCanvasEditor = ({
               {/* Canvas - scrollable with page closer to top */}
               <div 
                 ref={canvasRef}
-                className="flex-1 flex flex-col items-center pt-2 pb-8 overflow-auto"
+                className="flex-1 flex flex-col items-center pt-2 pb-8 overflow-auto relative"
                 style={{ backgroundColor: '#e5e7eb' }}
                 onClick={handleCanvasClick}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
+                {/* Canvas Controls - Undo/Redo and Zoom inside canvas */}
+                <div className="sticky top-2 z-40 flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-1 bg-white rounded-lg shadow-md border border-gray-200 px-2 py-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => toast.info('Undo')}
+                          disabled={!canUndo}
+                          className="p-1.5 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Undo2 className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs"><p>Undo (⌘Z)</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={() => toast.info('Redo')}
+                          disabled={!canRedo}
+                          className="p-1.5 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Redo2 className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  <div className="flex items-center gap-1 bg-white rounded-lg shadow-md border border-gray-200 px-2 py-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleZoomOut}
+                          className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
+                        >
+                          <ZoomOut className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs"><p>Zoom Out</p></TooltipContent>
+                    </Tooltip>
+                    <button 
+                      onClick={handleZoomFit}
+                      className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded min-w-[50px]"
+                    >
+                      {zoom}%
+                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={handleZoomIn}
+                          className="p-1.5 rounded text-gray-600 hover:bg-gray-100"
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs"><p>Zoom In</p></TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+
                 {/* Contextual Toolbar - sticky at top */}
                 {selectedElement && (
-                  <div className="sticky top-0 z-50 w-full flex justify-center py-2 bg-gray-200/80 backdrop-blur-sm">
+                  <div className="sticky top-14 z-50 w-full flex justify-center py-2 bg-gray-200/80 backdrop-blur-sm">
                     {renderContextualToolbar()}
                   </div>
                 )}

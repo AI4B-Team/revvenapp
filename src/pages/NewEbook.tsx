@@ -718,6 +718,15 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               <span className="hidden md:inline">Share</span>
             </button>
             
+            {/* Preview button */}
+            <button 
+              onClick={() => toast.success('Preview coming soon')}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
+            >
+              <Eye className="w-5 h-5" strokeWidth={2.5} />
+              <span className="hidden md:inline">Preview</span>
+            </button>
+            
             {/* Download button */}
             <button 
               onClick={() => toast.success('Download options coming soon')}
@@ -748,20 +757,28 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
         {activeTab === 'design' ? (
           /* Design Tab - Full Height Canvas Editor */
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Compact Top Bar with Back Button and Actions */}
-            <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 gap-3 flex-shrink-0">
+            {/* Compact Top Bar with Back Button, Centered Title, and Actions */}
+            <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 flex-shrink-0">
               <button 
                 onClick={() => navigate('/ebook-creator')} 
-                className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm"
+                className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm flex-shrink-0"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back To Projects</span>
               </button>
-              <div className="h-4 w-px bg-gray-200" />
-              <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
-                {bookData.selectedTitle || 'Untitled eBook'}
-              </span>
-              <div className="flex-1" />
+              
+              {/* Centered Editable Title */}
+              <div className="flex-1 flex justify-center">
+                <input
+                  type="text"
+                  value={bookData.selectedTitle || ''}
+                  onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
+                  placeholder="Untitled Book"
+                  className="text-sm font-medium text-gray-700 text-center bg-transparent border-0 focus:outline-none focus:ring-0 max-w-[300px] w-full placeholder:text-gray-400"
+                />
+              </div>
+              
+              <div className="flex-shrink-0 w-[120px]" /> {/* Spacer to balance the back button */}
             </div>
 
             {/* Canvas Editor Area */}
@@ -797,7 +814,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               <EbookCanvasEditor
                 pages={[
                   { id: '1', title: bookData.selectedTitle || 'Cover', type: 'cover' },
-                  { id: '2', title: 'Table of Contents', type: 'toc' },
+                  { id: '2', title: 'Table Of Contents', type: 'toc' },
                   { id: '3', title: 'Chapter 1: Executive Summary', type: 'chapter' },
                   { id: '4', title: 'Chapter 2: Market Analysis', type: 'chapter' },
                   { id: '5', title: 'Chapter 3: Investment Strategy', type: 'chapter' },

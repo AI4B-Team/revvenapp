@@ -390,9 +390,9 @@ const EbookDesignSidebar = ({
 
                         {/* Badge next to number for typed chapters */}
                         {chapter.type && (
-                          <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-500 text-white">
+                          <span className="px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 whitespace-nowrap bg-gray-300 text-gray-700">
                             {chapter.type === 'cover' ? 'Cover' :
-                             chapter.type === 'table of contents' ? 'Outline' :
+                             chapter.type === 'table of contents' ? 'Table Of Contents' :
                              chapter.type === 'introduction' ? 'Introduction' :
                              chapter.type === 'summary' ? 'Summary' :
                              chapter.type}
