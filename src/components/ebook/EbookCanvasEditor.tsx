@@ -2502,22 +2502,17 @@ const EbookCanvasEditor = ({
             </div>
           </div>
 
+          {/* Right Panel Toggle Arrow - positioned on canvas edge */}
+          <button
+            onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-l-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+            style={{ right: rightPanelCollapsed ? 0 : '192px' }}
+          >
+            {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-600" /> : <ChevronRight className="w-4 h-4 text-gray-600" />}
+          </button>
+
           {/* Page Navigator (Right Side) */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 relative transition-all duration-300 ${rightPanelCollapsed ? 'w-0 overflow-hidden' : 'w-48'}`}>
-            {/* Toggle Arrow - positioned on middle left border */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
-                  className="absolute top-1/2 -translate-y-1/2 -left-3 z-50 w-6 h-12 bg-white border border-gray-200 rounded-l-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center justify-center"
-                >
-                  {rightPanelCollapsed ? <ChevronLeft className="w-4 h-4 text-gray-500" /> : <ChevronRight className="w-4 h-4 text-gray-500" />}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>{rightPanelCollapsed ? 'Show pages' : 'Hide pages'}</p>
-              </TooltipContent>
-            </Tooltip>
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 ${rightPanelCollapsed ? 'w-0 overflow-hidden' : 'w-48'}`}>
             
             {!rightPanelCollapsed && (
               <>

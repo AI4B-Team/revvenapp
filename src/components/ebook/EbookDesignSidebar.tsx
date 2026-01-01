@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  ChevronDown, ChevronUp, Layers, FileText, Image as ImageIcon, 
+  ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Layers, FileText, Image as ImageIcon, 
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
@@ -168,26 +168,17 @@ const EbookDesignSidebar = ({
   if (isCollapsed) {
     return (
       <TooltipProvider delayDuration={200}>
-        <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
-          {/* Expand Button */}
-          <div className="p-2 border-b border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setIsCollapsed(false)}
-                  className="w-full p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
-                >
-                  <PanelLeft className="w-5 h-5 text-gray-600" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Expand sidebar</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+        <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0 relative">
+          {/* Expand Arrow - on edge */}
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="absolute top-1/2 -translate-y-1/2 -right-2.5 z-50 w-5 h-10 bg-white border border-gray-300 rounded-r-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+          >
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+          </button>
 
           {/* Icon buttons for each section */}
-          <div className="flex-1 flex flex-col py-2">
+          <div className="flex-1 flex flex-col py-2 pt-4">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -281,20 +272,13 @@ const EbookDesignSidebar = ({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0 relative">
-        {/* Collapse Button - positioned on middle right border */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() => setIsCollapsed(true)}
-              className="absolute top-1/2 -translate-y-1/2 -right-3 z-50 w-6 h-12 bg-white border border-gray-200 rounded-r-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center justify-center"
-            >
-              <PanelLeftClose className="w-4 h-4 text-gray-500" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Collapse sidebar</p>
-          </TooltipContent>
-        </Tooltip>
+        {/* Collapse Arrow - positioned on middle right border */}
+        <button
+          onClick={() => setIsCollapsed(true)}
+          className="absolute top-1/2 -translate-y-1/2 -right-2.5 z-50 w-5 h-10 bg-white border border-gray-300 rounded-r-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+        >
+          <ChevronLeft className="w-4 h-4 text-gray-600" />
+        </button>
 
         {/* Scrollable sections container */}
         <div className="flex-1 overflow-y-auto">
