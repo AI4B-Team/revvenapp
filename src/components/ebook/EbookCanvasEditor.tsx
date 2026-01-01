@@ -421,10 +421,17 @@ const EbookCanvasEditor = ({
   const [editPrompt, setEditPrompt] = useState('');
   const [editingElement, setEditingElement] = useState<string | null>(null);
   
+  // Drag state for element movement
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number; elementX: number; elementY: number } | null>(null);
+  const [isRotatingDrag, setIsRotatingDrag] = useState(false);
+  const [rotateStart, setRotateStart] = useState<{ angle: number; elementRotation: number } | null>(null);
+  
   // Track page elements state per page
   const [pageElementsState, setPageElementsState] = useState<Record<string, CanvasElement[]>>({});
   
   const canvasRef = useRef<HTMLDivElement>(null);
+  const pageCanvasRef = useRef<HTMLDivElement>(null);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
@@ -517,6 +524,84 @@ const EbookCanvasEditor = ({
       setSelectedElement(elementId);
     } else {
       toast.info('Element is locked. Unlock it first.');
+    }
+  };
+
+  // Handle move handle mouse down
+  const handleMoveStart = (e: React.MouseEvent, elementId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const element = currentPageElements.find(el => el.id === elementId);
+    if (element && !element.locked) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX,
+        y: e.clientY,
+        elementX: element.x,
+        elementY: element.y
+      });
+      setSelectedElement(elementId);
+    }
+  };
+
+  // Handle rotate handle mouse down
+  const handleRotateStart = (e: React.MouseEvent, elementId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const element = currentPageElements.find(el => el.id === elementId);
+    if (element && !element.locked && pageCanvasRef.current) {
+      const rect = pageCanvasRef.current.getBoundingClientRect();
+      const centerX = rect.left + (element.x + element.width / 2) * rect.width / 100;
+      const centerY = rect.top + (element.y + element.height / 2) * rect.height / 100;
+      const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+      
+      setIsRotatingDrag(true);
+      setRotateStart({
+        angle,
+        elementRotation: element.rotation || 0
+      });
+      setSelectedElement(elementId);
+    }
+  };
+
+  // Handle mouse move for dragging
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && dragStart && selectedElement && pageCanvasRef.current) {
+      const rect = pageCanvasRef.current.getBoundingClientRect();
+      const deltaX = (e.clientX - dragStart.x) / rect.width * 100;
+      const deltaY = (e.clientY - dragStart.y) / rect.height * 100;
+      
+      updateElement(selectedElement, {
+        x: Math.max(0, Math.min(100 - (currentElement?.width || 0), dragStart.elementX + deltaX)),
+        y: Math.max(0, Math.min(100 - (currentElement?.height || 0), dragStart.elementY + deltaY))
+      });
+    }
+    
+    if (isRotatingDrag && rotateStart && selectedElement && pageCanvasRef.current) {
+      const element = currentPageElements.find(el => el.id === selectedElement);
+      if (element) {
+        const rect = pageCanvasRef.current.getBoundingClientRect();
+        const centerX = rect.left + (element.x + element.width / 2) * rect.width / 100;
+        const centerY = rect.top + (element.y + element.height / 2) * rect.height / 100;
+        const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * (180 / Math.PI);
+        const deltaAngle = angle - rotateStart.angle;
+        
+        updateElement(selectedElement, {
+          rotation: rotateStart.elementRotation + deltaAngle
+        });
+      }
+    }
+  };
+
+  // Handle mouse up
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDragStart(null);
+    }
+    if (isRotatingDrag) {
+      setIsRotatingDrag(false);
+      setRotateStart(null);
     }
   };
 
@@ -1104,10 +1189,16 @@ const EbookCanvasEditor = ({
               </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
-                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleMoveStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                >
                   <Move className="w-3 h-3 text-blue-500" />
                 </div>
-                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleRotateStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                >
                   <RotateCw className="w-3 h-3 text-blue-500" />
                 </div>
               </div>
@@ -1150,10 +1241,16 @@ const EbookCanvasEditor = ({
               </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
-                <div className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleMoveStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-red-50 active:bg-red-100"
+                >
                   <Move className="w-3 h-3 text-red-500" />
                 </div>
-                <div className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleRotateStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-red-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-red-50 active:bg-red-100"
+                >
                   <RotateCw className="w-3 h-3 text-red-500" />
                 </div>
               </div>
@@ -1199,10 +1296,16 @@ const EbookCanvasEditor = ({
               </button>
               {/* Rotation and Move handles */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1">
-                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleMoveStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-move flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                >
                   <Move className="w-3 h-3 text-blue-500" />
                 </div>
-                <div className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm">
+                <div 
+                  onMouseDown={(e) => handleRotateStart(e, element.id)}
+                  className="w-6 h-6 bg-white border-2 border-blue-500 rounded-full cursor-grab flex items-center justify-center shadow-sm hover:bg-blue-50 active:bg-blue-100"
+                >
                   <RotateCw className="w-3 h-3 text-blue-500" />
                 </div>
               </div>
@@ -1473,6 +1576,9 @@ const EbookCanvasEditor = ({
                 className="flex-1 flex flex-col items-center pt-2 pb-8 overflow-auto"
                 style={{ backgroundColor: '#e5e7eb' }}
                 onClick={handleCanvasClick}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
               >
                 {/* Contextual Toolbar - above the page */}
                 <div className="relative w-full flex justify-center mb-2" style={{ minHeight: selectedElement ? '48px' : '0' }}>
@@ -1481,6 +1587,7 @@ const EbookCanvasEditor = ({
 
                 {/* Page Canvas - 8.5x11 aspect ratio */}
                 <div 
+                  ref={pageCanvasRef}
                   className="bg-white shadow-2xl relative flex-shrink-0 overflow-visible"
                   style={{
                     width: `${(8.5 * 72 * zoom) / 100}px`,
@@ -1509,7 +1616,7 @@ const EbookCanvasEditor = ({
 
                   {/* Canvas Content - all pages have editable elements */}
                   <div className="absolute inset-0 overflow-visible">
-                    {currentPageElements.map(renderCanvasElement)}
+                    {currentPageElements.map(el => renderCanvasElement(el))}
                   </div>
 
                   {/* Page Number */}
