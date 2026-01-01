@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// n8n webhook URL for AI Story generation (production webhook - returns immediately)
-const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook/b17737cb-65d3-474e-9263-76e21684e9a4';
+// n8n webhook URL for AI Story generation (test webhook - waits for completion)
+const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook-test/b17737cb-65d3-474e-9263-76e21684e9a4';
 
 serve(async (req) => {
   // Handle CORS preflight requests
