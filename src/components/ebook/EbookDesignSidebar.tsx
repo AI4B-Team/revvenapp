@@ -9,7 +9,10 @@ import {
   ImagePlus, Grid3X3, Clock, Sigma, Network, PieChart, ChevronsRight, Minus,
   Share2, Sun, ListOrdered, Tag, GanttChart, Play, Bot, Text, ListChecks, StickyNote,
   LayoutTemplate, ChevronDownSquare, Columns2, AlignLeft, MapPin, Square, Circle, Triangle,
-  Target, Settings, UserPlus, Images
+  Target, Settings, UserPlus, Images, Hash, CodeSquare, Info, ListTree, PenTool, Brush, 
+  ThumbsUp, HelpCircle, Hexagon, Star, Pentagon, Diamond, ArrowRight, ArrowDown, ArrowUp,
+  ArrowLeft, Move, Pointer, Navigation, Maximize2, Minimize2, RotateCcw, ZoomIn, MessageSquare,
+  FileDown, Volume2, ExternalLink, FileQuestion, Shrink
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -57,6 +60,15 @@ const ELEMENT_CATEGORIES = {
       { id: 'text-to-image', name: 'Text To Image', icon: ImagePlus },
       { id: 'map', name: 'Map', icon: MapPin },
       { id: 'table', name: 'Table', icon: Table },
+      { id: 'page-no', name: 'Page No.', icon: Hash },
+      { id: '3rd-party-embeds', name: '3rd party embeds', icon: CodeSquare },
+      { id: 'tooltip', name: 'Tooltip', icon: Info },
+      { id: 'auto-toc', name: 'Auto-generated TOC', icon: ListTree },
+      { id: 'qr-code', name: 'QR Code', icon: QrCode },
+      { id: 'shape-brush', name: 'Shape Brush', icon: Hexagon },
+      { id: 'line-brush', name: 'Line Brush', icon: PenTool },
+      { id: 'like', name: 'Like', icon: ThumbsUp },
+      { id: 'quiz', name: 'Quiz', icon: HelpCircle },
     ]
   },
   shapes: {
@@ -65,6 +77,19 @@ const ELEMENT_CATEGORIES = {
       { id: 'rectangle', name: 'Rectangle', icon: Square },
       { id: 'ellipse', name: 'Ellipse', icon: Circle },
       { id: 'triangle', name: 'Triangle', icon: Triangle },
+      { id: 'hexagon', name: 'Hexagon', icon: Hexagon },
+      { id: 'star', name: 'Star', icon: Star },
+      { id: 'diamond', name: 'Diamond', icon: Diamond },
+    ]
+  },
+  arrows: {
+    title: 'Arrows',
+    items: [
+      { id: 'arrow-right', name: 'Right Arrow', icon: ArrowRight },
+      { id: 'arrow-down', name: 'Down Arrow', icon: ArrowDown },
+      { id: 'arrow-up', name: 'Up Arrow', icon: ArrowUp },
+      { id: 'arrow-left', name: 'Left Arrow', icon: ArrowLeft },
+      { id: 'chevron-right', name: 'Chevron', icon: ChevronsRight },
     ]
   },
   buttons: {
@@ -81,6 +106,22 @@ const ELEMENT_CATEGORIES = {
       { id: 'hotspot-link', name: 'Link Hotspot', icon: Link2 },
       { id: 'hotspot-click', name: 'Click Hotspot', icon: MousePointerClick },
       { id: 'hotspot-target', name: 'Target Hotspot', icon: Target },
+    ]
+  },
+  actions: {
+    title: 'Actions',
+    items: [
+      { id: 'action-open-link', name: 'Open Link', icon: ExternalLink },
+      { id: 'action-go-to-page', name: 'Go to Page', icon: FileText },
+      { id: 'action-popup-window', name: 'Pop up Window', icon: Maximize2 },
+      { id: 'action-popup-image', name: 'Pop up Image', icon: ImageIcon },
+      { id: 'action-popup-msg', name: 'Pop up Msg', icon: MessageSquare },
+      { id: 'action-show-hide', name: 'Show/Hide', icon: Minimize2 },
+      { id: 'action-popup-video', name: 'Pop up Video', icon: Video },
+      { id: 'action-play-audio', name: 'Play Audio', icon: Volume2 },
+      { id: 'action-download-file', name: 'Download File', icon: FileDown },
+      { id: 'action-area-zoom', name: 'Area Zoom in', icon: ZoomIn },
+      { id: 'action-collapse', name: 'Collapse', icon: Shrink },
     ]
   },
   slideshows: {
