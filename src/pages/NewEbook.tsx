@@ -6,7 +6,8 @@ import {
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
   Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2, RefreshCw,
-  ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus
+  ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus,
+  Share2, Lock as LockIcon
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -799,23 +800,80 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               ))}
             </div>
             
-            {/* Share button */}
+            {/* Invite button (previously Share) */}
             <button 
-              onClick={() => toast.success('Share dialog coming soon')}
+              onClick={() => toast.success('Invite dialog coming soon')}
               className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm text-white font-semibold transition-colors border border-gray-500"
             >
               <UserPlus className="w-5 h-5" strokeWidth={2.5} />
-              <span className="hidden md:inline">Share</span>
+              <span className="hidden md:inline">Invite</span>
             </button>
             
-            {/* Preview button */}
-            <button 
-              onClick={() => toast.success('Preview coming soon')}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-transparent hover:bg-slate-700/50 rounded-lg text-sm text-white font-semibold transition-colors border border-slate-400"
-            >
-              <Eye className="w-5 h-5" strokeWidth={2.5} />
-              <span className="hidden md:inline">Preview</span>
-            </button>
+            {/* Share button (previously Preview) with popover */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-lg text-sm text-white font-semibold transition-colors"
+                >
+                  <Share2 className="w-5 h-5" strokeWidth={2.5} />
+                  <span className="hidden md:inline">Share</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-4 bg-white border border-gray-200 shadow-xl" sideOffset={8}>
+                <h3 className="font-semibold text-gray-900 mb-4">Share your design</h3>
+                
+                {/* Public on the web */}
+                <div className="flex items-start justify-between gap-3 py-3 border-b border-gray-100">
+                  <div className="flex items-start gap-3">
+                    <Globe className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Public on the web</p>
+                      <p className="text-xs text-gray-500">Anyone with the link can view this visual</p>
+                    </div>
+                  </div>
+                  <button 
+                    className="w-11 h-6 bg-gray-200 rounded-full relative transition-colors flex-shrink-0 hover:bg-gray-300"
+                    onClick={() => toast.success('Public sharing toggled')}
+                  >
+                    <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform" />
+                  </button>
+                </div>
+                
+                {/* Privately with password */}
+                <div className="flex items-start justify-between gap-3 py-3">
+                  <div className="flex items-start gap-3">
+                    <LockIcon className="w-5 h-5 text-pink-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900">Privately with password</p>
+                        <span className="px-1.5 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded uppercase">Upgrade</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Only those with password can view the visual</p>
+                    </div>
+                  </div>
+                  <button 
+                    className="w-11 h-6 bg-gray-200 rounded-full relative transition-colors flex-shrink-0 opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow" />
+                  </button>
+                </div>
+                
+                {/* Copy Link Button */}
+                <div className="flex justify-end pt-3 border-t border-gray-100 mt-3">
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast.success('Link copied to clipboard!');
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Link2 className="w-4 h-4" />
+                    Copy Link
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
             
             {/* Download button */}
             <button 
