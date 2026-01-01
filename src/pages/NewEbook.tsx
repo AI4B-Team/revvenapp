@@ -217,38 +217,40 @@ const ProjectNameField = ({
   return (
     <div className="flex-1 flex justify-center items-center gap-2">
       <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Project Name:</span>
-      {isEditing ? (
-        <div className="flex items-center gap-1">
-          <input
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            autoFocus
-            placeholder="Untitled Book"
-            className="text-sm font-medium text-gray-700 bg-white border-2 border-emerald-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 max-w-[240px] w-full placeholder:text-gray-400"
-          />
+      <div className="w-[280px]">
+        {isEditing ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              placeholder="Untitled Book"
+              className="text-sm font-medium text-gray-700 bg-white border-2 border-emerald-500 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 w-full placeholder:text-gray-400"
+            />
+            <button
+              onClick={handleConfirm}
+              className="p-1.5 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition-colors flex-shrink-0"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              className="p-1.5 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors flex-shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
           <button
-            onClick={handleConfirm}
-            className="p-1.5 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+            onClick={handleStartEdit}
+            className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:border-emerald-400 hover:bg-emerald-50 transition-colors w-full text-left truncate"
           >
-            <Check className="w-4 h-4" />
+            {value || 'Untitled Book'}
           </button>
-          <button
-            onClick={handleCancel}
-            className="p-1.5 rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={handleStartEdit}
-          className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg px-3 py-1.5 hover:border-emerald-400 hover:bg-emerald-50 transition-colors max-w-[280px] w-full text-left truncate"
-        >
-          {value || 'Untitled Book'}
-        </button>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -2488,10 +2488,10 @@ const EbookCanvasEditor = ({
                   </button>
                 </div>
             <div className="flex-1 overflow-y-auto overscroll-contain p-2 space-y-3">
-              {pages.map((page, index) => (
+                {pages.map((page, index) => (
                 <div 
                   key={page.id}
-                  className={`flex items-start gap-2 ${
+                  className={`flex items-start gap-2 cursor-grab active:cursor-grabbing hover:bg-emerald-50 rounded-lg p-1 -ml-1 transition-colors ${
                     dragOverPageIndex === index ? 'border-t-2 border-emerald-500' : ''
                   }`}
                   draggable
@@ -2520,13 +2520,8 @@ const EbookCanvasEditor = ({
                     e.preventDefault();
                   }}
                 >
-                  {/* Drag handle */}
-                  <div className="cursor-grab active:cursor-grabbing mt-4 text-gray-400 hover:text-gray-600">
-                    <GripVertical className="w-3 h-3" />
-                  </div>
-                  
                   {/* Page Number on the left */}
-                  <span className={`text-xs font-medium mt-1 min-w-[16px] text-right ${
+                  <span className={`text-xs font-medium mt-5 min-w-[16px] text-right ${
                     selectedPageId === page.id ? 'text-emerald-600' : 'text-gray-400'
                   }`}>
                     {index + 1}
@@ -2546,7 +2541,7 @@ const EbookCanvasEditor = ({
                       selectedPageId === page.id 
                         ? 'border-emerald-500 shadow-lg ring-2 ring-emerald-200' 
                         : hoveredPageId === page.id
-                          ? 'border-emerald-400 bg-emerald-50 ring-1 ring-emerald-200'
+                          ? 'border-emerald-400 ring-1 ring-emerald-200'
                           : 'border-gray-200 hover:border-emerald-300'
                     }`}
                   >
