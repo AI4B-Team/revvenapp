@@ -407,50 +407,6 @@ const EbookDesignSidebar = ({
                              chapter.type}
                           </span>
                         )}
-
-                        {/* Edit and Delete icons - closer to page number */}
-                        {!editingChapterId && (
-                          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditStart(chapter);
-                                  }}
-                                  className="p-1 hover:bg-gray-200 rounded transition-all"
-                                >
-                                  <Pencil className="w-3 h-3 text-gray-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                <p>Edit title</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onChapterDelete) {
-                                      onChapterDelete(chapter.id);
-                                    } else {
-                                      toast.success(`Deleted "${chapter.title}"`);
-                                    }
-                                  }}
-                                  className="p-1 hover:bg-red-100 rounded transition-all"
-                                >
-                                  <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                <p>Delete chapter</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                        )}
                         
                         {editingChapterId === chapter.id ? (
                           <input
@@ -471,19 +427,67 @@ const EbookDesignSidebar = ({
                           />
                         ) : (
                           <>
-                            {/* Only show title if no type badge */}
+                            {/* Show title - aligned left after badge */}
                             {!hasType && (
                               <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate min-w-0">
                                 {chapter.title}
                               </span>
                             )}
+                            {hasType && <span className="flex-1" />}
                           </>
                         )}
 
-                        {/* Page # column - at the end */}
-                        <span className="ml-auto w-8 text-right text-xs font-medium text-gray-400 flex-shrink-0">
-                          {index + 1}
-                        </span>
+                        {/* Right side: Edit/Delete icons + Page # */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {/* Edit and Delete icons - next to page number on hover */}
+                          {!editingChapterId && (
+                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditStart(chapter);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded transition-all"
+                                  >
+                                    <Pencil className="w-3 h-3 text-gray-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p>Edit title</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onChapterDelete) {
+                                        onChapterDelete(chapter.id);
+                                      } else {
+                                        toast.success(`Deleted "${chapter.title}"`);
+                                      }
+                                    }}
+                                    className="p-1 hover:bg-red-100 rounded transition-all"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p>Delete chapter</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          )}
+                          
+                          {/* Page # column */}
+                          <span className="w-6 text-right text-xs font-medium text-gray-400">
+                            {index + 1}
+                          </span>
+                        </div>
                       </div>
                       
                       {/* Add chapter button after last item */}
