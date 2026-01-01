@@ -169,7 +169,7 @@ const EbookDesignSidebar = ({
   if (isCollapsed) {
     return (
       <TooltipProvider delayDuration={200}>
-        <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative">
+        <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
           {/* Expand Arrow - on edge */}
           <button
             onClick={() => setIsCollapsed(false)}
@@ -272,7 +272,7 @@ const EbookDesignSidebar = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 overflow-hidden flex-shrink-0 relative">
+      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
         {/* Collapse Arrow - positioned on middle right border */}
         <button
           onClick={() => setIsCollapsed(true)}
