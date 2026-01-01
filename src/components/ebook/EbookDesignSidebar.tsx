@@ -126,7 +126,7 @@ const EbookDesignSidebar = ({
       >
         <div className="flex items-center gap-2">
           <Icon className="w-4 h-4 text-gray-600" />
-          {!isCollapsed && <span className="font-semibold text-gray-900 text-sm">{title}</span>}
+          {!isCollapsed && <span className="font-semibold text-gray-900 text-base">{title}</span>}
         </div>
         {!isCollapsed && (
           isExpanded ? (
@@ -255,7 +255,7 @@ const EbookDesignSidebar = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
+      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
         {/* Collapse Button Header */}
         <div className="p-2 border-b border-gray-200 flex items-center justify-between">
           <span className="text-sm font-semibold text-gray-700 pl-1">Design Tools</span>
