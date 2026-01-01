@@ -297,6 +297,7 @@ const NewEbook = () => {
   const [generatingStatusIndex, setGeneratingStatusIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedPageId, setSelectedPageId] = useState('1');
+  const [showPagesPanel, setShowPagesPanel] = useState(true);
   
   // Unified page data type definitions
   type PageType = 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
@@ -1220,6 +1221,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     return newPages;
                   });
                 }}
+                onContentSectionChange={setShowPagesPanel}
               />
 
               {/* Main Canvas Editor */}
@@ -1236,6 +1238,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   });
                 }}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                showPagesPanel={showPagesPanel}
               />
             </div>
           </div>
