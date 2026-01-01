@@ -220,7 +220,23 @@ const NewEbook = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastAutoSaved, setLastAutoSaved] = useState<Date>(new Date());
   const [currentViewMode, setCurrentViewMode] = useState<'editing' | 'viewing' | 'commenting' | 'admin'>('editing');
+  const [isGeneratingBook, setIsGeneratingBook] = useState(false);
+  const [generatingStatusIndex, setGeneratingStatusIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Rotating status messages for book generation
+  const GENERATION_STATUS_MESSAGES = [
+    { title: 'Crafting your outline', description: 'Building the foundation of your book with a comprehensive chapter structure...' },
+    { title: 'Organizing the content', description: 'Arranging your ideas into a logical flow that keeps readers engaged...' },
+    { title: 'Polishing the first page', description: 'Designing an eye-catching cover that captures your book essence...' },
+    { title: 'Developing chapter themes', description: 'Creating compelling themes and narratives for each section...' },
+    { title: 'Adding visual elements', description: 'Incorporating imagery and design elements to enhance readability...' },
+    { title: 'Refining page layouts', description: 'Optimizing typography and spacing for a professional look...' },
+    { title: 'Preparing final touches', description: 'Adding finishing details to make your book publication-ready...' },
+    { title: 'Syncing content structure', description: 'Ensuring seamless transitions between chapters and sections...' },
+    { title: 'Generating table of contents', description: 'Building a navigable index for your readers...' },
+    { title: 'Almost there', description: 'Finalizing your book and preparing the design canvas...' },
+  ];
 
   const initialSource = searchParams.get('source') || 'ai';
   const mapSourceType = (source: string): 'ai' | 'upload' | 'link' | 'record' => {
@@ -405,6 +421,35 @@ const NewEbook = () => {
 
   const handleTitleSelect = (title: string) => {
     setBookData(prev => ({ ...prev, selectedTitle: stripTrailingPunctuation(title) }));
+  };
+
+  const handleGenerateBook = () => {
+    if (!bookData.selectedTitle) {
+      toast.error('Please select a title first');
+      return;
+    }
+    
+    setIsGeneratingBook(true);
+    setGeneratingStatusIndex(0);
+    
+    // Cycle through status messages
+    const statusInterval = setInterval(() => {
+      setGeneratingStatusIndex(prev => {
+        const next = prev + 1;
+        if (next >= GENERATION_STATUS_MESSAGES.length) {
+          return GENERATION_STATUS_MESSAGES.length - 1;
+        }
+        return next;
+      });
+    }, 2000);
+    
+    // Complete after some time
+    setTimeout(() => {
+      clearInterval(statusInterval);
+      setIsGeneratingBook(false);
+      setActiveTab('design');
+      toast.success('Your book is ready!');
+    }, 12000);
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -1279,6 +1324,37 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             {/* GENERATE TAB - Title Selection */}
             {activeTab === 'generate' && (
               <div className="space-y-6">
+                {/* Generation Status Banner */}
+                {isGeneratingBook && (
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-6">
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => setIsGeneratingBook(false)}
+                        className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-gray-600" />
+                      </button>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="w-5 h-5 text-purple-500 animate-spin" />
+                          <h3 className="font-semibold text-gray-900">
+                            {GENERATION_STATUS_MESSAGES[generatingStatusIndex]?.title}
+                          </h3>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1 ml-8">
+                          {GENERATION_STATUS_MESSAGES[generatingStatusIndex]?.description}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => setIsGeneratingBook(false)}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <X className="w-5 h-5 text-gray-400" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
                   Choose A Title
                 </h1>
@@ -1572,13 +1648,22 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               toast.error('Please select a title first');
                               return;
                             }
-                            setActiveTab('design');
+                            handleGenerateBook();
                           }}
-                          disabled={!bookData.selectedTitle}
+                          disabled={!bookData.selectedTitle || isGeneratingBook}
                           className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2"
                         >
-                          Continue
-                          <ArrowRight className="w-4 h-4" />
+                          {isGeneratingBook ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              Continue
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
