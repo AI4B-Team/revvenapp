@@ -553,6 +553,12 @@ const Create = () => {
       bgColor: 'bg-tool-yellow',
       emoji: '🔄'
     },
+    { 
+      name: 'AI Story', 
+      description: 'Generate AI stories',
+      bgColor: 'bg-tool-purple',
+      emoji: '📖'
+    },
   ];
 
   return (
