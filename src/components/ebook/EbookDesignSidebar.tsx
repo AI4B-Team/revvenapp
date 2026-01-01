@@ -279,6 +279,7 @@ const EbookDesignSidebar = ({
           <SectionHeader id="templates" title="Templates" icon={Layers} />
           {expandedSections.has('templates') && (
             <div className="p-3 border-b border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">Choose a design</h3>
               <div className="grid grid-cols-2 gap-2 mb-4">
                 {TEMPLATES.map((template) => (
                   <button
