@@ -1940,27 +1940,36 @@ const EbookCanvasEditor = ({
     const coverImg = page.type === 'cover' ? elements.find(el => el.type === 'image')?.src : null;
 
     if (page.type === 'cover') {
+      // Get the title text element from canvas elements
+      const titleEl = elements.find(el => el.id === 'title-text');
+      const displayTitle = titleEl?.content || bookTitle || 'STRATEGIC';
       return (
         <div className="absolute inset-0">
           {coverImg ? (
-            <img src={coverImg} alt="Cover" className="w-full h-1/2 object-cover" />
+            <img src={coverImg} alt="Cover" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-1/2 bg-gradient-to-br from-emerald-500 to-teal-600" />
+            <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600" />
           )}
-          <div className="absolute bottom-1 left-1 right-1 text-[4px] font-bold text-gray-800 truncate">
-            {bookTitle || 'STRATEGIC'}
+          <div className="absolute bottom-0 left-0 right-0 bg-white/90 p-1">
+            <div className="text-[4px] font-bold text-gray-800 truncate leading-tight">
+              {displayTitle.split('\n')[0]}
+            </div>
           </div>
         </div>
       );
     }
 
     if (page.type === 'toc') {
+      // Get chapter pages to show actual titles in thumbnail
+      const chapterPages = pages.filter(p => p.type === 'chapter-page');
       return (
         <div className="p-1">
           <div className="text-[4px] font-bold text-gray-800 mb-0.5">Contents</div>
           <div className="space-y-0.5">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-0.5 bg-gray-200 rounded" />
+            {chapterPages.slice(0, 5).map((cp, i) => (
+              <div key={cp.id} className="flex items-center gap-0.5">
+                <span className="text-[3px] text-gray-600 truncate flex-1">{String(i + 1).padStart(2, '0')}. {cp.title}</span>
+              </div>
             ))}
           </div>
         </div>
@@ -1968,9 +1977,12 @@ const EbookCanvasEditor = ({
     }
 
     if (page.type === 'back') {
+      // Get logo text from canvas elements if available
+      const logoEl = elements.find(el => el.id === 'back-logo');
+      const displayLogo = logoEl?.content || 'ESCROW';
       return (
         <div className="absolute inset-0 bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center">
-          <span className="text-[5px] font-bold text-white">ESCROW</span>
+          <span className="text-[5px] font-bold text-white">{displayLogo}</span>
         </div>
       );
     }
@@ -1978,13 +1990,18 @@ const EbookCanvasEditor = ({
     // Chapter title pages - full image with overlay
     if (page.type === 'chapter-page') {
       const chapterImg = elements.find(el => el.type === 'image')?.src;
+      // Get title from canvas elements if available
+      const titleEl = elements.find(el => el.id?.includes('title'));
+      const displayTitle = titleEl?.content || page.title;
       return (
         <div className="absolute inset-0">
-          {chapterImg && (
+          {chapterImg ? (
             <img src={chapterImg} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800" />
           )}
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-[5px] font-bold text-white text-center px-1">{page.title}</span>
+            <span className="text-[5px] font-bold text-white text-center px-1">{displayTitle}</span>
           </div>
         </div>
       );
@@ -1992,11 +2009,14 @@ const EbookCanvasEditor = ({
 
     // Chapter content pages
     const chapterImg = elements.find(el => el.type === 'image')?.src;
+    // Get title from canvas elements if available
+    const titleEl = elements.find(el => el.id?.includes('title'));
+    const displayTitle = titleEl?.content || page.title;
     return (
       <div className="absolute inset-0">
         <div className="h-1/4 bg-gradient-to-br from-teal-700 to-teal-900" />
         <div className="p-1">
-          <div className="text-[4px] font-bold text-gray-800 truncate">{page.title}</div>
+          <div className="text-[4px] font-bold text-gray-800 truncate">{displayTitle}</div>
           {chapterImg && (
             <div className="mt-0.5 h-1/3">
               <img src={chapterImg} alt="" className="w-full h-full object-cover rounded-sm" />
