@@ -330,10 +330,11 @@ const EbookDesignSidebar = ({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
-        {/* Collapse Arrow - positioned on middle right border */}
+        {/* Collapse Arrow - positioned on canvas edge, matching right panel style */}
         <button
           onClick={() => setIsCollapsed(true)}
-          className="absolute top-1/2 -translate-y-1/2 -right-2.5 z-50 w-5 h-10 bg-white border border-gray-300 rounded-r-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+          className="absolute top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-r-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+          style={{ left: '100%' }}
         >
           <ChevronLeft className="w-4 h-4 text-gray-600" />
         </button>
