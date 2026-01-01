@@ -377,7 +377,7 @@ const EbookDesignSidebar = ({
               ) : (
                 // Templates Grid View
                 <>
-                  <h3 className="text-sm font-semibold text-gray-800 mb-3">Choose a design</h3>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-3">Choose A Design</h3>
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {TEMPLATES.map((template) => (
                       <button
@@ -581,7 +581,7 @@ const EbookDesignSidebar = ({
           )}
 
           {/* Elements Section */}
-          <SectionHeader id="elements" title="Choose A Design" icon={Box} />
+          <SectionHeader id="elements" title="Elements" icon={Box} />
           {expandedSections.has('elements') && (
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="grid grid-cols-3 gap-2">
