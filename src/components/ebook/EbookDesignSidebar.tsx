@@ -383,13 +383,18 @@ const EbookDesignSidebar = ({
                       )}
                       
                       {chapter.type && (
-                        <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
-                          chapter.type === 'cover' ? 'bg-gray-700 text-white' :
-                          chapter.type === 'table of contents' ? 'bg-teal-500 text-white' :
-                          chapter.type === 'introduction' ? 'bg-teal-400 text-white' :
+                        <span className={`ml-auto px-2 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
+                          chapter.type === 'cover' ? 'bg-gray-600 text-white' :
+                          chapter.type === 'table of contents' ? 'bg-teal-600 text-white' :
+                          chapter.type === 'introduction' ? 'bg-teal-500 text-white' :
+                          chapter.type === 'summary' ? 'bg-gray-400 text-white' :
                           'bg-gray-500 text-white'
                         }`}>
-                          {chapter.type}
+                          {chapter.type === 'cover' ? 'cover' :
+                           chapter.type === 'table of contents' ? 'table Of Contents' :
+                           chapter.type === 'introduction' ? 'introduction' :
+                           chapter.type === 'summary' ? 'summary' :
+                           chapter.type}
                         </span>
                       )}
                       
