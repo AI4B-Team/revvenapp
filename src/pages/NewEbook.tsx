@@ -223,6 +223,11 @@ const NewEbook = () => {
   const [isGeneratingBook, setIsGeneratingBook] = useState(false);
   const [generatingStatusIndex, setGeneratingStatusIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedChapterId, setSelectedChapterId] = useState('1');
+  const [designChapters, setDesignChapters] = useState<Array<{ id: string; title: string; type: 'cover' | 'table of contents' | 'introduction' | 'summary' | null }>>([]);
+  const [selectedPageId, setSelectedPageId] = useState('1');
+
+
 
   // Rotating status messages for book generation
   const GENERATION_STATUS_MESSAGES = [
@@ -764,7 +769,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
               {/* Left Sidebar - Design Tools */}
               <EbookDesignSidebar
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
-                chapters={[
+                chapters={designChapters.length > 0 ? designChapters : [
                   { id: '1', title: bookData.selectedTitle || 'Untitled eBook', type: 'cover' },
                   { id: '2', title: `Contents: ${bookData.selectedTitle?.split(':')[0] || 'Untitled'}`, type: 'table of contents' },
                   { id: '3', title: 'Introduction', type: 'introduction' },
@@ -774,10 +779,18 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   { id: '7', title: 'Chapter 4: Advanced Topics', type: null },
                   { id: '8', title: 'Summary', type: 'summary' },
                 ]}
-                selectedChapterId="1"
-                onChapterSelect={(id) => console.log('Selected chapter:', id)}
+                selectedChapterId={selectedChapterId}
+                onChapterSelect={setSelectedChapterId}
                 onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
                 onChapterTitleEdit={(id, title) => console.log('Edit chapter:', id, title)}
+                onChapterReorder={(from, to) => {
+                  setDesignChapters(prev => {
+                    const newChapters = [...prev];
+                    const [removed] = newChapters.splice(from, 1);
+                    newChapters.splice(to, 0, removed);
+                    return newChapters;
+                  });
+                }}
               />
 
               {/* Main Canvas Editor */}
