@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Layers, FileText, Image as ImageIcon, 
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
@@ -8,7 +8,8 @@ import {
   BarChartHorizontal, Timer, Code2, Figma, GitBranch, Filter, Smile, TrendingUp,
   ImagePlus, Grid3X3, Clock, Sigma, Network, PieChart, ChevronsRight, Minus,
   Share2, Sun, ListOrdered, Tag, GanttChart, Play, Bot, Text, ListChecks, StickyNote,
-  LayoutTemplate, ChevronDownSquare, Columns2, AlignLeft
+  LayoutTemplate, ChevronDownSquare, Columns2, AlignLeft, MapPin, Square, Circle, Triangle,
+  Target, Settings, UserPlus, Images
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,7 @@ interface EbookDesignSidebarProps {
   onChapterTitleEdit: (id: string, newTitle: string) => void;
   onChapterDelete?: (id: string) => void;
   onChapterReorder?: (fromIndex: number, toIndex: number) => void;
+  onContentSectionChange?: (isExpanded: boolean) => void;
 }
 
 // Template options with pages
@@ -47,71 +49,49 @@ const TEMPLATES = [
   { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200', pages: ['Cover', 'Introduction', 'Ecosystem', 'Conservation', 'Action'] },
 ];
 
-// Element options - comprehensive list
-const ELEMENTS = [
-  // AI & Core
-  { id: 'ai-mode', name: 'AI Mode', icon: Bot },
-  { id: 'templates', name: 'Templates', icon: LayoutTemplate },
-  
-  // Text Elements
-  { id: 'title', name: 'Title', icon: Heading },
-  { id: 'subtitle', name: 'Subtitle', icon: Type },
-  { id: 'normal-text', name: 'Normal Text', icon: AlignLeft },
-  { id: 'note', name: 'Note', icon: StickyNote },
-  { id: 'quote', name: 'Quote', icon: Quote },
-  
-  // Images & Media
-  { id: 'image', name: 'Image', icon: ImageIcon },
-  { id: 'video', name: 'Video', icon: Play },
-  { id: 'giphy', name: 'Giphy', icon: Smile },
-  { id: 'icon', name: 'Icon', icon: Smile },
-  { id: 'logo', name: 'Logo', icon: ImagePlus },
-  { id: 'logo-list', name: 'Logo List', icon: Grid3X3 },
-  
-  // Lists
-  { id: 'bullet-list', name: 'Bullet List', icon: List },
-  { id: 'numbered-list', name: 'Numbered List', icon: ListOrdered },
-  { id: 'checklist', name: 'Checklist', icon: ListChecks },
-  { id: 'accordion-list', name: 'Accordion List', icon: ChevronDownSquare },
-  { id: 'side-by-side', name: 'Side By Side List', icon: Columns2 },
-  
-  // Charts
-  { id: 'bar-chart', name: 'Bar Chart', icon: BarChartHorizontal },
-  { id: 'column-chart', name: 'Column Chart', icon: BarChart3 },
-  { id: 'line-chart', name: 'Line Chart', icon: TrendingUp },
-  { id: 'pie-chart', name: 'Pie Chart', icon: PieChart },
-  { id: 'funnel-chart', name: 'Funnel Chart', icon: Filter },
-  { id: 'progress-chart', name: 'Progress Chart', icon: ChevronsRight },
-  { id: 'sunburst-chart', name: 'Sunburst Chart', icon: Sun },
-  
-  // Structure & Layout
-  { id: 'table', name: 'Table', icon: Table },
-  { id: 'table-of-contents', name: 'Table Of Contents', icon: ListOrdered },
-  { id: 'columns', name: 'Columns', icon: Columns },
-  { id: 'separator', name: 'Separator', icon: Minus },
-  { id: 'break', name: 'Break', icon: SplitSquareHorizontal },
-  
-  // Interactive
-  { id: 'button', name: 'Button', icon: MousePointerClick },
-  { id: 'poll', name: 'Poll', icon: ListChecks },
-  { id: 'countdown', name: 'Countdown', icon: Timer },
-  { id: 'timeline', name: 'Timeline', icon: GanttChart },
-  { id: 'qr-code', name: 'QR Code', icon: QrCode },
-  { id: 'social-media', name: 'Social Media', icon: Share2 },
-  { id: 'tag', name: 'Tag', icon: Tag },
-  
-  // Code & Technical
-  { id: 'code', name: 'Code', icon: Code },
-  { id: 'math', name: 'Math', icon: Sigma },
-  { id: 'mermaid', name: 'Mermaid', icon: Network },
-  { id: 'flowchart', name: 'Flowchart', icon: GitBranch },
-  
-  // Embeds
-  { id: 'embed', name: 'Embed', icon: Code2 },
-  { id: 'figma', name: 'Figma', icon: Figma },
-  { id: 'miro', name: 'Miro', icon: LayoutGrid },
-  { id: 'loom', name: 'Loom', icon: Video },
-];
+// Categorized Elements based on reference screenshots
+const ELEMENT_CATEGORIES = {
+  widgets: {
+    title: 'Widgets',
+    items: [
+      { id: 'text-to-image', name: 'Text To Image', icon: ImagePlus },
+      { id: 'map', name: 'Map', icon: MapPin },
+      { id: 'table', name: 'Table', icon: Table },
+    ]
+  },
+  shapes: {
+    title: 'Shapes',
+    items: [
+      { id: 'rectangle', name: 'Rectangle', icon: Square },
+      { id: 'ellipse', name: 'Ellipse', icon: Circle },
+      { id: 'triangle', name: 'Triangle', icon: Triangle },
+    ]
+  },
+  buttons: {
+    title: 'Buttons',
+    items: [
+      { id: 'button-setting', name: 'Setting', icon: Settings },
+      { id: 'button-signup', name: 'Sign Up', icon: UserPlus },
+      { id: 'button-register', name: 'Register', icon: CheckSquare },
+    ]
+  },
+  hotspots: {
+    title: 'Hotspots',
+    items: [
+      { id: 'hotspot-link', name: 'Link Hotspot', icon: Link2 },
+      { id: 'hotspot-click', name: 'Click Hotspot', icon: MousePointerClick },
+      { id: 'hotspot-target', name: 'Target Hotspot', icon: Target },
+    ]
+  },
+  slideshows: {
+    title: 'Slideshows',
+    items: [
+      { id: 'slideshow-basic', name: 'Basic Slideshow', icon: Images },
+      { id: 'slideshow-fade', name: 'Fade Slideshow', icon: LayoutGrid },
+      { id: 'slideshow-carousel', name: 'Carousel', icon: Columns },
+    ]
+  },
+};
 
 // Mockup categories
 const MOCKUP_CATEGORIES = [
