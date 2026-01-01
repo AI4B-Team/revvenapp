@@ -113,6 +113,7 @@ const EbookDesignSidebar = ({
   onChapterTitleEdit,
   onChapterDelete,
   onChapterReorder,
+  onContentSectionChange,
 }: EbookDesignSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
@@ -126,8 +127,14 @@ const EbookDesignSidebar = ({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [viewingTemplateId, setViewingTemplateId] = useState<string | null>(null);
   const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
+  const [elementSearch, setElementSearch] = useState('');
 
   const viewingTemplate = TEMPLATES.find(t => t.id === viewingTemplateId);
+
+  // Notify parent when content section changes
+  useEffect(() => {
+    onContentSectionChange?.(expandedSections.has('content'));
+  }, [expandedSections, onContentSectionChange]);
 
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
