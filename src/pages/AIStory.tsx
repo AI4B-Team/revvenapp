@@ -37,42 +37,42 @@ const AIStory = () => {
   const [isAutoPrompting, setIsAutoPrompting] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
 
-  // Subscribe to realtime updates for the current job
+  // Subscribe to realtime updates for the current video
   useEffect(() => {
-    if (!currentJobId) return;
+    if (!currentVideoId) return;
 
-    console.log('Subscribing to job updates:', currentJobId);
+    console.log('Subscribing to video updates:', currentVideoId);
 
     const channel = supabase
-      .channel(`ai-story-job-${currentJobId}`)
+      .channel(`ai-video-${currentVideoId}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'ai_story_jobs',
-          filter: `id=eq.${currentJobId}`,
+          table: 'ai_videos',
+          filter: `id=eq.${currentVideoId}`,
         },
         (payload) => {
-          console.log('Job update received:', payload);
-          const job = payload.new as { status: string; video_url: string | null; error_message: string | null };
+          console.log('Video update received:', payload);
+          const video = payload.new as { status: string; video_url: string | null; error_message: string | null };
           
-          if (job.status === 'completed' && job.video_url) {
-            setVideoUrl(job.video_url);
+          if (video.status === 'completed' && video.video_url) {
+            setVideoUrl(video.video_url);
             setIsGenerating(false);
-            setCurrentJobId(null);
+            setCurrentVideoId(null);
             toast({
               title: 'Story generated!',
               description: 'Your AI story video is ready to play.',
             });
-          } else if (job.status === 'failed') {
+          } else if (video.status === 'error') {
             setIsGenerating(false);
-            setCurrentJobId(null);
+            setCurrentVideoId(null);
             toast({
               title: 'Generation failed',
-              description: job.error_message || 'Something went wrong',
+              description: video.error_message || 'Something went wrong',
               variant: 'destructive',
             });
           }
@@ -81,10 +81,10 @@ const AIStory = () => {
       .subscribe();
 
     return () => {
-      console.log('Unsubscribing from job updates');
+      console.log('Unsubscribing from video updates');
       supabase.removeChannel(channel);
     };
-  }, [currentJobId, toast]);
+  }, [currentVideoId, toast]);
 
   const handleAutoPrompt = async () => {
     setIsAutoPrompting(true);
@@ -196,7 +196,7 @@ const AIStory = () => {
 
     setIsGenerating(true);
     setVideoUrl(null);
-    setCurrentJobId(null);
+    setCurrentVideoId(null);
 
     try {
       const response = await fetch(
@@ -223,16 +223,16 @@ const AIStory = () => {
 
       const result = await response.json();
       
-      if (result.jobId) {
-        // Set job ID to start realtime subscription
-        setCurrentJobId(result.jobId);
+      if (result.video_id) {
+        // Set video ID to start realtime subscription
+        setCurrentVideoId(result.video_id);
         toast({
           title: 'Video generation started',
           description: result.message || 'Your video is being created. This may take up to 10 minutes.',
         });
         // Keep isGenerating true - realtime subscription will handle completion
-      } else if (result.videoUrl) {
-        setVideoUrl(result.videoUrl);
+      } else if (result.videoUrl || result.video_url) {
+        setVideoUrl(result.videoUrl || result.video_url);
         setIsGenerating(false);
         toast({
           title: 'Story generated!',
@@ -240,12 +240,12 @@ const AIStory = () => {
         });
       } else {
         setIsGenerating(false);
-        throw new Error('No job ID or video URL returned');
+        throw new Error('No video ID or video URL returned');
       }
     } catch (error) {
       console.error('Error generating story:', error);
       setIsGenerating(false);
-      setCurrentJobId(null);
+      setCurrentVideoId(null);
       toast({
         title: 'Generation failed',
         description: error instanceof Error ? error.message : 'Something went wrong',
