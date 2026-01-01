@@ -3,9 +3,15 @@ import {
   ChevronDown, ChevronUp, Layers, FileText, Image as ImageIcon, 
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
-  Link2, Quote, Heading, Columns, LayoutGrid
+  Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 interface Chapter {
   id: string;
@@ -68,7 +74,8 @@ const EbookDesignSidebar = ({
   onChapterAdd,
   onChapterTitleEdit,
 }: EbookDesignSidebarProps) => {
-  const [expandedSection, setExpandedSection] = useState<SectionId>('content');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
   const [hoveredChapterId, setHoveredChapterId] = useState<string | null>(null);
@@ -77,7 +84,15 @@ const EbookDesignSidebar = ({
   const [imagePrompt, setImagePrompt] = useState('');
 
   const toggleSection = (section: SectionId) => {
-    setExpandedSection(expandedSection === section ? 'content' : section);
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(section)) {
+        newSet.delete(section);
+      } else {
+        newSet.add(section);
+      }
+      return newSet;
+    });
   };
 
   const handleEditStart = (chapter: Chapter) => {
@@ -101,271 +116,414 @@ const EbookDesignSidebar = ({
     id: SectionId; 
     title: string; 
     icon: React.ComponentType<{ className?: string }>; 
-  }) => (
-    <button
-      onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
-    >
-      <div className="flex items-center gap-2">
-        <Icon className="w-4 h-4 text-gray-600" />
-        <span className="font-semibold text-gray-900 text-sm">{title}</span>
-      </div>
-      {expandedSection === id ? (
-        <ChevronUp className="w-4 h-4 text-gray-400" />
-      ) : (
-        <ChevronDown className="w-4 h-4 text-gray-400" />
-      )}
-    </button>
-  );
+  }) => {
+    const isExpanded = expandedSections.has(id);
+    
+    return (
+      <button
+        onClick={() => toggleSection(id)}
+        className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-b border-gray-200"
+      >
+        <div className="flex items-center gap-2">
+          <Icon className="w-4 h-4 text-gray-600" />
+          {!isCollapsed && <span className="font-semibold text-gray-900 text-sm">{title}</span>}
+        </div>
+        {!isCollapsed && (
+          isExpanded ? (
+            <ChevronUp className="w-4 h-4 text-gray-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          )
+        )}
+      </button>
+    );
+  };
+
+  // Collapsed sidebar - icons only
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
+          {/* Expand Button */}
+          <div className="p-2 border-b border-gray-200">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsCollapsed(false)}
+                  className="w-full p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <PanelLeft className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Expand sidebar</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Icon buttons for each section */}
+          <div className="flex-1 flex flex-col py-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['templates']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Layers className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Templates</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['content']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <FileText className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Content</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['images']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <ImageIcon className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Images</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['elements']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Box className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Elements</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['mockups']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Presentation className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Mockups</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
-      <SectionHeader id="templates" title="Templates" icon={Layers} />
-      {expandedSection === 'templates' && (
-        <div className="p-3 border-b border-gray-200 max-h-72 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {TEMPLATES.map((template) => (
+    <TooltipProvider delayDuration={200}>
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full overflow-hidden flex-shrink-0">
+        {/* Collapse Button Header */}
+        <div className="p-2 border-b border-gray-200 flex items-center justify-between">
+          <span className="text-sm font-semibold text-gray-700 pl-1">Design Tools</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
               <button
-                key={template.id}
-                className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${template.preview}`}
+                onClick={() => setIsCollapsed(true)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded">
-                    {template.name}
-                  </span>
+                <PanelLeftClose className="w-4 h-4 text-gray-500" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Collapse sidebar</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Scrollable sections container */}
+        <div className="flex-1 overflow-y-auto">
+          <SectionHeader id="templates" title="Templates" icon={Layers} />
+          {expandedSections.has('templates') && (
+            <div className="p-3 border-b border-gray-200">
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${template.preview}`}
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded">
+                        {template.name}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {/* AI Template Prompt */}
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm font-medium text-gray-700">Edit with AI</span>
                 </div>
-              </button>
-            ))}
-          </div>
-          {/* AI Template Prompt */}
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              <span className="text-sm font-medium text-gray-700">Edit with AI</span>
-            </div>
-            <div className="relative">
-              <textarea
-                value={templatePrompt}
-                onChange={(e) => setTemplatePrompt(e.target.value)}
-                placeholder="Describe what you want to create or upload a file..."
-                className="w-full min-h-[80px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-              />
-              <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
-                <Send className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <SectionHeader id="content" title="Content" icon={FileText} />
-      {expandedSection === 'content' && (
-        <div className="flex-1 overflow-y-auto p-3 border-b border-gray-200">
-          <h4 className="text-xs font-medium text-gray-500 mb-2">Table of Contents</h4>
-          <div className="space-y-1">
-            {chapters.map((chapter, index) => (
-              <div
-                key={chapter.id}
-                className="relative"
-                onMouseEnter={() => setHoveredChapterId(chapter.id)}
-                onMouseLeave={() => setHoveredChapterId(null)}
-              >
-                {/* Add chapter button between items */}
-                {hoveredChapterId === chapter.id && index > 0 && (
-                  <button
-                    onClick={() => onChapterAdd(chapters[index - 1].id)}
-                    className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => onChapterSelect(chapter.id)}
-                  className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all ${
-                    selectedChapterId === chapter.id
-                      ? 'border-emerald-400 bg-emerald-50'
-                      : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  
-                  {editingChapterId === chapter.id ? (
-                    <input
-                      type="text"
-                      value={editingValue}
-                      onChange={(e) => setEditingValue(e.target.value)}
-                      onBlur={handleEditSave}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleEditSave();
-                        if (e.key === 'Escape') {
-                          setEditingChapterId(null);
-                          setEditingValue('');
-                        }
-                      }}
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
-                    />
-                  ) : (
-                    <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate">
-                      {chapter.title}
-                    </span>
-                  )}
-                  
-                  {chapter.type && (
-                    <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
-                      chapter.type === 'cover' ? 'bg-gray-700 text-white' :
-                      chapter.type === 'table of contents' ? 'bg-teal-500 text-white' :
-                      chapter.type === 'introduction' ? 'bg-teal-400 text-white' :
-                      'bg-gray-500 text-white'
-                    }`}>
-                      {chapter.type}
-                    </span>
-                  )}
-                  
-                  {!chapter.type && !editingChapterId && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditStart(chapter);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
-                    >
-                      <Pencil className="w-3 h-3 text-gray-400" />
-                    </button>
-                  )}
-                </button>
-                
-                {/* Add chapter button after last item */}
-                {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
-                  <button
-                    onClick={() => onChapterAdd(chapter.id)}
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          
-          {/* Add New Page Button */}
-          <button className="w-full mt-4 flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span className="text-sm font-medium">Add New Page</span>
-          </button>
-        </div>
-      )}
-
-      <SectionHeader id="images" title="Images" icon={ImageIcon} />
-      {expandedSection === 'images' && (
-        <div className="p-3 border-b border-gray-200 max-h-72 overflow-y-auto">
-          {/* Search */}
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              value={imageSearch}
-              onChange={(e) => setImageSearch(e.target.value)}
-              placeholder="Search images..."
-              className="pl-9"
-            />
-          </div>
-          {/* Stock Images Grid */}
-          <div className="mb-3">
-            <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Stock Images</h4>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <button
-                  key={i}
-                  className="aspect-square rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 hover:ring-2 hover:ring-emerald-400 transition-all"
-                />
-              ))}
-            </div>
-          </div>
-          
-          {/* AI Image Generation Prompt */}
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              <span className="text-sm font-medium text-gray-700">Generate Image</span>
-            </div>
-            <div className="relative">
-              <textarea
-                value={imagePrompt}
-                onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="Describe the image you want to generate..."
-                className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-              />
-              <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
-                <Send className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Elements Section */}
-      <SectionHeader id="elements" title="Elements" icon={Box} />
-      {expandedSection === 'elements' && (
-        <div className="p-4 border-b border-gray-200 max-h-80 overflow-y-auto bg-white">
-          <div className="grid grid-cols-3 gap-2">
-            {ELEMENTS.map((element) => (
-              <button
-                key={element.id}
-                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
-              >
-                <element.icon className="w-5 h-5 text-gray-600" />
-                <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
-                  {element.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Mockups Section */}
-      <SectionHeader id="mockups" title="Mockups" icon={Presentation} />
-      {expandedSection === 'mockups' && (
-        <div className="p-4 border-b border-gray-200 max-h-80 overflow-y-auto">
-          <div className="flex gap-2 mb-4">
-            <button className="px-3 py-1.5 text-xs font-medium bg-emerald-500 text-white rounded-full">
-              Mockups
-            </button>
-            <button className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200">
-              Scenes
-            </button>
-          </div>
-          
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input placeholder="Search..." className="pl-9" />
-          </div>
-          
-          {MOCKUP_CATEGORIES.map((category) => (
-            <div key={category.id} className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-medium text-gray-700">{category.name}</h4>
-                <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
-                  View all
-                </button>
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {[1, 2, 3].map((i) => (
-                  <button
-                    key={i}
-                    className="flex-shrink-0 w-16 h-20 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:ring-2 hover:ring-emerald-400 transition-all"
+                <div className="relative">
+                  <textarea
+                    value={templatePrompt}
+                    onChange={(e) => setTemplatePrompt(e.target.value)}
+                    placeholder="Describe what you want to create or upload a file..."
+                    className="w-full min-h-[80px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
                   />
+                  <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
+                    <Send className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <SectionHeader id="content" title="Content" icon={FileText} />
+          {expandedSections.has('content') && (
+            <div className="p-3 border-b border-gray-200">
+              <h4 className="text-xs font-medium text-gray-500 mb-2">Table of Contents</h4>
+              <div className="space-y-1">
+                {chapters.map((chapter, index) => (
+                  <div
+                    key={chapter.id}
+                    className="relative"
+                    onMouseEnter={() => setHoveredChapterId(chapter.id)}
+                    onMouseLeave={() => setHoveredChapterId(null)}
+                  >
+                    {/* Add chapter button between items */}
+                    {hoveredChapterId === chapter.id && index > 0 && (
+                      <button
+                        onClick={() => onChapterAdd(chapters[index - 1].id)}
+                        className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => onChapterSelect(chapter.id)}
+                      className={`w-full group flex items-center gap-2 p-2 rounded-lg border transition-all ${
+                        selectedChapterId === chapter.id
+                          ? 'border-emerald-400 bg-emerald-50'
+                          : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="flex items-center justify-center w-6 h-6 rounded bg-gray-100 text-gray-600 font-medium text-xs flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      
+                      {editingChapterId === chapter.id ? (
+                        <input
+                          type="text"
+                          value={editingValue}
+                          onChange={(e) => setEditingValue(e.target.value)}
+                          onBlur={handleEditSave}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleEditSave();
+                            if (e.key === 'Escape') {
+                              setEditingChapterId(null);
+                              setEditingValue('');
+                            }
+                          }}
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 text-sm font-medium bg-white border border-emerald-400 rounded px-2 py-1 focus:outline-none"
+                        />
+                      ) : (
+                        <span className="flex-1 text-sm font-medium text-gray-900 text-left truncate">
+                          {chapter.title}
+                        </span>
+                      )}
+                      
+                      {chapter.type && (
+                        <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded flex-shrink-0 ${
+                          chapter.type === 'cover' ? 'bg-gray-700 text-white' :
+                          chapter.type === 'table of contents' ? 'bg-teal-500 text-white' :
+                          chapter.type === 'introduction' ? 'bg-teal-400 text-white' :
+                          'bg-gray-500 text-white'
+                        }`}>
+                          {chapter.type}
+                        </span>
+                      )}
+                      
+                      {!chapter.type && !editingChapterId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditStart(chapter);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
+                        >
+                          <Pencil className="w-3 h-3 text-gray-400" />
+                        </button>
+                      )}
+                    </button>
+                    
+                    {/* Add chapter button after last item */}
+                    {hoveredChapterId === chapter.id && index === chapters.length - 1 && (
+                      <button
+                        onClick={() => onChapterAdd(chapter.id)}
+                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md transition-all"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Add New Page Button */}
+              <button className="w-full mt-4 flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">Add New Page</span>
+              </button>
+            </div>
+          )}
+
+          <SectionHeader id="images" title="Images" icon={ImageIcon} />
+          {expandedSections.has('images') && (
+            <div className="p-3 border-b border-gray-200">
+              {/* Search */}
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={imageSearch}
+                  onChange={(e) => setImageSearch(e.target.value)}
+                  placeholder="Search images..."
+                  className="pl-9"
+                />
+              </div>
+              {/* Stock Images Grid */}
+              <div className="mb-3">
+                <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Stock Images</h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <button
+                      key={i}
+                      className="aspect-square rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 hover:ring-2 hover:ring-emerald-400 transition-all"
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* AI Image Generation Prompt */}
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm font-medium text-gray-700">Generate Image</span>
+                </div>
+                <div className="relative">
+                  <textarea
+                    value={imagePrompt}
+                    onChange={(e) => setImagePrompt(e.target.value)}
+                    placeholder="Describe the image you want to generate..."
+                    className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+                  />
+                  <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
+                    <Send className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Elements Section */}
+          <SectionHeader id="elements" title="Elements" icon={Box} />
+          {expandedSections.has('elements') && (
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="grid grid-cols-3 gap-2">
+                {ELEMENTS.map((element) => (
+                  <button
+                    key={element.id}
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                  >
+                    <element.icon className="w-5 h-5 text-gray-600" />
+                    <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
+                      {element.name}
+                    </span>
+                  </button>
                 ))}
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Mockups Section */}
+          <SectionHeader id="mockups" title="Mockups" icon={Presentation} />
+          {expandedSections.has('mockups') && (
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex gap-2 mb-4">
+                <button className="px-3 py-1.5 text-xs font-medium bg-emerald-500 text-white rounded-full">
+                  Mockups
+                </button>
+                <button className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200">
+                  Scenes
+                </button>
+              </div>
+              
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input placeholder="Search..." className="pl-9" />
+              </div>
+              
+              {MOCKUP_CATEGORIES.map((category) => (
+                <div key={category.id} className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-medium text-gray-700">{category.name}</h4>
+                    <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+                      View all
+                    </button>
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {[1, 2, 3].map((i) => (
+                      <button
+                        key={i}
+                        className="flex-shrink-0 w-16 h-20 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:ring-2 hover:ring-emerald-400 transition-all"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
 

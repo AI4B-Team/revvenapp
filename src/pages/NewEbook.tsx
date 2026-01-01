@@ -712,15 +712,6 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 {bookData.selectedTitle || 'Untitled eBook'}
               </span>
               <div className="flex-1" />
-              {/* Download Button */}
-              <Button 
-                size="sm"
-                onClick={() => toast.success('Preparing download...')}
-                className="h-7 bg-emerald-500 hover:bg-emerald-600 text-white text-xs gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Download
-              </Button>
             </div>
 
             {/* Canvas Editor Area */}
