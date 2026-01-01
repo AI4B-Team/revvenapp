@@ -427,11 +427,21 @@ const EbookCanvasEditor = ({
   const [isRotatingDrag, setIsRotatingDrag] = useState(false);
   const [rotateStart, setRotateStart] = useState<{ angle: number; elementRotation: number } | null>(null);
   
+  // Resize state
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const [resizeStart, setResizeStart] = useState<{ 
+    x: number; y: number; 
+    elementX: number; elementY: number; 
+    elementWidth: number; elementHeight: number 
+  } | null>(null);
+  
   // Track page elements state per page
   const [pageElementsState, setPageElementsState] = useState<Record<string, CanvasElement[]>>({});
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const pageCanvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
@@ -564,7 +574,27 @@ const EbookCanvasEditor = ({
     }
   };
 
-  // Handle mouse move for dragging
+  // Handle resize handle mouse down
+  const handleResizeStart = (e: React.MouseEvent, elementId: string, handle: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const element = currentPageElements.find(el => el.id === elementId);
+    if (element && !element.locked) {
+      setIsResizing(true);
+      setResizeHandle(handle);
+      setResizeStart({
+        x: e.clientX,
+        y: e.clientY,
+        elementX: element.x,
+        elementY: element.y,
+        elementWidth: element.width,
+        elementHeight: element.height
+      });
+      setSelectedElement(elementId);
+    }
+  };
+
+  // Handle mouse move for dragging and resizing
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging && dragStart && selectedElement && pageCanvasRef.current) {
       const rect = pageCanvasRef.current.getBoundingClientRect();
@@ -591,6 +621,51 @@ const EbookCanvasEditor = ({
         });
       }
     }
+
+    // Handle resizing
+    if (isResizing && resizeStart && resizeHandle && selectedElement && pageCanvasRef.current) {
+      const rect = pageCanvasRef.current.getBoundingClientRect();
+      const deltaX = (e.clientX - resizeStart.x) / rect.width * 100;
+      const deltaY = (e.clientY - resizeStart.y) / rect.height * 100;
+      
+      let newX = resizeStart.elementX;
+      let newY = resizeStart.elementY;
+      let newWidth = resizeStart.elementWidth;
+      let newHeight = resizeStart.elementHeight;
+      
+      const minSize = 5; // minimum 5% size
+      
+      // Handle different resize handles
+      if (resizeHandle.includes('e')) {
+        newWidth = Math.max(minSize, resizeStart.elementWidth + deltaX);
+      }
+      if (resizeHandle.includes('w')) {
+        const widthChange = Math.min(deltaX, resizeStart.elementWidth - minSize);
+        newX = resizeStart.elementX + widthChange;
+        newWidth = resizeStart.elementWidth - widthChange;
+      }
+      if (resizeHandle.includes('s')) {
+        newHeight = Math.max(minSize, resizeStart.elementHeight + deltaY);
+      }
+      if (resizeHandle.includes('n')) {
+        const heightChange = Math.min(deltaY, resizeStart.elementHeight - minSize);
+        newY = resizeStart.elementY + heightChange;
+        newHeight = resizeStart.elementHeight - heightChange;
+      }
+      
+      // Clamp to canvas bounds
+      newX = Math.max(0, newX);
+      newY = Math.max(0, newY);
+      newWidth = Math.min(100 - newX, newWidth);
+      newHeight = Math.min(100 - newY, newHeight);
+      
+      updateElement(selectedElement, {
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight
+      });
+    }
   };
 
   // Handle mouse up
@@ -603,6 +678,34 @@ const EbookCanvasEditor = ({
       setIsRotatingDrag(false);
       setRotateStart(null);
     }
+    if (isResizing) {
+      setIsResizing(false);
+      setResizeHandle(null);
+      setResizeStart(null);
+    }
+  };
+
+  // Handle file upload for images
+  const handleImageUpload = (elementId: string) => {
+    if (fileInputRef.current) {
+      fileInputRef.current.setAttribute('data-element-id', elementId);
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const elementId = e.target.getAttribute('data-element-id');
+    if (file && elementId) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        updateElement(elementId, { src: dataUrl, isPlaceholder: false });
+        toast.success('Image uploaded');
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = ''; // Reset input
   };
 
   const handleEditWithAI = (elementId: string) => {
@@ -1117,7 +1220,7 @@ const EbookCanvasEditor = ({
             className="bg-gray-100 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-4"
           >
             <p className="text-xs text-gray-500 mb-3 text-center">Select an image</p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               {SUGGESTED_IMAGES.map((imgSrc, idx) => (
                 <button
                   key={idx}
@@ -1131,6 +1234,16 @@ const EbookCanvasEditor = ({
                 </button>
               ))}
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleImageUpload(element.id);
+              }}
+              className="px-3 py-1.5 bg-emerald-500 text-white text-xs font-medium rounded hover:bg-emerald-600 flex items-center gap-1.5"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Upload Image
+            </button>
           </div>
         );
       }
@@ -1174,15 +1287,15 @@ const EbookCanvasEditor = ({
           </div>
           {isSelected && (
             <>
-              {/* Selection handles */}
-              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Selection handles with resize functionality */}
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'nw')} className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'n')} className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'ne')} className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'w')} className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'e')} className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
               {/* Lock icon - inside top right, not overlapping corners */}
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
@@ -1226,15 +1339,15 @@ const EbookCanvasEditor = ({
         >
           {isSelected && (
             <>
-              {/* Selection handles */}
-              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize" />
+              {/* Selection handles with resize functionality */}
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'nw')} className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-nw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'n')} className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-n-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'ne')} className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-ne-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'w')} className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-w-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'e')} className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-e-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-sw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-s-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-red-500 rounded-full cursor-se-resize z-20" />
               {/* Lock icon - inside top right */}
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
@@ -1281,15 +1394,15 @@ const EbookCanvasEditor = ({
           {element.content}
           {isSelected && (
             <>
-              {/* Selection handles */}
-              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize" />
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize" />
-              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize" />
-              <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize" />
-              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize" />
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize" />
-              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize" />
+              {/* Selection handles with resize functionality */}
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'nw')} className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-nw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'n')} className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-n-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'ne')} className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-ne-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'w')} className="absolute top-1/2 -translate-y-1/2 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-w-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'e')} className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-e-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'sw')} className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-sw-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 's')} className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-s-resize z-20" />
+              <div onMouseDown={(e) => handleResizeStart(e, element.id, 'se')} className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-blue-500 rounded-full cursor-se-resize z-20" />
               {/* Lock icon - inside top right */}
               <button 
                 onClick={(e) => { e.stopPropagation(); toggleLock(element.id); }}
@@ -1466,8 +1579,17 @@ const EbookCanvasEditor = ({
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               >
-{/* Bottom Right Horizontal Controls - Undo/Redo and Zoom */}
-                <div className="fixed bottom-8 right-8 z-40 flex items-center gap-2">
+                {/* Hidden file input for image uploads */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                {/* Bottom Right Horizontal Controls - Undo/Redo and Zoom - positioned to avoid right menu */}
+                <div className="fixed bottom-8 right-[340px] z-40 flex items-center gap-2">
                   {/* Undo/Redo */}
                   <div className="flex items-center gap-1 bg-white rounded-lg shadow-lg border border-gray-200 p-1">
                     <Tooltip>
