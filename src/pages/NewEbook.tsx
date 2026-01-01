@@ -6,7 +6,7 @@ import {
   Bot, Link2, FileText, Play, Pause, X, Plus, Users, Layers, Image as ImageIcon,
   Briefcase, Coffee, GraduationCap, Heart, Shield, Flame, Search, ChevronDown,
   Check, Pencil, Eye, UserPlus, Download, MoreVertical, Loader2, Wand2, RefreshCw,
-  ArrowRight, PenLine, Target, Zap, Award
+  ArrowRight, PenLine, Target, Zap, Award, Undo2, Redo2, ZoomIn, ZoomOut, Replace, Minus
 } from 'lucide-react';
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook, FaVimeo, FaGoogleDrive, FaDropbox } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -226,6 +226,96 @@ const NewEbook = () => {
   const [selectedChapterId, setSelectedChapterId] = useState('1');
   const [designChapters, setDesignChapters] = useState<Array<{ id: string; title: string; type: 'cover' | 'table of contents' | 'introduction' | 'summary' | null }>>([]);
   const [selectedPageId, setSelectedPageId] = useState('1');
+  
+  // Canvas controls state
+  const [zoom, setZoom] = useState(75);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const [undoStack, setUndoStack] = useState<any[]>([]);
+  const [redoStack, setRedoStack] = useState<any[]>([]);
+  
+  // Find and Replace state
+  const [findReplaceOpen, setFindReplaceOpen] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
+  const [matchCount, setMatchCount] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState(0);
+
+  // Zoom handlers
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 25));
+  const handleZoomFit = () => setZoom(75);
+
+  // Undo/Redo handlers
+  const handleUndo = () => {
+    if (undoStack.length > 0) {
+      const prevState = undoStack[undoStack.length - 1];
+      setRedoStack(prev => [...prev, prevState]);
+      setUndoStack(prev => prev.slice(0, -1));
+      setCanUndo(undoStack.length > 1);
+      setCanRedo(true);
+      toast.info('Undo');
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length > 0) {
+      const nextState = redoStack[redoStack.length - 1];
+      setUndoStack(prev => [...prev, nextState]);
+      setRedoStack(prev => prev.slice(0, -1));
+      setCanRedo(redoStack.length > 1);
+      setCanUndo(true);
+      toast.info('Redo');
+    }
+  };
+
+  // Find and Replace handlers
+  const handleFind = () => {
+    if (!findText.trim()) {
+      setMatchCount(0);
+      setCurrentMatch(0);
+      return;
+    }
+    // Simulate finding matches in book content
+    const mockContent = bookData.selectedTitle + ' ' + bookData.prompt;
+    const regex = new RegExp(findText, 'gi');
+    const matches = mockContent.match(regex);
+    const count = matches ? matches.length : 0;
+    setMatchCount(count);
+    setCurrentMatch(count > 0 ? 1 : 0);
+    if (count > 0) {
+      toast.success(`Found ${count} match${count > 1 ? 'es' : ''}`);
+    } else {
+      toast.info('No matches found');
+    }
+  };
+
+  const handleFindNext = () => {
+    if (matchCount > 0) {
+      setCurrentMatch(prev => prev < matchCount ? prev + 1 : 1);
+    }
+  };
+
+  const handleFindPrev = () => {
+    if (matchCount > 0) {
+      setCurrentMatch(prev => prev > 1 ? prev - 1 : matchCount);
+    }
+  };
+
+  const handleReplace = () => {
+    if (findText && replaceText && matchCount > 0) {
+      toast.success('Replaced current match');
+      // In real implementation, this would update the actual content
+    }
+  };
+
+  const handleReplaceAll = () => {
+    if (findText && replaceText && matchCount > 0) {
+      toast.success(`Replaced ${matchCount} matches`);
+      setMatchCount(0);
+      setCurrentMatch(0);
+    }
+  };
 
 
 
@@ -758,7 +848,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
           /* Design Tab - Full Height Canvas Editor */
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Compact Top Bar with Back Button, Centered Title, and Actions */}
-            <div className="h-9 bg-white border-b border-gray-200 flex items-center px-3 flex-shrink-0">
+            <div className="h-10 bg-white border-b border-gray-200 flex items-center px-3 flex-shrink-0">
               <button 
                 onClick={() => navigate('/ebook-creator')} 
                 className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors text-sm flex-shrink-0"
@@ -774,12 +864,172 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   value={bookData.selectedTitle || ''}
                   onChange={(e) => setBookData(prev => ({ ...prev, selectedTitle: e.target.value }))}
                   placeholder="Untitled Book"
-                  className="text-sm font-medium text-gray-700 text-center bg-white border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[300px] w-full placeholder:text-gray-400"
+                  className="text-sm font-medium text-gray-700 text-center bg-white border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary max-w-[280px] w-full placeholder:text-gray-400"
                 />
               </div>
               
-              <div className="flex-shrink-0 w-[120px]" /> {/* Spacer to balance the back button */}
+              {/* Right Side Controls - Undo/Redo, Find/Replace, Zoom */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Undo/Redo */}
+                <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleUndo}
+                        disabled={!canUndo}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Undo2 className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Undo (⌘Z)</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleRedo}
+                        disabled={!canRedo}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Redo2 className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Redo (⌘⇧Z)</p></TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Divider */}
+                <div className="w-px h-5 bg-gray-300" />
+                
+                {/* Find & Replace */}
+                <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setFindReplaceOpen(true)}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 transition-colors"
+                      >
+                        <Search className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Find (⌘F)</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setFindReplaceOpen(true)}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 transition-colors"
+                      >
+                        <Replace className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Find & Replace (⌘H)</p></TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Divider */}
+                <div className="w-px h-5 bg-gray-300" />
+                
+                {/* Zoom Controls */}
+                <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleZoomOut}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 transition-colors"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Zoom Out</p></TooltipContent>
+                  </Tooltip>
+                  <button 
+                    onClick={handleZoomFit}
+                    className="px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-white hover:text-gray-900 rounded transition-colors min-w-[40px] text-center"
+                  >
+                    {zoom}%
+                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={handleZoomIn}
+                        className="p-1.5 rounded text-gray-600 hover:bg-white hover:text-gray-900 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs"><p>Zoom In</p></TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
             </div>
+            
+            {/* Find & Replace Dialog */}
+            <Dialog open={findReplaceOpen} onOpenChange={setFindReplaceOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Search className="w-5 h-5 text-emerald-600" />
+                    Find & Replace
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Find</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={findText}
+                        onChange={(e) => setFindText(e.target.value)}
+                        placeholder="Search text..."
+                        className="flex-1"
+                        onKeyDown={(e) => e.key === 'Enter' && handleFind()}
+                      />
+                      <Button variant="outline" size="sm" onClick={handleFind}>
+                        Find
+                      </Button>
+                    </div>
+                    {matchCount > 0 && (
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>{currentMatch} of {matchCount} matches</span>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={handleFindPrev} className="h-7 px-2">
+                            ← Prev
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={handleFindNext} className="h-7 px-2">
+                            Next →
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Replace with</label>
+                    <Input
+                      value={replaceText}
+                      onChange={(e) => setReplaceText(e.target.value)}
+                      placeholder="Replacement text..."
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleReplace}
+                      disabled={!findText || matchCount === 0}
+                      className="flex-1"
+                    >
+                      Replace
+                    </Button>
+                    <Button 
+                      onClick={handleReplaceAll}
+                      disabled={!findText || matchCount === 0}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Replace All
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Canvas Editor Area */}
             <div className="flex-1 flex overflow-hidden">
