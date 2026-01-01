@@ -12,7 +12,6 @@ import { BookOpen, Play, Loader2, Volume2, Gauge, Wand2, Sparkles, Download, Clo
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
@@ -406,309 +405,348 @@ const AIStory = () => {
               </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="xl:col-span-2 space-y-6">
-                {/* Prompt Section */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-                    <CardHeader className="border-b border-border/50 bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-purple-400" />
-                          Story Prompt
-                        </CardTitle>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleAutoPrompt}
-                            disabled={isAutoPrompting || isEnhancing}
-                            className="border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
-                          >
-                            {isAutoPrompting ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <Wand2 className="w-4 h-4 mr-2 text-purple-400" />
-                            )}
-                            Auto Prompt
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleEnhance}
-                            disabled={isEnhancing || isAutoPrompting || !prompt.trim()}
-                            className="border-pink-500/30 hover:bg-pink-500/10 hover:border-pink-500/50"
-                          >
-                            {isEnhancing ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <Sparkles className="w-4 h-4 mr-2 text-pink-400" />
-                            )}
-                            AI Enhance
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <Textarea
-                        placeholder="Enter your story prompt... (e.g., 'Tell me a bedtime story about a brave little fox who discovers a magical forest')"
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        className="min-h-[160px] resize-none bg-background/50 border-border/50 focus:border-purple-500/50 transition-colors"
-                      />
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Voice Settings */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                >
-                  {/* Voice Selection */}
-                  <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Volume2 className="w-5 h-5 text-blue-400" />
-                        Voice
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                        <SelectTrigger className="bg-background/50 border-border/50">
-                          <SelectValue placeholder="Select a voice" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {voices.map((voice) => (
-                            <SelectItem key={voice.id} value={voice.id}>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{voice.name}</span>
-                                <span className="text-xs text-muted-foreground">{voice.description}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {selectedVoiceInfo && (
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                            <Volume2 className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">{selectedVoiceInfo.name}</p>
-                            <p className="text-xs text-muted-foreground">{selectedVoiceInfo.description}</p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Voice Speed */}
-                  <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Gauge className="w-5 h-5 text-orange-400" />
-                        Voice Speed
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-sm">Speed</Label>
-                          <span className="text-lg font-bold text-orange-400">{voiceSpeed[0].toFixed(1)}x</span>
-                        </div>
-                        <Slider
-                          value={voiceSpeed}
-                          onValueChange={setVoiceSpeed}
-                          min={0.7}
-                          max={1.2}
-                          step={0.1}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>Slower</span>
-                          <span>Normal</span>
-                          <span>Faster</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Generate Button */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Button
-                    onClick={handleGenerate}
-                    disabled={isSubmitting || !prompt.trim()}
-                    className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 border-0 shadow-lg shadow-purple-500/25"
-                    size="lg"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Starting Generation...
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-5 h-5 mr-2" />
-                        Generate Story
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-
-                {/* Video Player */}
-                <AnimatePresence mode="wait">
-                  {videoUrl && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-                        <CardHeader className="border-b border-border/50 bg-muted/30">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg flex items-center gap-2">
-                              <Play className="w-5 h-5 text-green-400" />
-                              {selectedHistoryItem ? 'Preview' : 'Your Story Video'}
-                            </CardTitle>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDownload(videoUrl)}
-                              className="border-green-500/30 hover:bg-green-500/10 hover:border-green-500/50"
-                            >
-                              <Download className="w-4 h-4 mr-2 text-green-400" />
-                              Download
-                            </Button>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                          <div className="relative aspect-video bg-black">
-                            <video 
-                              controls 
-                              className="w-full h-full" 
-                              src={videoUrl}
-                              key={videoUrl}
-                            >
-                              Your browser does not support the video element.
-                            </video>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* History Sidebar */}
+            {/* Main Controls */}
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Prompt Section */}
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="xl:col-span-1"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
               >
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm sticky top-6">
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
                   <CardHeader className="border-b border-border/50 bg-muted/30">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-muted-foreground" />
-                      History
-                      {history.length > 0 && (
-                        <Badge variant="secondary" className="ml-auto">{history.length}</Badge>
-                      )}
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-400" />
+                        Story Prompt
+                      </CardTitle>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAutoPrompt}
+                          disabled={isAutoPrompting || isEnhancing}
+                          className="border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
+                        >
+                          {isAutoPrompting ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Wand2 className="w-4 h-4 mr-2 text-purple-400" />
+                          )}
+                          Auto Prompt
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEnhance}
+                          disabled={isEnhancing || isAutoPrompting || !prompt.trim()}
+                          className="border-pink-500/30 hover:bg-pink-500/10 hover:border-pink-500/50"
+                        >
+                          {isEnhancing ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 mr-2 text-pink-400" />
+                          )}
+                          AI Enhance
+                        </Button>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent className="p-0">
-                    <ScrollArea className="h-[600px]">
-                      {history.length === 0 ? (
-                        <div className="p-6 text-center text-muted-foreground">
-                          <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                          <p>No stories generated yet</p>
-                        </div>
-                      ) : (
-                        <div className="divide-y divide-border/50">
-                          {history.map((item) => (
-                            <div
-                              key={item.id}
-                              className={`p-4 hover:bg-muted/30 transition-colors cursor-pointer ${
-                                selectedHistoryItem?.id === item.id ? 'bg-muted/50' : ''
-                              }`}
-                              onClick={() => handlePreviewHistoryItem(item)}
-                            >
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <Badge className={`text-xs ${getStatusColor(item.status)}`}>
-                                  {item.status === 'processing' && (
-                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  )}
-                                  {item.status}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(new Date(item.created_at), 'MMM d, h:mm a')}
-                                </span>
-                              </div>
-                              <p className="text-sm line-clamp-2 mb-3">{item.prompt}</p>
-                              <div className="flex items-center gap-2">
-                                {item.video_url && (
-                                  <>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 px-2 text-xs"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handlePreviewHistoryItem(item);
-                                      }}
-                                    >
-                                      <Eye className="w-3 h-3 mr-1" />
-                                      Preview
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 px-2 text-xs"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDownload(item.video_url!);
-                                      }}
-                                    >
-                                      <Download className="w-3 h-3 mr-1" />
-                                      Download
-                                    </Button>
-                                  </>
-                                )}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 px-2 text-xs text-destructive hover:text-destructive ml-auto"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteHistoryItem(item.id);
-                                  }}
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </ScrollArea>
+                  <CardContent className="p-6">
+                    <Textarea
+                      placeholder="Enter your story prompt... (e.g., 'Tell me a bedtime story about a brave little fox who discovers a magical forest')"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      className="min-h-[120px] resize-none bg-background/50 border-border/50 focus:border-purple-500/50 transition-colors"
+                    />
                   </CardContent>
                 </Card>
               </motion.div>
+
+              {/* Voice Settings */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                {/* Voice Selection */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Volume2 className="w-5 h-5 text-blue-400" />
+                      Voice
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                      <SelectTrigger className="bg-background/50 border-border/50">
+                        <SelectValue placeholder="Select a voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {voices.map((voice) => (
+                          <SelectItem key={voice.id} value={voice.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{voice.name}</span>
+                              <span className="text-xs text-muted-foreground">{voice.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedVoiceInfo && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                          <Volume2 className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{selectedVoiceInfo.name}</p>
+                          <p className="text-xs text-muted-foreground">{selectedVoiceInfo.description}</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Voice Speed */}
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Gauge className="w-5 h-5 text-orange-400" />
+                      Voice Speed
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Speed</Label>
+                        <span className="text-lg font-bold text-orange-400">{voiceSpeed[0].toFixed(1)}x</span>
+                      </div>
+                      <Slider
+                        value={voiceSpeed}
+                        onValueChange={setVoiceSpeed}
+                        min={0.7}
+                        max={1.2}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Slower</span>
+                        <span>Normal</span>
+                        <span>Faster</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Generate Button */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isSubmitting || !prompt.trim()}
+                  className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 border-0 shadow-lg shadow-purple-500/25"
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Starting Generation...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5 mr-2" />
+                      Generate Story
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+
+              {/* Video Player */}
+              <AnimatePresence mode="wait">
+                {videoUrl && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+                      <CardHeader className="border-b border-border/50 bg-muted/30">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Play className="w-5 h-5 text-green-400" />
+                            {selectedHistoryItem ? 'Preview' : 'Your Story Video'}
+                          </CardTitle>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownload(videoUrl)}
+                            className="border-green-500/30 hover:bg-green-500/10 hover:border-green-500/50"
+                          >
+                            <Download className="w-4 h-4 mr-2 text-green-400" />
+                            Download
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="relative aspect-video bg-black">
+                          <video 
+                            controls 
+                            className="w-full h-full" 
+                            src={videoUrl}
+                            key={videoUrl}
+                          >
+                            Your browser does not support the video element.
+                          </video>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
+            {/* History Grid Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-muted-foreground" />
+                  History
+                  {history.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">{history.length}</Badge>
+                  )}
+                </h2>
+              </div>
+
+              {history.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground bg-card/30 rounded-2xl border border-border/50">
+                  <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No stories generated yet</p>
+                  <p className="text-sm mt-1">Your generated videos will appear here</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {history.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={`group relative rounded-xl border overflow-hidden transition-all duration-200 bg-card/50 backdrop-blur-sm ${
+                        item.video_url ? 'cursor-pointer hover:border-primary/50 hover:ring-2 hover:ring-primary/20' : ''
+                      } ${selectedHistoryItem?.id === item.id ? 'border-primary ring-2 ring-primary/30' : 'border-border/50'}`}
+                      onClick={() => handlePreviewHistoryItem(item)}
+                    >
+                      {/* Video Thumbnail */}
+                      <div className="aspect-[9/16] bg-muted/30 relative overflow-hidden">
+                        {item.status === 'completed' && item.video_url ? (
+                          <video
+                            src={item.video_url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.pause();
+                              e.currentTarget.currentTime = 0;
+                            }}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {item.status === 'processing' || item.status === 'pending' ? (
+                              <div className="text-center">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
+                                <span className="text-xs text-muted-foreground">Processing...</span>
+                              </div>
+                            ) : item.status === 'error' ? (
+                              <div className="text-center px-3">
+                                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-2">
+                                  <Trash2 className="w-5 h-5 text-red-400" />
+                                </div>
+                                <span className="text-xs text-red-400">Failed</span>
+                              </div>
+                            ) : (
+                              <BookOpen className="w-8 h-8 text-muted-foreground" />
+                            )}
+                          </div>
+                        )}
+
+                        {/* Status Badge */}
+                        <Badge 
+                          className={`absolute top-2 left-2 text-xs ${getStatusColor(item.status)}`}
+                        >
+                          {item.status === 'processing' && (
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                          )}
+                          {item.status}
+                        </Badge>
+
+                        {/* Hover Overlay with Actions */}
+                        {item.status === 'completed' && item.video_url && (
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="w-10 h-10 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePreviewHistoryItem(item);
+                              }}
+                            >
+                              <Eye className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="w-10 h-10 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(item.video_url!);
+                              }}
+                            >
+                              <Download className="w-5 h-5" />
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Delete Button */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="absolute top-2 right-2 w-7 h-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-red-500/80 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteHistoryItem(item.id);
+                          }}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-3">
+                        <p className="text-sm line-clamp-2 min-h-[2.5rem] text-foreground/90">
+                          {item.prompt}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
+                          <Clock className="w-3 h-3" />
+                          {format(new Date(item.created_at), 'MMM d, h:mm a')}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
           </div>
         </main>
       </div>
