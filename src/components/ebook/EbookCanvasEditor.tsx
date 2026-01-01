@@ -37,7 +37,7 @@ import { toast } from 'sonner';
 interface Page {
   id: string;
   title: string;
-  type: 'cover' | 'toc' | 'chapter' | 'back';
+  type: 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
   thumbnail?: string;
 }
 
@@ -346,6 +346,54 @@ const createChapterElements = (chapterNum: number, title: string): CanvasElement
   }
 ];
 
+// Chapter title page - full page image with chapter title overlay
+const createChapterPageElements = (chapterNum: number, title: string): CanvasElement[] => [
+  {
+    id: `chapterpage${chapterNum}-bg-image`,
+    type: 'image',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    src: SUGGESTED_IMAGES[(chapterNum - 1) % SUGGESTED_IMAGES.length]
+  },
+  {
+    id: `chapterpage${chapterNum}-overlay`,
+    type: 'shape',
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    fill: 'rgba(0, 0, 0, 0.5)',
+    stroke: 'transparent',
+    shapeType: 'rectangle'
+  },
+  {
+    id: `chapterpage${chapterNum}-number`,
+    type: 'text',
+    x: 10,
+    y: 40,
+    width: 80,
+    height: 10,
+    content: `CHAPTER ${chapterNum}`,
+    fontSize: 18,
+    fontFamily: 'Georgia',
+    textColor: '#ffffff'
+  },
+  {
+    id: `chapterpage${chapterNum}-title`,
+    type: 'text',
+    x: 10,
+    y: 48,
+    width: 80,
+    height: 15,
+    content: title,
+    fontSize: 36,
+    fontFamily: 'Georgia',
+    textColor: '#ffffff'
+  }
+];
+
 const createBackCoverElements = (): CanvasElement[] => [
   {
     id: 'back-bg',
@@ -472,6 +520,12 @@ const EbookCanvasEditor = ({
         return createTocElements();
       case 'back':
         return createBackCoverElements();
+      case 'chapter-page': {
+        // Extract chapter number from title like "Executive Summary" or "Chapter 1: Executive Summary"
+        const pageIndex = pages.findIndex(p => p.id === page.id);
+        const chapterPageNum = pages.slice(0, pageIndex + 1).filter(p => p.type === 'chapter-page').length;
+        return createChapterPageElements(chapterPageNum, page.title || 'Chapter ' + chapterPageNum);
+      }
       default:
         const pageIndex = pages.findIndex(p => p.id === page.id);
         const chapterNum = pages.slice(0, pageIndex).filter(p => p.type === 'chapter').length + 1;
@@ -1553,7 +1607,22 @@ const EbookCanvasEditor = ({
       );
     }
 
-    // Chapter pages
+    // Chapter title pages - full image with overlay
+    if (page.type === 'chapter-page') {
+      const chapterImg = elements.find(el => el.type === 'image')?.src;
+      return (
+        <div className="absolute inset-0">
+          {chapterImg && (
+            <img src={chapterImg} alt="" className="w-full h-full object-cover" />
+          )}
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="text-[5px] font-bold text-white text-center px-1">{page.title}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Chapter content pages
     const chapterImg = elements.find(el => el.type === 'image')?.src;
     return (
       <div className="absolute inset-0">
@@ -1690,7 +1759,12 @@ const EbookCanvasEditor = ({
                         
                         {/* Page Label */}
                         <div className="mb-2 text-xs font-medium text-gray-500">
-                          Page {pageIndex + 1} - {page.title}
+                          {page.type === 'cover' 
+                            ? `Cover Page - ${page.title}`
+                            : page.type === 'chapter-page'
+                            ? `Chapter Page - ${page.title}`
+                            : `Page ${pageIndex + 1} - ${page.title}`
+                          }
                         </div>
                         
                         {/* Page Canvas with Vertical Toolbar */}
