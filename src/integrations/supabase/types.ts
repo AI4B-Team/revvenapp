@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_story_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          prompt: string
+          status: string
+          updated_at: string
+          user_id: string
+          video_url: string | null
+          voice_id: string | null
+          voice_speed: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          prompt: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+          voice_id?: string | null
+          voice_speed?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          prompt?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+          voice_id?: string | null
+          voice_speed?: number | null
+        }
+        Relationships: []
+      }
       ai_videos: {
         Row: {
           character_bio: string

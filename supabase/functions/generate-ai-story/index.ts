@@ -1,117 +1,109 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// n8n webhook URL for AI video generation
+// n8n webhook URL for AI Story generation
 const N8N_WEBHOOK_URL = 'https://realcreator.app.n8n.cloud/webhook/b17737cb-65d3-474e-9263-76e21684e9a4';
 
+// Supabase callback URL for n8n to call when video is ready
+const CALLBACK_URL = `${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-story-callback`;
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { 
-      prompt, 
-      voiceId, 
-      speed,
-      model,
-      character,
-      videoStyle,
-      videoTopic
-    } = await req.json();
+    const { prompt, voiceId, speed } = await req.json();
 
     if (!prompt) {
       throw new Error('Story prompt is required');
     }
 
-    console.log('Generating AI video with:', { 
-      prompt, 
-      model: model || 'Seedance 1.0',
-      character,
-      videoStyle,
-      videoTopic 
+    // Get authorization header to identify user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Authorization required');
+    }
+
+    // Create Supabase client with user's auth
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
     });
 
-    // Build request body matching n8n webhook expected format
-    const requestBody = {
-      body: {
-        character: {
-          name: character?.name || 'AI Character',
-          image_url: character?.image_url || '',
-          bio: character?.bio || 'An AI-generated character'
-        },
-        video: {
-          model: model || 'Seedance 1.0',
-          script: prompt,
-          topic: videoTopic || prompt.substring(0, 100),
-          style: videoStyle || 'Cinematic'
-        }
-      }
-    };
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('User not authenticated');
+    }
+
+    console.log('Creating AI story job for user:', user.id);
+
+    // Create job record in database
+    const { data: job, error: insertError } = await supabase
+      .from('ai_story_jobs')
+      .insert({
+        user_id: user.id,
+        prompt,
+        voice_id: voiceId || 'af_heart',
+        voice_speed: speed || 1.0,
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Failed to create job:', insertError);
+      throw new Error('Failed to create generation job');
+    }
+
+    console.log('Job created:', job.id);
+
+    // Call n8n webhook with job ID for callback
+    const requestBody = [{
+      tts_engine: 'kokoro',
+      kokoro_voice: voiceId || 'af_heart',
+      kokoro_speed: String(speed || 1.0),
+      Story: prompt,
+      job_id: job.id,
+      callback_url: CALLBACK_URL,
+    }];
 
     console.log('Sending to n8n:', JSON.stringify(requestBody, null, 2));
 
-    // Call n8n production webhook
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    // Fire and forget - don't wait for n8n response
+    fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
+    }).then(res => {
+      console.log('n8n webhook response status:', res.status);
+    }).catch(err => {
+      console.error('n8n webhook error:', err);
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('n8n webhook error:', errorText);
-      throw new Error(`Webhook error: ${response.status}`);
-    }
+    // Update job status to processing
+    await supabase
+      .from('ai_story_jobs')
+      .update({ status: 'processing' })
+      .eq('id', job.id);
 
-    // Production webhook returns immediately
-    const responseText = await response.text();
-    console.log('Webhook response:', responseText);
-
-    let result: Record<string, unknown> = {};
-    if (responseText && responseText.trim()) {
-      try {
-        result = JSON.parse(responseText);
-      } catch (e) {
-        console.log('Response is not JSON:', responseText);
-      }
-    }
-
-    // Check for video URL in various possible response formats
-    let videoUrl = result.video_url || result.videoUrl || result.link || result.url;
-    
-    // Check nested data object
-    if (!videoUrl && result.data) {
-      const data = result.data as Record<string, unknown>;
-      videoUrl = data.video_url || data.videoUrl;
-      
-      // Check for resultUrls array
-      if (!videoUrl && Array.isArray(data.resultUrls) && data.resultUrls.length > 0) {
-        videoUrl = data.resultUrls[0];
-      }
-    }
-    
-    console.log('Video URL from response:', videoUrl);
-
+    // Return job ID immediately
     return new Response(
       JSON.stringify({
         success: true,
-        videoUrl: videoUrl || null,
-        status: videoUrl ? 'complete' : 'processing',
-        message: videoUrl ? 'Video ready!' : 'Video generation started. This may take up to 10 minutes.',
+        jobId: job.id,
+        status: 'processing',
+        message: 'Video generation started. This may take up to 10 minutes.',
       }),
       {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   } catch (error: unknown) {
