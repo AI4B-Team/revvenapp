@@ -45,11 +45,10 @@ const AIStory = () => {
   const [prompt, setPrompt] = useState('');
   const [selectedVoice, setSelectedVoice] = useState(voices[0].id);
   const [voiceSpeed, setVoiceSpeed] = useState([1.0]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAutoPrompting, setIsAutoPrompting] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
   const [history, setHistory] = useState<StoryJob[]>([]);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<StoryJob | null>(null);
 
@@ -67,49 +66,54 @@ const AIStory = () => {
       .select('*')
       .eq('user_id', session.user.id)
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(50);
 
     if (!error && data) {
       setHistory(data);
     }
   };
 
-  // Subscribe to realtime updates for the current video
+  // Subscribe to realtime updates for all processing jobs
   useEffect(() => {
-    if (!currentVideoId) return;
+    const processingJobs = history.filter(job => job.status === 'processing' || job.status === 'pending');
+    if (processingJobs.length === 0) return;
 
-    console.log('Subscribing to video updates:', currentVideoId);
+    console.log('Subscribing to updates for processing jobs:', processingJobs.map(j => j.id));
 
     const channel = supabase
-      .channel(`ai-story-job-${currentVideoId}`)
+      .channel('ai-story-jobs-updates')
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'ai_story_jobs',
-          filter: `id=eq.${currentVideoId}`,
         },
         (payload) => {
           console.log('Story job update received:', payload);
-          const job = payload.new as StoryJob;
+          const updatedJob = payload.new as StoryJob;
           
-          if (job.status === 'completed' && job.video_url) {
-            setVideoUrl(job.video_url);
-            setIsGenerating(false);
-            setCurrentVideoId(null);
-            fetchHistory();
+          // Update the job in history
+          setHistory(prev => prev.map(job => 
+            job.id === updatedJob.id ? updatedJob : job
+          ));
+
+          // If this was the selected item, update the video URL
+          if (selectedHistoryItem?.id === updatedJob.id && updatedJob.video_url) {
+            setVideoUrl(updatedJob.video_url);
+            setSelectedHistoryItem(updatedJob);
+          }
+
+          // Show toast for completed/error status
+          if (updatedJob.status === 'completed' && updatedJob.video_url) {
             toast({
-              title: 'Story generated!',
-              description: 'Your AI story video is ready to play.',
+              title: 'Story ready!',
+              description: `"${updatedJob.prompt.slice(0, 50)}..." is ready to watch.`,
             });
-          } else if (job.status === 'error') {
-            setIsGenerating(false);
-            setCurrentVideoId(null);
-            fetchHistory();
+          } else if (updatedJob.status === 'error') {
             toast({
               title: 'Generation failed',
-              description: 'Something went wrong',
+              description: `Failed to generate story.`,
               variant: 'destructive',
             });
           }
@@ -121,7 +125,7 @@ const AIStory = () => {
       console.log('Unsubscribing from story job updates');
       supabase.removeChannel(channel);
     };
-  }, [currentVideoId, toast]);
+  }, [history.filter(j => j.status === 'processing' || j.status === 'pending').length, selectedHistoryItem, toast]);
 
   const handleAutoPrompt = async () => {
     setIsAutoPrompting(true);
@@ -230,10 +234,8 @@ const AIStory = () => {
       return;
     }
 
-    setIsGenerating(true);
-    setVideoUrl(null);
-    setCurrentVideoId(null);
-    setSelectedHistoryItem(null);
+    const currentPrompt = prompt;
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(
@@ -246,7 +248,7 @@ const AIStory = () => {
             'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
-            prompt,
+            prompt: currentPrompt,
             voiceId: selectedVoice,
             speed: voiceSpeed[0],
           }),
@@ -261,33 +263,42 @@ const AIStory = () => {
       const result = await response.json();
       
       if (result.job_id) {
-        setCurrentVideoId(result.job_id);
-        fetchHistory();
+        // Clear prompt for next generation
+        setPrompt('');
+        
+        // Add job to history immediately
+        const newJob: StoryJob = {
+          id: result.job_id,
+          prompt: currentPrompt,
+          status: 'processing',
+          video_url: null,
+          created_at: new Date().toISOString(),
+          voice_id: selectedVoice,
+        };
+        setHistory(prev => [newJob, ...prev]);
+
         toast({
-          title: 'Video generation started',
-          description: result.message || 'Your video is being created. This may take a few minutes.',
+          title: 'Generation started!',
+          description: 'Your story is being created. You can generate more while waiting.',
         });
       } else if (result.videoUrl || result.video_url) {
         setVideoUrl(result.videoUrl || result.video_url);
-        setIsGenerating(false);
+        setPrompt('');
         fetchHistory();
         toast({
           title: 'Story generated!',
           description: 'Your AI story video is ready to play.',
         });
-      } else {
-        setIsGenerating(false);
-        throw new Error('No job ID or video URL returned');
       }
     } catch (error) {
       console.error('Error generating story:', error);
-      setIsGenerating(false);
-      setCurrentVideoId(null);
       toast({
         title: 'Generation failed',
         description: error instanceof Error ? error.message : 'Something went wrong',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -339,10 +350,14 @@ const AIStory = () => {
     setSelectedHistoryItem(item);
     if (item.video_url) {
       setVideoUrl(item.video_url);
+    } else {
+      setVideoUrl(null);
     }
   };
 
   const selectedVoiceInfo = voices.find(v => v.id === selectedVoice);
+  const processingCount = history.filter(j => j.status === 'processing' || j.status === 'pending').length;
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500/20 text-green-400 border-green-500/30';
@@ -370,16 +385,24 @@ const AIStory = () => {
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10" />
-              <div className="relative flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-                  <BookOpen className="w-8 h-8 text-white" />
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                    <BookOpen className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+                      AI Story Generator
+                    </h1>
+                    <p className="text-muted-foreground mt-1">Transform your ideas into captivating narrated video stories</p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                    AI Story Generator
-                  </h1>
-                  <p className="text-muted-foreground mt-1">Transform your ideas into captivating narrated video stories</p>
-                </div>
+                {processingCount > 0 && (
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/20 border border-yellow-500/30">
+                    <Loader2 className="w-4 h-4 animate-spin text-yellow-400" />
+                    <span className="text-sm text-yellow-400">{processingCount} processing</span>
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -404,7 +427,7 @@ const AIStory = () => {
                             variant="outline"
                             size="sm"
                             onClick={handleAutoPrompt}
-                            disabled={isAutoPrompting || isEnhancing || isGenerating}
+                            disabled={isAutoPrompting || isEnhancing}
                             className="border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
                           >
                             {isAutoPrompting ? (
@@ -418,7 +441,7 @@ const AIStory = () => {
                             variant="outline"
                             size="sm"
                             onClick={handleEnhance}
-                            disabled={isEnhancing || isAutoPrompting || isGenerating || !prompt.trim()}
+                            disabled={isEnhancing || isAutoPrompting || !prompt.trim()}
                             className="border-pink-500/30 hover:bg-pink-500/10 hover:border-pink-500/50"
                           >
                             {isEnhancing ? (
@@ -527,14 +550,14 @@ const AIStory = () => {
                 >
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim()}
+                    disabled={isSubmitting || !prompt.trim()}
                     className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 border-0 shadow-lg shadow-purple-500/25"
                     size="lg"
                   >
-                    {isGenerating ? (
+                    {isSubmitting ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating Story...
+                        Starting Generation...
                       </>
                     ) : (
                       <>
@@ -602,6 +625,9 @@ const AIStory = () => {
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Clock className="w-5 h-5 text-muted-foreground" />
                       History
+                      {history.length > 0 && (
+                        <Badge variant="secondary" className="ml-auto">{history.length}</Badge>
+                      )}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -623,6 +649,9 @@ const AIStory = () => {
                             >
                               <div className="flex items-start justify-between gap-2 mb-2">
                                 <Badge className={`text-xs ${getStatusColor(item.status)}`}>
+                                  {item.status === 'processing' && (
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  )}
                                   {item.status}
                                 </Badge>
                                 <span className="text-xs text-muted-foreground">
@@ -662,7 +691,7 @@ const AIStory = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 px-2 text-xs text-destructive hover:text-destructive"
+                                  className="h-8 px-2 text-xs text-destructive hover:text-destructive ml-auto"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteHistoryItem(item.id);
