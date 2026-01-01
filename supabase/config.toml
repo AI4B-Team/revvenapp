@@ -123,8 +123,5 @@ verify_jwt = true
 [functions.generate-ai-story]
 verify_jwt = true
 
-[functions.ai-story-callback]
-verify_jwt = false
-
 [functions.ai-story-helper]
 verify_jwt = true
