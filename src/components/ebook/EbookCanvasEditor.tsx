@@ -422,6 +422,8 @@ const EbookCanvasEditor = ({
   const [resizeContent, setResizeContent] = useState(true);
   const [linkDimensions, setLinkDimensions] = useState(true);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Drag state for element movement
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number; elementX: number; elementY: number } | null>(null);
@@ -456,6 +458,26 @@ const EbookCanvasEditor = ({
       pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Handle scroll detection
+  const handleScroll = () => {
+    setIsScrolling(true);
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 150);
+  };
+
+  // Cleanup scroll timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const selectedPage = pages.find(p => p.id === selectedPageId) || pages[0];
   
@@ -2063,6 +2085,7 @@ const EbookCanvasEditor = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
+                onScroll={handleScroll}
               >
                 {/* Hidden file input for image uploads */}
                 <input 
@@ -2095,8 +2118,8 @@ const EbookCanvasEditor = ({
                           </div>
                         )}
                         
-                        {/* Page Label */}
-                        <div className="mb-2 text-xs font-medium text-gray-500">
+                        {/* Page Label - hide during scroll */}
+                        <div className={`mb-2 text-xs font-medium text-gray-500 transition-opacity duration-150 ${isScrolling ? 'opacity-0' : 'opacity-100'}`}>
                           {page.type === 'cover' 
                             ? `Cover Page - ${page.title}`
                             : page.type === 'chapter-page'
@@ -2187,9 +2210,9 @@ const EbookCanvasEditor = ({
                             </div>
                           </div>
                           
-                          {/* Vertical Page Actions Toolbar */}
+                          {/* Vertical Page Actions Toolbar - hide during scroll */}
                           <div 
-                            className="flex flex-col gap-1 pt-2"
+                            className={`flex flex-col gap-1 pt-2 transition-opacity duration-150 ${isScrolling ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                             style={{
                               transform: `scale(${zoom / 100})`,
                               transformOrigin: 'top left',
