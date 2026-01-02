@@ -2612,27 +2612,48 @@ const EbookCanvasEditor = ({
                     
                     {/* Action icons below number */}
                     <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleAddPage(page.id); }}
-                        className="p-0.5 rounded hover:bg-gray-100"
-                      >
-                        <Plus className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
-                        className="p-0.5 rounded hover:bg-gray-100"
-                      >
-                        <Copy className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
-                      </button>
-                      <Popover>
-                        <PopoverTrigger asChild>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
                           <button 
-                            onClick={(e) => { e.stopPropagation(); }}
+                            onClick={(e) => { e.stopPropagation(); handleAddPage(page.id); }}
                             className="p-0.5 rounded hover:bg-gray-100"
                           >
-                            <SlidersHorizontal className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                            <Plus className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
                           </button>
-                        </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="text-xs">
+                          <p>Add Page</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
+                            className="p-0.5 rounded hover:bg-gray-100"
+                          >
+                            <Copy className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="text-xs">
+                          <p>Duplicate</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Popover>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <PopoverTrigger asChild>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); }}
+                                className="p-0.5 rounded hover:bg-gray-100"
+                              >
+                                <SlidersHorizontal className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                              </button>
+                            </PopoverTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="text-xs">
+                            <p>Page Settings</p>
+                          </TooltipContent>
+                        </Tooltip>
                         <PopoverContent side="left" align="start" className="w-72 p-0">
                           <PageSettingsPanel 
                             pageNumber={currentPages.findIndex(p => p.id === page.id) + 1}
@@ -2641,12 +2662,19 @@ const EbookCanvasEditor = ({
                           />
                         </PopoverContent>
                       </Popover>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
-                        className="p-0.5 rounded hover:bg-gray-100"
-                      >
-                        <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
-                      </button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
+                            className="p-0.5 rounded hover:bg-gray-100"
+                          >
+                            <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="text-xs">
+                          <p>Delete</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
                   
