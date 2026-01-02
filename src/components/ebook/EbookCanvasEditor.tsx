@@ -48,6 +48,7 @@ interface Page {
   title: string;
   type: 'cover' | 'toc' | 'chapter' | 'chapter-page' | 'back';
   thumbnail?: string;
+  locked?: boolean;
 }
 
 interface CanvasElement {
@@ -77,6 +78,7 @@ interface EbookCanvasEditorProps {
   selectedPageId: string | null;
   onPageSelect: (id: string) => void;
   onPageReorder?: (fromIndex: number, toIndex: number) => void;
+  onPagesChange?: (pages: Page[]) => void;
   bookTitle: string;
   showPagesPanel?: boolean;
 }
@@ -91,11 +93,11 @@ const TOOLS = [
   { id: 'image', icon: ImageIcon, label: 'Image (I)', shortcut: 'I' },
 ];
 
-// Page action icons for the vertical toolbar
+// Page action icons for the vertical toolbar (lock is handled separately for dynamic icon)
 const PAGE_ACTIONS = [
   { id: 'add', icon: Plus, label: 'Add New Page' },
   { id: 'duplicate', icon: Copy, label: 'Duplicate Page' },
-  { id: 'lock', icon: Lock, label: 'Lock Page' },
+  { id: 'lock', icon: Unlock, label: 'Toggle Lock' }, // Default unlocked
   { id: 'delete', icon: Trash2, label: 'Delete Page' },
   { id: 'moveUp', icon: ChevronUp, label: 'Move Page Up' },
   { id: 'moveDown', icon: ChevronDown, label: 'Move Page Down' },
@@ -393,9 +395,132 @@ const EbookCanvasEditor = ({
   selectedPageId, 
   onPageSelect,
   onPageReorder,
+  onPagesChange,
   bookTitle,
   showPagesPanel = true
 }: EbookCanvasEditorProps) => {
+  // Internal pages state if no onPagesChange is provided
+  const [internalPages, setInternalPages] = useState<Page[]>(pages);
+  
+  // Use internal state if onPagesChange not provided, otherwise use props
+  const currentPages = onPagesChange ? pages : internalPages;
+  const setPages = (newPages: Page[] | ((prev: Page[]) => Page[])) => {
+    if (onPagesChange) {
+      const result = typeof newPages === 'function' ? newPages(pages) : newPages;
+      onPagesChange(result);
+    } else {
+      setInternalPages(newPages);
+    }
+  };
+
+  // Sync internal pages with props when no onPagesChange
+  useEffect(() => {
+    if (!onPagesChange) {
+      setInternalPages(pages);
+    }
+  }, [pages, onPagesChange]);
+
+  // Page action handlers
+  const handleAddPage = (afterPageId: string) => {
+    const pageIndex = currentPages.findIndex(p => p.id === afterPageId);
+    const newPage: Page = {
+      id: crypto.randomUUID(),
+      title: 'New Page',
+      type: 'chapter',
+      locked: false,
+    };
+    
+    const newPages = [...currentPages];
+    newPages.splice(pageIndex + 1, 0, newPage);
+    setPages(newPages);
+    toast.success('New page added');
+  };
+
+  const handleDuplicatePage = (pageId: string) => {
+    const pageIndex = currentPages.findIndex(p => p.id === pageId);
+    const pageToDuplicate = currentPages[pageIndex];
+    
+    if (!pageToDuplicate) return;
+    
+    const duplicatedPage: Page = {
+      ...pageToDuplicate,
+      id: crypto.randomUUID(),
+      title: `${pageToDuplicate.title} (Copy)`,
+      locked: false,
+    };
+    
+    const newPages = [...currentPages];
+    newPages.splice(pageIndex + 1, 0, duplicatedPage);
+    setPages(newPages);
+    
+    // Also duplicate the page elements
+    const originalElements = pageElementsState[pageId];
+    if (originalElements) {
+      setPageElementsState(prev => ({
+        ...prev,
+        [duplicatedPage.id]: originalElements.map(el => ({
+          ...el,
+          id: `${el.id}-${crypto.randomUUID().slice(0, 8)}`,
+        })),
+      }));
+    }
+    
+    toast.success('Page duplicated');
+  };
+
+  const handleTogglePageLock = (pageId: string) => {
+    const newPages = currentPages.map(p => 
+      p.id === pageId ? { ...p, locked: !p.locked } : p
+    );
+    setPages(newPages);
+    const page = currentPages.find(p => p.id === pageId);
+    toast.success(page?.locked ? 'Page unlocked' : 'Page locked');
+  };
+
+  const handleDeletePage = (pageId: string) => {
+    const page = currentPages.find(p => p.id === pageId);
+    if (page?.type === 'cover' || page?.type === 'back') {
+      toast.error('Cannot delete cover or back cover pages');
+      return;
+    }
+    
+    if (currentPages.length <= 3) {
+      toast.error('Must have at least 3 pages');
+      return;
+    }
+    
+    const newPages = currentPages.filter(p => p.id !== pageId);
+    setPages(newPages);
+    
+    // Clean up page elements state
+    setPageElementsState(prev => {
+      const newState = { ...prev };
+      delete newState[pageId];
+      return newState;
+    });
+    
+    toast.success('Page deleted');
+  };
+
+  const handleMovePageUp = (pageId: string) => {
+    const pageIndex = currentPages.findIndex(p => p.id === pageId);
+    if (pageIndex <= 0) return;
+    
+    const newPages = [...currentPages];
+    [newPages[pageIndex - 1], newPages[pageIndex]] = [newPages[pageIndex], newPages[pageIndex - 1]];
+    setPages(newPages);
+    toast.success('Page moved up');
+  };
+
+  const handleMovePageDown = (pageId: string) => {
+    const pageIndex = currentPages.findIndex(p => p.id === pageId);
+    if (pageIndex >= currentPages.length - 1) return;
+    
+    const newPages = [...currentPages];
+    [newPages[pageIndex], newPages[pageIndex + 1]] = [newPages[pageIndex + 1], newPages[pageIndex]];
+    setPages(newPages);
+    toast.success('Page moved down');
+  };
   // Drag state for page reordering
   const [draggedPageIndex, setDraggedPageIndex] = useState<number | null>(null);
   const [dragOverPageIndex, setDragOverPageIndex] = useState<number | null>(null);
@@ -485,7 +610,7 @@ const EbookCanvasEditor = ({
     };
   }, []);
 
-  const selectedPage = pages.find(p => p.id === selectedPageId) || pages[0];
+  const selectedPage = currentPages.find(p => p.id === selectedPageId) || currentPages[0];
   
   // Get page elements - use stored state or generate default
   const getPageElements = (page: Page): CanvasElement[] => {
@@ -497,18 +622,18 @@ const EbookCanvasEditor = ({
       case 'cover':
         return createCoverElements();
       case 'toc':
-        return createTocElements(pages);
+        return createTocElements(currentPages);
       case 'back':
         return createBackCoverElements();
       case 'chapter-page': {
         // Extract chapter number from title like "Executive Summary" or "Chapter 1: Executive Summary"
-        const pageIndex = pages.findIndex(p => p.id === page.id);
-        const chapterPageNum = pages.slice(0, pageIndex + 1).filter(p => p.type === 'chapter-page').length;
+        const pageIndex = currentPages.findIndex(p => p.id === page.id);
+        const chapterPageNum = currentPages.slice(0, pageIndex + 1).filter(p => p.type === 'chapter-page').length;
         return createChapterPageElements(chapterPageNum, page.title || 'Chapter ' + chapterPageNum);
       }
       default:
-        const pageIndex = pages.findIndex(p => p.id === page.id);
-        const chapterNum = pages.slice(0, pageIndex).filter(p => p.type === 'chapter').length + 1;
+        const pageIndex = currentPages.findIndex(p => p.id === page.id);
+        const chapterNum = currentPages.slice(0, pageIndex).filter(p => p.type === 'chapter').length + 1;
         return createChapterElements(chapterNum, page.title || 'Chapter ' + chapterNum);
     }
   };
@@ -813,7 +938,7 @@ const EbookCanvasEditor = ({
 
   // Get cover image for thumbnail
   const getCoverImageSrc = () => {
-    const coverPage = pages.find(p => p.type === 'cover');
+    const coverPage = currentPages.find(p => p.type === 'cover');
     if (coverPage) {
       const coverElements = pageElementsState[coverPage.id] || createCoverElements();
       const coverImage = coverElements.find(el => el.type === 'image');
@@ -1976,14 +2101,14 @@ const EbookCanvasEditor = ({
 
     if (page.type === 'toc') {
       // Match canvas TOC: left-aligned header, teal line, chapter entries with dots and page numbers
-      const chapterPages = pages.filter(p => p.type === 'chapter-page');
+      const chapterPages = currentPages.filter(p => p.type === 'chapter-page');
       return (
         <div className="absolute inset-0 bg-white p-3 flex flex-col">
           <div className="text-[5px] font-bold text-gray-900 uppercase tracking-wide text-left">Table Of Contents</div>
           <div className="w-8 h-[2px] bg-cyan-600 mt-1 mb-2"></div>
           <div className="space-y-1.5 flex-1 text-left">
             {chapterPages.slice(0, 4).map((cp, i) => {
-              const pageNum = pages.findIndex(p => p.id === cp.id) + 1;
+              const pageNum = currentPages.findIndex(p => p.id === cp.id) + 1;
               return (
                 <div key={cp.id} className="text-[3.5px] text-gray-700">
                   {String(i + 1).padStart(2, '0')}. {cp.title} {"·".repeat(20)} {pageNum}
@@ -2017,7 +2142,7 @@ const EbookCanvasEditor = ({
     // Chapter title pages - full image with dark overlay and LEFT-aligned title (matching canvas)
     if (page.type === 'chapter-page') {
       const chapterImg = elements.find(el => el.type === 'image')?.src;
-      const chapterIndex = pages.filter(p => p.type === 'chapter-page').findIndex(p => p.id === page.id) + 1;
+      const chapterIndex = currentPages.filter(p => p.type === 'chapter-page').findIndex(p => p.id === page.id) + 1;
       const titleEl = elements.find(el => el.id?.includes('title'));
       const displayTitle = titleEl?.content || page.title;
       return (
@@ -2037,8 +2162,8 @@ const EbookCanvasEditor = ({
     }
 
     // Chapter content pages - teal header bar with large chapter number at left, images on right, title and body below
-    const pageIndex = pages.findIndex(p => p.id === page.id);
-    const chapterNum = pages.filter((p, i) => p.type === 'chapter' && i < pageIndex).length + 1;
+    const pageIndex = currentPages.findIndex(p => p.id === page.id);
+    const chapterNum = currentPages.filter((p, i) => p.type === 'chapter' && i < pageIndex).length + 1;
     const titleEl = elements.find(el => el.id?.includes('title'));
     const displayTitle = titleEl?.content || page.title;
     const stockImages = elements.filter(el => el.id?.includes('stock') && el.type === 'image');
@@ -2172,7 +2297,7 @@ const EbookCanvasEditor = ({
                 
                 {/* All Pages in Canvas - scrollable */}
                 <div className="flex flex-col items-center gap-8 py-4">
-                  {pages.map((page, pageIndex) => {
+                  {currentPages.map((page, pageIndex) => {
                     const pageElements = getPageElements(page);
                     const isSelected = page.id === selectedPageId;
                     const isCurrentPageWithSelection = isSelected && selectedElement;
@@ -2291,11 +2416,40 @@ const EbookCanvasEditor = ({
                             }}
                           >
                             {PAGE_ACTIONS.map((action) => {
-                              const Icon = action.icon;
+                              const isPageLocked = page.locked ?? false;
+                              
+                              // Lock button - show different icon and color based on lock state
+                              if (action.id === 'lock') {
+                                const LockIcon = isPageLocked ? Lock : Unlock;
+                                return (
+                                  <Tooltip key={action.id}>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleTogglePageLock(page.id);
+                                        }}
+                                        className={`p-1.5 rounded-md border transition-all ${
+                                          isPageLocked 
+                                            ? 'border-red-300 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-400' 
+                                            : 'border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600'
+                                        }`}
+                                        title={isPageLocked ? 'Unlock Page' : 'Lock Page'}
+                                      >
+                                        <LockIcon className="w-4 h-4" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="text-xs">
+                                      <p>{isPageLocked ? 'Unlock Page' : 'Lock Page'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              }
                               
                               // Settings button - opens static panel
                               if (action.id === 'settings') {
                                 const isThisPageOpen = pageSettingsOpenId === page.id;
+                                const SettingsIcon = action.icon;
                                 return (
                                   <Tooltip key={action.id}>
                                     <TooltipTrigger asChild>
@@ -2311,7 +2465,7 @@ const EbookCanvasEditor = ({
                                         }`}
                                         title={action.label}
                                       >
-                                        <Icon className="w-4 h-4" />
+                                        <SettingsIcon className="w-4 h-4" />
                                       </button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" className="text-xs">
@@ -2321,6 +2475,7 @@ const EbookCanvasEditor = ({
                                 );
                               }
                               
+                              const Icon = action.icon;
                               return (
                                 <Tooltip key={action.id}>
                                   <TooltipTrigger asChild>
@@ -2329,22 +2484,19 @@ const EbookCanvasEditor = ({
                                         e.stopPropagation();
                                         switch (action.id) {
                                           case 'add':
-                                            toast.success('Add New Page');
+                                            handleAddPage(page.id);
                                             break;
                                           case 'duplicate':
-                                            toast.success('Duplicate Page');
-                                            break;
-                                          case 'lock':
-                                            toast.success('Lock Page');
+                                            handleDuplicatePage(page.id);
                                             break;
                                           case 'delete':
-                                            toast.success('Delete Page');
+                                            handleDeletePage(page.id);
                                             break;
                                           case 'moveUp':
-                                            toast.success('Move Page Up');
+                                            handleMovePageUp(page.id);
                                             break;
                                           case 'moveDown':
-                                            toast.success('Move Page Down');
+                                            handleMovePageDown(page.id);
                                             break;
                                         }
                                       }}
@@ -2376,7 +2528,7 @@ const EbookCanvasEditor = ({
           {/* Page Settings Panel - Static panel on right side */}
           {pageSettingsOpenId && (
             <PageSettingsPanel 
-              pageNumber={pages.findIndex(p => p.id === pageSettingsOpenId) + 1}
+              pageNumber={currentPages.findIndex(p => p.id === pageSettingsOpenId) + 1}
               onClose={() => setPageSettingsOpenId(null)}
             />
           )}
@@ -2400,14 +2552,20 @@ const EbookCanvasEditor = ({
                 <div className="p-2 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
                   <span className="text-xs font-medium text-gray-600">Pages</span>
                   <button 
-                    onClick={() => toast.success('Add page')}
+                    onClick={() => {
+                      // Add page after the last page
+                      const lastPage = currentPages[currentPages.length - 1];
+                      if (lastPage) {
+                        handleAddPage(lastPage.id);
+                      }
+                    }}
                     className="p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-emerald-600"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
             <div className="flex-1 overflow-y-auto overscroll-contain p-2 space-y-3">
-                {pages.map((page, index) => (
+                {currentPages.map((page, index) => (
                 <div 
                   key={page.id}
                   className={`flex items-start gap-2 cursor-grab active:cursor-grabbing hover:bg-emerald-50 rounded-lg p-1 -ml-1 transition-colors ${
@@ -2479,13 +2637,13 @@ const EbookCanvasEditor = ({
                     {/* Action buttons on hover */}
                     <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
-                        onClick={(e) => { e.stopPropagation(); toast.info('Duplicate page'); }}
+                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
                         className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
                       >
                         <Copy className="w-2.5 h-2.5 text-gray-600" />
                       </button>
                       <button 
-                        onClick={(e) => { e.stopPropagation(); toast.info('Delete page'); }}
+                        onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
                         className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
                       >
                         <Trash2 className="w-2.5 h-2.5 text-red-500" />
