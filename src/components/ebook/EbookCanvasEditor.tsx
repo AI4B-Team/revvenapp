@@ -68,6 +68,7 @@ interface CanvasElement {
   fontSize?: number;
   fontFamily?: string;
   textColor?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
   locked?: boolean;
   rotation?: number;
   isPlaceholder?: boolean;
@@ -362,7 +363,8 @@ const createBackCoverElements = (): CanvasElement[] => [
     content: 'ESCROW',
     fontSize: 28,
     fontFamily: 'Georgia',
-    textColor: '#ffffff'
+    textColor: '#ffffff',
+    textAlign: 'center'
   },
   {
     id: 'back-tagline',
@@ -374,7 +376,8 @@ const createBackCoverElements = (): CanvasElement[] => [
     content: 'Investment Excellence Since 2010',
     fontSize: 12,
     fontFamily: 'Georgia',
-    textColor: '#94a3b8'
+    textColor: '#94a3b8',
+    textAlign: 'center'
   },
   {
     id: 'back-contact',
@@ -386,7 +389,8 @@ const createBackCoverElements = (): CanvasElement[] => [
     content: 'www.escrow-investment.com\ncontact@escrow.com',
     fontSize: 10,
     fontFamily: 'Georgia',
-    textColor: '#94a3b8'
+    textColor: '#94a3b8',
+    textAlign: 'center'
   }
 ];
 
@@ -2019,6 +2023,7 @@ const EbookCanvasEditor = ({
             fontFamily: element.fontFamily,
             fontSize: `${element.fontSize}px`,
             color: element.textColor,
+            textAlign: element.textAlign || 'left',
             lineHeight: 1.2,
             whiteSpace: 'pre-wrap',
           }}
