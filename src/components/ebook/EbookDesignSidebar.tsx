@@ -322,7 +322,8 @@ const MOCKUP_CATEGORIES = [
   { id: 'ads', name: 'Advertisements' },
 ];
 
-type SectionId = 'templates' | 'content' | 'images' | 'elements' | 'mockups' | 'translate';
+type SectionId = 'templates' | 'content' | 'image' | 'text' | 'video' | 'audio' | 'elements' | 'mockups' | 'translate';
+type MediaTab = 'stock' | 'creations' | 'community' | 'uploads';
 
 const EbookDesignSidebar = ({
   bookTitle,
@@ -349,18 +350,35 @@ const EbookDesignSidebar = ({
   const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
   const [elementSearch, setElementSearch] = useState('');
   
-  // Images section state
-  const [imageTab, setImageTab] = useState<'stock' | 'creations' | 'community'>('stock');
+  // Media sections state (Image, Video, Audio)
+  const [imageTab, setImageTab] = useState<MediaTab>('stock');
+  const [videoTab, setVideoTab] = useState<MediaTab>('stock');
+  const [audioTab, setAudioTab] = useState<MediaTab>('stock');
+  const [textTab, setTextTab] = useState<MediaTab>('stock');
   const [stockImages, setStockImages] = useState<any[]>([]);
+  const [stockVideos, setStockVideos] = useState<any[]>([]);
+  const [stockAudio, setStockAudio] = useState<any[]>([]);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
+  const [isLoadingStockVideos, setIsLoadingStockVideos] = useState(false);
+  const [isLoadingStockAudio, setIsLoadingStockAudio] = useState(false);
   const [stockPage, setStockPage] = useState(1);
   const [creationsImages, setCreationsImages] = useState<any[]>([]);
   const [isLoadingCreations, setIsLoadingCreations] = useState(false);
   const [communityImages, setCommunityImages] = useState<any[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<any[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<any[]>([]);
+  const [uploadedAudio, setUploadedAudio] = useState<any[]>([]);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [videoSearch, setVideoSearch] = useState('');
+  const [audioSearch, setAudioSearch] = useState('');
+  const [textSearch, setTextSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
   const hasFetchedStockRef = useRef(false);
+  const hasFetchedStockVideosRef = useRef(false);
+  const hasFetchedStockAudioRef = useRef(false);
   
   // Translate section state
   const [translateLanguage, setTranslateLanguage] = useState('');
@@ -511,13 +529,87 @@ const EbookDesignSidebar = ({
     }
   };
 
-  // Load stock images when Images section opens
+  // Fetch stock videos from Pexels
+  const fetchStockVideos = async (query: string) => {
+    setIsLoadingStockVideos(true);
+    try {
+      const response = await fetch(
+        `https://api.pexels.com/videos/search?query=${encodeURIComponent(query || 'business')}&per_page=20`,
+        {
+          headers: {
+            Authorization: PEXELS_API_KEY
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch stock videos');
+      
+      const data = await response.json();
+      setStockVideos(data.videos || []);
+    } catch (error) {
+      console.error('Error fetching Pexels videos:', error);
+      toast.error('Failed to load stock videos');
+    } finally {
+      setIsLoadingStockVideos(false);
+    }
+  };
+
+  // Sample stock audio data
+  const fetchStockAudio = async () => {
+    setIsLoadingStockAudio(true);
+    try {
+      // Simulated audio data
+      const audioData = [
+        { id: 'a1', name: 'Upbeat Corporate', duration: '2:30', url: '#' },
+        { id: 'a2', name: 'Calm Ambient', duration: '3:15', url: '#' },
+        { id: 'a3', name: 'Inspiring Piano', duration: '2:45', url: '#' },
+        { id: 'a4', name: 'Tech Innovation', duration: '2:00', url: '#' },
+        { id: 'a5', name: 'Soft Background', duration: '4:00', url: '#' },
+        { id: 'a6', name: 'Energetic Beat', duration: '2:20', url: '#' },
+      ];
+      setStockAudio(audioData);
+    } finally {
+      setIsLoadingStockAudio(false);
+    }
+  };
+
+  // Handle video upload
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    const videoUrl = URL.createObjectURL(file);
+    setUploadedVideos(prev => [...prev, { id: Date.now().toString(), name: file.name, url: videoUrl }]);
+    toast.success('Video uploaded successfully');
+  };
+
+  // Handle audio upload
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    const audioUrl = URL.createObjectURL(file);
+    setUploadedAudio(prev => [...prev, { id: Date.now().toString(), name: file.name, url: audioUrl }]);
+    toast.success('Audio uploaded successfully');
+  };
+
+  // Load stock media when sections open
   useEffect(() => {
-    if (expandedSections.has('images') && !hasFetchedStockRef.current) {
+    if (expandedSections.has('image') && !hasFetchedStockRef.current) {
       hasFetchedStockRef.current = true;
       fetchStockImages('business professional');
       fetchCreationsImages();
       fetchCommunityImages();
+    }
+    if (expandedSections.has('video') && !hasFetchedStockVideosRef.current) {
+      hasFetchedStockVideosRef.current = true;
+      fetchStockVideos('business');
+    }
+    if (expandedSections.has('audio') && !hasFetchedStockAudioRef.current) {
+      hasFetchedStockAudioRef.current = true;
+      fetchStockAudio();
     }
   }, [expandedSections]);
 
@@ -678,7 +770,24 @@ const EbookDesignSidebar = ({
                 <button
                   onClick={() => {
                     setIsCollapsed(false);
-                    setExpandedSections(new Set(['images']));
+                    setExpandedSections(new Set(['text']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Type className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Text</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['image']));
                   }}
                   className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
                 >
@@ -686,7 +795,41 @@ const EbookDesignSidebar = ({
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Images</p>
+                <p>Image</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['video']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Video className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Video</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['audio']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Music className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Audio</p>
               </TooltipContent>
             </Tooltip>
 
@@ -1069,94 +1212,147 @@ const EbookDesignSidebar = ({
             </div>
           )}
 
-          <SectionHeader id="images" title="Images" icon={ImageIcon} />
-          {expandedSections.has('images') && (
+          {/* Text Section */}
+          <SectionHeader id="text" title="Text" icon={Type} />
+          {expandedSections.has('text') && (
             <div className="p-3 border-b border-gray-200">
-              {/* Tab Links */}
-              <div className="flex items-center gap-4 mb-4 border-b border-gray-200">
+              {/* Tab Links - Centered */}
+              <div className="flex items-center justify-center gap-4 mb-4 border-b border-gray-200">
+                <button
+                  onClick={() => setTextTab('stock')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    textTab === 'stock' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Images className="w-3.5 h-3.5" />
+                  Stock
+                </button>
+                <button
+                  onClick={() => setTextTab('creations')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    textTab === 'creations' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Creations
+                </button>
+                <button
+                  onClick={() => setTextTab('community')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    textTab === 'community' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  Community
+                </button>
+                <button
+                  onClick={() => setTextTab('uploads')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    textTab === 'uploads' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Uploads
+                </button>
+              </div>
+              
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={textSearch}
+                  onChange={(e) => setTextSearch(e.target.value)}
+                  placeholder="Press [Enter] To Search"
+                  className="pl-9"
+                />
+              </div>
+              
+              <div className="text-center py-8 text-gray-400">
+                <Type className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Text templates coming soon</p>
+              </div>
+            </div>
+          )}
+
+          {/* Image Section */}
+          <SectionHeader id="image" title="Image" icon={ImageIcon} />
+          {expandedSections.has('image') && (
+            <div className="p-3 border-b border-gray-200">
+              {/* Tab Links - Centered with Icons */}
+              <div className="flex items-center justify-center gap-4 mb-4 border-b border-gray-200">
                 <button
                   onClick={() => setImageTab('stock')}
-                  className={`pb-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
                     imageTab === 'stock' 
                       ? 'text-blue-500 border-b-2 border-blue-500' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
+                  <Images className="w-3.5 h-3.5" />
                   Stock
                 </button>
                 <button
                   onClick={() => setImageTab('creations')}
-                  className={`pb-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
                     imageTab === 'creations' 
                       ? 'text-blue-500 border-b-2 border-blue-500' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
+                  <Sparkles className="w-3.5 h-3.5" />
                   Creations
                 </button>
                 <button
                   onClick={() => setImageTab('community')}
-                  className={`pb-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
                     imageTab === 'community' 
                       ? 'text-blue-500 border-b-2 border-blue-500' 
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
+                  <Users className="w-3.5 h-3.5" />
                   Community
                 </button>
-              </div>
-              
-              {/* Search */}
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={imageSearch}
-                  onChange={(e) => setImageSearch(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && imageTab === 'stock') {
-                      fetchStockImages(imageSearch || 'business professional', 1);
-                    }
-                  }}
-                  placeholder="Press [Enter] to Search"
-                  className="pl-9"
-                />
-              </div>
-              
-              {/* Upload and AI buttons */}
-              <div className="flex items-center gap-2 mb-4">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                <button
+                  onClick={() => setImageTab('uploads')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    imageTab === 'uploads' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
                 >
-                  {isUploadingImage ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4" />
-                  )}
-                  Upload Images
-                </button>
-                <button 
-                  onClick={() => {
-                    const promptArea = document.getElementById('ai-image-prompt');
-                    if (promptArea) promptArea.focus();
-                  }}
-                  className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-colors"
-                >
-                  <Sparkles className="w-4 h-4" />
+                  <Upload className="w-3.5 h-3.5" />
+                  Uploads
                 </button>
               </div>
               
               {/* Stock Images Tab */}
               {imageTab === 'stock' && (
                 <div className="space-y-3">
+                  {/* Search */}
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      value={imageSearch}
+                      onChange={(e) => setImageSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          fetchStockImages(imageSearch || 'business professional', 1);
+                        }
+                      }}
+                      placeholder="Press [Enter] To Search"
+                      className="pl-9"
+                    />
+                  </div>
+                  
                   {isLoadingStock ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
@@ -1195,6 +1391,53 @@ const EbookDesignSidebar = ({
               {/* Creations Tab */}
               {imageTab === 'creations' && (
                 <div className="space-y-3">
+                  {/* Generate Image Prompt at Top - Styled like reference */}
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-emerald-500" />
+                      <span className="text-sm font-medium text-gray-700">Generate Image</span>
+                    </div>
+                    <div className="border-2 border-emerald-400 rounded-xl p-3 bg-white">
+                      <div className="flex items-start gap-2">
+                        <ImageIcon className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                        <textarea
+                          id="ai-image-prompt"
+                          value={imagePrompt}
+                          onChange={(e) => setImagePrompt(e.target.value)}
+                          placeholder="Describe what you want to create..."
+                          className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 resize-none border-none focus:outline-none bg-transparent min-h-[40px]"
+                          rows={2}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
+                            <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700">
+                            <Sparkles className="w-3 h-3" />
+                          </button>
+                          <button 
+                            onClick={handleGenerateImage}
+                            disabled={isGeneratingImage || !imagePrompt.trim()}
+                            className="p-2 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-full transition-colors"
+                          >
+                            {isGeneratingImage ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Send className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Creations Gallery */}
                   {isLoadingCreations ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
@@ -1203,7 +1446,7 @@ const EbookDesignSidebar = ({
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <Images className="w-10 h-10 text-gray-300 mb-2" />
                       <p className="text-sm text-gray-500">No AI creations yet</p>
-                      <p className="text-xs text-gray-400">Generate your first image below</p>
+                      <p className="text-xs text-gray-400">Generate your first image above</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto">
@@ -1223,40 +1466,21 @@ const EbookDesignSidebar = ({
                       ))}
                     </div>
                   )}
-                  
-                  {/* AI Image Generation Prompt */}
-                  <div className="pt-3 border-t border-gray-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-4 h-4 text-purple-500" />
-                      <span className="text-sm font-medium text-gray-700">Generate Image</span>
-                    </div>
-                    <div className="relative">
-                      <textarea
-                        id="ai-image-prompt"
-                        value={imagePrompt}
-                        onChange={(e) => setImagePrompt(e.target.value)}
-                        placeholder="Describe the image you want to create..."
-                        className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-                      />
-                      <button 
-                        onClick={handleGenerateImage}
-                        disabled={isGeneratingImage || !imagePrompt.trim()}
-                        className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 text-white rounded-full transition-colors"
-                      >
-                        {isGeneratingImage ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Send className="w-3 h-3" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
                 </div>
               )}
 
               {/* Community Tab */}
               {imageTab === 'community' && (
                 <div className="space-y-3">
+                  {/* Search */}
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Press [Enter] To Search"
+                      className="pl-9"
+                    />
+                  </div>
+                  
                   {communityImages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <Users className="w-10 h-10 text-gray-300 mb-2" />
@@ -1278,6 +1502,384 @@ const EbookDesignSidebar = ({
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <span className="text-[10px] text-white font-medium">By {image.creator}</span>
                           </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Uploads Tab */}
+              {imageTab === 'uploads' && (
+                <div className="space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-gray-300 hover:border-emerald-400 text-gray-600 hover:text-emerald-600 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {isUploadingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    Upload Images
+                  </button>
+                  
+                  {uploadedImages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Upload className="w-10 h-10 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No uploaded images</p>
+                      <p className="text-xs text-gray-400">Upload your own images</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 max-h-[400px] overflow-y-auto">
+                      {uploadedImages.map((image: any) => (
+                        <button
+                          key={image.id}
+                          onClick={() => toast.success('Image added to canvas')}
+                          className="aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group"
+                        >
+                          <img 
+                            src={image.url} 
+                            alt={image.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Video Section */}
+          <SectionHeader id="video" title="Video" icon={Video} />
+          {expandedSections.has('video') && (
+            <div className="p-3 border-b border-gray-200">
+              {/* Tab Links - Centered with Icons */}
+              <div className="flex items-center justify-center gap-4 mb-4 border-b border-gray-200">
+                <button
+                  onClick={() => setVideoTab('stock')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    videoTab === 'stock' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Images className="w-3.5 h-3.5" />
+                  Stock
+                </button>
+                <button
+                  onClick={() => setVideoTab('creations')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    videoTab === 'creations' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Creations
+                </button>
+                <button
+                  onClick={() => setVideoTab('community')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    videoTab === 'community' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  Community
+                </button>
+                <button
+                  onClick={() => setVideoTab('uploads')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    videoTab === 'uploads' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Uploads
+                </button>
+              </div>
+              
+              {/* Stock Videos Tab */}
+              {videoTab === 'stock' && (
+                <div className="space-y-3">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      value={videoSearch}
+                      onChange={(e) => setVideoSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          fetchStockVideos(videoSearch || 'business');
+                        }
+                      }}
+                      placeholder="Press [Enter] To Search"
+                      className="pl-9"
+                    />
+                  </div>
+                  
+                  {isLoadingStockVideos ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto">
+                      {stockVideos.map((video: any) => (
+                        <button
+                          key={video.id}
+                          onClick={() => toast.success('Video added to canvas')}
+                          className="aspect-video rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group"
+                        >
+                          <img 
+                            src={video.image} 
+                            alt="Video thumbnail"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                            <Play className="w-8 h-8 text-white opacity-80" />
+                          </div>
+                          <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                            {Math.floor(video.duration / 60)}:{String(video.duration % 60).padStart(2, '0')}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Creations Tab */}
+              {videoTab === 'creations' && (
+                <div className="text-center py-8 text-gray-400">
+                  <Video className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No video creations yet</p>
+                </div>
+              )}
+
+              {/* Community Tab */}
+              {videoTab === 'community' && (
+                <div className="space-y-3">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input placeholder="Press [Enter] To Search" className="pl-9" />
+                  </div>
+                  <div className="text-center py-8 text-gray-400">
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No community videos</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Uploads Tab */}
+              {videoTab === 'uploads' && (
+                <div className="space-y-3">
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                  />
+                  <button 
+                    onClick={() => videoInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-gray-300 hover:border-emerald-400 text-gray-600 hover:text-emerald-600 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Videos
+                  </button>
+                  
+                  {uploadedVideos.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Upload className="w-10 h-10 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No uploaded videos</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto">
+                      {uploadedVideos.map((video: any) => (
+                        <button
+                          key={video.id}
+                          onClick={() => toast.success('Video added to canvas')}
+                          className="aspect-video rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group bg-gray-100"
+                        >
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play className="w-8 h-8 text-gray-500" />
+                          </div>
+                          <div className="absolute bottom-1 left-1 right-1 text-[10px] text-gray-600 truncate">
+                            {video.name}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Audio Section */}
+          <SectionHeader id="audio" title="Audio" icon={Music} />
+          {expandedSections.has('audio') && (
+            <div className="p-3 border-b border-gray-200">
+              {/* Tab Links - Centered with Icons */}
+              <div className="flex items-center justify-center gap-4 mb-4 border-b border-gray-200">
+                <button
+                  onClick={() => setAudioTab('stock')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    audioTab === 'stock' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Images className="w-3.5 h-3.5" />
+                  Stock
+                </button>
+                <button
+                  onClick={() => setAudioTab('creations')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    audioTab === 'creations' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Creations
+                </button>
+                <button
+                  onClick={() => setAudioTab('community')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    audioTab === 'community' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  Community
+                </button>
+                <button
+                  onClick={() => setAudioTab('uploads')}
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors ${
+                    audioTab === 'uploads' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  Uploads
+                </button>
+              </div>
+              
+              {/* Stock Audio Tab */}
+              {audioTab === 'stock' && (
+                <div className="space-y-3">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      value={audioSearch}
+                      onChange={(e) => setAudioSearch(e.target.value)}
+                      placeholder="Press [Enter] To Search"
+                      className="pl-9"
+                    />
+                  </div>
+                  
+                  {isLoadingStockAudio ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {stockAudio.map((audio: any) => (
+                        <button
+                          key={audio.id}
+                          onClick={() => toast.success('Audio added to canvas')}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all group"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                            <Play className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-gray-800 group-hover:text-emerald-700">{audio.name}</p>
+                            <p className="text-xs text-gray-500">{audio.duration}</p>
+                          </div>
+                          <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Creations Tab */}
+              {audioTab === 'creations' && (
+                <div className="text-center py-8 text-gray-400">
+                  <Music className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No audio creations yet</p>
+                </div>
+              )}
+
+              {/* Community Tab */}
+              {audioTab === 'community' && (
+                <div className="space-y-3">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input placeholder="Press [Enter] To Search" className="pl-9" />
+                  </div>
+                  <div className="text-center py-8 text-gray-400">
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No community audio</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Uploads Tab */}
+              {audioTab === 'uploads' && (
+                <div className="space-y-3">
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioUpload}
+                    className="hidden"
+                  />
+                  <button 
+                    onClick={() => audioInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-dashed border-gray-300 hover:border-emerald-400 text-gray-600 hover:text-emerald-600 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Audio
+                  </button>
+                  
+                  {uploadedAudio.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Upload className="w-10 h-10 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No uploaded audio</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {uploadedAudio.map((audio: any) => (
+                        <button
+                          key={audio.id}
+                          onClick={() => toast.success('Audio added to canvas')}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all group"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center flex-shrink-0">
+                            <Music className="w-4 h-4 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-medium text-gray-800 group-hover:text-emerald-700 truncate">{audio.name}</p>
+                          </div>
+                          <Plus className="w-4 h-4 text-gray-400 group-hover:text-emerald-500" />
                         </button>
                       ))}
                     </div>
