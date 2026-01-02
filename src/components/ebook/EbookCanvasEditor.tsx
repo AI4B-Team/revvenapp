@@ -2613,6 +2613,12 @@ const EbookCanvasEditor = ({
                     {/* Action icons below number */}
                     <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
+                        onClick={(e) => { e.stopPropagation(); handleAddPage(page.id); }}
+                        className="p-0.5 rounded hover:bg-gray-100"
+                      >
+                        <Plus className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                      </button>
+                      <button 
                         onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
                         className="p-0.5 rounded hover:bg-gray-100"
                       >
