@@ -1761,31 +1761,33 @@ const EbookCanvasEditor = ({
             draggable={false}
           />
           {/* Hover overlay with actions */}
-          <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/30 transition-all flex items-center justify-center gap-2 opacity-0 group-hover/image:opacity-100">
-            <button 
-              onClick={(e) => { 
-                e.stopPropagation();
-                updateElement(element.id, { src: undefined, isPlaceholder: true });
-              }}
-              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
-            >
-              <Replace className="w-3.5 h-3.5" />
-              Replace
-            </button>
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
-              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-gray-700 hover:bg-gray-100 flex items-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-              Edit
-            </button>
-            <button 
-              onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
-              className="px-3 py-1.5 bg-white rounded-md shadow-lg text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-1.5"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Delete
-            </button>
+          <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover/image:opacity-100 z-10">
+            <div className="flex items-center gap-1 bg-white rounded-full shadow-xl px-2 py-1.5">
+              <button 
+                onClick={(e) => { 
+                  e.stopPropagation();
+                  updateElement(element.id, { src: undefined, isPlaceholder: true });
+                }}
+                className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
+              >
+                <Replace className="w-3.5 h-3.5 text-gray-500" />
+                Replace
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
+                className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                Edit
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); deleteElement(element.id); }}
+                className="px-3 py-1.5 bg-white hover:bg-red-50 rounded-full text-xs font-medium text-red-600 flex items-center gap-1.5 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete
+              </button>
+            </div>
           </div>
           {isSelected && (
             <>
