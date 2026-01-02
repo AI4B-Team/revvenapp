@@ -2573,7 +2573,7 @@ const EbookCanvasEditor = ({
                 {currentPages.map((page, index) => (
                 <div 
                   key={page.id}
-                  className={`flex items-start gap-2 cursor-grab active:cursor-grabbing hover:bg-emerald-50 rounded-lg p-1 -ml-1 transition-colors ${
+                  className={`group flex items-start gap-2 cursor-grab active:cursor-grabbing hover:bg-emerald-50 rounded-lg p-1 -ml-1 transition-colors ${
                     dragOverPageIndex === index ? 'border-t-2 border-emerald-500' : ''
                   }`}
                   draggable
