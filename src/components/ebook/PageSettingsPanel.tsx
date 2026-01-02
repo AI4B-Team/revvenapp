@@ -407,7 +407,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
               </div>
               
               {/* Confirm Button */}
-              <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs">
+              <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
                 Confirm
               </Button>
             </div>
