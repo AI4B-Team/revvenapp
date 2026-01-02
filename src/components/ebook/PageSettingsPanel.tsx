@@ -219,7 +219,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </button>
       </div>
 
-      <div className="p-3 space-y-3 max-h-[520px] overflow-y-auto">
+      <div className="p-3 space-y-3">
         {/* Page Number */}
         <div>
           <label className="text-xs font-medium text-gray-600 mb-1.5 block">Page Number</label>
