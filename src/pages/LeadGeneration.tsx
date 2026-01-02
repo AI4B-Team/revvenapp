@@ -27,6 +27,7 @@ interface LeadHistoryItem {
   file_url: string;
   file_size: number | null;
   created_at: string;
+  isProcessing?: boolean; // For local processing state
 }
 
 interface PreviewData {
@@ -92,7 +93,24 @@ const LeadGeneration = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Merge with any processing items that aren't in the database yet
+      setHistory(prev => {
+        const processingItems = prev.filter(item => item.isProcessing);
+        const dbItems = (data || []) as LeadHistoryItem[];
+        
+        // Check if any processing items now have corresponding db entries
+        const updatedProcessing = processingItems.filter(pItem => {
+          // Keep processing item if no matching db entry exists yet
+          return !dbItems.some(dbItem => 
+            dbItem.platform === pItem.platform && 
+            dbItem.location === pItem.location &&
+            new Date(dbItem.created_at).getTime() > new Date(pItem.created_at).getTime() - 60000
+          );
+        });
+        
+        return [...updatedProcessing, ...dbItems];
+      });
     } catch (error) {
       console.error('Error fetching history:', error);
     }
@@ -117,6 +135,22 @@ const LeadGeneration = () => {
     }
 
     setIsLoading(true);
+
+    // Add a processing item to history immediately
+    const processingItem: LeadHistoryItem = {
+      id: `processing-${Date.now()}`,
+      location: formData.location,
+      platform: formData.platform,
+      keywords: formData.keywords,
+      num_leads: parseInt(formData.numberOfLeads),
+      file_name: 'Generating leads...',
+      file_url: '',
+      file_size: null,
+      created_at: new Date().toISOString(),
+      isProcessing: true
+    };
+    
+    setHistory(prev => [processingItem, ...prev]);
 
     try {
       // Collect URL query parameters
@@ -151,16 +185,22 @@ const LeadGeneration = () => {
         throw error;
       }
 
-      if (data?.fileUrl) {
-        toast.success('Leads generated! File saved to history.');
-        // Refresh history to show new file
-        fetchHistory();
-      } else {
-        toast.success('Lead generation started! Check your email for results.');
-      }
+      toast.success('Lead generation started! Processing in background...');
+      
+      // Clear form
+      setFormData({
+        location: '',
+        email: '',
+        numberOfLeads: '',
+        platform: '',
+        keywords: '',
+        websiteUrl: ''
+      });
     } catch (error) {
       console.error('Error triggering webhook:', error);
       toast.error('Failed to start lead generation. Please try again.');
+      // Remove the processing item on error
+      setHistory(prev => prev.filter(item => item.id !== processingItem.id));
     } finally {
       setIsLoading(false);
     }
@@ -532,56 +572,75 @@ const LeadGeneration = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors"
+                            className={`flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-primary/30 transition-colors ${item.isProcessing ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'}`}
                           >
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className="p-2 rounded-lg bg-primary/10">
-                                <FileSpreadsheet className="h-5 w-5 text-primary" />
+                              <div className={`p-2 rounded-lg ${item.isProcessing ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                                {item.isProcessing ? (
+                                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                                ) : (
+                                  <FileSpreadsheet className="h-5 w-5 text-primary" />
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{item.file_name}</p>
+                                <p className="text-sm font-medium truncate">
+                                  {item.isProcessing ? (
+                                    <span className="flex items-center gap-2">
+                                      <span>Processing...</span>
+                                      <span className="text-xs text-primary animate-pulse">Generating leads</span>
+                                    </span>
+                                  ) : (
+                                    item.file_name
+                                  )}
+                                </p>
                                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                   <span>{item.platform}</span>
                                   <span>•</span>
                                   <span>{item.location}</span>
-                                  <span>•</span>
-                                  <span>{formatFileSize(item.file_size)}</span>
+                                  {!item.isProcessing && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{formatFileSize(item.file_size)}</span>
+                                    </>
+                                  )}
                                 </div>
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                                   <Clock className="h-3 w-3" />
-                                  {formatDate(item.created_at)}
+                                  {item.isProcessing ? 'Just now' : formatDate(item.created_at)}
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-1 ml-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handlePreview(item.file_url, item.file_name)}
-                                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-                                title="Preview"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDownload(item.file_url, item.file_name)}
-                                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-                                title="Download"
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDelete(item.id, item.file_name)}
-                                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                title="Delete"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            {!item.isProcessing && (
+                              <div className="flex items-center gap-1 ml-2">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handlePreview(item.file_url, item.file_name)}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                                  title="Preview"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleDownload(item.file_url, item.file_name)}
+                                  className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                                  title="Download"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleDelete(item.id, item.file_name)}
+                                  className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
                           </motion.div>
                         ))}
                       </div>
