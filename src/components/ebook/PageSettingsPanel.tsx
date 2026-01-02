@@ -148,7 +148,7 @@ const PAGE_FORMAT_CATEGORIES = [
   },
 ];
 
-type SectionType = 'size' | 'shape' | 'style' | 'border' | 'background' | 'transform' | 'shadow' | null;
+type SectionType = 'size' | 'style' | 'border' | 'background' | null;
 
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
   const [openSection, setOpenSection] = useState<SectionType>('size');
@@ -335,12 +335,9 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const getSectionIcon = (section: SectionType) => {
     switch (section) {
       case 'size': return Maximize2;
-      case 'shape': return CircleDot;
       case 'style': return LayoutGrid;
       case 'border': return Square;
       case 'background': return Palette;
-      case 'transform': return RotateCw;
-      case 'shadow': return Layers;
       default: return FileText;
     }
   };
@@ -517,330 +514,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
             )}
           </div>
 
-          {/* Shape Settings Section */}
-          <div>
-            <SectionHeader title="Shape Settings" section="shape" isOpen={openSection === 'shape'} />
-            {openSection === 'shape' && (
-              <div className="p-3 space-y-4 border-b border-gray-200">
-                {/* Background Color */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-800">Background Color</span>
-                  <button
-                    className="w-10 h-7 rounded border border-gray-300"
-                    style={{ backgroundColor: shapeBackgroundColor }}
-                  />
-                </div>
-                
-                {/* Radius */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-800">Radius</span>
-                    <Switch
-                      checked={radiusEnabled}
-                      onCheckedChange={setRadiusEnabled}
-                    />
-                  </div>
-                  
-                  {radiusEnabled && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between relative">
-                        {/* Left side - Top Left and Bottom Left */}
-                        <div className="flex flex-col gap-2">
-                          <div className="relative">
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-t-2 border-gray-400 rounded-tl" />
-                            <Input
-                              type="number"
-                              value={radiusTopLeft}
-                              onChange={(e) => handleRadiusChange('tl', Number(e.target.value))}
-                              className="h-8 text-xs pl-7 pr-2 w-20"
-                            />
-                          </div>
-                          <div className="relative">
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-b-2 border-gray-400 rounded-bl" />
-                            <Input
-                              type="number"
-                              value={radiusBottomLeft}
-                              onChange={(e) => handleRadiusChange('bl', Number(e.target.value))}
-                              className="h-8 text-xs pl-7 pr-2 w-20"
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Center - Lock/Unlock button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => setRadiusLocked(!radiusLocked)}
-                              className="p-1.5 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50"
-                            >
-                              {radiusLocked ? (
-                                <Lock className="w-3 h-3 text-gray-600" />
-                              ) : (
-                                <Unlock className="w-3 h-3 text-gray-600" />
-                              )}
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{radiusLocked ? 'Unconstrain proportions' : 'Constrain proportions'}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        
-                        {/* Right side - Top Right and Bottom Right */}
-                        <div className="flex flex-col gap-2">
-                          <div className="relative">
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-t-2 border-gray-400 rounded-tr" />
-                            <Input
-                              type="number"
-                              value={radiusTopRight}
-                              onChange={(e) => handleRadiusChange('tr', Number(e.target.value))}
-                              className="h-8 text-xs pl-7 pr-2 w-20"
-                            />
-                          </div>
-                          <div className="relative">
-                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-b-2 border-gray-400 rounded-br" />
-                            <Input
-                              type="number"
-                              value={radiusBottomRight}
-                              onChange={(e) => handleRadiusChange('br', Number(e.target.value))}
-                              className="h-8 text-xs pl-7 pr-2 w-20"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Multi-Page Sync */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-semibold text-gray-800">Multi-Page Sync</span>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="w-3 h-3 text-gray-400" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Sync this element across multiple pages</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <Switch
-                      checked={multiPageSync}
-                      onCheckedChange={setMultiPageSync}
-                    />
-                  </div>
-                  
-                  {multiPageSync && (
-                    <div className="space-y-2 pl-1">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="syncMode"
-                          checked={syncMode === 'all'}
-                          onChange={() => setSyncMode('all')}
-                          className="text-cyan-500"
-                        />
-                        <span className="text-xs text-gray-600">All Pages</span>
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="syncMode"
-                          checked={syncMode === 'custom'}
-                          onChange={() => setSyncMode('custom')}
-                          className="text-cyan-500"
-                        />
-                        <span className="text-xs text-cyan-500">Custom Range</span>
-                      </label>
-                      
-                      {syncMode === 'custom' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full h-8 text-xs"
-                          onClick={handleEditPageRange}
-                        >
-                          Edit Page Range
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Opacity */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">Opacity</span>
-                  <div className="flex-1">
-                    <Slider
-                      value={[opacity]}
-                      onValueChange={(v) => setOpacity(v[0])}
-                      max={100}
-                      min={0}
-                      step={1}
-                      className="w-full"
-                      rangeClassName="bg-emerald-500"
-                      thumbClassName="border-emerald-500"
-                    />
-                  </div>
-                  <Input
-                    type="number"
-                    value={opacity}
-                    onChange={(e) => {
-                      const val = Math.min(100, Math.max(0, Number(e.target.value)));
-                      setOpacity(val);
-                    }}
-                    className="h-7 text-xs w-14"
-                    min={0}
-                    max={100}
-                  />
-                </div>
-                
-                {/* Rotation */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">Rotation</span>
-                  <div className="flex-1">
-                    <Slider
-                      value={[rotation]}
-                      onValueChange={(v) => setRotation(v[0])}
-                      max={360}
-                      min={-360}
-                      step={1}
-                      className="w-full"
-                      rangeClassName="bg-emerald-500"
-                      thumbClassName="border-emerald-500"
-                    />
-                  </div>
-                  <Input
-                    type="number"
-                    value={rotation}
-                    onChange={(e) => {
-                      const val = Math.min(360, Math.max(-360, Number(e.target.value)));
-                      setRotation(val);
-                    }}
-                    className="h-7 text-xs w-14"
-                    min={-360}
-                    max={360}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Shadow Section */}
-          <div>
-            <SectionHeader title="Shadow" section="shadow" isOpen={openSection === 'shadow'} />
-            {openSection === 'shadow' && (
-              <div className="p-3 space-y-3 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-semibold text-gray-800">Shadow</span>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-3 h-3 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Add a drop shadow to the element</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <Switch
-                    checked={shadowEnabled}
-                    onCheckedChange={setShadowEnabled}
-                  />
-                </div>
-                
-                {shadowEnabled && (
-                  <div className="space-y-3">
-                    {/* Color */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-800">Color</span>
-                      <button
-                        className="w-10 h-7 rounded border border-gray-300"
-                        style={{ backgroundColor: shadowColor }}
-                      />
-                    </div>
-                    
-                    {/* X */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-800">X</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24">
-                          <Slider
-                            value={[shadowX]}
-                            onValueChange={(v) => setShadowX(v[0])}
-                            max={50}
-                            min={-50}
-                            step={1}
-                            className="w-full"
-                            rangeClassName="bg-emerald-500"
-                            thumbClassName="border-emerald-500"
-                          />
-                        </div>
-                        <Input
-                          type="number"
-                          value={shadowX}
-                          onChange={(e) => setShadowX(Number(e.target.value))}
-                          className="h-7 text-xs w-14"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Y */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-800">Y</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24">
-                          <Slider
-                            value={[shadowY]}
-                            onValueChange={(v) => setShadowY(v[0])}
-                            max={50}
-                            min={-50}
-                            step={1}
-                            className="w-full"
-                            rangeClassName="bg-emerald-500"
-                            thumbClassName="border-emerald-500"
-                          />
-                        </div>
-                        <Input
-                          type="number"
-                          value={shadowY}
-                          onChange={(e) => setShadowY(Number(e.target.value))}
-                          className="h-7 text-xs w-14"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Blur */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-800">Blur</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24">
-                          <Slider
-                            value={[shadowBlur]}
-                            onValueChange={(v) => setShadowBlur(v[0])}
-                            max={50}
-                            min={0}
-                            step={1}
-                            className="w-full"
-                            rangeClassName="bg-emerald-500"
-                            thumbClassName="border-emerald-500"
-                          />
-                        </div>
-                        <Input
-                          type="number"
-                          value={shadowBlur}
-                          onChange={(e) => setShadowBlur(Number(e.target.value))}
-                          className="h-7 text-xs w-14"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
           {/* Style Section - Collapsible */}
           <div>
             <SectionHeader title="Style" section="style" isOpen={openSection === 'style'} />
@@ -908,75 +581,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                       <span className="text-[10px] text-gray-600 leading-tight block text-center">{style.name}</span>
                     </button>
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Border Section - Collapsible */}
-          <div>
-            <SectionHeader title="Border" section="border" isOpen={openSection === 'border'} />
-            {openSection === 'border' && (
-              <div className="p-3 space-y-3 border-b border-gray-200">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Type</span>
-                    <Select value={borderType} onValueChange={setBorderType}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no-border">No Border</SelectItem>
-                        <SelectItem value="all">All Sides</SelectItem>
-                        <SelectItem value="top-bottom">Top & Bottom</SelectItem>
-                        <SelectItem value="left-right">Left & Right</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Style</span>
-                    <Select value={borderStyle} onValueChange={setBorderStyle}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="solid">Solid</SelectItem>
-                        <SelectItem value="dashed">Dashed</SelectItem>
-                        <SelectItem value="dotted">Dotted</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Size</span>
-                    <Select value={borderSize} onValueChange={setBorderSize}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1px">1px</SelectItem>
-                        <SelectItem value="2px">2px</SelectItem>
-                        <SelectItem value="3px">3px</SelectItem>
-                        <SelectItem value="4px">4px</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Color</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        className="w-7 h-7 rounded border border-gray-300"
-                        style={{ backgroundColor: borderColor }}
-                      />
-                      <Input
-                        type="text"
-                        value={borderColor}
-                        onChange={(e) => setBorderColor(e.target.value)}
-                        className="h-7 text-xs flex-1"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -1136,6 +740,75 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Border Section - Collapsible */}
+          <div>
+            <SectionHeader title="Border" section="border" isOpen={openSection === 'border'} />
+            {openSection === 'border' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Type</span>
+                    <Select value={borderType} onValueChange={setBorderType}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no-border">No Border</SelectItem>
+                        <SelectItem value="all">All Sides</SelectItem>
+                        <SelectItem value="top-bottom">Top & Bottom</SelectItem>
+                        <SelectItem value="left-right">Left & Right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Style</span>
+                    <Select value={borderStyle} onValueChange={setBorderStyle}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="dashed">Dashed</SelectItem>
+                        <SelectItem value="dotted">Dotted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Size</span>
+                    <Select value={borderSize} onValueChange={setBorderSize}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1px">1px</SelectItem>
+                        <SelectItem value="2px">2px</SelectItem>
+                        <SelectItem value="3px">3px</SelectItem>
+                        <SelectItem value="4px">4px</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Color</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="w-7 h-7 rounded border border-gray-300"
+                        style={{ backgroundColor: borderColor }}
+                      />
+                      <Input
+                        type="text"
+                        value={borderColor}
+                        onChange={(e) => setBorderColor(e.target.value)}
+                        className="h-7 text-xs flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
