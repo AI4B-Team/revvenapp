@@ -75,7 +75,7 @@ interface CanvasElement {
 
 interface EbookCanvasEditorProps {
   pages: Page[];
-  selectedPageId: string;
+  selectedPageId: string | null;
   onPageSelect: (id: string) => void;
   onPageReorder?: (fromIndex: number, toIndex: number) => void;
   bookTitle: string;
@@ -518,11 +518,14 @@ const EbookCanvasEditor = ({
   const currentElement = currentPageElements.find(el => el.id === selectedElement);
 
   const updateElement = (elementId: string, updates: Partial<CanvasElement>) => {
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
     setPageElementsState(prev => {
-      const pageElements = prev[selectedPageId] || currentPageElements;
+      const pageElements = prev[pageId] || currentPageElements;
       return {
         ...prev,
-        [selectedPageId]: pageElements.map(el => 
+        [pageId]: pageElements.map(el => 
           el.id === elementId ? { ...el, ...updates } : el
         )
       };
@@ -530,6 +533,9 @@ const EbookCanvasEditor = ({
   };
 
   const deleteElement = (elementId: string) => {
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
     const element = currentPageElements.find(el => el.id === elementId);
     const isCoverOrChapterImage = element?.type === 'image' && 
       (element.id.includes('cover') || element.id.includes('chapter'));
@@ -537,20 +543,20 @@ const EbookCanvasEditor = ({
     if (isCoverOrChapterImage) {
       // Replace with placeholder
       setPageElementsState(prev => {
-        const pageElements = prev[selectedPageId] || currentPageElements;
+        const pageElements = prev[pageId] || currentPageElements;
         return {
           ...prev,
-          [selectedPageId]: pageElements.map(el => 
+          [pageId]: pageElements.map(el => 
             el.id === elementId ? { ...el, src: undefined, isPlaceholder: true } : el
           )
         };
       });
     } else {
       setPageElementsState(prev => {
-        const pageElements = prev[selectedPageId] || currentPageElements;
+        const pageElements = prev[pageId] || currentPageElements;
         return {
           ...prev,
-          [selectedPageId]: pageElements.filter(el => el.id !== elementId)
+          [pageId]: pageElements.filter(el => el.id !== elementId)
         };
       });
     }
