@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush } from 'lucide-react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -133,7 +133,7 @@ const PAGE_FORMAT_CATEGORIES = [
   },
 ];
 
-type SectionType = 'size' | 'style' | 'background' | null;
+type SectionType = 'size' | 'style' | 'border' | 'background' | null;
 
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
   const [openSection, setOpenSection] = useState<SectionType>('size');
@@ -268,6 +268,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     switch (section) {
       case 'size': return Maximize2;
       case 'style': return LayoutGrid;
+      case 'border': return Square;
       case 'background': return Palette;
       default: return FileText;
     }
@@ -303,7 +304,10 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col flex-shrink-0" onClick={(e) => e.stopPropagation()}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
-        <span className="font-semibold text-gray-900 text-sm">Page Settings</span>
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-gray-600" />
+          <span className="font-semibold text-gray-900 text-base">Page Settings</span>
+        </div>
         <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded transition-colors">
           <X className="w-4 h-4 text-gray-500" />
         </button>
@@ -508,68 +512,72 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   </button>
                 ))}
               </div>
-              
-              {/* Border Settings */}
-              <div className="mt-3 space-y-2">
-                <span className="text-[10px] text-gray-500 uppercase tracking-wide block">Border</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-[10px] text-gray-500 mb-1 block">Type</span>
-                    <Select value={borderType} onValueChange={setBorderType}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no-border">No Border</SelectItem>
-                        <SelectItem value="all">All Sides</SelectItem>
-                        <SelectItem value="top-bottom">Top & Bottom</SelectItem>
-                        <SelectItem value="left-right">Left & Right</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 mb-1 block">Style</span>
-                    <Select value={borderStyle} onValueChange={setBorderStyle}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="solid">Solid</SelectItem>
-                        <SelectItem value="dashed">Dashed</SelectItem>
-                        <SelectItem value="dotted">Dotted</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+            </div>
+          )}
+        </div>
+
+        {/* Border Section - Collapsible */}
+        <div>
+          <SectionHeader title="Border" section="border" isOpen={openSection === 'border'} />
+          {openSection === 'border' && (
+            <div className="p-3 space-y-3 border-b border-gray-200">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Type</span>
+                  <Select value={borderType} onValueChange={setBorderType}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no-border">No Border</SelectItem>
+                      <SelectItem value="all">All Sides</SelectItem>
+                      <SelectItem value="top-bottom">Top & Bottom</SelectItem>
+                      <SelectItem value="left-right">Left & Right</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-[10px] text-gray-500 mb-1 block">Size</span>
-                    <Select value={borderSize} onValueChange={setBorderSize}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1px">1px</SelectItem>
-                        <SelectItem value="2px">2px</SelectItem>
-                        <SelectItem value="3px">3px</SelectItem>
-                        <SelectItem value="4px">4px</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 mb-1 block">Color</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        className="w-7 h-7 rounded border border-gray-300"
-                        style={{ backgroundColor: borderColor }}
-                      />
-                      <Input
-                        type="text"
-                        value={borderColor}
-                        onChange={(e) => setBorderColor(e.target.value)}
-                        className="h-7 text-xs flex-1"
-                      />
-                    </div>
+                <div>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Style</span>
+                  <Select value={borderStyle} onValueChange={setBorderStyle}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="solid">Solid</SelectItem>
+                      <SelectItem value="dashed">Dashed</SelectItem>
+                      <SelectItem value="dotted">Dotted</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Size</span>
+                  <Select value={borderSize} onValueChange={setBorderSize}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1px">1px</SelectItem>
+                      <SelectItem value="2px">2px</SelectItem>
+                      <SelectItem value="3px">3px</SelectItem>
+                      <SelectItem value="4px">4px</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Color</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="w-7 h-7 rounded border border-gray-300"
+                      style={{ backgroundColor: borderColor }}
+                    />
+                    <Input
+                      type="text"
+                      value={borderColor}
+                      onChange={(e) => setBorderColor(e.target.value)}
+                      className="h-7 text-xs flex-1"
+                    />
                   </div>
                 </div>
               </div>
