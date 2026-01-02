@@ -2622,7 +2622,7 @@ const EbookCanvasEditor = ({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="left" className="text-xs">
-                          <p>Add Page</p>
+                          <p>Add New Page</p>
                         </TooltipContent>
                       </Tooltip>
                       <Tooltip>
