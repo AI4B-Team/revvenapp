@@ -6,12 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGoogle, FaLinkedinIn, FaFacebookF, FaInstagram, FaGlobe } from 'react-icons/fa';
 
 const LeadGeneration = () => {
+  const [searchParams] = useSearchParams();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
@@ -45,6 +47,12 @@ const LeadGeneration = () => {
     setIsLoading(true);
 
     try {
+      // Collect URL query parameters
+      const formQueryParameters: Record<string, string> = {};
+      searchParams.forEach((value, key) => {
+        formQueryParameters[key] = value;
+      });
+
       const payload = {
         'Location/Region': formData.location,
         'Your Email': formData.email,
@@ -53,7 +61,8 @@ const LeadGeneration = () => {
         'Target Industry/Keywords': formData.keywords,
         'Website URL (if Website selected)': formData.websiteUrl || '',
         submittedAt: new Date().toISOString(),
-        formMode: 'production'
+        formMode: 'production',
+        formQueryParameters
       };
 
       await fetch(webhookUrl, {
