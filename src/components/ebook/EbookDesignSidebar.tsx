@@ -853,7 +853,7 @@ const EbookDesignSidebar = ({
                 <Input
                   value={imageSearch}
                   onChange={(e) => setImageSearch(e.target.value)}
-                  placeholder="Search images..."
+                  placeholder="Search Images"
                   className="pl-9"
                 />
               </div>
@@ -880,7 +880,7 @@ const EbookDesignSidebar = ({
                   <textarea
                     value={imagePrompt}
                     onChange={(e) => setImagePrompt(e.target.value)}
-                    placeholder="Describe the image you want to generate..."
+                    placeholder="Describe the image you want to create"
                     className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
                   />
                   <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
