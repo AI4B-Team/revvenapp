@@ -334,6 +334,45 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_generation_history: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          keywords: string | null
+          location: string
+          num_leads: number
+          platform: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          keywords?: string | null
+          location: string
+          num_leads: number
+          platform: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          keywords?: string | null
+          location?: string
+          num_leads?: number
+          platform?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
