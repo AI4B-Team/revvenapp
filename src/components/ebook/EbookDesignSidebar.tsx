@@ -212,44 +212,44 @@ const ELEMENT_CATEGORIES = {
   },
 };
 
-// Languages for translation
+// Languages for translation with country flags
 const LANGUAGES = [
-  { code: 'af', name: 'Afrikaans' },
-  { code: 'sq', name: 'Albanian' },
-  { code: 'am', name: 'Amharic' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'hy', name: 'Armenian' },
-  { code: 'as', name: 'Assamese' },
-  { code: 'bn', name: 'Bengali' },
-  { code: 'bg', name: 'Bulgarian' },
-  { code: 'zh', name: 'Chinese' },
-  { code: 'hr', name: 'Croatian' },
-  { code: 'cs', name: 'Czech' },
-  { code: 'da', name: 'Danish' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'en', name: 'English' },
-  { code: 'fi', name: 'Finnish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-  { code: 'el', name: 'Greek' },
-  { code: 'hi', name: 'Hindi' },
-  { code: 'hu', name: 'Hungarian' },
-  { code: 'id', name: 'Indonesian' },
-  { code: 'it', name: 'Italian' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'ms', name: 'Malay' },
-  { code: 'no', name: 'Norwegian' },
-  { code: 'pl', name: 'Polish' },
-  { code: 'pt', name: 'Portuguese' },
-  { code: 'ro', name: 'Romanian' },
-  { code: 'ru', name: 'Russian' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'sv', name: 'Swedish' },
-  { code: 'th', name: 'Thai' },
-  { code: 'tr', name: 'Turkish' },
-  { code: 'uk', name: 'Ukrainian' },
-  { code: 'vi', name: 'Vietnamese' },
+  { code: 'af', name: 'Afrikaans', flag: '🇿🇦' },
+  { code: 'sq', name: 'Albanian', flag: '🇦🇱' },
+  { code: 'am', name: 'Amharic', flag: '🇪🇹' },
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+  { code: 'hy', name: 'Armenian', flag: '🇦🇲' },
+  { code: 'as', name: 'Assamese', flag: '🇮🇳' },
+  { code: 'bn', name: 'Bengali', flag: '🇧🇩' },
+  { code: 'bg', name: 'Bulgarian', flag: '🇧🇬' },
+  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'hr', name: 'Croatian', flag: '🇭🇷' },
+  { code: 'cs', name: 'Czech', flag: '🇨🇿' },
+  { code: 'da', name: 'Danish', flag: '🇩🇰' },
+  { code: 'nl', name: 'Dutch', flag: '🇳🇱' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'fi', name: 'Finnish', flag: '🇫🇮' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'el', name: 'Greek', flag: '🇬🇷' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'hu', name: 'Hungarian', flag: '🇭🇺' },
+  { code: 'id', name: 'Indonesian', flag: '🇮🇩' },
+  { code: 'it', name: 'Italian', flag: '🇮🇹' },
+  { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko', name: 'Korean', flag: '🇰🇷' },
+  { code: 'ms', name: 'Malay', flag: '🇲🇾' },
+  { code: 'no', name: 'Norwegian', flag: '🇳🇴' },
+  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
+  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
+  { code: 'ro', name: 'Romanian', flag: '🇷🇴' },
+  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'sv', name: 'Swedish', flag: '🇸🇪' },
+  { code: 'th', name: 'Thai', flag: '🇹🇭' },
+  { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
+  { code: 'uk', name: 'Ukrainian', flag: '🇺🇦' },
+  { code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
 ];
 
 // Tone of voice options
@@ -953,10 +953,10 @@ const EbookDesignSidebar = ({
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-800 mb-2">Translate To</h4>
                 <Select value={translateLanguage} onValueChange={setTranslateLanguage}>
-                  <SelectTrigger className="w-full border-emerald-200 focus:ring-emerald-500">
-                    <SelectValue placeholder="Select language" />
+                  <SelectTrigger className="w-full border-gray-200 focus:ring-emerald-500">
+                    <SelectValue placeholder="Select Language" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[280px]">
+                  <SelectContent className="max-h-[280px] bg-white z-50">
                     <div className="p-2 sticky top-0 bg-white border-b">
                       <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -970,13 +970,16 @@ const EbookDesignSidebar = ({
                     </div>
                     {filteredLanguages.map((lang) => (
                       <SelectItem key={lang.code} value={lang.code}>
-                        {lang.name}
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">{lang.flag}</span>
+                          <span>{lang.name}</span>
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="mt-1.5 text-xs text-gray-500">
-                  Automatically detect current language{' '}
+                  Automatically Detect Current Language{' '}
                   <button className="text-emerald-600 hover:text-emerald-700 underline">(Edit)</button>
                 </p>
               </div>
