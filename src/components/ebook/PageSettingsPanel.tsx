@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, Pipette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -151,7 +151,7 @@ const PAGE_FORMAT_CATEGORIES = [
 type SectionType = 'size' | 'style' | 'border' | 'background' | null;
 
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
-  const [openSection, setOpenSection] = useState<SectionType>('size');
+  const [openSection, setOpenSection] = useState<SectionType>(null);
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'pattern' | 'image'>('color');
   const [colorType, setColorType] = useState<'solid' | 'gradient'>('solid');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -199,6 +199,24 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [shadowX, setShadowX] = useState(4);
   const [shadowY, setShadowY] = useState(4);
   const [shadowBlur, setShadowBlur] = useState(2);
+  
+  // Color picker popover state
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const plusButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Theme colors for the color picker
+  const THEME_COLORS = [
+    ['#2563eb', '#1f2937', '#374151', '#ffffff', '#14b8a6', '#0d9488', '#06b6d4', '#22c55e'],
+    ['#bfdbfe', '#d1d5db', '#d1d5db', '#e5e7eb', '#99f6e4', '#a7f3d0', '#a5f3fc', '#bbf7d0'],
+    ['#93c5fd', '#9ca3af', '#9ca3af', '#d1d5db', '#5eead4', '#6ee7b7', '#67e8f9', '#86efac'],
+    ['#60a5fa', '#6b7280', '#6b7280', '#9ca3af', '#2dd4bf', '#34d399', '#22d3ee', '#4ade80'],
+    ['#3b82f6', '#4b5563', '#4b5563', '#6b7280', '#14b8a6', '#10b981', '#06b6d4', '#22c55e'],
+    ['#2563eb', '#374151', '#374151', '#4b5563', '#0d9488', '#059669', '#0891b2', '#16a34a'],
+  ];
+  
+  const STANDARD_COLORS = ['#000000', '#ffffff', '#ef4444', '#f97316', '#22c55e', '#3b82f6', '#a855f7'];
+  const [recentColors, setRecentColors] = useState<string[]>(['#ef4444', '#f97316']);
 
   const toggleSection = (section: SectionType) => {
     setOpenSection(openSection === section ? null : section);
@@ -265,6 +283,10 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     setBackgroundColor(color);
     setHexInput(color.toUpperCase());
     setSelectedGradient(null);
+    // Add to recent colors if not already there
+    if (!recentColors.includes(color) && color !== 'transparent') {
+      setRecentColors(prev => [color, ...prev.slice(0, 4)]);
+    }
   };
 
   const handleGradientSelect = (gradientId: string) => {
@@ -383,7 +405,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </div>
 
         {/* Page Number - Always visible at top, inline */}
-        <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0 flex items-center justify-between gap-3">
+        <div className="px-3 py-3 bg-gray-50 flex-shrink-0 flex items-center justify-between gap-3">
           <label className="text-sm font-semibold text-gray-800">Page Number</label>
           <Input
             type="text"
@@ -392,127 +414,126 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
             className="h-8 text-sm bg-white w-20"
           />
         </div>
+        
+        {/* Divider */}
+        <div className="border-b border-gray-200" />
+        
+        {/* Size Content - No longer collapsible, directly under Page Number */}
+        <div className="p-3 space-y-3 border-b border-gray-200">
+          {/* Resize by Format */}
+          <div>
+            <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
+            <Select value={pageFormat} onValueChange={handleFormatChange}>
+              <SelectTrigger className="h-9 text-sm font-medium justify-center border-2 border-gray-400">
+                <SelectValue>{getFormatDisplayName()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                <SelectItem value="custom" className="justify-center">Format</SelectItem>
+                {PAGE_FORMAT_CATEGORIES.map((category) => (
+                  <SelectGroup key={category.label}>
+                    <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
+                      {category.label}
+                    </SelectLabel>
+                    {category.formats.map((format) => (
+                      <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
+                          {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
+                          {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
+                          {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
+                          {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
+                          {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
+                            <FileText className="w-3 h-3 text-gray-400" />
+                          )}
+                          <span>{format.name}</span>
+                          <span className="text-gray-400 ml-1">- {format.dimensions}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Orientation */}
+          <div>
+            <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
+            <div className="flex gap-1">
+              <button
+                onClick={() => handleOrientationChange('portrait')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                  pageOrientation === 'portrait' 
+                    ? 'bg-teal-500 text-white border-teal-500' 
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
+                Portrait
+              </button>
+              <button
+                onClick={() => handleOrientationChange('landscape')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                  pageOrientation === 'landscape' 
+                    ? 'bg-teal-500 text-white border-teal-500' 
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
+                Landscape
+              </button>
+            </div>
+          </div>
+          
+          {/* Custom Size - W and H in fields */}
+          <span className="text-sm font-semibold text-gray-800 mb-1 block">Custom Size</span>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 relative">
+              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
+              <Input
+                type="number"
+                value={pageWidth}
+                onChange={(e) => handleWidthChange(Number(e.target.value))}
+                className="h-8 text-xs pl-7 pr-2"
+              />
+            </div>
+            <button 
+              onClick={() => setLinkDimensions(!linkDimensions)}
+              className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+            </button>
+            <div className="flex-1 relative">
+              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
+              <Input
+                type="number"
+                value={pageHeight}
+                onChange={(e) => handleHeightChange(Number(e.target.value))}
+                className="h-8 text-xs pl-7 pr-2"
+              />
+            </div>
+          </div>
+          
+          {/* Resize Content */}
+          <div className="flex items-center gap-2">
+            <Checkbox 
+              id="resize-content" 
+              checked={resizeContent}
+              onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+            />
+            <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
+              Resize Content
+            </label>
+          </div>
+          
+          {/* Confirm Button */}
+          <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
+            Confirm
+          </Button>
+        </div>
 
         {/* Scrollable sections */}
         <div className="flex-1 overflow-y-auto">
-          {/* Size Section - Collapsible */}
-          <div>
-            <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
-            {openSection === 'size' && (
-              <div className="p-3 space-y-3 border-b border-gray-200">
-                {/* Resize by Format */}
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
-                  <Select value={pageFormat} onValueChange={handleFormatChange}>
-                    <SelectTrigger className="h-9 text-sm font-medium justify-center border-2 border-gray-400">
-                      <SelectValue>{getFormatDisplayName()}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-80">
-                      <SelectItem value="custom" className="justify-center">Format</SelectItem>
-                      {PAGE_FORMAT_CATEGORIES.map((category) => (
-                        <SelectGroup key={category.label}>
-                          <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
-                            {category.label}
-                          </SelectLabel>
-                          {category.formats.map((format) => (
-                            <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
-                              <div className="flex items-center gap-2">
-                                {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
-                                {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
-                                {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
-                                {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
-                                {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
-                                {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
-                                  <FileText className="w-3 h-3 text-gray-400" />
-                                )}
-                                <span>{format.name}</span>
-                                <span className="text-gray-400 ml-1">- {format.dimensions}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {/* Orientation */}
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => handleOrientationChange('portrait')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                        pageOrientation === 'portrait' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
-                      Portrait
-                    </button>
-                    <button
-                      onClick={() => handleOrientationChange('landscape')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                        pageOrientation === 'landscape' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
-                      Landscape
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Custom Size - W and H in fields */}
-                <span className="text-sm font-semibold text-gray-800 mb-1 block">Custom Size</span>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
-                    <Input
-                      type="number"
-                      value={pageWidth}
-                      onChange={(e) => handleWidthChange(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
-                  </div>
-                  <button 
-                    onClick={() => setLinkDimensions(!linkDimensions)}
-                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="flex-1 relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
-                    <Input
-                      type="number"
-                      value={pageHeight}
-                      onChange={(e) => handleHeightChange(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
-                  </div>
-                </div>
-                
-                {/* Resize Content */}
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="resize-content" 
-                    checked={resizeContent}
-                    onCheckedChange={(checked) => setResizeContent(checked as boolean)}
-                  />
-                  <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
-                    Resize Content
-                  </label>
-                </div>
-                
-                {/* Confirm Button */}
-                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
-                  Confirm
-                </Button>
-              </div>
-            )}
-          </div>
 
           {/* Style Section - Collapsible */}
           <div>
@@ -626,12 +647,20 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 </div>
 
                 {backgroundTab === 'color' && (
-                  <div className="space-y-3">
+                  <div className="space-y-3 relative">
                     {/* Color Swatches - 2 rows of 8 */}
                     <div className="space-y-1.5">
                       <div className="flex gap-1.5">
-                        {/* + button first */}
-                        <button className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
+                        {/* + button first - opens color picker to the left */}
+                        <button 
+                          ref={plusButtonRef}
+                          onClick={() => setShowColorPicker(!showColorPicker)}
+                          className={`w-7 h-7 rounded-full border-2 border-dashed flex items-center justify-center transition-all ${
+                            showColorPicker 
+                              ? 'border-teal-500 text-teal-500' 
+                              : 'border-gray-300 text-gray-400 hover:border-gray-400'
+                          }`}
+                        >
                           <Plus className="w-3 h-3" />
                         </button>
                         {PROJECT_COLORS.slice(0, 7).map((color, idx) => (
@@ -715,6 +744,253 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Color Picker Popover - positioned to the left */}
+                    {showColorPicker && (
+                      <div 
+                        ref={colorPickerRef}
+                        className="absolute right-full top-0 mr-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50"
+                        style={{ marginTop: '-10px' }}
+                      >
+                        {/* Solid/Gradient Tabs */}
+                        <div className="flex gap-1 mb-4">
+                          <button
+                            onClick={() => setColorType('solid')}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
+                              colorType === 'solid' 
+                                ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
+                                : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                            }`}
+                          >
+                            <Palette className="w-4 h-4" />
+                            Solid
+                          </button>
+                          <button
+                            onClick={() => setColorType('gradient')}
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
+                              colorType === 'gradient' 
+                                ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
+                                : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                            }`}
+                          >
+                            <Square className="w-4 h-4" />
+                            Gradient
+                          </button>
+                        </div>
+                        
+                        {colorType === 'solid' && (
+                          <>
+                            {/* No Fill Option */}
+                            <button 
+                              onClick={() => handleColorSelect('transparent')}
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded border mb-3 transition-all ${
+                                backgroundColor === 'transparent' 
+                                  ? 'border-blue-500 bg-blue-50' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <div className="w-5 h-5 rounded border border-gray-300 bg-white relative overflow-hidden">
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="w-full h-0.5 bg-red-400 rotate-45" />
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-700">No Fill</span>
+                            </button>
+                            
+                            {/* Theme Colors */}
+                            <div className="mb-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-gray-700">Theme Colors</span>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Colors from your design theme</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                                <button className="text-sm text-teal-500 hover:text-teal-600">Edit</button>
+                              </div>
+                              <div className="space-y-1">
+                                {THEME_COLORS.map((row, rowIdx) => (
+                                  <div key={rowIdx} className="flex gap-1">
+                                    {row.map((color, colIdx) => (
+                                      <button
+                                        key={`${rowIdx}-${colIdx}`}
+                                        onClick={() => {
+                                          handleColorSelect(color);
+                                          setShowColorPicker(false);
+                                        }}
+                                        className={`w-8 h-8 rounded transition-all ${
+                                          backgroundColor === color 
+                                            ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                            : 'hover:scale-110'
+                                        }`}
+                                        style={{ backgroundColor: color }}
+                                      />
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Standard Colors */}
+                            <div className="mb-3">
+                              <div className="flex items-center gap-1 mb-2">
+                                <span className="text-sm font-medium text-gray-700">Standard Colors</span>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Common colors</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <div className="flex gap-1.5">
+                                {STANDARD_COLORS.map((color, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => {
+                                      handleColorSelect(color);
+                                      setShowColorPicker(false);
+                                    }}
+                                    className={`w-8 h-8 rounded transition-all ${
+                                      backgroundColor === color 
+                                        ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                        : 'hover:scale-110'
+                                    }`}
+                                    style={{ backgroundColor: color }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Recently Used */}
+                            {recentColors.length > 0 && (
+                              <div className="mb-3">
+                                <div className="flex items-center gap-1 mb-2">
+                                  <span className="text-sm font-medium text-gray-700">Recently Used</span>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Your recently used colors</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                                <div className="flex gap-1.5">
+                                  {recentColors.map((color, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => {
+                                        handleColorSelect(color);
+                                        setShowColorPicker(false);
+                                      }}
+                                      className={`w-8 h-8 rounded transition-all ${
+                                        backgroundColor === color 
+                                          ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                          : 'hover:scale-110'
+                                      }`}
+                                      style={{ backgroundColor: color }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Divider */}
+                            <div className="border-t border-gray-200 my-3" />
+                            
+                            {/* Color Gradient Picker */}
+                            <div className="relative h-40 rounded-lg overflow-hidden mb-3">
+                              <div 
+                                className="absolute inset-0"
+                                style={{
+                                  background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#2563eb'}), linear-gradient(to bottom, transparent, #000)`,
+                                  backgroundBlendMode: 'multiply'
+                                }}
+                              />
+                              <div className="absolute right-2 top-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md" />
+                              {/* Hue slider on right */}
+                              <div className="absolute right-0 top-0 bottom-0 w-6 flex flex-col items-center justify-center">
+                                <div 
+                                  className="w-4 h-full rounded-full"
+                                  style={{
+                                    background: 'linear-gradient(to bottom, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)'
+                                  }}
+                                />
+                              </div>
+                              {/* Lightness slider on far right */}
+                              <div className="absolute right-8 top-0 bottom-0 w-4 flex flex-col items-center justify-center">
+                                <div 
+                                  className="w-3 h-full rounded-full border border-gray-200"
+                                  style={{
+                                    background: 'linear-gradient(to bottom, #fff, #000)'
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            
+                            {/* HEX Input Row */}
+                            <div className="flex items-center gap-2">
+                              <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                                <Pipette className="w-4 h-4 text-gray-600" />
+                              </button>
+                              <Select defaultValue="hex">
+                                <SelectTrigger className="w-20 h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="hex">HEX</SelectItem>
+                                  <SelectItem value="rgb">RGB</SelectItem>
+                                  <SelectItem value="hsl">HSL</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                type="text"
+                                value={hexInput}
+                                onChange={(e) => {
+                                  setHexInput(e.target.value);
+                                  if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                                    setBackgroundColor(e.target.value);
+                                  }
+                                }}
+                                className="flex-1 h-8 text-xs"
+                              />
+                              <span className="text-sm text-gray-600">{bgOpacity}%</span>
+                            </div>
+                          </>
+                        )}
+                        
+                        {colorType === 'gradient' && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-4 gap-2">
+                              {GRADIENTS.map((gradient) => (
+                                <button
+                                  key={gradient.id}
+                                  onClick={() => {
+                                    handleGradientSelect(gradient.id);
+                                    setShowColorPicker(false);
+                                  }}
+                                  className={`w-full aspect-square rounded-lg transition-all ${
+                                    selectedGradient === gradient.id 
+                                      ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                      : 'hover:scale-105'
+                                  }`}
+                                  style={{
+                                    background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
