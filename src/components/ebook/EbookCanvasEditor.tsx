@@ -2602,12 +2602,51 @@ const EbookCanvasEditor = ({
                     e.preventDefault();
                   }}
                 >
-                  {/* Page Number on the left */}
-                  <span className={`text-xs font-medium mt-5 min-w-[16px] text-right ${
-                    selectedPageId === page.id ? 'text-emerald-600' : 'text-gray-400'
-                  }`}>
-                    {index + 1}
-                  </span>
+                  {/* Page Number and Action Icons on the left */}
+                  <div className="flex flex-col items-center gap-1 mt-1">
+                    <span className={`text-xs font-medium min-w-[16px] text-center ${
+                      selectedPageId === page.id ? 'text-emerald-600' : 'text-gray-400'
+                    }`}>
+                      {index + 1}
+                    </span>
+                    
+                    {/* Action icons below number */}
+                    <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Drag handle */}
+                      <div className="p-0.5 rounded text-gray-400 cursor-grab">
+                        <GripVertical className="w-3 h-3" />
+                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); }}
+                            className="p-0.5 rounded hover:bg-gray-100"
+                          >
+                            <SlidersHorizontal className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent side="left" align="start" className="w-72 p-0">
+                          <PageSettingsPanel 
+                            pageNumber={currentPages.findIndex(p => p.id === page.id) + 1}
+                            onClose={() => {}}
+                            onSettingsChange={(settings) => console.log('Settings change:', settings)}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
+                        className="p-0.5 rounded hover:bg-gray-100"
+                      >
+                        <Copy className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
+                        className="p-0.5 rounded hover:bg-gray-100"
+                      >
+                        <Trash2 className="w-3 h-3 text-gray-500 hover:text-red-500" />
+                      </button>
+                    </div>
+                  </div>
                   
                   {/* Page Thumbnail */}
                   <button
@@ -2638,38 +2677,6 @@ const EbookCanvasEditor = ({
                       }`}>
                         {page.title}
                       </p>
-                    </div>
-                    {/* Action buttons on hover */}
-                    <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); }}
-                            className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
-                          >
-                            <SlidersHorizontal className="w-2.5 h-2.5 text-gray-600" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent side="left" align="start" className="w-72 p-0">
-                          <PageSettingsPanel 
-                            pageNumber={currentPages.findIndex(p => p.id === page.id) + 1}
-                            onClose={() => {}}
-                            onSettingsChange={(settings) => console.log('Settings change:', settings)}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
-                        className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
-                      >
-                        <Copy className="w-2.5 h-2.5 text-gray-600" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
-                        className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
-                      >
-                        <Trash2 className="w-2.5 h-2.5 text-red-500" />
-                      </button>
                     </div>
                   </button>
                 </div>
