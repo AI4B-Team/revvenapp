@@ -66,15 +66,6 @@ const LeadGeneration = () => {
       });
 
       toast.success('Lead generation started! Check your email for results.');
-      
-      setFormData({
-        location: '',
-        email: '',
-        numberOfLeads: '',
-        platform: '',
-        keywords: '',
-        websiteUrl: ''
-      });
     } catch (error) {
       console.error('Error triggering webhook:', error);
       toast.error('Failed to start lead generation. Please try again.');
