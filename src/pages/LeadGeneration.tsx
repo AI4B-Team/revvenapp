@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Users, MapPin, Mail, Hash, Globe, Target, Settings, Loader2 } from 'lucide-react';
+import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LeadGeneration = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
+  const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
   const [formData, setFormData] = useState({
     location: '',
     email: '',
@@ -26,7 +27,7 @@ const LeadGeneration = () => {
     e.preventDefault();
 
     if (!webhookUrl) {
-      toast.error('Please enter your n8n webhook URL first');
+      toast.error('Webhook URL not configured');
       return;
     }
 
@@ -54,8 +55,6 @@ const LeadGeneration = () => {
         formMode: 'production'
       };
 
-      console.log('Sending to n8n webhook:', payload);
-
       await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -67,7 +66,6 @@ const LeadGeneration = () => {
 
       toast.success('Lead generation started! Check your email for results.');
       
-      // Reset form
       setFormData({
         location: '',
         email: '',
@@ -78,212 +76,298 @@ const LeadGeneration = () => {
       });
     } catch (error) {
       console.error('Error triggering webhook:', error);
-      toast.error('Failed to start lead generation. Please check your webhook URL.');
+      toast.error('Failed to start lead generation. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const formFields = [
+    { id: 'location', icon: MapPin, label: 'Location/Region', placeholder: 'e.g., Pattaya Thailand, New York, London', type: 'text' },
+    { id: 'email', icon: Mail, label: 'Your Email', placeholder: 'your@email.com', type: 'email', helper: 'Results will be sent to this email' },
+    { id: 'numberOfLeads', icon: Hash, label: 'Number of Leads', placeholder: 'e.g., 100, 500, 1000', type: 'number' },
+  ];
+
+  const platforms = [
+    { value: 'Google Maps', icon: '📍', label: 'Google Maps', description: 'Business Data' },
+    { value: 'LinkedIn', icon: '💼', label: 'LinkedIn', description: 'Professional Leads' },
+    { value: 'Facebook', icon: '📘', label: 'Facebook', description: 'Social Leads' },
+    { value: 'Instagram', icon: '📸', label: 'Instagram', description: 'Creator Leads' },
+    { value: 'Website', icon: '🌐', label: 'Website', description: 'Website Scraping' },
+  ];
 
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar onCollapseChange={setIsSidebarCollapsed} />
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <Header onMenuClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-2xl mx-auto">
-            <div className="mb-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <Users className="h-8 w-8 text-primary" />
-              </div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">AI Lead Generation Agent</h1>
-              <p className="text-muted-foreground">
-                Generate high-quality leads from multiple platforms using AI-powered scraping
-              </p>
-            </div>
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
+          {/* Animated background gradient */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+              className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full bg-primary/5 blur-3xl"
+              animate={{
+                x: [0, 100, 0],
+                y: [0, 50, 0],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div
+              className="absolute -bottom-1/2 -right-1/2 w-full h-full rounded-full bg-primary/3 blur-3xl"
+              animate={{
+                x: [0, -100, 0],
+                y: [0, -50, 0],
+                scale: [1.2, 1, 1.2],
+              }}
+              transition={{
+                duration: 15,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </div>
 
+          <div className="max-w-2xl mx-auto relative z-10">
+            {/* Header with animations */}
+            <motion.div 
+              className="mb-8 text-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <motion.div 
+                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mb-4 relative"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <motion.div
+                  className="absolute inset-0 rounded-full bg-primary/10"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <Users className="h-10 w-10 text-primary relative z-10" />
+              </motion.div>
+              <motion.h1 
+                className="text-3xl md:text-4xl font-bold text-foreground mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                AI Lead Generation Agent
+              </motion.h1>
+              <motion.p 
+                className="text-muted-foreground flex items-center justify-center gap-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Sparkles className="h-4 w-4 text-primary" />
+                Generate high-quality leads from multiple platforms
+                <Sparkles className="h-4 w-4 text-primary" />
+              </motion.p>
+            </motion.div>
 
-            {/* Lead Generation Form */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Generate Leads</CardTitle>
-                <CardDescription>
-                  Fill in the details below to start generating leads from your selected platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Location */}
-                  <div className="space-y-2">
-                    <Label htmlFor="location" className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      Location/Region *
-                    </Label>
-                    <Input
-                      id="location"
-                      placeholder="e.g., Pattaya Thailand, New York, London"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      required
-                    />
-                  </div>
+            {/* Main Form Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+                <CardHeader className="relative">
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-primary" />
+                    Generate Leads
+                  </CardTitle>
+                  <CardDescription>
+                    Fill in the details below to start generating leads from your selected platform
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Animated form fields */}
+                    {formFields.map((field, index) => (
+                      <motion.div 
+                        key={field.id}
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                      >
+                        <Label htmlFor={field.id} className="flex items-center gap-2">
+                          <field.icon className="h-4 w-4 text-primary" />
+                          {field.label} *
+                        </Label>
+                        <Input
+                          id={field.id}
+                          type={field.type}
+                          placeholder={field.placeholder}
+                          min={field.type === 'number' ? 1 : undefined}
+                          max={field.type === 'number' ? 10000 : undefined}
+                          value={formData[field.id as keyof typeof formData]}
+                          onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                          required
+                        />
+                        {field.helper && (
+                          <p className="text-xs text-muted-foreground">{field.helper}</p>
+                        )}
+                      </motion.div>
+                    ))}
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      Your Email *
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">Results will be sent to this email</p>
-                  </div>
-
-                  {/* Number of Leads */}
-                  <div className="space-y-2">
-                    <Label htmlFor="numberOfLeads" className="flex items-center gap-2">
-                      <Hash className="h-4 w-4 text-muted-foreground" />
-                      Number of Leads *
-                    </Label>
-                    <Input
-                      id="numberOfLeads"
-                      type="number"
-                      placeholder="e.g., 100, 500, 1000"
-                      min="1"
-                      max="10000"
-                      value={formData.numberOfLeads}
-                      onChange={(e) => setFormData({ ...formData, numberOfLeads: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  {/* Platform */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      Platform *
-                    </Label>
-                    <Select
-                      value={formData.platform}
-                      onValueChange={(value) => setFormData({ ...formData, platform: value })}
+                    {/* Platform Selection */}
+                    <motion.div 
+                      className="space-y-2"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 }}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a platform" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Google Maps">
-                          <div className="flex items-center gap-2">
-                            <span>📍</span> Google Maps
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="LinkedIn">
-                          <div className="flex items-center gap-2">
-                            <span>💼</span> LinkedIn
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Facebook">
-                          <div className="flex items-center gap-2">
-                            <span>📘</span> Facebook
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Instagram">
-                          <div className="flex items-center gap-2">
-                            <span>📸</span> Instagram
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Website">
-                          <div className="flex items-center gap-2">
-                            <span>🌐</span> Website
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <Label className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-primary" />
+                        Platform *
+                      </Label>
+                      <Select
+                        value={formData.platform}
+                        onValueChange={(value) => setFormData({ ...formData, platform: value })}
+                      >
+                        <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20">
+                          <SelectValue placeholder="Select a platform" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {platforms.map((platform) => (
+                            <SelectItem key={platform.value} value={platform.value}>
+                              <div className="flex items-center gap-2">
+                                <span>{platform.icon}</span> {platform.label}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </motion.div>
 
-                  {/* Keywords */}
-                  <div className="space-y-2">
-                    <Label htmlFor="keywords" className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      Target Industry/Keywords *
-                    </Label>
-                    <Input
-                      id="keywords"
-                      placeholder="e.g., Real estate agency, Photography, Restaurants"
-                      value={formData.keywords}
-                      onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  {/* Website URL (conditional) */}
-                  {formData.platform === 'Website' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="websiteUrl" className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-muted-foreground" />
-                        Website URL *
+                    {/* Keywords */}
+                    <motion.div 
+                      className="space-y-2"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 }}
+                    >
+                      <Label htmlFor="keywords" className="flex items-center gap-2">
+                        <Target className="h-4 w-4 text-primary" />
+                        Target Industry/Keywords *
                       </Label>
                       <Input
-                        id="websiteUrl"
-                        type="url"
-                        placeholder="https://example.com"
-                        value={formData.websiteUrl}
-                        onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-                        required={formData.platform === 'Website'}
+                        id="keywords"
+                        placeholder="e.g., Real estate agency, Photography, Restaurants"
+                        value={formData.keywords}
+                        onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                        className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        required
                       />
-                    </div>
-                  )}
+                    </motion.div>
 
-                  {/* Submit Button */}
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    size="lg"
-                    disabled={isLoading || !webhookUrl}
+                    {/* Website URL (conditional) */}
+                    <AnimatePresence>
+                      {formData.platform === 'Website' && (
+                        <motion.div 
+                          className="space-y-2"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Label htmlFor="websiteUrl" className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-primary" />
+                            Website URL *
+                          </Label>
+                          <Input
+                            id="websiteUrl"
+                            type="url"
+                            placeholder="https://example.com"
+                            value={formData.websiteUrl}
+                            onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                            className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            required={formData.platform === 'Website'}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Submit Button */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                    >
+                      <Button 
+                        type="submit" 
+                        className="w-full relative overflow-hidden group" 
+                        size="lg"
+                        disabled={isLoading}
+                      >
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0"
+                          initial={{ x: '-100%' }}
+                          whileHover={{ x: '100%' }}
+                          transition={{ duration: 0.5 }}
+                        />
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            Generating Leads...
+                          </>
+                        ) : (
+                          <>
+                            <Users className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                            Generate Leads
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Platform Cards */}
+            <motion.div 
+              className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+            >
+              {platforms.slice(0, 4).map((platform, index) => (
+                <motion.div
+                  key={platform.value}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Card 
+                    className={`text-center p-4 cursor-pointer transition-all duration-300 border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 ${formData.platform === platform.value ? 'border-primary bg-primary/5' : ''}`}
+                    onClick={() => setFormData({ ...formData, platform: platform.value })}
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating Leads...
-                      </>
-                    ) : (
-                      <>
-                        <Users className="mr-2 h-4 w-4" />
-                        Generate Leads
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Info Section */}
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="text-center p-4">
-                <div className="text-2xl mb-1">📍</div>
-                <div className="text-xs text-muted-foreground">Google Maps</div>
-                <div className="text-sm font-medium">Business Data</div>
-              </Card>
-              <Card className="text-center p-4">
-                <div className="text-2xl mb-1">💼</div>
-                <div className="text-xs text-muted-foreground">LinkedIn</div>
-                <div className="text-sm font-medium">Professional Leads</div>
-              </Card>
-              <Card className="text-center p-4">
-                <div className="text-2xl mb-1">📘</div>
-                <div className="text-xs text-muted-foreground">Facebook</div>
-                <div className="text-sm font-medium">Social Leads</div>
-              </Card>
-              <Card className="text-center p-4">
-                <div className="text-2xl mb-1">📸</div>
-                <div className="text-xs text-muted-foreground">Instagram</div>
-                <div className="text-sm font-medium">Creator Leads</div>
-              </Card>
-            </div>
+                    <motion.div 
+                      className="text-3xl mb-2"
+                      animate={formData.platform === platform.value ? { scale: [1, 1.2, 1] } : {}}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {platform.icon}
+                    </motion.div>
+                    <div className="text-xs text-muted-foreground">{platform.label}</div>
+                    <div className="text-sm font-medium">{platform.description}</div>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </main>
       </div>
