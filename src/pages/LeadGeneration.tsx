@@ -5,13 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap, Download, Trash2, FileSpreadsheet, Clock, History } from 'lucide-react';
+import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap, Download, Trash2, FileSpreadsheet, Clock, History, Eye, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGoogle, FaLinkedinIn, FaFacebookF, FaInstagram, FaGlobe } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
+import * as XLSX from 'xlsx';
 
 interface LeadHistoryItem {
   id: string;
@@ -25,6 +29,12 @@ interface LeadHistoryItem {
   created_at: string;
 }
 
+interface PreviewData {
+  headers: string[];
+  rows: string[][];
+  fileName: string;
+}
+
 const LeadGeneration = () => {
   const [searchParams] = useSearchParams();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -32,6 +42,9 @@ const LeadGeneration = () => {
   const [history, setHistory] = useState<LeadHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<PreviewData | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [formData, setFormData] = useState({
     location: '',
     email: '',
@@ -165,6 +178,33 @@ const LeadGeneration = () => {
     } catch (error) {
       console.error('Error deleting file:', error);
       toast.error('Failed to delete file');
+    }
+  };
+
+  const handlePreview = async (fileUrl: string, fileName: string) => {
+    setIsLoadingPreview(true);
+    setPreviewOpen(true);
+    try {
+      const response = await fetch(fileUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json<string[]>(worksheet, { header: 1 });
+      
+      if (jsonData.length > 0) {
+        const headers = jsonData[0] as string[];
+        const rows = jsonData.slice(1, 101) as string[][]; // Limit to 100 rows for preview
+        setPreviewData({ headers, rows, fileName });
+      } else {
+        setPreviewData({ headers: [], rows: [], fileName });
+      }
+    } catch (error) {
+      console.error('Error loading preview:', error);
+      toast.error('Failed to load file preview');
+      setPreviewOpen(false);
+    } finally {
+      setIsLoadingPreview(false);
     }
   };
 
@@ -491,12 +531,22 @@ const LeadGeneration = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 ml-2">
+                            <div className="flex items-center gap-1 ml-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handlePreview(item.file_url, item.file_name)}
+                                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                                title="Preview"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleDownload(item.file_url, item.file_name)}
                                 className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                                title="Download"
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
@@ -505,6 +555,7 @@ const LeadGeneration = () => {
                                 variant="ghost"
                                 onClick={() => handleDelete(item.id, item.file_name)}
                                 className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                title="Delete"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -552,6 +603,61 @@ const LeadGeneration = () => {
               ))}
             </motion.div>
           </div>
+
+          {/* XLSX Preview Dialog */}
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5 text-primary" />
+                  {previewData?.fileName || 'File Preview'}
+                </DialogTitle>
+              </DialogHeader>
+              {isLoadingPreview ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-3 text-muted-foreground">Loading preview...</span>
+                </div>
+              ) : previewData && previewData.headers.length > 0 ? (
+                <ScrollArea className="flex-1 border rounded-lg">
+                  <div className="min-w-max">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          {previewData.headers.map((header, idx) => (
+                            <TableHead key={idx} className="font-semibold whitespace-nowrap">
+                              {header || `Column ${idx + 1}`}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {previewData.rows.map((row, rowIdx) => (
+                          <TableRow key={rowIdx} className="hover:bg-muted/30">
+                            {previewData.headers.map((_, colIdx) => (
+                              <TableCell key={colIdx} className="whitespace-nowrap">
+                                {row[colIdx] ?? ''}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileSpreadsheet className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                  <p>No data found in file</p>
+                </div>
+              )}
+              {previewData && previewData.rows.length >= 100 && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Showing first 100 rows. Download the file to see all data.
+                </p>
+              )}
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </div>
