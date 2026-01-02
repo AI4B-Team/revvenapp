@@ -2170,8 +2170,13 @@ const EbookCanvasEditor = ({
 
                 {/* Controls moved to parent title bar */}
                 
-                {/* All Pages in Canvas - scrollable */}
-                <div className="flex flex-col items-center gap-8 py-4">
+                {/* All Pages in Canvas - scrollable, shifts left when page settings open */}
+                <div 
+                  className="flex flex-col items-center gap-8 py-4 transition-all duration-300"
+                  style={{
+                    marginRight: pageSettingsOpenId ? '320px' : '0px',
+                  }}
+                >
                   {pages.map((page, pageIndex) => {
                     const pageElements = getPageElements(page);
                     const isSelected = page.id === selectedPageId;
