@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square } from 'lucide-react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, Move, CircleDot, Layers, RotateCw, Lock, Unlock, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import {
   Select,
   SelectContent,
@@ -12,6 +14,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PageSettingsPanelProps {
   pageNumber: number;
@@ -133,10 +148,10 @@ const PAGE_FORMAT_CATEGORIES = [
   },
 ];
 
-type SectionType = 'size' | 'style' | 'border' | 'background' | null;
+type SectionType = 'position' | 'size' | 'shape' | 'style' | 'border' | 'background' | 'transform' | 'shadow' | null;
 
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
-  const [openSection, setOpenSection] = useState<SectionType>('size');
+  const [openSection, setOpenSection] = useState<SectionType>('position');
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'pattern' | 'image'>('color');
   const [colorType, setColorType] = useState<'solid' | 'gradient'>('solid');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -148,7 +163,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [borderColor, setBorderColor] = useState('#e5e7eb');
   const [selectedLayout, setSelectedLayout] = useState('single-column');
   const [hexInput, setHexInput] = useState('#FFFFFF');
-  const [opacity, setOpacity] = useState(100);
+  const [bgOpacity, setBgOpacity] = useState(100);
   
   // Page Size state
   const [pageFormat, setPageFormat] = useState('custom');
@@ -157,6 +172,39 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [pageHeight, setPageHeight] = useState(1131);
   const [linkDimensions, setLinkDimensions] = useState(false);
   const [resizeContent, setResizeContent] = useState(true);
+  
+  // Position state
+  const [posX, setPosX] = useState(0);
+  const [posY, setPosY] = useState(0);
+  const [posW, setPosW] = useState(1276);
+  const [posH, setPosH] = useState(825);
+  
+  // Shape Settings state
+  const [shapeBackgroundColor, setShapeBackgroundColor] = useState('#2563eb');
+  const [radiusEnabled, setRadiusEnabled] = useState(false);
+  const [radiusLocked, setRadiusLocked] = useState(true);
+  const [radiusTopLeft, setRadiusTopLeft] = useState(10);
+  const [radiusTopRight, setRadiusTopRight] = useState(10);
+  const [radiusBottomLeft, setRadiusBottomLeft] = useState(10);
+  const [radiusBottomRight, setRadiusBottomRight] = useState(10);
+  
+  // Multi-Page Sync state
+  const [multiPageSync, setMultiPageSync] = useState(false);
+  const [syncMode, setSyncMode] = useState<'all' | 'custom'>('all');
+  const [customPageRange, setCustomPageRange] = useState('1-5');
+  const [showPageRangeModal, setShowPageRangeModal] = useState(false);
+  const [tempPageRange, setTempPageRange] = useState('');
+  
+  // Transform state
+  const [opacity, setOpacity] = useState(100);
+  const [rotation, setRotation] = useState(0);
+  
+  // Shadow state
+  const [shadowEnabled, setShadowEnabled] = useState(false);
+  const [shadowColor, setShadowColor] = useState('#6b7280');
+  const [shadowX, setShadowX] = useState(4);
+  const [shadowY, setShadowY] = useState(4);
+  const [shadowBlur, setShadowBlur] = useState(2);
 
   const toggleSection = (section: SectionType) => {
     setOpenSection(openSection === section ? null : section);
@@ -164,7 +212,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   
   const getFormatDisplayName = () => {
     if (pageFormat === 'custom') {
-      return `Custom - ${pageWidth}×${pageHeight}px`;
+      return 'Custom';
     }
     for (const category of PAGE_FORMAT_CATEGORIES) {
       const format = category.formats.find(f => f.id === pageFormat);
@@ -229,6 +277,32 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     setSelectedGradient(gradientId);
     setColorType('gradient');
   };
+  
+  const handleRadiusChange = (corner: 'tl' | 'tr' | 'bl' | 'br', value: number) => {
+    if (radiusLocked) {
+      setRadiusTopLeft(value);
+      setRadiusTopRight(value);
+      setRadiusBottomLeft(value);
+      setRadiusBottomRight(value);
+    } else {
+      switch (corner) {
+        case 'tl': setRadiusTopLeft(value); break;
+        case 'tr': setRadiusTopRight(value); break;
+        case 'bl': setRadiusBottomLeft(value); break;
+        case 'br': setRadiusBottomRight(value); break;
+      }
+    }
+  };
+  
+  const handleEditPageRange = () => {
+    setTempPageRange(customPageRange);
+    setShowPageRangeModal(true);
+  };
+  
+  const handleConfirmPageRange = () => {
+    setCustomPageRange(tempPageRange);
+    setShowPageRangeModal(false);
+  };
 
   const renderPatternPreview = (patternId: string) => {
     const patternStyles: Record<string, string> = {
@@ -266,10 +340,14 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
 
   const getSectionIcon = (section: SectionType) => {
     switch (section) {
+      case 'position': return Move;
       case 'size': return Maximize2;
+      case 'shape': return CircleDot;
       case 'style': return LayoutGrid;
       case 'border': return Square;
       case 'background': return Palette;
+      case 'transform': return RotateCw;
+      case 'shadow': return Layers;
       default: return FileText;
     }
   };
@@ -301,466 +379,865 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-gray-600" />
-          <span className="font-semibold text-gray-900 text-base">Page Settings</span>
-        </div>
-        <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded transition-colors">
-          <X className="w-4 h-4 text-gray-500" />
-        </button>
-      </div>
-
-      {/* Page Number - Always visible at top, inline */}
-      <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0 flex items-center justify-between gap-3">
-        <label className="text-sm font-semibold text-gray-800">Page Number</label>
-        <Input
-          type="text"
-          value={pageNumber}
-          readOnly
-          className="h-8 text-sm bg-white w-20"
-        />
-      </div>
-
-      {/* Scrollable sections */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Size Section - Collapsible */}
-        <div>
-          <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
-          {openSection === 'size' && (
-            <div className="p-3 space-y-3 border-b border-gray-200">
-              {/* Resize by Format */}
-              <div>
-                <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
-                <Select value={pageFormat} onValueChange={handleFormatChange}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue>{getFormatDisplayName()}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    <SelectItem value="custom">Custom</SelectItem>
-                    {PAGE_FORMAT_CATEGORIES.map((category) => (
-                      <SelectGroup key={category.label}>
-                        <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
-                          {category.label}
-                        </SelectLabel>
-                        {category.formats.map((format) => (
-                          <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
-                            <div className="flex items-center gap-2">
-                              {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
-                              {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
-                              {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
-                              {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
-                              {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
-                              {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
-                                <FileText className="w-3 h-3 text-gray-400" />
-                              )}
-                              <span>{format.name}</span>
-                              <span className="text-gray-400 ml-1">- {format.dimensions}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Orientation */}
-              <div>
-                <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handleOrientationChange('portrait')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                      pageOrientation === 'portrait' 
-                        ? 'bg-teal-500 text-white border-teal-500' 
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
-                    Portrait
-                  </button>
-                  <button
-                    onClick={() => handleOrientationChange('landscape')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                      pageOrientation === 'landscape' 
-                        ? 'bg-teal-500 text-white border-teal-500' 
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
-                    Landscape
-                  </button>
-                </div>
-              </div>
-              
-              {/* Custom Size - W and H in fields */}
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
-                  <Input
-                    type="number"
-                    value={pageWidth}
-                    onChange={(e) => handleWidthChange(Number(e.target.value))}
-                    className="h-8 text-xs pl-7 pr-2"
-                  />
-                </div>
-                <button 
-                  onClick={() => setLinkDimensions(!linkDimensions)}
-                  className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                >
-                  <Link2 className="w-3.5 h-3.5" />
-                </button>
-                <div className="flex-1 relative">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
-                  <Input
-                    type="number"
-                    value={pageHeight}
-                    onChange={(e) => handleHeightChange(Number(e.target.value))}
-                    className="h-8 text-xs pl-7 pr-2"
-                  />
-                </div>
-              </div>
-              
-              {/* Resize Content */}
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="resize-content" 
-                  checked={resizeContent}
-                  onCheckedChange={(checked) => setResizeContent(checked as boolean)}
-                />
-                <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
-                  Resize Content
-                </label>
-              </div>
-              
-              {/* Confirm Button */}
-              <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
-                Confirm
-              </Button>
-            </div>
-          )}
+    <TooltipProvider>
+      <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 text-gray-600" />
+            <span className="font-semibold text-gray-900 text-base">Page Settings</span>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded transition-colors">
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
         </div>
 
-        {/* Style Section - Collapsible */}
-        <div>
-          <SectionHeader title="Style" section="style" isOpen={openSection === 'style'} />
-          {openSection === 'style' && (
-            <div className="p-3 border-b border-gray-200">
-              <div className="grid grid-cols-2 gap-2">
-                {LAYOUT_STYLES.map((style) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setSelectedLayout(style.id)}
-                    className={`p-2 rounded-lg border-2 transition-all ${
-                      selectedLayout === style.id
-                        ? 'border-teal-500 bg-teal-50'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="aspect-[3/4] bg-gray-100 rounded mb-1 flex items-center justify-center overflow-hidden">
-                      {style.preview === 'single' && (
-                        <div className="w-full h-full p-1.5 flex flex-col gap-0.5">
-                          <div className="h-1.5 w-1/2 bg-cyan-400 rounded-sm" />
-                          <div className="flex-1 space-y-0.5">
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-0.5 w-3/4 bg-gray-300" />
-                          </div>
-                        </div>
-                      )}
-                      {style.preview === 'double' && (
-                        <div className="w-full h-full p-1.5 flex gap-1">
-                          <div className="flex-1 space-y-0.5">
-                            <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                          </div>
-                          <div className="flex-1 space-y-0.5 pt-2">
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                          </div>
-                        </div>
-                      )}
-                      {style.preview === 'double-img' && (
-                        <div className="w-full h-full p-1.5 flex gap-1">
-                          <div className="flex-1 space-y-0.5">
-                            <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-6 w-full bg-gradient-to-br from-green-200 to-green-300 rounded-sm mt-1" />
-                          </div>
-                          <div className="flex-1 space-y-0.5 pt-2">
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-6 w-full bg-gradient-to-br from-blue-200 to-blue-300 rounded-sm mt-1" />
-                          </div>
-                        </div>
-                      )}
-                      {style.preview === 'single-img' && (
-                        <div className="w-full h-full p-1.5 flex gap-1">
-                          <div className="w-1/3 h-full bg-gradient-to-br from-orange-200 to-orange-300 rounded-sm" />
-                          <div className="flex-1 space-y-0.5">
-                            <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                            <div className="h-0.5 w-full bg-gray-300" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-gray-600 leading-tight block text-center">{style.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Page Number - Always visible at top, inline */}
+        <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0 flex items-center justify-between gap-3">
+          <label className="text-sm font-semibold text-gray-800">Page Number</label>
+          <Input
+            type="text"
+            value={pageNumber}
+            readOnly
+            className="h-8 text-sm bg-white w-20"
+          />
         </div>
 
-        {/* Border Section - Collapsible */}
-        <div>
-          <SectionHeader title="Border" section="border" isOpen={openSection === 'border'} />
-          {openSection === 'border' && (
-            <div className="p-3 space-y-3 border-b border-gray-200">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Type</span>
-                  <Select value={borderType} onValueChange={setBorderType}>
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="no-border">No Border</SelectItem>
-                      <SelectItem value="all">All Sides</SelectItem>
-                      <SelectItem value="top-bottom">Top & Bottom</SelectItem>
-                      <SelectItem value="left-right">Left & Right</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Style</span>
-                  <Select value={borderStyle} onValueChange={setBorderStyle}>
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="solid">Solid</SelectItem>
-                      <SelectItem value="dashed">Dashed</SelectItem>
-                      <SelectItem value="dotted">Dotted</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Size</span>
-                  <Select value={borderSize} onValueChange={setBorderSize}>
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1px">1px</SelectItem>
-                      <SelectItem value="2px">2px</SelectItem>
-                      <SelectItem value="3px">3px</SelectItem>
-                      <SelectItem value="4px">4px</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Color</span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      className="w-7 h-7 rounded border border-gray-300"
-                      style={{ backgroundColor: borderColor }}
-                    />
-                    <Input
-                      type="text"
-                      value={borderColor}
-                      onChange={(e) => setBorderColor(e.target.value)}
-                      className="h-7 text-xs flex-1"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Background Section - Collapsible */}
-        <div>
-          <SectionHeader title="Background" section="background" isOpen={openSection === 'background'} />
-          {openSection === 'background' && (
-            <div className="p-3 space-y-3 border-b border-gray-200">
-              {/* Color/Pattern/Image Buttons */}
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setBackgroundTab('color')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
-                    backgroundTab === 'color' 
-                      ? 'bg-teal-500 text-white border-teal-500' 
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  Color
-                </button>
-                <button
-                  onClick={() => setBackgroundTab('pattern')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
-                    backgroundTab === 'pattern' 
-                      ? 'bg-teal-500 text-white border-teal-500' 
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  Pattern
-                </button>
-                <button
-                  onClick={() => setBackgroundTab('image')}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
-                    backgroundTab === 'image' 
-                      ? 'bg-teal-500 text-white border-teal-500' 
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  Image
-                </button>
-              </div>
-
-              {backgroundTab === 'color' && (
-                <div className="space-y-3">
-                  {/* Solid/Gradient Toggle */}
-                  <div className="flex gap-1 bg-gray-100 p-0.5 rounded">
-                    <button
-                      onClick={() => setColorType('solid')}
-                      className={`flex-1 text-xs py-1.5 rounded transition-colors ${
-                        colorType === 'solid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                      }`}
-                    >
-                      Solid
-                    </button>
-                    <button
-                      onClick={() => setColorType('gradient')}
-                      className={`flex-1 text-xs py-1.5 rounded transition-colors ${
-                        colorType === 'gradient' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                      }`}
-                    >
-                      Gradient
-                    </button>
-                  </div>
-
-                  {colorType === 'solid' && (
-                    <>
-                      {/* Project Colors */}
-                      <div>
-                        <span className="text-sm font-semibold text-gray-800 mb-2 block">Project Colors</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {PROJECT_COLORS.map((color, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => handleColorSelect(color)}
-                              className={`w-7 h-7 rounded-full border-2 transition-all ${
-                                backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                              style={{
-                                backgroundColor: color === 'transparent' ? 'transparent' : color,
-                                backgroundImage: color === 'transparent'
-                                  ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)'
-                                  : 'none',
-                                backgroundSize: color === 'transparent' ? '6px 6px' : 'auto',
-                                backgroundPosition: color === 'transparent' ? '0 0, 3px 3px' : 'auto',
-                              }}
-                            />
-                          ))}
-                          <button className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
+        {/* Scrollable sections */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Position Section */}
+          <div>
+            <SectionHeader title="Position" section="position" isOpen={openSection === 'position'} />
+            {openSection === 'position' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                {/* Alignment buttons */}
+                <div className="flex items-center gap-1 justify-center">
+                  {['align-left', 'align-center-h', 'align-right', 'align-top', 'align-center-v', 'align-bottom', 'distribute-h', 'distribute-v'].map((align, idx) => (
+                    <button key={idx} className="p-1.5 hover:bg-gray-100 rounded border border-gray-200">
+                      <div className="w-4 h-4 flex items-center justify-center text-gray-500">
+                        {idx === 0 && <div className="w-0.5 h-3 bg-gray-500 mr-1" />}
+                        {idx === 1 && <div className="w-3 h-0.5 bg-gray-500" />}
+                        {idx === 2 && <div className="w-0.5 h-3 bg-gray-500 ml-1" />}
+                        {idx === 3 && <div className="w-3 h-0.5 bg-gray-500 mb-1" />}
+                        {idx === 4 && <div className="w-0.5 h-3 bg-gray-500" />}
+                        {idx === 5 && <div className="w-3 h-0.5 bg-gray-500 mt-1" />}
+                        {idx === 6 && <div className="flex gap-0.5"><div className="w-0.5 h-3 bg-gray-500" /><div className="w-0.5 h-3 bg-gray-500" /></div>}
+                        {idx === 7 && <div className="flex flex-col gap-0.5"><div className="w-3 h-0.5 bg-gray-500" /><div className="w-3 h-0.5 bg-gray-500" /></div>}
                       </div>
-
-                      {/* Brand Kit */}
-                      <button className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Auto-fill your brand colors
-                      </button>
-
-                      {/* HEX Input */}
-                      <div className="flex gap-2">
-                        <div className="flex-1">
-                          <span className="text-sm font-semibold text-gray-800 mb-2 block">HEX</span>
-                          <Input
-                            type="text"
-                            value={hexInput}
-                            onChange={(e) => {
-                              setHexInput(e.target.value);
-                              if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-                                setBackgroundColor(e.target.value);
-                              }
-                            }}
-                            className="h-7 text-xs"
-                          />
-                        </div>
-                        <div className="w-16">
-                          <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
-                          <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              value={opacity}
-                              onChange={(e) => setOpacity(Number(e.target.value))}
-                              min={0}
-                              max={100}
-                              className="h-7 text-xs w-12"
-                            />
-                            <span className="text-xs text-gray-500">%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {colorType === 'gradient' && (
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {GRADIENTS.map((gradient) => (
-                        <button
-                          key={gradient.id}
-                          onClick={() => handleGradientSelect(gradient.id)}
-                          className={`aspect-square rounded-lg border-2 transition-all ${
-                            selectedGradient === gradient.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          style={{
-                            background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {backgroundTab === 'pattern' && (
-                <div className="grid grid-cols-4 gap-1.5">
-                  {PATTERNS.map((pattern) => (
-                    <button
-                      key={pattern.id}
-                      onClick={() => setSelectedPattern(pattern.id)}
-                      className="aspect-square"
-                    >
-                      {renderPatternPreview(pattern.id)}
                     </button>
                   ))}
                 </div>
-              )}
+                
+                {/* X, Y, W, H fields */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">X</span>
+                    <Input
+                      type="number"
+                      value={posX}
+                      onChange={(e) => setPosX(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">Y</span>
+                    <Input
+                      type="number"
+                      value={posY}
+                      onChange={(e) => setPosY(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
+                    <Input
+                      type="number"
+                      value={posW}
+                      onChange={(e) => setPosW(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
+                    <Input
+                      type="number"
+                      value={posH}
+                      onChange={(e) => setPosH(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                </div>
+                
+                {/* Replace button */}
+                <Button variant="outline" className="w-full h-8 text-xs">
+                  <Share2 className="w-3 h-3 mr-1.5" />
+                  Replace
+                </Button>
+              </div>
+            )}
+          </div>
 
-              {backgroundTab === 'image' && (
-                <div className="space-y-3">
-                  <button className="w-full py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex flex-col items-center gap-2">
-                    <Image className="w-6 h-6" />
-                    <span className="text-xs">Click to upload image</span>
+          {/* Shape Settings Section */}
+          <div>
+            <SectionHeader title="Shape Settings" section="shape" isOpen={openSection === 'shape'} />
+            {openSection === 'shape' && (
+              <div className="p-3 space-y-4 border-b border-gray-200">
+                {/* Background Color */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-800">Background Color</span>
+                  <button
+                    className="w-10 h-7 rounded border border-gray-300"
+                    style={{ backgroundColor: shapeBackgroundColor }}
+                  />
+                </div>
+                
+                {/* Radius */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-800">Radius</span>
+                    <Switch
+                      checked={radiusEnabled}
+                      onCheckedChange={setRadiusEnabled}
+                    />
+                  </div>
+                  
+                  {radiusEnabled && (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 relative">
+                        <div className="relative">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-t-2 border-gray-400 rounded-tl" />
+                          <Input
+                            type="number"
+                            value={radiusTopLeft}
+                            onChange={(e) => handleRadiusChange('tl', Number(e.target.value))}
+                            className="h-8 text-xs pl-7 pr-2"
+                          />
+                        </div>
+                        <div className="relative">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-t-2 border-gray-400 rounded-tr" />
+                          <Input
+                            type="number"
+                            value={radiusTopRight}
+                            onChange={(e) => handleRadiusChange('tr', Number(e.target.value))}
+                            className="h-8 text-xs pl-7 pr-2"
+                          />
+                        </div>
+                        
+                        {/* Lock/Unlock button in center */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => setRadiusLocked(!radiusLocked)}
+                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1.5 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 z-10"
+                            >
+                              {radiusLocked ? (
+                                <Lock className="w-3 h-3 text-gray-600" />
+                              ) : (
+                                <Unlock className="w-3 h-3 text-gray-600" />
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{radiusLocked ? 'Unconstrain proportions' : 'Constrain proportions'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <div className="relative">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-b-2 border-gray-400 rounded-bl" />
+                          <Input
+                            type="number"
+                            value={radiusBottomLeft}
+                            onChange={(e) => handleRadiusChange('bl', Number(e.target.value))}
+                            className="h-8 text-xs pl-7 pr-2"
+                          />
+                        </div>
+                        <div className="relative">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-b-2 border-gray-400 rounded-br" />
+                          <Input
+                            type="number"
+                            value={radiusBottomRight}
+                            onChange={(e) => handleRadiusChange('br', Number(e.target.value))}
+                            className="h-8 text-xs pl-7 pr-2"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Multi-Page Sync */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-semibold text-gray-800">Multi-Page Sync</span>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="w-3 h-3 text-gray-400" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Sync this element across multiple pages</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <Switch
+                      checked={multiPageSync}
+                      onCheckedChange={setMultiPageSync}
+                    />
+                  </div>
+                  
+                  {multiPageSync && (
+                    <div className="space-y-2 pl-1">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="syncMode"
+                          checked={syncMode === 'all'}
+                          onChange={() => setSyncMode('all')}
+                          className="text-cyan-500"
+                        />
+                        <span className="text-xs text-gray-600">All Pages</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="syncMode"
+                          checked={syncMode === 'custom'}
+                          onChange={() => setSyncMode('custom')}
+                          className="text-cyan-500"
+                        />
+                        <span className="text-xs text-cyan-500">Custom Range</span>
+                      </label>
+                      
+                      {syncMode === 'custom' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-8 text-xs"
+                          onClick={handleEditPageRange}
+                        >
+                          Edit Page Range
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Opacity */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-800">Opacity</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24">
+                        <Slider
+                          value={[opacity]}
+                          onValueChange={(v) => setOpacity(v[0])}
+                          max={100}
+                          min={0}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+                      <Input
+                        type="number"
+                        value={opacity}
+                        onChange={(e) => setOpacity(Number(e.target.value))}
+                        className="h-7 text-xs w-14"
+                        min={0}
+                        max={100}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Rotation */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-semibold text-gray-800">Rotation</span>
+                      <div className="w-2 h-2 rounded-full border border-cyan-500" />
+                    </div>
+                    <Input
+                      type="number"
+                      value={rotation}
+                      onChange={(e) => setRotation(Number(e.target.value))}
+                      className="h-7 text-xs w-14"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Shadow Section */}
+          <div>
+            <SectionHeader title="Shadow" section="shadow" isOpen={openSection === 'shadow'} />
+            {openSection === 'shadow' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-semibold text-gray-800">Shadow</span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-3 h-3 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Add a drop shadow to the element</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Switch
+                    checked={shadowEnabled}
+                    onCheckedChange={setShadowEnabled}
+                  />
+                </div>
+                
+                {shadowEnabled && (
+                  <div className="space-y-3">
+                    {/* Color */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-800">Color</span>
+                      <button
+                        className="w-10 h-7 rounded border border-gray-300"
+                        style={{ backgroundColor: shadowColor }}
+                      />
+                    </div>
+                    
+                    {/* X */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-800">X</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24">
+                          <Slider
+                            value={[shadowX]}
+                            onValueChange={(v) => setShadowX(v[0])}
+                            max={50}
+                            min={-50}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                        <Input
+                          type="number"
+                          value={shadowX}
+                          onChange={(e) => setShadowX(Number(e.target.value))}
+                          className="h-7 text-xs w-14"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Y */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-800">Y</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24">
+                          <Slider
+                            value={[shadowY]}
+                            onValueChange={(v) => setShadowY(v[0])}
+                            max={50}
+                            min={-50}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                        <Input
+                          type="number"
+                          value={shadowY}
+                          onChange={(e) => setShadowY(Number(e.target.value))}
+                          className="h-7 text-xs w-14"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Blur */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-800">Blur</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24">
+                          <Slider
+                            value={[shadowBlur]}
+                            onValueChange={(v) => setShadowBlur(v[0])}
+                            max={50}
+                            min={0}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+                        <Input
+                          type="number"
+                          value={shadowBlur}
+                          onChange={(e) => setShadowBlur(Number(e.target.value))}
+                          className="h-7 text-xs w-14"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Size Section - Collapsible */}
+          <div>
+            <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
+            {openSection === 'size' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                {/* Resize by Format */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
+                  <Select value={pageFormat} onValueChange={handleFormatChange}>
+                    <SelectTrigger className="h-8 text-xs justify-center">
+                      <SelectValue>{getFormatDisplayName()}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80">
+                      <SelectItem value="custom" className="justify-center">Custom</SelectItem>
+                      {PAGE_FORMAT_CATEGORIES.map((category) => (
+                        <SelectGroup key={category.label}>
+                          <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
+                            {category.label}
+                          </SelectLabel>
+                          {category.formats.map((format) => (
+                            <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
+                                {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
+                                {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
+                                {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
+                                {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
+                                {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
+                                  <FileText className="w-3 h-3 text-gray-400" />
+                                )}
+                                <span>{format.name}</span>
+                                <span className="text-gray-400 ml-1">- {format.dimensions}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Orientation */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleOrientationChange('portrait')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'portrait' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
+                      Portrait
+                    </button>
+                    <button
+                      onClick={() => handleOrientationChange('landscape')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'landscape' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
+                      Landscape
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Custom Size - W and H in fields */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
+                    <Input
+                      type="number"
+                      value={pageWidth}
+                      onChange={(e) => handleWidthChange(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                  <button 
+                    onClick={() => setLinkDimensions(!linkDimensions)}
+                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                  </button>
+                  <div className="flex-1 relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
+                    <Input
+                      type="number"
+                      value={pageHeight}
+                      onChange={(e) => handleHeightChange(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                </div>
+                
+                {/* Resize Content */}
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="resize-content" 
+                    checked={resizeContent}
+                    onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+                  />
+                  <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
+                    Resize Content
+                  </label>
+                </div>
+                
+                {/* Confirm Button */}
+                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
+                  Confirm
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Style Section - Collapsible */}
+          <div>
+            <SectionHeader title="Style" section="style" isOpen={openSection === 'style'} />
+            {openSection === 'style' && (
+              <div className="p-3 border-b border-gray-200">
+                <div className="grid grid-cols-2 gap-2">
+                  {LAYOUT_STYLES.map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => setSelectedLayout(style.id)}
+                      className={`p-2 rounded-lg border-2 transition-all ${
+                        selectedLayout === style.id
+                          ? 'border-teal-500 bg-teal-50'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <div className="aspect-[3/4] bg-gray-100 rounded mb-1 flex items-center justify-center overflow-hidden">
+                        {style.preview === 'single' && (
+                          <div className="w-full h-full p-1.5 flex flex-col gap-0.5">
+                            <div className="h-1.5 w-1/2 bg-cyan-400 rounded-sm" />
+                            <div className="flex-1 space-y-0.5">
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-0.5 w-3/4 bg-gray-300" />
+                            </div>
+                          </div>
+                        )}
+                        {style.preview === 'double' && (
+                          <div className="w-full h-full p-1.5 flex gap-1">
+                            <div className="flex-1 space-y-0.5">
+                              <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                            </div>
+                            <div className="flex-1 space-y-0.5 pt-2">
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                            </div>
+                          </div>
+                        )}
+                        {style.preview === 'double-img' && (
+                          <div className="w-full h-full p-1.5 flex gap-1">
+                            <div className="flex-1 space-y-0.5">
+                              <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-6 w-full bg-gradient-to-br from-green-200 to-green-300 rounded-sm mt-1" />
+                            </div>
+                            <div className="flex-1 space-y-0.5 pt-2">
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-6 w-full bg-gradient-to-br from-blue-200 to-blue-300 rounded-sm mt-1" />
+                            </div>
+                          </div>
+                        )}
+                        {style.preview === 'single-img' && (
+                          <div className="w-full h-full p-1.5 flex gap-1">
+                            <div className="w-1/3 h-full bg-gradient-to-br from-orange-200 to-orange-300 rounded-sm" />
+                            <div className="flex-1 space-y-0.5">
+                              <div className="h-1 w-3/4 bg-cyan-400 rounded-sm" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                              <div className="h-0.5 w-full bg-gray-300" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-600 leading-tight block text-center">{style.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Border Section - Collapsible */}
+          <div>
+            <SectionHeader title="Border" section="border" isOpen={openSection === 'border'} />
+            {openSection === 'border' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Type</span>
+                    <Select value={borderType} onValueChange={setBorderType}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no-border">No Border</SelectItem>
+                        <SelectItem value="all">All Sides</SelectItem>
+                        <SelectItem value="top-bottom">Top & Bottom</SelectItem>
+                        <SelectItem value="left-right">Left & Right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Style</span>
+                    <Select value={borderStyle} onValueChange={setBorderStyle}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="dashed">Dashed</SelectItem>
+                        <SelectItem value="dotted">Dotted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Size</span>
+                    <Select value={borderSize} onValueChange={setBorderSize}>
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1px">1px</SelectItem>
+                        <SelectItem value="2px">2px</SelectItem>
+                        <SelectItem value="3px">3px</SelectItem>
+                        <SelectItem value="4px">4px</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 mb-2 block">Color</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        className="w-7 h-7 rounded border border-gray-300"
+                        style={{ backgroundColor: borderColor }}
+                      />
+                      <Input
+                        type="text"
+                        value={borderColor}
+                        onChange={(e) => setBorderColor(e.target.value)}
+                        className="h-7 text-xs flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Background Section - Collapsible */}
+          <div>
+            <SectionHeader title="Background" section="background" isOpen={openSection === 'background'} />
+            {openSection === 'background' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                {/* Color/Pattern/Image Buttons */}
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setBackgroundTab('color')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
+                      backgroundTab === 'color' 
+                        ? 'bg-teal-500 text-white border-teal-500' 
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    Color
+                  </button>
+                  <button
+                    onClick={() => setBackgroundTab('pattern')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
+                      backgroundTab === 'pattern' 
+                        ? 'bg-teal-500 text-white border-teal-500' 
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    Pattern
+                  </button>
+                  <button
+                    onClick={() => setBackgroundTab('image')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs rounded border transition-all ${
+                      backgroundTab === 'image' 
+                        ? 'bg-teal-500 text-white border-teal-500' 
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    Image
                   </button>
                 </div>
-              )}
-            </div>
-          )}
+
+                {backgroundTab === 'color' && (
+                  <div className="space-y-3">
+                    {/* Solid/Gradient Toggle */}
+                    <div className="flex gap-1 bg-gray-100 p-0.5 rounded">
+                      <button
+                        onClick={() => setColorType('solid')}
+                        className={`flex-1 text-xs py-1.5 rounded transition-colors ${
+                          colorType === 'solid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                        }`}
+                      >
+                        Solid
+                      </button>
+                      <button
+                        onClick={() => setColorType('gradient')}
+                        className={`flex-1 text-xs py-1.5 rounded transition-colors ${
+                          colorType === 'gradient' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                        }`}
+                      >
+                        Gradient
+                      </button>
+                    </div>
+
+                    {colorType === 'solid' && (
+                      <>
+                        {/* Project Colors */}
+                        <div>
+                          <span className="text-sm font-semibold text-gray-800 mb-2 block">Project Colors</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {PROJECT_COLORS.map((color, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => handleColorSelect(color)}
+                                className={`w-7 h-7 rounded-full border-2 transition-all ${
+                                  backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                                style={{
+                                  backgroundColor: color === 'transparent' ? 'transparent' : color,
+                                  backgroundImage: color === 'transparent'
+                                    ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)'
+                                    : 'none',
+                                  backgroundSize: color === 'transparent' ? '6px 6px' : 'auto',
+                                  backgroundPosition: color === 'transparent' ? '0 0, 3px 3px' : 'auto',
+                                }}
+                              />
+                            ))}
+                            <button className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Brand Kit */}
+                        <button className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Auto-fill your brand colors
+                        </button>
+
+                        {/* HEX Input */}
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <span className="text-sm font-semibold text-gray-800 mb-2 block">HEX</span>
+                            <Input
+                              type="text"
+                              value={hexInput}
+                              onChange={(e) => {
+                                setHexInput(e.target.value);
+                                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                                  setBackgroundColor(e.target.value);
+                                }
+                              }}
+                              className="h-7 text-xs"
+                            />
+                          </div>
+                          <div className="w-16">
+                            <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                value={bgOpacity}
+                                onChange={(e) => setBgOpacity(Number(e.target.value))}
+                                min={0}
+                                max={100}
+                                className="h-7 text-xs w-12"
+                              />
+                              <span className="text-xs text-gray-500">%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {colorType === 'gradient' && (
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {GRADIENTS.map((gradient) => (
+                          <button
+                            key={gradient.id}
+                            onClick={() => handleGradientSelect(gradient.id)}
+                            className={`aspect-square rounded-lg border-2 transition-all ${
+                              selectedGradient === gradient.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            style={{
+                              background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {backgroundTab === 'pattern' && (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {PATTERNS.map((pattern) => (
+                      <button
+                        key={pattern.id}
+                        onClick={() => setSelectedPattern(pattern.id)}
+                        className="aspect-square"
+                      >
+                        {renderPatternPreview(pattern.id)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {backgroundTab === 'image' && (
+                  <div className="space-y-3">
+                    <button className="w-full py-8 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex flex-col items-center gap-2">
+                      <Image className="w-6 h-6" />
+                      <span className="text-xs">Click to upload image</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      
+      {/* Page Range Modal */}
+      <Dialog open={showPageRangeModal} onOpenChange={setShowPageRangeModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Page Range</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-3">
+            <Input
+              placeholder="Please edit the page range"
+              value={tempPageRange}
+              onChange={(e) => setTempPageRange(e.target.value)}
+              className="flex-1"
+            />
+            <span className="text-sm text-gray-500 whitespace-nowrap">For example: 1, 3-5, 10</span>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowPageRangeModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmPageRange} className="bg-cyan-500 hover:bg-cyan-600 text-white">
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
   );
 };
 
