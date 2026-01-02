@@ -4,7 +4,7 @@ import {
   Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
-  Trash2, GripVertical, BarChart3, SplitSquareHorizontal, MousePointerClick, Code,
+  Trash2, GripVertical, BarChart3, BarChart2, BarChart, SplitSquareHorizontal, MousePointerClick, Code,
   BarChartHorizontal, Timer, Code2, Figma, GitBranch, Filter, Smile, TrendingUp,
   ImagePlus, Grid3X3, Clock, Sigma, Network, PieChart, ChevronsRight, Minus,
   Share2, Sun, ListOrdered, Tag, GanttChart, Play, Bot, Text, ListChecks, StickyNote,
@@ -12,7 +12,8 @@ import {
   Target, Settings, UserPlus, Images, Hash, CodeSquare, Info, ListTree, PenTool, Brush, 
   ThumbsUp, HelpCircle, Hexagon, Star, Pentagon, Diamond, ArrowRight, ArrowDown, ArrowUp,
   ArrowLeft, Move, Pointer, Navigation, Maximize2, Minimize2, RotateCcw, ZoomIn, MessageSquare,
-  FileDown, Volume2, ExternalLink, FileQuestion, Shrink
+  FileDown, Volume2, ExternalLink, FileQuestion, Shrink, LineChart, CircleDot, AreaChart,
+  Activity, Waves, CircleDashed, Boxes, Radar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
@@ -142,6 +143,62 @@ const ELEMENT_CATEGORIES = {
       { id: 'slideshow-basic', name: 'Basic Slideshow', icon: Images },
       { id: 'slideshow-fade', name: 'Fade Slideshow', icon: LayoutGrid },
       { id: 'slideshow-carousel', name: 'Carousel', icon: Columns },
+    ]
+  },
+  barCharts: {
+    title: 'Bar charts',
+    items: [
+      { id: 'stacked-bar', name: 'Stacked bar', icon: BarChart3, preview: 'stacked-bar' },
+      { id: 'single-color-bar', name: 'Single color bar', icon: BarChart2, preview: 'single-bar' },
+      { id: 'stacked-row', name: 'Stacked row', icon: BarChartHorizontal, preview: 'stacked-row' },
+      { id: 'bar-chart', name: 'Bar', icon: BarChart, preview: 'bar' },
+    ]
+  },
+  lineCharts: {
+    title: 'Line charts',
+    items: [
+      { id: 'multi-line', name: 'Multi-line', icon: TrendingUp, preview: 'multi-line' },
+      { id: 'line-chart', name: 'Line', icon: LineChart, preview: 'line' },
+    ]
+  },
+  pieDonutCharts: {
+    title: 'Pie and donut charts',
+    items: [
+      { id: 'pie-chart', name: 'Pie', icon: PieChart, preview: 'pie' },
+      { id: 'donut-chart', name: 'Donut', icon: CircleDot, preview: 'donut' },
+    ]
+  },
+  areaCharts: {
+    title: 'Area charts',
+    items: [
+      { id: 'stacked-area', name: 'Stacked area', icon: AreaChart, preview: 'stacked-area' },
+      { id: 'unstacked-area', name: 'Unstacked area', icon: Activity, preview: 'unstacked-area' },
+      { id: 'proportional-area', name: 'Proportional area', icon: Layers, preview: 'proportional' },
+      { id: 'streamgraph', name: 'Streamgraph', icon: Waves, preview: 'stream' },
+    ]
+  },
+  hierarchyCharts: {
+    title: 'Hierarchy charts',
+    items: [
+      { id: 'simple-packed', name: 'Simple packed', icon: CircleDashed, preview: 'packed' },
+      { id: 'simple-treemap', name: 'Simple treemap', icon: LayoutGrid, preview: 'treemap' },
+      { id: 'packed-circles', name: 'Packed circles', icon: Boxes, preview: 'circles' },
+      { id: 'treemap', name: 'Treemap', icon: Grid3X3, preview: 'treemap-full' },
+    ]
+  },
+  barRaceCharts: {
+    title: 'Bar race charts',
+    items: [
+      { id: 'single-bar-race', name: 'Single color bar race', icon: BarChartHorizontal, preview: 'bar-race-single' },
+      { id: 'bar-race', name: 'Bar race', icon: BarChart3, preview: 'bar-race' },
+    ]
+  },
+  otherCharts: {
+    title: 'Other charts',
+    items: [
+      { id: 'histogram', name: 'Histogram', icon: BarChart, preview: 'histogram' },
+      { id: 'funnel', name: 'Funnel', icon: Filter, preview: 'funnel' },
+      { id: 'radar', name: 'Radar', icon: Radar, preview: 'radar' },
     ]
   },
 };
