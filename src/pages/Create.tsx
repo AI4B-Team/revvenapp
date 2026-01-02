@@ -560,6 +560,13 @@ const Create = () => {
       emoji: '📖',
       onClick: () => navigate('/ai-story')
     },
+    { 
+      name: 'Lead Generation', 
+      description: 'Generate leads from platforms',
+      bgColor: 'bg-tool-green',
+      emoji: '👥',
+      onClick: () => navigate('/lead-generation')
+    },
   ];
 
   return (
