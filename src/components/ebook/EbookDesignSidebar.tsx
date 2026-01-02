@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Layers, FileText, Image as ImageIcon, 
-  Box, Presentation, Plus, Pencil, Search, Sparkles, Send,
+  Box, Presentation, Plus, Pencil, Search, Sparkles, Send, Upload, Loader2,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
   Trash2, GripVertical, BarChart3, BarChart2, BarChart, SplitSquareHorizontal, MousePointerClick, Code,
@@ -13,8 +13,9 @@ import {
   ThumbsUp, HelpCircle, Hexagon, Star, Pentagon, Diamond, ArrowRight, ArrowDown, ArrowUp,
   ArrowLeft, Move, Pointer, Navigation, Maximize2, Minimize2, RotateCcw, ZoomIn, MessageSquare,
   FileDown, Volume2, ExternalLink, FileQuestion, Shrink, LineChart, CircleDot, AreaChart,
-  Activity, Waves, CircleDashed, Boxes, Radar, Languages, Check
+  Activity, Waves, CircleDashed, Boxes, Radar, Languages, Check, Users
 } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -348,6 +349,19 @@ const EbookDesignSidebar = ({
   const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
   const [elementSearch, setElementSearch] = useState('');
   
+  // Images section state
+  const [imageTab, setImageTab] = useState<'stock' | 'creations' | 'community'>('stock');
+  const [stockImages, setStockImages] = useState<any[]>([]);
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
+  const [stockPage, setStockPage] = useState(1);
+  const [creationsImages, setCreationsImages] = useState<any[]>([]);
+  const [isLoadingCreations, setIsLoadingCreations] = useState(false);
+  const [communityImages, setCommunityImages] = useState<any[]>([]);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedStockRef = useRef(false);
+  
   // Translate section state
   const [translateLanguage, setTranslateLanguage] = useState('');
   const [translateTone, setTranslateTone] = useState('original');
@@ -355,12 +369,157 @@ const EbookDesignSidebar = ({
   const [languageSearchQuery, setLanguageSearchQuery] = useState('');
   const [showTranslated, setShowTranslated] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  
+  const PEXELS_API_KEY = "gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT";
 
   const filteredLanguages = LANGUAGES.filter(lang =>
     lang.name.toLowerCase().includes(languageSearchQuery.toLowerCase())
   );
 
   const viewingTemplate = TEMPLATES.find(t => t.id === viewingTemplateId);
+
+  // Fetch stock images from Pexels
+  const fetchStockImages = async (query: string, page: number = 1) => {
+    setIsLoadingStock(true);
+    try {
+      const response = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(query || 'business professional')}&per_page=30&page=${page}`,
+        {
+          headers: {
+            Authorization: PEXELS_API_KEY
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch stock images');
+      
+      const data = await response.json();
+      if (page === 1) {
+        setStockImages(data.photos || []);
+      } else {
+        setStockImages(prev => [...prev, ...(data.photos || [])]);
+      }
+      setStockPage(page);
+    } catch (error) {
+      console.error('Error fetching Pexels images:', error);
+      toast.error('Failed to load stock images');
+    } finally {
+      setIsLoadingStock(false);
+    }
+  };
+
+  // Fetch user's AI-generated images from database
+  const fetchCreationsImages = async () => {
+    setIsLoadingCreations(true);
+    try {
+      const { data, error } = await supabase
+        .from('generated_images')
+        .select('*')
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCreationsImages(data || []);
+    } catch (error) {
+      console.error('Error fetching creations:', error);
+      toast.error('Failed to load creations');
+    } finally {
+      setIsLoadingCreations(false);
+    }
+  };
+
+  // Fetch community images (sample data for now)
+  const fetchCommunityImages = () => {
+    const communityData = [
+      { id: 'c1', image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop', creator: 'Alex' },
+      { id: 'c2', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop', creator: 'Sarah' },
+      { id: 'c3', image_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop', creator: 'Mike' },
+      { id: 'c4', image_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=400&fit=crop', creator: 'Emma' },
+      { id: 'c5', image_url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop', creator: 'Chris' },
+      { id: 'c6', image_url: 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=400&h=400&fit=crop', creator: 'Lisa' },
+    ];
+    setCommunityImages(communityData);
+  };
+
+  // Handle AI image generation
+  const handleGenerateImage = async () => {
+    if (!imagePrompt.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+    
+    setIsGeneratingImage(true);
+    toast.info('Generating image...');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: { 
+          prompt: imagePrompt,
+          model: 'auto',
+          aspectRatio: '1:1',
+          numberOfImages: 1
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Image generation started! Check Creations tab.');
+      setImagePrompt('');
+      // Refresh creations after a short delay
+      setTimeout(() => {
+        fetchCreationsImages();
+      }, 3000);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Failed to generate image');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setIsUploadingImage(true);
+    const file = files[0];
+    
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        
+        const { data, error } = await supabase.functions.invoke('upload-reference-image', {
+          body: {
+            image: base64Image,
+            filename: file.name
+          }
+        });
+        
+        if (error) throw error;
+        
+        toast.success('Image uploaded successfully');
+        fetchCreationsImages();
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Load stock images when Images section opens
+  useEffect(() => {
+    if (expandedSections.has('images') && !hasFetchedStockRef.current) {
+      hasFetchedStockRef.current = true;
+      fetchStockImages('business professional');
+      fetchCreationsImages();
+      fetchCommunityImages();
+    }
+  }, [expandedSections]);
 
   // Notify parent when content section changes
   useEffect(() => {
@@ -913,47 +1072,218 @@ const EbookDesignSidebar = ({
           <SectionHeader id="images" title="Images" icon={ImageIcon} />
           {expandedSections.has('images') && (
             <div className="p-3 border-b border-gray-200">
+              {/* Tab Links */}
+              <div className="flex items-center gap-4 mb-4 border-b border-gray-200">
+                <button
+                  onClick={() => setImageTab('stock')}
+                  className={`pb-2 text-sm font-medium transition-colors ${
+                    imageTab === 'stock' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Stock
+                </button>
+                <button
+                  onClick={() => setImageTab('creations')}
+                  className={`pb-2 text-sm font-medium transition-colors ${
+                    imageTab === 'creations' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Creations
+                </button>
+                <button
+                  onClick={() => setImageTab('community')}
+                  className={`pb-2 text-sm font-medium transition-colors ${
+                    imageTab === 'community' 
+                      ? 'text-blue-500 border-b-2 border-blue-500' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Community
+                </button>
+              </div>
+              
               {/* Search */}
               <div className="relative mb-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   value={imageSearch}
                   onChange={(e) => setImageSearch(e.target.value)}
-                  placeholder="Search Images"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && imageTab === 'stock') {
+                      fetchStockImages(imageSearch || 'business professional', 1);
+                    }
+                  }}
+                  placeholder="Press [Enter] to Search"
                   className="pl-9"
                 />
               </div>
-              {/* Stock Images Grid */}
-              <div className="mb-3">
-                <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Stock Images</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <button
-                      key={i}
-                      className="aspect-square rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 hover:ring-2 hover:ring-emerald-400 transition-all"
-                    />
-                  ))}
-                </div>
+              
+              {/* Upload and AI buttons */}
+              <div className="flex items-center gap-2 mb-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {isUploadingImage ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  Upload Images
+                </button>
+                <button 
+                  onClick={() => {
+                    const promptArea = document.getElementById('ai-image-prompt');
+                    if (promptArea) promptArea.focus();
+                  }}
+                  className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-colors"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
               </div>
               
-              {/* AI Image Generation Prompt */}
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium text-gray-700">Generate Image</span>
+              {/* Stock Images Tab */}
+              {imageTab === 'stock' && (
+                <div className="space-y-3">
+                  {isLoadingStock ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-3 gap-2 max-h-[400px] overflow-y-auto">
+                        {stockImages.map((photo: any) => (
+                          <button
+                            key={photo.id}
+                            onClick={() => toast.success('Image added to canvas')}
+                            className="aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group"
+                          >
+                            <img 
+                              src={photo.src?.medium || photo.src?.small} 
+                              alt={photo.alt || 'Stock image'}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                          </button>
+                        ))}
+                      </div>
+                      {stockImages.length > 0 && (
+                        <button
+                          onClick={() => fetchStockImages(imageSearch || 'business professional', stockPage + 1)}
+                          className="w-full py-2 text-sm text-blue-500 hover:text-blue-600 font-medium"
+                        >
+                          Load More
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
-                <div className="relative">
-                  <textarea
-                    value={imagePrompt}
-                    onChange={(e) => setImagePrompt(e.target.value)}
-                    placeholder="Describe the image you want to create"
-                    className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-                  />
-                  <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
-                    <Send className="w-3 h-3" />
-                  </button>
+              )}
+
+              {/* Creations Tab */}
+              {imageTab === 'creations' && (
+                <div className="space-y-3">
+                  {isLoadingCreations ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : creationsImages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Images className="w-10 h-10 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No AI creations yet</p>
+                      <p className="text-xs text-gray-400">Generate your first image below</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto">
+                      {creationsImages.map((image: any) => (
+                        <button
+                          key={image.id}
+                          onClick={() => toast.success('Image added to canvas')}
+                          className="aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group"
+                        >
+                          <img 
+                            src={image.image_url} 
+                            alt={image.prompt || 'AI generated image'}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* AI Image Generation Prompt */}
+                  <div className="pt-3 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm font-medium text-gray-700">Generate Image</span>
+                    </div>
+                    <div className="relative">
+                      <textarea
+                        id="ai-image-prompt"
+                        value={imagePrompt}
+                        onChange={(e) => setImagePrompt(e.target.value)}
+                        placeholder="Describe the image you want to create..."
+                        className="w-full min-h-[60px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
+                      />
+                      <button 
+                        onClick={handleGenerateImage}
+                        disabled={isGeneratingImage || !imagePrompt.trim()}
+                        className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 text-white rounded-full transition-colors"
+                      >
+                        {isGeneratingImage ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Send className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Community Tab */}
+              {imageTab === 'community' && (
+                <div className="space-y-3">
+                  {communityImages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Users className="w-10 h-10 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500">No community images</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 max-h-[400px] overflow-y-auto">
+                      {communityImages.map((image: any) => (
+                        <button
+                          key={image.id}
+                          onClick={() => toast.success('Image added to canvas')}
+                          className="aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-emerald-400 transition-all relative group"
+                        >
+                          <img 
+                            src={image.image_url} 
+                            alt={`By ${image.creator}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-[10px] text-white font-medium">By {image.creator}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
