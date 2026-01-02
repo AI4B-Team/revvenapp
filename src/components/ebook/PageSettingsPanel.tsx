@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, Pipette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PageSettingsPanelProps {
   pageNumber: number;
@@ -202,8 +207,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   
   // Color picker popover state
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const colorPickerRef = useRef<HTMLDivElement>(null);
-  const plusButtonRef = useRef<HTMLButtonElement>(null);
   
   // Theme colors for the color picker
   const THEME_COLORS = [
@@ -652,22 +655,263 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 </div>
 
                 {backgroundTab === 'color' && (
-                  <div className="space-y-3 relative">
+                  <div className="space-y-3">
                     {/* Color Swatches - 2 rows of 8 */}
                     <div className="space-y-1.5">
                       <div className="flex gap-1.5">
-                        {/* + button first - opens color picker to the left */}
-                        <button 
-                          ref={plusButtonRef}
-                          onClick={() => setShowColorPicker(!showColorPicker)}
-                          className={`w-7 h-7 rounded-full border-2 border-dashed flex items-center justify-center transition-all ${
-                            showColorPicker 
-                              ? 'border-teal-500 text-teal-500' 
-                              : 'border-gray-300 text-gray-400 hover:border-gray-400'
-                          }`}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
+                        {/* + button first - opens color picker popover */}
+                        <Popover open={showColorPicker} onOpenChange={setShowColorPicker}>
+                          <PopoverTrigger asChild>
+                            <button 
+                              className={`w-7 h-7 rounded-full border-2 border-dashed flex items-center justify-center transition-all ${
+                                showColorPicker 
+                                  ? 'border-teal-500 text-teal-500' 
+                                  : 'border-gray-300 text-gray-400 hover:border-gray-400'
+                              }`}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent side="left" align="start" className="w-80 p-4">
+                            {/* Solid/Gradient Tabs */}
+                            <div className="flex gap-1 mb-4">
+                              <button
+                                onClick={() => setColorType('solid')}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
+                                  colorType === 'solid' 
+                                    ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
+                                    : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                                }`}
+                              >
+                                <Palette className="w-4 h-4" />
+                                Solid
+                              </button>
+                              <button
+                                onClick={() => setColorType('gradient')}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
+                                  colorType === 'gradient' 
+                                    ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
+                                    : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
+                                }`}
+                              >
+                                <Square className="w-4 h-4" />
+                                Gradient
+                              </button>
+                            </div>
+                            
+                            {colorType === 'solid' && (
+                              <>
+                                {/* No Fill Option */}
+                                <button 
+                                  onClick={() => handleColorSelect('transparent')}
+                                  className={`w-full flex items-center gap-2 px-3 py-2 rounded border mb-3 transition-all ${
+                                    backgroundColor === 'transparent' 
+                                      ? 'border-blue-500 bg-blue-50' 
+                                      : 'border-gray-200 hover:border-gray-300'
+                                  }`}
+                                >
+                                  <div className="w-5 h-5 rounded border border-gray-300 bg-white relative overflow-hidden">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <div className="w-full h-0.5 bg-red-400 rotate-45" />
+                                    </div>
+                                  </div>
+                                  <span className="text-sm text-gray-700">No Fill</span>
+                                </button>
+                                
+                                {/* Theme Colors */}
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-medium text-gray-700">Theme Colors</span>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Colors from your design theme</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                    <button className="text-sm text-teal-500 hover:text-teal-600">Edit</button>
+                                  </div>
+                                  <div className="space-y-1">
+                                    {THEME_COLORS.map((row, rowIdx) => (
+                                      <div key={rowIdx} className="flex gap-1">
+                                        {row.map((color, colIdx) => (
+                                          <button
+                                            key={`${rowIdx}-${colIdx}`}
+                                            onClick={() => {
+                                              handleColorSelect(color);
+                                              setShowColorPicker(false);
+                                            }}
+                                            className={`w-8 h-8 rounded transition-all ${
+                                              backgroundColor === color 
+                                                ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                                : 'hover:scale-110'
+                                            }`}
+                                            style={{ backgroundColor: color }}
+                                          />
+                                        ))}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                {/* Standard Colors */}
+                                <div className="mb-3">
+                                  <div className="flex items-center gap-1 mb-2">
+                                    <span className="text-sm font-medium text-gray-700">Standard Colors</span>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Common colors</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                  <div className="flex gap-1.5">
+                                    {STANDARD_COLORS.map((color, idx) => (
+                                      <button
+                                        key={idx}
+                                        onClick={() => {
+                                          handleColorSelect(color);
+                                          setShowColorPicker(false);
+                                        }}
+                                        className={`w-8 h-8 rounded transition-all ${
+                                          backgroundColor === color 
+                                            ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                            : 'hover:scale-110'
+                                        }`}
+                                        style={{ backgroundColor: color }}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                {/* Recently Used */}
+                                {recentColors.length > 0 && (
+                                  <div className="mb-3">
+                                    <div className="flex items-center gap-1 mb-2">
+                                      <span className="text-sm font-medium text-gray-700">Recently Used</span>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Your recently used colors</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                    <div className="flex gap-1.5">
+                                      {recentColors.map((color, idx) => (
+                                        <button
+                                          key={idx}
+                                          onClick={() => {
+                                            handleColorSelect(color);
+                                            setShowColorPicker(false);
+                                          }}
+                                          className={`w-8 h-8 rounded transition-all ${
+                                            backgroundColor === color 
+                                              ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                              : 'hover:scale-110'
+                                          }`}
+                                          style={{ backgroundColor: color }}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Divider */}
+                                <div className="border-t border-gray-200 my-3" />
+                                
+                                {/* Color Gradient Picker */}
+                                <div className="relative h-40 rounded-lg overflow-hidden mb-3">
+                                  <div 
+                                    className="absolute inset-0"
+                                    style={{
+                                      background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#2563eb'}), linear-gradient(to bottom, transparent, #000)`,
+                                      backgroundBlendMode: 'multiply'
+                                    }}
+                                  />
+                                  <div className="absolute right-2 top-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md" />
+                                  {/* Hue slider on right */}
+                                  <div className="absolute right-0 top-0 bottom-0 w-6 flex flex-col items-center justify-center">
+                                    <div 
+                                      className="w-4 h-full rounded-full"
+                                      style={{
+                                        background: 'linear-gradient(to bottom, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)'
+                                      }}
+                                    />
+                                  </div>
+                                  {/* Lightness slider on far right */}
+                                  <div className="absolute right-8 top-0 bottom-0 w-4 flex flex-col items-center justify-center">
+                                    <div 
+                                      className="w-3 h-full rounded-full border border-gray-200"
+                                      style={{
+                                        background: 'linear-gradient(to bottom, #fff, #000)'
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                                
+                                {/* HEX Input Row */}
+                                <div className="flex items-center gap-2">
+                                  <button className="p-2 hover:bg-gray-100 rounded transition-colors">
+                                    <Pipette className="w-4 h-4 text-gray-600" />
+                                  </button>
+                                  <Select defaultValue="hex">
+                                    <SelectTrigger className="w-20 h-8 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="hex">HEX</SelectItem>
+                                      <SelectItem value="rgb">RGB</SelectItem>
+                                      <SelectItem value="hsl">HSL</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input
+                                    type="text"
+                                    value={hexInput}
+                                    onChange={(e) => {
+                                      setHexInput(e.target.value);
+                                      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                                        setBackgroundColor(e.target.value);
+                                      }
+                                    }}
+                                    className="flex-1 h-8 text-xs"
+                                  />
+                                  <span className="text-sm text-gray-600">{bgOpacity}%</span>
+                                </div>
+                              </>
+                            )}
+                            
+                            {colorType === 'gradient' && (
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-4 gap-2">
+                                  {GRADIENTS.map((gradient) => (
+                                    <button
+                                      key={gradient.id}
+                                      onClick={() => {
+                                        handleGradientSelect(gradient.id);
+                                        setShowColorPicker(false);
+                                      }}
+                                      className={`w-full aspect-square rounded-lg transition-all ${
+                                        selectedGradient === gradient.id 
+                                          ? 'ring-2 ring-blue-500 ring-offset-1' 
+                                          : 'hover:scale-105'
+                                      }`}
+                                      style={{
+                                        background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </PopoverContent>
+                        </Popover>
                         {PROJECT_COLORS.slice(0, 7).map((color, idx) => (
                           <button
                             key={idx}
@@ -749,253 +993,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Color Picker Popover - positioned to the left */}
-                    {showColorPicker && (
-                      <div 
-                        ref={colorPickerRef}
-                        className="absolute right-full top-0 mr-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 z-50"
-                        style={{ marginTop: '-10px' }}
-                      >
-                        {/* Solid/Gradient Tabs */}
-                        <div className="flex gap-1 mb-4">
-                          <button
-                            onClick={() => setColorType('solid')}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
-                              colorType === 'solid' 
-                                ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
-                                : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
-                            }`}
-                          >
-                            <Palette className="w-4 h-4" />
-                            Solid
-                          </button>
-                          <button
-                            onClick={() => setColorType('gradient')}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm rounded border transition-all ${
-                              colorType === 'gradient' 
-                                ? 'bg-white text-gray-900 border-gray-300 shadow-sm' 
-                                : 'bg-gray-50 text-gray-500 border-transparent hover:bg-gray-100'
-                            }`}
-                          >
-                            <Square className="w-4 h-4" />
-                            Gradient
-                          </button>
-                        </div>
-                        
-                        {colorType === 'solid' && (
-                          <>
-                            {/* No Fill Option */}
-                            <button 
-                              onClick={() => handleColorSelect('transparent')}
-                              className={`w-full flex items-center gap-2 px-3 py-2 rounded border mb-3 transition-all ${
-                                backgroundColor === 'transparent' 
-                                  ? 'border-blue-500 bg-blue-50' 
-                                  : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                            >
-                              <div className="w-5 h-5 rounded border border-gray-300 bg-white relative overflow-hidden">
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-full h-0.5 bg-red-400 rotate-45" />
-                                </div>
-                              </div>
-                              <span className="text-sm text-gray-700">No Fill</span>
-                            </button>
-                            
-                            {/* Theme Colors */}
-                            <div className="mb-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-1">
-                                  <span className="text-sm font-medium text-gray-700">Theme Colors</span>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Colors from your design theme</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                                <button className="text-sm text-teal-500 hover:text-teal-600">Edit</button>
-                              </div>
-                              <div className="space-y-1">
-                                {THEME_COLORS.map((row, rowIdx) => (
-                                  <div key={rowIdx} className="flex gap-1">
-                                    {row.map((color, colIdx) => (
-                                      <button
-                                        key={`${rowIdx}-${colIdx}`}
-                                        onClick={() => {
-                                          handleColorSelect(color);
-                                          setShowColorPicker(false);
-                                        }}
-                                        className={`w-8 h-8 rounded transition-all ${
-                                          backgroundColor === color 
-                                            ? 'ring-2 ring-blue-500 ring-offset-1' 
-                                            : 'hover:scale-110'
-                                        }`}
-                                        style={{ backgroundColor: color }}
-                                      />
-                                    ))}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {/* Standard Colors */}
-                            <div className="mb-3">
-                              <div className="flex items-center gap-1 mb-2">
-                                <span className="text-sm font-medium text-gray-700">Standard Colors</span>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Common colors</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                              <div className="flex gap-1.5">
-                                {STANDARD_COLORS.map((color, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => {
-                                      handleColorSelect(color);
-                                      setShowColorPicker(false);
-                                    }}
-                                    className={`w-8 h-8 rounded transition-all ${
-                                      backgroundColor === color 
-                                        ? 'ring-2 ring-blue-500 ring-offset-1' 
-                                        : 'hover:scale-110'
-                                    }`}
-                                    style={{ backgroundColor: color }}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {/* Recently Used */}
-                            {recentColors.length > 0 && (
-                              <div className="mb-3">
-                                <div className="flex items-center gap-1 mb-2">
-                                  <span className="text-sm font-medium text-gray-700">Recently Used</span>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="w-3 h-3 text-gray-400 cursor-help" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Your recently used colors</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                                <div className="flex gap-1.5">
-                                  {recentColors.map((color, idx) => (
-                                    <button
-                                      key={idx}
-                                      onClick={() => {
-                                        handleColorSelect(color);
-                                        setShowColorPicker(false);
-                                      }}
-                                      className={`w-8 h-8 rounded transition-all ${
-                                        backgroundColor === color 
-                                          ? 'ring-2 ring-blue-500 ring-offset-1' 
-                                          : 'hover:scale-110'
-                                      }`}
-                                      style={{ backgroundColor: color }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Divider */}
-                            <div className="border-t border-gray-200 my-3" />
-                            
-                            {/* Color Gradient Picker */}
-                            <div className="relative h-40 rounded-lg overflow-hidden mb-3">
-                              <div 
-                                className="absolute inset-0"
-                                style={{
-                                  background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#2563eb'}), linear-gradient(to bottom, transparent, #000)`,
-                                  backgroundBlendMode: 'multiply'
-                                }}
-                              />
-                              <div className="absolute right-2 top-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md" />
-                              {/* Hue slider on right */}
-                              <div className="absolute right-0 top-0 bottom-0 w-6 flex flex-col items-center justify-center">
-                                <div 
-                                  className="w-4 h-full rounded-full"
-                                  style={{
-                                    background: 'linear-gradient(to bottom, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000)'
-                                  }}
-                                />
-                              </div>
-                              {/* Lightness slider on far right */}
-                              <div className="absolute right-8 top-0 bottom-0 w-4 flex flex-col items-center justify-center">
-                                <div 
-                                  className="w-3 h-full rounded-full border border-gray-200"
-                                  style={{
-                                    background: 'linear-gradient(to bottom, #fff, #000)'
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            
-                            {/* HEX Input Row */}
-                            <div className="flex items-center gap-2">
-                              <button className="p-2 hover:bg-gray-100 rounded transition-colors">
-                                <Pipette className="w-4 h-4 text-gray-600" />
-                              </button>
-                              <Select defaultValue="hex">
-                                <SelectTrigger className="w-20 h-8 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="hex">HEX</SelectItem>
-                                  <SelectItem value="rgb">RGB</SelectItem>
-                                  <SelectItem value="hsl">HSL</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <Input
-                                type="text"
-                                value={hexInput}
-                                onChange={(e) => {
-                                  setHexInput(e.target.value);
-                                  if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-                                    setBackgroundColor(e.target.value);
-                                  }
-                                }}
-                                className="flex-1 h-8 text-xs"
-                              />
-                              <span className="text-sm text-gray-600">{bgOpacity}%</span>
-                            </div>
-                          </>
-                        )}
-                        
-                        {colorType === 'gradient' && (
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-4 gap-2">
-                              {GRADIENTS.map((gradient) => (
-                                <button
-                                  key={gradient.id}
-                                  onClick={() => {
-                                    handleGradientSelect(gradient.id);
-                                    setShowColorPicker(false);
-                                  }}
-                                  className={`w-full aspect-square rounded-lg transition-all ${
-                                    selectedGradient === gradient.id 
-                                      ? 'ring-2 ring-blue-500 ring-offset-1' 
-                                      : 'hover:scale-105'
-                                  }`}
-                                  style={{
-                                    background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`
-                                  }}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 )}
 
