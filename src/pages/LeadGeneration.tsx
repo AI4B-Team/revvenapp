@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaGoogle, FaLinkedinIn, FaFacebookF, FaInstagram, FaGlobe } from 'react-icons/fa';
 
 const LeadGeneration = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -89,11 +90,11 @@ const LeadGeneration = () => {
   ];
 
   const platforms = [
-    { value: 'Google Maps', icon: '📍', label: 'Google Maps', description: 'Business Data' },
-    { value: 'LinkedIn', icon: '💼', label: 'LinkedIn', description: 'Professional Leads' },
-    { value: 'Facebook', icon: '📘', label: 'Facebook', description: 'Social Leads' },
-    { value: 'Instagram', icon: '📸', label: 'Instagram', description: 'Creator Leads' },
-    { value: 'Website', icon: '🌐', label: 'Website', description: 'Website Scraping' },
+    { value: 'Google Maps', icon: FaGoogle, color: '#4285F4', label: 'Google Maps', description: 'Business Data' },
+    { value: 'LinkedIn', icon: FaLinkedinIn, color: '#0A66C2', label: 'LinkedIn', description: 'Professional Leads' },
+    { value: 'Facebook', icon: FaFacebookF, color: '#1877F2', label: 'Facebook', description: 'Social Leads' },
+    { value: 'Instagram', icon: FaInstagram, color: '#E4405F', label: 'Instagram', description: 'Creator Leads' },
+    { value: 'Website', icon: FaGlobe, color: '#6366F1', label: 'Website', description: 'Website Scraping' },
   ];
 
   return (
@@ -243,7 +244,8 @@ const LeadGeneration = () => {
                           {platforms.map((platform) => (
                             <SelectItem key={platform.value} value={platform.value}>
                               <div className="flex items-center gap-2">
-                                <span>{platform.icon}</span> {platform.label}
+                                <platform.icon className="h-4 w-4" style={{ color: platform.color }} />
+                                {platform.label}
                               </div>
                             </SelectItem>
                           ))}
@@ -356,11 +358,11 @@ const LeadGeneration = () => {
                     onClick={() => setFormData({ ...formData, platform: platform.value })}
                   >
                     <motion.div 
-                      className="text-3xl mb-2"
+                      className="flex items-center justify-center mb-2"
                       animate={formData.platform === platform.value ? { scale: [1, 1.2, 1] } : {}}
                       transition={{ duration: 0.3 }}
                     >
-                      {platform.icon}
+                      <platform.icon className="h-8 w-8" style={{ color: platform.color }} />
                     </motion.div>
                     <div className="text-xs text-muted-foreground">{platform.label}</div>
                     <div className="text-sm font-medium">{platform.description}</div>
