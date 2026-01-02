@@ -407,11 +407,11 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 <div>
                   <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
                   <Select value={pageFormat} onValueChange={handleFormatChange}>
-                    <SelectTrigger className="h-9 text-sm font-medium justify-center">
+                    <SelectTrigger className="h-9 text-sm font-medium justify-center border-2 border-gray-400">
                       <SelectValue>{getFormatDisplayName()}</SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-h-80">
-                      <SelectItem value="custom" className="justify-center">Custom</SelectItem>
+                      <SelectItem value="custom" className="justify-center">Format</SelectItem>
                       {PAGE_FORMAT_CATEGORIES.map((category) => (
                         <SelectGroup key={category.label}>
                           <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
@@ -469,6 +469,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 </div>
                 
                 {/* Custom Size - W and H in fields */}
+                <span className="text-sm font-semibold text-gray-800 mb-1 block">Custom Size</span>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 relative">
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
