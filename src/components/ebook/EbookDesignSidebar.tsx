@@ -965,24 +965,6 @@ const EbookDesignSidebar = ({
                       </button>
                     ))}
                   </div>
-                  {/* AI Template Prompt */}
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-4 h-4 text-purple-500" />
-                      <span className="text-sm font-medium text-gray-700">Edit with AI</span>
-                    </div>
-                    <div className="relative">
-                      <textarea
-                        value={templatePrompt}
-                        onChange={(e) => setTemplatePrompt(e.target.value)}
-                        placeholder="Describe what you want to create or upload a file..."
-                        className="w-full min-h-[80px] p-3 pr-10 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
-                      />
-                      <button className="absolute bottom-3 right-3 p-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors">
-                        <Send className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
                 </>
               )}
             </div>
