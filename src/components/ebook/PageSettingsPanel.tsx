@@ -533,44 +533,45 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 
                 {/* Radius */}
                 <div className="space-y-2">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-800">Radius</span>
-                    <div className="ml-auto">
-                      <Switch
-                        checked={radiusEnabled}
-                        onCheckedChange={setRadiusEnabled}
-                      />
-                    </div>
+                    <Switch
+                      checked={radiusEnabled}
+                      onCheckedChange={setRadiusEnabled}
+                    />
                   </div>
                   
                   {radiusEnabled && (
                     <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2 relative">
-                        <div className="relative">
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-t-2 border-gray-400 rounded-tl" />
-                          <Input
-                            type="number"
-                            value={radiusTopLeft}
-                            onChange={(e) => handleRadiusChange('tl', Number(e.target.value))}
-                            className="h-8 text-xs pl-7 pr-2"
-                          />
-                        </div>
-                        <div className="relative">
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-t-2 border-gray-400 rounded-tr" />
-                          <Input
-                            type="number"
-                            value={radiusTopRight}
-                            onChange={(e) => handleRadiusChange('tr', Number(e.target.value))}
-                            className="h-8 text-xs pl-7 pr-2"
-                          />
+                      <div className="flex items-center justify-between relative">
+                        {/* Left side - Top Left and Bottom Left */}
+                        <div className="flex flex-col gap-2">
+                          <div className="relative">
+                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-t-2 border-gray-400 rounded-tl" />
+                            <Input
+                              type="number"
+                              value={radiusTopLeft}
+                              onChange={(e) => handleRadiusChange('tl', Number(e.target.value))}
+                              className="h-8 text-xs pl-7 pr-2 w-20"
+                            />
+                          </div>
+                          <div className="relative">
+                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-b-2 border-gray-400 rounded-bl" />
+                            <Input
+                              type="number"
+                              value={radiusBottomLeft}
+                              onChange={(e) => handleRadiusChange('bl', Number(e.target.value))}
+                              className="h-8 text-xs pl-7 pr-2 w-20"
+                            />
+                          </div>
                         </div>
                         
-                        {/* Lock/Unlock button in center */}
+                        {/* Center - Lock/Unlock button */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
                               onClick={() => setRadiusLocked(!radiusLocked)}
-                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-1.5 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 z-10"
+                              className="p-1.5 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50"
                             >
                               {radiusLocked ? (
                                 <Lock className="w-3 h-3 text-gray-600" />
@@ -584,23 +585,26 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                           </TooltipContent>
                         </Tooltip>
                         
-                        <div className="relative">
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-l-2 border-b-2 border-gray-400 rounded-bl" />
-                          <Input
-                            type="number"
-                            value={radiusBottomLeft}
-                            onChange={(e) => handleRadiusChange('bl', Number(e.target.value))}
-                            className="h-8 text-xs pl-7 pr-2"
-                          />
-                        </div>
-                        <div className="relative">
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-b-2 border-gray-400 rounded-br" />
-                          <Input
-                            type="number"
-                            value={radiusBottomRight}
-                            onChange={(e) => handleRadiusChange('br', Number(e.target.value))}
-                            className="h-8 text-xs pl-7 pr-2"
-                          />
+                        {/* Right side - Top Right and Bottom Right */}
+                        <div className="flex flex-col gap-2">
+                          <div className="relative">
+                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-t-2 border-gray-400 rounded-tr" />
+                            <Input
+                              type="number"
+                              value={radiusTopRight}
+                              onChange={(e) => handleRadiusChange('tr', Number(e.target.value))}
+                              className="h-8 text-xs pl-7 pr-2 w-20"
+                            />
+                          </div>
+                          <div className="relative">
+                            <div className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-r-2 border-b-2 border-gray-400 rounded-br" />
+                            <Input
+                              type="number"
+                              value={radiusBottomRight}
+                              onChange={(e) => handleRadiusChange('br', Number(e.target.value))}
+                              className="h-8 text-xs pl-7 pr-2 w-20"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -682,7 +686,10 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   <Input
                     type="number"
                     value={opacity}
-                    onChange={(e) => setOpacity(Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = Math.min(100, Math.max(0, Number(e.target.value)));
+                      setOpacity(val);
+                    }}
                     className="h-7 text-xs w-14"
                     min={0}
                     max={100}
@@ -692,12 +699,26 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 {/* Rotation */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">Rotation</span>
-                  <div className="w-2 h-2 rounded-full border border-cyan-500" />
+                  <div className="flex-1">
+                    <Slider
+                      value={[rotation]}
+                      onValueChange={(v) => setRotation(v[0])}
+                      max={360}
+                      min={-360}
+                      step={1}
+                      className="w-full"
+                      rangeClassName="bg-emerald-500"
+                      thumbClassName="border-emerald-500"
+                    />
+                  </div>
                   <Input
                     type="number"
                     value={rotation}
-                    onChange={(e) => setRotation(Number(e.target.value))}
-                    className="h-7 text-xs w-14 ml-auto"
+                    onChange={(e) => {
+                      const val = Math.min(360, Math.max(-360, Number(e.target.value)));
+                      setRotation(val);
+                    }}
+                    className="h-7 text-xs w-14"
                     min={-360}
                     max={360}
                   />
@@ -1002,111 +1023,94 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
 
                 {backgroundTab === 'color' && (
                   <div className="space-y-3">
-                    {/* Solid/Gradient Toggle */}
-                    <div className="flex gap-1 bg-gray-100 p-0.5 rounded">
-                      <button
-                        onClick={() => setColorType('solid')}
-                        className={`flex-1 text-xs py-1.5 rounded transition-colors ${
-                          colorType === 'solid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                        }`}
-                      >
-                        Solid
-                      </button>
-                      <button
-                        onClick={() => setColorType('gradient')}
-                        className={`flex-1 text-xs py-1.5 rounded transition-colors ${
-                          colorType === 'gradient' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                        }`}
-                      >
-                        Gradient
-                      </button>
-                    </div>
-
-                    {colorType === 'solid' && (
-                      <>
-                        {/* Project Colors */}
-                        <div>
-                          <span className="text-sm font-semibold text-gray-800 mb-2 block">Project Colors</span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {PROJECT_COLORS.map((color, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => handleColorSelect(color)}
-                                className={`w-7 h-7 rounded-full border-2 transition-all ${
-                                  backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
-                                }`}
-                                style={{
-                                  backgroundColor: color === 'transparent' ? 'transparent' : color,
-                                  backgroundImage: color === 'transparent'
-                                    ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)'
-                                    : 'none',
-                                  backgroundSize: color === 'transparent' ? '6px 6px' : 'auto',
-                                  backgroundPosition: color === 'transparent' ? '0 0, 3px 3px' : 'auto',
-                                }}
-                              />
-                            ))}
-                            <button className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
-                              <Plus className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Brand Kit */}
-                        <button className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          Auto-fill your brand colors
+                    {/* Color Swatches - 2 rows of 8 */}
+                    <div className="space-y-1.5">
+                      <div className="flex gap-1.5">
+                        {/* + button first */}
+                        <button className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400">
+                          <Plus className="w-3 h-3" />
                         </button>
-
-                        {/* HEX Input */}
-                        <div className="flex gap-2">
-                          <div className="flex-1">
-                            <span className="text-sm font-semibold text-gray-800 mb-2 block">HEX</span>
-                            <Input
-                              type="text"
-                              value={hexInput}
-                              onChange={(e) => {
-                                setHexInput(e.target.value);
-                                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-                                  setBackgroundColor(e.target.value);
-                                }
-                              }}
-                              className="h-7 text-xs"
-                            />
-                          </div>
-                          <div className="w-16">
-                            <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={bgOpacity}
-                                onChange={(e) => setBgOpacity(Number(e.target.value))}
-                                min={0}
-                                max={100}
-                                className="h-7 text-xs w-12"
-                              />
-                              <span className="text-xs text-gray-500">%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
-
-                    {colorType === 'gradient' && (
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {GRADIENTS.map((gradient) => (
+                        {PROJECT_COLORS.slice(0, 7).map((color, idx) => (
                           <button
-                            key={gradient.id}
-                            onClick={() => handleGradientSelect(gradient.id)}
-                            className={`aspect-square rounded-lg border-2 transition-all ${
-                              selectedGradient === gradient.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                            key={idx}
+                            onClick={() => handleColorSelect(color)}
+                            className={`w-7 h-7 rounded-full border-2 transition-all ${
+                              backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
                             }`}
                             style={{
-                              background: `linear-gradient(135deg, ${gradient.colors[0]}, ${gradient.colors[1]})`,
+                              backgroundColor: color === 'transparent' ? 'transparent' : color,
+                              backgroundImage: color === 'transparent'
+                                ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)'
+                                : 'none',
+                              backgroundSize: color === 'transparent' ? '6px 6px' : 'auto',
+                              backgroundPosition: color === 'transparent' ? '0 0, 3px 3px' : 'auto',
                             }}
                           />
                         ))}
                       </div>
-                    )}
+                      <div className="flex gap-1.5">
+                        {PROJECT_COLORS.slice(7).map((color, idx) => (
+                          <button
+                            key={idx + 7}
+                            onClick={() => handleColorSelect(color)}
+                            className={`w-7 h-7 rounded-full border-2 transition-all ${
+                              backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            style={{
+                              backgroundColor: color === 'transparent' ? 'transparent' : color,
+                              backgroundImage: color === 'transparent'
+                                ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)'
+                                : 'none',
+                              backgroundSize: color === 'transparent' ? '6px 6px' : 'auto',
+                              backgroundPosition: color === 'transparent' ? '0 0, 3px 3px' : 'auto',
+                            }}
+                          />
+                        ))}
+                        {/* Additional colors for second row */}
+                        {['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'].map((color, idx) => (
+                          <button
+                            key={`extra-${idx}`}
+                            onClick={() => handleColorSelect(color)}
+                            className={`w-7 h-7 rounded-full border-2 transition-all ${
+                              backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* HEX Input */}
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <span className="text-sm font-semibold text-gray-800 mb-2 block">HEX</span>
+                        <Input
+                          type="text"
+                          value={hexInput}
+                          onChange={(e) => {
+                            setHexInput(e.target.value);
+                            if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                              setBackgroundColor(e.target.value);
+                            }
+                          }}
+                          className="h-7 text-xs"
+                        />
+                      </div>
+                      <div className="w-16">
+                        <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            value={bgOpacity}
+                            onChange={(e) => setBgOpacity(Number(e.target.value))}
+                            min={0}
+                            max={100}
+                            className="h-7 text-xs w-12"
+                          />
+                          <span className="text-xs text-gray-500">%</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
