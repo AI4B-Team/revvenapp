@@ -101,26 +101,6 @@ const LeadGeneration = () => {
               </p>
             </div>
 
-            {/* Webhook Configuration */}
-            <Card className="mb-6 border-dashed">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  Webhook Configuration
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Enter your n8n webhook URL to connect the lead generation workflow
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Input
-                  placeholder="https://your-n8n-instance.com/webhook/..."
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  className="font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
 
             {/* Lead Generation Form */}
             <Card>
