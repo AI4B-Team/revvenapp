@@ -1119,8 +1119,7 @@ const EbookDesignSidebar = ({
               
               {/* Add New Page Button */}
               <Button 
-                variant="outline" 
-                className="w-full mt-4"
+                className="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-white"
                 onClick={() => {
                   // Add new page logic - can be connected to parent handler
                 }}
