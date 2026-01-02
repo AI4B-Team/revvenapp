@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGoogle, FaLinkedinIn, FaFacebookF, FaInstagram, FaGlobe } from 'react-icons/fa';
+import { supabase } from '@/integrations/supabase/client';
 
 const LeadGeneration = () => {
   const [searchParams] = useSearchParams();
@@ -65,14 +66,13 @@ const LeadGeneration = () => {
         formQueryParameters
       };
 
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(payload),
+      const { error } = await supabase.functions.invoke('lead-generation-webhook', {
+        body: { webhookUrl, payload }
       });
+
+      if (error) {
+        throw error;
+      }
 
       toast.success('Lead generation started! Check your email for results.');
     } catch (error) {
