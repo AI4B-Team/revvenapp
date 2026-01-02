@@ -694,17 +694,24 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 {/* Rotation */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-semibold text-gray-800">Rotation</span>
-                      <div className="w-2 h-2 rounded-full border border-cyan-500" />
-                    </div>
+                    <span className="text-sm font-semibold text-gray-800">Rotation</span>
                     <Input
                       type="number"
                       value={rotation}
                       onChange={(e) => setRotation(Number(e.target.value))}
                       className="h-7 text-xs w-14"
+                      min={-360}
+                      max={360}
                     />
                   </div>
+                  <Slider
+                    value={[rotation]}
+                    onValueChange={(value) => setRotation(value[0])}
+                    min={-360}
+                    max={360}
+                    step={1}
+                    className="w-full [&_[role=slider]]:border-emerald-500 [&_[data-orientation=horizontal]>.bg-primary]:bg-emerald-500"
+                  />
                 </div>
               </div>
             )}
