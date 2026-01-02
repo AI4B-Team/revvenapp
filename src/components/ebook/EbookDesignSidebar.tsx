@@ -52,6 +52,18 @@ const TEMPLATES = [
   { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200', pages: ['Cover', 'Introduction', 'Ecosystem', 'Conservation', 'Action'] },
 ];
 
+// Browse categories with colorful icons (like reference design)
+const BROWSE_CATEGORIES = [
+  { id: 'graphics', name: 'Graphics', bgColor: 'bg-gradient-to-br from-yellow-100 to-green-100', iconColor: 'text-yellow-500', icon: Sun, hoverRotate: true },
+  { id: 'stickers', name: 'Stickers', bgColor: 'bg-gradient-to-br from-yellow-100 to-orange-100', iconColor: 'text-yellow-500', icon: Smile, hoverShuffle: true },
+  { id: 'photos', name: 'Photos', bgColor: 'bg-gradient-to-br from-blue-100 to-cyan-100', iconColor: 'text-blue-500', icon: Images, hoverStack: true },
+  { id: 'videos', name: 'Videos', bgColor: 'bg-gradient-to-br from-pink-100 to-rose-100', iconColor: 'text-pink-500', icon: Play, hoverPulse: true },
+  { id: 'charts', name: 'Charts', bgColor: 'bg-gradient-to-br from-purple-100 to-violet-100', iconColor: 'text-purple-500', icon: BarChart3, hoverBounce: true },
+  { id: 'sheets', name: 'Sheets', bgColor: 'bg-gradient-to-br from-green-100 to-emerald-100', iconColor: 'text-green-600', icon: Table, hoverScale: true },
+  { id: 'columns', name: 'Columns', bgColor: 'bg-gradient-to-br from-cyan-100 to-blue-100', iconColor: 'text-cyan-600', icon: Columns2, hoverTilt: true },
+  { id: 'tables', name: 'Tables', bgColor: 'bg-gradient-to-br from-orange-100 to-red-100', iconColor: 'text-orange-500', icon: Grid3X3, hoverShake: true },
+];
+
 // Categorized Elements based on reference screenshots
 const ELEMENT_CATEGORIES = {
   widgets: {
@@ -632,7 +644,28 @@ const EbookDesignSidebar = ({
                 />
               </div>
 
-              {/* Element Categories */}
+              {/* Browse Categories - Colorful Icons Grid */}
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">Browse categories</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  {BROWSE_CATEGORIES.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => toast.success(`Opening ${category.name}`)}
+                      className="group flex flex-col items-center gap-2 cursor-pointer"
+                    >
+                      <div className={`w-16 h-16 ${category.bgColor} rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:scale-110 group-hover:-rotate-3`}>
+                        <category.icon className={`w-7 h-7 ${category.iconColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`} />
+                      </div>
+                      <span className="text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
+                        {category.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Element Categories - Detailed Lists */}
               {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => (
                 <div key={key} className="mb-4">
                   <div className="flex items-center justify-between mb-2">
@@ -647,10 +680,10 @@ const EbookDesignSidebar = ({
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => toast.success(`Added ${element.name} to canvas`)}
-                            className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                            className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
                           >
-                            <element.icon className="w-5 h-5 text-gray-600" />
-                            <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">
+                            <element.icon className="w-5 h-5 text-gray-600 transition-transform duration-200 group-hover:scale-110 group-hover:text-emerald-600" />
+                            <span className="text-[10px] font-medium text-gray-700 text-center leading-tight group-hover:text-emerald-700">
                               {element.name}
                             </span>
                           </button>
