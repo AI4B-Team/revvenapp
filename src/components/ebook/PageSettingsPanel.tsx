@@ -533,12 +533,14 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 
                 {/* Radius */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center">
                     <span className="text-sm font-semibold text-gray-800">Radius</span>
-                    <Switch
-                      checked={radiusEnabled}
-                      onCheckedChange={setRadiusEnabled}
-                    />
+                    <div className="ml-auto">
+                      <Switch
+                        checked={radiusEnabled}
+                        onCheckedChange={setRadiusEnabled}
+                      />
+                    </div>
                   </div>
                   
                   {radiusEnabled && (
@@ -663,54 +665,41 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                 </div>
                 
                 {/* Opacity */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-800">Opacity</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24">
-                        <Slider
-                          value={[opacity]}
-                          onValueChange={(v) => setOpacity(v[0])}
-                          max={100}
-                          min={0}
-                          step={1}
-                          className="w-full"
-                          rangeClassName="bg-emerald-500"
-                          thumbClassName="border-emerald-500"
-                        />
-                      </div>
-                      <Input
-                        type="number"
-                        value={opacity}
-                        onChange={(e) => setOpacity(Number(e.target.value))}
-                        className="h-7 text-xs w-14"
-                        min={0}
-                        max={100}
-                      />
-                    </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">Opacity</span>
+                  <div className="flex-1">
+                    <Slider
+                      value={[opacity]}
+                      onValueChange={(v) => setOpacity(v[0])}
+                      max={100}
+                      min={0}
+                      step={1}
+                      className="w-full"
+                      rangeClassName="bg-emerald-500"
+                      thumbClassName="border-emerald-500"
+                    />
                   </div>
+                  <Input
+                    type="number"
+                    value={opacity}
+                    onChange={(e) => setOpacity(Number(e.target.value))}
+                    className="h-7 text-xs w-14"
+                    min={0}
+                    max={100}
+                  />
                 </div>
                 
                 {/* Rotation */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-800">Rotation</span>
-                    <Input
-                      type="number"
-                      value={rotation}
-                      onChange={(e) => setRotation(Number(e.target.value))}
-                      className="h-7 text-xs w-14"
-                      min={-360}
-                      max={360}
-                    />
-                  </div>
-                  <Slider
-                    value={[rotation]}
-                    onValueChange={(value) => setRotation(value[0])}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">Rotation</span>
+                  <div className="w-2 h-2 rounded-full border border-cyan-500" />
+                  <Input
+                    type="number"
+                    value={rotation}
+                    onChange={(e) => setRotation(Number(e.target.value))}
+                    className="h-7 text-xs w-14 ml-auto"
                     min={-360}
                     max={360}
-                    step={1}
-                    className="w-full [&_[role=slider]]:border-emerald-500 [&_[data-orientation=horizontal]>.bg-primary]:bg-emerald-500"
                   />
                 </div>
               </div>
