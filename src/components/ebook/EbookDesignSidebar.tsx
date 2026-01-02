@@ -13,8 +13,17 @@ import {
   ThumbsUp, HelpCircle, Hexagon, Star, Pentagon, Diamond, ArrowRight, ArrowDown, ArrowUp,
   ArrowLeft, Move, Pointer, Navigation, Maximize2, Minimize2, RotateCcw, ZoomIn, MessageSquare,
   FileDown, Volume2, ExternalLink, FileQuestion, Shrink, LineChart, CircleDot, AreaChart,
-  Activity, Waves, CircleDashed, Boxes, Radar
+  Activity, Waves, CircleDashed, Boxes, Radar, Languages, Check
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { 
@@ -203,6 +212,56 @@ const ELEMENT_CATEGORIES = {
   },
 };
 
+// Languages for translation
+const LANGUAGES = [
+  { code: 'af', name: 'Afrikaans' },
+  { code: 'sq', name: 'Albanian' },
+  { code: 'am', name: 'Amharic' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hy', name: 'Armenian' },
+  { code: 'as', name: 'Assamese' },
+  { code: 'bn', name: 'Bengali' },
+  { code: 'bg', name: 'Bulgarian' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'hr', name: 'Croatian' },
+  { code: 'cs', name: 'Czech' },
+  { code: 'da', name: 'Danish' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'en', name: 'English' },
+  { code: 'fi', name: 'Finnish' },
+  { code: 'fr', name: 'French' },
+  { code: 'de', name: 'German' },
+  { code: 'el', name: 'Greek' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'hu', name: 'Hungarian' },
+  { code: 'id', name: 'Indonesian' },
+  { code: 'it', name: 'Italian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'ms', name: 'Malay' },
+  { code: 'no', name: 'Norwegian' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'ro', name: 'Romanian' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'th', name: 'Thai' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'uk', name: 'Ukrainian' },
+  { code: 'vi', name: 'Vietnamese' },
+];
+
+// Tone of voice options
+const TONE_OPTIONS = [
+  { id: 'original', name: 'Original' },
+  { id: 'professional', name: 'Professional' },
+  { id: 'conversational', name: 'Conversational' },
+  { id: 'friendly', name: 'Friendly' },
+  { id: 'informative', name: 'Informative' },
+  { id: 'inspirational', name: 'Inspirational' },
+];
+
 // Mockup categories
 const MOCKUP_CATEGORIES = [
   { id: 'ebook', name: 'eBook Covers' },
@@ -212,7 +271,7 @@ const MOCKUP_CATEGORIES = [
   { id: 'ads', name: 'Advertisements' },
 ];
 
-type SectionId = 'templates' | 'content' | 'images' | 'elements' | 'mockups';
+type SectionId = 'templates' | 'content' | 'images' | 'elements' | 'mockups' | 'translate';
 
 const EbookDesignSidebar = ({
   bookTitle,
@@ -238,6 +297,18 @@ const EbookDesignSidebar = ({
   const [viewingTemplateId, setViewingTemplateId] = useState<string | null>(null);
   const [hoveredTemplateId, setHoveredTemplateId] = useState<string | null>(null);
   const [elementSearch, setElementSearch] = useState('');
+  
+  // Translate section state
+  const [translateLanguage, setTranslateLanguage] = useState('');
+  const [translateTone, setTranslateTone] = useState('original');
+  const [translateScope, setTranslateScope] = useState<'page' | 'selection' | 'book'>('page');
+  const [languageSearchQuery, setLanguageSearchQuery] = useState('');
+  const [showTranslated, setShowTranslated] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const filteredLanguages = LANGUAGES.filter(lang =>
+    lang.name.toLowerCase().includes(languageSearchQuery.toLowerCase())
+  );
 
   const viewingTemplate = TEMPLATES.find(t => t.id === viewingTemplateId);
 
@@ -424,6 +495,23 @@ const EbookDesignSidebar = ({
               </TooltipTrigger>
               <TooltipContent side="right">
                 <p>Mockups</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    setIsCollapsed(false);
+                    setExpandedSections(new Set(['translate']));
+                  }}
+                  className="p-3 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                >
+                  <Languages className="w-5 h-5 text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Translate</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -839,6 +927,156 @@ const EbookDesignSidebar = ({
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Translate Section */}
+          <SectionHeader id="translate" title="Translate" icon={Languages} />
+          {expandedSections.has('translate') && (
+            <div className="p-4 border-b border-gray-200 flex flex-col">
+              {/* Toggle between Original/Translated */}
+              {showTranslated && (
+                <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-purple-700">Currently viewing translated version</span>
+                    <button
+                      onClick={() => setShowTranslated(false)}
+                      className="text-xs font-medium text-purple-600 hover:text-purple-800 underline"
+                    >
+                      View Original
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Translate to Language */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-800 mb-2">Translate to</h4>
+                <Select value={translateLanguage} onValueChange={setTranslateLanguage}>
+                  <SelectTrigger className="w-full border-purple-200 focus:ring-purple-500">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <div className="p-2 sticky top-0 bg-white border-b">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Input
+                          value={languageSearchQuery}
+                          onChange={(e) => setLanguageSearchQuery(e.target.value)}
+                          placeholder="Search languages..."
+                          className="pl-8 h-9"
+                        />
+                      </div>
+                    </div>
+                    {filteredLanguages.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Automatically detect current language{' '}
+                  <button className="text-purple-600 hover:text-purple-700 underline">(Edit)</button>
+                </p>
+              </div>
+
+              {/* Tone of Voice */}
+              <div className="mb-5">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Tone of voice (optional)</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {TONE_OPTIONS.map((tone) => (
+                    <button
+                      key={tone.id}
+                      onClick={() => setTranslateTone(tone.id)}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all ${
+                        translateTone === tone.id
+                          ? 'border-purple-500 bg-purple-50 text-purple-700'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {tone.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Translation Scope */}
+              <div className="mb-6">
+                <RadioGroup 
+                  value={translateScope} 
+                  onValueChange={(value) => setTranslateScope(value as 'page' | 'selection' | 'book')}
+                  className="space-y-3"
+                >
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="page" id="translate-page" className="border-purple-400 text-purple-600" />
+                    <Label htmlFor="translate-page" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Translate page
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="selection" id="translate-selection" className="border-purple-400 text-purple-600" />
+                    <Label htmlFor="translate-selection" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Select text from current page
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="book" id="translate-book" className="border-purple-400 text-purple-600" />
+                    <Label htmlFor="translate-book" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Translate entire book
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Translate Button */}
+              <button
+                onClick={() => {
+                  if (!translateLanguage) {
+                    toast.error('Please select a target language');
+                    return;
+                  }
+                  setIsTranslating(true);
+                  const scopeLabel = translateScope === 'page' ? 'page' : translateScope === 'selection' ? 'selected text' : 'entire book';
+                  const languageName = LANGUAGES.find(l => l.code === translateLanguage)?.name || translateLanguage;
+                  toast.promise(
+                    new Promise((resolve) => setTimeout(resolve, 2000)),
+                    {
+                      loading: `Translating ${scopeLabel} to ${languageName}...`,
+                      success: () => {
+                        setShowTranslated(true);
+                        setIsTranslating(false);
+                        return `Successfully translated ${scopeLabel} to ${languageName}`;
+                      },
+                      error: 'Translation failed',
+                    }
+                  );
+                }}
+                disabled={isTranslating || !translateLanguage}
+                className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4" />
+                Translate
+              </button>
+
+              {/* View Original/Translated Toggle (when translation exists) */}
+              {showTranslated && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => setShowTranslated(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    View Original
+                  </button>
+                  <button
+                    onClick={() => setShowTranslated(true)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-lg flex items-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Translated
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
