@@ -5,18 +5,32 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap } from 'lucide-react';
+import { Users, MapPin, Mail, Hash, Globe, Target, Loader2, Sparkles, Zap, Download, Trash2, FileSpreadsheet, Clock, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGoogle, FaLinkedinIn, FaFacebookF, FaInstagram, FaGlobe } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
+
+interface LeadHistoryItem {
+  id: string;
+  location: string;
+  platform: string;
+  keywords: string | null;
+  num_leads: number;
+  file_name: string;
+  file_url: string;
+  file_size: number | null;
+  created_at: string;
+}
 
 const LeadGeneration = () => {
   const [searchParams] = useSearchParams();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<LeadHistoryItem[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
   const [formData, setFormData] = useState({
     location: '',
@@ -26,6 +40,28 @@ const LeadGeneration = () => {
     keywords: '',
     websiteUrl: ''
   });
+
+  // Fetch history on mount
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const { data, error } = await supabase
+        .from('lead_generation_history')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setHistory(data || []);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +91,12 @@ const LeadGeneration = () => {
       });
 
       const payload = {
+        location: formData.location,
+        email: formData.email,
+        numLeads: parseInt(formData.numberOfLeads),
+        platform: formData.platform,
+        keywords: formData.keywords,
+        websiteUrl: formData.websiteUrl || '',
         'Location/Region': formData.location,
         'Your Email': formData.email,
         'Number of Leads': parseInt(formData.numberOfLeads),
@@ -66,7 +108,7 @@ const LeadGeneration = () => {
         formQueryParameters
       };
 
-      const { error } = await supabase.functions.invoke('lead-generation-webhook', {
+      const { data, error } = await supabase.functions.invoke('lead-generation-webhook', {
         body: { webhookUrl, payload }
       });
 
@@ -74,13 +116,67 @@ const LeadGeneration = () => {
         throw error;
       }
 
-      toast.success('Lead generation started! Check your email for results.');
+      if (data?.fileUrl) {
+        toast.success('Leads generated! File saved to history.');
+        // Refresh history to show new file
+        fetchHistory();
+      } else {
+        toast.success('Lead generation started! Check your email for results.');
+      }
     } catch (error) {
       console.error('Error triggering webhook:', error);
       toast.error('Failed to start lead generation. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDownload = (fileUrl: string, fileName: string) => {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDelete = async (id: string, fileName: string) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('lead-files')
+        .remove([fileName]);
+
+      if (storageError) {
+        console.error('Storage delete error:', storageError);
+      }
+
+      // Delete from history table
+      const { error: dbError } = await supabase
+        .from('lead_generation_history')
+        .delete()
+        .eq('id', id);
+
+      if (dbError) throw dbError;
+
+      toast.success('File deleted successfully');
+      setHistory(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast.error('Failed to delete file');
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return 'Unknown';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
   };
 
   const formFields = [
@@ -133,7 +229,7 @@ const LeadGeneration = () => {
             />
           </div>
 
-          <div className="max-w-2xl mx-auto relative z-10">
+          <div className="max-w-4xl mx-auto relative z-10">
             {/* Header with animations */}
             <motion.div 
               className="mb-8 text-center"
@@ -173,178 +269,263 @@ const LeadGeneration = () => {
               </motion.p>
             </motion.div>
 
-            {/* Main Form Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-                <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-primary" />
-                    Generate Leads
-                  </CardTitle>
-                  <CardDescription>
-                    Fill in the details below to start generating leads from your selected platform
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Animated form fields */}
-                    {formFields.map((field, index) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Main Form Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+                  <CardHeader className="relative">
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-primary" />
+                      Generate Leads
+                    </CardTitle>
+                    <CardDescription>
+                      Fill in the details below to start generating leads from your selected platform
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      {/* Animated form fields */}
+                      {formFields.map((field, index) => (
+                        <motion.div 
+                          key={field.id}
+                          className="space-y-2"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + index * 0.1 }}
+                        >
+                          <Label htmlFor={field.id} className="flex items-center gap-2 text-sm">
+                            <field.icon className="h-4 w-4 text-primary" />
+                            {field.label} *
+                          </Label>
+                          <Input
+                            id={field.id}
+                            type={field.type}
+                            placeholder={field.placeholder}
+                            min={field.type === 'number' ? 1 : undefined}
+                            max={field.type === 'number' ? 10000 : undefined}
+                            value={formData[field.id as keyof typeof formData]}
+                            onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                            className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            required
+                          />
+                          {field.helper && (
+                            <p className="text-xs text-muted-foreground">{field.helper}</p>
+                          )}
+                        </motion.div>
+                      ))}
+
+                      {/* Platform Selection */}
                       <motion.div 
-                        key={field.id}
                         className="space-y-2"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1 }}
+                        transition={{ delay: 0.6 }}
                       >
-                        <Label htmlFor={field.id} className="flex items-center gap-2">
-                          <field.icon className="h-4 w-4 text-primary" />
-                          {field.label} *
+                        <Label className="flex items-center gap-2 text-sm">
+                          <Globe className="h-4 w-4 text-primary" />
+                          Platform *
+                        </Label>
+                        <Select
+                          value={formData.platform}
+                          onValueChange={(value) => setFormData({ ...formData, platform: value })}
+                        >
+                          <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20">
+                            <SelectValue placeholder="Select a platform" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {platforms.map((platform) => (
+                              <SelectItem key={platform.value} value={platform.value}>
+                                <div className="flex items-center gap-2">
+                                  <platform.icon className="h-4 w-4" style={{ color: platform.color }} />
+                                  {platform.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </motion.div>
+
+                      {/* Keywords */}
+                      <motion.div 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.7 }}
+                      >
+                        <Label htmlFor="keywords" className="flex items-center gap-2 text-sm">
+                          <Target className="h-4 w-4 text-primary" />
+                          Target Industry/Keywords *
                         </Label>
                         <Input
-                          id={field.id}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          min={field.type === 'number' ? 1 : undefined}
-                          max={field.type === 'number' ? 10000 : undefined}
-                          value={formData[field.id as keyof typeof formData]}
-                          onChange={(e) => setFormData({ ...formData, [field.id]: e.target.value })}
+                          id="keywords"
+                          placeholder="e.g., Real estate agency, Photography"
+                          value={formData.keywords}
+                          onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                           required
                         />
-                        {field.helper && (
-                          <p className="text-xs text-muted-foreground">{field.helper}</p>
-                        )}
                       </motion.div>
-                    ))}
 
-                    {/* Platform Selection */}
-                    <motion.div 
-                      className="space-y-2"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      <Label className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-primary" />
-                        Platform *
-                      </Label>
-                      <Select
-                        value={formData.platform}
-                        onValueChange={(value) => setFormData({ ...formData, platform: value })}
-                      >
-                        <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20">
-                          <SelectValue placeholder="Select a platform" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {platforms.map((platform) => (
-                            <SelectItem key={platform.value} value={platform.value}>
-                              <div className="flex items-center gap-2">
-                                <platform.icon className="h-4 w-4" style={{ color: platform.color }} />
-                                {platform.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </motion.div>
-
-                    {/* Keywords */}
-                    <motion.div 
-                      className="space-y-2"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.7 }}
-                    >
-                      <Label htmlFor="keywords" className="flex items-center gap-2">
-                        <Target className="h-4 w-4 text-primary" />
-                        Target Industry/Keywords *
-                      </Label>
-                      <Input
-                        id="keywords"
-                        placeholder="e.g., Real estate agency, Photography, Restaurants"
-                        value={formData.keywords}
-                        onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                        className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        required
-                      />
-                    </motion.div>
-
-                    {/* Website URL (conditional) */}
-                    <AnimatePresence>
-                      {formData.platform === 'Website' && (
-                        <motion.div 
-                          className="space-y-2"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <Label htmlFor="websiteUrl" className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-primary" />
-                            Website URL *
-                          </Label>
-                          <Input
-                            id="websiteUrl"
-                            type="url"
-                            placeholder="https://example.com"
-                            value={formData.websiteUrl}
-                            onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
-                            className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            required={formData.platform === 'Website'}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Submit Button */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 }}
-                    >
-                      <Button 
-                        type="submit" 
-                        className="w-full relative overflow-hidden group" 
-                        size="lg"
-                        disabled={isLoading}
-                      >
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0"
-                          initial={{ x: '-100%' }}
-                          whileHover={{ x: '100%' }}
-                          transition={{ duration: 0.5 }}
-                        />
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Generating Leads...
-                          </>
-                        ) : (
-                          <>
-                            <Users className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                            Generate Leads
-                          </>
+                      {/* Website URL (conditional) */}
+                      <AnimatePresence>
+                        {formData.platform === 'Website' && (
+                          <motion.div 
+                            className="space-y-2"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Label htmlFor="websiteUrl" className="flex items-center gap-2 text-sm">
+                              <Globe className="h-4 w-4 text-primary" />
+                              Website URL *
+                            </Label>
+                            <Input
+                              id="websiteUrl"
+                              type="url"
+                              placeholder="https://example.com"
+                              value={formData.websiteUrl}
+                              onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                              className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                              required={formData.platform === 'Website'}
+                            />
+                          </motion.div>
                         )}
-                      </Button>
-                    </motion.div>
-                  </form>
-                </CardContent>
-              </Card>
-            </motion.div>
+                      </AnimatePresence>
+
+                      {/* Submit Button */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                      >
+                        <Button 
+                          type="submit" 
+                          className="w-full relative overflow-hidden group" 
+                          size="lg"
+                          disabled={isLoading}
+                        >
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0"
+                            initial={{ x: '-100%' }}
+                            whileHover={{ x: '100%' }}
+                            transition={{ duration: 0.5 }}
+                          />
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                              Generating Leads...
+                            </>
+                          ) : (
+                            <>
+                              <Users className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                              Generate Leads
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
+                    </form>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* History Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+                  <CardHeader className="relative">
+                    <CardTitle className="flex items-center gap-2">
+                      <History className="h-5 w-5 text-primary" />
+                      Generated Files
+                    </CardTitle>
+                    <CardDescription>
+                      Download or manage your generated lead files
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    {isLoadingHistory ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    ) : history.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <FileSpreadsheet className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                        <p>No files generated yet</p>
+                        <p className="text-sm">Generated files will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        {history.map((item, index) => (
+                          <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className="p-2 rounded-lg bg-primary/10">
+                                <FileSpreadsheet className="h-5 w-5 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{item.file_name}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <span>{item.platform}</span>
+                                  <span>•</span>
+                                  <span>{item.location}</span>
+                                  <span>•</span>
+                                  <span>{formatFileSize(item.file_size)}</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDate(item.created_at)}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 ml-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDownload(item.file_url, item.file_name)}
+                                className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDelete(item.id, item.file_name)}
+                                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
 
             {/* Platform Cards */}
             <motion.div 
-              className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4"
+              className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.9 }}
             >
-              {platforms.slice(0, 4).map((platform, index) => (
+              {platforms.map((platform, index) => (
                 <motion.div
                   key={platform.value}
                   initial={{ opacity: 0, y: 20 }}
