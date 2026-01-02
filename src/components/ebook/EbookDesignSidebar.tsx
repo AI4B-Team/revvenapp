@@ -956,26 +956,28 @@ const EbookDesignSidebar = ({
                   <SelectTrigger className="w-full border-gray-200 focus:ring-emerald-500">
                     <SelectValue placeholder="Select Language" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[280px] bg-white z-50">
-                    <div className="p-2 sticky top-0 bg-white border-b">
+                  <SelectContent className="max-h-[280px] bg-white z-50 overflow-hidden">
+                    <div className="p-2 sticky top-0 bg-white border-b z-10 shadow-sm">
                       <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           value={languageSearchQuery}
                           onChange={(e) => setLanguageSearchQuery(e.target.value)}
-                          placeholder="Search languages..."
-                          className="pl-8 h-9"
+                          placeholder="Search Languages..."
+                          className="pl-8 h-9 bg-white"
                         />
                       </div>
                     </div>
-                    {filteredLanguages.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        <span className="flex items-center gap-2">
-                          <span className="text-base">{lang.flag}</span>
-                          <span>{lang.name}</span>
-                        </span>
-                      </SelectItem>
-                    ))}
+                    <div className="overflow-y-auto max-h-[220px]">
+                      {filteredLanguages.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">{lang.flag}</span>
+                            <span>{lang.name}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </div>
                   </SelectContent>
                 </Select>
                 <p className="mt-1.5 text-xs text-gray-500">
