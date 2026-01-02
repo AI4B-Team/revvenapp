@@ -2297,22 +2297,28 @@ const EbookCanvasEditor = ({
                               if (action.id === 'settings') {
                                 return (
                                   <Popover key={action.id} open={pageSettingsOpen} onOpenChange={setPageSettingsOpen}>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <PopoverTrigger asChild>
-                                          <button
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="p-1.5 rounded-md border transition-all border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600"
-                                          >
-                                            <Icon className="w-4 h-4" />
-                                          </button>
-                                        </PopoverTrigger>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="text-xs">
-                                        <p>{action.label}</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                    <PopoverContent side="left" align="start" className="w-auto p-0 border-0 shadow-none bg-transparent">
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="p-1.5 rounded-md border transition-all border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600"
+                                        title={action.label}
+                                      >
+                                        <Icon className="w-4 h-4" />
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent 
+                                      side="left" 
+                                      align="start" 
+                                      className="w-auto p-0 border-0 shadow-none bg-transparent"
+                                      onInteractOutside={(e) => e.preventDefault()}
+                                      onPointerDownOutside={(e) => {
+                                        // Only close if clicking outside the panel
+                                        const target = e.target as HTMLElement;
+                                        if (!target.closest('[data-radix-popper-content-wrapper]')) {
+                                          setPageSettingsOpen(false);
+                                        }
+                                      }}
+                                    >
                                       <PageSettingsPanel 
                                         pageNumber={pageIndex + 1}
                                         onClose={() => setPageSettingsOpen(false)}

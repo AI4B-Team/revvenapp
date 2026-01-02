@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { X, Plus, Sparkles } from 'lucide-react';
+import { X, Plus, Sparkles, Link2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -24,6 +26,10 @@ interface PageSettings {
   borderSize: string;
   borderColor: string;
   layoutStyle: string;
+  pageWidth: number;
+  pageHeight: number;
+  pageOrientation: 'portrait' | 'landscape';
+  pageFormat: string;
 }
 
 const PROJECT_COLORS = ['transparent', '#ffffff', '#f3f4f6', '#9ca3af', '#1f2937', '#0d9488', '#06b6d4', '#14b8a6'];
@@ -77,6 +83,14 @@ const LAYOUT_STYLES = [
   { id: 'single-column-img', name: 'Single column with image', preview: 'single-img' },
 ];
 
+const PAGE_FORMATS = [
+  { id: 'custom', name: 'Custom', width: 800, height: 1131 },
+  { id: 'a4', name: 'A4', width: 595, height: 842 },
+  { id: 'letter', name: 'Letter', width: 612, height: 792 },
+  { id: 'social', name: 'Social Media', width: 1080, height: 1080 },
+  { id: 'presentation', name: 'Presentation', width: 1920, height: 1080 },
+];
+
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'pattern'>('color');
   const [colorType, setColorType] = useState<'solid' | 'gradient'>('solid');
@@ -90,6 +104,54 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [selectedLayout, setSelectedLayout] = useState('single-column');
   const [hexInput, setHexInput] = useState('#FFFFFF');
   const [opacity, setOpacity] = useState(100);
+  
+  // Page Size state
+  const [pageFormat, setPageFormat] = useState('custom');
+  const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [pageWidth, setPageWidth] = useState(800);
+  const [pageHeight, setPageHeight] = useState(1131);
+  const [linkDimensions, setLinkDimensions] = useState(false);
+  const [resizeContent, setResizeContent] = useState(true);
+  
+  const handleFormatChange = (formatId: string) => {
+    setPageFormat(formatId);
+    const format = PAGE_FORMATS.find(f => f.id === formatId);
+    if (format && formatId !== 'custom') {
+      if (pageOrientation === 'portrait') {
+        setPageWidth(format.width);
+        setPageHeight(format.height);
+      } else {
+        setPageWidth(format.height);
+        setPageHeight(format.width);
+      }
+    }
+  };
+  
+  const handleOrientationChange = (orientation: 'portrait' | 'landscape') => {
+    setPageOrientation(orientation);
+    // Swap dimensions
+    const tempWidth = pageWidth;
+    setPageWidth(pageHeight);
+    setPageHeight(tempWidth);
+  };
+  
+  const handleWidthChange = (value: number) => {
+    setPageWidth(value);
+    if (linkDimensions) {
+      const ratio = pageHeight / pageWidth;
+      setPageHeight(Math.round(value * ratio));
+    }
+    setPageFormat('custom');
+  };
+  
+  const handleHeightChange = (value: number) => {
+    setPageHeight(value);
+    if (linkDimensions) {
+      const ratio = pageWidth / pageHeight;
+      setPageWidth(Math.round(value * ratio));
+    }
+    setPageFormat('custom');
+  };
 
   const handleColorSelect = (color: string) => {
     setBackgroundColor(color);
@@ -148,7 +210,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   };
 
   return (
-    <div className="w-72 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+    <div className="w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
         <span className="font-semibold text-gray-900 text-sm">Page Settings</span>
@@ -157,7 +219,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </button>
       </div>
 
-      <div className="p-3 space-y-4 max-h-[480px] overflow-y-auto">
+      <div className="p-3 space-y-3 max-h-[520px] overflow-y-auto">
         {/* Page Number */}
         <div>
           <label className="text-xs font-medium text-gray-600 mb-1.5 block">Page Number</label>
@@ -168,9 +230,107 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
             className="h-8 text-sm bg-gray-50"
           />
         </div>
+        
+        {/* Page Size Section */}
+        <div className="border-t border-gray-100 pt-3">
+          <label className="text-xs font-semibold text-gray-900 mb-2 block">Page Size</label>
+          
+          {/* Resize by Format */}
+          <div className="mb-2">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Resize by Format</span>
+            <Select value={pageFormat} onValueChange={handleFormatChange}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_FORMATS.map((format) => (
+                  <SelectItem key={format.id} value={format.id}>{format.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Portrait/Landscape Toggle */}
+          <div className="flex gap-1 mb-2">
+            <button
+              onClick={() => handleOrientationChange('portrait')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                pageOrientation === 'portrait' 
+                  ? 'bg-teal-500 text-white border-teal-500' 
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              <div className={`w-2.5 h-3.5 border rounded-sm ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
+              Portrait
+            </button>
+            <button
+              onClick={() => handleOrientationChange('landscape')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                pageOrientation === 'landscape' 
+                  ? 'bg-teal-500 text-white border-teal-500' 
+                  : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              <div className={`w-3.5 h-2.5 border rounded-sm ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
+              Landscape
+            </button>
+          </div>
+          
+          {/* Custom Size */}
+          <div className="mb-2">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Custom Size</span>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <span className="text-[10px] text-gray-500 mb-0.5 block">Width</span>
+                <Input
+                  type="number"
+                  value={pageWidth}
+                  onChange={(e) => handleWidthChange(Number(e.target.value))}
+                  className="h-7 text-xs"
+                />
+              </div>
+              <button 
+                onClick={() => setLinkDimensions(!linkDimensions)}
+                className={`mt-4 p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+              >
+                <Link2 className="w-3.5 h-3.5" />
+              </button>
+              <div className="flex-1">
+                <span className="text-[10px] text-gray-500 mb-0.5 block">Height</span>
+                <Input
+                  type="number"
+                  value={pageHeight}
+                  onChange={(e) => handleHeightChange(Number(e.target.value))}
+                  className="h-7 text-xs"
+                />
+              </div>
+              <span className="mt-4 text-xs text-gray-500">px</span>
+            </div>
+          </div>
+          
+          {/* Others */}
+          <div className="mb-2">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Others</span>
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                id="resize-content" 
+                checked={resizeContent}
+                onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+              />
+              <label htmlFor="resize-content" className="text-xs text-gray-700 cursor-pointer">
+                Resize Content
+              </label>
+            </div>
+          </div>
+          
+          {/* Resize Button */}
+          <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs">
+            Resize this Visual
+          </Button>
+        </div>
 
         {/* Style Section */}
-        <div>
+        <div className="border-t border-gray-100 pt-3">
           <label className="text-xs font-medium text-gray-600 mb-2 block">Style</label>
           <div className="grid grid-cols-2 gap-2">
             {LAYOUT_STYLES.map((style) => (
@@ -245,7 +405,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </div>
 
         {/* Background Section */}
-        <div>
+        <div className="border-t border-gray-100 pt-3">
           <label className="text-xs font-medium text-gray-600 mb-2 block">Background</label>
           
           {/* Color/Pattern Tabs */}
@@ -394,7 +554,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </div>
 
         {/* Border Section */}
-        <div>
+        <div className="border-t border-gray-100 pt-3">
           <label className="text-xs font-medium text-gray-600 mb-2 block">Border</label>
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
