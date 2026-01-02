@@ -401,8 +401,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   checked={resizeContent}
                   onCheckedChange={(checked) => setResizeContent(checked as boolean)}
                 />
-                <label htmlFor="resize-content" className="text-xs text-gray-700 cursor-pointer">
-                  Resize Content
+                <label htmlFor="resize-content" className="text-[10px] text-gray-500 uppercase tracking-wide cursor-pointer">
+                  RESIZE CONTENT
                 </label>
               </div>
               
