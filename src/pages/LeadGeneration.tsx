@@ -54,9 +54,16 @@ const LeadGeneration = () => {
     websiteUrl: ''
   });
 
-  // Fetch history on mount
+  // Fetch history on mount and poll every 5 seconds
   useEffect(() => {
     fetchHistory();
+    
+    // Set up polling every 5 seconds
+    const pollInterval = setInterval(() => {
+      fetchHistorySilent();
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const fetchHistory = async () => {
@@ -73,6 +80,21 @@ const LeadGeneration = () => {
       console.error('Error fetching history:', error);
     } finally {
       setIsLoadingHistory(false);
+    }
+  };
+
+  // Silent fetch without loading state for polling
+  const fetchHistorySilent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('lead_generation_history')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setHistory(data || []);
+    } catch (error) {
+      console.error('Error fetching history:', error);
     }
   };
 
