@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, Move, CircleDot, Layers, RotateCw, Lock, Unlock, Info } from 'lucide-react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -148,10 +148,10 @@ const PAGE_FORMAT_CATEGORIES = [
   },
 ];
 
-type SectionType = 'position' | 'size' | 'shape' | 'style' | 'border' | 'background' | 'transform' | 'shadow' | null;
+type SectionType = 'size' | 'shape' | 'style' | 'border' | 'background' | 'transform' | 'shadow' | null;
 
 const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettingsPanelProps) => {
-  const [openSection, setOpenSection] = useState<SectionType>('position');
+  const [openSection, setOpenSection] = useState<SectionType>('size');
   const [backgroundTab, setBackgroundTab] = useState<'color' | 'pattern' | 'image'>('color');
   const [colorType, setColorType] = useState<'solid' | 'gradient'>('solid');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -172,13 +172,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   const [pageHeight, setPageHeight] = useState(1131);
   const [linkDimensions, setLinkDimensions] = useState(false);
   const [resizeContent, setResizeContent] = useState(true);
-  
-  // Position state
-  const [posX, setPosX] = useState(0);
-  const [posY, setPosY] = useState(0);
-  const [posW, setPosW] = useState(1276);
-  const [posH, setPosH] = useState(825);
-  
+
   // Shape Settings state
   const [shapeBackgroundColor, setShapeBackgroundColor] = useState('#2563eb');
   const [radiusEnabled, setRadiusEnabled] = useState(false);
@@ -340,7 +334,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
 
   const getSectionIcon = (section: SectionType) => {
     switch (section) {
-      case 'position': return Move;
       case 'size': return Maximize2;
       case 'shape': return CircleDot;
       case 'style': return LayoutGrid;
@@ -405,73 +398,119 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
 
         {/* Scrollable sections */}
         <div className="flex-1 overflow-y-auto">
-          {/* Position Section */}
+          {/* Size Section - Collapsible */}
           <div>
-            <SectionHeader title="Position" section="position" isOpen={openSection === 'position'} />
-            {openSection === 'position' && (
+            <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
+            {openSection === 'size' && (
               <div className="p-3 space-y-3 border-b border-gray-200">
-                {/* Alignment buttons */}
-                <div className="flex items-center gap-1 justify-center">
-                  {['align-left', 'align-center-h', 'align-right', 'align-top', 'align-center-v', 'align-bottom', 'distribute-h', 'distribute-v'].map((align, idx) => (
-                    <button key={idx} className="p-1.5 hover:bg-gray-100 rounded border border-gray-200">
-                      <div className="w-4 h-4 flex items-center justify-center text-gray-500">
-                        {idx === 0 && <div className="w-0.5 h-3 bg-gray-500 mr-1" />}
-                        {idx === 1 && <div className="w-3 h-0.5 bg-gray-500" />}
-                        {idx === 2 && <div className="w-0.5 h-3 bg-gray-500 ml-1" />}
-                        {idx === 3 && <div className="w-3 h-0.5 bg-gray-500 mb-1" />}
-                        {idx === 4 && <div className="w-0.5 h-3 bg-gray-500" />}
-                        {idx === 5 && <div className="w-3 h-0.5 bg-gray-500 mt-1" />}
-                        {idx === 6 && <div className="flex gap-0.5"><div className="w-0.5 h-3 bg-gray-500" /><div className="w-0.5 h-3 bg-gray-500" /></div>}
-                        {idx === 7 && <div className="flex flex-col gap-0.5"><div className="w-3 h-0.5 bg-gray-500" /><div className="w-3 h-0.5 bg-gray-500" /></div>}
-                      </div>
-                    </button>
-                  ))}
+                {/* Resize by Format */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
+                  <Select value={pageFormat} onValueChange={handleFormatChange}>
+                    <SelectTrigger className="h-9 text-sm font-medium justify-center">
+                      <SelectValue>{getFormatDisplayName()}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80">
+                      <SelectItem value="custom" className="justify-center">Custom</SelectItem>
+                      {PAGE_FORMAT_CATEGORIES.map((category) => (
+                        <SelectGroup key={category.label}>
+                          <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
+                            {category.label}
+                          </SelectLabel>
+                          {category.formats.map((format) => (
+                            <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
+                                {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
+                                {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
+                                {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
+                                {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
+                                {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
+                                  <FileText className="w-3 h-3 text-gray-400" />
+                                )}
+                                <span>{format.name}</span>
+                                <span className="text-gray-400 ml-1">- {format.dimensions}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
-                {/* X, Y, W, H fields */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">X</span>
-                    <Input
-                      type="number"
-                      value={posX}
-                      onChange={(e) => setPosX(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
+                {/* Orientation */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleOrientationChange('portrait')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'portrait' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
+                      Portrait
+                    </button>
+                    <button
+                      onClick={() => handleOrientationChange('landscape')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'landscape' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
+                      Landscape
+                    </button>
                   </div>
-                  <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">Y</span>
-                    <Input
-                      type="number"
-                      value={posY}
-                      onChange={(e) => setPosY(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
-                  </div>
-                  <div className="relative">
+                </div>
+                
+                {/* Custom Size - W and H in fields */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 relative">
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
                     <Input
                       type="number"
-                      value={posW}
-                      onChange={(e) => setPosW(Number(e.target.value))}
+                      value={pageWidth}
+                      onChange={(e) => handleWidthChange(Number(e.target.value))}
                       className="h-8 text-xs pl-7 pr-2"
                     />
                   </div>
-                  <div className="relative">
+                  <button 
+                    onClick={() => setLinkDimensions(!linkDimensions)}
+                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                  </button>
+                  <div className="flex-1 relative">
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
                     <Input
                       type="number"
-                      value={posH}
-                      onChange={(e) => setPosH(Number(e.target.value))}
+                      value={pageHeight}
+                      onChange={(e) => handleHeightChange(Number(e.target.value))}
                       className="h-8 text-xs pl-7 pr-2"
                     />
                   </div>
                 </div>
                 
-                {/* Replace button */}
-                <Button variant="outline" className="w-full h-8 text-xs">
-                  <Share2 className="w-3 h-3 mr-1.5" />
-                  Replace
+                {/* Resize Content */}
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="resize-content" 
+                    checked={resizeContent}
+                    onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+                  />
+                  <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
+                    Resize Content
+                  </label>
+                </div>
+                
+                {/* Confirm Button */}
+                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
+                  Confirm
                 </Button>
               </div>
             )}
@@ -635,6 +674,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                           min={0}
                           step={1}
                           className="w-full"
+                          rangeClassName="bg-emerald-500"
+                          thumbClassName="border-emerald-500"
                         />
                       </div>
                       <Input
@@ -714,6 +755,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                             min={-50}
                             step={1}
                             className="w-full"
+                            rangeClassName="bg-emerald-500"
+                            thumbClassName="border-emerald-500"
                           />
                         </div>
                         <Input
@@ -737,6 +780,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                             min={-50}
                             step={1}
                             className="w-full"
+                            rangeClassName="bg-emerald-500"
+                            thumbClassName="border-emerald-500"
                           />
                         </div>
                         <Input
@@ -760,6 +805,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                             min={0}
                             step={1}
                             className="w-full"
+                            rangeClassName="bg-emerald-500"
+                            thumbClassName="border-emerald-500"
                           />
                         </div>
                         <Input
@@ -772,124 +819,6 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                     </div>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
-
-          {/* Size Section - Collapsible */}
-          <div>
-            <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
-            {openSection === 'size' && (
-              <div className="p-3 space-y-3 border-b border-gray-200">
-                {/* Resize by Format */}
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
-                  <Select value={pageFormat} onValueChange={handleFormatChange}>
-                    <SelectTrigger className="h-8 text-xs justify-center">
-                      <SelectValue>{getFormatDisplayName()}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-80">
-                      <SelectItem value="custom" className="justify-center">Custom</SelectItem>
-                      {PAGE_FORMAT_CATEGORIES.map((category) => (
-                        <SelectGroup key={category.label}>
-                          <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
-                            {category.label}
-                          </SelectLabel>
-                          {category.formats.map((format) => (
-                            <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
-                              <div className="flex items-center gap-2">
-                                {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
-                                {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
-                                {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
-                                {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
-                                {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
-                                {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
-                                  <FileText className="w-3 h-3 text-gray-400" />
-                                )}
-                                <span>{format.name}</span>
-                                <span className="text-gray-400 ml-1">- {format.dimensions}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {/* Orientation */}
-                <div>
-                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => handleOrientationChange('portrait')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                        pageOrientation === 'portrait' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
-                      Portrait
-                    </button>
-                    <button
-                      onClick={() => handleOrientationChange('landscape')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                        pageOrientation === 'landscape' 
-                          ? 'bg-teal-500 text-white border-teal-500' 
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
-                      Landscape
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Custom Size - W and H in fields */}
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
-                    <Input
-                      type="number"
-                      value={pageWidth}
-                      onChange={(e) => handleWidthChange(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
-                  </div>
-                  <button 
-                    onClick={() => setLinkDimensions(!linkDimensions)}
-                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="flex-1 relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
-                    <Input
-                      type="number"
-                      value={pageHeight}
-                      onChange={(e) => handleHeightChange(Number(e.target.value))}
-                      className="h-8 text-xs pl-7 pr-2"
-                    />
-                  </div>
-                </div>
-                
-                {/* Resize Content */}
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="resize-content" 
-                    checked={resizeContent}
-                    onCheckedChange={(checked) => setResizeContent(checked as boolean)}
-                  />
-                  <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
-                    Resize Content
-                  </label>
-                </div>
-                
-                {/* Confirm Button */}
-                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
-                  Confirm
-                </Button>
               </div>
             )}
           </div>
