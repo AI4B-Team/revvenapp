@@ -2636,6 +2636,23 @@ const EbookCanvasEditor = ({
                     </div>
                     {/* Action buttons on hover */}
                     <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); }}
+                            className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
+                          >
+                            <SlidersHorizontal className="w-2.5 h-2.5 text-gray-600" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent side="left" align="start" className="w-72 p-0">
+                          <PageSettingsPanel 
+                            pageNumber={currentPages.findIndex(p => p.id === page.id) + 1}
+                            onClose={() => {}}
+                            onSettingsChange={(settings) => console.log('Settings change:', settings)}
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
                         className="p-0.5 rounded bg-white/90 hover:bg-white shadow-sm"
