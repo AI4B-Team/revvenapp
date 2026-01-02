@@ -419,8 +419,8 @@ const EbookCanvasEditor = ({
   const [editPrompt, setEditPrompt] = useState('');
   const [editingElement, setEditingElement] = useState<string | null>(null);
   
-  // Page settings state
-  const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
+  // Page settings state - tracks which page's settings are open (null = none)
+  const [pageSettingsOpenId, setPageSettingsOpenId] = useState<string | null>(null);
   const [pageFormat, setPageFormat] = useState('Custom');
   const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [pageWidth, setPageWidth] = useState(800);
@@ -2295,8 +2295,13 @@ const EbookCanvasEditor = ({
                               
                               // Settings button with popover
                               if (action.id === 'settings') {
+                                const isThisPageOpen = pageSettingsOpenId === page.id;
                                 return (
-                                  <Popover key={action.id} open={pageSettingsOpen} onOpenChange={setPageSettingsOpen}>
+                                  <Popover 
+                                    key={action.id} 
+                                    open={isThisPageOpen} 
+                                    onOpenChange={(open) => setPageSettingsOpenId(open ? page.id : null)}
+                                  >
                                     <PopoverTrigger asChild>
                                       <button
                                         onClick={(e) => e.stopPropagation()}
@@ -2307,21 +2312,20 @@ const EbookCanvasEditor = ({
                                       </button>
                                     </PopoverTrigger>
                                     <PopoverContent 
-                                      side="left" 
+                                      side="right" 
                                       align="start" 
                                       className="w-auto p-0 border-0 shadow-none bg-transparent"
                                       onInteractOutside={(e) => e.preventDefault()}
                                       onPointerDownOutside={(e) => {
-                                        // Only close if clicking outside the panel
                                         const target = e.target as HTMLElement;
                                         if (!target.closest('[data-radix-popper-content-wrapper]')) {
-                                          setPageSettingsOpen(false);
+                                          setPageSettingsOpenId(null);
                                         }
                                       }}
                                     >
                                       <PageSettingsPanel 
                                         pageNumber={pageIndex + 1}
-                                        onClose={() => setPageSettingsOpen(false)}
+                                        onClose={() => setPageSettingsOpenId(null)}
                                       />
                                     </PopoverContent>
                                   </Popover>
