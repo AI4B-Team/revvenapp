@@ -550,6 +550,8 @@ const EbookCanvasEditor = ({
   
   // Page settings state - tracks which page's settings are open (null = none)
   const [pageSettingsOpenId, setPageSettingsOpenId] = useState<string | null>(null);
+  // Thumbnail popover state - tracks which thumbnail's settings popover is open
+  const [thumbnailSettingsOpenId, setThumbnailSettingsOpenId] = useState<string | null>(null);
   const [pageFormat, setPageFormat] = useState('Custom');
   const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [pageWidth, setPageWidth] = useState(800);
@@ -2638,7 +2640,10 @@ const EbookCanvasEditor = ({
                           <p>Duplicate</p>
                         </TooltipContent>
                       </Tooltip>
-                      <Popover>
+                      <Popover 
+                        open={thumbnailSettingsOpenId === page.id} 
+                        onOpenChange={(open) => setThumbnailSettingsOpenId(open ? page.id : null)}
+                      >
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
@@ -2657,7 +2662,7 @@ const EbookCanvasEditor = ({
                         <PopoverContent side="left" align="start" className="w-72 p-0">
                           <PageSettingsPanel 
                             pageNumber={currentPages.findIndex(p => p.id === page.id) + 1}
-                            onClose={() => {}}
+                            onClose={() => setThumbnailSettingsOpenId(null)}
                             onSettingsChange={(settings) => console.log('Settings change:', settings)}
                           />
                         </PopoverContent>
