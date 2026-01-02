@@ -2007,7 +2007,7 @@ const EbookCanvasEditor = ({
       );
     }
 
-    // Chapter title pages - full image with dark overlay and centered title
+    // Chapter title pages - full image with dark overlay and LEFT-aligned title (matching canvas)
     if (page.type === 'chapter-page') {
       const chapterImg = elements.find(el => el.type === 'image')?.src;
       const chapterIndex = pages.filter(p => p.type === 'chapter-page').findIndex(p => p.id === page.id) + 1;
@@ -2020,16 +2020,16 @@ const EbookCanvasEditor = ({
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800" />
           )}
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-2">
-            <span className="text-[3px] text-white/80 uppercase tracking-wider">Chapter {chapterIndex}</span>
-            <span className="text-[5px] font-bold text-white mt-0.5">{displayTitle}</span>
+          {/* Dark overlay with LEFT-aligned text matching canvas positioning */}
+          <div className="absolute inset-0 bg-black/50 flex flex-col justify-center px-3">
+            <span className="text-[3px] text-white/80 uppercase tracking-wider text-left">Chapter {chapterIndex}</span>
+            <span className="text-[5px] font-bold text-white mt-0.5 text-left">{displayTitle}</span>
           </div>
         </div>
       );
     }
 
-    // Chapter content pages - teal header bar with chapter number, images strip, title, body text
+    // Chapter content pages - teal header bar with large chapter number at left, images on right, title and body below
     const pageIndex = pages.findIndex(p => p.id === page.id);
     const chapterNum = pages.filter((p, i) => p.type === 'chapter' && i < pageIndex).length + 1;
     const titleEl = elements.find(el => el.id?.includes('title'));
@@ -2038,11 +2038,12 @@ const EbookCanvasEditor = ({
     
     return (
       <div className="absolute inset-0 bg-white flex flex-col">
-        {/* Teal header bar */}
+        {/* Teal header bar matching canvas layout */}
         <div className="h-[25%] bg-[#0d4f4f] relative flex items-center px-2">
-          <span className="text-[8px] font-bold text-white">{String(chapterNum).padStart(2, '0')}</span>
-          {/* Small stock images in header */}
-          <div className="absolute right-1 top-1 flex gap-0.5">
+          {/* Large chapter number on left like canvas */}
+          <span className="text-[10px] font-bold text-white">{String(chapterNum).padStart(2, '0')}</span>
+          {/* Small stock images on right side of header */}
+          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
             {stockImages.slice(0, 3).map((img, i) => (
               <div key={i} className="w-3 h-4 overflow-hidden rounded-sm">
                 <img src={img.src} alt="" className="w-full h-full object-cover" />
@@ -2050,14 +2051,14 @@ const EbookCanvasEditor = ({
             ))}
           </div>
         </div>
-        {/* Content area */}
+        {/* Content area with left-aligned text matching canvas */}
         <div className="flex-1 p-2 text-left">
-          <div className="text-[4px] font-bold text-gray-900 mb-1">{displayTitle}</div>
-          <div className="text-[2.5px] text-gray-600 leading-relaxed">
-            This section provides a comprehensive overview of our strategic approach...
+          <div className="text-[4px] font-bold text-gray-900 mb-1 text-left">{displayTitle}</div>
+          <div className="text-[2.5px] text-gray-600 leading-relaxed text-left">
+            This section provides a comprehensive overview of our strategic approach, detailing key methodologies and expected outcomes...
           </div>
         </div>
-        {/* Page number */}
+        {/* Page number at bottom center */}
         <div className="text-[3px] text-gray-400 text-center pb-1">{pageIndex + 1}</div>
       </div>
     );
