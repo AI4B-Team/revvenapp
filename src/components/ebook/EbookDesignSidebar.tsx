@@ -336,13 +336,13 @@ const EbookDesignSidebar = ({
 
   const toggleSection = (section: SectionId) => {
     setExpandedSections(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(section)) {
-        newSet.delete(section);
+      if (prev.has(section)) {
+        // Closing the current section
+        return new Set();
       } else {
-        newSet.add(section);
+        // Opening a new section - close all others
+        return new Set([section]);
       }
-      return newSet;
     });
   };
 
