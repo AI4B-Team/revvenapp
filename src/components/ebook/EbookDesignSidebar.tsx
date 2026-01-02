@@ -976,7 +976,7 @@ const EbookDesignSidebar = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
                   <List className="w-3.5 h-3.5 text-gray-400" />
-                  <h4 className="text-xs font-medium text-gray-500">Outline</h4>
+                  <h4 className="text-sm font-semibold text-gray-800">Outline</h4>
                 </div>
                 <span className="w-10 text-right text-xs font-medium text-gray-400">Page #</span>
               </div>
@@ -1164,7 +1164,7 @@ const EbookDesignSidebar = ({
               {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => (
                 <div key={key} className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-medium text-gray-700">{category.title}</h4>
+                    <h4 className="text-sm font-semibold text-gray-800">{category.title}</h4>
                     <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                       More
                     </button>
@@ -1889,10 +1889,10 @@ const EbookDesignSidebar = ({
                 <Input placeholder="Search..." className="pl-9" />
               </div>
               
-              {MOCKUP_CATEGORIES.map((category) => (
+                {MOCKUP_CATEGORIES.map((category) => (
                 <div key={category.id} className="mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-medium text-gray-700">{category.name}</h4>
+                    <h4 className="text-sm font-semibold text-gray-800">{category.name}</h4>
                     <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                       View all
                     </button>
