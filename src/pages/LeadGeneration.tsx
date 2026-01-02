@@ -606,26 +606,26 @@ const LeadGeneration = () => {
 
           {/* XLSX Preview Dialog */}
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <DialogContent className="max-w-5xl max-h-[85vh] flex flex-col">
-              <DialogHeader>
+            <DialogContent className="max-w-[95vw] w-full max-h-[90vh] h-[90vh] flex flex-col p-0">
+              <DialogHeader className="p-6 pb-4 border-b">
                 <DialogTitle className="flex items-center gap-2">
                   <FileSpreadsheet className="h-5 w-5 text-primary" />
                   {previewData?.fileName || 'File Preview'}
                 </DialogTitle>
               </DialogHeader>
-              {isLoadingPreview ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-3 text-muted-foreground">Loading preview...</span>
-                </div>
-              ) : previewData && previewData.headers.length > 0 ? (
-                <ScrollArea className="flex-1 border rounded-lg">
-                  <div className="min-w-max">
+              <div className="flex-1 overflow-hidden p-4">
+                {isLoadingPreview ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-3 text-muted-foreground">Loading preview...</span>
+                  </div>
+                ) : previewData && previewData.headers.length > 0 ? (
+                  <div className="h-full overflow-auto border rounded-lg">
                     <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
+                      <TableHeader className="sticky top-0 bg-muted z-10">
+                        <TableRow>
                           {previewData.headers.map((header, idx) => (
-                            <TableHead key={idx} className="font-semibold whitespace-nowrap">
+                            <TableHead key={idx} className="font-semibold whitespace-nowrap bg-muted">
                               {header || `Column ${idx + 1}`}
                             </TableHead>
                           ))}
@@ -635,7 +635,7 @@ const LeadGeneration = () => {
                         {previewData.rows.map((row, rowIdx) => (
                           <TableRow key={rowIdx} className="hover:bg-muted/30">
                             {previewData.headers.map((_, colIdx) => (
-                              <TableCell key={colIdx} className="whitespace-nowrap">
+                              <TableCell key={colIdx} className="whitespace-nowrap max-w-[300px] truncate">
                                 {row[colIdx] ?? ''}
                               </TableCell>
                             ))}
@@ -644,17 +644,21 @@ const LeadGeneration = () => {
                       </TableBody>
                     </Table>
                   </div>
-                </ScrollArea>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FileSpreadsheet className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>No data found in file</p>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                    <div className="text-center">
+                      <FileSpreadsheet className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p>No data found in file</p>
+                    </div>
+                  </div>
+                )}
+              </div>
               {previewData && previewData.rows.length >= 100 && (
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  Showing first 100 rows. Download the file to see all data.
-                </p>
+                <div className="p-4 pt-0">
+                  <p className="text-xs text-muted-foreground text-center">
+                    Showing first 100 rows. Download the file to see all data.
+                  </p>
+                </div>
               )}
             </DialogContent>
           </Dialog>
