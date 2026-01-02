@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { 
   Tooltip, 
   TooltipContent, 
@@ -1117,10 +1118,16 @@ const EbookDesignSidebar = ({
               </div>
               
               {/* Add New Page Button */}
-              <button className="w-full mt-4 flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => {
+                  // Add new page logic - can be connected to parent handler
+                }}
+              >
                 <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">Add New Page</span>
-              </button>
+                Add New Page
+              </Button>
             </div>
           )}
 
