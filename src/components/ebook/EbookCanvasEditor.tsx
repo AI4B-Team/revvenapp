@@ -96,7 +96,7 @@ const TOOLS = [
 
 // Page action icons for the vertical toolbar (lock is handled separately for dynamic icon)
 const PAGE_ACTIONS = [
-  { id: 'add', icon: Plus, label: 'Add New Page' },
+  { id: 'add', icon: Plus, label: 'Add Page' },
   { id: 'duplicate', icon: Copy, label: 'Duplicate Page' },
   { id: 'lock', icon: Unlock, label: 'Toggle Lock' }, // Default unlocked
   { id: 'delete', icon: Trash2, label: 'Delete Page' },
@@ -2622,7 +2622,7 @@ const EbookCanvasEditor = ({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="left" className="text-xs">
-                          <p>Add New Page</p>
+                          <p>Add Page</p>
                         </TooltipContent>
                       </Tooltip>
                       <Tooltip>
