@@ -42,7 +42,7 @@ const LeadGeneration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<LeadHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
+  const [webhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook/d60a49d5-8173-43ba-be68-9e66d64541a6');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
