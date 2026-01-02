@@ -418,122 +418,127 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         {/* Divider */}
         <div className="border-b border-gray-200" />
         
-        {/* Size Content - No longer collapsible, directly under Page Number */}
-        <div className="p-3 space-y-3 border-b border-gray-200">
-          {/* Resize by Format */}
-          <div>
-            <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
-            <Select value={pageFormat} onValueChange={handleFormatChange}>
-              <SelectTrigger className="h-9 text-sm font-medium justify-center border-2 border-gray-400">
-                <SelectValue>{getFormatDisplayName()}</SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-80">
-                <SelectItem value="custom" className="justify-center">Format</SelectItem>
-                {PAGE_FORMAT_CATEGORIES.map((category) => (
-                  <SelectGroup key={category.label}>
-                    <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
-                      {category.label}
-                    </SelectLabel>
-                    {category.formats.map((format) => (
-                      <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
-                        <div className="flex items-center gap-2">
-                          {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
-                          {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
-                          {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
-                          {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
-                          {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
-                          {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
-                            <FileText className="w-3 h-3 text-gray-400" />
-                          )}
-                          <span>{format.name}</span>
-                          <span className="text-gray-400 ml-1">- {format.dimensions}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Orientation */}
-          <div>
-            <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => handleOrientationChange('portrait')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                  pageOrientation === 'portrait' 
-                    ? 'bg-teal-500 text-white border-teal-500' 
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
-                Portrait
-              </button>
-              <button
-                onClick={() => handleOrientationChange('landscape')}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
-                  pageOrientation === 'landscape' 
-                    ? 'bg-teal-500 text-white border-teal-500' 
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                }`}
-              >
-                <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
-                Landscape
-              </button>
-            </div>
-          </div>
-          
-          {/* Custom Size - W and H in fields */}
-          <span className="text-sm font-semibold text-gray-800 mb-1 block">Custom Size</span>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 relative">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
-              <Input
-                type="number"
-                value={pageWidth}
-                onChange={(e) => handleWidthChange(Number(e.target.value))}
-                className="h-8 text-xs pl-7 pr-2"
-              />
-            </div>
-            <button 
-              onClick={() => setLinkDimensions(!linkDimensions)}
-              className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-            >
-              <Link2 className="w-3.5 h-3.5" />
-            </button>
-            <div className="flex-1 relative">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
-              <Input
-                type="number"
-                value={pageHeight}
-                onChange={(e) => handleHeightChange(Number(e.target.value))}
-                className="h-8 text-xs pl-7 pr-2"
-              />
-            </div>
-          </div>
-          
-          {/* Resize Content */}
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              id="resize-content" 
-              checked={resizeContent}
-              onCheckedChange={(checked) => setResizeContent(checked as boolean)}
-            />
-            <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
-              Resize Content
-            </label>
-          </div>
-          
-          {/* Confirm Button */}
-          <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
-            Confirm
-          </Button>
-        </div>
-
         {/* Scrollable sections */}
         <div className="flex-1 overflow-y-auto">
+
+          {/* Size Section - Now Collapsible */}
+          <div>
+            <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
+            {openSection === 'size' && (
+              <div className="p-3 space-y-3 border-b border-gray-200">
+                {/* Resize by Format */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
+                  <Select value={pageFormat} onValueChange={handleFormatChange}>
+                    <SelectTrigger className="h-9 text-sm font-medium justify-center border-2 border-gray-400">
+                      <SelectValue>{getFormatDisplayName()}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80">
+                      <SelectItem value="custom" className="justify-center">Format</SelectItem>
+                      {PAGE_FORMAT_CATEGORIES.map((category) => (
+                        <SelectGroup key={category.label}>
+                          <SelectLabel className="text-[10px] text-gray-500 uppercase tracking-wide px-2 py-1.5">
+                            {category.label}
+                          </SelectLabel>
+                          {category.formats.map((format) => (
+                            <SelectItem key={format.id} value={format.id} className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                {format.id.includes('instagram') && <span className="text-pink-500">📷</span>}
+                                {format.id.includes('facebook') && <span className="text-blue-600">f</span>}
+                                {format.id.includes('linkedin') && <span className="text-blue-700">in</span>}
+                                {format.id.includes('youtube') && <span className="text-red-600">▶</span>}
+                                {format.id.includes('twitter') && <span className="text-sky-500">𝕏</span>}
+                                {!format.id.includes('instagram') && !format.id.includes('facebook') && !format.id.includes('linkedin') && !format.id.includes('youtube') && !format.id.includes('twitter') && (
+                                  <FileText className="w-3 h-3 text-gray-400" />
+                                )}
+                                <span>{format.name}</span>
+                                <span className="text-gray-400 ml-1">- {format.dimensions}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Orientation */}
+                <div>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleOrientationChange('portrait')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'portrait' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-2 h-4 border rounded-[2px] ${pageOrientation === 'portrait' ? 'border-white' : 'border-gray-400'}`} />
+                      Portrait
+                    </button>
+                    <button
+                      onClick={() => handleOrientationChange('landscape')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs rounded border transition-all ${
+                        pageOrientation === 'landscape' 
+                          ? 'bg-teal-500 text-white border-teal-500' 
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className={`w-4 h-2 border rounded-[2px] ${pageOrientation === 'landscape' ? 'border-white' : 'border-gray-400'}`} />
+                      Landscape
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Custom Size - W and H in fields */}
+                <span className="text-sm font-semibold text-gray-800 mb-1 block">Custom Size</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">W</span>
+                    <Input
+                      type="number"
+                      value={pageWidth}
+                      onChange={(e) => handleWidthChange(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                  <button 
+                    onClick={() => setLinkDimensions(!linkDimensions)}
+                    className={`p-1.5 rounded transition-colors ${linkDimensions ? 'bg-teal-100 text-teal-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                  </button>
+                  <div className="flex-1 relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">H</span>
+                    <Input
+                      type="number"
+                      value={pageHeight}
+                      onChange={(e) => handleHeightChange(Number(e.target.value))}
+                      className="h-8 text-xs pl-7 pr-2"
+                    />
+                  </div>
+                </div>
+                
+                {/* Resize Content */}
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="resize-content" 
+                    checked={resizeContent}
+                    onCheckedChange={(checked) => setResizeContent(checked as boolean)}
+                  />
+                  <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
+                    Resize Content
+                  </label>
+                </div>
+                
+                {/* Confirm Button */}
+                <Button className="w-full h-8 bg-teal-500 hover:bg-teal-600 text-white text-xs rounded-sm">
+                  Confirm
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* Style Section - Collapsible */}
           <div>
