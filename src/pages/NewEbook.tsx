@@ -296,7 +296,7 @@ const NewEbook = () => {
   const [isGeneratingBook, setIsGeneratingBook] = useState(false);
   const [generatingStatusIndex, setGeneratingStatusIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedPageId, setSelectedPageId] = useState('1');
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [showPagesPanel, setShowPagesPanel] = useState(true);
   
   // Unified page data type definitions
