@@ -2018,7 +2018,7 @@ const EbookDesignSidebar = ({
                   );
                 }}
                 disabled={isTranslating || !translateLanguage}
-                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm disabled:cursor-not-allowed"
+                className="w-full h-8 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white text-xs font-medium rounded-sm flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed"
               >
                 <Sparkles className="w-4 h-4" />
                 Translate
