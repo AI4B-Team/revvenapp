@@ -313,14 +313,14 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </button>
       </div>
 
-      {/* Page Number - Always visible at top */}
-      <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
-        <label className="text-xs font-medium text-gray-600 mb-1.5 block">Page Number</label>
+      {/* Page Number - Always visible at top, inline */}
+      <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0 flex items-center justify-between gap-3">
+        <label className="text-sm font-semibold text-gray-800">Page Number</label>
         <Input
           type="text"
           value={pageNumber}
           readOnly
-          className="h-8 text-sm bg-white"
+          className="h-8 text-sm bg-white w-20"
         />
       </div>
 
@@ -333,7 +333,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
             <div className="p-3 space-y-3 border-b border-gray-200">
               {/* Resize by Format */}
               <div>
-                <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Resize By Format</span>
+                <span className="text-sm font-semibold text-gray-800 mb-2 block">Resize By Format</span>
                 <Select value={pageFormat} onValueChange={handleFormatChange}>
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue>{getFormatDisplayName()}</SelectValue>
@@ -369,7 +369,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
               
               {/* Orientation */}
               <div>
-                <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Orientation</span>
+                <span className="text-sm font-semibold text-gray-800 mb-2 block">Orientation</span>
                 <div className="flex gap-1">
                   <button
                     onClick={() => handleOrientationChange('portrait')}
@@ -431,8 +431,8 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   checked={resizeContent}
                   onCheckedChange={(checked) => setResizeContent(checked as boolean)}
                 />
-                <label htmlFor="resize-content" className="text-[10px] text-gray-500 uppercase tracking-wide cursor-pointer">
-                  RESIZE CONTENT
+                <label htmlFor="resize-content" className="text-sm font-semibold text-gray-800 cursor-pointer">
+                  Resize Content
                 </label>
               </div>
               
@@ -523,7 +523,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
             <div className="p-3 space-y-3 border-b border-gray-200">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Type</span>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Type</span>
                   <Select value={borderType} onValueChange={setBorderType}>
                     <SelectTrigger className="h-7 text-xs">
                       <SelectValue />
@@ -537,7 +537,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   </Select>
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Style</span>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Style</span>
                   <Select value={borderStyle} onValueChange={setBorderStyle}>
                     <SelectTrigger className="h-7 text-xs">
                       <SelectValue />
@@ -552,7 +552,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Size</span>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Size</span>
                   <Select value={borderSize} onValueChange={setBorderSize}>
                     <SelectTrigger className="h-7 text-xs">
                       <SelectValue />
@@ -566,7 +566,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                   </Select>
                 </div>
                 <div>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Color</span>
+                  <span className="text-sm font-semibold text-gray-800 mb-2 block">Color</span>
                   <div className="flex items-center gap-1">
                     <button
                       className="w-7 h-7 rounded border border-gray-300"
@@ -650,7 +650,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                     <>
                       {/* Project Colors */}
                       <div>
-                        <span className="text-[10px] text-gray-500 mb-1.5 block">Project Colors</span>
+                        <span className="text-sm font-semibold text-gray-800 mb-2 block">Project Colors</span>
                         <div className="flex flex-wrap gap-1.5">
                           {PROJECT_COLORS.map((color, idx) => (
                             <button
@@ -684,7 +684,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                       {/* HEX Input */}
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <span className="text-[10px] text-gray-500 mb-1 block">HEX</span>
+                          <span className="text-sm font-semibold text-gray-800 mb-2 block">HEX</span>
                           <Input
                             type="text"
                             value={hexInput}
@@ -698,7 +698,7 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                           />
                         </div>
                         <div className="w-16">
-                          <span className="text-[10px] text-gray-500 mb-1 block">Opacity</span>
+                          <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
                           <div className="flex items-center gap-1">
                             <Input
                               type="number"
