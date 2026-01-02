@@ -12,7 +12,7 @@ import { Users, MapPin, Mail, Hash, Globe, Target, Settings, Loader2 } from 'luc
 const LeadGeneration = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState('https://realcreator.app.n8n.cloud/webhook-test/d60a49d5-8173-43ba-be68-9e66d64541a6');
   const [formData, setFormData] = useState({
     location: '',
     email: '',
