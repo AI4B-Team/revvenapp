@@ -375,21 +375,21 @@ const EbookDesignSidebar = ({
         onClick={() => toggleSection(id)}
         className={`w-full flex items-center justify-between px-3 py-2 transition-colors border-b border-gray-200 ${
           isExpanded 
-            ? 'bg-gray-100 hover:bg-gray-150' 
+            ? 'bg-gray-800 hover:bg-gray-700' 
             : 'bg-white hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center gap-2">
-          <Icon className={`w-4 h-4 ${isExpanded ? 'text-gray-700' : 'text-gray-600'}`} />
+          <Icon className={`w-4 h-4 ${isExpanded ? 'text-white' : 'text-gray-600'}`} />
           {!isCollapsed && (
-            <span className={`font-semibold text-base ${isExpanded ? 'text-gray-800' : 'text-gray-900'}`}>
+            <span className={`font-semibold text-base ${isExpanded ? 'text-white' : 'text-gray-900'}`}>
               {title}
             </span>
           )}
         </div>
         {!isCollapsed && (
           isExpanded ? (
-            <ChevronUp className={`w-4 h-4 ${isExpanded ? 'text-gray-600' : 'text-gray-400'}`} />
+            <ChevronUp className="w-4 h-4 text-white" />
           ) : (
             <ChevronDown className="w-4 h-4 text-gray-400" />
           )
@@ -1036,7 +1036,7 @@ const EbookDesignSidebar = ({
                   );
                 }}
                 disabled={isTranslating || !translateLanguage}
-                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm disabled:cursor-not-allowed"
               >
                 <Sparkles className="w-4 h-4" />
                 Translate
