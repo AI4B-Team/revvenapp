@@ -375,13 +375,13 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     <TooltipProvider>
       <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col flex-shrink-0" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-900 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-gray-600" />
-            <span className="font-semibold text-gray-900 text-base">Page Settings</span>
+            <SlidersHorizontal className="w-4 h-4 text-white" />
+            <span className="font-semibold text-white text-base">Page Settings</span>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded transition-colors">
-            <X className="w-4 h-4 text-gray-500" />
+          <button onClick={onClose} className="p-1 hover:bg-gray-700 rounded transition-colors">
+            <X className="w-4 h-4 text-gray-300" />
           </button>
         </div>
 
