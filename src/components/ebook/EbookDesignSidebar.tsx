@@ -33,6 +33,14 @@ import {
   TooltipTrigger 
 } from '@/components/ui/tooltip';
 
+// Template images
+import minimalTemplate from '@/assets/templates/minimal.jpg';
+import modernTemplate from '@/assets/templates/modern.jpg';
+import classicTemplate from '@/assets/templates/classic.jpg';
+import boldTemplate from '@/assets/templates/bold.jpg';
+import elegantTemplate from '@/assets/templates/elegant.jpg';
+import natureTemplate from '@/assets/templates/nature.jpg';
+
 interface Chapter {
   id: string;
   title: string;
@@ -52,14 +60,56 @@ interface EbookDesignSidebarProps {
   onContentSectionChange?: (isExpanded: boolean) => void;
 }
 
-// Template options with pages
+// Template options with pages and images
 const TEMPLATES = [
-  { id: 'minimal', name: 'Minimal', preview: 'bg-white', pages: ['Cover', 'Table of Contents', 'Introduction', 'Chapter 1', 'Summary'] },
-  { id: 'modern', name: 'Modern', preview: 'bg-gradient-to-br from-blue-50 to-purple-50', pages: ['Cover', 'Table of Contents', 'About', 'Features', 'Pricing', 'Contact'] },
-  { id: 'classic', name: 'Classic', preview: 'bg-amber-50', pages: ['Cover', 'Preface', 'Chapter 1', 'Chapter 2', 'Chapter 3', 'Conclusion'] },
-  { id: 'bold', name: 'Bold', preview: 'bg-gradient-to-br from-orange-400 to-pink-500', pages: ['Cover', 'Mission', 'Vision', 'Team', 'Products'] },
-  { id: 'elegant', name: 'Elegant', preview: 'bg-gradient-to-br from-gray-900 to-gray-700', pages: ['Cover', 'Overview', 'Details', 'Gallery', 'Contact'] },
-  { id: 'nature', name: 'Nature', preview: 'bg-gradient-to-br from-green-100 to-emerald-200', pages: ['Cover', 'Introduction', 'Ecosystem', 'Conservation', 'Action'] },
+  { 
+    id: 'minimal', 
+    name: 'Minimal', 
+    image: minimalTemplate,
+    description: 'Clean and simple design with elegant typography',
+    layout: 'Single column with centered headers',
+    pages: ['Cover', 'Table of Contents', 'Introduction', 'Chapter 1', 'Summary'] 
+  },
+  { 
+    id: 'modern', 
+    name: 'Modern', 
+    image: modernTemplate,
+    description: 'Contemporary look with gradient accents',
+    layout: 'Two-column layout with sidebar elements',
+    pages: ['Cover', 'Table of Contents', 'About', 'Features', 'Pricing', 'Contact'] 
+  },
+  { 
+    id: 'classic', 
+    name: 'Classic', 
+    image: classicTemplate,
+    description: 'Traditional book aesthetic with vintage charm',
+    layout: 'Classic single column with ornate headers',
+    pages: ['Cover', 'Preface', 'Chapter 1', 'Chapter 2', 'Chapter 3', 'Conclusion'] 
+  },
+  { 
+    id: 'bold', 
+    name: 'Bold', 
+    image: boldTemplate,
+    description: 'Vibrant colors with strong visual impact',
+    layout: 'Full-bleed images with overlay text',
+    pages: ['Cover', 'Mission', 'Vision', 'Team', 'Products'] 
+  },
+  { 
+    id: 'elegant', 
+    name: 'Elegant', 
+    image: elegantTemplate,
+    description: 'Sophisticated dark theme with gold accents',
+    layout: 'Centered content with decorative borders',
+    pages: ['Cover', 'Overview', 'Details', 'Gallery', 'Contact'] 
+  },
+  { 
+    id: 'nature', 
+    name: 'Nature', 
+    image: natureTemplate,
+    description: 'Fresh organic design with botanical elements',
+    layout: 'Asymmetric layout with nature imagery',
+    pages: ['Cover', 'Introduction', 'Ecosystem', 'Conservation', 'Action'] 
+  },
 ];
 
 // Browse categories with colorful icons (like reference design)
@@ -554,10 +604,15 @@ const EbookDesignSidebar = ({
                     {viewingTemplate.pages.map((page, index) => (
                       <div
                         key={index}
-                        className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${viewingTemplate.preview} relative cursor-pointer`}
+                        className="aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden relative cursor-pointer group"
                       >
-                        <div className="w-full h-full flex flex-col items-center justify-center p-2">
-                          <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded text-center">
+                        <img 
+                          src={viewingTemplate.image} 
+                          alt={`${page} preview`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center p-2">
+                          <span className="text-xs font-semibold text-white bg-black/50 px-2 py-1 rounded text-center">
                             {page}
                           </span>
                         </div>
@@ -576,21 +631,32 @@ const EbookDesignSidebar = ({
                     {TEMPLATES.map((template) => (
                       <button
                         key={template.id}
-                        className={`aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden ${template.preview} relative group`}
+                        className="aspect-[3/4] rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all overflow-hidden relative group"
                         onMouseEnter={() => setHoveredTemplateId(template.id)}
                         onMouseLeave={() => setHoveredTemplateId(null)}
                         onClick={() => setViewingTemplateId(template.id)}
                       >
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-gray-600 bg-white/80 px-2 py-1 rounded">
+                        <img 
+                          src={template.image} 
+                          alt={template.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 pt-6">
+                          <span className="text-xs font-semibold text-white">
                             {template.name}
                           </span>
+                          <p className="text-[10px] text-gray-200 line-clamp-1 mt-0.5">
+                            {template.description}
+                          </p>
                         </div>
                         {/* Hover Overlay */}
                         {hoveredTemplateId === template.id && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity">
+                          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center transition-opacity gap-1">
                             <span className="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-full">
                               View Pages
+                            </span>
+                            <span className="text-[10px] text-gray-200 px-2 text-center">
+                              {template.layout}
                             </span>
                           </div>
                         )}
