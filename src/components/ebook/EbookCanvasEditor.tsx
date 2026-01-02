@@ -2612,10 +2612,12 @@ const EbookCanvasEditor = ({
                     
                     {/* Action icons below number */}
                     <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {/* Drag handle */}
-                      <div className="p-0.5 rounded text-gray-400 cursor-grab">
-                        <GripVertical className="w-3 h-3" />
-                      </div>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
+                        className="p-0.5 rounded hover:bg-gray-100"
+                      >
+                        <Copy className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
+                      </button>
                       <Popover>
                         <PopoverTrigger asChild>
                           <button 
@@ -2633,12 +2635,6 @@ const EbookCanvasEditor = ({
                           />
                         </PopoverContent>
                       </Popover>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDuplicatePage(page.id); }}
-                        className="p-0.5 rounded hover:bg-gray-100"
-                      >
-                        <Copy className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
-                      </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
                         className="p-0.5 rounded hover:bg-gray-100"
