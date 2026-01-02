@@ -16,6 +16,7 @@ import { Rss, MoreHorizontal } from 'lucide-react';
 import EbookDesignSidebar from '@/components/ebook/EbookDesignSidebar';
 import EbookContentPreview from '@/components/ebook/EbookContentPreview';
 import EbookCanvasEditor from '@/components/ebook/EbookCanvasEditor';
+import EbookGenerationOverlay from '@/components/ebook/EbookGenerationOverlay';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import { Button } from '@/components/ui/button';
@@ -639,27 +640,15 @@ const NewEbook = () => {
       return;
     }
     
+    // Switch to design tab immediately and start generation
+    setActiveTab('design');
     setIsGeneratingBook(true);
     setGeneratingStatusIndex(0);
-    
-    // Cycle through status messages
-    const statusInterval = setInterval(() => {
-      setGeneratingStatusIndex(prev => {
-        const next = prev + 1;
-        if (next >= GENERATION_STATUS_MESSAGES.length) {
-          return GENERATION_STATUS_MESSAGES.length - 1;
-        }
-        return next;
-      });
-    }, 2000);
-    
-    // Complete after some time
-    setTimeout(() => {
-      clearInterval(statusInterval);
-      setIsGeneratingBook(false);
-      setActiveTab('design');
-      toast.success('Your book is ready!');
-    }, 12000);
+  };
+
+  const handleGenerationComplete = () => {
+    setIsGeneratingBook(false);
+    toast.success('Your book is ready!');
   };
 
   const getFileIcon = (file: UploadedFile) => {
@@ -1202,7 +1191,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             </Dialog>
 
             {/* Canvas Editor Area */}
-            <div className="flex-1 flex overflow-hidden min-h-0">
+            <div className="flex-1 flex overflow-hidden min-h-0 relative">
               {/* Left Sidebar - Design Tools */}
               <EbookDesignSidebar
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
@@ -1239,6 +1228,13 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                 }}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
                 showPagesPanel={showPagesPanel}
+              />
+
+              {/* Generation Overlay */}
+              <EbookGenerationOverlay
+                isGenerating={isGeneratingBook}
+                bookTitle={bookData.selectedTitle || 'Untitled eBook'}
+                onComplete={handleGenerationComplete}
               />
             </div>
           </div>
