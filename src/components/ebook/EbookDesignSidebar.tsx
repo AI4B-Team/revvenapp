@@ -235,8 +235,8 @@ const EbookDesignSidebar = ({
         onClick={() => toggleSection(id)}
         className={`w-full flex items-center justify-between px-3 py-2 transition-colors border-b border-gray-200 ${
           isExpanded 
-            ? 'bg-gray-200 hover:bg-gray-250' 
-            : 'bg-gray-50 hover:bg-gray-100'
+            ? 'bg-gray-100 hover:bg-gray-150' 
+            : 'bg-white hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center gap-2">
