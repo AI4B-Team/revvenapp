@@ -2170,13 +2170,8 @@ const EbookCanvasEditor = ({
 
                 {/* Controls moved to parent title bar */}
                 
-                {/* All Pages in Canvas - scrollable, shifts left when page settings open */}
-                <div 
-                  className="flex flex-col items-center gap-8 py-4 transition-all duration-300"
-                  style={{
-                    marginRight: pageSettingsOpenId ? '320px' : '0px',
-                  }}
-                >
+                {/* All Pages in Canvas - scrollable */}
+                <div className="flex flex-col items-center gap-8 py-4">
                   {pages.map((page, pageIndex) => {
                     const pageElements = getPageElements(page);
                     const isSelected = page.id === selectedPageId;
@@ -2298,42 +2293,31 @@ const EbookCanvasEditor = ({
                             {PAGE_ACTIONS.map((action) => {
                               const Icon = action.icon;
                               
-                              // Settings button with popover
+                              // Settings button - opens static panel
                               if (action.id === 'settings') {
                                 const isThisPageOpen = pageSettingsOpenId === page.id;
                                 return (
-                                  <Popover 
-                                    key={action.id} 
-                                    open={isThisPageOpen} 
-                                    onOpenChange={(open) => setPageSettingsOpenId(open ? page.id : null)}
-                                  >
-                                    <PopoverTrigger asChild>
+                                  <Tooltip key={action.id}>
+                                    <TooltipTrigger asChild>
                                       <button
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="p-1.5 rounded-md border transition-all border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setPageSettingsOpenId(isThisPageOpen ? null : page.id);
+                                        }}
+                                        className={`p-1.5 rounded-md border transition-all ${
+                                          isThisPageOpen 
+                                            ? 'border-emerald-500 bg-emerald-50 text-emerald-600' 
+                                            : 'border-gray-200 bg-white text-gray-500 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600'
+                                        }`}
                                         title={action.label}
                                       >
                                         <Icon className="w-4 h-4" />
                                       </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent 
-                                      side="right" 
-                                      align="start" 
-                                      className="w-auto p-0 border-0 shadow-none bg-transparent"
-                                      onInteractOutside={(e) => e.preventDefault()}
-                                      onPointerDownOutside={(e) => {
-                                        const target = e.target as HTMLElement;
-                                        if (!target.closest('[data-radix-popper-content-wrapper]')) {
-                                          setPageSettingsOpenId(null);
-                                        }
-                                      }}
-                                    >
-                                      <PageSettingsPanel 
-                                        pageNumber={pageIndex + 1}
-                                        onClose={() => setPageSettingsOpenId(null)}
-                                      />
-                                    </PopoverContent>
-                                  </Popover>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="text-xs">
+                                      <p>{action.label}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                 );
                               }
                               
@@ -2389,8 +2373,16 @@ const EbookCanvasEditor = ({
             </div>
           </div>
 
+          {/* Page Settings Panel - Static panel on right side */}
+          {pageSettingsOpenId && (
+            <PageSettingsPanel 
+              pageNumber={pages.findIndex(p => p.id === pageSettingsOpenId) + 1}
+              onClose={() => setPageSettingsOpenId(null)}
+            />
+          )}
+
           {/* Right Panel Toggle Arrow - positioned on canvas edge */}
-          {showPagesPanel && (
+          {showPagesPanel && !pageSettingsOpenId && (
             <button
               onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
               className="absolute right-0 top-1/2 -translate-y-1/2 z-50 w-5 h-10 bg-white border border-gray-300 rounded-l-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
@@ -2400,8 +2392,8 @@ const EbookCanvasEditor = ({
             </button>
           )}
 
-          {/* Page Navigator (Right Side) - Only visible when showPagesPanel is true */}
-          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${!showPagesPanel || rightPanelCollapsed ? 'w-0 border-l-0' : 'w-64'}`}>
+          {/* Page Navigator (Right Side) - Only visible when showPagesPanel is true and page settings closed */}
+          <div className={`bg-white border-l border-gray-200 flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden h-full min-h-0 ${!showPagesPanel || rightPanelCollapsed || pageSettingsOpenId ? 'w-0 border-l-0' : 'w-64'}`}>
             
             {!rightPanelCollapsed && (
               <>
