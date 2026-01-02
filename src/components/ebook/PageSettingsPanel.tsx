@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Link2, ChevronDown, ChevronRight, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus } from 'lucide-react';
+import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -264,43 +264,69 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     );
   };
 
-  const SectionHeader = ({ title, section, isOpen }: { title: string; section: SectionType; isOpen: boolean }) => (
-    <button
-      onClick={() => toggleSection(section)}
-      className="w-full flex items-center justify-between py-2 text-xs font-semibold text-gray-900 hover:text-gray-700 transition-colors"
-    >
-      {title}
-      {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-    </button>
-  );
+  const getSectionIcon = (section: SectionType) => {
+    switch (section) {
+      case 'size': return Maximize2;
+      case 'style': return LayoutGrid;
+      case 'background': return Palette;
+      default: return FileText;
+    }
+  };
+
+  const SectionHeader = ({ title, section, isOpen }: { title: string; section: SectionType; isOpen: boolean }) => {
+    const Icon = getSectionIcon(section);
+    return (
+      <button
+        onClick={() => toggleSection(section)}
+        className={`w-full flex items-center justify-between px-3 py-2 transition-colors border-b border-gray-200 ${
+          isOpen 
+            ? 'bg-gray-800 hover:bg-gray-700' 
+            : 'bg-white hover:bg-gray-50'
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <Icon className={`w-4 h-4 ${isOpen ? 'text-white' : 'text-gray-600'}`} />
+          <span className={`font-semibold text-base ${isOpen ? 'text-white' : 'text-gray-900'}`}>
+            {title}
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="w-4 h-4 text-white" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        )}
+      </button>
+    );
+  };
 
   return (
-    <div className="w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+    <div className="w-80 bg-white border-l border-gray-200 h-full flex flex-col flex-shrink-0" onClick={(e) => e.stopPropagation()}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
         <span className="font-semibold text-gray-900 text-sm">Page Settings</span>
         <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded transition-colors">
           <X className="w-4 h-4 text-gray-500" />
         </button>
       </div>
 
-      <div className="p-3 space-y-1">
-        {/* Page Number - Always visible, not collapsible */}
-        <div className="pb-2">
-          <label className="text-xs font-medium text-gray-600 mb-1.5 block">Page Number</label>
-          <Input
-            type="text"
-            value={pageNumber}
-            readOnly
-            className="h-8 text-sm bg-gray-50"
-          />
-        </div>
-        
+      {/* Page Number - Always visible at top */}
+      <div className="px-3 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <label className="text-xs font-medium text-gray-600 mb-1.5 block">Page Number</label>
+        <Input
+          type="text"
+          value={pageNumber}
+          readOnly
+          className="h-8 text-sm bg-white"
+        />
+      </div>
+
+      {/* Scrollable sections */}
+      <div className="flex-1 overflow-y-auto">
         {/* Size Section - Collapsible */}
-        <div className="border-t border-gray-100 pt-1">
+        <div>
           <SectionHeader title="Size" section="size" isOpen={openSection === 'size'} />
           {openSection === 'size' && (
-            <div className="pb-3 space-y-3">
+            <div className="p-3 space-y-3 border-b border-gray-200">
               {/* Resize by Format */}
               <div>
                 <span className="text-[10px] text-gray-500 uppercase tracking-wide mb-1 block">Resize By Format</span>
@@ -415,10 +441,10 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </div>
 
         {/* Style Section - Collapsible */}
-        <div className="border-t border-gray-100 pt-1">
+        <div>
           <SectionHeader title="Style" section="style" isOpen={openSection === 'style'} />
           {openSection === 'style' && (
-            <div className="pb-3">
+            <div className="p-3 border-b border-gray-200">
               <div className="grid grid-cols-2 gap-2">
                 {LAYOUT_STYLES.map((style) => (
                   <button
@@ -552,10 +578,10 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
         </div>
 
         {/* Background Section - Collapsible */}
-        <div className="border-t border-gray-100 pt-1">
+        <div>
           <SectionHeader title="Background" section="background" isOpen={openSection === 'background'} />
           {openSection === 'background' && (
-            <div className="pb-3 space-y-3">
+            <div className="p-3 space-y-3 border-b border-gray-200">
               {/* Color/Pattern/Image Buttons */}
               <div className="flex gap-1">
                 <button
