@@ -1215,7 +1215,7 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
       
-      // Generate 30-day content plan using AI
+      // Generate 30-day content plan using AI with real-time streaming
       setIsGeneratingContent(true);
       setGeneratedContent([]); // Clear existing content
       setShowSocialButtons(false); // Hide platform selection immediately
@@ -1226,36 +1226,86 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
       });
       
       try {
-        // Call the edge function to generate AI-powered content
-        const { data, error } = await supabase.functions.invoke('generate-social-content', {
-          body: {
+        // Get auth token for the request
+        const { data: { session } } = await supabase.auth.getSession();
+        const authToken = session?.access_token;
+        
+        if (!authToken) {
+          throw new Error('Not authenticated');
+        }
+
+        // Use fetch with streaming for SSE
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-social-content`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
             prompt: prompt.trim(),
             platforms: selectedPlatforms,
             days: 30,
-          }
+          }),
         });
 
-        if (error) throw error;
-        
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to generate content');
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
         }
 
-        // Transform dates from ISO strings to Date objects
-        const allPosts = data.posts.map((post: any) => ({
-          ...post,
-          date: new Date(post.date),
-        }));
-        
-        // Add posts one by one with animation effect
-        for (let i = 0; i < allPosts.length; i++) {
-          await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay between posts
-          setGeneratedContent(prev => [...prev, allPosts[i]]);
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No response body');
         }
-        
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let totalPosts = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Process complete SSE messages
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6).trim();
+              
+              if (data === '[DONE]') {
+                continue;
+              }
+
+              try {
+                const parsed = JSON.parse(data);
+                
+                if (parsed.error) {
+                  console.error('Stream error:', parsed.error);
+                  continue;
+                }
+
+                // Add the post with date converted
+                const post = {
+                  ...parsed,
+                  date: new Date(parsed.date),
+                };
+                
+                setGeneratedContent(prev => [...prev, post]);
+                totalPosts++;
+              } catch (e) {
+                // Ignore parse errors for incomplete JSON
+              }
+            }
+          }
+        }
+
         toast({
           title: "Content plan generated!",
-          description: `Created ${allPosts.length} AI-powered posts for the next 30 days`,
+          description: `Created ${totalPosts} AI-powered posts for the next 30 days`,
         });
       } catch (error: any) {
         console.error('Error generating content:', error);
