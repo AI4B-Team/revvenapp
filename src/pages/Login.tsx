@@ -81,7 +81,7 @@ export default function LoginPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate invite code
+    // Validate invite code is provided
     if (!inviteCode.trim()) {
       toast({
         title: "Invite Code Required",
@@ -93,6 +93,34 @@ export default function LoginPage() {
     
     setIsLoading(true);
 
+    // Validate that the invite code exists and is not already used
+    const { data: codeData, error: codeError } = await supabase
+      .from('invite_codes')
+      .select('id, is_used')
+      .eq('code', inviteCode.toUpperCase())
+      .single();
+
+    if (codeError || !codeData) {
+      setIsLoading(false);
+      toast({
+        title: "Invalid Invite Code",
+        description: "This invite code does not exist. Please check and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (codeData.is_used) {
+      setIsLoading(false);
+      toast({
+        title: "Code Already Used",
+        description: "This invite code has already been used. Please request a new one.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Proceed with signup
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -105,20 +133,32 @@ export default function LoginPage() {
       }
     });
 
-    setIsLoading(false);
-
     if (error) {
+      setIsLoading(false);
       toast({
         title: "Error signing up",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Success!",
-        description: "Your account has been created. You can now sign in.",
-      });
+      return;
     }
+
+    // Mark the invite code as used and store the new user's info
+    await supabase
+      .from('invite_codes')
+      .update({
+        is_used: true,
+        used_at: new Date().toISOString(),
+        used_by_email: email,
+        used_by_name: fullName,
+      })
+      .eq('code', inviteCode.toUpperCase());
+
+    setIsLoading(false);
+    toast({
+      title: "Success!",
+      description: "Your account has been created. You can now sign in.",
+    });
   };
 
   const handleGoogleSignIn = async () => {
