@@ -253,10 +253,29 @@ Focus on: visual hierarchy, brand personality, modern aesthetics.`,
       // CONTENT MODE (Social Media)
       if (isContent) {
         return {
-          guidance: `Create prompts for SOCIAL MEDIA content.
-MUST include: platform context, content format (carousel, reel, story), hook, call-to-action.
-Focus on: engagement, shareability, trend awareness.`,
-          example: "Instagram carousel: 5 productivity hacks for remote workers, bold text overlays, minimalist illustrations, swipe prompt on each slide, save-worthy value",
+          guidance: `Create creative, SPECIFIC topic ideas for a 30-day social media content calendar.
+
+Generate ONE clear, compelling niche/topic theme that could fuel 30 days of engaging content.
+
+GOOD EXAMPLES (specific and actionable):
+- "Fitness transformation journey with daily workout tips and meal prep ideas"
+- "Behind-the-scenes of starting a coffee shop business"  
+- "30-day minimalism challenge with decluttering tips and before/after reveals"
+- "Daily AI tools and productivity hacks for entrepreneurs"
+- "Plant-based recipe collection with grocery hauls and cooking tutorials"
+- "Real estate investing tips with market analysis and deal breakdowns"
+- "Personal finance journey: debt payoff, budgeting, and wealth building"
+- "Fashion styling tips with outfit ideas for different body types"
+- "Mental health awareness with daily mindfulness and self-care practices"
+- "Tech reviews and comparisons for busy professionals"
+
+BAD EXAMPLES (too vague):
+- "Social media content" (too generic)
+- "Business tips" (not specific enough)
+- "Lifestyle content" (no clear angle)
+
+Return ONLY the topic/niche description in 1-2 sentences. Be specific about the angle and content style.`,
+          example: "30-day home organization challenge with room-by-room decluttering tips, storage hacks, and satisfying before/after transformations",
           type: "social_content"
         };
       }
