@@ -120,7 +120,7 @@ const BROWSE_CATEGORIES = [
   { id: 'widgets', name: 'Widgets', bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', icon: LayoutGrid },
   { id: 'shapes', name: 'Shapes', bgColor: 'bg-violet-100', iconColor: 'text-violet-600', icon: Hexagon },
   { id: 'icons', name: 'Icons', bgColor: 'bg-blue-100', iconColor: 'text-blue-600', icon: Sun },
-  { id: 'charts', name: 'Charts', bgColor: 'bg-purple-100', iconColor: 'text-purple-600', icon: BarChart3 },
+  { id: 'charts', name: 'Charts', bgColor: 'bg-pink-100', iconColor: 'text-pink-600', icon: BarChart3 },
   { id: 'tables', name: 'Tables', bgColor: 'bg-orange-100', iconColor: 'text-orange-600', icon: Table },
   { id: 'stickers', name: 'Stickers', bgColor: 'bg-yellow-100', iconColor: 'text-yellow-600', icon: Smile },
 ];
