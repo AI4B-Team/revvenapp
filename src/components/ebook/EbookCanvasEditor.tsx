@@ -774,6 +774,213 @@ const EbookCanvasEditor = ({
     }
   };
 
+  // Clipboard state for copy/paste
+  const [clipboard, setClipboard] = useState<CanvasElement | null>(null);
+
+  // Duplicate element
+  const duplicateElement = (elementId: string) => {
+    const element = currentPageElements.find(el => el.id === elementId);
+    if (!element) return;
+    
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
+    saveToHistory(pageElementsState);
+    
+    const newElement: CanvasElement = {
+      ...element,
+      id: `${element.type}-${Date.now()}`,
+      x: element.x + 2,
+      y: element.y + 2,
+    };
+    
+    setPageElementsState(prev => {
+      const pageElements = prev[pageId] || currentPageElements;
+      return {
+        ...prev,
+        [pageId]: [...pageElements, newElement]
+      };
+    });
+    setSelectedElement(newElement.id);
+    toast.success('Element duplicated');
+  };
+
+  // Copy element to clipboard
+  const copyElement = (elementId: string) => {
+    const element = currentPageElements.find(el => el.id === elementId);
+    if (element) {
+      setClipboard({ ...element });
+      toast.success('Element copied');
+    }
+  };
+
+  // Paste element from clipboard
+  const pasteElement = () => {
+    if (!clipboard) {
+      toast.info('Nothing to paste');
+      return;
+    }
+    
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
+    saveToHistory(pageElementsState);
+    
+    const newElement: CanvasElement = {
+      ...clipboard,
+      id: `${clipboard.type}-${Date.now()}`,
+      x: clipboard.x + 2,
+      y: clipboard.y + 2,
+    };
+    
+    setPageElementsState(prev => {
+      const pageElements = prev[pageId] || currentPageElements;
+      return {
+        ...prev,
+        [pageId]: [...pageElements, newElement]
+      };
+    });
+    setSelectedElement(newElement.id);
+    toast.success('Element pasted');
+  };
+
+  // Bring element to front
+  const bringToFront = (elementId: string) => {
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
+    saveToHistory(pageElementsState);
+    
+    setPageElementsState(prev => {
+      const pageElements = prev[pageId] || currentPageElements;
+      const element = pageElements.find(el => el.id === elementId);
+      if (!element) return prev;
+      
+      const others = pageElements.filter(el => el.id !== elementId);
+      return {
+        ...prev,
+        [pageId]: [...others, element]
+      };
+    });
+    toast.success('Brought to front');
+  };
+
+  // Send element to back
+  const sendToBack = (elementId: string) => {
+    const pageId = selectedPageId || selectedPage?.id;
+    if (!pageId) return;
+    
+    saveToHistory(pageElementsState);
+    
+    setPageElementsState(prev => {
+      const pageElements = prev[pageId] || currentPageElements;
+      const element = pageElements.find(el => el.id === elementId);
+      if (!element) return prev;
+      
+      const others = pageElements.filter(el => el.id !== elementId);
+      return {
+        ...prev,
+        [pageId]: [element, ...others]
+      };
+    });
+    toast.success('Sent to back');
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle shortcuts when typing in input fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+
+      // Undo: Ctrl/Cmd + Z
+      if (ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+        return;
+      }
+
+      // Redo: Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y
+      if ((ctrlKey && e.shiftKey && e.key === 'z') || (ctrlKey && e.key === 'y')) {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+
+      // Element-specific shortcuts (only when element is selected)
+      if (selectedElement) {
+        // Delete: Delete or Backspace
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          e.preventDefault();
+          deleteElement(selectedElement);
+          return;
+        }
+
+        // Copy: Ctrl/Cmd + C
+        if (ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          copyElement(selectedElement);
+          return;
+        }
+
+        // Duplicate: Ctrl/Cmd + D
+        if (ctrlKey && e.key === 'd') {
+          e.preventDefault();
+          duplicateElement(selectedElement);
+          return;
+        }
+
+        // Bring to front: Ctrl/Cmd + ]
+        if (ctrlKey && e.key === ']') {
+          e.preventDefault();
+          bringToFront(selectedElement);
+          return;
+        }
+
+        // Send to back: Ctrl/Cmd + [
+        if (ctrlKey && e.key === '[') {
+          e.preventDefault();
+          sendToBack(selectedElement);
+          return;
+        }
+
+        // Lock/Unlock: Ctrl/Cmd + L
+        if (ctrlKey && e.key === 'l') {
+          e.preventDefault();
+          toggleLock(selectedElement);
+          return;
+        }
+
+        // Escape: Deselect
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setSelectedElement(null);
+          return;
+        }
+      }
+
+      // Paste: Ctrl/Cmd + V (works even without selection)
+      if (ctrlKey && e.key === 'v') {
+        e.preventDefault();
+        pasteElement();
+        return;
+      }
+
+      // Select All: Ctrl/Cmd + A (prevent default, we don't support multi-select yet)
+      if (ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElement, clipboard, currentPageElements, pageElementsState, selectedPageId, selectedPage?.id]);
+
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       setSelectedElement(null);
@@ -1888,9 +2095,8 @@ const EbookCanvasEditor = ({
       }
     };
     
-    // Use explicit zIndex if set, otherwise use array index. Selected elements get boosted z-index.
+    // Use explicit zIndex if set, otherwise use array index. Don't boost selected elements to maintain layer order.
     const elementZIndex = element.zIndex ?? index;
-    const finalZIndex = isSelected ? 1000 + elementZIndex : elementZIndex;
     
     const baseStyle: React.CSSProperties = {
       position: 'absolute',
@@ -1900,7 +2106,7 @@ const EbookCanvasEditor = ({
       height: `${element.height}%`,
       cursor: element.locked ? 'not-allowed' : (isMoving && isSelected ? 'move' : 'pointer'),
       transform: element.rotation ? `rotate(${element.rotation}deg)` : undefined,
-      zIndex: finalZIndex,
+      zIndex: elementZIndex,
     };
     
     // Selection label component - only shows when selected
