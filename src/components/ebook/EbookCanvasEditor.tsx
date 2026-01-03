@@ -2412,7 +2412,7 @@ const EbookCanvasEditor = ({
                 className="px-3 py-1.5 bg-white hover:bg-gray-100 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1.5 transition-colors"
               >
                 <ImagePlus className="w-3.5 h-3.5 text-gray-500" />
-                Recreate
+                Replace
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleEditWithAI(element.id); }}
