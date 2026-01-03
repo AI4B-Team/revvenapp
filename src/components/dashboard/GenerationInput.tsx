@@ -7540,6 +7540,36 @@ Make it look like a natural, professional product showcase or UGC-style promotio
               setGeneratedContent([]);
               setShowSocialButtons(true); // Show platform selection again
             }}
+            onUpdatePost={async (updatedPost) => {
+              // Update in database
+              try {
+                const { error } = await supabase
+                  .from('social_posts')
+                  .update({
+                    caption: updatedPost.caption,
+                    hashtags: updatedPost.hashtags,
+                    title: updatedPost.title,
+                  })
+                  .eq('id', updatedPost.id);
+                
+                if (error) {
+                  console.error('Error updating post:', error);
+                  toast({
+                    title: "Update failed",
+                    description: "Failed to save changes. Please try again.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+              } catch (err) {
+                console.error('Error updating post:', err);
+              }
+              
+              // Update local state
+              setGeneratedContent(prev => prev.map(post => 
+                post.id === updatedPost.id ? updatedPost : post
+              ));
+            }}
           />
         </div>
       )}

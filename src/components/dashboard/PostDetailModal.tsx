@@ -1,7 +1,9 @@
-import React from 'react';
-import { X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar, Edit, Trash2, Copy, ExternalLink, Film, Play } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Send, Clock, Calendar, Edit, Trash2, Copy, ExternalLink, Film, Play, Save, XCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { getPlatformIcon } from './SocialIcons';
 import {
   DropdownMenu,
@@ -43,10 +45,39 @@ interface PostDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   post: ContentItem | null;
+  onSave?: (updatedPost: ContentItem) => void;
 }
 
-const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post }) => {
+const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post, onSave }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCaption, setEditedCaption] = useState('');
+  const [editedHashtags, setEditedHashtags] = useState('');
+
+  useEffect(() => {
+    if (post) {
+      setEditedCaption(post.caption || post.title || '');
+      setEditedHashtags(post.hashtags?.join(', ') || '');
+      setIsEditing(false);
+    }
+  }, [post]);
+
   if (!post) return null;
+
+  const handleSave = () => {
+    const updatedPost: ContentItem = {
+      ...post,
+      caption: editedCaption,
+      hashtags: editedHashtags.split(',').map(tag => tag.trim().replace('#', '')).filter(Boolean),
+    };
+    onSave?.(updatedPost);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedCaption(post.caption || post.title || '');
+    setEditedHashtags(post.hashtags?.join(', ') || '');
+    setIsEditing(false);
+  };
 
   const platformColors: Record<string, string> = {
     instagram: 'from-purple-500 via-pink-500 to-orange-400',
@@ -333,22 +364,41 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
             {/* Caption */}
             <div className="mb-6">
               <h4 className="text-sm font-medium text-muted-foreground mb-2">Caption</h4>
-              <p className="text-foreground leading-relaxed">{post.caption || post.title}</p>
+              {isEditing ? (
+                <Textarea
+                  value={editedCaption}
+                  onChange={(e) => setEditedCaption(e.target.value)}
+                  className="min-h-[120px] resize-none"
+                  placeholder="Enter your caption..."
+                />
+              ) : (
+                <p className="text-foreground leading-relaxed">{post.caption || post.title}</p>
+              )}
             </div>
 
             {/* Hashtags */}
-            {post.hashtags && post.hashtags.length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-muted-foreground mb-2">Hashtags</h4>
-                <div className="flex flex-wrap gap-2">
-                  {post.hashtags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm rounded">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Hashtags</h4>
+              {isEditing ? (
+                <Input
+                  value={editedHashtags}
+                  onChange={(e) => setEditedHashtags(e.target.value)}
+                  placeholder="Enter hashtags separated by commas..."
+                />
+              ) : (
+                post.hashtags && post.hashtags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {post.hashtags.map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm rounded">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No hashtags</p>
+                )
+              )}
+            </div>
 
             {/* Video Script - Only for reel type */}
             {post.type === 'reel' && post.videoScript && (
@@ -391,14 +441,29 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
 
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t border-border">
-              <Button variant="outline" className="flex-1 gap-2">
-                <Edit className="w-4 h-4" />
-                Edit
-              </Button>
-              <Button className="flex-1 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white">
-                <Clock className="w-4 h-4" />
-                Reschedule
-              </Button>
+              {isEditing ? (
+                <>
+                  <Button variant="outline" className="flex-1 gap-2" onClick={handleCancel}>
+                    <XCircle className="w-4 h-4" />
+                    Cancel
+                  </Button>
+                  <Button className="flex-1 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white" onClick={handleSave}>
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="flex-1 gap-2" onClick={() => setIsEditing(true)}>
+                    <Edit className="w-4 h-4" />
+                    Edit
+                  </Button>
+                  <Button className="flex-1 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white">
+                    <Clock className="w-4 h-4" />
+                    Reschedule
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
