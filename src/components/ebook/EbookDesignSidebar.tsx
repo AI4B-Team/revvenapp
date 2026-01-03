@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
   ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Layers, FileText, Image as ImageIcon, 
-  Box, Presentation, Plus, Pencil, Search, Sparkles, Send, Upload, Loader2,
+  Box, Presentation, Plus, Pencil, Search, Sparkles, Send, Upload, Loader2, Eye,
   Type, List, QrCode, Video, Music, Table, Calendar, CheckSquare,
   Link2, Quote, Heading, Columns, LayoutGrid, PanelLeftClose, PanelLeft,
   Trash2, GripVertical, BarChart3, BarChart2, BarChart, SplitSquareHorizontal, MousePointerClick, Code,
@@ -1065,6 +1065,23 @@ const EbookDesignSidebar = ({
                           {/* Edit and Delete icons - next to page number on hover */}
                           {!editingChapterId && (
                             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.success(`Toggled visibility for "${chapter.title}"`);
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded transition-all"
+                                  >
+                                    <Eye className="w-3 h-3 text-gray-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p>Show/Hide</p>
+                                </TooltipContent>
+                              </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <button
