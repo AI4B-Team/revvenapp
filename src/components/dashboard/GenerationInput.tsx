@@ -7549,6 +7549,7 @@ Make it look like a natural, professional product showcase or UGC-style promotio
                     caption: updatedPost.caption,
                     hashtags: updatedPost.hashtags,
                     title: updatedPost.title,
+                    video_script: updatedPost.videoScript ? JSON.parse(JSON.stringify(updatedPost.videoScript)) : null,
                   })
                   .eq('id', updatedPost.id);
                 
