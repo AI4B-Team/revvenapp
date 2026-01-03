@@ -466,6 +466,60 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          account_handle: string | null
+          account_name: string | null
+          caption: string | null
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          image_url: string | null
+          platform: string
+          scheduled_date: string
+          status: string
+          title: string
+          type: string | null
+          updated_at: string
+          user_id: string
+          video_script: Json | null
+        }
+        Insert: {
+          account_handle?: string | null
+          account_name?: string | null
+          caption?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform: string
+          scheduled_date: string
+          status?: string
+          title: string
+          type?: string | null
+          updated_at?: string
+          user_id: string
+          video_script?: Json | null
+        }
+        Update: {
+          account_handle?: string | null
+          account_name?: string | null
+          caption?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          image_url?: string | null
+          platform?: string
+          scheduled_date?: string
+          status?: string
+          title?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+          video_script?: Json | null
+        }
+        Relationships: []
+      }
       transcript_comments: {
         Row: {
           author: string
