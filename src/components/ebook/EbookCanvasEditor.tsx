@@ -2943,47 +2943,50 @@ const EbookCanvasEditor = ({
                       {/* Insert Between - Hover zone and + button */}
                       {!draggedPageId && (
                         <>
-                          {/* Hover zone between pages */}
+                          {/* Hover zone between pages - positioned in the gap */}
                           <div
-                            className="absolute -left-6 top-0 h-full w-8 z-20"
-                            onMouseEnter={() => setGridInsertHoveredIndex(index)}
-                            onMouseLeave={() => setGridInsertHoveredIndex(null)}
-                          />
-
-                          {/* Centered + button */}
-                          <div
-                            className={`absolute top-1/2 -translate-y-1/2 z-30 transition-all duration-300 ease-out ${
-                              gridInsertHoveredIndex === index
-                                ? 'opacity-100 scale-100 pointer-events-auto -left-10'
-                                : 'opacity-0 scale-75 pointer-events-none -left-7'
-                            }`}
+                            className="absolute top-0 h-full z-20"
+                            style={{
+                              left: gridInsertHoveredIndex === index ? '-48px' : '-12px',
+                              width: gridInsertHoveredIndex === index ? '48px' : '24px',
+                              transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
                             onMouseEnter={() => setGridInsertHoveredIndex(index)}
                             onMouseLeave={() => setGridInsertHoveredIndex(null)}
                           >
-                            <Tooltip open={gridInsertHoveredIndex === index}>
-                              <TooltipTrigger asChild>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (index === 0) {
-                                      const newPage = {
-                                        id: `page-${Date.now()}`,
-                                        title: 'New Page',
-                                        type: 'chapter-page' as const,
-                                      };
-                                      onPagesChange([newPage, ...currentPages]);
-                                    } else {
-                                      handleAddPage(currentPages[index - 1].id);
-                                    }
-                                    setGridInsertHoveredIndex(null);
-                                  }}
-                                  className="w-10 h-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-brand-green hover:bg-brand-green/10 transition-all shadow-lg"
-                                >
-                                  <Plus className="w-5 h-5 text-gray-500" />
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">Add Page</TooltipContent>
-                            </Tooltip>
+                            {/* Centered + button inside hover zone */}
+                            <div
+                              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-out ${
+                                gridInsertHoveredIndex === index
+                                  ? 'opacity-100 scale-100'
+                                  : 'opacity-0 scale-75 pointer-events-none'
+                              }`}
+                            >
+                              <Tooltip open={gridInsertHoveredIndex === index}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (index === 0) {
+                                        const newPage = {
+                                          id: `page-${Date.now()}`,
+                                          title: 'New Page',
+                                          type: 'chapter-page' as const,
+                                        };
+                                        onPagesChange([newPage, ...currentPages]);
+                                      } else {
+                                        handleAddPage(currentPages[index - 1].id);
+                                      }
+                                      setGridInsertHoveredIndex(null);
+                                    }}
+                                    className="w-12 h-12 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-brand-green hover:bg-brand-green/10 transition-all shadow-lg"
+                                  >
+                                    <Plus className="w-5 h-5 text-gray-500" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">Add Page</TooltipContent>
+                              </Tooltip>
+                            </div>
                           </div>
                         </>
                       )}
