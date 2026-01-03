@@ -90,6 +90,7 @@ interface EbookCanvasEditorProps {
   onUndoStateChange?: (canUndo: boolean, canRedo: boolean) => void;
   undoRef?: React.MutableRefObject<(() => void) | null>;
   redoRef?: React.MutableRefObject<(() => void) | null>;
+  onGridViewChange?: (isGridView: boolean) => void;
 }
 
 const TOOLS = [
@@ -412,7 +413,8 @@ const EbookCanvasEditor = ({
   showPagesPanel = true,
   onUndoStateChange,
   undoRef,
-  redoRef
+  redoRef,
+  onGridViewChange
 }: EbookCanvasEditorProps) => {
   // Internal pages state if no onPagesChange is provided
   const [internalPages, setInternalPages] = useState<Page[]>(pages);
@@ -576,6 +578,11 @@ const EbookCanvasEditor = ({
   const [gridHoveredPageId, setGridHoveredPageId] = useState<string | null>(null);
   const [gridMenuOpenId, setGridMenuOpenId] = useState<string | null>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Notify parent when grid view changes
+  useEffect(() => {
+    onGridViewChange?.(isGridView);
+  }, [isGridView, onGridViewChange]);
   // Drag state for element movement
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number; elementX: number; elementY: number } | null>(null);
@@ -3176,7 +3183,7 @@ const EbookCanvasEditor = ({
                   setSelectedGridPages(new Set());
                   toast.success('Changes confirmed');
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors"
               >
                 Confirm
               </button>
