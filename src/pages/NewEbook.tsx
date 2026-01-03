@@ -317,6 +317,7 @@ const NewEbook = () => {
   // Refs for undo/redo handlers from canvas editor
   const undoRef = useRef<(() => void) | null>(null);
   const redoRef = useRef<(() => void) | null>(null);
+  const openImageSectionRef = useRef<(() => void) | null>(null);
   
   // Find and Replace state
   const [findReplaceOpen, setFindReplaceOpen] = useState(false);
@@ -1383,6 +1384,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     });
                   }}
                   onContentSectionChange={setShowPagesPanel}
+                  openImageSectionRef={openImageSectionRef}
                 />
               )}
 
@@ -1399,12 +1401,14 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     return newPages;
                   });
                 }}
+                onPagesChange={setEbookPages}
                 bookTitle={bookData.selectedTitle || 'Untitled eBook'}
                 showPagesPanel={showPagesPanel}
                 onUndoStateChange={handleUndoStateChange}
                 undoRef={undoRef}
                 redoRef={redoRef}
                 onGridViewChange={setIsCanvasGridView}
+                onOpenImageSection={() => openImageSectionRef.current?.()}
               />
 
               {/* Generation Overlay */}

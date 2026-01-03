@@ -60,6 +60,7 @@ interface EbookDesignSidebarProps {
   onChapterDelete?: (id: string) => void;
   onChapterReorder?: (fromIndex: number, toIndex: number) => void;
   onContentSectionChange?: (isExpanded: boolean) => void;
+  openImageSectionRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 // Template options with pages and images
@@ -336,6 +337,7 @@ const EbookDesignSidebar = ({
   onChapterDelete,
   onChapterReorder,
   onContentSectionChange,
+  openImageSectionRef,
 }: EbookDesignSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set(['content']));
@@ -390,6 +392,17 @@ const EbookDesignSidebar = ({
   const [isTranslating, setIsTranslating] = useState(false);
   
   const PEXELS_API_KEY = "gXq4NKwHspnNWq4RUUraWlQOrtdgNXHZ0K8mNvT41w6PYQAHTm6RcHIT";
+
+  // Expose openImageSection function via ref
+  const openImageSection = () => {
+    setExpandedSections(new Set(['image']));
+  };
+  
+  useEffect(() => {
+    if (openImageSectionRef) {
+      openImageSectionRef.current = openImageSection;
+    }
+  }, [openImageSectionRef]);
 
   const filteredLanguages = LANGUAGES.filter(lang =>
     lang.name.toLowerCase().includes(languageSearchQuery.toLowerCase())
