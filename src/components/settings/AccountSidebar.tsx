@@ -26,13 +26,11 @@ import {
 } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AccountSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  userEmail?: string;
-  userName?: string;
-  userAvatar?: string;
   planType?: string;
 }
 
@@ -54,9 +52,6 @@ const languages = [
 export default function AccountSidebar({
   activeTab,
   onTabChange,
-  userEmail = 'dolmarcross@gmail.com',
-  userName = 'dolmarcross',
-  userAvatar,
   planType = 'Pro'
 }: AccountSidebarProps) {
   const navigate = useNavigate();
@@ -65,6 +60,52 @@ export default function AccountSidebar({
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('app-language') || 'en';
   });
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userAvatar, setUserAvatar] = useState('');
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || '');
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name ||
+                        user.email?.split('@')[0] || '';
+        setUserName(fullName);
+        setUserAvatar(user.user_metadata?.avatar_url || '');
+        
+        // Also check profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          if (profile.full_name) setUserName(profile.full_name);
+          if (profile.avatar_url) setUserAvatar(profile.avatar_url);
+        }
+      }
+    };
+    
+    fetchUserData();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserEmail(session.user.email || '');
+        const fullName = session.user.user_metadata?.full_name || 
+                        session.user.user_metadata?.name ||
+                        session.user.email?.split('@')[0] || '';
+        setUserName(fullName);
+        setUserAvatar(session.user.user_metadata?.avatar_url || '');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);
@@ -107,11 +148,11 @@ export default function AccountSidebar({
         <Avatar className="w-16 h-16 mb-3 border-2 border-emerald-500">
           <AvatarImage src={userAvatar} alt={userName} />
           <AvatarFallback className="bg-[#2a3142] text-white text-xl">
-            <User className="w-8 h-8" />
+            {userName ? userName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
           </AvatarFallback>
         </Avatar>
-        <h3 className="font-semibold text-lg">{userName}</h3>
-        <p className="text-sm text-gray-400">{userEmail}</p>
+        <h3 className="font-semibold text-lg">{userName || 'User'}</h3>
+        <p className="text-sm text-gray-400">{userEmail || 'No email'}</p>
       </div>
 
       {/* Action Buttons */}
