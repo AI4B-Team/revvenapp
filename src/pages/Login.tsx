@@ -286,7 +286,7 @@ export default function LoginPage() {
                   placeholder="ENTER YOUR INVITE CODE"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className="h-12 bg-gray-900 text-white placeholder:text-gray-400 border-2 border-gray-700 focus:border-cyan-500"
+                  className="h-12 bg-white text-gray-900 placeholder:text-gray-500 border-2 border-gray-400 focus:border-cyan-500"
                   required
                 />
                 <div className="flex items-center justify-between">
