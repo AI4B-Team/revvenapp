@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, MoreVertical } from 'lucide-react';
+import { Search, MoreVertical, Camera, User, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,11 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import WhiteLabelTab from '@/components/settings/WhiteLabelTab';
 import InvitesTab from '@/components/settings/InvitesTab';
 import AccountSidebar from '@/components/settings/AccountSidebar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Settings() {
   const [searchParams] = useSearchParams();
@@ -24,14 +27,139 @@ export default function Settings() {
   const [jobTitle, setJobTitle] = useState('Product Designer');
   const [showJobTitle, setShowJobTitle] = useState(false);
   const [alternativeEmail, setAlternativeEmail] = useState('');
-  const [profilePhoto, setProfilePhoto] = useState('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop');
+  const [profilePhoto, setProfilePhoto] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [userFullName, setUserFullName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (tabParam) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || '');
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name ||
+                        user.email?.split('@')[0] || '';
+        setUserFullName(fullName);
+        setProfilePhoto(user.user_metadata?.avatar_url || '');
+        
+        // Check profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          if (profile.full_name) setUserFullName(profile.full_name);
+          if (profile.avatar_url) setProfilePhoto(profile.avatar_url);
+        }
+      }
+    };
+    
+    fetchUserData();
+  }, []);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to upload an avatar.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update user metadata
+      await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl }
+      });
+
+      // Update profile
+      await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      setProfilePhoto(publicUrl + '?t=' + Date.now()); // Add timestamp to force refresh
+      
+      toast({
+        title: "Success",
+        description: "Your profile picture has been updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to upload profile picture.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Update user metadata
+      await supabase.auth.updateUser({
+        data: { avatar_url: null }
+      });
+
+      // Update profile
+      await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      setProfilePhoto('');
+      
+      toast({
+        title: "Success",
+        description: "Your profile picture has been removed.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -382,6 +510,64 @@ export default function Settings() {
               </div>
 
               <div className="space-y-6">
+                {/* Profile Picture */}
+                <div className="grid grid-cols-3 gap-4 items-start">
+                  <Label className="text-sm font-medium text-gray-700 pt-2">
+                    Profile Picture
+                  </Label>
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <Avatar className="w-20 h-20 border-2 border-gray-200">
+                          <AvatarImage src={profilePhoto} alt="Profile" />
+                          <AvatarFallback className="bg-gray-100 text-gray-600 text-xl">
+                            {userFullName ? userFullName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <button
+                          onClick={() => avatarInputRef.current?.click()}
+                          className="absolute bottom-0 right-0 bg-green-600 hover:bg-green-700 rounded-full p-1.5 border-2 border-white transition-colors"
+                          disabled={isUploadingAvatar}
+                        >
+                          <Camera className="w-3.5 h-3.5 text-white" />
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <input
+                          ref={avatarInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          className="hidden"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => avatarInputRef.current?.click()}
+                          disabled={isUploadingAvatar}
+                          className="text-gray-700"
+                        >
+                          {isUploadingAvatar ? 'Uploading...' : 'Change Photo'}
+                        </Button>
+                        {profilePhoto && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleRemoveAvatar}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      JPG, PNG or GIF. Max size 5MB.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Full Name */}
                 <div className="grid grid-cols-3 gap-4 items-start">
                   <Label className="text-sm font-medium text-gray-700 pt-2">
@@ -389,6 +575,8 @@ export default function Settings() {
                   </Label>
                   <div className="col-span-2">
                     <Input
+                      value={userFullName}
+                      onChange={(e) => setUserFullName(e.target.value)}
                       placeholder="John Doe"
                       className="bg-white border-gray-200"
                     />
