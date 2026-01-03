@@ -1,13 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Mail, Check } from 'lucide-react';
+import { ArrowLeft, Mail, Check, Ticket } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useSearchParams } from 'react-router-dom';
 
 export default function SignupPage() {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [inviteCode, setInviteCode] = useState(searchParams.get('invite') || '');
+  const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
+  const [validatingCode, setValidatingCode] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,19 +29,99 @@ export default function SignupPage() {
     }
   }, [resendTimer]);
 
+  // Validate invite code from URL on mount
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('invite');
+    if (codeFromUrl) {
+      validateInviteCode(codeFromUrl);
+    }
+  }, [searchParams]);
+
+  const validateInviteCode = async (code: string) => {
+    if (!code || code.length < 6) {
+      setInviteCodeValid(null);
+      return;
+    }
+
+    setValidatingCode(true);
+    try {
+      const { data, error } = await supabase
+        .from('invite_codes')
+        .select('id, is_used')
+        .eq('code', code.toUpperCase())
+        .single();
+
+      if (error || !data) {
+        setInviteCodeValid(false);
+      } else if (data.is_used) {
+        setInviteCodeValid(false);
+      } else {
+        setInviteCodeValid(true);
+      }
+    } catch (err) {
+      setInviteCodeValid(false);
+    } finally {
+      setValidatingCode(false);
+    }
+  };
+
+  const handleInviteCodeChange = (value: string) => {
+    const upperValue = value.toUpperCase();
+    setInviteCode(upperValue);
+    setInviteCodeValid(null);
+    
+    // Debounce validation
+    if (upperValue.length >= 6) {
+      validateInviteCode(upperValue);
+    }
+  };
+
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate invite code first
+    if (!inviteCode) {
+      setError('Please enter an invite code to sign up.');
+      return;
+    }
+
+    if (inviteCodeValid === false) {
+      setError('Invalid or already used invite code. Please enter a valid code.');
+      return;
+    }
+
+    if (inviteCodeValid === null) {
+      // Validate the code before proceeding
+      setValidatingCode(true);
+      const { data, error } = await supabase
+        .from('invite_codes')
+        .select('id, is_used')
+        .eq('code', inviteCode.toUpperCase())
+        .single();
+      setValidatingCode(false);
+
+      if (error || !data || data.is_used) {
+        setInviteCodeValid(false);
+        setError('Invalid or already used invite code. Please enter a valid code.');
+        return;
+      }
+      setInviteCodeValid(true);
+    }
+
     setLoading(true);
 
     try {
       // TODO: Call your API to send OTP
       // const response = await api.signup({ firstName, lastName, email });
       
+      // Store invite code for later use after signup completes
+      localStorage.setItem('pendingInviteCode', inviteCode);
+      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Sending OTP to:', { firstName, lastName, email });
+      console.log('Sending OTP to:', { firstName, lastName, email, inviteCode });
       
       setStep('otp');
       setResendTimer(60); // Start 60 second countdown
@@ -118,6 +204,20 @@ export default function SignupPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       console.log('Verifying OTP:', { email, code });
+      
+      // Mark invite code as used
+      const pendingInviteCode = localStorage.getItem('pendingInviteCode');
+      if (pendingInviteCode) {
+        await supabase
+          .from('invite_codes')
+          .update({ 
+            is_used: true, 
+            used_at: new Date().toISOString()
+          })
+          .eq('code', pendingInviteCode);
+        
+        localStorage.removeItem('pendingInviteCode');
+      }
       
       // Show success state briefly
       setStep('success');
@@ -332,6 +432,51 @@ export default function SignupPage() {
                     className="h-12"
                     required
                   />
+                </div>
+
+                {/* Invite Code Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Invite Code <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="Enter your invite code"
+                      value={inviteCode}
+                      onChange={(e) => handleInviteCodeChange(e.target.value)}
+                      className={`h-12 pl-10 uppercase ${
+                        inviteCodeValid === true 
+                          ? 'border-green-500 focus:border-green-500' 
+                          : inviteCodeValid === false 
+                            ? 'border-red-500 focus:border-red-500' 
+                            : ''
+                      }`}
+                      required
+                    />
+                    {validatingCode && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <div className="w-4 h-4 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin" />
+                      </div>
+                    )}
+                    {!validatingCode && inviteCodeValid === true && (
+                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                    )}
+                  </div>
+                  {inviteCodeValid === false && (
+                    <p className="text-sm text-red-500 mt-1">
+                      Invalid or already used invite code
+                    </p>
+                  )}
+                  {inviteCodeValid === true && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Valid invite code!
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    You need a valid invite code to sign up. Ask a friend for one!
+                  </p>
                 </div>
 
                 {/* Submit Button */}

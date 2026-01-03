@@ -1,12 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, Check, Infinity } from 'lucide-react';
+import { Copy, Check, Infinity, Link as LinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface InviteCode {
+  id: string;
+  code: string;
+  is_used: boolean;
+  used_at: string | null;
+  created_at: string;
+}
 
 export default function InvitesTab() {
-  const [inviteCodes, setInviteCodes] = useState<any[]>([]);
+  const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load existing invite codes
   useEffect(() => {
@@ -14,56 +26,94 @@ export default function InvitesTab() {
   }, []);
 
   const loadInviteCodes = async () => {
-    // TODO: Replace with actual API call
-    // Mock data for demo
-    setInviteCodes([
-      {
-        id: '1',
-        code: 'WBHUUMEC',
-        uses: 0,
-        maxUses: 1,
-        status: 'Active',
-        createdAt: '10/30/2025',
-        isActive: true
-      },
-      {
-        id: '2',
-        code: 'DAZUPL09',
-        uses: 1,
-        maxUses: 1,
-        status: 'Used',
-        createdAt: '10/30/2025',
-        isActive: false
+    setIsLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoading(false);
+        return;
       }
-    ]);
+
+      const { data, error } = await supabase
+        .from('invite_codes')
+        .select('*')
+        .eq('creator_user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading invite codes:', error);
+        toast.error('Failed to load invite codes');
+      } else {
+        setInviteCodes(data || []);
+      }
+    } catch (err) {
+      console.error('Error loading invite codes:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const generateInviteCode = async () => {
     setIsGenerating(true);
 
-    // Generate unique 8-character code
-    const randomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('You must be logged in to generate invite codes');
+        setIsGenerating(false);
+        return;
+      }
 
-    const newCode = {
-      id: Date.now().toString(),
-      code: randomCode,
-      uses: 0,
-      maxUses: 1,
-      status: 'Active',
-      createdAt: new Date().toLocaleDateString('en-US'),
-      isActive: true
-    };
+      // Generate unique 8-character code
+      const randomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
 
-    setInviteCodes([newCode, ...inviteCodes]);
-    // Sync with invite modal
-    localStorage.setItem('latestInviteCode', randomCode);
-    setIsGenerating(false);
+      const { data, error } = await supabase
+        .from('invite_codes')
+        .insert({
+          code: randomCode,
+          creator_user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating invite code:', error);
+        toast.error('Failed to generate invite code');
+      } else if (data) {
+        setInviteCodes([data, ...inviteCodes]);
+        toast.success('Invite code generated!');
+        // Sync with invite modal
+        localStorage.setItem('latestInviteCode', randomCode);
+      }
+    } catch (err) {
+      console.error('Error generating invite code:', err);
+      toast.error('Failed to generate invite code');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const copyToClipboard = (code: string) => {
+  const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
+    toast.success('Code copied to clipboard!');
     setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const copyLink = (code: string) => {
+    const shareUrl = `${window.location.origin}/signup?invite=${code}`;
+    navigator.clipboard.writeText(shareUrl);
+    setCopiedLink(code);
+    toast.success('Invite link copied to clipboard!');
+    setTimeout(() => setCopiedLink(null), 2000);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -98,10 +148,15 @@ export default function InvitesTab() {
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="px-8 py-6 border-b border-border">
           <h3 className="text-2xl font-bold text-foreground">Your Invite Codes</h3>
-          <p className="text-muted-foreground mt-1">Share these codes with people you trust</p>
+          <p className="text-muted-foreground mt-1">Each code can only be used once</p>
         </div>
 
-        {inviteCodes.length === 0 ? (
+        {isLoading ? (
+          <div className="p-12 text-center">
+            <div className="w-8 h-8 border-2 border-muted border-t-primary rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading invite codes...</p>
+          </div>
+        ) : inviteCodes.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Infinity className="w-8 h-8 text-muted-foreground" />
@@ -123,9 +178,9 @@ export default function InvitesTab() {
                 <tr className="bg-muted/50 border-b border-border">
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Code</th>
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Status</th>
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Uses</th>
                   <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Created</th>
-                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Action</th>
+                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Used At</th>
+                  <th className="px-8 py-4 text-left text-sm font-semibold text-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,49 +201,71 @@ export default function InvitesTab() {
                     {/* Status */}
                     <td className="px-8 py-5">
                       <Badge
-                        variant={invite.status === 'Active' ? 'default' : 'secondary'}
+                        variant={invite.is_used ? 'secondary' : 'default'}
                         className={
-                          invite.status === 'Active'
-                            ? 'bg-brand-blue/20 text-brand-blue hover:bg-brand-blue/30'
-                            : 'bg-muted text-muted-foreground'
+                          invite.is_used
+                            ? 'bg-muted text-muted-foreground'
+                            : 'bg-brand-blue/20 text-brand-blue hover:bg-brand-blue/30'
                         }
                       >
-                        {invite.status}
+                        {invite.is_used ? 'Used' : 'Active'}
                       </Badge>
-                    </td>
-
-                    {/* Uses */}
-                    <td className="px-8 py-5">
-                      <span className="text-foreground font-medium">
-                        {invite.uses} / {invite.maxUses}
-                      </span>
                     </td>
 
                     {/* Created */}
                     <td className="px-8 py-5">
-                      <span className="text-muted-foreground">{invite.createdAt}</span>
+                      <span className="text-muted-foreground">{formatDate(invite.created_at)}</span>
                     </td>
 
-                    {/* Action */}
+                    {/* Used At */}
                     <td className="px-8 py-5">
-                      <Button
-                        onClick={() => copyToClipboard(invite.code)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-foreground hover:text-foreground hover:bg-muted"
-                      >
-                        {copiedCode === invite.code ? (
-                          <>
-                            <Check className="w-4 h-4 mr-2 text-brand-green" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
+                      <span className="text-muted-foreground">
+                        {invite.used_at ? formatDate(invite.used_at) : '-'}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-8 py-5">
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => copyCode(invite.code)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-foreground hover:text-foreground hover:bg-muted"
+                          disabled={invite.is_used}
+                        >
+                          {copiedCode === invite.code ? (
+                            <>
+                              <Check className="w-4 h-4 mr-2 text-brand-green" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Code
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => copyLink(invite.code)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-foreground hover:text-foreground hover:bg-muted"
+                          disabled={invite.is_used}
+                        >
+                          {copiedLink === invite.code ? (
+                            <>
+                              <Check className="w-4 h-4 mr-2 text-brand-green" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <LinkIcon className="w-4 h-4 mr-2" />
+                              Link
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -209,15 +286,15 @@ export default function InvitesTab() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Each code can be used once by a new user during signup</span>
+                <span>Each code can only be used once by a new user during signup</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Share your invite link or code directly with friends</span>
+                <span>Share just the code or the full invite link with friends</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>You have unlimited invites available</span>
+                <span>You have unlimited invites available to generate</span>
               </li>
             </ul>
           </div>
