@@ -1073,28 +1073,70 @@ const EbookDesignSidebar = ({
                           </>
                         )}
 
-                        {/* Right side: Edit/Delete icons + Page # */}
+                        {/* Right side: Action icons + Page # */}
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          {/* Edit and Delete icons - next to page number on hover */}
+                          {/* Action icons - visible on hover */}
                           {!editingChapterId && (
                             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                              {/* Move Up */}
+                              {index > 0 && onChapterReorder && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onChapterReorder(index, index - 1);
+                                      }}
+                                      className="p-1 hover:bg-gray-200 rounded transition-all"
+                                    >
+                                      <ChevronUp className="w-3 h-3 text-gray-500" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    <p>Move Up</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                              {/* Move Down */}
+                              {index < chapters.length - 1 && onChapterReorder && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onChapterReorder(index, index + 1);
+                                      }}
+                                      className="p-1 hover:bg-gray-200 rounded transition-all"
+                                    >
+                                      <ChevronDown className="w-3 h-3 text-gray-500" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    <p>Move Down</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                              {/* Add After */}
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <button
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      toast.success(`Toggled visibility for "${chapter.title}"`);
+                                      onChapterAdd(chapter.id);
                                     }}
-                                    className="p-1 hover:bg-gray-200 rounded transition-all"
+                                    className="p-1 hover:bg-emerald-100 rounded transition-all"
                                   >
-                                    <Eye className="w-3 h-3 text-gray-500" />
+                                    <Plus className="w-3 h-3 text-gray-500 hover:text-emerald-600" />
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="text-xs">
-                                  <p>Show/Hide</p>
+                                  <p>Add Page After</p>
                                 </TooltipContent>
                               </Tooltip>
+                              {/* Edit Title */}
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <button
@@ -1109,9 +1151,10 @@ const EbookDesignSidebar = ({
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="text-xs">
-                                  <p>Edit title</p>
+                                  <p>Edit Title</p>
                                 </TooltipContent>
                               </Tooltip>
+                              {/* Delete */}
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <button
@@ -1152,10 +1195,13 @@ const EbookDesignSidebar = ({
               <Button 
                 className="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-white"
                 onClick={() => {
-                  // Add new page logic - can be connected to parent handler
+                  const lastChapter = chapters[chapters.length - 1];
+                  if (lastChapter) {
+                    onChapterAdd(lastChapter.id);
+                  }
                 }}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 mr-2" />
                 Add Page
               </Button>
             </div>

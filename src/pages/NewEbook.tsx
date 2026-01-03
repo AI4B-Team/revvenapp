@@ -1371,9 +1371,36 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   chapters={getSidebarChapters()}
                   selectedChapterId={selectedPageId}
                   onChapterSelect={setSelectedPageId}
-                  onChapterAdd={(afterId) => console.log('Add chapter after:', afterId)}
+                  onChapterAdd={(afterId) => {
+                    const pageIndex = ebookPages.findIndex(p => p.id === afterId);
+                    const newPage: UnifiedPage = {
+                      id: crypto.randomUUID(),
+                      title: 'New Page',
+                      type: 'chapter'
+                    };
+                    setEbookPages(prev => {
+                      const newPages = [...prev];
+                      newPages.splice(pageIndex + 1, 0, newPage);
+                      return newPages;
+                    });
+                    setSelectedPageId(newPage.id);
+                    toast.success('New page added');
+                  }}
                   onChapterTitleEdit={(id, title) => {
                     setEbookPages(prev => prev.map(p => p.id === id ? { ...p, title } : p));
+                  }}
+                  onChapterDelete={(id) => {
+                    const page = ebookPages.find(p => p.id === id);
+                    if (ebookPages.length <= 1) {
+                      toast.error('Cannot delete the last page');
+                      return;
+                    }
+                    setEbookPages(prev => prev.filter(p => p.id !== id));
+                    if (selectedPageId === id) {
+                      const remainingPages = ebookPages.filter(p => p.id !== id);
+                      setSelectedPageId(remainingPages[0]?.id || null);
+                    }
+                    toast.success(`Deleted "${page?.title || 'page'}"`);
                   }}
                   onChapterReorder={(from, to) => {
                     setEbookPages(prev => {
