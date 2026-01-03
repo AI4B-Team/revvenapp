@@ -445,38 +445,46 @@ const NewEbook = () => {
 
   // Unified page data - single source of truth for both sidebar and canvas
   // Defined after bookData so we can use bookData.selectedTitle
+  // Note: 'chapter-page' is the banner/header page, 'chapter' is the main content page
   const getDefaultPages = (): UnifiedPage[] => [
     { id: '1', title: bookData.selectedTitle || 'The Ultimate Guide to AI Marketing', type: 'cover' },
     { id: '2', title: 'Table of Contents', type: 'toc' },
-    { id: '3', title: 'Introduction', type: 'chapter-page' },
-    { id: '4', title: 'Introduction', type: 'chapter' },
-    { id: '5', title: 'Executive Summary', type: 'chapter-page' },
-    { id: '6', title: 'Executive Summary', type: 'chapter' },
-    { id: '7', title: 'Market Analysis', type: 'chapter-page' },
-    { id: '8', title: 'Market Analysis', type: 'chapter' },
-    { id: '9', title: 'Investment Strategy', type: 'chapter-page' },
-    { id: '10', title: 'Investment Strategy', type: 'chapter' },
-    { id: '11', title: 'Financial Projections', type: 'chapter-page' },
-    { id: '12', title: 'Financial Projections', type: 'chapter' },
+    { id: '3', title: 'Introduction', type: 'chapter' },
+    { id: '4', title: 'Content Page', type: 'chapter-page' },
+    { id: '5', title: 'Executive Summary', type: 'chapter' },
+    { id: '6', title: 'Content Page', type: 'chapter-page' },
+    { id: '7', title: 'Market Analysis', type: 'chapter' },
+    { id: '8', title: 'Content Page', type: 'chapter-page' },
+    { id: '9', title: 'Investment Strategy', type: 'chapter' },
+    { id: '10', title: 'Content Page', type: 'chapter-page' },
+    { id: '11', title: 'Financial Projections', type: 'chapter' },
+    { id: '12', title: 'Content Page', type: 'chapter-page' },
     { id: '13', title: 'Back Cover', type: 'back' },
   ];
   
   const [ebookPages, setEbookPages] = useState<UnifiedPage[]>(getDefaultPages);
   
   // Convert unified pages to sidebar chapter format
+  // Filter out 'chapter-page' types - only show main pages in sidebar
   const getSidebarChapters = () => {
-    return ebookPages.map((page, index) => {
+    // Filter out chapter-page types (content pages) - they shouldn't appear separately in sidebar
+    const filteredPages = ebookPages.filter(page => page.type !== 'chapter-page');
+    
+    return filteredPages.map((page, index) => {
       let sidebarType: 'cover' | 'table of contents' | 'introduction' | 'summary' | null = null;
       if (page.type === 'cover') sidebarType = 'cover';
       else if (page.type === 'toc') sidebarType = 'table of contents';
       else if (page.type === 'back') sidebarType = 'summary';
       else if (page.title.toLowerCase() === 'introduction') sidebarType = 'introduction';
       
+      // Find original page number from ebookPages
+      const originalIndex = ebookPages.findIndex(p => p.id === page.id);
+      
       return {
         id: page.id,
         title: page.title,
         type: sidebarType,
-        pageNumber: index + 1
+        pageNumber: originalIndex + 1
       };
     });
   };
