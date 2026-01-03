@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { X, Link2, ChevronDown, ChevronUp, FileText, Monitor, Share2, Image, LayoutGrid, Sparkles, Plus, Maximize2, Palette, Brush, SlidersHorizontal, Square, CircleDot, Layers, RotateCw, Lock, Unlock, Info, Pipette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -208,6 +208,18 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
   // Color picker popover state
   const [showColorPicker, setShowColorPicker] = useState(false);
   
+  // HSB color picker state
+  const [hue, setHue] = useState(0);
+  const [saturation, setSaturation] = useState(100);
+  const [brightness, setBrightness] = useState(100);
+  const [alpha, setAlpha] = useState(100);
+  
+  // Refs for drag handling
+  const satBrightRef = useRef<HTMLDivElement>(null);
+  const hueRef = useRef<HTMLDivElement>(null);
+  const alphaRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef<'satBright' | 'hue' | 'alpha' | null>(null);
+  
   // Theme colors for the color picker
   const THEME_COLORS = [
     ['#2563eb', '#1f2937', '#374151', '#ffffff', '#14b8a6', '#0d9488', '#06b6d4', '#22c55e'],
@@ -282,13 +294,190 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
     setPageFormat('custom');
   };
 
+  // Convert HSB to HEX
+  const hsbToHex = useCallback((h: number, s: number, b: number): string => {
+    const hNorm = h / 360;
+    const sNorm = s / 100;
+    const bNorm = b / 100;
+    
+    let r, g, bl;
+    const i = Math.floor(hNorm * 6);
+    const f = hNorm * 6 - i;
+    const p = bNorm * (1 - sNorm);
+    const q = bNorm * (1 - f * sNorm);
+    const t = bNorm * (1 - (1 - f) * sNorm);
+    
+    switch (i % 6) {
+      case 0: r = bNorm; g = t; bl = p; break;
+      case 1: r = q; g = bNorm; bl = p; break;
+      case 2: r = p; g = bNorm; bl = t; break;
+      case 3: r = p; g = q; bl = bNorm; break;
+      case 4: r = t; g = p; bl = bNorm; break;
+      case 5: r = bNorm; g = p; bl = q; break;
+      default: r = 0; g = 0; bl = 0;
+    }
+    
+    const toHex = (x: number) => {
+      const hex = Math.round(x * 255).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(bl)}`;
+  }, []);
+
+  // Convert HEX to HSB
+  const hexToHsb = useCallback((hex: string): { h: number; s: number; b: number } => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return { h: 0, s: 100, b: 100 };
+    
+    const r = parseInt(result[1], 16) / 255;
+    const g = parseInt(result[2], 16) / 255;
+    const b = parseInt(result[3], 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    
+    let h = 0;
+    const s = max === 0 ? 0 : (d / max) * 100;
+    const br = max * 100;
+    
+    if (d !== 0) {
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+        case g: h = ((b - r) / d + 2) * 60; break;
+        case b: h = ((r - g) / d + 4) * 60; break;
+      }
+    }
+    
+    return { h, s, b: br };
+  }, []);
+
+  // Get pure hue color
+  const getHueColor = useCallback((h: number): string => {
+    return hsbToHex(h, 100, 100);
+  }, [hsbToHex]);
+
+  // Handle saturation/brightness picker interaction
+  const handleSatBrightInteraction = useCallback((e: React.MouseEvent | MouseEvent) => {
+    if (!satBrightRef.current) return;
+    const rect = satBrightRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+    
+    const newSat = (x / rect.width) * 100;
+    const newBright = 100 - (y / rect.height) * 100;
+    
+    setSaturation(newSat);
+    setBrightness(newBright);
+    
+    const newColor = hsbToHex(hue, newSat, newBright);
+    setBackgroundColor(newColor);
+    setHexInput(newColor.toUpperCase());
+  }, [hue, hsbToHex]);
+
+  // Handle hue slider interaction
+  const handleHueInteraction = useCallback((e: React.MouseEvent | MouseEvent) => {
+    if (!hueRef.current) return;
+    const rect = hueRef.current.getBoundingClientRect();
+    const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+    
+    const newHue = (y / rect.height) * 360;
+    setHue(newHue);
+    
+    const newColor = hsbToHex(newHue, saturation, brightness);
+    setBackgroundColor(newColor);
+    setHexInput(newColor.toUpperCase());
+  }, [saturation, brightness, hsbToHex]);
+
+  // Handle alpha slider interaction
+  const handleAlphaInteraction = useCallback((e: React.MouseEvent | MouseEvent) => {
+    if (!alphaRef.current) return;
+    const rect = alphaRef.current.getBoundingClientRect();
+    const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+    
+    const newAlpha = 100 - (y / rect.height) * 100;
+    setAlpha(newAlpha);
+    setBgOpacity(Math.round(newAlpha));
+  }, []);
+
+  // Mouse down handlers
+  const handleSatBrightMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = 'satBright';
+    handleSatBrightInteraction(e);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging.current === 'satBright') {
+        handleSatBrightInteraction(e);
+      }
+    };
+    
+    const handleMouseUp = () => {
+      isDragging.current = null;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleHueMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = 'hue';
+    handleHueInteraction(e);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging.current === 'hue') {
+        handleHueInteraction(e);
+      }
+    };
+    
+    const handleMouseUp = () => {
+      isDragging.current = null;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleAlphaMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = 'alpha';
+    handleAlphaInteraction(e);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging.current === 'alpha') {
+        handleAlphaInteraction(e);
+      }
+    };
+    
+    const handleMouseUp = () => {
+      isDragging.current = null;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
   const handleColorSelect = (color: string) => {
     setBackgroundColor(color);
     setHexInput(color.toUpperCase());
     setSelectedGradient(null);
+    
+    // Update HSB values from hex
+    if (color !== 'transparent') {
+      const hsb = hexToHsb(color);
+      setHue(hsb.h);
+      setSaturation(hsb.s);
+      setBrightness(hsb.b);
+    }
+    
     // Add to recent colors if not already there
     if (!recentColors.includes(color) && color !== 'transparent') {
-      setRecentColors(prev => [color, ...prev.slice(0, 4)]);
+      setRecentColors(prev => [color, ...prev.slice(0, 6)]);
     }
   };
 
@@ -829,15 +1018,26 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                 {/* Color Gradient Picker with Sliders */}
                                 <div className="flex gap-2 mb-3">
                                   {/* Saturation/Brightness Picker */}
-                                  <div className="relative flex-1 h-32 rounded-lg overflow-hidden cursor-crosshair">
-                                    {/* Base color layer */}
+                                  <div 
+                                    ref={satBrightRef}
+                                    className="relative flex-1 h-32 rounded-lg overflow-hidden cursor-crosshair"
+                                    onMouseDown={handleSatBrightMouseDown}
+                                  >
+                                    {/* Base color layer - uses pure hue */}
                                     <div 
                                       className="absolute inset-0"
                                       style={{
-                                        background: `linear-gradient(to right, #fff, ${backgroundColor !== 'transparent' ? backgroundColor : '#ef4444'})`
+                                        background: getHueColor(hue)
                                       }}
                                     />
-                                    {/* Black gradient overlay */}
+                                    {/* White gradient overlay (left to right) */}
+                                    <div 
+                                      className="absolute inset-0"
+                                      style={{
+                                        background: 'linear-gradient(to right, #fff, transparent)'
+                                      }}
+                                    />
+                                    {/* Black gradient overlay (top to bottom) */}
                                     <div 
                                       className="absolute inset-0"
                                       style={{
@@ -848,15 +1048,19 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                     <div 
                                       className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none"
                                       style={{ 
-                                        top: '15%', 
-                                        right: '10%',
-                                        transform: 'translate(50%, -50%)'
+                                        left: `${saturation}%`, 
+                                        top: `${100 - brightness}%`,
+                                        transform: 'translate(-50%, -50%)'
                                       }}
                                     />
                                   </div>
                                   
                                   {/* Hue Slider */}
-                                  <div className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer">
+                                  <div 
+                                    ref={hueRef}
+                                    className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer"
+                                    onMouseDown={handleHueMouseDown}
+                                  >
                                     <div 
                                       className="absolute inset-0"
                                       style={{
@@ -867,14 +1071,18 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                     <div 
                                       className="absolute left-1/2 w-5 h-3 border-2 border-white rounded-sm shadow-md pointer-events-none"
                                       style={{ 
-                                        top: '60%',
+                                        top: `${(hue / 360) * 100}%`,
                                         transform: 'translate(-50%, -50%)'
                                       }}
                                     />
                                   </div>
                                   
                                   {/* Alpha/Opacity Slider */}
-                                  <div className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer">
+                                  <div 
+                                    ref={alphaRef}
+                                    className="relative w-5 h-32 rounded-full overflow-hidden cursor-pointer"
+                                    onMouseDown={handleAlphaMouseDown}
+                                  >
                                     {/* Checkered background for transparency */}
                                     <div 
                                       className="absolute inset-0"
@@ -888,14 +1096,14 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                     <div 
                                       className="absolute inset-0"
                                       style={{
-                                        background: `linear-gradient(to bottom, ${backgroundColor !== 'transparent' ? backgroundColor : '#ef4444'}, transparent)`
+                                        background: `linear-gradient(to bottom, ${hsbToHex(hue, saturation, brightness)}, transparent)`
                                       }}
                                     />
                                     {/* Alpha selector */}
                                     <div 
                                       className="absolute left-1/2 w-5 h-3 border-2 border-white rounded-sm shadow-md pointer-events-none"
                                       style={{ 
-                                        top: '5%',
+                                        top: `${100 - alpha}%`,
                                         transform: 'translate(-50%, -50%)'
                                       }}
                                     />
@@ -923,12 +1131,12 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                                     onChange={(e) => {
                                       setHexInput(e.target.value);
                                       if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-                                        setBackgroundColor(e.target.value);
+                                        handleColorSelect(e.target.value);
                                       }
                                     }}
                                     className="flex-1 h-8 text-xs bg-gray-100 border-0"
                                   />
-                                  <div className="px-3 py-1.5 bg-gray-100 rounded text-sm text-gray-600">
+                                  <div className="px-3 py-1.5 bg-gray-100 rounded text-sm text-gray-600 min-w-[52px] text-center">
                                     {bgOpacity}%
                                   </div>
                                 </div>
@@ -1008,6 +1216,23 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                           />
                         ))}
                       </div>
+                      
+                      {/* Recently Used Colors */}
+                      {recentColors.length > 0 && (
+                        <div className="flex gap-1.5 items-center">
+                          <span className="text-xs text-gray-500 whitespace-nowrap">Recent:</span>
+                          {recentColors.slice(0, 6).map((color, idx) => (
+                            <button
+                              key={`recent-main-${idx}`}
+                              onClick={() => handleColorSelect(color)}
+                              className={`w-7 h-7 rounded-full border-2 transition-all ${
+                                backgroundColor === color ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* HEX Input */}
@@ -1020,24 +1245,24 @@ const PageSettingsPanel = ({ pageNumber, onClose, onSettingsChange }: PageSettin
                           onChange={(e) => {
                             setHexInput(e.target.value);
                             if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
-                              setBackgroundColor(e.target.value);
+                              handleColorSelect(e.target.value);
                             }
                           }}
                           className="h-7 text-xs"
                         />
                       </div>
-                      <div className="w-16">
+                      <div className="w-20">
                         <span className="text-sm font-semibold text-gray-800 mb-2 block">Opacity</span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center">
                           <Input
                             type="number"
                             value={bgOpacity}
                             onChange={(e) => setBgOpacity(Number(e.target.value))}
                             min={0}
                             max={100}
-                            className="h-7 text-xs w-12"
+                            className="h-7 text-xs w-14 pr-6"
                           />
-                          <span className="text-xs text-gray-500">%</span>
+                          <span className="text-xs text-gray-500 -ml-5">%</span>
                         </div>
                       </div>
                     </div>
