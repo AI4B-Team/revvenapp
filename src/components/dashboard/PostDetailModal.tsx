@@ -52,11 +52,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [isEditing, setIsEditing] = useState(false);
   const [editedCaption, setEditedCaption] = useState('');
   const [editedHashtags, setEditedHashtags] = useState('');
+  const [editedVideoScript, setEditedVideoScript] = useState<VideoScript | null>(null);
 
   useEffect(() => {
     if (post) {
       setEditedCaption(post.caption || post.title || '');
       setEditedHashtags(post.hashtags?.join(', ') || '');
+      setEditedVideoScript(post.videoScript ? JSON.parse(JSON.stringify(post.videoScript)) : null);
       setIsEditing(false);
     }
   }, [post]);
@@ -68,6 +70,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       ...post,
       caption: editedCaption,
       hashtags: editedHashtags.split(',').map(tag => tag.trim().replace('#', '')).filter(Boolean),
+      videoScript: editedVideoScript,
     };
     onSave?.(updatedPost);
     setIsEditing(false);
@@ -76,7 +79,21 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const handleCancel = () => {
     setEditedCaption(post.caption || post.title || '');
     setEditedHashtags(post.hashtags?.join(', ') || '');
+    setEditedVideoScript(post.videoScript ? JSON.parse(JSON.stringify(post.videoScript)) : null);
     setIsEditing(false);
+  };
+
+  const updateScene = (sceneIndex: number, field: keyof VideoScene, value: string) => {
+    if (!editedVideoScript) return;
+    const updatedScenes = [...editedVideoScript.scenes];
+    updatedScenes[sceneIndex] = {
+      ...updatedScenes[sceneIndex],
+      [field]: value,
+    };
+    setEditedVideoScript({
+      ...editedVideoScript,
+      scenes: updatedScenes,
+    });
   };
 
   const platformColors: Record<string, string> = {
@@ -401,38 +418,70 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
             </div>
 
             {/* Video Script - Only for reel type */}
-            {post.type === 'reel' && post.videoScript && (
+            {post.type === 'reel' && (post.videoScript || editedVideoScript) && (
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Film className="w-4 h-4 text-emerald-500" />
                   <h4 className="text-sm font-medium text-muted-foreground">Video Script</h4>
                   <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs rounded-full">
-                    {post.videoScript.duration}
+                    {(isEditing ? editedVideoScript : post.videoScript)?.duration}
                   </span>
                 </div>
                 <div className="space-y-3 bg-muted/50 rounded-lg p-4">
-                  {post.videoScript.scenes.map((scene, index) => (
+                  {(isEditing ? editedVideoScript : post.videoScript)?.scenes.map((scene, index) => (
                     <div key={index} className="relative pl-4 border-l-2 border-emerald-500/50">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded">
                           {scene.timestamp}
                         </span>
-                        {scene.text_overlay && (
+                        {(isEditing ? editedVideoScript?.scenes[index]?.text_overlay : scene.text_overlay) && (
                           <span className="text-xs bg-purple-500/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded">
-                            📝 {scene.text_overlay}
+                            📝 {isEditing ? editedVideoScript?.scenes[index]?.text_overlay : scene.text_overlay}
                           </span>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-xs text-muted-foreground">Visual:</span>
-                          <p className="text-foreground">{scene.visual}</p>
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <div>
+                            <span className="text-xs text-muted-foreground">Visual:</span>
+                            <Input
+                              value={editedVideoScript?.scenes[index]?.visual || ''}
+                              onChange={(e) => updateScene(index, 'visual', e.target.value)}
+                              className="mt-1 text-sm"
+                              placeholder="Visual description..."
+                            />
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground">Audio/Script:</span>
+                            <Textarea
+                              value={editedVideoScript?.scenes[index]?.audio || ''}
+                              onChange={(e) => updateScene(index, 'audio', e.target.value)}
+                              className="mt-1 text-sm min-h-[60px]"
+                              placeholder="Audio script..."
+                            />
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground">Text Overlay:</span>
+                            <Input
+                              value={editedVideoScript?.scenes[index]?.text_overlay || ''}
+                              onChange={(e) => updateScene(index, 'text_overlay', e.target.value)}
+                              className="mt-1 text-sm"
+                              placeholder="Text overlay (optional)..."
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-xs text-muted-foreground">Audio/Script:</span>
-                          <p className="text-foreground italic">"{scene.audio}"</p>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-xs text-muted-foreground">Visual:</span>
+                            <p className="text-foreground">{scene.visual}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground">Audio/Script:</span>
+                            <p className="text-foreground italic">"{scene.audio}"</p>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
                 </div>
