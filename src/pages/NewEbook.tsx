@@ -917,7 +917,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-lg text-sm text-white font-semibold transition-colors"
+                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green hover:bg-brand-green/90 rounded-lg text-sm text-white font-semibold transition-colors"
                 >
                   <Share2 className="w-5 h-5" strokeWidth={2.5} />
                   <span className="hidden md:inline">Share</span>
