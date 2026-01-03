@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   User, 
   Zap, 
@@ -10,6 +10,8 @@ import {
   Plug, 
   Languages, 
   Moon,
+  Sun,
+  Monitor,
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useTheme } from 'next-themes';
+import { useToast } from '@/hooks/use-toast';
 
 interface AccountSidebarProps {
   activeTab: string;
@@ -39,6 +43,14 @@ const menuItems = [
   { id: 'integrations', label: 'Integrations', icon: Plug },
 ];
 
+const languages = [
+  { value: 'en', label: 'English', flag: '🇺🇸' },
+  { value: 'es', label: 'Spanish', flag: '🇪🇸' },
+  { value: 'fr', label: 'French', flag: '🇫🇷' },
+  { value: 'de', label: 'German', flag: '🇩🇪' },
+  { value: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+];
+
 export default function AccountSidebar({
   activeTab,
   onTabChange,
@@ -48,12 +60,44 @@ export default function AccountSidebar({
   planType = 'Pro'
 }: AccountSidebarProps) {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState('en');
-  const [theme, setTheme] = useState('split');
+  const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('app-language') || 'en';
+  });
 
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);
     navigate(`/account?tab=${tabId}`);
+  };
+
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value);
+    localStorage.setItem('app-language', value);
+    const langLabel = languages.find(l => l.value === value)?.label || value;
+    toast({
+      title: "Language Updated",
+      description: `Language set to ${langLabel}`,
+    });
+  };
+
+  const handleThemeChange = (value: string) => {
+    setTheme(value);
+    toast({
+      title: "Theme Updated",
+      description: `Theme set to ${value.charAt(0).toUpperCase() + value.slice(1)}`,
+    });
+  };
+
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun className="w-5 h-5 text-gray-300" />;
+      case 'dark':
+        return <Moon className="w-5 h-5 text-gray-300" />;
+      default:
+        return <Monitor className="w-5 h-5 text-gray-300" />;
+    }
   };
 
   return (
@@ -127,17 +171,26 @@ export default function AccountSidebar({
             <Languages className="w-5 h-5 text-gray-300" />
             <span className="text-sm font-medium text-gray-300">Language:</span>
           </div>
-          <Select value={language} onValueChange={setLanguage}>
+          <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-auto border-none bg-transparent text-white p-0 h-auto gap-1 focus:ring-0">
-              <SelectValue />
+              <SelectValue>
+                {languages.find(l => l.value === language)?.label || 'English'}
+              </SelectValue>
               <ChevronRight className="w-4 h-4 text-gray-400" />
             </SelectTrigger>
             <SelectContent className="bg-[#1a1f2e] border-gray-700">
-              <SelectItem value="en" className="text-white hover:bg-[#2a3142]">English</SelectItem>
-              <SelectItem value="es" className="text-white hover:bg-[#2a3142]">Spanish</SelectItem>
-              <SelectItem value="fr" className="text-white hover:bg-[#2a3142]">French</SelectItem>
-              <SelectItem value="de" className="text-white hover:bg-[#2a3142]">German</SelectItem>
-              <SelectItem value="pt" className="text-white hover:bg-[#2a3142]">Portuguese</SelectItem>
+              {languages.map((lang) => (
+                <SelectItem 
+                  key={lang.value} 
+                  value={lang.value} 
+                  className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{lang.flag}</span>
+                    <span>{lang.label}</span>
+                  </span>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -145,19 +198,35 @@ export default function AccountSidebar({
         {/* Theme Selector */}
         <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#2a3142]">
           <div className="flex items-center gap-3">
-            <Moon className="w-5 h-5 text-gray-300" />
+            {getThemeIcon()}
             <span className="text-sm font-medium text-gray-300">Theme:</span>
           </div>
-          <Select value={theme} onValueChange={setTheme}>
+          <Select value={theme || 'system'} onValueChange={handleThemeChange}>
             <SelectTrigger className="w-auto border-none bg-transparent text-white p-0 h-auto gap-1 focus:ring-0">
-              <SelectValue />
+              <SelectValue>
+                {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : 'System'}
+              </SelectValue>
               <ChevronRight className="w-4 h-4 text-gray-400" />
             </SelectTrigger>
             <SelectContent className="bg-[#1a1f2e] border-gray-700">
-              <SelectItem value="light" className="text-white hover:bg-[#2a3142]">Light</SelectItem>
-              <SelectItem value="dark" className="text-white hover:bg-[#2a3142]">Dark</SelectItem>
-              <SelectItem value="split" className="text-white hover:bg-[#2a3142]">Split</SelectItem>
-              <SelectItem value="system" className="text-white hover:bg-[#2a3142]">System</SelectItem>
+              <SelectItem value="light" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+                <span className="flex items-center gap-2">
+                  <Sun className="w-4 h-4" />
+                  <span>Light</span>
+                </span>
+              </SelectItem>
+              <SelectItem value="dark" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+                <span className="flex items-center gap-2">
+                  <Moon className="w-4 h-4" />
+                  <span>Dark</span>
+                </span>
+              </SelectItem>
+              <SelectItem value="system" className="text-white hover:bg-[#2a3142] focus:bg-[#2a3142] focus:text-white">
+                <span className="flex items-center gap-2">
+                  <Monitor className="w-4 h-4" />
+                  <span>System</span>
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
