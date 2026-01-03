@@ -2835,7 +2835,7 @@ const EbookCanvasEditor = ({
 
             {/* Grid View Canvas */}
             <div className="flex-1 overflow-auto p-8">
-              <div className="flex flex-wrap gap-6 justify-start">
+              <div className="flex flex-wrap gap-6 justify-start items-start">
                 {currentPages.map((page, index) => {
                   const isSelected = selectedGridPages.has(page.id);
                   const isHovered = gridHoveredPageId === page.id;
@@ -3140,18 +3140,6 @@ const EbookCanvasEditor = ({
                 </div>
               </div>
             </div>
-
-            {/* Close Grid View Button - Bottom right */}
-            <button
-              onClick={() => {
-                setIsGridView(false);
-                setSelectedGridPages(new Set());
-              }}
-              className="absolute bottom-4 right-4 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-gray-700"
-            >
-              <X className="w-4 h-4" />
-              Close Grid View
-            </button>
           </div>
         ) : (
         /* Normal Canvas Area */
