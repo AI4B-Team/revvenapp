@@ -60,6 +60,7 @@ interface ContentItem {
   date: Date;
   status: string;
   imageUrl?: string;
+  carouselImages?: string[] | null;
   type?: 'post' | 'story' | 'carousel' | 'reel';
   caption?: string;
   hashtags?: string[];

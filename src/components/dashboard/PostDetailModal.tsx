@@ -32,6 +32,7 @@ interface ContentItem {
   date: Date;
   status: string;
   imageUrl?: string;
+  carouselImages?: string[] | null;
   type?: 'post' | 'story' | 'carousel' | 'reel';
   caption?: string;
   hashtags?: string[];
@@ -124,16 +125,35 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
         <MoreHorizontal className="w-5 h-5 text-gray-500" />
       </div>
 
-      {/* Image */}
-      <div className="aspect-square bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50 flex items-center justify-center">
-        {post.imageUrl ? (
-          <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+      {/* Image / Carousel */}
+      <div className="relative">
+        {post.type === 'carousel' && post.carouselImages && post.carouselImages.length > 0 ? (
+          <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+            {post.carouselImages.map((img, idx) => (
+              <div key={idx} className="aspect-square min-w-full snap-center bg-gray-100 dark:bg-gray-800">
+                <img src={img} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        ) : post.imageUrl ? (
+          <div className="aspect-square bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50">
+            <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+          </div>
         ) : (
-          <div className="text-center p-8">
-            <div className="w-16 h-16 mx-auto rounded-full bg-white/80 dark:bg-black/30 flex items-center justify-center mb-4">
-              {getPlatformIcon('instagram', 'w-8 h-8')}
+          <div className="aspect-square bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50 flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 mx-auto rounded-full bg-white/80 dark:bg-black/30 flex items-center justify-center mb-4">
+                {getPlatformIcon('instagram', 'w-8 h-8')}
+              </div>
+              <p className="text-sm text-gray-500">Image Preview</p>
             </div>
-            <p className="text-sm text-gray-500">Image Preview</p>
+          </div>
+        )}
+        {post.type === 'carousel' && post.carouselImages && post.carouselImages.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {post.carouselImages.map((_, idx) => (
+              <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/70" />
+            ))}
           </div>
         )}
       </div>
