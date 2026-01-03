@@ -956,7 +956,7 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                   <span className="hidden md:inline">Share</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-md bg-white p-0 gap-0">
+              <DialogContent className="max-w-xl bg-white p-0 gap-0">
                 <DialogHeader className="p-4 pb-0">
                   <DialogTitle className="text-lg font-semibold text-gray-900">Share</DialogTitle>
                 </DialogHeader>
@@ -986,6 +986,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                     Copy Link
                   </button>
                   
+                  {/* Separator */}
+                  <div className="border-t border-gray-200" />
+                  
                   {/* Privately with password */}
                   <div className="flex items-start justify-between gap-3 py-3">
                     <div className="flex items-start gap-3">
@@ -1011,33 +1014,45 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                         type="password"
                         value={sharePassword}
                         onChange={(e) => setSharePassword(e.target.value)}
-                        placeholder="Enter password"
+                        placeholder="Enter Password"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/50"
                       />
+                      <button 
+                        onClick={() => {
+                          if (sharePassword) {
+                            navigator.clipboard.writeText(`${window.location.href}?password=${sharePassword}`);
+                            toast.success('Password-protected link copied to clipboard!');
+                          } else {
+                            toast.error('Please set a password first');
+                          }
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <Link2 className="w-4 h-4" />
+                        Copy Link
+                      </button>
                     </div>
                   )}
+                  
+                  {/* Separator */}
+                  <div className="border-t border-gray-200" />
                   
                   {/* Download Section */}
                   <div className="pt-2">
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">Download</h4>
                     <p className="text-xs text-gray-500 mb-3">Select The Format</p>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-4 gap-2">
                       {[
-                        { id: 'png', name: 'PNG', ext: '.png', icon: Image },
-                        { id: 'pdf', name: 'PDF', ext: '.pdf', icon: FileText },
-                        { id: 'gdrive', name: 'Google Drive', ext: '', icon: Cloud },
-                        { id: 'onedrive', name: 'One Drive', ext: '', icon: Cloud },
-                        { id: 'more', name: 'See All', ext: '', icon: MoreHorizontal },
+                        { id: 'pdf', name: 'PDF', ext: '.pdf', icon: FileText, color: 'text-green-600' },
+                        { id: 'word', name: 'Word', ext: '.docx', icon: FileText, color: 'text-gray-500' },
+                        { id: 'text', name: 'Text', ext: '.txt', icon: FileText, color: 'text-gray-500' },
+                        { id: 'srt', name: 'SRT', ext: '.srt', icon: FileText, color: 'text-gray-500' },
                       ].map((format) => (
                         <button
                           key={format.id}
                           onClick={() => {
-                            if (format.id === 'more') {
-                              toast.info('More download options coming soon');
-                            } else {
-                              setSelectedDownloadFormat(format.id);
-                              toast.success(`Downloading as ${format.name}`);
-                            }
+                            setSelectedDownloadFormat(format.id);
+                            toast.success(`Downloading as ${format.name}`);
                           }}
                           className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
                             selectedDownloadFormat === format.id 
@@ -1045,20 +1060,18 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                               : 'border-gray-200 hover:border-gray-300 bg-white'
                           }`}
                         >
-                          <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${
-                            format.id === 'pdf' ? 'text-red-500' : 
-                            format.id === 'gdrive' ? 'text-green-500' : 
-                            format.id === 'onedrive' ? 'text-blue-500' : 
-                            'text-gray-500'
-                          }`}>
+                          <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${format.color}`}>
                             <format.icon className="w-5 h-5" />
                           </div>
                           <span className="text-xs font-medium text-gray-700 text-center leading-tight">{format.name}</span>
-                          {format.ext && <span className="text-[10px] text-gray-400">{format.ext}</span>}
+                          <span className="text-[10px] text-gray-400">{format.ext}</span>
                         </button>
                       ))}
                     </div>
                   </div>
+                  
+                  {/* Separator */}
+                  <div className="border-t border-gray-200" />
                   
                   {/* Publish to Social Media */}
                   <div className="pt-2">
@@ -1111,6 +1124,9 @@ const currentLanguage = LANGUAGES.find(l => l.code === bookData.language);
                       </button>
                     </div>
                   </div>
+                  
+                  {/* Separator */}
+                  <div className="border-t border-gray-200" />
                   
                   {/* More Section */}
                   <div className="pt-2">
