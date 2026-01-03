@@ -1257,14 +1257,24 @@ const GenerationInput = ({ selectedType, onCharactersClick, onCharactersSelect, 
         return;
       }
       
-      // Generate 30-day content plan using AI with real-time streaming
+      // Generate content plan using AI with real-time streaming
       setIsGeneratingContent(true);
       setGeneratedContent([]); // Clear existing content
       setShowSocialButtons(false); // Hide platform selection immediately
       
+      // Delete existing posts before generating new ones
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('social_posts').delete().eq('user_id', user.id);
+        }
+      } catch (err) {
+        console.error('Error clearing old posts:', err);
+      }
+      
       toast({
         title: "Generating AI content plan",
-        description: `Creating 30 days of AI-powered content for ${selectedPlatforms.length} platform${selectedPlatforms.length > 1 ? 's' : ''}...`,
+        description: `Creating ${contentDays} days of AI-powered content for ${selectedPlatforms.length} platform${selectedPlatforms.length > 1 ? 's' : ''}...`,
       });
       
       try {
