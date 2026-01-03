@@ -54,6 +54,23 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
   const [editedCaption, setEditedCaption] = useState('');
   const [editedHashtags, setEditedHashtags] = useState('');
   const [editedVideoScript, setEditedVideoScript] = useState<VideoScript | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-swipe carousel effect
+  useEffect(() => {
+    if (!post?.carouselImages || post.carouselImages.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % (post.carouselImages?.length || 1));
+    }, 3000); // Swipe every 3 seconds
+    
+    return () => clearInterval(interval);
+  }, [post?.carouselImages]);
+
+  // Reset slide when post changes
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [post?.id]);
 
   useEffect(() => {
     if (post) {
@@ -126,11 +143,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
       </div>
 
       {/* Image / Carousel */}
-      <div className="relative">
+      <div className="relative overflow-hidden">
         {post.type === 'carousel' && post.carouselImages && post.carouselImages.length > 0 ? (
-          <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+          <div 
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
             {post.carouselImages.map((img, idx) => (
-              <div key={idx} className="aspect-square min-w-full snap-center bg-gray-100 dark:bg-gray-800">
+              <div key={idx} className="aspect-square min-w-full bg-gray-100 dark:bg-gray-800">
                 <img src={img} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -150,9 +170,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({ isOpen, onClose, post
           </div>
         )}
         {post.type === 'carousel' && post.carouselImages && post.carouselImages.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
             {post.carouselImages.map((_, idx) => (
-              <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/70" />
+              <button 
+                key={idx} 
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  idx === currentSlide 
+                    ? 'bg-white w-3' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+              />
             ))}
           </div>
         )}
