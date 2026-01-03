@@ -2960,14 +2960,15 @@ const EbookCanvasEditor = ({
                           >
                             {/* Centered + button inside hover zone - accounting for gap-6 (24px) + margin (48px) = 72px total */}
                             <div
-                              className={`absolute top-1/2 -translate-y-1/2 transition-all duration-200 ease-out ${
+                              className={`absolute transition-all duration-200 ease-out ${
                                 gridInsertHoveredIndex === index
                                   ? 'opacity-100 scale-100'
                                   : 'opacity-0 scale-75 pointer-events-none'
                               }`}
                               style={{
                                 left: '50%',
-                                transform: `translate(-50%, -50%)`
+                                top: '40%',
+                                transform: 'translate(-50%, -50%)'
                               }}
                             >
                               <Tooltip open={gridInsertHoveredIndex === index}>
