@@ -326,6 +326,15 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
                 </Link>
               </DropdownMenuItem>
 
+              {/* Logout - moved up for visibility */}
+              <DropdownMenuItem 
+                onClick={handleSignOut}
+                className="flex items-center gap-3 py-3 px-3 rounded-md cursor-pointer text-red-400 hover:bg-sidebar-hover hover:text-red-300"
+              >
+                <Power size={20} />
+                <span>Log Out</span>
+              </DropdownMenuItem>
+
               {/* Language Selector */}
               <div className="px-3 py-2">
                 <DropdownMenuSub>
@@ -425,18 +434,6 @@ const Header = ({ onCreateClick, onMenuClick }: HeaderProps) => {
               </button>
             </div>
 
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
-
-            {/* Logout */}
-            <DropdownMenuItem 
-              onClick={handleSignOut}
-              className="flex items-center justify-center gap-3 py-3 px-3 rounded-md cursor-pointer bg-brand-red text-white hover:bg-brand-red/90"
-            >
-              <Power size={20} />
-              <span>Log Out</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator className="bg-sidebar-hover my-4" />
 
             {/* Footer */}
             <div className="px-3 py-4">
