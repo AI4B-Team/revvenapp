@@ -705,16 +705,17 @@ const EbookDesignSidebar = ({
     return (
       <TooltipProvider delayDuration={200}>
         <div className="w-14 bg-white border-r border-gray-200 flex flex-col h-full min-h-0 flex-shrink-0 relative z-30 overflow-visible">
-          {/* Expand Arrow - on edge */}
-          <button
-            onClick={() => setIsCollapsed(false)}
-            className="absolute top-1/2 -translate-y-1/2 -right-2.5 z-50 w-5 h-10 bg-white border border-gray-300 rounded-r-md shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
-          >
-            <ChevronRight className="w-4 h-4 text-gray-600" />
-          </button>
-
           {/* Icon buttons for each section */}
           <div className="flex-1 flex flex-col py-2 pt-4">
+            {/* Expand Arrow - positioned after icons */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+              <button
+                onClick={() => setIsCollapsed(false)}
+                className="w-8 h-8 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
