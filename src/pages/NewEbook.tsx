@@ -469,6 +469,7 @@ const NewEbook = () => {
       if (page.type === 'cover') sidebarType = 'cover';
       else if (page.type === 'toc') sidebarType = 'table of contents';
       else if (page.type === 'back') sidebarType = 'summary';
+      else if (page.title.toLowerCase() === 'introduction') sidebarType = 'introduction';
       
       return {
         id: page.id,
