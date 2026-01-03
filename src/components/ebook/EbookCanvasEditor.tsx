@@ -2947,8 +2947,12 @@ const EbookCanvasEditor = ({
                           <div
                             className="absolute top-0 h-full z-20"
                             style={{
-                              left: gridInsertHoveredIndex === index ? '-36px' : '-18px',
-                              width: gridInsertHoveredIndex === index ? '72px' : '36px',
+                              left: gridInsertHoveredIndex === index
+                                ? (index === 0 ? '-48px' : '-72px')
+                                : '-24px',
+                              width: gridInsertHoveredIndex === index
+                                ? (index === 0 ? '48px' : '72px')
+                                : '24px',
                               transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                             onMouseEnter={() => setGridInsertHoveredIndex(index)}
